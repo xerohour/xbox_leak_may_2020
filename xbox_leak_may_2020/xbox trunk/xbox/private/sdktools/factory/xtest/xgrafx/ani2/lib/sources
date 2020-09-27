@@ -1,0 +1,16 @@
+MAJORCOMP=ntos
+MINORCOMP=ani
+
+TARGETNAME=ani
+TARGETPATH=$(BASEDIR)\private\ntos\obj
+TARGETTYPE=LIBRARY
+
+INCLUDES=$(BASEDIR)\private\inc\aug01;$(BASEDIR)\public\xdk\inc;$(BASEDIR)\private\ntos\inc;$(INCLUDES);$(BASEDIR)\private\inc
+
+C_DEFINES=$(C_DEFINES) /DSTARTUPANIMATION /DBINARY_RESOURCE /D_NTSYSTEM_ /DBOOTSOUND
+
+!include ..\sources.inc
+
+SOURCES=$(SOURCES) \
+        bootsound.cpp \
+        animate.c

@@ -1,0 +1,138 @@
+<?xml version="1.0" ?>
+<XDX>
+<Texture id="env5" source="textures/env5.bmp" />
+<VertexBuffer id="VertexBuffer5" format="FLOAT3 FLOAT3 FLOAT2">
+	<!-- start=0 count=4 stride=32 -->
+	<v index="0"> -0.5 -0.5 0.5	0 0 -1 	0 1	</v>
+	<v index="1"> -0.5 0.5 0.5	0 0 -1 	0 0	</v>
+	<v index="2">  0.5 0.5 0.5	0 0 -1 	1 0	</v>
+	<v index="3">  0.5 -0.5 0.5	0 0 -1 	1 1	</v>
+</VertexBuffer>
+<IndexBuffer id="IndexBuffer0">
+	<!-- start=0 count=6 -->
+	 0 1 2 0 2 3
+</IndexBuffer>
+<PixelShader id="TexCoordPlus">
+<asm>
+	xps.1.1
+	texcoord t0
+	add r0, t0, c0
+</asm>
+<Constant index="0">0.5 0.2 0.2 1</Constant>
+</PixelShader>
+<Effect id="ConstantColorEffect" >
+<Pass>
+<VertexShader id="ConstantColorVertexShader">
+	<decl>
+	<stream index="0" idref="VertexBuffer5" >
+		<!-- Position -->
+		<vreg index="0" format="FLOAT3" />
+		<!-- Normal -->
+		<vreg index="3" format="FLOAT3" />
+		<!-- Tex0 -->
+		<vreg index="7" format="FLOAT2" />
+	</stream>
+	</decl>
+<asm>
+        vs.1.1              // Version number
+        m4x4 oPos, v0, c0   // Transform point to projection space
+	mov oD0,c4	    // constant color
+</asm>
+<Constant index="0">1 0 0 0</Constant>
+<Constant index="1">0 1 0 -0.2</Constant>
+<Constant index="2">0 0 1 0</Constant>
+<Constant index="3">0 0 0 1</Constant>
+<Constant index="4">1 1 1 1</Constant>
+</VertexShader>
+<RenderState CullMode="None" >
+	<TextureState Stage="0"
+		ColorOp="SelectArg1"
+		ColorArg1="Current"
+		AlphaOp="SelectArg1"
+		AlphaArg1="Current"
+		/>
+	<TextureState Stage="1"
+		ColorOp="Disable"
+		AlphaOp="Disable"
+		/>
+</RenderState>
+<Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="6" />
+</Pass>
+</Effect>
+
+<Effect id="TexturedEffect" >
+<Pass>
+<VertexShader id="VSTextured">
+	<decl>
+	<stream index="0" idref="VertexBuffer5" >
+		<!-- Position -->
+		<vreg index="0" format="FLOAT3" />
+		<!-- Normal -->
+		<vreg index="3" format="FLOAT3" />
+		<!-- Tex0 -->
+		<vreg index="7" format="FLOAT2" />
+	</stream>
+	</decl>
+<asm>
+        vs.1.1              // Version number
+        m4x4 oPos, v0, c2   // Transform point to projection space
+//    	dp3  r0,v3,-c1      // Dot product against light, r0 now has lighting
+//      mul  r0,r0,v5       // Modulate against diffuse vertex color
+//      mul  r0,r0,c8       // Modulate against diffuse material
+//	add oD0,r0,c7       // Add ambient and emissive, output diffuse color
+	mov oD0,c8	    // constant color
+        mov oT0.xy,v7.xy    // Output texture coords
+</asm>
+<!-- ProjectionMatrix -->
+<Constant index="2">1 0 0 0</Constant>
+<Constant index="3">0 1 0 -0.2</Constant>
+<Constant index="4">0 0 1 0</Constant>
+<Constant index="5">0 0 0 1</Constant>
+<!-- LightDirection -->
+<Constant index="1">0 0 1 0</Constant>
+<!-- Diffuse -->
+<Constant index="8">1 1 1 1</Constant>
+<!-- Ambient + Emissive -->
+<Constant index="7">0 0 0 0</Constant>
+</VertexShader>
+<RenderState CullMode="None" >
+	<TextureState Stage="0" idref="env5"
+		ColorOp="Modulate"
+		ColorArg1="Texture"
+		ColorArg2="Current"
+		AlphaOp="SelectArg1"
+		AlphaArg1="Current"
+		/>
+	<TextureState Stage="1"
+		ColorOp="Disable"
+		AlphaOp="Disable"
+		/>
+</RenderState>
+<Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="6" />
+</Pass>
+</Effect>
+
+<Effect id="TexturedTexCoordPlus" >
+<Pass>
+<RenderState CullMode="None" >
+	<TextureState Stage="0" idref="env5"
+		ColorOp="Modulate"
+		ColorArg1="Texture"
+		ColorArg2="Current"
+		AlphaOp="SelectArg1"
+		AlphaArg1="Current"
+		/>
+	<TextureState Stage="1"
+		ColorOp="Disable"
+		AlphaOp="Disable"
+		/>
+</RenderState>
+<VertexShader idref="VSTextured" />
+<PixelShader idref="TexCoordPlus" >
+<Constant index="0">0.2 0.2 1. 1</Constant>
+</PixelShader>
+<Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="6" />
+</Pass>
+</Effect>
+
+</XDX>

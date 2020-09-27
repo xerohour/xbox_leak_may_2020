@@ -1,0 +1,11 @@
+#pragma comment(linker, "/include:_stateblocks_poko0")
+#pragma comment(linker, "/include:_stateblocks_poko1")
+#pragma comment(linker, "/include:_stateblocks_poko2")
+#pragma comment(linker, "/include:_stateblocks_poko3")
+#pragma comment(linker, "/include:_stateblocks_poko4")
+#pragma comment(linker, "/include:_stateblocks_poko5")
+#pragma comment(linker, "/include:_stateblocks_poko6")
+#pragma comment(linker, "/include:_stateblocks_poko7")
+#pragma comment(linker, "/include:_stateblocks_rocks")
+#pragma comment(linker, "/include:_stateblocks_checker")
+#include "exe\main.cpp"

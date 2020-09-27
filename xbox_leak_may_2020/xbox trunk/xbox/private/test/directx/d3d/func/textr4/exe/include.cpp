@@ -1,0 +1,10 @@
+#pragma comment(linker, "/include:_textr4_brikmip0")
+#pragma comment(linker, "/include:_textr4_brikmip1")
+#pragma comment(linker, "/include:_textr4_brikmip2")
+#pragma comment(linker, "/include:_textr4_brikmip3")
+#pragma comment(linker, "/include:_textr4_brikmip4")
+#pragma comment(linker, "/include:_textr4_brikmip5")
+#pragma comment(linker, "/include:_textr4_brikmip6")
+#pragma comment(linker, "/include:_textr4_brikmip7")
+#pragma comment(linker, "/include:_textr4_brikmip8")
+#include "exe\main.cpp"

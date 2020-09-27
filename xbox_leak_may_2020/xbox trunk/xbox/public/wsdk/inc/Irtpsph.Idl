@@ -1,0 +1,66 @@
+///*M*
+// INTEL CORPORATION PROPRIETARY INFORMATION
+// This software is supplied under the terms of a licence agreement or
+// nondisclosure agreement with Intel Corporation and may not be copied
+// or disclosed except in accordance with the terms of that agreement.
+// Copyright (c) 1997 Intel Corporation. All Rights Reserved.
+//
+// Filename : RTPSPH.idl
+// Purpose  : Defines the interfaces exposed by the RTP SPH Filter.
+// Contents : IRTPSPHFilter interface specification.
+//*M*/
+
+// Begin IRTPSPHFilter Specification
+
+import "oaidl.idl";
+import "strmif.idl";
+
+[
+	object,
+	uuid(D5284681-B680-11d0-9643-00AA00A89C1D),
+    local,
+	helpstring("IRTPSPHFilter Interface"),
+	pointer_default(unique)
+]
+interface IRTPSPHFilter : IUnknown
+{
+
+[id(1)] HRESULT OverridePayloadType(
+    [in] BYTE						bPayloadType);
+
+[id(2)] HRESULT GetPayloadType(
+    [out] BYTE						*lpbPayloadType);
+
+[id(3)] HRESULT SetMaxPacketSize(
+    [in] DWORD						dwMaxPacketSize);
+
+[id(4)] HRESULT GetMaxPacketSize(
+    [out] LPDWORD					lpdwMaxPacketSize);
+
+[id(5)] HRESULT SetOutputPinMinorType(
+    [in] GUID						gMinorType);
+
+[id(6)] HRESULT GetOutputPinMinorType(
+    [out] GUID						*lpgMinorType);
+
+[id(7)] HRESULT SetInputPinMediaType(
+    [in] AM_MEDIA_TYPE				*lpMediaPinType);
+
+[id(8)] HRESULT GetInputPinMediaType(
+    [out] AM_MEDIA_TYPE				**ppMediaPinType);
+
+}; // interface IRTPSPHFilter
+
+
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHH26X;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHAUD;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHGENA;")
+#if !defined(NO_GENERIC_VIDEO)
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHGENV;")
+#endif
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHAUD_PROPPAGE;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHGENA_PROPPAGE;")
+#if !defined(NO_GENERIC_VIDEO)
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHGENV_PROPPAGE;")
+#endif
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_SPHH26X_PROPPAGE;")

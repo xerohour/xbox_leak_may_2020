@@ -1,0 +1,212 @@
+// VsdValidate.idl : IDL source for Deployment Validation
+//
+
+interface IVsdDeployable;
+interface IVsdValidationManager;
+interface IVsdDeployableValidateFireEvent;
+
+typedef
+[
+	uuid(54565919-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdValidationManager")
+]
+enum DISPIDs_IVsdValidationManager
+{
+	[helpstring("DISPID_IVsdValidationManager_SetDeployable")] DISPID_IVsdValidationManager_SetDeployable	= 1,
+	[helpstring("DISPID_IVsdValidationManager_Start")] DISPID_IVsdValidationManager_Start					= 2,
+	[helpstring("DISPID_IVsdValidationManager_Stop")] DISPID_IVsdValidationManager_Stop						= 3,
+	[helpstring("DISPID_IVsdValidationManager_Cancel")] DISPID_IVsdValidationManager_Cancel					= 4,
+	[helpstring("DISPID_IVsdValidationManager_Suspend")] DISPID_IVsdValidationManager_Suspend				= 5,
+	[helpstring("DISPID_IVsdValidationManager_Resume")] DISPID_IVsdValidationManager_Resume					= 6,
+} DISPIDs_IVsdValidationManager;
+
+typedef
+[
+	uuid(5456591a-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableValidateFireEvent")
+]
+enum DISPIDs_IVsdDeployableValidateFireEvent
+{
+	[helpstring("DISPID_IVsdDeployableValidateFireEvent_FireOnValidateStart")] DISPID_IVsdDeployableValidateFireEvent_FireOnValidateStart	= 1,
+	[helpstring("DISPID_IVsdDeployableValidateFireEvent_FireOnValidateError")] DISPID_IVsdDeployableValidateFireEvent_FireOnValidateError	= 2,
+	[helpstring("DISPID_IVsdDeployableValidateFireEvent_FireOnValidateEnd")] DISPID_IVsdDeployableValidateFireEvent_FireOnValidateEnd		= 3,
+} DISPIDs_IVsdDeployableValidateFireEvent;
+
+typedef
+[
+	uuid(5456591b-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableValidateEvent")
+]
+enum DISPIDs_IVsdDeployableValidateEvent
+{
+	[helpstring("DISPID_IVsdDeployableValidateEvent_OnValidateStart")] DISPID_IVsdDeployableValidateEvent_OnValidateStart	= 1,
+	[helpstring("DISPID_IVsdDeployableValidateEvent_OnValidateError")] DISPID_IVsdDeployableValidateEvent_OnValidateError	= 2,
+	[helpstring("DISPID_IVsdDeployableValidateEvent_OnValidateEnd")] DISPID_IVsdDeployableValidateEvent_OnValidateEnd		= 3,
+} DISPIDs_IVsdDeployableValidateEvent;
+
+typedef
+[
+	uuid(54565949-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdValidationManagerFireEvent")
+]
+enum DISPIDs_IVsdValidationManagerFireEvent
+{
+	[helpstring("DISPID_IVsdValidationManagerFireEvent_FireOnValidateError")] DISPID_IVsdValidationManagerFireEvent_FireOnValidateError	= 2,
+} DISPIDs_IVsdValidationManagerFireEvent;
+
+
+typedef
+[
+	uuid(5456594a-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdMsiValidationManager")
+]
+enum DISPIDs_IVsdMsiValidationManager
+{
+	[helpstring("DISPID_IVsdMsiValidationManager_AutoValidation")] DISPID_IVsdMsiValidationManager_AutoValidation					= 1,
+	[helpstring("DISPID_IVsdMsiValidationManager_LanguageId")] DISPID_IVsdMsiValidationManager_LanguageId							= 2,
+	[helpstring("DISPID_IVsdMsiValidationManager_CodePage")] DISPID_IVsdMsiValidationManager_CodePage								= 3,
+	[helpstring("DISPID_IVsdMsiValidationManager_ValidateCategory")] DISPID_IVsdMsiValidationManager_ValidateCategory				= 4,
+	[helpstring("DISPID_IVsdMsiValidationManager_ValidateCodePage")] DISPID_IVsdMsiValidationManager_ValidateCodePage				= 5,
+} DISPIDs_IVsdMsiValidationManager;
+
+typedef
+[
+	uuid(5456594b-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdMsiValidationClient")
+]
+enum DISPIDs_IVsdMsiValidationClient
+{
+	[helpstring("DISPID_IVsdMsiValidationClient_Validate")] DISPID_IVsdMsiValidationClient_Validate	= 1,
+} DISPIDs_IVsdMsiValidationClient;
+
+
+//interfaces
+[
+object,
+uuid(5456591c-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdValidationManager : IDispatch
+{
+	[id(DISPID_IVsdValidationManager_SetDeployable), helpstring("method SetDeployable")] HRESULT SetDeployable([in]IVsdDeployable *Deployable);
+	[id(DISPID_IVsdValidationManager_Start), helpstring("method Start")] HRESULT Start();
+	[id(DISPID_IVsdValidationManager_Stop), helpstring("method Stop")] HRESULT Stop();
+	[id(DISPID_IVsdValidationManager_Cancel), helpstring("method Cancel")] HRESULT Cancel();
+	[id(DISPID_IVsdValidationManager_Suspend ), helpstring("method Suspend ")] HRESULT Suspend ();
+	[id(DISPID_IVsdValidationManager_Resume), helpstring("method Resume")] HRESULT Resume();
+}
+
+[
+object,
+uuid(5456591d-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdDeployableValidateFireEvent : IDispatch
+{
+	[id(DISPID_IVsdDeployableValidateFireEvent_FireOnValidateStart), helpstring("method FireOnValidateStart")] HRESULT FireOnValidateStart([in]IVsdValidationManager *ValidationManager);
+	[id(DISPID_IVsdDeployableValidateFireEvent_FireOnValidateError), helpstring("method FireOnValidateError")] HRESULT FireOnValidateError([in]IVsdValidationManager *ValidationManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long lHelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableValidateFireEvent_FireOnValidateEnd), helpstring("method FireOnValidateEnd")] HRESULT FireOnValidateEnd([in]IVsdValidationManager *ValidationManager);
+}
+
+[
+object,
+uuid(5456591e-dbfb-11d2-898d-0000f8064ebb),
+oleautomation,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeployableValidateEvent : IDispatch
+{
+	[id(DISPID_IVsdDeployableValidateEvent_OnValidateStart), helpstring("method OnValidateStart")] HRESULT OnValidateStart([in]IVsdValidationManager *ValidationManager);
+	[id(DISPID_IVsdDeployableValidateEvent_OnValidateError), helpstring("method OnValidateError")] HRESULT OnValidateError([in]IVsdValidationManager *ValidationManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long lHelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableValidateEvent_OnValidateEnd), helpstring("method OnValidateEnd")] HRESULT OnValidateEnd([in]IVsdValidationManager *ValidationManager);
+}
+
+[
+object,
+uuid(5456594c-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdValidationManagerFireEvent : IDispatch
+{
+	[id(DISPID_IVsdValidationManagerFireEvent_FireOnValidateError), helpstring("method FireOnValidateError")] HRESULT FireOnValidateError([in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long lHelpContext, [out]VARIANT_BOOL *Continue);
+}
+
+
+typedef
+[
+	uuid(0363513C-2382-11d3-8182-00C04F72DFBF),
+	helpstring("vsdMsiCategory")
+]
+enum vsdMsiCategory
+{
+	[helpstring("vsdmcIdentifier")] vsdmcIdentifier = 0x0000,
+	[helpstring("vsdmcFilename")] vsdmcFilename = 0x0001,
+	[helpstring("vsdmcVersion")] vsdmcVersion = 0x0002,
+	[helpstring("vsdmcLanguage")] vsdmcLanguage = 0x0003,
+	[helpstring("vsdmcText")] vsdmcText = 0x0004,
+	[helpstring("vsdmcGuid")] vsdmcGuid = 0x0005,
+	[helpstring("vsdmcCondition")] vsdmcCondition = 0x0006,
+	[helpstring("vsdmcProperty")] vsdmcProperty = 0x0007,
+	[helpstring("vsdmcFormatted")] vsdmcFormatted = 0x0008,
+	[helpstring("vsdmcRegPath")] vsdmcRegPath = 0x0009,
+	[helpstring("vsdmcShortFilename")] vsdmcShortFilename = 0x000a,
+	[helpstring("vsdmcLongFilename")] vsdmcLongFilename = 0x000b,
+	[helpstring("vsdmcExtension")] vsdmcExtension = 0x000c,
+	[helpstring("vsdmcLongFullPathName")] vsdmcLongFullPathName = 0x000d,
+	[helpstring("vsdmcHttpURL")] vsdmcHttpURL = 0x000e,
+	[helpstring("vsdmcMIME")] vsdmcMIME = 0x000f,
+	[helpstring("vsdmcProductVersion")] vsdmcProductVersion = 0x0010,
+	[helpstring("vsdmcNonEmptyText")] vsdmcNonEmptyText = 0x0011,
+	[helpstring("vsdmcNonEmptyCondition")] vsdmcNonEmptyCondition = 0x0012,
+	[helpstring("vsdmcNonEmptyFormatted")] vsdmcNonEmptyFormatted = 0x0013,
+	[helpstring("vsdmcBinArray")] vsdmcBinArray = 0x0014,
+	[helpstring("vsdmcAscii")] vsdmcAscii = 0x0015,
+	[helpstring("vsdmcNonEmptyName")] vsdmcNonEmptyName = 0x0016,
+	[helpstring("vsdmcVirtualDirectory")] vsdmcVirtualDirectory = 0x0017,
+	[helpstring("vsdmcModuleSignature")] vsdmcModuleSignature = 0x0018
+} vsdMsiCategory;
+
+
+
+[
+object,
+uuid(5456594d-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiValidationManager : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiValidationManager_AutoValidation), helpstring("property AutoValidation")] HRESULT AutoValidation([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiValidationManager_AutoValidation), helpstring("property AutoValidation")] HRESULT AutoValidation([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdMsiValidationManager_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiValidationManager_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([in] long Val);
+	[propget, id(DISPID_IVsdMsiValidationManager_CodePage), helpstring("property CodePage")] HRESULT CodePage([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiValidationManager_CodePage), helpstring("property CodePage")] HRESULT CodePage([in] long Val);
+
+	[id(DISPID_IVsdMsiValidationManager_ValidateCategory), helpstring("method ValidateCategory")] HRESULT ValidateCategory([in]vsdMsiCategory Category, [in]BSTR Value, [out, retval] VARIANT_BOOL *pVal);
+	[id(DISPID_IVsdMsiValidationManager_ValidateCodePage), helpstring("method ValidateCodePage")] HRESULT ValidateCodePage([in]BSTR Value, [out, retval] BOOL *pVal);
+
+}
+
+[
+object,
+uuid(5456594e-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiValidationClient : IDispatch
+{
+	[id(DISPID_IVsdMsiValidationClient_Validate), helpstring("method Validate")] HRESULT Validate([in]IVsdMsiValidationManager *MsiValidationManager );
+}
+
+

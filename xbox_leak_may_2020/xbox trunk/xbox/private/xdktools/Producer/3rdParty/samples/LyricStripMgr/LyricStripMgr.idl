@@ -1,0 +1,51 @@
+/************************************************************************
+*                                                                       *
+*   Copyright (c) 1998-1999 Microsoft Corp. All rights reserved.        *
+*                                                                       *
+************************************************************************/
+
+#include <olectl.h>
+// LyricStripMgr.idl : IDL source for LyricStripMgr.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (LyricStripMgr.tlb) and marshalling code.
+
+[
+	uuid(EE279465-B2E5-11d1-888F-00C04FBF8D15),
+	version(1.0),
+	helpstring("LyricStripMgr 1.0 Type Library")
+]
+library LYRICSTRIPMGRLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	import "oaidl.idl";
+	import "ocidl.idl";
+
+	cpp_quote("#define CF_LYRICLIST \"DirectMusic Producer v.1 Lyriclist\"")
+
+	[
+		uuid(8D4226A9-A2E2-4e3f-AB7D-6E81FBE49D00),
+
+		helpstring("ILyricMgr Interface"),
+		pointer_default(unique)
+	]
+	interface ILyricMgr : IUnknown
+	{
+			HRESULT IsMeasureBeatOpen(
+					[in]  long		lMeasure,
+					[in]  long		lBeat
+				);
+	};
+
+	[
+		uuid(EE279466-B2E5-11d1-888F-00C04FBF8D15),
+		helpstring("LyricMgr Class")
+	]
+	coclass LyricMgr
+	{
+		[default] interface ILyricMgr;
+	};
+};

@@ -1,0 +1,106 @@
+	
+	
+	Title:  WIN32 Security API test description document 
+	Aurhor: RamC
+	Date:   Jan 22 '92
+	
+	This document presents a high level description of the tests 
+	that will be developed to test the WIN32 Security APIs.  
+	
+	Many objects in NT have associated with them a set of security 
+	information describing who the owner of the object is, who has
+	access to the object and other information.  This information 
+	is presented at API boundaries in the form of a Security 
+	Descriptor (SD).  A SD contains the revision level, some 
+	control information, owner and group information (Security
+	IDentifier - SID), System Access Control List (SACL) and a 
+	Discretionary ACL (DACL).  
+	
+	The Win32 security APIs can be broadly classified into Acl 
+	editing, Token based and Subsystem APIs. The Acl editing APIs
+	include APIs to create, and modify ACL, SID and  Security 
+        Descriptor data structures essential for maintaining
+	security. The token based APIs allow querying process and
+	thread token  information, and modifiying group/privilege 
+	information. The subsystem APIs provide support for protecting
+	user-mode data and generating audit alarms.  There are some APIs
+	which don't fall into any of these  categories and hence are 
+	classified as General Security APIs.
+	
+	We will be concentrating on developing tests for the acl 
+	editing,Token based and the general WIN32 security APIs for 
+	the beta version of product 1 and do the rest of the test 
+	development post-beta.
+	
+	The general approach to testing the security APIs is to ensure
+	that given good parameters the APIs produce the desired 
+	results.  
+	
+	It is also very important to ensure that given bad parameters,
+	the APIs  return proper error codes (or indicate error in some
+	form) rather than crash  the system.  
+	
+	Both these can be accomplished by using the badman tool.
+	Badman allows definition of both good and bad parameters for
+	each of the APIs and run through several variations. Badman
+	has good documentation capabilities, which lets us view the
+	results of the test including the NTLOG output.
+	
+	Badman works by reading the template and the corresponding 
+        good and bad parameters from a script file. An example template 
+        looks like:
+	
+	
+	 BOOL CopySid(ULONG ulDestSidLen, PSID pDestSid, 
+	             PSID pSrcSid) = FALSE
+	
+	  ulDestSidLen:
+	    Good: ULONG_VALID_SIDLEN
+	     Bad: ULONG_INVALID_SIDLEN ULONG_ZERO 
+	  pDestSid:
+	    Good: PSID_VALID
+	     Bad: PSID_INVALID PSID_NULL PSID_RELEASED
+	  pSrcSid:
+	    Good: PSID_VALID
+	     Bad: PSID_INVALID PSID_NULL
+	
+	
+	In the example above, CopySid is the name of the API with
+	3 parameters.  The good and bad parameters specified 
+	correspond to #defines defined elsewhere in header files.  
+	Each data type in badman has its own setup/cleanup function 
+	which  allows the creation/destruction of the datatype. Each
+	function has case statements corresponding to the #defines
+	in the script file and they are responsible for building
+	either good or bad parameters.
+	
+	We will generate five script files acl.bms, sd.bms, sid.bms,
+	token.bms and gensec.bms. The acl.bms contains API template for 
+	ACE and ACL manipulation APIs, the sd.bms contains API templates 
+	for Security Descriptor manipulation APIs, and so on.
+	
+	Badman not only allows one to test the good and bad parameters
+	for an API but also allows one to validate the return values
+	of an API when good parameters are specified.  We will develop
+	validation routines to validate each API.  The validation is
+	used basically to ensure that the API invocation did what it
+	was supposed to do like initializing a SID properly, setting
+	DACL on a SD, etc. 
+	
+	So, the mode of attack on the security APIs is as follows:
+	
+	o Identify good parameters for each of the APIs.
+	 
+	o Identify the bad parameters for each of the APIs. This is
+	  a bit involved because we need to come up with a small set
+	  of all possible combinations of bad parameters which 
+	  effectively uncovers any potential problem areas.
+	
+	o Develop validation routines to ensure that the API invocation
+	  was successful.
+	
+	o Summarize the results.
+	
+	
+	For a complete list of the good and bad parameters please refer
+	to the script files in the badman\scripts directory.

@@ -1,0 +1,129 @@
+!include ..\..\..\sources.nv
+
+TARGETNAME=common
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ELSE
+TARGETPATH=$(TARGETPATH)
+!ENDIF
+
+TARGETTYPE=LIBRARY
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+
+CBASE= -Zp8 -DWINNT=1 -D_WIN32_WINNT=0x0500 -DNT_UP=1 -DNT_INST=0 -DWIN32=100 -DWINVER=0x0500 -D_WIN32_IE=0x0501 -D_WIN32=1
+CBASE=$(CBASE) -DRM_HEAPMGR=1 -D_NT1X_=100
+CBASE=$(CBASE) -DNVD3D -DNVD3D_DX6=1
+
+NVOPT= -DNV4 -DNVARCH=$(NVARCH)
+D3DOPT= -DDX8 -DNVPE
+
+C_DEFINES=$(C_DEFINES) $(CBASE) $(NVOPT) $(D3DOPT) -DDIRECT3D_VERSION=0x0800 -DNVSTATDRIVER
+
+INCLUDES=
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+INCLUDES=$(INCLUDES);..\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\dx8
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\sdk\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\ddraw\celsius\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\ddraw\kelvin\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\display\winnt4\miniport\nv_mini
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\display\winnt4\displays\nv_disp
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vpe
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\win9x\inc
+
+SOURCES=\
+d3dContext.cpp\
+d3dDebug.cpp\
+d3dMath.cpp\
+d3dMini.cpp\
+d3dRender.cpp\
+d3dState.cpp\
+d3dTex.cpp\
+ddDrv.cpp\
+ddDrvMem.cpp\
+ddFlip.cpp\
+ddnvstat.cpp\
+ddSurf.cpp\
+ddVideo.cpp\
+Global.cpp\
+MoComp.cpp\
+MoCompEx.cpp\
+MoCompExKelvin.cpp\
+MoCorr.cpp\
+MoCorrKelvin.cpp\
+MoInit.cpp\
+MoInitKelvin.cpp\
+MoPred.cpp\
+MoPredKelvin.cpp\
+nv4Tables.cpp\
+nvAccess.cpp\
+nvAGP.cpp\
+nvBlit.cpp\
+nvCaps.cpp\
+nvClear.cpp\
+nvComp.cpp\
+nvContext.cpp\
+nvDefVB.cpp\
+nvDP2ops.cpp\
+nvEnable.cpp\
+nvFlipper.cpp\
+nvHeap.cpp\
+nvLight.cpp\
+nvLine.cpp\
+nvLogo.cpp\
+nvMem.cpp\
+nvMini.cpp\
+nvMip.cpp\
+nvOverlaySurf_link.cpp\
+nvPalette.cpp\
+nvPatch.cpp\
+nvPoint.cpp\
+nvPrim.cpp\
+nvPrim2.cpp\
+nvProf.cpp\
+nvPShad.cpp\
+nvPusher_link.cpp\
+nvRefCount.cpp\
+nvScene.cpp\
+nvSemaphore.cpp\
+nvState.cpp\
+nvStateSet.cpp\
+nvStereo.cpp\
+nvSurf.cpp\
+nvSurface.cpp\
+nvSwiz.cpp\
+nvTex.cpp\
+nvTexManage.cpp\
+nvTranslate.cpp\
+nvTri.cpp\
+nvUtil_link.cpp\
+nvVB.cpp\
+nvVideoPort.cpp\
+nvVPP_link.cpp\
+nvVShad.cpp\
+Surfaces.cpp\
+TexInit.cpp\
+TransInit.cpp \
+nvDbg_link.cpp \
+nvDP2Help.cpp \
+nvProcMan_link.cpp \
+nvSuperTri.cpp \
+nvpopupagent.cpp \
+nvblockmanager.cpp \
+nvObjectLists.cpp \
+nvbenchmark.cpp \
+nvpriv_link.cpp \
+nvRegTool_link.cpp

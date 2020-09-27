@@ -1,0 +1,19 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim bnd
+sub TPlaySecondary
+	set seg = LoadSegment("Sample.sgt")
+	set bnd = LoadBand("Sample.bnd")
+	set sndseg = bnd.CreateSegment()
+	seg.Download
+	PlaySegment seg
+	PlaySegment sndseg, DMUS_SEGF_SECONDARY, GetMusicTime() + 768*4
+end sub
+
+sub TDownload
+	bnd.Download
+end sub
+
+sub TUnload
+	bnd.Unload
+end sub

@@ -1,0 +1,51 @@
+MAJORCOMP=d3dx
+MINORCOMP=d3dx
+
+!if !$(FREEBUILD)
+TARGETNAME=d3dx8d
+!else
+TARGETNAME=d3dx8
+!endif
+
+!ifndef SD_BUILD
+
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+!else
+
+TARGETPATH=obj
+
+!endif
+
+TARGETTYPE=LIBRARY
+
+SYNCHRONIZE_DRAIN=1
+SYNCHRONIZE_BLOCK=1
+
+!ifdef SD_BUILD
+
+PASS1_PUBLISH =\
+    { $(O)\$(TARGETNAME).lib=$(SDK_LIB_PATH)\$(TARGETNAME).lib }
+
+!endif
+
+
+D3DXLIBS = ..\core\$(_OBJ_DIR)\*\d3dxcore.lib   \
+           ..\math\$(_OBJ_DIR)\*\d3dxmath.lib   \
+           ..\mesh\$(_OBJ_DIR)\*\d3dxmesh.lib   \
+           ..\shape\$(_OBJ_DIR)\*\d3dxshape.lib   \
+           ..\tex\$(_OBJ_DIR)\*\d3dxtex.lib     \
+           ..\effect\$(_OBJ_DIR)\*\d3dxeffect.lib \
+           ..\misc\jpeglib\$(_OBJ_DIR)\*\jpeglib.lib \
+           ..\misc\lpng105\$(_OBJ_DIR)\*\lpng105.lib \
+           ..\misc\zlib113\$(_OBJ_DIR)\*\zlib113.lib \
+           ..\xof6\$(_OBJ_DIR)\*\d3dxof.lib
+
+OBJLIBFILES = $(D3DXLIBS) \
+
+SOURCES = d3dx.rc 
+
+MISCFILES = $(TARGET)
+
+NTTARGETFILES=\
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib

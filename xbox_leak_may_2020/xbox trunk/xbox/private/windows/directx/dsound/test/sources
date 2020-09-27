@@ -1,0 +1,28 @@
+!include ..\dsound.inc
+
+TARGETNAME = TESTDS
+TARGETTYPE = PROGRAM
+TARGETPATH = obj
+UMTYPE = xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+
+C_DEFINES = $(C_DEFINES) -DDPF_LIBRARY=\"TESTDS\"
+
+LINK_DSSTDFX = 1
+
+INCLUDES = $(INCLUDES);\
+    $(DSBASEDIR)\tools\wavbndlr\common
+
+TARGETLIBS = $(TARGETLIBS) \
+    $(SDK_LIB_PATH)\dsound$(D).lib \
+    $(SDK_LIB_PATH)\wbndx$(D).lib
+
+SOURCES = \
+    util.cpp \
+    testds.cpp \
+    testac97.cpp \
+    testmem.cpp \
+    main.c \
+    lnktest.c \
+    lnktest2.cpp

@@ -1,0 +1,47 @@
+!IF 0
+
+Copyright (c) 2000  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=dxg
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+
+DLLENTRY=DllMain
+
+INCLUDES=\
+        $(BASEDIR)\private\windows\directx\dxg\d3d8\se;\
+        $(DDK_INC_PATH);\
+        $(SDK_INC_PATH)
+
+TARGETLIBS=$(LIBRARY_PATH)\kernel32.lib \
+           $(LIBRARY_PATH)\msvcrt.lib
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+MSC_WARNING_LEVEL=$(MSC_WARNING_LEVEL) /WX
+
+USE_NOLIBS=1
+
+DLLDEF=$(TARGETNAME).def
+
+SOURCES=dumper.cpp \
+        help.cpp \
+        kdexts.cpp \
+        kdexts.rc \
+        option.cpp \
+        stats.cpp
+
+PRECOMPILED_INCLUDE=precomp.hpp
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=precomp.obj
+
+UMTYPE=windows
+

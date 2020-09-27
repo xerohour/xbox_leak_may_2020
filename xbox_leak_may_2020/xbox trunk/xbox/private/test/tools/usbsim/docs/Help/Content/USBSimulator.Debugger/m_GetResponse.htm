@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Debugger.GetResponse</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>GetResponse</H1>
+    <DIV CLASS=BLOCK>
+    This function returns the any response from the connected debug channel.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("BSTR GetResponse(void)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>none</I>
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>If no data is availabe, then the function will throw the E_PENDING error (0x8000000A). If you are using script you should wrap this call with an exception handler to avoid halting execution.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var debugmontor = WScript.CreateObject(\"USBSimulator.Debugger\");\n\ntry { \n    debugmonitor.Connect(\"157.56.10.74\");\n    WScript.Echo(debugmonitor.GetResponse());\n    }\ncatch(e) { }\n\ndebugmonitor.Disconnect();");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="m_Connect.htm">Connect</A>, <A HREF="m_Disconnect.htm">Disconnect</A>, <A HREF="m_SendCommand.htm">SendCommand</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

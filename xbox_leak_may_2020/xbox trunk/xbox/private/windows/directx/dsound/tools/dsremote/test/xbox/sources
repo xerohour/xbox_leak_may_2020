@@ -1,0 +1,19 @@
+!include ..\..\..\..\xbox.inc
+
+TARGETTYPE = PROGRAM
+UMTYPE = xboxapp
+TARGETPATH = obj
+TARGETNAME = DSRTEST
+
+C_DEFINES = $(C_DEFINES) -DDPF_LIBRARY=\"DSRTEST\"
+
+INCLUDES = $(INCLUDES);\
+    $(DSBASEDIR)\tools\dsremote
+
+TARGETLIBS = $(TARGETLIBS) \
+    $(SDK_LIB_PATH)\dsrmtx$(D).lib \
+    $(SDK_LIB_PATH)\dsound$(D).lib \
+    $(SDK_LIB_PATH)\xnet$(D).lib
+
+SOURCES = \
+    ..\dsrtest.cpp

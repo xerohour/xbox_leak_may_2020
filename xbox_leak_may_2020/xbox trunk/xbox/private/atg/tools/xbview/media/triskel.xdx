@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<XDX>
+
+<Texture id="env5" source="textures/env5.bmp" />   <!-- Texture to apply to the triangle -->
+
+<!-- Triangle geometry -->
+<VertexBuffer id="VertexBuffer1" format="FLOAT3 FLOAT3 FLOAT2">
+	<v> -0.5 -0.5 0.5	0 0 -1 	0 1	</v>
+	<v> -0.5 0.5 0.5	0 0 -1 	0 0	</v>
+	<v>  0.5 0.5 0.5	0 0 -1 	1 0	</v>
+</VertexBuffer>
+
+<!-- Triangle indices (not really needed in this case) -->
+<IndexBuffer id="IndexBuffer0">
+	 0 1 2
+</IndexBuffer>
+
+<!-- Vertex shader to transform a point to screen space and output texture coords -->
+<VertexShader id="VSTexture" >
+    <decl>
+    <stream index="0" idref="VertexBuffer1" >	<!-- Set VertexBuffer1 to stream 0 -->
+	    <vreg index="0" format="FLOAT3" /> <!-- Position -->
+	    <vreg index="2" format="FLOAT3" /> <!-- Normal (not used) -->
+	    <vreg index="7" format="FLOAT2" /> <!-- Tex0 -->
+    </stream>
+    </decl>
+    <asm>
+	    vs.1.1
+	    m4x4 oPos, v0, c0   // Transform point to projection space
+	    mov oT0.xy,v7.xy    // Output texture coords
+    </asm>
+    <!-- Transformation matrix -->
+    <Constant index="0" count="4">
+    	0.75 0 0 0
+    	0 1 0 0
+    	0 0 1 0
+    	0 0 0 1
+    </Constant>
+</VertexShader>
+
+<!-- Pixel shader to apply a texture -->
+<PixelShader id="PSTexture">
+    <asm>
+	    ps.1.1
+	    tex t0
+	    mov r0, t0
+    </asm>
+</PixelShader>
+
+<!-- The Effect puts together all the state and draws the triangle. -->
+<Effect id="SimpleEffect" >
+<Pass>
+	<VertexShader idref="VSTexture" >	<!-- Set the vertex shader, which is already bound to VertexBuffer1 -->
+	<Constant index="0" count="4" parameter="Frame1" >
+		<!-- Link constant to the Frame1 in the hierarchy -->
+	    	0.75 0 0 0
+	    	0 1 0 0
+	    	0 0 1 0
+	    	0 0 0 1
+	</Constant>
+	</VertexShader>
+	<PixelShader idref="PSTexture" />	<!-- Set the pixel shader -->
+	<RenderState CullMode="None" >		<!-- Set render state -->
+		<TextureState Stage="0" idref="env5" />	<!-- Sets the current texture -->
+		<TextureState Stage="1" ColorOp="Disable" AlphaOp="Disable" />
+	</RenderState>
+	<!-- For drawing a single triangle, we could omit the IndexBuffer reference
+	     and simply draw all the vertices, but this shows how to draw a triangle. -->
+	<Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="3" />
+</Pass>
+<Pass>
+	<VertexShader idref="VSTexture" >	<!-- Set the vertex shader, which is already bound to VertexBuffer1 -->
+	<Constant index="0" count="4" parameter="Frame2" >
+		<!-- Link constant to the Frame2 in the hierarchy -->
+	    	0.75 0 0 0
+	    	0 1 0 0
+	    	0 0 1 0
+	    	0 0 0 1
+	</Constant>
+	</VertexShader>
+	<PixelShader idref="PSTexture" />	<!-- Set the pixel shader -->
+	<RenderState CullMode="None" >		<!-- Set render state -->
+		<TextureState Stage="0" idref="env5" />	<!-- Sets the current texture -->
+		<TextureState Stage="1" ColorOp="Disable" AlphaOp="Disable" />
+	</RenderState>
+	<Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="3" />
+</Pass>
+</Effect>
+
+<!-- Hierarchy to animate two triangles -->
+<Frame id="Frame0" >
+	<Matrix value="
+	    0.75 0 0 0
+	    0 1 0 0
+	    0 0 1 0
+	    0 0 0 1"	/>
+	<Frame id="Frame1">
+		<Matrix>
+		<Translate value="0 0 0" >
+			<animate attribute="value" begin="0s" dur="1s" values="0 0 0; 1 0 0; 0 0 0; -1 0 0; 0 0 0;" />
+		</Translate>
+		<Rotate axis="0 0 1" angle="0" >
+			<animate attribute="angle" begin="0s" dur="1s" values="0; 3.14159265; 6.283185307;" />
+		</Rotate>
+<!-- 
+		<Scale value="1 1 1" >
+			<animate attribute="value" begin="0s" dur="1s" values="1 1 1; 0.5 0.5 0.5; 1 1 1; 1.5 1.5 1.5; 1 1 1;" />
+		</Scale>
+-->
+		</Matrix>
+		<Frame id="Frame2">
+			<Matrix>
+			<Translate value="0 0.5 0" />
+			<Rotate axis="0 0 1" angle="0" >
+				<animate attribute="angle" begin="0s" dur="1s" values="0; -3.14159265; -6.283185307;" />
+				<!-- Rotate the opposite direction from the parent -->
+			</Rotate>
+			<Scale value="0.1 0.1 0.1" />
+			</Matrix>
+		</Frame>
+	</Frame>
+</Frame>
+
+</XDX>

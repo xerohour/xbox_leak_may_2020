@@ -1,0 +1,33 @@
+
+!if "$(TEST_HAWK_SAMPLING_RATE)"==""
+C_DEFINES=$(C_DEFINES) -DTEST_HAWK_SAMPLING_RATE=16000
+TARGETNAME=pb16000
+!ELSE
+C_DEFINES=$(C_DEFINES) -DTEST_HAWK_SAMPLING_RATE=$(TEST_HAWK_SAMPLING_RATE)
+TARGETNAME=pb$(TEST_HAWK_SAMPLING_RATE)
+!ENDIF
+
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS=/TESTNAME:"Xbox Hawk Playback"
+
+INCLUDES=\
+	$(BASEDIR)\public\sdk\inc;\
+	$(BASEDIR)\private\inc;\
+	$(BASEDIR)\private\ntos\inc;
+
+
+SOURCES= \
+    bitfont.cpp\
+    devices.cpp\
+    draw.cpp\
+    main.cpp
+
+USE_NOLIB=1
+
+LINKLIBS=\
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(BASEDIR)\private\lib\*\xapilibp$(D).lib
+

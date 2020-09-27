@@ -1,0 +1,91 @@
+// DirControl.idl : IDL source for DirControl
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (DirControl.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+#include "olectl.h"
+
+[
+	object,
+	uuid(C3270982-3ADA-42bf-8EC5-0681DD3F7789),
+	helpstring("IDirListSite Interface"),
+	pointer_default(unique)
+]
+interface IDirListSite : IUnknown
+{
+	HRESULT SetSite([in]IUnknown *);
+};
+
+[
+	uuid(4A68351F-7AEB-4af0-9771-3F206E1FF62F),
+	dual
+]
+interface _IDirListEvents : IDispatch
+{
+	[id(1)]HRESULT OnChange();
+};
+
+[
+	object,
+	uuid(13ACEC02-FA52-4C89-915B-888D05844A6F),
+	dual,
+	nonextensible,
+	helpstring("IDirList Interface"),
+	pointer_default(unique)
+]
+interface IDirList : IDispatch
+{
+	[propget, bindable, requestedit, id(DISPID_HWND)]HRESULT HWND([out, retval]LONG_PTR* pHWND);
+
+	[propget, id(1)]HRESULT Description([out, retval]BSTR *pbstrDescription);
+	[propput, id(1)]HRESULT Description([in]BSTR bstrDescription);
+	[propget, id(2)]HRESULT Title([out, retval]BSTR *pbstrTitle);
+	[propput, id(2)]HRESULT Title([in]BSTR bstrTitle);
+	[propput, id(3)]HRESULT ShowTitle([in]VARIANT_BOOL bShow);
+	[propput, id(4)]HRESULT ShowCheck([in]VARIANT_BOOL bShow);
+
+	[propget,id(5)]HRESULT Count([out, retval]long *nItems);
+	[id(6)]HRESULT Index([in]long nItem, [out, retval]BSTR *pbstrItem);
+	[id(7)]HRESULT Add([in]BSTR bstrItem);
+	[id(8)]HRESULT Reset();
+};
+
+[
+	object,
+	uuid(7A51B0B6-C730-44CF-9833-EC5D666B23DB),
+	dual,
+	nonextensible,
+	helpstring("IDirAutoCompleteList Interface"),
+	pointer_default(unique)
+]
+interface IDirAutoCompleteList : IDispatch{
+};
+[
+	uuid(4A0C0157-01BE-47B5-98F1-0AF6482A8CA6),
+	version(1.0),
+	helpstring("DirControl 1.0 Type Library")
+]
+library DirControlLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(AFD20A96-EED8-4D8C-A4EA-18AB96F6C432),
+		helpstring("DirList Class")
+	]
+	coclass DirList
+	{
+		[default] interface IDirList;
+	};
+	[
+		uuid(106E2A2B-F06A-4535-9894-43FA4673F9BE),
+		helpstring("DirAutoCompleteList Class")
+	]
+	coclass DirAutoCompleteList
+	{
+		[default] interface IDirAutoCompleteList;
+	};
+	interface _IDirListEvents;
+};

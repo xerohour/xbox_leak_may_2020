@@ -1,0 +1,43 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+TARGETNAME=xetest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS=/TESTID:0x36e6a7d7 /INITFLAGS:3 /TESTNAME:"Xbox XBE Loader Test" /NOPRELOAD:SECTN*
+
+SOURCES=xetest.cpp
+
+i386_SOURCES=sections.asm
+
+INCLUDES=$(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(BASEDIR)\private\ntos\xapi\inc
+
+PRECOMPILED_INCLUDE=xetestp.h
+PRECOMPILED_CXX=1
+
+# warning LNK4072: section count XXX exceeds max (96); image may not run
+LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4072
+
+MSC_WARNING_LEVEL=/W4 /WX
+USE_MAPSYM=1

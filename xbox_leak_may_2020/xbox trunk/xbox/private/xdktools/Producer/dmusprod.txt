@@ -1,0 +1,171 @@
+DirectMusic Producer for Xbox Beta 1
+
+Hello and welcome to the Xbox Beta 1 release of DirectMusic Producer, the suite 
+of authoring tools for DirectMusic and Xbox audio content.  This release introduces
+some new Xbox-specific features not found in previous releases. Being a Beta 
+release, there will be some issues and bugs to work around.  We'll apologize in 
+advance.  
+
+DirectMusic Producer for Xbox provides tools for both audio content authoring and
+content auditioning on the Xbox audio hardware. It can be used solely for DLS
+instrument management (triggered from an external sequencer) or for complete DirectMusic
+content implementations. For details on these and other common authoring scenarios, please
+visit Xbox Audio Designers Corner at https://xds.xbox.com
+
+We hope that you will find DirectMusic to be an exciting technology to explore. DirectMusic
+introduces modes of creating, playing and interacting with music that have never before
+been possible.  Don't be daunted by the sheer number of ways you can approach musical
+performance - most people find a few good techniques that fit their creative needs and
+build from there.  Have fun!
+
+Setup
+-----
+The Producer setup will automatically uninstall any existing versions of
+Producer found on your machine. It's recommended that you close Producer 
+before attempting to install. Producer requires the DirectX8 (or later) version of
+DirectMusic, as Producer functionality is built entirely on top of DirectMusic.
+(The Producer installation process will prompt you to install the DirectX8 runtime bits,
+if they are not already present.)  
+
+DirectMusic Producer also requires IE4.0 (or higher).  You can uninstall IE
+after installing, as there are some system files that are required for
+Producer.
+
+DirectMusic Producer Performance 
+--------------------------------
+Note that Producer is generally memory-intensive because of all of the editing, display,
+and undo information that is processed.  The overall authoring experience will be 
+improved by having a machine with a significant amount of memory.  Note also that 
+a DirectMusic runtime performance is much more efficient by comparison. You can use Xbox
+Performance Monitor (provided with the Xbox Development Kit) to profile your runtime
+performance on the actual Xbox console.
+
+Demo8 Sample Content
+--------------------
+A project of sample content can be found on the XDK CD at 
+"DMusProdX\DemoContent\dmpdemocontent.exe".  The project will install to 
+"My Documents\DMUSProducer\Demo8\" on your hard drive. See Chapter 3 of the Audio Best
+Practices document on Audio Designers Corner (at https://xds.xbox.com) for a discussion of
+the features demonstrated in these samples that apply differently to the Xbox than the PC.
+
+New in DirectMusic Producer for Xbox
+------------------------------------
+For features that make use of Xbox audio hardware, make sure your Xbox and your content
+authoring PC are hooked up to the same network, or are using an Xbox System Link cable.
+Your Xbox should be running the Audio Console App, supplied on the XDK recovery disk.
+
+1. Microsoft Xbox Synthesizer
+You can choose the Microsoft Xbox Synthesizer as your default synthesizer from the MIDI/
+Performance Options menu (the icon that looks like a MIDI port). All note and DLS data
+will be sent to an XDK running the Audio Console Application, so you can hear your content
+played by the actual Xbox hardware. Note that in this mode, the DirectMusic 'performance'
+is still running on your PC within DirectMusic Producer. The Xbox is only being used as a
+hardware "MIDI" device, so data in wave tracks will not be played.
+
+2. Xbox Experimenter
+To physically copy data to the Xbox and hear it played by a DirectMusic performance running
+on the actual hardware, use the Xbox Experimenter. You can open Xbox Experimenter from
+DirectMusic Producer's "Add-Ins" menu. First enter the name of your XDK from the Xbox menu,
+then choose 'Xbox > Connect'. You can then change the default directory for content to be
+copied to if you wish. Now drag a segment from the project tree into the Primary Segments
+or Secondary Segments frame of Experimenter. This copies the segment to the XDK, as well
+as any content the segment references (which will be displayed in the 'Referenced Files'
+frame). Click the small play button next to a segment to begin playing it. You can set
+several options for a segment by right clicking on it. If you edit your content in
+DirectMusic Producer, you should generally resynchronize it (via 'Synchronize') before
+attempting to play on the Xbox.
+
+3. "Configure Xbox Synthesizer..." menu option
+You can choose to hear your content played on either the Xbox, the PC, or both
+simultaneously for comparison purposes.
+
+4. Removed PC and Unsupported Features
+We have removed support for PC-specific features that do not apply to Xbox:
+· Audiopaths / Parameter Control Tracks: For XSS v1.0, only standard audiopaths (stereo,
+  stereo + reverb, 3D, etc.) are supported. Custom audiopath configurations (.aud) are not
+  yet supported. Effects DSP programs can be authored using the XGPImage tool, separately
+  shipped with your XDK. Your developer can then route your (standard) audiopath's output
+  to an effects path. Realtime effects parameter manipulation should be performed by the
+  developer for XSS v1.0. We intend to add realtime effects support and authoring to
+  DirectMusic in a future release.
+
+· Compression support in DLS and Wave Tracks: Support for general Windows codecs has been
+  removed from DLS collection authoring and wave tracks. Only PCM and Xbox ADPCM are
+  supported by the Xbox hardware. A future release will add software WMA support for
+  wave tracks only.
+
+· General MIDI/GS Instruments: Unlike Windows DirectX, Xbox does not have a hard-coded
+  general MIDI DLS collection. Bands that attempt to use GM/GS instruments generate an
+  error or warning on Xbox. We have now removed such instruments from menus that let you 
+  set the 'patch change' for a performance channel.
+
+· DLS Conditional Configurations: A feature designed to allow audio to scale based on the
+  features available on a particular Windows machine, DLS Conditional Configurations do
+  not apply to the fixed hardware of the Xbox and are therefore not supported. The
+  configuration editor (in DLS Designer) is disabled, and the Conditional Configuration
+  Audition Toolbar feature of DirectMusic Producer 8.0 has been removed.
+
+Compression
+-----------
+· Xbox ADPCM does not support 8-bit source files.
+· The DLS format is limited to mono compression only. However, waves placed in wave tracks
+may use stereo Xbox ADPCM compression.
+
+Can lead to performance problems:
+---------------------------------
+· Generally, it is bad practice to write script routines with large loops.  Doing so 
+  could cause the routine to take a long time to execute.  If such a routine is used in 
+  the script track, it could stall the performance, causing the segment’s playback to 
+  stall or skip.  Once a routine is called, it is executed to completion - even if the 
+  segment that triggered it (via a script track) is stopped.  If such a routine is called
+  directly from the application, it could stall the application, preventing it from
+  performing other important tasks
+· Curve reset duration is longer than the curve's segment by default.  In most cases
+  this will have no impact but if you have problems with reset values it's something to
+  watch out for.  
+· When there are tempo changes in the vicinity of a wave in a wave track (e.g., via 
+  controlling segments or starting in the middle of a segment) wave playback may be
+  affected if the segment is not played from the start.
+
+Not intuitive:
+--------------
+· Lyrics and script error messages will not appear in the Message Window if the segment 
+  playing does not have pchannel 1.  
+· If any referenced segments in a segment trigger track fail to load, then the entire 
+  track will fail to load (or play).  Likewise with wave tracks: if any referenced waves 
+  fail to load the entire wave track will fail to load (or play).
+· If wave edits are made in the Wave Editor while a segment references that wave in 
+  a wave track, the wave could fall silent.  To work around this, force a redownload by
+  stopping the segment and making another edit to the wave (alternately by reinitializing
+  the performance by changing the sample rate of the synth).  
+· Make sure to check "Super low latency" in MIDI/Performance Options before doing 
+  Wave Export (in the Wave/MIDI Export Toolbar).
+· Under certain circumstances recording, playback and/or cursor timing may become out of sync.
+  A workaround is to change the default audiopath in the Transport Options Toolbar.
+· The user can set latency for the DirectMusic synth in the MIDI/Performance Options dialog, 
+  but DirectSound latency is added to this number and the combined latency is now displayed in 
+  the Synth Status Toolbar.  Depending on the speed of your machine, it may take some tweaking 
+  to find the point where latency is low enough for realtime input but high enough for solid 
+  audio performance.  
+ 
+Other Tips:
+-----------
+· You can usually switch to other music and sound applications without any
+  conflicts by hitting the "toggle MIDI" button (it's in the Transport
+  Options toolbar - the icon has music notes and is to the left of the MIDI 
+  Options button).
+· It is recommended that waves placed in DLS collections have sample rates
+  between 188 Hz and 44 kHz. If a wave's sample rate happens to fall outside of
+  these boundaries its pitch will be incorrect on playback on the Xbox (PC
+  boundaries are different, generally a minimum of 4 kHz).
+· Be very cautious when referencing files to external projects, as links can
+  be easily broken (e.g., if the external project is not open at the 
+  time that the referenced file is opened). 
+· Watch out for MIDI files with GM or GS resets at the start of the file.
+  Bands created from MIDI files are given a tick value of -1 (to start
+  before the notes), and a GM/GS reset will override the band at that point.
+· When two events are placed at exactly the same point in time, DirectMusic makes 
+  no guarantee about which will occur first.  With this in mind, very often 
+  Bands in segments should have a negative offset to ensure that the proper 
+  instrument settings will occur before the note start times. By default, bands 
+  inserted into segments will have a start time of -1 in relation to the beat.

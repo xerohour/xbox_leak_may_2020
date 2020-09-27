@@ -1,0 +1,88 @@
+///*M*
+// INTEL CORPORATION PROPRIETARY INFORMATION
+// This software is supplied under the terms of a licence agreement or
+// nondisclosure agreement with Intel Corporation and may not be copied
+// or disclosed except in accordance with the terms of that agreement.
+// Copyright (c) 1997 Intel Corporation. All Rights Reserved.
+//
+// Filename : RTPRPH.idl
+// Purpose  : Defines the interfaces exposed by the RTP RPH Filter.
+// Contents : IRTPRPHFilter interface specification.
+//*M*/
+
+// Begin IRTPRPHFilter Specification
+
+import "oaidl.idl";
+import "strmif.idl";
+
+[
+	object,
+	uuid(D5284680-B680-11d0-9643-00AA00A89C1D),
+    local,
+	helpstring("IRTPRPHFilter Interface"),
+	pointer_default(unique)
+]
+interface IRTPRPHFilter : IUnknown
+{
+
+[id(1)] HRESULT OverridePayloadType(
+    [in] BYTE						bPayloadType);
+
+[id(2)] HRESULT GetPayloadType(
+    [out] BYTE						*lpbPayloadType);
+
+[id(3)] HRESULT SetMediaBufferSize(
+    [in] DWORD						dwMaxMediaBufferSize);
+
+[id(4)] HRESULT GetMediaBufferSize(
+    [out] LPDWORD					lpdwMaxMediaBufferSize);
+
+[id(5)] HRESULT SetOutputPinMediaType(
+    [in] AM_MEDIA_TYPE				*lpMediaPinType);
+
+[id(6)] HRESULT GetOutputPinMediaType(
+    [out] AM_MEDIA_TYPE				**ppMediaPinType);
+
+[id(7)] HRESULT SetTimeoutDuration(
+    [in] DWORD						dwDejitterTime,
+    [in] DWORD						dwLostPacketTime);
+
+[id(8)] HRESULT GetTimeoutDuration(
+    [out] LPDWORD					lpdwDejitterTime,
+    [out] LPDWORD					lpdwLostPacketTime);
+
+}; // interface IRTPRPHFilter
+
+
+[
+	object,
+	uuid(835A6361-9547-11d0-9643-00AA00A89C1D),
+    local,
+	helpstring("IRPHH26XSettings Interface"),
+	pointer_default(unique)
+]
+interface IRPHH26XSettings : IUnknown
+{
+
+[id(1)] HRESULT SetCIF(
+    [in] BOOL						bCIF);  //TRUE if CIF, FALSE if QCIF
+
+[id(2)] HRESULT GetCIF(
+    [out] BOOL						*lpbCIF);  //TRUE if CIF, FALSE if QCIF
+
+}; // interface IRPHH26XSettings
+
+
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHH26X;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHAUD;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHGENA;")
+#if !defined(NO_GENERIC_VIDEO)
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHGENV;")
+#endif
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHAUD_PROPPAGE;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHGENA_PROPPAGE;")
+#if !defined(NO_GENERIC_VIDEO)
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHGENV_PROPPAGE;")
+#endif
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHH26X_PROPPAGE;")
+cpp_quote("EXTERN_C const CLSID CLSID_INTEL_RPHH26X1_PROPPAGE;")

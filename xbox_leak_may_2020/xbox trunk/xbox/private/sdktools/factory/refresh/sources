@@ -1,0 +1,41 @@
+TARGETNAME=Refresh
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+SYNCHRONIZE_DRAIN=1
+SYNCHRONIZE_BLOCK=1
+
+# warning LNK4049: locally defined symbol XXX imported
+# warning LNK4217: locally defined symbol XXX imported in function XXX
+# LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+
+# C_DEFINES = $(C_DEFINES) -D_NTDRIVER_ -DQUICK_FORMAT
+
+# We don't want any directories created or drives mapped for us.
+XNOHARDDISK=1
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFFF0103 /TESTNAME:"Retailer System Refresh" \
+    /NOSETUPHD /TESTMEDIATYPES:0x80000006
+
+INCLUDES=\
+    $(SDK_INC_PATH);\
+    $(PRIVATE_INC_PATH);\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(INCLUDES)
+
+SOURCES=\
+    Refresh.cpp \
+    XboxVideo.cpp
+
+TARGETLIBS=\
+    $(XDK_LIB_PATH)\d3d8$(D).lib  \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib
+
+PRECOMPILED_INCLUDE=pch.h
+PRECOMPILED_CXX=1

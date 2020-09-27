@@ -1,0 +1,192 @@
+!IF 0
+
+Copyright (c) 1990-1998  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+!include $(VSROOT)\sources.inc
+
+TARGETNAME=vsguids
+TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+TARGETTYPE=LIBRARY
+
+UMTYPE=windows
+
+SYNCHRONIZE_BLOCK=1
+
+PASS0_HEADERDIR=$(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)
+PASS0_TLBDIR=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+PASS0_DLLDATADIR=$(VSBUILT)\$(BUILT_FLAVOR)\dlldata
+PASS0_PROXYDIR=$(VSBUILT)\$(BUILT_FLAVOR)\proxy
+PASS0_SOURCEDIR=$(O)
+
+# MIDL only finds TLBs in the current directory or the path...
+PATH=$(PATH);$(PASS0_TLBDIR);$(EXTERNAL_ROOT)\tlb
+MIDL_FLAGS=$(MIDL_FLAGS) -no_warn
+
+
+
+LIBRARIAN_FLAGS=$(LIBRARIAN_FLAGS) -ignore:4006
+
+# These files are ordered non-alphabetically because some depend on outputs of others
+VS_IDL_FILES= \
+  ctxhelp.idl \
+  context.idl \
+  designer.idl \
+  discoveryservice.idl \
+  dte.idl \
+  msaddndr.idl \
+  Extensibility.idl \
+  fpstfmt.idl \
+  helpinit.idl \
+  helpopt.idl \
+  helppref.idl \
+  helpsvcs.idl \
+  helpsys.idl \
+  helputil.idl \
+  oleipc.idl \
+  vsbrowse.idl \
+  vsdisp.idl \
+  vshelp.idl \
+  vsshlctx.idl \
+  textmgr.idl \
+  textfind.idl \
+  uilocale.idl \
+  undoredo.idl \
+  vsshell.idl \
+  vsshlex.idl \
+  filesvc.idl \
+  helppkg.idl \
+  jprojbld.idl \
+  pkgmgr.idl \
+  activaut.idl \
+  iderec.idl \
+  vbapkg.idl \
+  macroh.idl \
+  sbuilder.idl \
+  servexp.idl \
+  vsmanaged.idl \
+  sfdesign.idl \
+  vsappid.idl \
+  coloader.idl \
+  ocdesign.idl \
+  compsvcspkg.idl \
+  vssplash.idl \
+  mssplash.idl \
+  vslog.idl \
+  vslangproj.idl \
+  proffserv.idl \
+  olecm.idl \
+  objext.idl \
+  dircontrol.idl \
+  WebRef.idl \
+  IVsQueryEditQuerySave2.idl \
+  IVsSccProject2.idl \
+  IVsSccManager2.idl \
+  IVsSccManager3.idl \
+  IVsTrackProjectDocuments2.idl \
+  IVsTrackProjectDocumentsEvents2.idl \
+  IVsSccProjectEnlistmentChoice.idl \
+  IVsSccProjectProviderBinding.idl \
+  IVsSccProjectEnlistmentFactory.idl \
+  IVsSccProviderFactory.idl \
+  IVsSccEnlistmentPathTranslation.idl \
+
+
+# These files are ordered identically to their corresponding IDL files above
+# proffserv.c is DELIBERATELY omitted.
+VS_UUID_C_FILES= \
+  $(PASS0_SOURCEDIR)\ctxhelp.c \
+  $(PASS0_SOURCEDIR)\context.c\
+  $(PASS0_SOURCEDIR)\designer.c \
+  $(PASS0_SOURCEDIR)\discoveryservice.c \
+  $(PASS0_SOURCEDIR)\dte.c \
+  $(PASS0_SOURCEDIR)\msaddndr.c \
+  $(PASS0_SOURCEDIR)\fpstfmt.c \
+  $(PASS0_SOURCEDIR)\helpinit.c \
+  $(PASS0_SOURCEDIR)\helpopt.c \
+  $(PASS0_SOURCEDIR)\helppref.c \
+  $(PASS0_SOURCEDIR)\helpsvcs.c \
+  $(PASS0_SOURCEDIR)\helpsys.c \
+  $(PASS0_SOURCEDIR)\helputil.c \
+  $(PASS0_SOURCEDIR)\oleipc.c \
+  $(PASS0_SOURCEDIR)\vsbrowse.c \
+  $(PASS0_SOURCEDIR)\vsdisp.c \
+  $(PASS0_SOURCEDIR)\vshelp.c \
+  $(PASS0_SOURCEDIR)\vsshlctx.c \
+  $(PASS0_SOURCEDIR)\textmgr.c \
+  $(PASS0_SOURCEDIR)\textfind.c \
+  $(PASS0_SOURCEDIR)\uilocale.c \
+  $(PASS0_SOURCEDIR)\undoredo.c \
+  $(PASS0_SOURCEDIR)\vsshell.c \
+  $(PASS0_SOURCEDIR)\vsshlex.c \
+  $(PASS0_SOURCEDIR)\filesvc.c \
+  $(PASS0_SOURCEDIR)\helppkg.c \
+  $(PASS0_SOURCEDIR)\jprojbld.c \
+  $(PASS0_SOURCEDIR)\pkgmgr.c \
+  $(PASS0_SOURCEDIR)\activaut.c \
+  $(PASS0_SOURCEDIR)\iderec.c \
+  $(PASS0_SOURCEDIR)\vbapkg.c \
+  $(PASS0_SOURCEDIR)\macroh.c \
+  $(PASS0_SOURCEDIR)\sbuilder.c \
+  $(PASS0_SOURCEDIR)\servexp.c \
+  $(PASS0_SOURCEDIR)\vsmanaged.c \
+  $(PASS0_SOURCEDIR)\sfdesign.c \
+  $(PASS0_SOURCEDIR)\vsappid.c \
+  $(PASS0_SOURCEDIR)\coloader.c \
+  $(PASS0_SOURCEDIR)\ocdesign.c \
+  $(PASS0_SOURCEDIR)\compsvcspkg.c \
+  $(PASS0_SOURCEDIR)\vssplash.c \
+  $(PASS0_SOURCEDIR)\mssplash.c \
+  $(PASS0_SOURCEDIR)\vslog.c \
+  $(PASS0_SOURCEDIR)\vslangproj.c \
+  $(PASS0_SOURCEDIR)\olecm.c \
+  $(PASS0_SOURCEDIR)\objext.c \
+  $(PASS0_SOURCEDIR)\dircontrol.c \
+  $(PASS0_SOURCEDIR)\WebRef.c \
+  $(PASS0_SOURCEDIR)\IVsQueryEditQuerySave2.c \
+  $(PASS0_SOURCEDIR)\IVsSccProject2.c \
+  $(PASS0_SOURCEDIR)\IVsSccManager2.c \
+  $(PASS0_SOURCEDIR)\IVsSccManager3.c \
+  $(PASS0_SOURCEDIR)\IVsTrackProjectDocuments2.c \
+  $(PASS0_SOURCEDIR)\IVsTrackProjectDocumentsEvents2.c \
+  $(PASS0_SOURCEDIR)\IVsSccProjectEnlistmentChoice.c \
+  $(PASS0_SOURCEDIR)\IVsSccProjectProviderBinding.c \
+  $(PASS0_SOURCEDIR)\IVsSccProjectEnlistmentFactory.c \
+  $(PASS0_SOURCEDIR)\IVsSccProviderFactory.c \
+  $(PASS0_SOURCEDIR)\IVsSccEnlistmentPathTranslation.c \
+  olecmid.c \
+  objextid.c \
+
+SOURCES= \
+  $(VS_IDL_FILES) \
+  $(VS_UUID_C_FILES)
+
+NTTARGETFILE0= \
+  $(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)\dte.tlb \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\vsextid.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\dte.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\dteinternal.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\msaddndr.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\idsid.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\vbide.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\proffserv.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\olecm.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)\objext.h \
+  $(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)\vsext.olb
+
+
+NTTARGETFILES= \
+  $(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)\$(PIAPREFIX)VsMacroHierarchyLib.dll

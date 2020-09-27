@@ -1,0 +1,50 @@
+TARGETPATH=obj
+TARGETNAME=xbExplorer
+TARGETTYPE=PROGRAM
+
+UMTYPE=windows
+UMENTRY=winmain
+
+# Use precompiled header for much faster build
+PRECOMPILED_INCLUDE=StdAfx.h
+PRECOMPILED_CXX=1
+
+MSC_WARNING_FLAGS=/W3 /WX
+
+USE_STL=1
+
+SOURCES=\
+	CDropSource.cpp \
+	CDropTarget.cpp \
+	CFileContainer.cpp \
+	CFileContainerFormats.cpp \
+	CProperties.cpp \
+        CProgress.cpp \
+	CXboxStream.cpp \
+	DPA.cpp \
+ 	DlgProcs.cpp \
+	History.cpp \
+	ListView.cpp \
+	Registry.cpp \
+	StatusView.cpp \
+	TargetMachine.cpp \
+	ToolView.cpp \
+	ViewOption.cpp \
+	xbExplorer.cpp \
+	XBFU.cpp \
+	CXboxConnection.cpp \
+	DlgProcs.cpp \
+	xbExplorer.rc
+
+TARGETLIBS = \
+     $(WSDK_LIB_PATH)\gdi32.lib    \
+     $(WSDK_LIB_PATH)\comdlg32.lib \
+     $(WSDK_LIB_PATH)\imagehlp.lib \
+     $(WSDK_LIB_PATH)\shell32.lib \
+     $(WSDK_LIB_PATH)\ole32.lib    \
+     $(WSDK_LIB_PATH)\uuid.lib    \
+     $(WSDK_LIB_PATH)\comctl32.lib \
+     $(WSDK_LIB_PATH)\oldnames.lib \
+     $(XDK_LIB_PATH)\xboxdbg.lib
+
+USE_MSVCRT=1

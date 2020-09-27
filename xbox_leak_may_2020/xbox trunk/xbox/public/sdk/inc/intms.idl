@@ -1,0 +1,969 @@
+//
+// NTMS DCOM INTERFACE(S)
+// Copyright (c) 1996-1998 Microsoft Corporation
+// Copyright (c) 1996-1998 Highground Systems
+//
+//
+import "Unknwn.idl";
+import "WTypes.idl";
+#define MIDL_PASS
+#define WINAPI
+
+// Removed all references to "void *" because the MIDL
+// compiler doesn't know how to deal with them.
+// replaced the definition of HANDLE (void *) to unsigned long
+// replaced the definition of LPVOID with LPBYTE
+// and had to make a local definition of a SECURITY_ATTRIBUTE
+// because the definition supplied by MS in wtypes.idl uses
+// a LPVOID.
+typedef ULONG_PTR NTMS_HANDLE;
+typedef byte * LPBYTE;
+#define LPVOID LPBYTE
+#define SECURITY_INFORMATION DWORD
+#define PSECURITY_DESCRIPTOR_NTMS LPBYTE
+
+#include "NtmsApi.h"
+
+typedef struct _SECURITY_ATTRIBUTES_NTMS {
+    DWORD nLength;
+    [size_is(nDescriptorLength)] LPVOID lpSecurityDescriptor;
+    BOOL bInheritHandle;
+    DWORD nDescriptorLength;
+} SECURITY_ATTRIBUTES_NTMS, *PSECURITY_ATTRIBUTES_NTMS, *LPSECURITY_ATTRIBUTES_NTMS;
+
+/*
+// Test if embedded pointers can be NULL.
+// Test of CreateNtmsMediaPool
+typedef struct _OptCreateMediaPoolParam {
+	[ptr] LPNTMS_GUID lpMediaType;
+	[ptr] LPSECURITY_ATTRIBUTES_NTMS lpSecurityAttributes;
+} OptCreateMediaPoolParams;
+
+// Embed the pointers to structures that can be NULL
+// in the AllocateNtmsMedia() and WaitForNtmsAllocate() calls
+typedef struct _OptAllocateMediaParam {
+	[ptr] LPNTMS_GUID	lpPartition;
+} OptAllocateMediaParam;
+
+// Embed the pointers to structures that can be NULL
+// in the SubmitNtmsOperatorRequest()
+typedef struct _OptSubmitOperatorRequestParamW {
+	[ptr] LPCWSTR lpMessage;
+	[ptr] LPNTMS_GUID lpArg1Id;
+	[ptr] LPNTMS_GUID lpArg2Id;
+} OptSubmitOperatorRequestParamW;
+
+typedef struct _OptSubmitOperatorRequestParamA {
+	[ptr] LPCSTR lpMessage;
+	[ptr] LPNTMS_GUID lpArg1Id;
+	[ptr] LPNTMS_GUID lpArg2Id;
+} OptSubmitOperatorRequestParamA;
+
+// Embed the
+typedef struct _OptEnumerateParam {
+	[ptr] LPNTMS_GUID	lpContainerId;
+} OptEnumerateParam;
+*/
+
+#ifdef NTMS_BETA1_SUPPORT
+[
+	object,
+	uuid(28E76EF2-8E8C-11D0-BFA0-00A024151983),
+	helpstring("INtms Interface"),
+	pointer_default(unique)
+]
+interface INtms : IUnknown
+{
+
+HRESULT WINAPI OpenNtmsServerSessionW(
+	[in, unique] LPCWSTR lpServer,
+	[in, unique] LPCWSTR lpApplication,
+	[in] LPCWSTR lpClientName,
+	[in] LPCWSTR lpUserName,
+	[in] DWORD	dwOptions
+//	[out]	NTMS_HANDLE* phSession
+	);
+
+HRESULT WINAPI OpenNtmsServerSessionA(
+	[in, unique] LPCSTR lpServer,
+	[in, unique] LPCSTR lpApplication,
+	[in] LPCSTR lpClientName,
+	[in] LPCSTR lpUserName,
+	[in] DWORD	dwOptions
+//	[out]	NTMS_HANDLE* phSession
+	);
+
+HRESULT WINAPI CloseNtmsSession(
+//	[in] NTMS_HANDLE hSession
+	);
+
+HRESULT WINAPI MountNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in, size_is(dwCount)] LPNTMS_GUID lpMediaId,
+	[in, out, size_is(dwCount)] LPNTMS_GUID lpDriveId,
+	[in] DWORD dwCount,
+	[in] DWORD dwOptions,
+	[in] int   dwPriority,
+	[in] DWORD dwTimeout
+	);
+
+HRESULT WINAPI DismountNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in, size_is(dwCount)] LPNTMS_GUID lpMediaId,
+	[in] DWORD dwCount,
+	[in] DWORD dwOptions
+	);
+
+//HRESULT WINAPI GetNtmsDeviceName(
+//	[in] NTMS_HANDLE hSession,
+//	[in] LPNTMS_GUID lpDeviceId,
+//	[in] DWORD dwType,
+//	[out] LPTSTR lpDeviceName
+//	);
+
+HRESULT WINAPI AllocateNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaPool,
+	[in, unique] LPNTMS_GUID	lpPartition,	// optional
+	// [in] OptAllocateMediaParam OptParam,	// optional parameters
+	[in, out] LPNTMS_GUID	lpMediaId,	// OUTPUT, media id or operator request id
+	[in] DWORD dwOptions,
+	[in] DWORD dwTimeout
+	);
+
+//HRESULT WINAPI WaitForNtmsAllocate(
+//	[in] NTMS_HANDLE hSession,
+//	[in] LPNTMS_GUID lpMediaPool,
+//	[in] LPNTMS_GUID lpMediaId,
+//	[in, unique] LPNTMS_GUID lpPartition,	// optional
+	// [in] OptAllocateMediaParam OptParam,	// optional parameters
+//	[in] DWORD dwOptions,
+//	[in] DWORD dwTimeout
+//	);
+
+HRESULT WINAPI DeallocateNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId,
+	[in] DWORD dwOptions
+	);
+
+HRESULT WINAPI SwapNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId1,
+	[in] LPNTMS_GUID lpMediaId2
+	);
+
+//=======================================================================
+// MEDIA STATES
+//=======================================================================
+HRESULT WINAPI DecommissionNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId
+	);
+
+HRESULT WINAPI SetNtmsMediaComplete(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId
+	);
+
+HRESULT WINAPI DeleteNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId
+	);
+
+HRESULT WINAPI CreateNtmsMediaPoolA(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPCSTR lpPoolName,
+	[in, unique] LPNTMS_GUID lpMediaType,
+	[in] DWORD dwOptions,
+	[in, unique] LPSECURITY_ATTRIBUTES_NTMS lpSecurityAttributes,
+	// in] OptCreateMediaPoolParams OptParams,
+	[out] LPNTMS_GUID lpPoolId		// OUT
+	);
+
+HRESULT WINAPI CreateNtmsMediaPoolW(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPCWSTR lpPoolName,
+	[in, unique] LPNTMS_GUID lpMediaType,
+	[in] DWORD dwOptions,
+	[in, unique] LPSECURITY_ATTRIBUTES_NTMS lpSecurityAttributes,
+	// [in] OptCreateMediaPoolParams OptParams,
+	[out] LPNTMS_GUID lpPoolId		// OUT
+	);
+
+HRESULT WINAPI GetNtmsMediaPoolNameA(
+//	[in] NTMS_HANDLE hSession,
+	[in]  LPNTMS_GUID lpPoolId,
+	[out, size_is(*lpdwNameSize), length_is(*lpdwNameSize)] unsigned char *lpBufName,
+	[in, out] LPDWORD lpdwNameSize
+	);
+
+HRESULT WINAPI GetNtmsMediaPoolNameW(
+//	[in] NTMS_HANDLE hSession,
+	[in]  LPNTMS_GUID lpPoolId,
+	[out, size_is(*lpdwNameSize), length_is(*lpdwNameSize)] wchar_t *lpBufName,
+	[in, out] LPDWORD lpdwNameSize
+	);
+
+HRESULT WINAPI MoveToNtmsMediaPool(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId,
+	[in] LPNTMS_GUID lpPoolId
+	);
+
+HRESULT WINAPI DeleteNtmsMediaPool(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpPoolId
+	);
+
+//======================================================================
+// OBJECT MANAGEMENT APIS
+//======================================================================
+HRESULT WINAPI GetNtmsServerObjectInformationA(
+//	[in] NTMS_HANDLE hSession,
+	[in, unique] LPNTMS_GUID lpObjectId,
+	[out] LPNTMS_I1_OBJECTINFORMATIONA lpInfo,
+	[in] DWORD dwType,
+	[in] DWORD dwSize
+	);
+
+HRESULT WINAPI GetNtmsServerObjectInformationW(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpObjectId,
+	[out] LPNTMS_I1_OBJECTINFORMATIONW lpInfo,
+	[in] DWORD dwType,
+	[in] DWORD dwSize
+	);
+
+HRESULT WINAPI SetNtmsObjectInformationA(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpObjectId,
+	[in] LPNTMS_I1_OBJECTINFORMATIONA lpInfo
+	);
+
+HRESULT WINAPI SetNtmsObjectInformationW(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpObjectId,
+	[in] LPNTMS_I1_OBJECTINFORMATIONW lpInfo
+	);
+
+HRESULT WINAPI EnumerateNtmsObject(
+//	[in] NTMS_HANDLE hSession,
+	[in, unique] const LPNTMS_GUID lpContainerId,
+	//[in] OptEnumerateParam OptParam,
+	[out, size_is(*lpdwListBufferSize), length_is(*lpdwListBufferSize)] LPNTMS_GUID lpList,
+	[in] LPDWORD lpdwListBufferSize,
+	[out] LPDWORD lpdwListSize,
+	[in] DWORD dwType,
+	[in] DWORD dwOptions
+	);
+
+HRESULT WINAPI DisableNtmsObject(
+//	[in] NTMS_HANDLE hSession,
+	[in] DWORD dwType,
+	[in] LPNTMS_GUID lpObjectId
+	);
+
+HRESULT WINAPI EnableNtmsObject(
+//	[in] NTMS_HANDLE hSession,
+	[in] DWORD dwType,
+	[in] LPNTMS_GUID lpObjectId
+	);
+
+HRESULT WINAPI EjectNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId,
+	[in, out] LPNTMS_GUID lpEjectOperation,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI InjectNtmsMedia(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibraryId,
+	[in, out] LPNTMS_GUID lpInjectOperation,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI AccessNtmsLibraryDoor(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibraryId,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI CleanNtmsDrive(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpDriveId
+	);
+
+HRESULT WINAPI DismountNtmsDrive(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpDriveId
+	);
+
+HRESULT WINAPI InventoryNtmsLibrary(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibraryId,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI UpdateNtmsOmidInfo(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpMediaId,
+	[in] DWORD labelType,
+	[in] DWORD numberOfBytes,
+	[in, size_is(numberOfBytes)] LPVOID lpBuffer
+	);
+
+HRESULT WINAPI CancelNtmsLibraryRequest(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI ReserveNtmsCleanerSlot (
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibrary,
+	[in] LPNTMS_GUID lpSlot
+	);
+
+HRESULT WINAPI ReleaseNtmsCleanerSlot (
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibrary
+	);
+
+HRESULT WINAPI InjectNtmsCleaner (
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibrary,
+	[in,out] LPNTMS_GUID lpInjectOperation,
+	[in] DWORD dwNumberOfCleansLeft,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI EjectNtmsCleaner (
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibrary,
+	[in,out] LPNTMS_GUID lpEjectOperation,
+	[in] DWORD dwAction
+	);
+
+
+// Security for NTMS API
+HRESULT WINAPI GetNtmsObjectSecurity(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpObjectId,
+	[in] DWORD dwType,
+	[in] SECURITY_INFORMATION SecurityInformation,
+	[out,size_is(nLength)] PSECURITY_DESCRIPTOR_NTMS lpSecurityDescriptor,
+	[in] DWORD nLength,
+	[out] LPDWORD lpnLengthNeeded
+	);
+	
+HRESULT WINAPI SetNtmsObjectSecurity(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpObjectId,
+	[in] DWORD dwType,
+	[in] SECURITY_INFORMATION SecurityInformation,
+	[in,size_is(nLength)] PSECURITY_DESCRIPTOR_NTMS lpSecurityDescriptor,
+	[in] DWORD nLength
+	);
+
+// Object extensions for NTMS API
+HRESULT WINAPI GetNtmsObjectAttributeA(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCSTR lpAttributeName,
+	[out, size_is(*lpdwAttributeBufferSize), length_is(*lpdwAttributeBufferSize)] LPVOID lpAttributeData,
+	[in] LPDWORD lpdwAttributeBufferSize,
+	[out] LPDWORD lpAttributeSize
+	);
+
+HRESULT WINAPI GetNtmsObjectAttributeW(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCWSTR lpAttributeName,
+	[out, size_is(*lpdwAttributeBufferSize), length_is(*lpdwAttributeBufferSize)] LPVOID lpAttributeData,
+	[in] LPDWORD lpdwAttributeBufferSize,
+	[out] LPDWORD lpAttributeSize
+	);
+
+HRESULT WINAPI SetNtmsObjectAttributeA(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCSTR lpAttributeName,
+	[in, size_is(AttributeSize)] LPVOID lpAttributeData,
+	[in] DWORD AttributeSize
+	);
+
+HRESULT WINAPI SetNtmsObjectAttributeW(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCWSTR lpAttributeName,
+	[in, size_is(AttributeSize)] LPVOID lpAttributeData,
+	[in] DWORD AttributeSize
+	);
+
+// Operator Requests
+HRESULT WINAPI SubmitNtmsOperatorRequestW(
+//	[in] NTMS_HANDLE hSession,
+	[in] DWORD dwRequest,
+	[in, unique] LPCWSTR lpMessage,
+	[in, unique] LPNTMS_GUID lpArg1Id,
+	[in, unique] LPNTMS_GUID lpArg2Id,
+	// [in] OptSubmitOperatorRequestParamW,
+	[out] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI SubmitNtmsOperatorRequestA(
+//	[in] NTMS_HANDLE hSession,
+	[in] DWORD dwRequest,
+	[in, unique] LPCSTR lpMessage,
+	[in, unique] LPNTMS_GUID lpArg1Id,
+	[in, unique] LPNTMS_GUID lpArg2Id,
+//	[in] OptSubmitOperatorRequestParamA,
+	[out] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI WaitForNtmsOperatorRequest(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpRequestId,
+	[in] DWORD dwTimeout
+	);
+
+HRESULT WINAPI CancelNtmsOperatorRequest(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI SatisfyNtmsOperatorRequest(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI ImportNtmsDatabase(
+//	[in] NTMS_HANDLE hSession
+	);
+
+
+HRESULT WINAPI ExportNtmsDatabase(
+//	[in] NTMS_HANDLE hSession
+	);
+
+HRESULT WINAPI OpenNtmsServerNotification(
+//	[in] NTMS_HANDLE hSession,
+	[in] DWORD dwType,
+	[out] NTMS_HANDLE* phNotification,
+	[in] LPCSTR lpConnectionName
+	);
+
+HRESULT WINAPI WaitForNtmsNotification(
+//	[in] NTMS_HANDLE hSession,
+	[in] NTMS_HANDLE hNotification,
+	[out] LPNTMS_NOTIFICATIONINFORMATION lpNotificationInformation,
+	[in] DWORD dwTimeout
+	);
+
+HRESULT WINAPI CloseNtmsNotification(
+//	[in] NTMS_HANDLE hSession,
+	[in] NTMS_HANDLE hNotification
+	);
+
+HRESULT WINAPI DeleteNtmsLibrary(
+//	[in] NTMS_HANDLE hSession,
+	[in] LPNTMS_GUID lpLibraryId
+	);
+};
+#endif
+
+[
+	object,
+	uuid(3B953F63-A797-11D0-87B3-00AA00C7F7C9),
+	helpstring("INtms Interface"),
+	pointer_default(unique)
+]
+interface INtmsBind : IUnknown
+{
+	HRESULT WINAPI Bind(
+		[in]  IUnknown *pIUnk
+		);
+	HRESULT WINAPI InterceptNotification(
+		[in]  DWORD dwType,
+		[in]  DWORD dwOperation,
+		[in]  LPNTMS_GUID lpIdentifier
+		);
+};
+
+// object information interface class
+[
+	object,
+	uuid(69ab7050-3059-11d1-8faf-00a024cb6019),
+	helpstring("INtmsObjectInfo1 Interface"),
+	pointer_default(unique)
+]
+interface INtmsObjectInfo1 : IUnknown
+{
+	import "oaidl.idl";
+
+HRESULT WINAPI GetNtmsServerObjectInformationA(
+	[in, unique] LPNTMS_GUID lpObjectId,
+	[out] LPNTMS_OBJECTINFORMATIONA lpInfo,
+	[in] DWORD dwType,
+	[in] DWORD dwSize
+	);
+
+HRESULT WINAPI GetNtmsServerObjectInformationW(
+	[in] LPNTMS_GUID lpObjectId,
+	[out] LPNTMS_OBJECTINFORMATIONW lpInfo,
+	[in] DWORD dwType,
+	[in] DWORD dwSize
+	);
+
+HRESULT WINAPI SetNtmsObjectInformationA(
+	[in] LPNTMS_GUID lpObjectId,
+	[in] LPNTMS_OBJECTINFORMATIONA lpInfo
+	);
+
+HRESULT WINAPI SetNtmsObjectInformationW(
+	[in] LPNTMS_GUID lpObjectId,
+	[in] LPNTMS_OBJECTINFORMATIONW lpInfo
+	);
+
+HRESULT WINAPI CreateNtmsMediaA(
+	[in, out] LPNTMS_OBJECTINFORMATIONA lpMedia,
+	[in, out, size_is(*lpdwListBufferSize), length_is(dwListCount)] LPNTMS_OBJECTINFORMATIONA lpList,
+	[in] LPDWORD lpdwListBufferSize,
+	[in] DWORD dwListCount,
+	[in] DWORD dwOptions
+	);
+
+HRESULT WINAPI CreateNtmsMediaW(
+	[in, out] LPNTMS_OBJECTINFORMATIONW lpMedia,
+	[in, out, size_is(*lpdwListBufferSize), length_is(dwListCount)] LPNTMS_OBJECTINFORMATIONW lpList,
+	[in] LPDWORD lpdwListBufferSize,
+	[in] DWORD dwListCount,
+	[in] DWORD dwOptions
+	);
+};
+
+// object information interface class
+[
+	object,
+	uuid(b057dc50-3059-11d1-8faf-00a024cb6019),
+	helpstring("INtms Object Management Interface"),
+	pointer_default(unique)
+]
+interface INtmsObjectManagement1 : IUnknown
+{
+
+// Security for NTMS API
+HRESULT WINAPI GetNtmsObjectSecurity(
+	[in] LPNTMS_GUID lpObjectId,
+	[in] DWORD dwType,
+	[in] SECURITY_INFORMATION SecurityInformation,
+	[out,size_is(nLength)] PSECURITY_DESCRIPTOR_NTMS lpSecurityDescriptor,
+	[in] DWORD nLength,
+	[out] LPDWORD lpnLengthNeeded
+	);
+	
+HRESULT WINAPI SetNtmsObjectSecurity(
+	[in] LPNTMS_GUID lpObjectId,
+	[in] DWORD dwType,
+	[in] SECURITY_INFORMATION SecurityInformation,
+	[in,size_is(nLength)] PSECURITY_DESCRIPTOR_NTMS lpSecurityDescriptor,
+	[in] DWORD nLength
+	);
+
+// Object extensions for NTMS API
+HRESULT WINAPI GetNtmsObjectAttributeA(
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCSTR lpAttributeName,
+	[out, size_is(*lpdwAttributeBufferSize), length_is(*lpdwAttributeBufferSize)] LPVOID lpAttributeData,
+	[in] LPDWORD lpdwAttributeBufferSize,
+	[out] LPDWORD lpAttributeSize
+	);
+
+HRESULT WINAPI GetNtmsObjectAttributeW(
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCWSTR lpAttributeName,
+	[out, size_is(*lpdwAttributeBufferSize), length_is(*lpdwAttributeBufferSize)] LPVOID lpAttributeData,
+	[in] LPDWORD lpdwAttributeBufferSize,
+	[out] LPDWORD lpAttributeSize
+	);
+
+HRESULT WINAPI SetNtmsObjectAttributeA(
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCSTR lpAttributeName,
+	[in, size_is(AttributeSize)] LPVOID lpAttributeData,
+	[in] DWORD AttributeSize
+	);
+
+HRESULT WINAPI SetNtmsObjectAttributeW(
+	[in] LPNTMS_GUID ObjectId,
+	[in] DWORD dwType,
+	[in] LPCWSTR lpAttributeName,
+	[in, size_is(AttributeSize)] LPVOID lpAttributeData,
+	[in] DWORD AttributeSize
+	);
+
+HRESULT WINAPI EnumerateNtmsObject(
+	[in, unique] const LPNTMS_GUID lpContainerId,
+	[out, size_is(*lpdwListBufferSize), length_is(*lpdwListBufferSize)] LPNTMS_GUID lpList,
+	[in] LPDWORD lpdwListBufferSize,
+	[out] LPDWORD lpdwListSize,
+	[in] DWORD dwType,
+	[in] DWORD dwOptions
+	);
+
+HRESULT WINAPI DisableNtmsObject(
+	[in] DWORD dwType,
+	[in] LPNTMS_GUID lpObjectId
+	);
+
+HRESULT WINAPI EnableNtmsObject(
+	[in] DWORD dwType,
+	[in] LPNTMS_GUID lpObjectId
+	);
+
+};
+
+[
+	object,
+	uuid(8da03f40-3419-11d1-8fb1-00a024cb6019),
+	helpstring("INtms Session Interface"),
+	pointer_default(unique)
+]
+interface INtmsSession1 : IUnknown
+{
+
+HRESULT WINAPI OpenNtmsServerSessionW(
+	[in, unique] LPCWSTR lpServer,
+	[in, unique] LPCWSTR lpApplication,
+	[in] LPCWSTR lpClientName,
+	[in] LPCWSTR lpUserName,
+	[in] DWORD	dwOptions
+	);
+
+HRESULT WINAPI OpenNtmsServerSessionA(
+	[in, unique] LPCSTR lpServer,
+	[in, unique] LPCSTR lpApplication,
+	[in] LPCSTR lpClientName,
+	[in] LPCSTR lpUserName,
+	[in] DWORD	dwOptions
+	);
+
+HRESULT WINAPI CloseNtmsSession(
+	);
+
+// Operator Requests
+HRESULT WINAPI SubmitNtmsOperatorRequestW(
+	[in] DWORD dwRequest,
+	[in, unique] LPCWSTR lpMessage,
+	[in, unique] LPNTMS_GUID lpArg1Id,
+	[in, unique] LPNTMS_GUID lpArg2Id,
+	[out] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI SubmitNtmsOperatorRequestA(
+	[in] DWORD dwRequest,
+	[in, unique] LPCSTR lpMessage,
+	[in, unique] LPNTMS_GUID lpArg1Id,
+	[in, unique] LPNTMS_GUID lpArg2Id,
+	[out] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI WaitForNtmsOperatorRequest(
+	[in] LPNTMS_GUID lpRequestId,
+	[in] DWORD dwTimeout
+	);
+
+HRESULT WINAPI CancelNtmsOperatorRequest(
+	[in] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI SatisfyNtmsOperatorRequest(
+	[in] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI ImportNtmsDatabase(
+	);
+
+
+HRESULT WINAPI ExportNtmsDatabase(
+	);
+
+HRESULT WINAPI UseRpcNotification(
+	[in] DWORD_PTR Context,
+	[in] LPCSTR lpProtocol,
+	[in] LPCSTR lpEndpoint
+	);
+
+HRESULT WINAPI AddNotification(
+	[in] DWORD dwType
+	);
+
+HRESULT WINAPI RemoveNotification(
+	[in] DWORD dwType
+	);
+
+HRESULT WINAPI DispatchNotification(
+	[in]  DWORD dwType,
+	[in]  DWORD dwOperation,
+	[in]  LPNTMS_GUID lpIdentifier
+	);
+
+};
+
+
+[
+	object,
+	uuid(d02e4be0-3419-11d1-8fb1-00a024cb6019),
+	helpstring("INtms Media Services Interface"),
+	pointer_default(unique)
+]
+interface INtmsMediaServices1 : IUnknown
+{
+
+HRESULT WINAPI MountNtmsMedia(
+	[in, size_is(dwCount)] LPNTMS_GUID lpMediaId,
+	[in, out, size_is(dwCount)] LPNTMS_GUID lpDriveId,
+	[in] DWORD dwCount,
+	[in] DWORD dwOptions,
+	[in] int   dwPriority,
+	[in] DWORD dwTimeout,
+	[in,out] LPNTMS_MOUNT_INFORMATION lpMountInformation
+	);
+
+HRESULT WINAPI DismountNtmsMedia(
+	[in, size_is(dwCount)] LPNTMS_GUID lpMediaId,
+	[in] DWORD dwCount,
+	[in] DWORD dwOptions
+	);
+
+HRESULT WINAPI GetNtmsMountDrives(
+	[in] LPNTMS_MOUNT_INFORMATION lpMountInformation,
+	[in, out, size_is(dwCount)] LPNTMS_GUID lpDriveId,
+	[in] DWORD dwCount
+	);
+
+HRESULT WINAPI AllocateNtmsMedia(
+	[in] LPNTMS_GUID lpMediaPool,
+	[in, unique] LPNTMS_GUID	lpPartition,	// optional
+	[in, out] LPNTMS_GUID	lpMediaId,	// OUTPUT, media id or operator request id
+	[in] DWORD dwOptions,
+	[in] DWORD dwTimeout,
+	[in, out] LPNTMS_ALLOCATION_INFORMATION lpAllocateInformation
+	);
+
+HRESULT WINAPI DeallocateNtmsMedia(
+	[in] LPNTMS_GUID lpMediaId,
+	[in] DWORD dwOptions
+	);
+
+HRESULT WINAPI SwapNtmsMedia(
+	[in] LPNTMS_GUID lpMediaId1,
+	[in] LPNTMS_GUID lpMediaId2
+	);
+
+HRESULT WINAPI DecommissionNtmsMedia(
+	[in] LPNTMS_GUID lpMediaId
+	);
+
+HRESULT WINAPI SetNtmsMediaComplete(
+	[in] LPNTMS_GUID lpMediaId
+	);
+
+HRESULT WINAPI DeleteNtmsMedia(
+	[in] LPNTMS_GUID lpMediaId
+	);
+
+HRESULT WINAPI CreateNtmsMediaPoolA(
+	[in] LPCSTR lpPoolName,
+	[in, unique] LPNTMS_GUID lpMediaType,
+	[in] DWORD dwOptions,
+	[in, unique] LPSECURITY_ATTRIBUTES_NTMS lpSecurityAttributes,
+	[out] LPNTMS_GUID lpPoolId		// OUT
+	);
+
+HRESULT WINAPI CreateNtmsMediaPoolW(
+	[in] LPCWSTR lpPoolName,
+	[in, unique] LPNTMS_GUID lpMediaType,
+	[in] DWORD dwOptions,
+	[in, unique] LPSECURITY_ATTRIBUTES_NTMS lpSecurityAttributes,
+	[out] LPNTMS_GUID lpPoolId		// OUT
+	);
+
+HRESULT WINAPI GetNtmsMediaPoolNameA(
+	[in]  LPNTMS_GUID lpPoolId,
+	[out, size_is(*lpdwNameSizeBuf), length_is(*lpdwNameSizeBuf)] unsigned char *lpBufName,
+	[in] LPDWORD lpdwNameSizeBuf,
+	[out] LPDWORD lpdwNameSize
+	);
+
+HRESULT WINAPI GetNtmsMediaPoolNameW(
+	[in]  LPNTMS_GUID lpPoolId,
+	[out, size_is(*lpdwNameSizeBuf), length_is(*lpdwNameSizeBuf)] wchar_t *lpBufName,
+	[in] LPDWORD lpdwNameSizeBuf,
+	[out] LPDWORD lpdwNameSize
+	);
+
+HRESULT WINAPI MoveToNtmsMediaPool(
+	[in] LPNTMS_GUID lpMediaId,
+	[in] LPNTMS_GUID lpPoolId
+	);
+
+HRESULT WINAPI DeleteNtmsMediaPool(
+	[in] LPNTMS_GUID lpPoolId
+	);
+
+HRESULT WINAPI AddNtmsMediaType(
+	[in] LPNTMS_GUID lpMediaTypeId,
+	[in] LPNTMS_GUID lpLibId
+	);
+
+HRESULT WINAPI DeleteNtmsMediaType(
+	[in] LPNTMS_GUID lpMediaTypeId,
+	[in] LPNTMS_GUID lpLibId
+	);
+
+HRESULT WINAPI ChangeNtmsMediaType(
+	[in] LPNTMS_GUID lpMediaId,
+	[in] LPNTMS_GUID lpPoolId
+	);
+
+};
+
+
+[
+	object,
+	uuid(4e934f30-341a-11d1-8fb1-00a024cb6019),
+	helpstring("INtms Library Control Interface"),
+	pointer_default(unique)
+]
+interface INtmsLibraryControl1 : IUnknown
+{
+
+HRESULT WINAPI EjectNtmsMedia(
+	[in, unique] LPNTMS_GUID lpMediaId,
+	[in, out] LPNTMS_GUID lpEjectOperation,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI InjectNtmsMedia(
+	[in] LPNTMS_GUID lpLibraryId,
+	[in, out] LPNTMS_GUID lpInjectOperation,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI AccessNtmsLibraryDoor(
+	[in] LPNTMS_GUID lpLibraryId,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI CleanNtmsDrive(
+	[in] LPNTMS_GUID lpDriveId
+	);
+
+HRESULT WINAPI DismountNtmsDrive(
+	[in] LPNTMS_GUID lpDriveId
+	);
+
+HRESULT WINAPI InventoryNtmsLibrary(
+	[in] LPNTMS_GUID lpLibraryId,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI UpdateNtmsOmidInfo(
+	[in] LPNTMS_GUID lpMediaId,
+	[in] DWORD labelType,
+	[in] DWORD numberOfBytes,
+	[in, size_is(numberOfBytes)] LPVOID lpBuffer
+	);
+
+HRESULT WINAPI CancelNtmsLibraryRequest(
+	[in] LPNTMS_GUID lpRequestId
+	);
+
+HRESULT WINAPI ReserveNtmsCleanerSlot (
+	[in] LPNTMS_GUID lpLibrary,
+	[in] LPNTMS_GUID lpSlot
+	);
+
+HRESULT WINAPI ReleaseNtmsCleanerSlot (
+	[in] LPNTMS_GUID lpLibrary
+	);
+
+HRESULT WINAPI InjectNtmsCleaner (
+	[in] LPNTMS_GUID lpLibrary,
+	[in,out] LPNTMS_GUID lpInjectOperation,
+	[in] DWORD dwNumberOfCleansLeft,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI EjectNtmsCleaner (
+	[in] LPNTMS_GUID lpLibrary,
+	[in,out] LPNTMS_GUID lpEjectOperation,
+	[in] DWORD dwAction
+	);
+
+HRESULT WINAPI DeleteNtmsLibrary(
+	[in] LPNTMS_GUID lpLibraryId
+	);
+
+HRESULT WINAPI DeleteNtmsDrive(
+	[in] LPNTMS_GUID lpDriveId
+	);
+
+HRESULT WINAPI GetNtmsRequestOrder(
+	[in]  LPNTMS_GUID lpRequestId,
+	[out] LPDWORD lpdwOrderNumber
+	);
+	
+HRESULT WINAPI SetNtmsRequestOrder(
+	[in]  LPNTMS_GUID lpRequestId,
+	[in]  DWORD dwOrderNumber
+	);
+
+HRESULT WINAPI DeleteNtmsRequests(
+	[in, size_is(dwCount)] LPNTMS_GUID lpRequestId,
+	[in] DWORD dwType,
+	[in] DWORD dwCount
+	);
+
+HRESULT WINAPI BeginNtmsDeviceChangeDetection(
+	[out] NTMS_HANDLE* lpDetectHandle
+	);
+
+HRESULT WINAPI SetNtmsDeviceChangeDetection(
+	[in] NTMS_HANDLE DetectHandle,
+	[in, size_is(dwCount)] LPNTMS_GUID lpObjectId,
+	[in] DWORD dwType,
+	[in] DWORD dwCount
+	);
+
+HRESULT WINAPI EndNtmsDeviceChangeDetection(
+	[in] NTMS_HANDLE DetectHandle
+	);
+
+};
+
+#ifdef CONNECTIONPT_SUPPORT
+//
+//  The sink interface which will be called by the object when notifications
+//  need to be made.
+//
+[
+	object,	
+	uuid(879C8BBE-41B0-11d1-BE11-00C04FB6BF70),
+	helpstring("INtmsNotifySink Interface"),
+	pointer_default(unique)
+]
+interface INtmsNotifySink : IUnknown
+{
+	HRESULT OnNotify([in] DWORD dwType, [in] DWORD dwOperation, [in] LPNTMS_GUID lpIdentifier);
+};
+#endif

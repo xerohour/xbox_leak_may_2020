@@ -1,0 +1,26 @@
+HKCR
+{
+	USBSimulator.Duke.1 = s 'Duke Class'
+	{
+		CLSID = s '{30BEA3B3-07EA-451B-89E8-585313166676}'
+	}
+	USBSimulator.Duke = s 'Duke Class'
+	{
+		CLSID = s '{30BEA3B3-07EA-451B-89E8-585313166676}'
+		CurVer = s 'USBSimulator.Duke.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {30BEA3B3-07EA-451B-89E8-585313166676} = s 'Duke Class'
+		{
+			ProgID = s 'USBSimulator.Duke.1'
+			VersionIndependentProgID = s 'USBSimulator.Duke'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{FA33F7A9-3CDF-4ADF-BBC8-1718F17D391F}'
+		}
+	}
+}

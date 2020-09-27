@@ -1,0 +1,148 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Using DLS Collections for Sound Effects Management and Triggering
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant<br>
+Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send an e-mail message to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>Due in part to the challenges associated with managing large numbers of wave files, both sound designers and developers who are working on games for the Xbox&#8482; video game system from Microsoft often request the ability to bundle up all of the sound effects needed by a game (or a particular level) into a single sound collection. Complicating this task somewhat is the need for additional information that the wave data alone might not convey&#8212;articulation data, how to respond to various controllers (MIDI or otherwise), loop points, offsets, and so on. The Downloadable Sounds (DLS) specification provides one potential format for storing this information.<SUP><font size:"9">1</font></SUP> DLS Level 2 (DLS-2) collections are supported directly by Microsoft&#174; DirectMusic&#174;. Furthermore, the Xbox Media Communications Processor (Xbox MCP) supports DLS-2 parameters in hardware, so audio implementations using Microsoft&#174; DirectSound&#174; could write a basic parser to read data from DLS-2 collections as well. This paper will cover the basics of how to use DLS collections with both DirectMusic (high-level and low-level implementations) and DirectSound.
+</p>
+
+<H3>Constructing DLS Collections for Sound Effects</h3>
+<P>The process of authoring DLS collections that contain sound effects is identical to the process of authoring musical instruments. You create one or more instruments within a collection, each of which could have one or more regions. Each region specifies a wave, as well as root note information, velocity ranges, and other standard "sampler"-style parameters. Each region can specify its own articulation, or it can use an instrument-wide articulation.<SUP><font size:"9">2</font></SUP></P> 
+<P>One thing to keep in mind early on is how you intend to use each sound effect. If you want to be able to variably fine-tune an effect (pitch a wave up or down), it's generally easier to give its region a wider range of pitches than to deal with pitch bend MIDI controller curves. However, avoiding pitch bend controller curves will only give you MIDI note granularity on your fine-tuning, so some combination may be desired. You can also make use of MIDI (via content or code) to manipulate many of the articulation, low frequency oscillator (LFO), and filter cutoff features associated with a DLS-2 synthesizer.</P>
+<P>Another choice to make is how to break up effects per instrument. As we'll discuss more below, you will generally download a segment whose band points at the instrument(s) you use, so it's often easiest to place as many effects within a single band as possible. However, if certain effects are used infrequently and predictably, you might want to put them in their own instruments, so that they can be downloaded just in time to be triggered but not take up memory while they are unused.</P>
+
+<H3>Using DLS Collections with "High-Level" DirectMusic</h3>
+<P>At the highest level, DLS sound effects can be used identically to melodic instruments and drum kits. After constructing a DLS collection, the composer or sound designer authors a segment (.sgp/.sgt), which is composed of the following tracks:</P>
+<OL>
+<LI>A band track with one or more bands, each of which sends patch change information to one or more specific performance channels, instructing them as to which instrument from a DLS collection to play.<SUP><font size:"9">3</font></SUP></LI> <BR><BR>
+<LI>A sequence track and/or a pattern track, which trigger one or more notes to be played at a specific velocity on the instrument in the collection. Based on how you authored the DLS collection, a note could trigger one or more regions. And by using variations in a pattern track, a different note could be chosen and played each time the segment was played.<SUP>4</SUP></LI>
+</ol>
+<P>One quick note about pattern tracks: you probably don't want these sound effects to respond to chord changes by transposing, so you should set each pattern track part's <b>Default Play Mode</b> to <b>Fixed</b> and <b>Absolute</b>. This is actually the default setting for parts created on pchannels that are used for drum kits-pchannels 10, 26, 42, 58, and so on. Of course, if none of your content uses chords, this will not be an issue, but if a chord change was added, it could be difficult to troubleshoot later. Sequence tracks just play linearly and do not respond to chord changes, so no additional action is required there.
+<BR><BR>
+<img src="/content/img/soundeffects_fig1.gif" width="398" height="236" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>The </I><b>Default Play Mode</b> <I>for parts playing non-pitched sound effects should generally be set to </I><b>Fixed</b> <I>and </I><b>Absolute.</b> <I>This applies to pattern track parts as well as to pattern parts within style files.</i></P>
+<P>The developer then downloads the segment (which effectively loads the wave data for any instruments referenced by the segment's band[s]) and plays it. The developer can specify an audiopath to play the segment on, either created procedurally from a standard audiopath configuration (DMUS_APATH_*) or authored by the content creator as an audiopath configuration file (.aup/.aud).<SUP><font size:"9">5</font></SUP>  Audiopaths can be mono, stereo, or as is most common for sound effects, 3-D.
+<BR><BR>
+<img src="/content/img/soundeffects_fig2.gif" width="398" height="236" alt="" border="0">
+<BR> <BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>The property page for setting a buffer to be the standard 3-D buffer in an audiopath configuration file.</i></P>
+<P>Of course, this kind of an implementation doesn't really solve the primary issue of keeping the number of files down; we'd still have one segment for every sound effect we wanted our developer to play. We'd also need to watch out for tempo information; remember that a single tempo is shared by all content playing on a DirectMusic performance. If a piece of music suddenly sped up the tempo, our sound effect note might cut off before we desired. One way around this is to author your sound effect articulations with decay times that are longer than the wave. However, this could potentially lead to wasted silent voices. In addition, this does not address sounds that were meant to sustain until an arbitrary time in the future; all notes have a duration field built in. There are ways to intercept note off events using DirectMusic tools, but for this level of implementation, it's often better to consider a low-level DirectMusic or DirectSound solution (see topics below).</P>
+<P>On the plus side, a high-level DirectMusic implementation would allow for pretty easy integration of variability or swapping of content without having to have the developer recompile the game. You could very easily author variability into a sound effect that is composed of several "atoms." For instance, attacking a monster could be composed of a "swoosh" for the sword, a grunt by your character, the actual impact noise, a monster yell, and so on. You could author several variations of each aspect (varying pitch, using alternate waves, and using different timings of the various elements), which would give your content variability without needing to bother the developer. You'd just hand them a new segment and/or an updated DLS collection when you modified a sound effect, and from their view, they're still just playing a segment.</P>
+
+<H3>Using DLS Collections with "Low-Level" DirectMusic</h3>
+<P>An audio developer with coding skills might opt to go for a lower-level solution, one that will not force the content creator to author potentially hundreds of segments and that solves the issue of sound effects often sustaining for an indefinite period of time. This level of implementation would still give you the flexibility of MIDI control (either via content or procedurally) over your DLS waves while allowing you to turn them on or off without having to worry about "musical" considerations.</P>
+<P>A note about low-level DirectMusic: to optimize the audio libraries as fully as possible, many low-level features are not exposed as they were on the PC implementation of Microsoft&#174; DirectX&#174; 8.0. If there is an audio library feature that you would like to see, please send an e-mail message to <a href="mailto:xboxds@xbox.com">xboxds@xbox.com</a> to request it.</P>
+<P>Case in point: loading the waves in DLS instruments cannot be done directly from the Xbox audio libraries. One way to accomplish this instrument downloading is to author a segment with a band track that references every instrument of a collection (or at least the instruments in this collection that you intend to use) and then download that segment. Now the instruments are in memory and ready for MIDI triggering.</P>
+<P>We'll forego a discussion of implementing pchannel management, because that will vary depending on your title's audio implementation scheme. Remember that pchannel 10 and every sixteenth channel thereafter (26, 42, 58 . . .) is generally used for drum kit instruments only.<SUP><font size:"9">6</font></SUP> Once you've figured out what pchannel you want to play a sound on, you'll probably send two messages: a patch change and the "note." For the latter, we could use a <b>DMUS_NOTE_PMSG</b>, but we'd face the same problem as above&#8212;a note duration would be required. This is probably fine (and actually more convenient than dealing with "note off" messages) for non-looping sound effects or for sounds whose duration we want synched with the current tempo. But for looped sound effects or for ones without a definite end time, using the lower-level <B>DMUS_MIDI_PMSG</B> will allow us to turn notes on and off without having to worry about for how long. Because the latter could be slightly more complex, we'll use it for our example.</P>
+<P>Dusting off a copy of the MIDI spec, we see that note on is 0x90 and note off is 0x80. Once we allocate a pmessage (<b>AllocPMsg</b>), we just fill in the <b>DMUS_PMSG</b> structure with the necessary information: time to play the note (generally immediately<SUP><font size:"9">7</font></SUP>), what channel to play it on, and so on. We then plug the actual MIDI bytes into the <b>DMUS_MIDI_PMSG</b> structure. Lastly, because each audiopath is given its own set of performance channel mappings, we'll also want to make sure to point the message at the correct graph by querying the audiopath we're playing on for its graph and calling <b>StampPMsg</b>. Here's a sample for filling out a C5 (MIDI note 60) at velocity 95 on pchannel 12:</P>
+
+<PRE style="font-face:courier; font-size:12">
+pPerf->AllocPMsg(sizeof(DMUS_MIDI_PMSG),(DMUS_PMSG **)&pMIDIMsg)
+
+[…]
+
+pMIDIMsg->rtTime = 0;
+pMIDIMsg->dwFlags = DMUS_PMSGF_REFTIME;
+pMIDIMsg->dwPChannel = 11; // pchannels are 0-based in DirectMusic code 
+pMIDIMsg->dwVirtualTrackID = 0; 
+pMIDIMsg->pTool = NULL; 
+pMIDIMsg->pGraph = NULL; 
+pMIDIMsg->dwType = DMUS_PMSGT_MIDI; 
+pMIDIMsg->dwVoiceID = 0; 
+pMIDIMsg->dwGroupID = 0xFFFFFFFF; 
+pMIDIMsg->punkUser = NULL; 
+pMIDIMsg->bStatus = 0x90;
+pMIDIMsg->bByte1 = 60; // MIDI note 
+pMIDIMsg->bByte2 = 95;  // velocity
+
+//unoptimized code, we're querying for the audiopath
+//each time we sent a note
+IDirectMusicAudioPath *pAudioPath = NULL;
+pPerformance->GetDefaultAudioPath( &pAudioPath );
+ 
+IDirectMusicGraph8* pGraph8 = NULL;
+if( pAudioPath )
+{
+   pAudioPath->QueryInterface( IID_IDirectMusicGraph8, (void **)&pGraph8 );
+   pAudioPath->Release();
+   pAudioPath = NULL;
+}
+ 
+if( pGraph8 )
+{
+   pGraph8->StampPMsg( (DMUS_PMSG *)pMIDIMsg );
+   pGraph8->Release();
+   pGraph8 = NULL;
+}
+</pre>
+<P>To optimize the second half of the code, you could keep around a pointer to the IDirectMusicGraph8 interface and update it whenever you set the performance's default audiopath. Then the code above simplifies quite a bit, to:</p>
+<PRE style="font-face:courier; font-size:12">
+if( m_pGraph8 )
+{
+   m_pGraph8->StampPMsg( (DMUS_PMSG *)pMIDIMsg );
+}
+</pre>
+<P>Of course, at some point in the future, we'd want to make sure to shut the sound off. The code would be very similar; the status byte would just be set to 0x80 (note off) instead of 0x90 (note on).</P>
+
+<H3>Using DLS Collections with DirectSound</h3>
+<P>In some cases you might want to work with triggered sound effects while solely using DirectSound or a customized game engine. In such situations, you might consider authoring your own DLS parser. The fact that the DLS file format makes use of the standard RIFF format and that audio data is stored in the standard WAVE format should keep such a project reasonable and manageable.<SUP><font size:"9">8</font></SUP></P>
+<P>On the simplest level, you would open the DLS collection into memory, step through the file to find the sound effect(s) you wanted to play, and just directly access the wave data. However, this wouldn't gain you much over just throwing wave files into a single container file. Reading the articulation information and sending it down to the Xbox Media Communications Processor (MCP) prior to triggering the effect is where the real flexibility is added. Remember that the Xbox MCP supports a superset of the DLS-2 spec, so it will understand each of the settings defined in a DLS-2 file without the need for additional calculations or software implementation.</P>
+<P>Of course, you could either implement a full DLS parser or just read the data that you're interested in. For sound effect playback, information about waves, loop points, and articulations is often enough. Depending on the specific implementation, you might consider taking your parser one more level and reading in DLS instruments instead of just waves. This will allow for a more straightforward one-to-one correspondence between waves and the articulations they use, as well as adding the capacity for easier multitimbral sound effect implementations.</P>
+<P>The benefit here is that the sound designer authors all of this content in an environment that allows them to audition their settings easily and quickly, and the developer has low-level file access to use and optimize this information for the game. Just remember that when using this low-level solution, you will need to create your own real-time controls for things like volume, pitch, and pan if you intend to alter them dynamically.</P>
+
+<H3>Wrap Up</h3>
+<P>The DLS-2 file format provides a very convenient solution for bundling up triggered sound effects. The DirectMusic loader's understanding of the DLS format allows for content to be loaded transparently and for articulation settings to be applied automatically to the Xbox audio hardware. Lower-level solutions using DirectSound will require you to apply these settings yourself, but it's still simply a matter of parsing through a standardized file format and passing the information along to the hardware. Either way, DLS allows the sound designer/composer to add sound effects from many potential sources to organized instrument collections for more straightforward game integration.</P>
+<BR><BR>
+<P><i>For more information about DirectX Audio scripting, DirectMusic Producer, and DirectMusic concepts, please consult the "Scripting Reference" section of the DirectMusic Producer help document, the DirectMusic Producer FAQ, or the DirectMusic Producer Terminology white paper, or send an e-mail message to</i> <a href="mailto:content@xbox.com">content@xbox.com.</a></P>
+
+<BR><BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;For a complete reference to the Downloadable Sounds Level 1 and 2 specifications, visit the MIDI Manufacturers Association Web site at <a href="http://www.midi.org"><B>http://www.midi.org</B></a>.</p>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;For a more detailed discussion of authoring DLS collections, see the white paper entitled "Getting Started with DirectMusic Producer: MIDI and DLS Collections." For information on creating and editing DLS articulations, see the white paper entitled "<A HREF="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_articulations.htm" title="Creating DLS Articulations in DirectMusic Producer"><B>Creating DLS Articulations in DirectMusic Producer</B></A>."</p>
+<P style="font-size:12"><SUP>3</SUP>&nbsp;For more information on band tracks, see the white paper entitled "<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_gettingstarted.htm" title="Getting Started with DirectMusic Producer: MIDI and DLS Collections"><B>Getting Started with DirectMusic Producer: MIDI and DLS Collections</B></a>."</p>
+<P style="font-size:12"><SUP>4</SUP>&nbsp;For more information on variations, see the white paper entitled "<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_variations1.htm" title="Variations: Adding Basic Variability to Audio Content in DirectMusic Producer"><B>Variations: Adding Basic Variability to Audio Content in DirectMusic Producer</B></a>."</P>
+<P style="font-size:12"><SUP>5</SUP>&nbsp;For more information on authoring audiopath configuration files, see the white paper entitled "<A HREF="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_audiopathconfig.htm" title="Working the Metal: Audiopath Configurations and the Xbox Media Communications Processor"><B>Working the Metal: Audiopath Configurations and the Xbox Media Communications Processor</B></A>."</p>
+<P style="font-size:12"><SUP>6</SUP>&nbsp;Remember also that performance channels in DirectMusic Producer are 1-based, while in the DirectMusic libraries they are 0-based. So pchannel 1 in DirectMusic Producer is equivalent to pchannel 0 in code. Therefore, from the coding standpoint, drum channels are 9, 25, 41, 57, and so on.</p>
+<P style="font-size:12"><SUP>7</SUP>&nbsp;Note that on the PC, you will generally need to make sure to send pmessages after the latency time, or the synthesizer might ignore it as "too late" to play. Therefore, the "rtTime" field of <b>DMUS_ PMSG</b> should be at least 80 msec (100 msec ideal). This issue also applies to alpha XDKs, which have software emulated audio. Beta XDKs (which include final Xbox audio hardware) do not require this latency time "padding."</P>
+<P style="font-size:12"><SUP>8</SUP>&nbsp;The DLS-1 specification is available for download, and the DLS-2 specification is available for purchase from the MIDI Manufacturers Association Web site at <a href="http://www.midi.org"><B>http://www.midi.org</B></a>.</P>
+<BR><BR>
+<SMALL>Thursday, May 17, 2001</SMALL>
+
+
+
+</td>
+
+
+</TD>
+
+
+
+	

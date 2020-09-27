@@ -1,0 +1,58 @@
+TARGETPATH=obj
+TARGETNAME=xbpremaster
+TARGETTYPE=PROGRAM
+
+UMTYPE=windows
+UMENTRY=winmain
+
+# Use precompiled header for much faster build
+PRECOMPILED_INCLUDE=StdAfx.h
+PRECOMPILED_CXX=1
+
+SOURCES=\
+    xbPremaster.cpp \
+    PackageFiles.cpp \
+    lzss.cpp \
+    CStep.cpp \
+    CStep_Completion.cpp \
+    CStep_DestSource.cpp \
+    CStep_Progress.cpp \
+    CStep_UserAction.cpp \
+    CDlg.cpp \
+    CFile.cpp \
+    CFLD.cpp \
+    Util.cpp \
+    xbPremaster.cpp \
+    xbPremaster.rc \
+    CFST.cpp \
+    CreateDx2mlFile.cpp \
+    CreateXControlFile.cpp \
+    CreateXImageFile.cpp \
+    WriteThread.cpp
+
+!if "$(FREEBUILD)" == "1"
+AMCLIB=$(BASEDIR)\private\lib\*\AmcLayoutEngine.lib
+!else
+AMCLIB=$(BASEDIR)\private\lib\*\AmcLayoutEngineD.lib
+!endif
+
+TARGETLIBS = \
+     $(WSDK_LIB_PATH)\gdi32.lib    \
+     $(WSDK_LIB_PATH)\comdlg32.lib \
+     $(WSDK_LIB_PATH)\shell32.lib \
+     $(WSDK_LIB_PATH)\ole32.lib    \
+     $(WSDK_LIB_PATH)\rpcrt4.lib  \
+     $(BASEDIR)\private\lib\*\ldi.lib \
+     $(BASEDIR)\private\lib\*\lci.lib \
+     $(BASEDIR)\private\lib\*\cklibver.lib \
+     $(AMCLIB)
+
+LINKLIBS = \
+     $(BASEDIR)\private\lib\*\dvdemu.lib
+
+INCLUDES = \
+     $(BASEDIR)\private\cert\lib;$(WSDK_INC_PATH);$(BASEDIR)\private\inc\crypto
+
+C_DEFINES = $(C_DEFINES) -DDVDEMU
+
+USE_MSVCRT=1

@@ -1,0 +1,115 @@
+;
+; DVD Read configuration file
+;
+; Place this file in: xe:\dvdread\config.txt (along with the xbe)
+; Results stored on:  xc:\udata\aaaabbbb\58DCADAB0001\dvdread.txt
+;
+
+[GUI Options]
+LaunchGUI = 0           ; allows user to modify settings prior to running test
+PauseOnExit = 0         ; 1 = Pauses before rebooting (default = 0)
+
+
+[Configuration]
+Device=\Device\cdrom0
+;Device=\Device\Harddisk0\Partition0
+
+
+;ReadSizeMin = 2       ; Num blocks to read at a time (default = 32)
+;ReadSizeMax = 2       ; Num blocks to read at a time (default = 32)
+;StartLBA = 324900          ; lower Logical Block Address (default = 0)
+;EndLBA = 2500000       ; upper Logical Block Address (default = sizeof disk (3431264))
+
+ReadMode = 0            ; 0=detect, 1=raw dvd, 2=cd audio, 3=ReadFile (default = 0)
+NumberOfReads = 1       ; 1=1 read, 2=2 reads, (default = 2)
+SequentialReads = 1     ; 0=Random Access (default = 1)
+StopAfter = 0           ; In sequential mode, stop after x times through the disk (default = 0 = infinite)
+
+
+[DVD Settings] ; (ReadMode == 1)
+RequestSense = 2        ; 0=No extra requests, 1=Request only after buff mismatch, 2=Always request sense
+EnableRetries = 1       ; 1=Retries (and speed control enabled). (default = 0)
+DefaultSpeed = 2        ; 0=slow, 1=med, 2=fast (default = 2)
+DelayOn062E = 300       ; Delay on 06/2E errors (default = 2000 ms)
+SeekOn062E = 0          ; Seek to LBA 0 on 6/2E errors (default = 0)
+
+
+[Buffer Mismatch] ; (when NumberOfReads == 2)
+CompareBuffers = 1      ; 1=Dump out buffer differences (default = 0)
+PauseOnMismatch = 0     ; 1=pause on buffer mismatch errors (default = 0)
+
+
+[Output]
+;DumpData = 1            ; Hex Dump the data (no error checking involved) (default = 0)
+;SummaryInternalErrs = 1 ; Show internal errors in final summary distribution (default = 0)
+
+
+[Time Delays]
+;SpeedDelay0to1 = 300    ; Delay on speed change (default = 0 ms)
+;SpeedDelay1to2 = 300    ; Delay on speed change (default = 0 ms)
+;SpeedDelay2to1 = 300    ; Delay on speed change (default = 0 ms)
+;SpeedDelay1to0 = 300    ; Delay on speed change (default = 0 ms)
+;SpeedDelay0to2 = 600    ; Delay on speed change (default = 0 ms)
+;SpeedDelay2to0 = 600    ; Delay on speed change (default = 0 ms)
+
+
+[Exclude Blocks]
+;
+; Exclude security blocks for ZZ01001W-R2
+;
+;Exclude = 44078-48174
+;Exclude = 201741-205837
+;Exclude = 429020-433116
+;Exclude = 728810-732906
+;Exclude = 885307-889403
+;Exclude = 1033489-1037585
+;Exclude = 1189192-1193288
+;Exclude = 1413876-1417972
+;Exclude = 1835223-1839319
+;Exclude = 1993388-1997484
+;Exclude = 2216377-2220473
+;Exclude = 2522634-2526730
+;Exclude = 2671954-2676050
+;Exclude = 2826707-2830803
+;Exclude = 3056478-3060574
+;Exclude = 3354631-3358727
+
+;
+; Exclude security blocks for ZZ01001W-R3
+;
+Exclude = 91524-95620
+Exclude = 249324-253420
+Exclude = 480122-484218
+Exclude = 632996-637092
+Exclude = 794424-798520
+Exclude = 941640-945736
+Exclude = 1100202-1104298
+Exclude = 1258118-1262214
+Exclude = 1783554-1787650
+Exclude = 2095900-2099996
+Exclude = 2248718-2252814
+Exclude = 2557052-2561148
+Exclude = 2716512-2720608
+Exclude = 2866000-2870096
+Exclude = 3103876-3107972
+Exclude = 3256974-3261070
+
+;
+; Exclude security blocks for ZZ01701W---
+;
+;Exclude = 92051-96148
+;Exclude = 249850-253947
+;Exclude = 405535-409632
+;Exclude = 559623-563720
+;Exclude = 785128-789225
+;Exclude = 942167-946264
+;Exclude = 1099479-1103576
+;Exclude = 1253083-1257180
+;Exclude = 1786894-1790991
+;Exclude = 2093743-2097840
+;Exclude = 2251994-2256091
+;Exclude = 2404997-2409094
+;Exclude = 2559813-2563910
+;Exclude = 2794114-2798211
+;Exclude = 2947377-2951474
+;Exclude = 3258444-3262541

@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Configuring the IP Address</TITLE>
+</HEAD>
+<SCRIPT>
+autoexec =
+    "REM ************************************************************************\n" +
+    "REM * Copyright (C) Microsoft Corporation.  All rights reserved.\n" +
+    "REM *\n" +
+    "REM * Microsoft USB Simulator\n" +
+    "REM *\n" +
+    "REM ************************************************************************\n" +
+    "prompt $g\n" +
+    "\n" +
+    "REM ************************************************************************\n" +
+    "REM * Please note that this line should not be removed if you want to \n" +
+    "REM * maintain a back door into the system\n" +
+    "REM ************************************************************************\n" +
+    "fileboss.exe /A /B4\n" +
+    "\n" +
+    "REM ************************************************************************\n" +
+    "REM * Now load the low level network packet driver\n" +
+    "REM ************************************************************************\n" +
+    "IF EXIST MAC.TXT GOTO SKIP\n" +
+    "e100bpkt 0x7E > MAC.TXT\n" +
+    "GOTO DONE\n" +
+    ":SKIP\n" +
+    "e100bpkt 0x7E\n" +
+    ":DONE\n" +
+    "\n" +
+    "REM ************************************************************************\n" +
+    "REM * This loads the UDP/IP stack. Please change the IP address to reflect \n" +
+    "REM * something proper on your network\n" +
+    "REM ************************************************************************\n" +
+    "nets110 IP=DHCP\n" +
+    "\n" +
+    "REM ************************************************************************\n" +
+    "REM * This starts the main simulator program.  It will probably take at \n" +
+    "REM * least 30 seconds to come up in full operation after reboot.\n" +
+    "REM ************************************************************************\n" +
+    "sim.exe";
+</SCRIPT>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Configuring the IP Address</H1>
+    <DIV CLASS=BLOCK>
+    Create an AUTOEXEC.BAT file from the template below, then follow the <A HREF="UpdateSW.htm">Downloading Files</A> steps to transfer the file to the simulator.
+    </DIV><P>
+
+<DIV STYLE="border:1px solid red">
+<DIV CLASS=BLOCKHEADER>&nbsp;WARNING!!!</DIV>
+    <DIV CLASS=BLOCK>
+    Your batch file MUST contain this line:<BR>
+    <FONT FACE=Courier>&nbsp;&nbsp;&nbsp;fileboss.exe /A /B4</FONT><BR>
+    Otherwise you will not be able to download any other additional files and depending on your autoexec.bat file you may render the USB Simulator useless.
+    </DIV>
+    </DIV><BR>
+
+<DIV CLASS=BLOCKHEADER>Sample IP Settings</DIV>
+    <DIV CLASS=BLOCK>
+    <CODE>
+    nets110 IP=DHCP<BR>
+    nets110 IP=157.56.10.19 Mask=255.255.254.0<BR>
+    nets110 IP=209.43.24.188 Mask=255.255.255.0<BR>
+    </CODE>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>AUTOEXEC.BAT</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode(autoexec);</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>HyperTerminal Templates</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="../include/USB Sim (Load).ht">LOAD</A>
+    <A HREF="../include/USB Sim (Run).ht">RUN</A>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="install.htm">Setup</A>, <A HREF="UpdateSW.htm">Downloading Files</A>, <A HREF="debug.htm">Viewing Debug Output</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

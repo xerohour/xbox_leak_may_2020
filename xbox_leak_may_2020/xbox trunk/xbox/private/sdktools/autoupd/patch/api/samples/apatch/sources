@@ -1,0 +1,39 @@
+TARGETPATH=..\..\..\bin
+TARGETNAME=something
+TARGETTYPE=UMAPPL_NOLIB
+
+SOURCES=apatch.rc
+
+INCLUDES=..\..
+
+#
+#  Since apatch needs to run on Win95 which does not always have MSVCRT.DLL,
+#  we need to link with LIBC.LIB.
+#
+
+USE_LIBC=1
+
+!IFDEF TESTCODE
+C_DEFINES=$(C_DEFINES) -DTESTCODE=$(TESTCODE)
+!undef USE_LIBC
+USE_CRTDLL=1
+!ENDIF
+
+!IFDEF DEBUG
+C_DEFINES=$(C_DEFINES) -DDEBUG=$(DEBUG)
+!undef USE_LIBC
+USE_CRTDLL=1
+!ENDIF
+
+UMAPPL=apatch
+UMTYPE=console
+UMRES=obj\*\apatch.res
+UMLIBS=..\..\..\bin\*\mspatchz.lib \
+       $(WSDK_LIB_PATH)\user32.lib
+
+# C_DEFINES=$(C_DEFINES) -DIMPORTING_PATCHAPI_DLL=1
+# UMLIBS=..\..\..\bin\*\mspatcha.lib
+
+MSC_WARNING_LEVEL=/W4
+
+NTTARGETFILES=COPYTOBIN

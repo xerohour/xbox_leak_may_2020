@@ -1,0 +1,72 @@
+/*****************************************************************************\
+    FILE: xbnmspc.idl
+
+    DESCRIPTION:
+		This is an IDL file that allows webview to talk to the Xbox Namespace Shell Extension.
+\*****************************************************************************/
+
+// This file will be processed by the MIDL tool to
+// produce the type library (xbnmspc.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+[
+	uuid(9FA6C2C4-852C-4aed-8CEB-C8FFEABF7921),
+	helpstring("XBNMSPC 1.0 Type Library"),
+    lcid(0x0000),
+	version(1.0)
+]
+
+library XBNMSPCLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+        object,
+        uuid(9FA6C2C6-852C-4aed-8CEB-C8FFEABF7921),
+        dual,
+        hidden,
+        helpstring("IXboxWebView Interface"),
+        oleautomation
+	]
+	interface IXboxWebView : IDispatch
+	{
+        //Properties
+        [id(1), propget, helpstring("Get name of the server we are currently connected to."), helpcontext(0x0000)]
+        HRESULT Server([out, retval] BSTR * pbstr);
+        [id(2), propget, helpstring("Get the current directory on the server."), helpcontext(0x0000)]
+        HRESULT Directory([out, retval] BSTR * pbstr);
+        [id(3), propget, helpstring("Get The currently logged in user."), helpcontext(0x0000)]
+        HRESULT UserName([out, retval] BSTR * pbstr);
+        [id(4), propget, helpstring("Get length of the password of the current login."), helpcontext(0x0000)]
+        HRESULT PasswordLength([out, retval] long * plLength);
+        [id(5), propget, helpstring("Get The Email Address used for Anonymous Logins."), helpcontext(0x0000)]
+        HRESULT EmailAddress([out, retval] BSTR * pbstr);
+        [id(5), propput, helpstring("Set The Email Address used for Anonymous Logins."), helpcontext(0x0000)]
+        HRESULT EmailAddress([in] BSTR bstr);
+        [id(6), propget, helpstring("Get The Message of the Day."), helpcontext(0x0000)]
+        HRESULT CurrentLoginAnonymous([out, retval] VARIANT_BOOL * pfAnonymousLogin);
+        [id(7), propget, helpstring("Get The Message of the Day."), helpcontext(0x0000)]
+        HRESULT MessageOfTheDay([out, retval] BSTR * pbstr);
+
+        //Methods
+        [helpstring("Login Anonymously.")]
+        HRESULT LoginAnonymously(void);
+        [helpstring("Login with the specified User Name and Password.")]
+        HRESULT LoginWithPassword([in] BSTR bUserName, [in] BSTR bPassword);
+        [helpstring("Login with the specified User Name and Password of the current login.")]
+        HRESULT LoginWithoutPassword([in] BSTR bUserName);
+        [helpstring("Display XBOX Specific help.")]
+        HRESULT InvokeHelp(void);
+	};
+	[
+		uuid(9FA6C2C1-852C-4aed-8CEB-C8FFEABF7921),
+		helpstring("XboxWebView Class")
+	]
+	coclass XboxWebView
+	{
+		[default] interface IXboxWebView;
+	};
+
+};

@@ -1,0 +1,54 @@
+
+%ENVIRONMENT    DRV16.ENV
+
+COMW9XINC  =    ..\..\..\common\win9x\inc
+COMINC    =    ..\..\..\common\inc
+DXDDKINC   =    $(BUILD_TOOLS_DIR)\ddk\DirectX7\inc
+
+%SPECIAL
+all:    sysdata.inc     escape.inc      modeext.inc
+
+escape.inc:  $(COMW9XINC)\escape.h  $(DXDDKINC)\ddrawi.h  $(COMINC)\nvmultimon.h
+    set PATH=$(PATH)
+    copy $(COMW9XINC)\escape.h temp.h
+    copy $(COMINC)\nvmultimon.h temp2.h
+    $(SED) "s/offset/dwOffset/g;s/Offset/dwOffset/g;s/Size/dwMMze/g;s/size/dwSize/g" temp.h  > temp1.h
+    $(SED) "s/dwMMze/dwSize/g;s/length/dwLength/g;s/push/dwPush/g;s/pop/dwPop/g"     temp1.h > temp.h
+    $(SED) "s/Width/Width2/g" temp.h > temp1.h
+    copy temp1.h temp.h
+    $(SED) "s/offset/dwOffset/g;s/Offset/dwOffset/g;s/Size/dwMMze/g;s/size/dwSize/g" temp2.h  > temp3.h
+    $(SED) "s/dwMMze/dwSize/g;s/length/dwLength/g;s/push/dwPush/g;s/pop/dwPop/g"     temp3.h > temp2.h
+    $(SED) "s/Width/Width2/g" temp2.h > temp3.h
+    copy temp3.h nvmultimon.h
+    $(FGREP) DD_HAL_VERSION $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(FGREP) DD_VERSION $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(FGREP) DD_RUNTIME_VERSION $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(FGREP) DDCREATEDRIVEROBJECT $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(FGREP) DDGET32BITDRIVERNAME $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(FGREP) DDNEWCALLBACKFNS $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(FGREP) DDVERSIONINFO $(DXDDKINC)\ddrawi.h | $(FGREP) -v "*" >> temp.h
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znescape temp.h
+    copy temp.inc escape.inc
+    erase temp3.h
+    erase temp2.h
+    erase temp1.h
+    erase temp.h
+    erase temp.inc
+
+sysdata.inc: sysdata.h
+        set PATH=$(PATH)
+        $(H2INC) /Ht /D_WIN32 /Znsysdata sysdata.h
+
+modeext.inc:    ..\..\..\modeset.mhd\include\modeext.h
+    copy ..\..\..\modeset.mhd\include\modeext.h temp.h
+    $(H2INC) /Ht /DH2INC /Znmodeext temp.h
+    $(FGREP) -v __far temp.inc > modeext.inc
+    erase temp.h
+    erase temp.inc
+
+spotless:
+  if exist escape.inc   erase escape.inc
+  if exist sysdata.inc  erase sysdata.inc
+  if exist modeext.inc  erase modeext.inc
+%ENDS
+

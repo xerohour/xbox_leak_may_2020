@@ -1,0 +1,352 @@
+// VsdBuild.idl : IDL source for Deployment Build
+//
+
+interface IVsdDeployable;
+interface IVsdBuildManager;
+interface IVsdDeployableBuildFireEvent;
+interface IVsdGetNewEnum;
+interface IVsdMsiDatabase;
+
+// enums
+
+
+// IMPORTANT: Update file Interop.cs in VsDeployWizard.dll source with any interface changes!
+typedef
+[
+	uuid(54565966-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdPackageFilesAs")
+]
+enum vsdPackageFilesAs
+{
+	[helpstring("vsdpfUncompressed")] vsdpfUncompressed							= 1,
+	[helpstring("vsdpfCompressedInSetup")] vsdpfCompressedInSetup				= 2,
+	[helpstring("vsdpfCompressedInCabinetFiles")] vsdpfCompressedInCabinetFiles	= 3,
+	[helpstring("vsdpfCompressedInSingleCabinetFile")] vsdpfCompressedInSingleCabinetFile = 4,
+} vsdPackageFilesAs;
+
+
+
+// DISPIDs
+typedef
+[
+	uuid(54565913-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdBuildManager")
+]
+enum DISPIDs_IVsdBuildManager
+{
+	[helpstring("DISPID_IVsdBuildManager_Build")] DISPID_IVsdBuildManager_Build					= 1,
+	[helpstring("DISPID_IVsdBuildManager_Cancel")] DISPID_IVsdBuildManager_Cancel				= 2,
+} DISPIDs_IVsdBuildManager;
+
+typedef
+[
+	uuid(54565914-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableBuildFireEvent")
+]
+enum DISPIDs_IVsdDeployableBuildFireEvent
+{
+	[helpstring("DISPID_IVsdDeployableBuildFireEvent_FireOnBuildStart")] DISPID_IVsdDeployableBuildFireEvent_FireOnBuildStart	= 1,
+	[helpstring("DISPID_IVsdDeployableBuildFireEvent_FireOnBuildError")] DISPID_IVsdDeployableBuildFireEvent_FireOnBuildError	= 2,
+	[helpstring("DISPID_IVsdDeployableBuildFireEvent_FireOnBuildStatus")] DISPID_IVsdDeployableBuildFireEvent_FireOnBuildStatus	= 3,
+	[helpstring("DISPID_IVsdDeployableBuildFireEvent_FireOnBuildProgress")] DISPID_IVsdDeployableBuildFireEvent_FireOnBuildProgress	= 4,
+	[helpstring("DISPID_IVsdDeployableBuildFireEvent_FireOnBuildEnd")] DISPID_IVsdDeployableBuildFireEvent_FireOnBuildEnd		= 5,
+} DISPIDs_IVsdDeployableBuildFireEvent;
+
+typedef
+[
+	uuid(54565915-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableBuildEvent")
+]
+enum DISPIDs_IVsdDeployableBuildEvent
+{
+	[helpstring("DISPID_IVsdDeployableBuildEvent_OnBuildStart")] DISPID_IVsdDeployableBuildEvent_OnBuildStart	= 1,
+	[helpstring("DISPID_IVsdDeployableBuildEvent_OnBuildError")] DISPID_IVsdDeployableBuildEvent_OnBuildError	= 2,
+	[helpstring("DISPID_IVsdDeployableBuildEvent_OnBuildStatus")] DISPID_IVsdDeployableBuildEvent_OnBuildStatus	= 3,
+	[helpstring("DISPID_IVsdDeployableBuildEvent_OnBuildProgress")] DISPID_IVsdDeployableBuildEvent_OnBuildProgress	= 4,
+	[helpstring("DISPID_IVsdDeployableBuildEvent_OnBuildEnd")] DISPID_IVsdDeployableBuildEvent_OnBuildEnd		= 5,
+} DISPIDs_IVsdDeployableBuildEvent;
+
+typedef
+[
+	uuid(54565940-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdBuildManagerFireEvent")
+]
+enum DISPIDs_IVsdBuildManagerFireEvent
+{
+	[helpstring("DISPID_IVsdBuildManagerFireEvent_FireOnBuildError")] DISPID_IVsdBuildManagerFireEvent_FireOnBuildError	= 2,
+	[helpstring("DISPID_IVsdBuildManagerFireEvent_FireOnBuildStatus")] DISPID_IVsdBuildManagerFireEvent_FireOnBuildStatus	= 3,
+	[helpstring("DISPID_IVsdBuildManagerFireEvent_FireOnBuildProgress")] DISPID_IVsdBuildManagerFireEvent_FireOnBuildProgress = 4,
+} DISPIDs_IVsdBuildManagerFireEvent;
+
+
+typedef
+[
+	uuid(54565941-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdMsiBuildManager")
+]
+enum DISPIDs_IVsdMsiBuildManager
+{
+	[helpstring("DISPID_IVsdMsiBuildManager_Database")] DISPID_IVsdMsiBuildManager_Database						= 1,
+	[helpstring("DISPID_IVsdMsiBuildManager_Schema")] DISPID_IVsdMsiBuildManager_Schema							= 2,
+	[helpstring("DISPID_IVsdMsiBuildManager_OutputFilename")] DISPID_IVsdMsiBuildManager_OutputFilename			= 3,
+	[helpstring("DISPID_IVsdMsiBuildManager_ClearOutputFolder")] DISPID_IVsdMsiBuildManager_ClearOutputFolder	= 4,
+	[helpstring("DISPID_IVsdMsiBuildManager_PackageFilesAs")] DISPID_IVsdMsiBuildManager_PackageFilesAs			= 5,
+	[helpstring("DISPID_IVsdMsiBuildManager_PackageFileSize")] DISPID_IVsdMsiBuildManager_PackageFileSize		= 6,
+	[helpstring("DISPID_IVsdMsiBuildManager_Compression")] DISPID_IVsdMsiBuildManager_Compression				= 7,
+	[helpstring("DISPID_IVsdMsiBuildManager_LanguageId")] DISPID_IVsdMsiBuildManager_LanguageId					= 8,
+	[helpstring("DISPID_IVsdMsiBuildManager_CodePage")] DISPID_IVsdMsiBuildManager_CodePage						= 9,
+	[helpstring("DISPID_IVsdMsiBuildManager_SignOutput")] DISPID_IVsdMsiBuildManager_SignOutput					= 10,
+	[helpstring("DISPID_IVsdMsiBuildManager_CertificateFile")] DISPID_IVsdMsiBuildManager_CertificateFile		= 11,
+	[helpstring("DISPID_IVsdMsiBuildManager_PrivateKeyFile")] DISPID_IVsdMsiBuildManager_PrivateKeyFile			= 12,
+	[helpstring("DISPID_IVsdMsiBuildManager_TimeStampServer")] DISPID_IVsdMsiBuildManager_TimeStampServer		= 13,
+	[helpstring("DISPID_IVsdMsiBuildManager_Statement")] DISPID_IVsdMsiBuildManager_Statement					= 14,
+	[helpstring("DISPID_IVsdMsiBuildManager_Execute")] DISPID_IVsdMsiBuildManager_Execute						= 15,
+	[helpstring("DISPID_IVsdMsiBuildManager_Type")] DISPID_IVsdMsiBuildManager_Type								= 16,
+	[helpstring("DISPID_IVsdMsiBuildManager_CreateShortName")] DISPID_IVsdMsiBuildManager_CreateShortName		= 17,
+	[helpstring("DISPID_IVsdMsiBuildManager_Commit")] DISPID_IVsdMsiBuildManager_Commit							= 18,
+	[helpstring("DISPID_IVsdMsiBuildManager_Clean")] DISPID_IVsdMsiBuildManager_Clean							= 19,
+	[helpstring("DISPID_IVsdMsiBuildManager_MsmMerge")] DISPID_IVsdMsiBuildManager_MsmMerge						= 20,
+	[helpstring("DISPID_IVsdMsiBuildManager_UILanguageId")] DISPID_IVsdMsiBuildManager_UILanguageId				= 21,
+	[helpstring("DISPID_IVsdMsiBuildManager_RequestSign")] DISPID_IVsdMsiBuildManager_RequestSign				= 22,
+	[helpstring("DISPID_IVsdMsiBuildManager_BuildTempDir")] DISPID_IVsdMsiBuildManager_BuildTempDir				= 23
+} DISPIDs_IVsdMsiBuildManager;
+
+typedef
+[
+	uuid(fa49fc18-a86e-4731-87bb-7a3fdb7cfeac),
+	helpstring("DISPIDs_IVsdCabBuildManager")
+]
+enum DISPIDs_IVsdCabBuildManager
+{
+	[helpstring("DISPID_IVsdCabBuildManager_OutputFilename")] DISPID_IVsdCabBuildManager_OutputFilename			= 1,
+	[helpstring("DISPID_IVsdCabBuildManager_ClearOutputFolder")] DISPID_IVsdCabBuildManager_ClearOutputFolder	= 2,
+	[helpstring("DISPID_IVsdCabBuildManager_Compression")] DISPID_IVsdCabBuildManager_Compression				= 3,
+	[helpstring("DISPID_IVsdCabBuildManager_SignOutput")] DISPID_IVsdCabBuildManager_SignOutput					= 4,
+	[helpstring("DISPID_IVsdCabBuildManager_CertificateFile")] DISPID_IVsdCabBuildManager_CertificateFile		= 5,
+	[helpstring("DISPID_IVsdCabBuildManager_PrivateKeyFile")] DISPID_IVsdCabBuildManager_PrivateKeyFile			= 6,
+	[helpstring("DISPID_IVsdCabBuildManager_TimeStampServer")] DISPID_IVsdCabBuildManager_TimeStampServer		= 7,
+} DISPIDs_IVsdCabBuildManager;
+
+typedef
+[
+	uuid(54565942-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdMsiBuildClient")
+]
+enum DISPIDs_IVsdMsiBuildClient
+{
+	[helpstring("DISPID_IVsdMsiBuildClient_Build")] DISPID_IVsdMsiBuildClient_Build		= 1,
+	[helpstring("DISPID_IVsdMsiBuildClient_Link")] DISPID_IVsdMsiBuildClient_Link		= 2,
+} DISPIDs_IVsdMsiBuildClient;
+
+
+typedef
+[
+	uuid(731de76a-cc7b-4bac-ac55-12bc59d550cc),
+	helpstring("DISPIDs_IVsdCabBuildClient")
+]
+enum DISPIDs_IVsdCabBuildClient
+{
+	[helpstring("DISPID_IVsdCabBuildClient_Build")] DISPID_IVsdCabBuildClient_Build		= 1,
+	[helpstring("DISPID_IVsdCabBuildClient_Link")] DISPID_IVsdCabBuildClient_Link		= 2,
+} DISPIDs_IVsdCabBuildClient;
+
+
+typedef
+[
+	uuid(AFAD71C2-1211-11d3-9743-00A0C9A86C2F),
+	helpstring("DISPIDs_IVsdMsiComponentID")
+]
+enum DISPIDs_IVsdMsiComponentID
+{
+	[helpstring("DISPID_IVsdMsiComponentID_ComponentID")] DISPID_IVsdMsiComponentID_ComponentID		= 1,
+} DISPIDs_IVsdMsiComponentID;
+
+
+
+// Enums
+typedef
+[
+	uuid(82AF5369-0F06-11d3-9741-00A0C9A86C2F),
+	helpstring("vsdMsiType")
+]
+enum vsdMsiType
+{
+	[helpstring("vsdmtInstaller")] vsdmtInstaller = 1,
+	[helpstring("vsdmtModule")] vsdmtModule = 2,
+	[helpstring("vsdmtLinkInstaller")] vsdmtLinkInstaller = 3,
+} vsdMsiType;
+
+
+// interface
+[
+object,
+uuid(54565916-dbfb-11d2-898d-0000f8064ebb),
+dual,
+oleautomation,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdBuildManager : IDispatch
+{
+	[id(DISPID_IVsdBuildManager_Build), helpstring("method Build")] HRESULT Build([in]IVsdDeployable *Deployable);
+	[id(DISPID_IVsdBuildManager_Cancel), helpstring("method Cancel")] HRESULT Cancel();
+}
+
+
+[
+object,
+uuid(54565917-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdDeployableBuildFireEvent : IDispatch
+{
+	[id(DISPID_IVsdDeployableBuildFireEvent_FireOnBuildStart), helpstring("method FireOnBuildStart")] HRESULT FireOnBuildStart([in]IVsdBuildManager *BuildManager);
+	[id(DISPID_IVsdDeployableBuildFireEvent_FireOnBuildError), helpstring("method FireOnBuildError")] HRESULT FireOnBuildError([in]IVsdBuildManager *BuildManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long lHelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableBuildFireEvent_FireOnBuildStatus), helpstring("method FireOnBuildStatus")] HRESULT FireOnBuildStatus([in]IVsdBuildManager *BuildManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]BSTR Message, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableBuildFireEvent_FireOnBuildProgress), helpstring("method FireOnBuildProgress")] HRESULT FireOnBuildProgress([in]long lProgress, [in]long lTotal);
+	[id(DISPID_IVsdDeployableBuildFireEvent_FireOnBuildEnd), helpstring("method FireOnBuildEnd")] HRESULT FireOnBuildEnd([in]IVsdBuildManager *BuildManager);
+}
+
+[
+object,
+uuid(54565918-dbfb-11d2-898d-0000f8064ebb),
+oleautomation,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeployableBuildEvent : IDispatch
+{
+	[id(DISPID_IVsdDeployableBuildEvent_OnBuildStart), helpstring("method OnBuildStart")] HRESULT OnBuildStart([in]IVsdBuildManager *BuildManager);
+	[id(DISPID_IVsdDeployableBuildEvent_OnBuildError), helpstring("method OnBuildError")] HRESULT OnBuildError([in]IVsdBuildManager *BuildManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long lHelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableBuildEvent_OnBuildStatus), helpstring("method OnBuildStatus")] HRESULT OnBuildStatus([in]IVsdBuildManager *BuildManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]BSTR Message, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableBuildEvent_OnBuildProgress), helpstring("method OnBuildProgress")] HRESULT OnBuildProgress([in]long lProgress, [in]long lTotal);
+	[id(DISPID_IVsdDeployableBuildEvent_OnBuildEnd), helpstring("method OnBuildEnd")] HRESULT OnBuildEnd([in]IVsdBuildManager *BuildManager);
+}
+
+[
+object,
+uuid(54565945-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdBuildManagerFireEvent : IDispatch
+{
+	[id(DISPID_IVsdBuildManagerFireEvent_FireOnBuildError), helpstring("method FireOnBuildError")] HRESULT FireOnBuildError([in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long lHelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdBuildManagerFireEvent_FireOnBuildStatus), helpstring("method FireOnBuildStatus")] HRESULT FireOnBuildStatus([in]IDispatch *EventObject, [in]DISPID ID, [in]BSTR Message, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdBuildManagerFireEvent_FireOnBuildProgress), helpstring("method FileOnBuildProgress")] HRESULT FireOnBuildProgress([in]long lProgress, [in]long lTotal);
+}
+
+[
+object,
+uuid(54565946-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiBuildManager : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiBuildManager_Database), helpstring("property Database")] HRESULT Database([out, retval] IVsdMsiDatabase **pVal);
+	[propget, id(DISPID_IVsdMsiBuildManager_Schema), helpstring("property Schema")] HRESULT Schema([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdMsiBuildManager_OutputFilename), helpstring("property OutputFilename")] HRESULT OutputFilename([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_OutputFilename), helpstring("property OutputFilename")] HRESULT OutputFilename([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_ClearOutputFolder), helpstring("property ClearOutputFolder")] HRESULT ClearOutputFolder([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_ClearOutputFolder), helpstring("property ClearOutputFolder")] HRESULT ClearOutputFolder([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_PackageFilesAs), helpstring("property PackageFilesAs")] HRESULT PackageFilesAs([out, retval] vsdPackageFilesAs *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_PackageFilesAs), helpstring("property PackageFilesAs")] HRESULT PackageFilesAs([in] vsdPackageFilesAs Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_PackageFileSize), helpstring("property PackageFileSize")] HRESULT PackageFileSize([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_PackageFileSize), helpstring("property PackageFileSize")] HRESULT PackageFileSize([in] long Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_Compression), helpstring("property Compression")] HRESULT Compression([out, retval] vsdCompressionOptimization *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_Compression), helpstring("property Compression")] HRESULT Compression([in] vsdCompressionOptimization Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([in] long Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_CodePage), helpstring("property CodePage")] HRESULT CodePage([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_CodePage), helpstring("property CodePage")] HRESULT CodePage([in] long Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_SignOutput), helpstring("property SignOutput")] HRESULT SignOutput([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_SignOutput), helpstring("property SignOutput")] HRESULT SignOutput([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_CertificateFile), helpstring("property CertificateFile")] HRESULT CertificateFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_CertificateFile), helpstring("property CertificateFile")] HRESULT CertificateFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_PrivateKeyFile), helpstring("property PrivateKeyFile")] HRESULT PrivateKeyFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_PrivateKeyFile), helpstring("property PrivateKeyFile")] HRESULT PrivateKeyFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_TimeStampServer), helpstring("property TimeStampServer")] HRESULT TimeStampServer([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_TimeStampServer), helpstring("property TimeStampServer")] HRESULT TimeStampServer([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_Type), helpstring("property Type")] HRESULT Type([out, retval] vsdMsiType *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_Type), helpstring("property Type")] HRESULT Type([in] vsdMsiType Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_MsmMerge), helpstring("property MsmMerge"), hidden] HRESULT MsmMerge([out, retval]IUnknown **ppunkIMsmMerge);
+	[propget, id(DISPID_IVsdMsiBuildManager_UILanguageId), helpstring("property UILanguageId")] HRESULT UILanguageId([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiBuildManager_UILanguageId), helpstring("property UILanguageId")] HRESULT UILanguageId([in] long Val);
+	[propget, id(DISPID_IVsdMsiBuildManager_BuildTempDir), helpstring("property BuildTempDir")] HRESULT BuildTempDir([out, retval] BSTR *pVal);
+
+	[id(DISPID_IVsdMsiBuildManager_Statement), helpstring("method Statement")] HRESULT Statement([in]BSTR Sql, [in, optional]VARIANT Parameters, [out, retval] IVsdGetNewEnum **pVal);
+	[id(DISPID_IVsdMsiBuildManager_Execute), helpstring("method Execute")] HRESULT Execute([in]BSTR Sql, [in, optional]VARIANT Parameters);
+	[id(DISPID_IVsdMsiBuildManager_CreateShortName), helpstring("method CreateShortName")] HRESULT CreateShortName([in]BSTR bstrLongName, [out, retval]BSTR *bstrShortName);
+	[id(DISPID_IVsdMsiBuildManager_Commit), helpstring("method Commit")] HRESULT Commit();
+	[id(DISPID_IVsdMsiBuildManager_Clean), helpstring("method Clean")] HRESULT Clean();
+	[id(DISPID_IVsdMsiBuildManager_RequestSign), helpstring("method RequestSign")] HRESULT RequestSign(BSTR bstrFileName);
+}
+
+[
+object,
+uuid(fa49fc17-a86e-4731-87bb-7a3fdb7cfeac),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdCabBuildManager : IDispatch
+{
+	[propget, id(DISPID_IVsdCabBuildManager_OutputFilename), helpstring("property OutputFilename")] HRESULT OutputFilename([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_OutputFilename), helpstring("property OutputFilename")] HRESULT OutputFilename([in] BSTR Val);
+	[propget, id(DISPID_IVsdCabBuildManager_ClearOutputFolder), helpstring("property ClearOutputFolder")] HRESULT ClearOutputFolder([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_ClearOutputFolder), helpstring("property ClearOutputFolder")] HRESULT ClearOutputFolder([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdCabBuildManager_Compression), helpstring("property Compression")] HRESULT Compression([out, retval] vsdCompressionOptimization *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_Compression), helpstring("property Compression")] HRESULT Compression([in] vsdCompressionOptimization Val);
+	[propget, id(DISPID_IVsdCabBuildManager_SignOutput), helpstring("property SignOutput")] HRESULT SignOutput([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_SignOutput), helpstring("property SignOutput")] HRESULT SignOutput([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdCabBuildManager_CertificateFile), helpstring("property CertificateFile")] HRESULT CertificateFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_CertificateFile), helpstring("property CertificateFile")] HRESULT CertificateFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdCabBuildManager_PrivateKeyFile), helpstring("property PrivateKeyFile")] HRESULT PrivateKeyFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_PrivateKeyFile), helpstring("property PrivateKeyFile")] HRESULT PrivateKeyFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdCabBuildManager_TimeStampServer), helpstring("property TimeStampServer")] HRESULT TimeStampServer([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabBuildManager_TimeStampServer), helpstring("property TimeStampServer")] HRESULT TimeStampServer([in] BSTR Val);
+}
+
+[
+object,
+uuid(54565947-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiBuildClient : IDispatch
+{
+	[id(DISPID_IVsdMsiBuildClient_Build), helpstring("method Build")] HRESULT Build([in]IVsdMsiBuildManager *MsiBuildManager, [in]IDispatch *PackageManager);
+	[id(DISPID_IVsdMsiBuildClient_Link), helpstring("method Link")] HRESULT Link([in]IVsdMsiBuildManager *MsiBuildManager, [in]IDispatch *PackageManager);
+}
+
+[
+object,
+uuid(731de76b-cc7b-4bac-ac55-12bc59d550cc),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdCabBuildClient : IDispatch
+{
+	[id(DISPID_IVsdCabBuildClient_Build), helpstring("method Build")] HRESULT Build([in]IVsdCabBuildManager *CabBuildManager, [in]IDispatch *PackageManager);
+	[id(DISPID_IVsdCabBuildClient_Link), helpstring("method Link")] HRESULT Link([in]IVsdCabBuildManager *CabBuildManager, [in]IDispatch *PackageManager);
+}
+
+[
+object,
+uuid(AFAD71C1-1211-11d3-9743-00A0C9A86C2F),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiComponentID : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiComponentID_ComponentID), helpstring("property ComponentID")] HRESULT ComponentID([out, retval] BSTR *pVal);
+}

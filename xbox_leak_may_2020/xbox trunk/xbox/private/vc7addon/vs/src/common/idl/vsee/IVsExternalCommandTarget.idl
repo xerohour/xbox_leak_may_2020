@@ -1,0 +1,79 @@
+/*----------------------------------------------------------------------------------------
+Microsoft VSEE
+ 
+Microsoft Confidential 
+Copyright 1995-2000 Microsoft Corporation. All Rights Reserved. 
+ 
+@doc 
+ 
+@module IVsExternalCommandTarget.idl |
+This IDL describes a service that passes IOleCommandTarget commands on to the shell.
+This is to remedy the otherwise impossibility of sending a QueryInterface to the shell.
+This is a service provided by the Scc package, and that can be obtained by a QueryService
+call.
+
+@owner sgilbert
+----------------------------------------------------------------------------------------*/
+
+#if !defined(CTC_INVOKED) && !defined(RGS_INVOKED)
+
+cpp_quote("#pragma once")
+
+///////////////////////////////////////////////////////////
+//
+// Imports
+//
+import "docobj.idl";
+
+#include "VseeGuids.h"
+
+///////////////////////////////////////////////////////////
+//
+// IID_IVsOleCommandTarget
+//
+
+interface IVsExternalCommandTarget;
+
+[
+	uuid(uuid_IVsExternalCommandTarget)
+]
+// @hung ivoct
+interface IVsExternalCommandTarget : IUnknown
+{
+	// @cmember QueryStatus (see IOleCommandTarget)
+	HRESULT QueryStatus(
+		[in][unique]				const GUID				*pguidCmdGroup,		// @param [in] GUID command group
+		[in]						ULONG					cCmds,				// @param [in] number of commands
+		[size_is(cCmds)][in, out]	OLECMD					prgCmds[],			// @param [in, out] Cmd ids, result of QueryStatus
+		[in, out][unique]			OLECMDTEXT				*pCmdText			// @param [in, out] Text for command
+	);
+
+	// @cmember Exec (see IOleCommandTarget)
+	HRESULT Exec(
+		[in][unique]                const GUID				*pguidCmdGroup,		// @param [in] GUID command group
+		[in]						DWORD					nCmdID,				// @param [in] CmdId
+		[in]						DWORD					nCmdexecopt,		// @param [in] execution options
+		[in][unique]				VARIANT					*pvaIn,				// @param [in] Input data
+		[in, out][unique]			VARIANT					*pvaOut				// @param [in, out] Output data
+	);
+};
+
+///////////////////////////////////////////////////////////
+//
+// SID_SVsOleCommandTarget Defined
+//
+[uuid (uuid_SVsExternalCommandTarget)]
+interface SVsExternalCommandTarget : IUnknown {};
+cpp_quote("#define SID_SVsExternalCommandTarget IID_SVsExternalCommandTarget")
+
+
+#elif defined(RGS_INVOKED)
+
+#define CHAR_SID_SVsExternalCommandTarget '{53544C4D-ab21-4a15-bd22-28a9b35dd89e}'
+#define SID_SVsExternalCommandTarget {53544C4D-ab21-4a15-bd22-28a9b35dd89e}
+
+#elif defined(CTC_INVOKED)
+
+	//;
+
+#endif

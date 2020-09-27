@@ -1,0 +1,43 @@
+
+%ENVIRONMENT    DRV16.ENV
+INCLUDE=$(INCLUDE);..\..\common\inc
+
+!IFDEF DEBUG
+WFLAGS = $(WFLAGS) -Od -Gs
+!ELSE
+WFLAGS = $(WFLAGS) -Oxt
+!ENDIF
+
+!IFDEF EXCLUDE_SOURCE
+SOURCE_PACKAGING=NOPACKAGE
+!ELSE
+SOURCE_PACKAGING=PACKAGE
+!ENDIF
+
+%EXECUTABLE nvmode.dll
+%WINDOWS
+%DYNAMIC
+%NORC
+%NORES
+%CFLAGS -NT_NVTEXT _UNDEF -DSTEREO_SUPPORT -GD -u -AL -c
+%LFLAGS /NOD /NOE /MAP /AL:16
+%AFLAGS -Cp -DCODE_SPACE=0
+%MAPSYM
+osmode.c
+regfuncs.c
+getit.c
+osapi.c
+panel.c
+nvmode16.lib
+nvmode.def
+libw.lib
+ldllcew.lib
+%END
+
+    $(RC) -r -fo ..\bin\nvmode.res nvmode.rc
+    $(RC) ..\bin\nvmode.res ..\bin\nvmode.dll
+    
+!IFDEF DEBUG
+    $(NMSYM) /TRANSLATE:SOURCE,$(SOURCE_PACKAGING) /SOURCE:. /SOURCE:..\code /SOURCE:..\include /OUTPUT:..\bin\nvmode.nms ..\bin\nvmode.dll
+!ENDIF
+

@@ -1,0 +1,70 @@
+!IF 0
+
+Copyright (c) 1989  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=debugger
+MINORCOMP=sapi
+
+!include $(BASEDIR)\private\vc6addon\ide\debugger\sources.inc
+
+TARGETNAME=shxbox$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+
+DLLDEF=sapi.def
+COFFBASE=sh
+
+SOURCES= \
+    ..\ec.cpp       \
+    ..\hash.cpp     \
+    ..\loadomf.cpp  \
+    ..\ph.cpp       \
+    ..\sh.cpp       \
+    shinit.cpp   \
+    ..\shsymbol.cpp \
+    ..\shsymlb0.cpp \
+    ..\shsymlb1.cpp \
+    ..\sl.cpp       \
+    ..\stab.cpp     \
+    ..\strings.cpp  \
+    ..\th.cpp       \
+    ..\sapi.rc		\
+	..\exptocv.cpp	\
+	..\cvcommon.cpp
+
+UMTYPE=windows
+
+!if "$(TI32)" == "1"
+C_DEFINES = $(C_DEFINES) -DBUILD_SAPI -DNT_BUILD -DCC_CVTYPE32
+!else
+C_DEFINES = $(C_DEFINES) -DBUILD_SAPI -DNT_BUILD
+!endif
+
+INCLUDES=.;..\;..\inc;$(DEBUG_INCLUDES);$(NONSHIP_INC_PATH)
+
+TARGETLIBS= \
+    $(MISC_LIB_PATH)\mspdb.lib \
+	$(SDK_LIB_PATH)\imagehlp.lib	\
+    $(SDK_LIB_PATH)\kernel32.lib \
+    $(SDK_LIB_PATH)\advapi32.lib \
+    $(SDK_LIB_PATH)\user32.lib \
+    $(BASEDIR)\public\sdk\lib\*\xboxdbg.lib
+
+PRECOMPILED_INCLUDE=..\shinc.hpp
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=precomp.obj
+
+

@@ -1,0 +1,157 @@
+<TD valign="top" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</TD><Td><H2>Best Practices for Xbox Audio Design:<BR>
+Chapter 5 - Xbox Audio Content Development Tools
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<H3>Introduction</H3>
+<p>As part of our continuing efforts to make development on the Xbox&#8482; video game system from Microsoft artist-centric and accessible to composers and sound designers, we have been steadily releasing a series of tools and samples that cover various aspects of audio production for the Xbox. This chapter provides an overview of each of the currently available tools as well as a preview of tools we hope to provide in the future. In most cases, rudimentary command-line tool documentation can be found by typing the name of the application followed by &#34;-?&#34; at a command prompt. For instance:</p>
+<CODE>xbsetcfg -?</code>
+<p>Note also that to use command-line applications that send data to the Xbox (for instance, xbsetcfg), you will need to point your Microsoft&#174; Windows&#174; 2000 development machine at the proper Xbox by using the &#34;-x [xbox name]&#34; switch. This needs to be done only once (unless of course you&#39;re switching between machines or you change your Xbox machine name from the XDK launcher).</p>
+<P><CODE>Xbsetcfg -x AudioBox1 -a DTR</code>
+<p>will set the Xbox named &#34;AudioBox1&#34; up such that its digital output will support Dolby&#174; Digital and DTS, and its analog output will send Dolby&#174; Surround audio.</p>
+<p>As always, if you think a specific area of content creation could use a tool, or if you have suggestions for one of our existing tools, please contact <a href="mailto:content@xbox.com">content@xbox.com</a>.</p>
+
+
+<H3>Xbox ADPCM Codec (xbadpcm.acm)</h3>
+<p><u>Description:</u> Xbox ADPCM code is an Audio Compression Manager (ACM) codec that allows you to create and play back Xbox adaptive pulse code modulation (ADPCM) content on your Windows 2000 development machine.
+<p><u>Installation:</u> Installed with Xbox Development Kit (XDK). Can also be manually installed from the XDK CD from x:\ADPCM\ (for installation instructions, see readme.txt in that directory). Note that there is a known issue with the Voxware Compression Toolkit, which will need to be disabled before the Xbox ADPCM codec will function properly:
+<OL>
+<LI>From the desktop, click <b>Start</b>, <b>Settings</b>, and then <b>Control Panel</b>.
+<LI>In the <b>Control Panel</b> window that pops up, double-click <b>Sounds and Multimedia</b>. The <b>Sounds and Multimedia Properties</b> dialog box will appear.
+<LI>Click the <b>Hardware</b> tab.
+<LI>In the <b>Devices</b> pane, click <b>Audio Codecs</b>, and then click <b>Properties</b>. The <b>Audio Codecs Properties</b> dialog box will appear.
+<LI>Click the <b>Properties</b> tab.
+<LI>Double-click <b>Voxware Compression Toolkit</b> and click <b>Do not use this audio codec</b>. Once the Voxware codec is disabled, the Xbox ADPCM codec will function properly; however, any applications that require the Voxware codec will cease to work correctly.
+</ol>
+<p><u>Comments:</u>
+<UL>
+<LI>Because the Xbox ADPCM codec is an ACM codec, all applications (including most wave editing and effects software) that support ACM can use it.
+<LI>Author ADPCM loop points on 64-sample boundaries.
+<LI>Make sure when using ADPCM waves that your developer reads in the entire ADPCM header structure.
+<LI>The codec supports 16-bit mono or stereo waves as source content.
+<LI>Compression is roughly 3.5:1.
+</ul></p>
+
+<h3>Xbox ADPCM Encoder (xbadpcmencode.exe)</h3>
+<p><u>Description:</u> The Xbox ADPCM encoder is a command-line tool for ADPCM encoding a pulse code modulation (PCM) wave file.
+<p><u>Installation:</u> Source code is installed with XDK in C:\Program Files\Microsoft Xbox SDK\Tools\Win32\Sound\xbadpcmencode. Must be built by developer to use.
+<p><u>Comments:</u>
+<UL>
+<LI>Provided to demonstrate how your own encoder could be written for batch purposes or to store custom format information.
+<LI>Demonstrates saving of loop points within ADPCM format.
+</ul>
+
+<h3>xbsetcfg (xbsetcfg.exe)</h3>
+<p><u>Description:</u> xbsetcfg is a command-line Windows tool for setting flags on the Xbox hardware, bypassing the Xbox Dashboard.
+<p><u>Installation:</u> Installed with XDK in C:\Program Files\Microsoft Xbox SDK\xbox\bin\xbsetcfg.exe.
+<p><u>Comments:</u>
+<UL>
+<LI>Beta &#34;enhanced&#34; (S-video or HDTV) A/V adapters do not always properly report their support for digital output. If you notice only PCM stereo data coming from the optical output, use this tool to override the settings.
+<p><CODE>Xbsetcfg -a D</code>
+<p>enables Dolby Digital output for such adapters.
+</ul>
+
+<h3>xgpimage (xgpimage.exe)</h3>
+<p><u>Description:</u> xgpimage is a command-line tool for creating Global Processor DSP programs, which are effects images used for real-time effects creation and manipulation.
+<p><u>Installation:</u> Installed with XDK in C:\Program Files\Microsoft Xbox SDK\xbox\bin\xgpimage.exe.
+<p><u>Comments:</u>
+<UL>
+<LI>Developer/content creator authors an .ini file (using DSPBuilder, WordPad, or other text editor) and then runs xgpimage on it to generate an image file (.scr) as well as a header file (.h) that the developer can use to alter effect parameters in real time once the image is running.
+<LI>For details on the proper syntax for authored .ini files, see the XDK documentation page entitled &#34;GP DSP Image Builder (xgpimage).&#34;
+</ul>
+
+<h3>DSP Builder (dspbuilder.exe)</h3>
+<p><u>Description:</u> DSP Builder is a graphical tool used for creating Global Processor DSP programs, which are effects images used for real-time effects creation and manipulation. The DSP builder tool currently provides a subset of the functionality of xgpimage but in a more visual and accessible manner.
+<p><u>Installation:</u> Installed with XDK in C:\Program Files\Microsoft Xbox SDK\xbox\bin\dspbuilder.exe.
+<p><u>Comments:</u>
+<UL>
+<LI>See the XDK documentation topic "DSP Builder (dspbuilder)" for details on authoring effects programs.
+<LI>The default directories the application scans for may not be where your effects are stored. By default, the effect state .ini files are at C:\Program Files\Microsoft Xbox SDK\source\DSound\dsp\ini, and the DSP code files are at C:\Program Files\Microsoft Xbox SDK\source\DSound\dsp\bin. You can set the search directories from the <b>Directories...</b> option in the <b>Tools</b> menu. 
+</ul>
+
+<h3>WavMerge (wavmerge.exe)</h3>
+<P><u>Description:</u> WavMerge is a command-line Windows tool for creating multichannel (four- or six-channel) wave files from mono sources that Xbox can play back to the speakers of a 5.1 audio system.
+<P><u>Installation:</u> Installed with XDK in C:\Program Files\Microsoft Xbox SDK\xbox\bin\wavmerge.exe.
+<P><u>Comments:</u>
+<UL>
+<LI>Channel order for six-channel (&#34;5.1&#34;) is left, right, center, LFE, left surround, right surround.
+<LI>Channel order for four-channel is left, right, left surround, right surround. Note that this is not Dolby Surround-style data (which you can either create as a pre-encoded stereo file or mix down manually from a four- or six-channel stream).
+<LI>Xbox currently supports six-channel interleaved PCM waveformatex files for any &#34;pre-rendered&#34; 5.1 audio you wish to create. Note that this is not Dolby Digital-encoded streams, but rather a .wav file with six channels.
+<LI>In most cases, existing multichannel editing tools output to alternate formats that are not yet supported. Save out separate mono wave files and use this tool to merge them into a four- or six-channel wave file.
+</ul>
+
+<h3>DirectMusic Producer for Xbox (DMusProd.exe)</h3>
+<P><u>Description:</u> DirectMusic Producer for Xbox is a graphical tool for authoring, managing, and auditioning Xbox audio content, including Microsoft&#174; DirectX&#174; Audio scripts, Downloadable Sounds (DLS) collections, Microsoft&#174; DirectMusic&#174; content, and so on.
+<P><u>Installation:</u> Install from XDK CD at X:\DMusProdX\setup.exe. Also available online <A href="/BPProgInfo.asp?Page=content/xdk_release.htm#DMPX" title="XDK Release Area">here</a>.
+<P><u>Comments:</u>
+<UL>
+<LI>Supplementary DirectMusic demo content can be installed from X:\DMusProdX\DemoContent\DMPDemoContent.exe
+<LI>See <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap4.htm" title="Chapter 4 &#8211; DirectMusic Producer Introductory Guide for Xbox">Chapter 4 &#8211 DirectMusic Producer Introductory Guide for Xbox</a> for more information about DirectMusic Producer for Xbox, or <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_whitepapers.htm" title="White Papers"><B>White Papers</B></a> on Audio Designer's Corner for authoring scenarios and concepts.
+</ul>
+
+<h3>Audio Console Application (audconsole.xbe)</h3>
+<p><u>Description:</u> Audio Console App is an Xbox application that allows you to audition DLS and/or DirectMusic content on the Xbox. Run in conjunction with DirectMusic Producer for Xbox.
+<p><u>Installation:</u> Provided on XDK recovery CD. After recovery, make sure that your content development machine (running DirectMusic Producer for Xbox) is attached to the XDK either via a network hub or via an Xbox System Link Cable.
+<p><u>Comments:</u>
+<UL>
+<LI>For more information about using the Audio Console App in conjunction with DirectMusic Producer for Xbox, see <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap4.htm" title="Chapter 4 &#8211; DirectMusic Producer Introductory Guide for Xbox"><B>Chapter 4 &#8211 DirectMusic Producer Introductory Guide for Xbox</B></a>.
+</ul>
+
+<h3>Audio Samples</h3>
+<p><u>Description:</u> Audio samples demonstrate to developers a variety of techniques that can also be used (often with minor modifications) to test content integration scenarios. Some of the samples are purely programmatic and will not be discussed in detail here. In the case of the DirectMusic examples, content found in the \media\sounds subdirectory can be loaded in DirectMusic Producer for closer examination.
+<UL>
+<LI><b>DM3Dscript</b>&#8212;DirectMusic playback onto a 3-D audiopath (which can then be positioned in real time) using scripting
+<LI><b>DMAudiopath</b>&#8212;DirectMusic playback onto a 3-D audiopath (which can then be positioned in real time)
+<LI><b>DMGrooveLevel</b>&#8212;style-based playback and interaction between groove level and pattern selection from a style
+<LI><b>DMScript</b>&#8212;scripting example of self-modifying music, variability, queuing, and dialog concatenation
+<LI><b>Envelope Generator</b>&#8212;real-time manipulation of DLS-2 amplitude and filter cutoff envelopes on sounds
+<LI><b>Play3DSound</b>&#8212;I3DL2 occlusion and obstruction; 3-D positioning on an object
+<LI><b>GlobalEffects</b>&#8212;use of chained effects in a program as well as real-time parameter modification
+<LI><b>SetFilter</b>&#8212;exposes filter block settings (DLS-2 low pass and Parametric Eq) for real-time experimentation with effects on looped sounds
+</ul>
+<p><u>Installation:</u> Source code is installed with XDK installation. Audio samples are placed at C:\Program Files\Microsoft Xbox SDK\Samples\Xbox\Sound and can be compiled by a developer to run on an Xbox.
+<p><u>Comments:</u>
+<UL>
+<LI>In many cases, it is fairly trivial to swap in your own content for the existing sample content. Some samples do have limitations&#8212;all content must be the same format, additional code must be written to support ADPCM, and so on.
+</UL>
+
+<h3>Wrap Up</h3>
+<P>There are quite a few resources available to aid with audio content creation, testing, auditioning, and implementation for Xbox. If there is an area not addressed here that you would like to see presented as a sample, or if a particular process is blocking your progress on a project, please don't hesitate to let us know at <a href="mailto:content@xbox.com">content@xbox.com</a>.
+
+<P>For more information about topics presented here, please consult other chapters of the Xbox Audio Best Practices Guide, the Xbox Development Kit documentation, or the white papers on Audio Designer's Corner, or send an e-mail message to <a href="mailto:content@xbox.com">content@xbox.com</a>.
+<BR>
+<HR ALIGN="left" WIDTH="300">
+<SMALL>Wednesday, August 8, 2001</SMALL>
+
+
+
+</TD>
+
+
+
+
+	

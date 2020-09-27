@@ -1,0 +1,28 @@
+TARGETNAME=covermon
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+
+UMTYPE=xboxdll
+DLLENTRY=DllMain
+DLLDEF=covermon.def
+
+C_DEFINES=$(C_DEFINES) -DCOVERMON
+MSC_WARNING_LEVEL=/W4 /WX
+
+SOURCES=covermon.c
+
+INCLUDES=..\..\..\md5; \
+         ..\..\..\bbt; \
+         ..\..\inc; \
+         ..\..\..\dll20; \
+         ..\..\..\sys20; \
+         ..\..\..\covfile; \
+         $(SDK_INC_PATH); \
+         $(BASEDIR)\private\test\inc; \
+         $(BASEDIR)\private\inc; \
+         $(BASEDIR)\private\ntos\inc;
+
+TARGETLIBS=$(SDK_LIB_PATH)\ntosfull.lib \
+           $(BASEDIR)\private\test\lib\*\covfile.lib
+
+PRECOMPILED_INCLUDE=precomp.h

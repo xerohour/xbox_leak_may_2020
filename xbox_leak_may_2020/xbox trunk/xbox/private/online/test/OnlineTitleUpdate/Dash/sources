@@ -1,0 +1,15 @@
+TARGETNAME=OnlineDashUpdate
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+PROJNAME="Online Dash Update Test"
+UMTYPE=xboxapp
+
+#
+# These are the IMAGEBLD flags. Note that we explicitly specify the dash as one of our
+# alternate title IDs. Through this we pass on the title key of the dash to the title
+#
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:0xfffe0000 /VERSION:0x20000
+
+C_DEFINES=$(C_DEFINES) -DDASH_UPDATE
+
+!include ..\sources.inc

@@ -1,0 +1,47 @@
+// xbDebug.idl : IDL source for xbDebug.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (xbDebug.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(B6BD872B-D6C7-4ACD-9704-81F4DCE65CA4),
+		dual,
+		helpstring("INetDebug Interface"),
+		pointer_default(unique)
+	]
+	interface INetDebug : IDispatch
+	{
+		[id(1), helpstring("method Connect")] HRESULT Connect([in] BSTR xboxName);
+		[id(2), helpstring("method Start")] HRESULT Start();
+		[id(3), helpstring("method Stop")] HRESULT Stop();
+		[id(4), helpstring("method GetLine")] HRESULT GetLine([in] unsigned lineNum, [in] short operation, [out, retval] BSTR *pVal);
+		[id(5), helpstring("method GetAllLines")] HRESULT GetAllLines([in] BOOL clear, [out, retval] BSTR *pVal);
+		[propget, id(6), helpstring("property ParseTag")] HRESULT ParseTag([out, retval] BSTR *pVal);
+		[propput, id(6), helpstring("property ParseTag")] HRESULT ParseTag([in] BSTR newVal);
+		[id(7), helpstring("method Disconnect")] HRESULT Disconnect();
+		[id(8), helpstring("method ClearLines")] HRESULT ClearLines();
+	};
+
+[
+	uuid(2EF1DC7D-B7B4-4B86-92BE-935720E325BB),
+	version(1.0),
+	helpstring("xbDebug 1.0 Type Library")
+]
+library XBDEBUGLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(B11C43CA-5735-43FD-98AF-52875CC56EA7),
+		helpstring("NetDebug Class")
+	]
+	coclass NetDebug
+	{
+		[default] interface INetDebug;
+	};
+};

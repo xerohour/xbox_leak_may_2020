@@ -1,0 +1,23 @@
+; Transforms a vertex to homogenoeous clip space
+; and lights it with a single directional light in
+; world space, then outputs a texture coordinate.
+; - 7 instructions
+; Note that negative output colors will be clamped
+; by the implicit 0-1 clamp after the shader
+
+vs.1.0
+
+; Transform to clip space
+dp4 oPos.x, v0, c0
+dp4 oPos.y, v0, c1
+dp4 oPos.z, v0, c2
+dp4 oPos.w, v0, c3
+
+; Dot normal with light direction in world space
+dp3 r0, v1, c4
+
+; Calculate color intensity
+mul oD0, r0.x, c5
+
+; Output texture coordinates
+mov oT0, v2

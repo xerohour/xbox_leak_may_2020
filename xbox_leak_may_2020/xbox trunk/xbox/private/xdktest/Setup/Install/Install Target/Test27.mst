@@ -1,0 +1,70 @@
+'$include 'install.inc'
+
+Scenario "SDK Clean Full Setup - Use Read/Write Network Target Path, using buttons"
+	dim strTmp$, setupPath$
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Get a network path to install to
+	'
+if false then
+	setupPath = ""
+	while setupPath = ""
+		setupPath = Inputbox("Enter Read/Write Network Path to install to", "Setup testing of install to Read/Write network path", TempNetInstallTargetPath)
+		if not exists(setupPath, "+d") then
+			Msgbox("Path is invalid! Please re-enter")
+			setupPath = ""
+		end if
+		if instr(attrib$(setupPath),"+R") then
+			Msgbox("Path is read-only! Please re-enter a read/write share")
+			setupPath = ""
+		end if
+	wend
+else
+	setupPath = TempNetInstallTargetPath
+end if
+
+	'
+	' Delete files in network directory
+	'
+	if exists(setupPath, "+d") then
+		Log #10, "Deleting "+setupPath+" directory"
+		if exists(setupPath+"\*.*") then kill setupPath+"\*.*"
+		FILELIST clear
+		FILELIST add setupPath+"\*.*", "+d"
+		If Len(FileList) <> 0 Then 
+			For strTmp in FileList 
+				killdir(strTmp)
+			Next 
+		End If 
+		Log #10, "Deletion Complete"
+	end if
+	'
+	'
+	'
+	Install(BuildNumber, false, false, , , setupPath)
+	'
+	'
+	'
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

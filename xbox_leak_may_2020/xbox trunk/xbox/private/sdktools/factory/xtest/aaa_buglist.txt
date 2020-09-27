@@ -1,0 +1,42 @@
+
+
+[FIXED 10/16 -EG]From brad 10/10/00: I set debugmask = 3 in my INI file, and then debug messages came out: too many of them.  I had one message use BIT1, and one use BIT4, and both were displayed.  Thoughts?
+
+From Jay 10/16/00: Stop command causes access violation writing virtual address
+
+[FIXED 10/16 -EG]From Jay 10/16/00: trying to check against a string with spaces generates error "failed with exception: invalid syntax"  this is necessary for checking certain items like debug bits.
+
+From Jay 10/16/00: if there is a space after a value before , on run/start line (ie "count = 1 ,") there are errors about converting the value to integer. [my fault]
+
+[DONE 10/23/00] From brad 10/18/00: Change ReportError() to return a bool; true indicates an abort signaled, false indicates no abort signaled.
+
+[FIXED 10/23/00] From Jay 10/18/00: SetTimeoutLimit does not change the timeout from 30 seconds (the default).  
+
+[FIXED 10/23/00] From Jay 10/18/00: using GetCfgInt on 0xffffffff does not return -1 (returns 2147483647)
+
+[Feature -eg]From Jay 10/19/00: debugmask does not work as global statement, nor can you change a variable in the test flow twice.
+
+[NEVER MIND, was not implemented yet]From Jay 10/20/00: using loop causes assertion failure.
+
+From Jay 10/23/00: limit of 128 chars on line is no longer enforced.
+
+[FIXED 10/23/00] From Jay 10/23/00: Divide by zero in release version causes hang.
+
+From Jay 10/27/00: throw (0, NULL) results in assertion failure or access violation
+
+From Jay 10/27/00: return value for converting to int is not checked on GetCfgInt
+
+From Brad 12/20/00: CheckAbort() access time(NULL); experiments have shown that this causes a 2.5 ms delay.  Replace time(NULL) with GetTickCount()
+
+[Not going to be fixed; this is intended behavior 1/25/01] From Brad 01/12/01: timelimit and debugmask are not inherited by the tests inside a loop.  For example, observe the following INI section:
+
+	[testflow];-- This section must follow parameters section
+	run loop, debugmask = 3, haltonerror = false, looplimit = 1, timelimit = 3600
+
+	run CPU.feature_check
+	end loop
+
+	In this INI section, when CPU.feature_check runs, the defaults are applied to timelimit and debug mask
+	(0 and 0 respectively).  Both of these should apply to every entry in the loop.
+
+From Brad 1/25/01: maxtimeout can be set in an INI file at the loop level, but not at the test level (inside the loop)

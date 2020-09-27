@@ -1,0 +1,26 @@
+The following are specific test cases for content download and install where specific faults are inserted at various different areas to make sure the RC4 SHA1 Hmac checksums can detect corrupt data and fail the installation.
+
+corrupt1.xcp - Corrupt header
+
+	Based on: test1.xcp
+	Corruption: Changed byte offset 0x50 from 0x61 to 0x62
+
+corrupt2.xcp - Corrupt header checksum 
+
+	Based on: test1.xcp
+	Corruption: Changed byte offset 0x70 from 0x2b to 0x2c
+
+corrupt3.xcp - Corrupt CFFOLDER entries 
+
+	Based on: test1.xcp
+	Corruption: Changed byte offset 0x190 from 0x5d to 0x5e
+
+corrupt4.xcp - Corrupt CFFILE entries 
+
+	Based on: test1.xcp
+	Corruption: Changed byte offset 0x1d0 from 0x06 to 0x07
+
+corrupt5.xcp - Corrupt CFDATA entries 
+
+	Based on: test1.xcp
+	Corruption: Changed byte offset 0x1f180 from 0x49 to 0x4a

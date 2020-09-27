@@ -1,0 +1,14 @@
+; Transforms a vertex to homogenoeous clip space
+; and colors it with a fixed color
+#include "lighting.h"
+
+vs.1.0
+
+; Transform to clip space
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+; Write out the color
+mov oD0, c[CV_FIXED_COLOR]

@@ -1,0 +1,191 @@
+//=--------------------------------------------------------------------------=
+// SFDesign.IDL
+//=--------------------------------------------------------------------------=
+//	Copyright (c) 1999-2000, Microsoft Corporation, All Rights Reserved
+//	Information Contained Herein Is Proprietary and Confidential.
+//
+// IDL for the WebForm Designer, which lives in Microsoft.VisualStudio.Designer.
+// It is compiled and glommed by COM+'s TLBIMP tool into a SFDesigner.DLL containing
+// only COM+ metadata. This DLL is then used by the WFC build to build the
+// actual designer code in Microsoft.VisualStudio.Designer.
+//
+//	johnkal --	1999-April-16
+//
+
+import "oaidl.idl";
+import "designer.idl";
+
+// SFDesign Type library
+[
+   uuid(E340A220-F45F-11d2-8FB9-00C04F79A0AB),
+   helpstring("Web Form Designer Library")
+]
+library SFDesign
+{
+	importlib("stdole2.tlb");
+	
+	// ----------------------------------------------------------------------------
+	// IWebFormDesigner
+	// This is the main interface to the Web Form Designer. Any services we want
+	// to expose to COM callers must be exposed on it.
+
+	[
+		object,
+		uuid(E340A221-F45F-11d2-8FB9-00C04F79A0AB),
+		pointer_default(unique)
+	]
+	interface IWebFormDesigner : IUnknown
+	{
+		// Called when elements are created in the HTML designer.
+
+		HRESULT CreateControl([in] IUnknown* punkHTMLElement,
+							   [in] BSTR tagname,
+							   [in] BSTR serverID,
+							   [in] BSTR outerHTML,
+							   [out, retval] IUnknown ** ppUnk);
+
+		// Called when elements are deleted in the HTML designer.
+
+		HRESULT DeleteControl([in] BSTR bstrTagName, [in] BSTR bstrServerID, [in] BOOL fDirty, [in] BOOL fSourceView);
+
+		// Called once HTMED has started to load (or reload) the webform document.
+
+		HRESULT OnHTMLLoadStart();
+
+		// Called when HTMED has completely loaded the webform document.
+
+		HRESULT OnHTMLLoadComplete([in] BOOL fSourceView, [in] BOOL fReloadDocData);
+
+		// Called by HTMED to synchronize the selection container handling the webform
+		// designer using an up-to-date COM based selection container.
+
+		HRESULT SyncSelectionContainer([in] ISelectionContainer* pSelCon);
+
+		// Navigates to the code behind the form. If fEventHandler is true,
+		// we should go to the default event handler of the ServerID'd control
+		// However, if the serverID is NULL, we should go to the default event
+		// handler of the Web Form. Code for the event handler is generated if
+		// it isn't present. If fEventHandler is false, the ServerID parameter
+		// is ignored, and the codebehind file is displayed immediately without
+		// moving the cursor or spitting code. anythe 
+
+		HRESULT NavigateToCodeBehind([in] BOOL fEventHandler, [in] BSTR ServerID);
+
+		// Called when the Trident droptarget experience a drag-drop. This gives
+		// the WebFormsDesigner the first shot at accepting components that aren't
+		// HTML-compatible. This way, we can drop arbitrary junk, even
+		// builders, on a WebForm. Note that we don't pass in the coordinates
+		// of the drop, since these are intended for non-visual components.
+
+		HRESULT OnDragEnter([in] IUnknown * pDataObject, [in,out] DWORD * pdwEffect, [out, retval] BSTR* pbstrHTML);
+		HRESULT OnDragOver([in,out] DWORD * pdwEffect);
+		HRESULT OnDragDrop([in] IUnknown * pDataObject, [in] BOOL fNonVisualComponent);
+		HRESULT OnDragLeave();
+
+		// Called when the toolbox wishes to determine whether a toolbox item is
+		// usable or not.
+
+		HRESULT IsSupported([in] IUnknown * pDataObject);
+
+		// Called when an item has been picked from the toolbox.
+
+		HRESULT ItemPicked([in] IUnknown * pDataObject, [out, retval] BSTR* pbstrHTML);
+
+		// Returns the fully qualified name of the base component. Used to initialize the
+		// page directives in the ASPX file.
+
+		HRESULT GetBaseComponentClassName([out, retval] BSTR * pbstrClassName);
+
+		// Tells the designer whether to display the glyphs for all server controls or not.
+
+		HRESULT SetShowControlGlyphs([in] BOOL fShowControlGlyphs);
+
+		// Tells the designer to add a register directive to support third party custom controls.
+
+		HRESULT AddRegisterDirective([in] BSTR bstrTagPrefix, [in] BSTR bstrNamespace, [in] BSTR bstrAssembly,
+									 [in] BSTR bstrTagName, [in] BSTR bstrSrc);
+
+		// Tells the designer to remove the register directive identified by the tagprefix passed in.
+
+		HRESULT RemoveRegisterDirective([in] BSTR bstrTagPrefix, [in] BSTR bstrTagName);
+
+		HRESULT GetWebControlHTML([in] IUnknown * pDataObject, [out, retval] BSTR* pbstrHTML);
+
+		HRESULT GetViewLinkDocuments([out] IUnknown ** apUnkObjects);
+
+		HRESULT OnCloseDocument();
+
+		HRESULT GetUserControlHTML([in] BSTR bstrFilePath, [in] BSTR bstrFileName, [out, retval] BSTR* pbstrHTML);
+
+		HRESULT PersistRegisterDirectives([out, retval] BSTR* pbstrDirectives);
+
+		HRESULT OnControlIDChanged([in] BSTR bstrOldID, [in] BSTR bstrNewID);
+
+		HRESULT ProcessInitialIdle();
+
+		HRESULT AddElementNamespace([in] BSTR bstrNamespace);
+
+		HRESULT UpdateUserContext([in] IUnknown *pc);
+
+		HRESULT ValidateID([in] BSTR bstrID);
+
+		HRESULT OnDocumentDirChange([in] BSTR bstrDir);
+
+		HRESULT IsLoading([out, retval] BOOL* pfIsLoading);
+	};
+
+
+	// ----------------------------------------------------------------------------
+	// IWebFormsControlDesigner
+	// Implemented by the individual control designers.
+	
+	[
+		object,
+		uuid(3911F71D-C6D7-44a4-A1EB-4D113B9B2B95),
+		pointer_default(unique)
+	]
+	interface IWebFormsControlDesigner : IUnknown
+	{
+		HRESULT GetSourceEventSink([out, retval] IUnknown** ppunkEventSink);
+	}
+
+	// ----------------------------------------------------------------------------
+	// ISourceViewEventSink
+	// Interface used by HTMED (unmanaged code) to notify the control designer of
+	// property changes.
+	
+	[
+		object,
+		uuid(EF55C6B7-5455-456a-9FE4-ABDC2B6F01B5),
+		pointer_default(unique)
+	]
+	interface ISourceViewEventSink : IUnknown
+	{
+		HRESULT OnPropertyChanged([in] BSTR bstrPropName, [in] BSTR bstrPropValue);
+	}
+
+
+	// ----------------------------------------------------------------------------
+	// IWebFormsBehavior
+	// Implemented by the behaviors used by server controls.
+	
+	[
+		object,
+		uuid(9212C799-BA0F-421a-9152-B57FB7162672),
+		pointer_default(unique)
+	]
+	interface IWebFormsBehavior : IUnknown
+	{
+		HRESULT IsTemplatedControl([out, retval] BOOL* pfTemplatedControl);
+
+		HRESULT IsInReadOnlyMode([out, retval] BOOL* pfReadOnlyMode);
+
+		HRESULT IsStyleSupported([out, retval] BOOL* pfStyleSupported);
+
+		HRESULT GetViewLinkDocument([out, retval] IUnknown** ppunkDocument);
+
+		HRESULT GetViewLinkEventSrcElement([out, retval] IUnknown** ppunkSrcElement);
+
+		HRESULT GetPersistedHTML([out, retval] BSTR* pbstrPersistedHTML);
+	}
+};

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>MU.SetCapacity</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>SetCapacity</H1>
+    <DIV CLASS=BLOCK>
+    Configures the size of the memory unit.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("void SetCapacity(unsigned long numBlocks, unsigned short blockSize, unsigned short logicalSize)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>numBlocks</I><BR>
+        The number of blocks on the memory unit
+    <DT><I>blockSize</I><BR>
+        The number of bytes in each block
+    <DT><I>logicalSize</I><BR>
+        Optional parameter, the number of blocks per logical block (default == 0)
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>The default size is 8 megs (SetCapacity(0x3EFF, 0x0200, 0)). <BR>Never change the capacity of a memory unit while it is <A HREF="m_Plug.htm">Plug</A>ed in. <BR>Changing the capacity will flush any data currently stored and set the memory to 0xFF (equivelant to the Unformat method).</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var mu = WScript.CreateObject(\"USBSimulator.MU\");\n\nmu.SetCapacity(0x3EFF, 0x0400); // set to 16 megs");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="m_Unformat.htm">Unformat</A>, <A HREF="m_Format.htm">Format</A>
+    </DIV>
+
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

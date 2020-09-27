@@ -1,0 +1,46 @@
+// vcprojcnvt.idl : IDL source for vcprojcnvt.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (vcprojcnvt.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+[
+	object,
+	uuid(7D8AE8C4-3FD3-11D3-8D52-00C04F8ECDB6),
+	helpstring("IVCProjConvert Interface"),
+	pointer_default(unique)
+]
+interface IVCProjConvert : IUnknown
+{
+	[id(1), helpstring("method OpenProject")] HRESULT OpenProject(BSTR bstrProjectPath, IUnknown *pProjEngine, IUnknown *pUnkServiceProvider );
+	[id(2), helpstring("method Initialize")] HRESULT Initialize(BSTR bstrSourceFilesString);
+	[id(3), helpstring("method GetPackage")] HRESULT GetPackage(long **ppPackage);
+	[id(4), helpstring("method GetProject")] HRESULT GetProject(IDispatch **ppProject);
+	[propget, id(5), helpstring("property HasProjectDependencies")] HRESULT HasProjectDependencies( [out, retval] VARIANT_BOOL *pbHasDeps );
+	[propget, id(6), helpstring("property ProjectDependenciesCount")] HRESULT ProjectDependenciesCount( [out, retval] long *plNumDeps );
+	[id(7), helpstring("method GetNextProjectDependency")] HRESULT GetNextProjectDependency( [out] BSTR* pbstrProject, [out] BSTR* pbstrDependentProject );
+	[id(8), helpstring("method ResetProjectDependencyEnum")] HRESULT ResetProjectDependencyEnum();
+};
+
+
+[
+	uuid(D43DAED2-3FCF-11D3-8D52-00C04F8ECDB6),
+	version(1.0),
+	helpstring("vcprojcnvt 1.0 Type Library")
+]
+library VCPROJCNVTLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		uuid(7D8AE8C5-3FD3-11D3-8D52-00C04F8ECDB6),
+		helpstring("VCProjConvert Class")
+	]
+	coclass VCProjConvert
+	{
+		[default] interface IVCProjConvert;
+	};
+};
+

@@ -1,0 +1,29 @@
+TARGETNAME=memprint
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS= /INITFLAGS:0 /TESTID:0xaaaacccc /TESTNAME:"Memory Footprint"
+
+SOURCES=\
+    memprint.cpp \
+    bitfont.cpp \
+    utils.cpp
+
+INCLUDES = $(DDK_INC_PATH);                     \
+           $(SDK_INC_PATH);                     \
+           $(INCLUDES);                         \
+           $(BASEDIR)\private\ntos\inc;         \
+           $(BASEDIR)\private\ntos\xapi\inc;    \
+           $(BASEDIR)\private\inc;              \
+           $(BASEDIR)\private\inc\crypto;       \
+           $(BASEDIR)\private\test\inc
+
+TARGETLIBS= \
+    $(SDK_LIB_PATH)\xboxkrnl.lib        \
+    $(SDK_LIB_PATH)\libcntpr.lib        \
+    $(SDK_LIB_PATH)\xhawk.lib           \
+    $(SDK_LIB_PATH)\d3d8d.lib           \
+    $(SDK_LIB_PATH)\xnetd.lib           \
+    $(SDK_LIB_PATH)\dsoundd.lib         \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib

@@ -1,0 +1,312 @@
+---------------------------------
+Structure of the effect text file
+---------------------------------
+
+Effect -
+    Declarations
+    Techniques
+
+
+Declaration -
+    Type Id;
+    Type Id = Value;
+
+
+    Type -
+        dword -
+            #
+            0x# (hex)
+
+        float -
+            #f
+            #.f
+            .#f
+            #.#f
+
+        vector -
+            ( float )
+            ( float, float )
+            ( float, float, float )
+            ( float, float, float, float )
+
+        matrix -
+            [ float, .... ]
+
+        texture -
+            N/A
+
+        vertexshader -
+            decl { ... }
+            decl { ... }, asm { ... }
+
+            FVF -
+                DwordExpression
+
+            Declaration -
+                decl {
+                    stream n;
+                    skip n;
+                    dword v#;
+                    float v#;
+                    float v#[n];
+                    fvf a|b|c;
+                }
+
+
+        pixelshader -
+            asm { ... }
+
+
+
+
+Technique
+Technique name
+
+    State    = const;
+    State[n] = const;
+    State    = <id>;
+    State[n] = <id>;
+
+
+    State -
+        RS
+        TSS[n]
+
+        VertexShader
+        PixelShader
+
+        VertexShaderConstant[n]
+        PixelShaderConstant[n]
+        
+        LightXxx[n]
+            dword type
+            float diffuse[4]
+            float specular[4]
+            float ambient[4]
+            float position[3]
+            float direction[3]
+            float range
+            float falloff
+            float attenuation0
+            float attenuation1
+            float attenuation2
+            float theta
+            float phi
+
+        LightEnable[n]
+
+        MaterialXxx
+            float diffuse[4]
+            float ambient[4]
+            float specular[4]
+            float emissive[4]
+            float power
+
+        Texture[n]
+        TextureTransform[n]
+
+        ProjectionTransform
+        ViewTransform
+        WorldTransform[n]
+
+
+
+
+    Pass
+    Pass name
+        State
+
+
+--------------------------------
+Examples of various declarations
+--------------------------------
+
+dword dw0;
+dword dw1 = 0;
+
+float f0;
+float f1 = 0.0f;
+
+vector vec0;
+vector vec1 = (0.0f, 0.0f, 0.0f, 1.0f);
+
+matrix mat0;
+matrix mat1 = [1.0f, 0.0f, 0.0f, 0.0f,
+              0.0f, 1.0f, 0.0f, 0.0f,
+              0.0f, 0.0f, 1.0f, 0.0f,
+              0.0f, 0.0f, 0.0f, 1.0f];
+
+texture tex0;
+
+vertexshader vs0;
+vertexshader vs1 =
+    decl {
+	fvf position | normal | diffuse;
+    };
+
+vertexshader vs2 =
+    decl {
+       stream 0;
+       float v0[3];
+    };
+
+
+vertexshader vs3 =
+    decl {
+        fvf position;
+    }
+    asm
+    {
+        vs.1.0
+        mov oPos, v0
+    };
+
+pixelshader ps0;
+pixelshader ps1 =
+    asm
+    {
+        ps.1.0
+        tex t0
+        mov r0, t0
+    }
+
+-------------------------------------
+List of states used in an effect file
+-------------------------------------
+
+//  RenderStates
+    DWORD        ZEnable                        // D3DZB
+    DWORD        FillMode                       // D3DFILL
+    DWORD        ShadeMode                      // D3DSHADE
+    DWORD        LinePattern                    
+    DWORD        ZWriteEnable                   // TRUE/FALSE
+    DWORD        AlphaTestEnable                // TRUE/FALSE
+    DWORD        LastPixel                      // TRUE/FALSE
+    DWORD        SrcBlend                       // D3DBLEND
+    DWORD        DestBlend                      // D3DBLEND
+    DWORD        CullMode                       // D3DCULL
+    DWORD        ZFunc                          // D3DCMP
+    DWORD        AlphaRef                       
+    DWORD        AlphaFunc                      // D3DCMP
+    DWORD        DitherEnable                   // TRUE/FALSE
+    DWORD        AlphaBlendEnable               // TRUE/FALSE
+    DWORD        FogEnable                      // TRUE/FALSE
+    DWORD        SpecularEnable                 // TRUE/FALSE
+    DWORD        ZVisible                       // TRUE/FALSE
+    DWORD        FogColor                       
+    DWORD        FogTableMode                   // D3DFOG
+    FLOAT        FogStart                       
+    FLOAT        FogEnd                         
+    FLOAT        FogDensity                     
+    DWORD        EdgeAntialias                  // TRUE/FALSE
+    DWORD        ZBias                          
+    DWORD        RangeFogEnable                 
+    DWORD        StencilEnable                  // TRUE/FALSE
+    DWORD        StencilFail                    // D3DSTENCILOP
+    DWORD        StencilZFail                   // D3DSTENCILOP
+    DWORD        StencilPass                    // D3DSTENCILOP
+    DWORD        StencilFunc                    // D3DCMP
+    DWORD        StencilRef                     
+    DWORD        StencilMask                    
+    DWORD        StencilWriteMask               
+    DWORD        TextureFactor                  
+    DWORD        Wrap0                          // D3DWRAP
+    DWORD        Wrap1                          // D3DWRAP
+    DWORD        Wrap2                          // D3DWRAP
+    DWORD        Wrap3                          // D3DWRAP
+    DWORD        Wrap4                          // D3DWRAP
+    DWORD        Wrap5                          // D3DWRAP
+    DWORD        Wrap6                          // D3DWRAP
+    DWORD        Wrap7                          // D3DWRAP
+    DWORD        Clipping                       // TRUE/FALSE
+    DWORD        Lighting                       // TRUE/FALSE
+    DWORD        Ambient                        
+    DWORD        FogVertexMode                  
+    DWORD        ColorVertex                    // TRUE/FALSE
+    DWORD        LocalViewer                    // TRUE/FALSE
+    DWORD        NormalizeNormals               // TRUE/FALSE
+    DWORD        DiffuseMaterialSource          // D3DMCS
+    DWORD        SpecularMaterialSource         // D3DMCS
+    DWORD        AmbientMaterialSource          // D3DMCS
+    DWORD        EmissiveMaterialSource         // D3DMCS
+    DWORD        VertexBlend                    // D3DVBF
+    DWORD        ClipPlaneEnable                // TRUE/FALSE
+    DWORD        SoftwareVertexProcessing       // TRUE/FALSE
+    FLOAT        PointSize                      
+    FLOAT        PointSize_Min                  
+    FLOAT        PointSize_Max                  
+    DWORD        PointSpriteEnable              // TRUE/FALSE
+    DWORD        PointScaleEnable               // TRUE/FALSE
+    FLOAT        PointScale_A                   
+    FLOAT        PointScale_B                   
+    FLOAT        PointScale_C                   
+    DWORD        MultiSampleAntialias           // TRUE/FALSE
+    DWORD        MultiSampleMask                
+    DWORD        PatchSegments                  
+    DWORD        IndexedVertexBlendEnable       // TRUE/FALSE
+    DWORD        ColorWriteEnable               // TRUE/FALSE
+    FLOAT        TweenFactor                    
+    DWORD        BlendOp                        // D3DBLENDOP
+
+//  TSS  
+    DWORD        ColorOp[8]                     // D3DTOP
+    DWORD        ColorArg0[8]                   // D3DTA
+    DWORD        ColorArg1[8]                   // D3DTA
+    DWORD        ColorArg2[8]                   // D3DTA
+    DWORD        AlphaOp[8]                     // D3DTOP
+    DWORD        AlphaArg0[8]                   // D3DTA
+    DWORD        AlphaArg1[8]                   // D3DTA
+    DWORD        AlphaArg2[8]                   // D3DTA
+    DWORD        ResultArg[8]                   // D3DTA
+    DWORD        BumpEnvMat00[8]  
+    DWORD        BumpEnvMat01[8]  
+    DWORD        BumpEnvMat10[8]  
+    DWORD        BumpEnvMat11[8]  
+    DWORD        TexCoordIndex[8]               // D3DTSS_TCI
+    DWORD        AddressU[8]                    // D3DTADDRESS
+    DWORD        AddressV[8]                    // D3DTADDRESS
+    DWORD        AddressW[8]                    // D3DTADDRESS
+    DWORD        BorderColor[8]  
+    DWORD        MagFilter[8]                   // D3DTEXF
+    DWORD        MinFilter[8]                   // D3DTEXF
+    DWORD        MipFilter[8]                   // D3DTEXF
+    DWORD        MipMapLodBias[8]  
+    DWORD        MaxMipLevel[8]  
+    DWORD        MaxAnisotropy[8]  
+    FLOAT        BumpEnvLScale[8]  
+    FLOAT        BumpEnvLOffset[8]  
+    DWORD        TextureTransformFlags[8]       // D3DTTFF
+
+//  Light  
+    DWORD        LightType[n]                   // D3DLT
+    VECTOR       LightDiffuse[n]  
+    VECTOR       LightSpecular[n]  
+    VECTOR       LightAmbient[n]  
+    VECTOR       LightPosition[n]  
+    VECTOR       LightDirection[n]   
+    FLOAT        LightRange[un]   
+    FLOAT        LightFalloff[n]   
+    FLOAT        LightAttenuation0[n]   
+    FLOAT        LightAttenuation1[n]   
+    FLOAT        LightAttenuation2[n]   
+    FLOAT        LightTheta[n]   
+    FLOAT        LightPhi[n]   
+    DWORD        LightEnable[n]                 // TRUE/FALSE
+
+//  Material  
+    VECTOR       MaterialDiffuse
+    VECTOR       MaterialAmbient
+    VECTOR       MaterialSpecular
+    VECTOR       MaterialEmissive
+    FLOAT        MaterialPower
+
+//  Misc  
+    VERTEXSHADER VertexShader
+    PIXELSHADER  PixelShader
+    CONSTANT     VertexShaderConstant[n]  
+    CONSTANT     PixelShaderConstant[n]  
+    TEXTURE      Texture[8]  
+    MATRIX       ProjectionTransform
+    MATRIX       ViewTransform
+    MATRIX       WorldTransform[256]  
+    MATRIX       TextureTransform[8]  

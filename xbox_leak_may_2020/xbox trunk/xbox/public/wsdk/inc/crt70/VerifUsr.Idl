@@ -1,0 +1,51 @@
+// verifusr.idl : IDL source for verifusr.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (verifusr.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+cpp_quote("DEFINE_GUID(IID_Iverifusr,0xC4F9C9CA,0xC33E,0x11D0,0xB8,0xA0,0x00,0xC0,0x4F,0xB6,0x16,0xC7);")
+cpp_quote("DEFINE_GUID(CLSID_verifusr,0xC4F9C9CC,0xC33E,0x11D0,0xB8,0xA0,0x00,0xC0,0x4F,0xB6,0x16,0xC7);")
+cpp_quote("DEFINE_GUID(LIBID_VERIFUSRLib,0xC4F9C9BD,0xC33E,0x11D0,0xB8,0xA0,0x00,0xC0,0x4F,0xB6,0x16,0xC7);")
+
+    [
+        object,
+        uuid(C4F9C9CA-C33E-11D0-B8A0-00C04FB616C7),
+        dual,
+        helpstring("Iverifusr Interface"),
+        pointer_default(unique)
+    ]
+    interface Iverifusr : IDispatch
+    {
+        //Standard Server Side Component Methods
+        HRESULT OnStartPage([in] IUnknown* piUnk);
+        HRESULT OnEndPage();    
+        [id(1), helpstring("method VerifyCredentials")] HRESULT VerifyCredentials(BSTR bszUserName, BSTR bszPassword, BSTR bszURL, [out, retval] BSTR * pbstrUrlToRedirect);
+        [id(2), helpstring("method IssueCookieToOldUser")] HRESULT IssueCookieToOldUser(BSTR bszUserName);
+        [id(3), helpstring("method IssueCookiesToNewUser")] HRESULT IssueCookiesToNewUser(BSTR bszUserName, [out, retval] BSTR * pbstrNewGUIDValue);
+        [id(4), helpstring("method HashCert")] HRESULT HashCert(BSTR bszSubjectName, BSTR bszIssuerName, [out, retval] BSTR * pbstrCertHash);
+        [id(5), helpstring("method IssueRecentChangesCookie")] HRESULT IssueRecentChangesCookie(BSTR bszUserName);
+        [id(6), helpstring("method VerifyPassword")] HRESULT VerifyPassword(BSTR bszUserName, BSTR bszPassword, [out, retval] LONG * plPasswordVerified);
+    };
+[
+    uuid(C4F9C9BD-C33E-11D0-B8A0-00C04FB616C7),
+    version(1.0),
+    helpstring("verifusr 1.0 Type Library")
+]
+library VERIFUSRLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+
+    [
+        uuid(C4F9C9CC-C33E-11D0-B8A0-00C04FB616C7),
+        helpstring("verifusr Class")
+    ]
+    coclass verifusr
+    {
+        [default] interface Iverifusr;
+    };
+};

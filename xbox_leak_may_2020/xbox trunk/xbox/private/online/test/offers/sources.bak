@@ -1,0 +1,34 @@
+TARGETNAME=billing
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+
+INCLUDES=\
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\private\online\util;\
+    $(BASEDIR)\private\online;\
+    $(BASEDIR)\private\ntos\net;\
+    $(BASEDIR)\private\online\test\common;
+
+SOURCES=\
+    xmain.c
+
+TARGETLIBS=\
+    $(SDK_LIB_PATH)\xonline$(D).lib \
+    $(BASEDIR)\private\online\test\common\obj\i386\testutil$(D).lib \
+    $(SDK_LIB_PATH)\xfont$(D).lib \
+    $(SDK_LIB_PATH)\xfonttt$(D).lib \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib
+    

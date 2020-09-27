@@ -1,0 +1,151 @@
+CATEGORY Build
+ 	AREA Project
+	 	SUBAREA Options
+		SUBAREA File I/O
+			API int COProject::New( PROJOPTIONS &stOptions) 
+			API int COProject::New(params); Creates new project of the specified type
+				PARAM	LPCSTR szProjName
+				PARAM	int ProjType
+				PARAM	LPCSTR szDir = NULL
+				PARAM	LPCSTR szNewSubDir = NULL
+				PARAM	int ProjFileOpt = CNP_ADD_FILES_MYSELF
+				PARAM	LPCSTR szProjFilesPath = NULL
+				PARAM	LPCSTR szRemotePath = NULL
+				PARAM	LPCSTR szRemoteFile = NULL
+			API int COProject::Save(void)
+			API	int COProject::Close( int iSave = 0)
+		SUBAREA	Window
+			API BOOL COProject::ActivateProjWnd(void) 
+		SUBAREA Build Commands
+			API int COProject::Build( int iWait = 3), Builds current project and waits iWait seconds
+			API int COProject::RebuildAll(int iWait)  
+			API int COProject::StopBuild( void)
+			API int COProject::VerifyBuild( params ), Verifies if a build was successful
+		   		PARAM	BOOL LogErrors = FALSE
+				PARAM	int* iErr= NULL
+				PARAM	int* iWarn = NULL
+				PARAM	BOOL WrnsAsErrs = FALSE
+		   	API int COProject::GetErrorCount( void) 
+			API int COProject::GetWarningCount( void) 
+
+ 	AREA Debugger
+		SUBAREA Starting / Stopping
+		    API BOOL CODebug::Go( params), Starts or continues debug session
+				PARAM	LPCSTR symbol = NULL
+				PARAM	LPCSTR line = NULL
+				PARAM	LPCSTR function = NULL
+				PARAM	int WAIT=WAIT_FOR_BREAK
+	        API BOOL CODebug::Restart( LPCSTR path = NULL)	, Starts debugging from begining of the program
+			API BOOL CODebug::StopDebugging( int WAIT=ASSUME_NORMAL_TERMINATION), Stops debug session
+		SUBAREA Stepping
+	        API BOOL CODebug::ValidateSteppingMode( StepMode mode) Validates...
+	        API BOOL CODebug::StepInto( params)
+				PARAM	int count = 1
+				PARAM	LPCSTR symbol = NULL
+				PARAM	LPCSTR line = NULL
+				PARAM	LPCSTR function = NULL
+				PARAM	int WAIT=WAIT_FOR_BREAK
+		SUBAREA Breakpoints
+			API bp* COBreakpoints::SetBreakpoint( LPCSTR location = NULL, int passcount = 0)
+
+CATEGORY Editors
+	AREA Source Editor
+		SUBAREA File I/O  
+			API	int COSource::Create(LPCSTR szSaveAs = NULL)
+			API int COSource::Open(LPCSTR szFileName, LPCSTR szChDir = NULL, EOpenAs oa = OA_AUTO), Opens a file
+			API virtual int COSource::Close(BOOL bSaveChanges = FALSE)
+			API virtual int COSource::Save(void)
+			API virtual int COSource::SaveAs(LPCSTR szFileName, BOOL bOverWrite = FALSE)
+			API virtual BOOL COSource::AttachActiveEditor(void), Attaches Editor
+		SUBAREA Editor Attributes
+			API BOOL GetReadOnly(void)
+		SUBAREA Selection Operations
+			API int COSource::GetCurrentLine(void)
+			API int COSource::GetCurrentColumn(void), Returns the column at the current cursor position
+			API CString COSource::GetSelectedText(void)
+			API void COSource::SelectText( params)
+				PARAM  	int line1
+				PARAM  	int column1
+				PARAM  	int line2
+				PARAM	int column2
+				PARAM	BOOL bColumnSelect = SELECT_NORMAL
+			API void COSource::SetCursor( int line, int column)
+			API void COSource::InsertText( LPCSTR szText, int line, int column)
+			API void COSource::TypeTextAtCursor( LPCSTR szText)
+		SUBAREA Search Operations
+			API void COSource::Find( LPCSTR szText = NULL, BOOL bFromTop = FALSE), Finds the text shown in toolbar combo box
+			API void COSource::Replace( params)
+				PARAM  LPCSTR szOld = NULL
+				PARAM  LPCSTR szNew = NULL
+				PARAM  BOOL bWholeWord = FALSE
+				PARAM  BOOL bExpression = FALSE
+				PARAM  BOOL bCase = FALSE
+	AREA	Resource Editors
+		SUBAREA File IO
+			API int COResScript::Open( params), Opens an RC file
+				PARAM	LPCSTR szFileName
+				PARAM	LPCSTR szChDir = NULL
+			API virtual int COResScript::Save(void)
+		SUBAREA Dialog Editor
+			API int COResScript::CreateResource( UINT idResType), Creates a new resource of the specified type
+			API	BOOL  UIDlgEdit::DropControl( int nControl, int cX, int cY), Drops a dialog control at the specified dialog coordinates
+
+CATEGORY Wizards
+	AREA   AppWizard   
+	    SUBAREA Creation,    
+	        API HWND UIAppWizard::Create( void)
+	    	API HWND UIAppWizard::ConfirmCreate( void)
+	    SUBAREA Initialization
+	    	API void UIAppWizard::SetName( LPCSTR szName = CoolszName ), Sets the Name of the Project to create.
+		    API void UIAppWizard::SetDir( LPCSTR szName=e:\ ), Specifies the directory where the project will be created.
+		    API void UIAppWizard::SetSubDir( LPCSTR szName ), Specifies subdir
+		    API void UIAppWizard::SetPlatform( UINT iPlatform ) , specifies platform
+	        API void UIAppWizard::SetAppType( UINT id )	, specifies target type
+	    	API void UIAppWizard::SetDBOptions( UINT id )  , specifies debbuger options
+	    	API void UIAppWizard::SetOLEOptions( UINT id )  , OLE options
+	    	API void UIAppWizard::SetProjOptions( UINT id ) , Project options
+	    	API void UIAppWizard::SelectClass( UINT n )	  
+	    	API void UIAppWizard::SelectClass( LPCSTR sz )	   
+	    	API CString UIAppWizard::GetClassName( void)
+	    	API CString UIAppWizard::GetBaseClass( void)
+	    	API CString UIAppWizard::GetSourceFile( void)
+	    	API CString UIAppWizard::GetHeaderFile( void)
+	    SUBAREA Navigation
+	    	API int UIAppWizard::NextPage( void)
+	    	API int UIAppWizard::PrevPage( void)
+	    	API int UIAppWizard::Finish( void)
+	    	API HWND UIAppWizard::Cancel( void)
+ 
+	CATEGORY Common Utilities
+	AREA  IDE
+		SUBAREA Mouse
+			API void ClickMouse(int nButton,HWND hwnd, int cX,  int cY)
+			API void DragMouse(int nButton,HWND hwnd1,int cX1,int cY1, HWND hwnd2,int cX2,int cY2)
+			API BOOL ScreenToClient(HWND hwnd, CRect* pRect)
+			API BOOL ClientToScreen(HWND hwnd, CRect* pRect)
+		SUBAREA Commands
+		   	API int DoMenu( params) 
+		   	 	PARAM   LPCSTR szMenu      
+		   	API BOOL DoSingleMenu( params)
+		   		PARAM	LPCSTR szMenu   
+		SUBAREA Keyboard
+	    	API  void DoKeysSlow(LPCSTR szKeys, WORD wMilliseconds = 0, BOOL bLiteral = FALSE)
+		SUBAREA Window Operations
+	AREA File Operations
+		SUBAREA File Compare / Search
+			API int CompareFiles( LPCSTR strSource, LPCSTR strTarget, int nStart), Verifies if two files are identical
+			API int FindStrInFile(LPCSTR szFileName, LPCSTR szStr, int nStart = 1)
+		SUBAREA File Delete / Copy
+			API void KillFile( LPCSTR szPathName, LPCSTR szFileName = NULL, BOOL bIgnoreReadOnly = FALSE)
+			API BOOL KillAllFiles(LPCSTR szPathName, BOOL bRemoveDir = TRUE), Deletes all the files in the specified directory
+			API void CopyTree(LPCSTR szFrom, LPCSTR szTo)
+	AREA Process Control
+		SUBAREA Delays
+			API void MilliSleep( DWORD milliseconds )
+  	AREA  MS Test   
+	    SUBAREA Keyboard
+			API static int CMSTest::DoKeys ( LPCSTR sz, BOOL bLiteral = FALSE)
+	    SUBAREA Mouse
+	    SUBAREA Window Operations
+	    SUBAREA Control Operations
+

@@ -1,0 +1,48 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+TARGETNAME=coverage
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMENTRYABS=CoverageAbsEntry@0
+
+SOURCES=core.cpp \
+        coverage.cpp
+
+INCLUDES=$(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(BASEDIR)\private\ntos\inc; \
+         ..\bbt; \
+         ..\md5; \
+         ..\covfile; \
+         ..
+
+TARGETLIBS=$(SDK_LIB_PATH)\xboxkrnl.lib \
+           $(SDK_LIB_PATH)\xbdm.lib \
+           $(SDK_LIB_PATH)\libcntpr.lib \
+           $(BASEDIR)\private\ntos\rtl\obj\i386\xbdmrtl.lib \
+           ..\lib\*\md5.lib \
+           ..\lib\*\covfile.lib
+
+XNOLIBS=1
+SUBSYSTEM=windows,4.00
+
+PRECOMPILED_INCLUDE=coveragep.h
+PRECOMPILED_CXX=1
+
+MSC_WARNING_LEVEL=/W4 /WX

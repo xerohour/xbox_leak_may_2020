@@ -1,0 +1,42 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+
+!include ..\sources.inc
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE -D_XLOG_KDX
+
+TARGETNAME=xlog_kdx
+TARGETTYPE=DYNLINK
+TARGETPATH=$(BASEDIR)\private\test\lib
+
+DLLENTRY=DllMain
+
+DLLDEF=..\xlog_kdx.def
+
+UMTYPE=windows
+
+USE_NOLIBS=1
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\kernel32.lib \
+    $(LIBRARY_PATH)\msvcrt.lib \
+
+SOURCES=\
+    xlog_kdx.rc \
+    xlog_kdx.c  \

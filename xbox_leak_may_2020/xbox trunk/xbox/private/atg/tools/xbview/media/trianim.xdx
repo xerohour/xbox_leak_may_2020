@@ -1,0 +1,45 @@
+<?xml version="1.0" ?> 
+<XDX>
+<include href="tri.xdx" />	<!-- Include the textured triangle vertex and pixel shaders -->
+<!--  Replace the vertex shader constant with an animated frame hierarchy.. --> 
+<Model id="SpinningTriangle">
+<Pass>
+ <VertexShader idref="VSTexture"> <!--  Set the vertex shader, which is already bound to VertexBuffer1 --> 
+<Constant index="0" count="4" parameter="Frame1">	<!--  Use the Frame1 matrix -->
+0.75 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1
+</Constant>
+  </VertexShader>
+  <PixelShader idref="PSTexture" /> <!-- Set the pixel shader  --> 
+ <RenderState CullMode="None"> <!--  Set render state  --> 
+  <TextureState Stage="0" idref="env5" /> <!-- Set the current texture  --> 
+  <TextureState Stage="1" ColorOp="Disable" AlphaOp="Disable" /> 
+  </RenderState>
+<!-- For drawing a single triangle, we could omit the IndexBuffer reference and simply draw all the vertices, but this shows how to draw a triangle list. --> 
+  <Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="3" /> 
+</Pass>
+</Model>
+
+<!-- Hierarchy to animate the triangle. -->
+<Frame id="Frame0" >
+  <Matrix value="
+     0.75 0 0 0
+     0 1 0 0
+     0 0 1 0
+     0 0 0 1" />
+  <Frame id="Frame1">
+    <Matrix>
+  	<Translate value="0 0 0" > <!-- Move from center to right back to center to left -->
+		<animate begin="0s" dur="2s" 
+values="0 0 0; 1 0 0; 0 0 0; -1 0 0; 0 0 0;" />
+	</Translate>
+	<Rotate axis="0 0 1" angle="0" > <!-- Rotate around Z-axis. Note: rotation keys are stored internally as quaternions.  The axis-angle expression is for convenience. -->
+<animate attribute="angle" begin="0s" dur="2s" 
+values="0; 3.14159265; 6.283185307;" />
+	</Rotate>
+    </Matrix>
+   </Frame>
+</Frame>
+</XDX>

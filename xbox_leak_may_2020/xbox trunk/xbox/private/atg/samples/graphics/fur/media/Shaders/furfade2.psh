@@ -1,0 +1,23 @@
+;-----------------------------------------------------------------------------
+; Fur pixel shader for fading even levels to clear black
+;
+; Copyright (C) 2001 Microsoft Corporation
+; All rights reserved.
+;-----------------------------------------------------------------------------
+ps.1.0
+; v0 = diffuse conditioning term
+; c0 = proportion of texture to blend, 0=texture 1=clear
+  tex t0 ; fine LOD hair texture
+  tex t1 ; hair lighting texture
+
+#ifndef TIMES1
+  mul_x2 r0.rgb, v0, t1		; scale hair lighting by diffuse conditioning
++ mul    r0.a,   v0, t1		;	no 2x on alpha
+  mul    r1, 1-c0, t0 		; fade t0 to clear
+  mul_x2 r0.rgb, r1, r0		; modulate hair texture
++ mul    r0.a,   r1, r0		;	no 2x on alpha
+#else
+  mul    r0, v0, t1			; scale hair lighting by diffuse conditioning
+  mul    r1, 1-c0, t0 		; fade t0 to clear
+  mul    r0, r1, r0			; modulate hair texture
+#endif

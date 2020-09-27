@@ -1,0 +1,69 @@
+TARGETNAME = AudioTest
+PROJNAME   = AudioTest
+TARGETPATH = obj
+TARGETTYPE= PROGRAM
+UMTYPE     = xboxapp
+				
+TITLEID    = 0xffff0000
+
+
+
+# XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+USE_NATIVE_EH=1
+
+
+XNOHARDDISK=1
+XE_FLAGS=\
+        $(XE_FLAGS) /TESTID:0xFFFE0000 /TESTRATINGS:0xFFFFFFFF \
+        /TESTMEDIATYPES:1 /TESTREGION:0xFFFFFFFF \
+        "/TESTNAME:$(PROJNAME)" INITFLAGS:0x00000000 /LIMITMEM \
+	/INITFLAGS:0x00000000
+
+
+USE_LIBCMT=1
+NTDEBUGTYPE=coff
+# UMTYPE     = xboxlib
+
+INCLUDES   = $(INCLUDES); \
+	$(BASEDIR)\private\online\XODash\XOdashLib;\
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+        $(BASEDIR)\private\ntos\inc; \
+        $(BASEDIR)\private\ntos\xapi\inc; \
+        $(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+	$(BASEDIR)\private\online; \
+	$(BASEDIR)\private\ntos\net; \
+
+		
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj
+
+LINKLIBS   = \
+             $(BASEDIR)\private\online\XODash\XODashLib\obj\i386\xodashlib.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib\
+	         $(SDK_LIB_PATH)\dsound$(D).lib \
+#	    $(LIBRARY_PATH)\xonline$(D).lib
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\xonline$(D).lib
+
+SOURCES_CORE=\
+	main.cpp\
+	xodash.cpp\
+
+SOURCES_COMMON=\
+	XBFont.cpp \
+	XBResource.cpp \
+
+
+SOURCES=$(SOURCES_CORE) \
+        $(SOURCES_COMMON) \
+
+
+
+#USE_LIBCMT=1

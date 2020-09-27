@@ -1,0 +1,343 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "SegmentStripMgr.DLL\0"
+#define VERSIONDESCRIPTION          "SegmentStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "SegmentStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "SegmentStripMgr.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_TRACKMGR            REGISTRY DISCARDABLE    "TrackMgr.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE_BOUNDARY DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Boundary"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "",IDC_STATIC_PROMPT,2,1,246,10,SS_NOPREFIX | SS_SUNKEN
+    GROUPBOX        "Performance Boundary",IDC_STATIC,2,11,128,69,WS_GROUP
+    CONTROL         "&Start at next marker",IDC_CHECK_BOUNDARY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,11,30,77,10
+    LTEXT           "If no markers, start:",IDC_STATIC_NO_MARKERS,11,48,61,8
+    COMBOBOX        IDC_COMBO_BOUNDARY,10,58,112,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Don't Cut Off",IDC_RADIO_NOINVALIDATE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,2,81,57,10
+    CONTROL         "Do&n't Cut Off Secondary Segs",IDC_RADIO_INVALIDATEPRI,
+                    "Button",BS_AUTORADIOBUTTON,2,91,111,10
+    CONTROL         "Cut Off (Regenerate &2ndary Segs)",IDC_RADIO_INVALIDATE,
+                    "Button",BS_AUTORADIOBUTTON,2,101,123,10
+    GROUPBOX        "Align Options",IDC_STATIC,133,11,112,69,WS_GROUP
+    LTEXT           "If no enterr switchpoints (destination), switch:",
+                    IDC_ALIGN_OPTIONS_PROMPT,141,20,102,18,WS_DISABLED
+    CONTROL         "at an&y Time",IDC_RADIO_SWITCH_ANY_TIME,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_GROUP | WS_TABSTOP,
+                    147,39,53,10
+    CONTROL         "&on any Grid",IDC_RADIO_SWITCH_ANY_GRID,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,147,49,52,10
+    CONTROL         "o&n any Beat",IDC_RADIO_SWITCH_ANY_BEAT,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,147,59,54,10
+    CONTROL         "on any &Barline",IDC_RADIO_SWITCH_ANY_BAR,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,147,69,88,10
+    GROUPBOX        "Timing",IDC_STATIC,133,80,112,29,WS_GROUP
+    CONTROL         "&Quick Response",IDC_RADIO_TIMING_QUICK,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,147,88,71,10
+    CONTROL         "After &Prepare Time",IDC_RADIO_TIMING_AFTERPREPARETIME,
+                    "Button",BS_AUTORADIOBUTTON,147,98,75,10
+    PUSHBUTTON      "",IDOK,102,96,24,10,NOT WS_VISIBLE | NOT WS_TABSTOP
+END
+
+IDD_PROPPAGE_FILEREF DIALOG DISCARDABLE  0, 0, 250, 109
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Segment"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",IDC_STATIC,3,0,244,41
+    CONTROL         "S&egment",IDC_RADIO_SEGMENT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,6,9,41,10
+    CONTROL         "M&otif",IDC_RADIO_MOTIF,"Button",BS_AUTORADIOBUTTON,6,
+                    26,34,10
+    RTEXT           "Se&gment:",IDC_FILE_PROMPT,51,10,31,8
+    COMBOBOX        IDC_COMBO_FILE,84,8,159,125,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Moti&f:",IDC_MOTIF_PROMPT,58,27,24,8
+    COMBOBOX        IDC_COMBO_MOTIF,84,24,159,74,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Type",IDC_STATIC,3,43,244,21
+    CONTROL         "&Primary",IDC_RADIO_TYPE_PRIMARY,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,34,51,39,10
+    CONTROL         "Seco&ndary",IDC_RADIO_TYPE_SECONDARY,"Button",
+                    BS_AUTORADIOBUTTON,100,51,49,10
+    CONTROL         "&Controlling Segment",IDC_CHECK_CONTROLLING,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,51,79,10
+    LTEXT           "&Start Time:",IDC_STATIC,5,80,38,10
+    EDITTEXT        IDC_EDIT_MEASURE,50,78,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_MEASURE,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,83,78,10,10
+    EDITTEXT        IDC_EDIT_BEAT,95,78,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN_BEAT,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,127,78,11,10
+    EDITTEXT        IDC_EDIT_TICK,140,78,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SPIN_TICK,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,172,78,11,10
+    LTEXT           "&Belongs To:",IDC_STATIC,5,95,42,10
+    EDITTEXT        IDC_EDIT_BELONGS_MEASURE,50,93,40,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_BELONGS_MEASURE,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,83,93,10,10
+    EDITTEXT        IDC_EDIT_BELONGS_BEAT,95,93,40,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN_BELONGS_BEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,127,93,11,10
+    LTEXT           "Bar",IDC_STATIC,51,69,36,8
+    LTEXT           "Beat",IDC_STATIC,96,69,35,8
+    LTEXT           "Tick",IDC_STATIC,141,69,21,8
+    PUSHBUTTON      "",IDOK,211,93,24,10,NOT WS_VISIBLE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+IDR_EDIT_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge",                      32797
+            MENUITEM "&Overwrite",                  32798
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT, GRAYED
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "C&ycle Items",                IDM_CYCLE_ITEMS, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Add Track(s)...\tCtrl+Ins",  ID_EDIT_ADD_TRACK
+        MENUITEM "D&elete Track(s)\tCtrl+Del",  ID_EDIT_DELETE_TRACK
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            ID_VIEW_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_PROPPAGE_BOUNDARY DLGINIT
+BEGIN
+    IDC_COMBO_BOUNDARY, 0x403, 18, 0
+0x6553, 0x6d67, 0x6e65, 0x2774, 0x2073, 0x6544, 0x6166, 0x6c75, 0x0074, 
+
+    IDC_COMBO_BOUNDARY, 0x403, 10, 0
+0x6d49, 0x656d, 0x6964, 0x7461, 0x0065, 
+    IDC_COMBO_BOUNDARY, 0x403, 5, 0
+0x7247, 0x6469, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 5, 0
+0x6542, 0x7461, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 8, 0
+0x6142, 0x6c72, 0x6e69, 0x0065, 
+    IDC_COMBO_BOUNDARY, 0x403, 14, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x4220, 0x6165, 0x0074, 
+    IDC_COMBO_BOUNDARY, 0x403, 17, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x4220, 0x7261, 0x696c, 0x656e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 17, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x5320, 0x6765, 0x656d, 0x746e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 15, 0
+0x6e45, 0x2064, 0x666f, 0x5320, 0x6765, 0x656d, 0x746e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 21, 0
+0x6e45, 0x2064, 0x666f, 0x5320, 0x6765, 0x656d, 0x746e, 0x5120, 0x6575, 
+0x6575, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "SegmentStripMgr"
+    IDS_PROPPAGE_FILEREF    "Segment/Motif Trigger"
+    IDS_DELETE              "Delete Segment(s)"
+    IDS_PASTE               "Paste Segment(s)"
+    IDS_INSERT              "Insert Segment"
+    IDS_TRACK_NAME          "Segment Trigger Track"
+    IDS_PROPPAGE_GROUP_BITS "Segment Trigger Track"
+    IDS_MULTIPLE_SELECT     "Multiple Segments Selected"
+    IDS_UNDO_CHANGE         "Change Segment(s)"
+    IDS_UNDO_MOVE           "Move Segment(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_TRACK_GROUP    "Track Group Assignment"
+    IDS_STRIP_NAME          "Segment Trigger"
+    IDS_EMPTY_TEXT          "Empty"
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+    IDS_FILE_OPEN_SEGMENT   "Open '%1' Segment"
+    IDS_FILE_OPEN_ANY_SEGMENT "Open Segment"
+    IDS_UNDO_DELETE_SEGMENT "Delete Segment"
+    IDS_UNDO_REPLACE_SEGMENT "Revert Segment"
+    IDS_UNDO_CHANGE_SEGMENT_LINK "Refresh File Reference"
+    IDS_UNDO_CHANGE_SEGMENT_NAME "Change Segment Name"
+    IDS_FILE_OPEN_STYLE     "Open '%1' Style"
+    IDS_FILE_OPEN_ANY_STYLE "Open Style"
+    IDS_STYLE_PROMPT_TEXT   "St&yle:"
+    IDS_SEGMENT_PROMPT_TEXT "S&egment:"
+    IDS_UNDO_MOTIF          "Set Motif"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Segment Strip Manager"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_FLAGS          "Set Flags"
+    IDS_NONE_TEXT           "<None>"
+    IDS_UNDO_CHANGE_STYLE_NAME "Change Style Name"
+    IDS_UNDO_CHANGE_MOTIF_NAME "Change Motif Name"
+    IDS_UNDO_DELETE_MOTIF   "Delete Motif"
+    IDS_UNDO_LOGICAL_TIME   "Belongs To"
+    IDS_SELECT_STYLE_ABOVE  "<Select Style Above>"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

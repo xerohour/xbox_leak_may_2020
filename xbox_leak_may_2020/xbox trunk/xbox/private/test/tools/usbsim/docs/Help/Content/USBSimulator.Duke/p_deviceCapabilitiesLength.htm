@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Duke.deviceCapabilitiesLength</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>deviceCapabilitiesLength</H1>
+    <DIV CLASS=BLOCK>
+    This property sets the length of the device's capabilities buffer: input resolution etc.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("unsigned short deviceCapabilitiesLength(BSTR type)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>type</I><BR>
+        String specifying the capability type.
+        <TABLE>
+            <TR><TH>type</TH><TH>Description</TH></TR>
+            <TR><TD>"IN"</TD><TD>Device input such as buttons (default is 20 bytes)</TD></TR>
+            <TR><TD>"OUT"</TD><TD>Device output such as motors (default is 6 bytes)</TD></TR>
+        </TABLE>
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>This property is read and write.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var duke = WScript.CreateObject(\"USBSimulator.Duke\");\n\n// Display the default input configuration\nWScript.Echo( ToBinaryString(duke.deviceCapabilities(\"IN\"), duke.deviceCapabilitiesLength(\"IN\")) );\n\n// Change the OUT capabilities\nduke.deviceCapabilities(\"OUT\") = String.fromCharCode(0x00, 0x00, 0x00, 0x00, 0x00, 0x00);\n\nfunction ToBinaryString(string, length)\n    {\n    var str = \"(\";\n    for(var i=0; i < length; i++)\n        {\n        str += \"0x\" + string.charCodeAt(i).toString(16);\n        if(i!=length-1) str += \", \";\n        }\n\n    return str + \")\";\n    }");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="p_deviceCapabilities.htm">deviceCapabilities</A>, <A HREF="p_configurationDescriptor.htm">configurationDescriptor</A>, <A HREF="p_deviceDescriptor.htm">deviceDescriptor</A>, <A HREF="p_xidDescriptor.htm">xidDescriptor</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

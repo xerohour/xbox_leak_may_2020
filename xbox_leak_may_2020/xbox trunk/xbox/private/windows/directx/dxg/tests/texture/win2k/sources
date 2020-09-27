@@ -1,0 +1,21 @@
+!include ..\sources.inc
+
+UMENTRY=winmain
+UMTYPE=windows
+
+INCLUDES=$(INCLUDES);..\..\common
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -DENABLE_DINPUT -DPCBUILD
+
+!if $(FREEBUILD)
+D=
+!else
+D=d
+!endif
+
+LINKLIBS=\
+    $(BASEDIR)\public\wsdk\lib\d3d8.lib \
+    $(BASEDIR)\public\wsdk\lib\d3dx8.lib \
+    $(BASEDIR)\public\wsdk\lib\dinput8.lib \
+    $(BASEDIR)\public\wsdk\lib\uuid.lib 
+    

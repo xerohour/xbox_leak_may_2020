@@ -1,0 +1,68 @@
+TARGETNAME = update
+PROJNAME   = "Application updater"
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+			
+USE_NATIVE_EH=1
+USE_STL = 1
+
+
+XLATEPATH = $(BASEDIR)\private\online\xodash\media\locale
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:0xFFFE0000 /INITFLAGS:0x00000000 \
+        /INSERTFILE:$(XLATEPATH)\english.inf,EnglishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\japanese.inf,JapaneseXlate,N \
+        /INSERTFILE:$(XLATEPATH)\german.inf,GermanXlate,N \
+        /INSERTFILE:$(XLATEPATH)\french.inf,FrenchXlate,N \
+        /INSERTFILE:$(XLATEPATH)\spanish.inf,SpanishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\italian.inf,ItalianXlate,N
+
+USEPDB		= 1
+NTDEBUGTYPE=both
+
+
+INCLUDES   = $(INCLUDES);\
+		$(BASEDIR)\private\online\xodash\xodashlib;\
+      	$(BASEDIR)\private\inc;\
+    	$(BASEDIR)\private\inc\crypto;\
+    	$(BASEDIR)\private\ntos\inc;\
+    	$(BASEDIR)\private\ntos\xapi\inc;\
+    	$(BASEDIR)\private\online\kerb;\
+    	$(BASEDIR)\private\online\util;\
+    	$(BASEDIR)\private\online;\
+    	$(BASEDIR)\private\ntos\net;\
+    	$(BASEDIR)\private\online\test\common;\
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+     	$(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+ 
+
+		
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE= std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj
+
+
+LINKLIBS   = \
+             $(BASEDIR)\private\online\xodash\XODashLib\obj\i386\XODashLib.lib\
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib\
+	     $(SDK_LIB_PATH)\dsound$(D).lib \
+	     $(BASEDIR)\private\lib\i386\xapilibp$(D).lib \
+	     $(LIBRARY_PATH)\xonline$(D).lib
+
+ 
+C_DEFINES=$(C_DEFINES) -DXONLINE_BUILD_LIBX 
+
+
+SOURCES_CORE=\
+	    xodash.cpp \
+	    main.cpp
+
+SOURCES=$(SOURCES_CORE) \
+
+		
+USE_LIBCMT=1

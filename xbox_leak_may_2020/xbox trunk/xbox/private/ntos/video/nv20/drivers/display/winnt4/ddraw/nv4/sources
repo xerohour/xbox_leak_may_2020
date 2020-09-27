@@ -1,0 +1,74 @@
+!include ..\..\..\..\sources.nv
+
+TARGETNAME=nv4ddrw
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ELSE
+TARGETPATH=$(TARGETPATH)
+!ENDIF
+
+TARGETTYPE=LIBRARY
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+C_DEFINES=$(C_DEFINES) -DNV4=1 -DRM_HEAPMGR=1
+
+!IFDEF QUIET
+C_DEFINES= $(C_DEFINES) -DQUIET -DNVDEPRECATED
+!ELSE
+C_DEFINES= $(C_DEFINES) -DNVDEPRECATED
+!ENDIF
+
+#   $(BUILD_DDK_DIR)\directx8\inc; \
+INCLUDES=\
+   $(BASEDIR)\src\video\inc; \
+   ..\..\miniport\nv_mini; \
+   $(BUILD_NVSDK_DIR)\inc; \
+   $(BUILD_TREE)\drivers\common\inc; \
+   $(BUILD_TREE)\drivers\common\win9x\inc; \
+   ..\..\displays\nv_disp; \
+   $(NTMAKEENV)
+
+# Use DX8 headers, but define the version to DX3 (for NT4 compatibility reasons)
+#C_DEFINES = $(C_DEFINES) -DDIRECT3D_VERSION=0x0300
+C_DEFINES = $(C_DEFINES) -DNVARCH=0x15
+
+!IFDEF NT5
+INCLUDES=$(INCLUDES);$(BASEDIR)\src\video\displays\inc
+!ENDIF
+
+INCLUDES=$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);..\..\miniport\nv_mini
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\win9x\inc
+INCLUDES=$(INCLUDES);..\..\displays\nv_disp
+
+USE_LIBCNTPR = 1
+
+GDI_DRIVER_LIBS= $(BASEDIR)\lib\*\$(DDKBUILDENV)\libcntpr.lib
+
+SOURCES=\
+        blt16.cpp \
+        blt32.cpp \
+        blt8.cpp \
+        dd.cpp \
+        init.cpp \
+        nvPriv_link.cpp \
+        nvOverlaySurf_link.cpp \
+        nvprocman_link.cpp \
+        nvUtil_link.cpp \
+        nvDbg_link.cpp
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=precomp.obj

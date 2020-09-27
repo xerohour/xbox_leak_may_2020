@@ -1,0 +1,42 @@
+TARGETNAME=muprod23
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+BROWSER_INFO=1
+
+C_DEFINES=$(C_DEFINES) -D_LogStuff_
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+INCLUDES=$(BASEDIR)\public\sdk\inc;\
+         $(BASEDIR)\private\inc;\
+         $(BASEDIR)\private\ntos\inc;\
+         $(BASEDIR)\private\ntos\xapi\inc;\
+         $(BASEDIR)\private\test\inc;\
+         $(BASEDIR)\private\test\inc\cpx
+
+SOURCES=\
+    muprod23.cpp\
+    mp.cpp
+
+TARGETLIBS=\
+    $(BASEDIR)\private\test\lib\*\cpxlib.lib    \
+    $(LIBRARY_PATH)\dsound$(D).lib              \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib           \
+    $(SDK_LIB_PATH)\waveldr$(D).lib             \
+    $(LIBRARY_PATH)\d3d8$(D).lib                \
+    $(BASEDIR)\private\test\lib\*\tsc.lib
+
+#if DOLOWLEVELTESTS is defined in the enviroment, define it for the compiler
+#if this is on a release build, then a specially built MU driver is needed
+!ifdef DOLOWLEVELTESTS
+C_DEFINES=$(C_DEFINES) /DDOLOWLEVELTESTS
+!endif
+
+#debug builds define DOLOWLEVELTESTS by default
+!if !$(FREEBUILD)
+C_DEFINES=$(C_DEFINES) /DDOLOWLEVELTESTS
+!endif

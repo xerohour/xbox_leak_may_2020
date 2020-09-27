@@ -1,0 +1,36 @@
+# Copyright (c) 1998 Microsoft Corporation
+#
+# If BUILDMSG is not defined, the define it as the empty string to make
+# the conditionals easier to write.
+#
+
+!IFNDEF UNDEFINED
+# -- this method of exporting include files is not used on XBOX
+
+clean:
+
+!ELSE
+
+!INCLUDE $(NTMAKEENV)\makefile.plt
+
+SDKLIB = $(_NTDRIVE)$(_NTROOT)\public\sdk\lib
+SDKINC = $(_NTDRIVE)$(_NTROOT)\public\sdk\inc
+OAKINC = $(_NTDRIVE)$(_NTROOT)\public\oak\inc
+!IFNDEF NTOSINC
+NTOSINC = $(_NTDRIVE)$(_NTROOT)\private\ntos\inc
+!ENDIF
+
+all:  copyfiles binplace
+
+clean: cleansrc  all
+
+cleansrc:
+
+
+copyfiles:
+	xcopy .\includes\*.* $(SDKINC)
+
+binplace:
+	-binplace .\includes\*.*
+
+!ENDIF

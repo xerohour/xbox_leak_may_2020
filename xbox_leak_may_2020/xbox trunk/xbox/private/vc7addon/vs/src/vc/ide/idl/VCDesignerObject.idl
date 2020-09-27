@@ -1,0 +1,125 @@
+// VCDesignerObject.idl
+//
+
+import "oaidl.idl";
+
+#include "olectl.h"
+#include "DOids.h"
+
+[
+	uuid(57D97101-7F20-11d1-B29E-0040053089AE),
+	version(7.0),
+	helpfile(""),
+	helpstring("Microsoft Development Environment VC++ Designer Object 7.0 Type Library")
+]
+library VCDesignerObjectLibrary
+{
+
+importlib("stdole32.tlb");
+importlib("stdole2.tlb");
+
+#include "VCDesignerObjectEnums.idl"
+
+cpp_quote("extern \"C\" const __declspec(selectany) GUID LIBID_VCDesignerObjectLibrary = { 0x57D97101, 0x7F20, 0x11d1, { 0xB2, 0x9E, 0x00, 0x40, 0x05, 0x30, 0x89, 0xAE } };")
+
+#define IVCDESIGNEROBJECT_V7_0 \
+	[ propget, hidden, helpstring("property doType") ] \
+	HRESULT doType([out, retval] DOType * pdoType); \
+	[ helpstring("IsSameObject") ] \
+	HRESULT IsSameObject([in] IDispatch * pIDispatch, [out, retval] VARIANT_BOOL * pbIsSameObject); \
+	[ propget, hidden, nonbrowsable, helpstring("property Descendants") ] \
+	HRESULT Descendants([out, retval] IDispatch ** ppIDispatch); \
+	[ helpstring("IsExistingChild") ] \
+	HRESULT IsExistingChild([in] BSTR bstrName, [in] DOType doTypeObject, [out, retval] VARIANT_BOOL * pbIsExistingChild); \
+	[ helpstring("Help") ] \
+	HRESULT Help(void); \
+	[ propget, helpstring("property Name") ] \
+	HRESULT Name([out, retval] BSTR * pbstrName); \
+	[ propget, helpstring("property Name") ] \
+	HRESULT FullName([out, retval] BSTR * pFullName); \
+	[ propget, hidden, helpstring("property DisplayName") ] \
+	HRESULT DisplayName([out, retval] BSTR * pbstrDisplayName); \
+	[ id(DISPID_DBLCLICK), helpstring("Navigate") ] \
+	HRESULT Navigate([in] DONavigate doNavigate); \
+	[ propget, hidden, helpstring("property Parent") ] \
+	HRESULT Parent([out, retval] IDispatch ** ppDispatch); \
+	[ propget, hidden, helpstring("property Picture") ] \
+	HRESULT Picture([in] DWORD dwWidth, [in] DWORD dwHeight, [out, retval] IDispatch ** ppIDispatch);
+
+[
+	object,
+	uuid(29BF7874-FE8C-11d2-AAE9-00C04F72DB55),
+	dual,
+	helpstring("IVCDesignerObject Interface"),
+	pointer_default(unique)
+]
+interface IVCDesignerObject : IDispatch
+{
+	IVCDESIGNEROBJECT_V7_0
+};
+
+#define VC61_WORKSPACE_PROJECT
+#if defined(VC61_WORKSPACE_PROJECT)
+
+// IWorkspaceDO
+//
+
+#define IWORKSPACEDO_AUTOMATION_V6_1 \
+	[propget, hidden, helpcontext(HID_DO_Projects), helpstring("property Projects")] HRESULT Projects ([out, retval] IDispatch ** ppIDispatch);
+
+[
+	object,
+	uuid(29BF7875-FE8C-11d2-AAE9-00C04F72DB55),
+	dual,
+	helpstring("IWorkspaceDO Interface"),
+	pointer_default(unique)
+]
+interface IWorkspaceDO : IDispatch
+{
+	IVCDESIGNEROBJECT_V7_0
+	IWORKSPACEDO_AUTOMATION_V6_1
+};
+
+// IProjectDO 
+//
+
+#define IPROJECTDO_AUTOMATION_V6_1 \
+	[propget, hidden, helpstring("property CodeModel")] HRESULT CodeModel ([out, retval] IDispatch ** ppIDispatch);
+
+[
+	object,
+	uuid(29BF7876-FE8C-11d2-AAE9-00C04F72DB55),
+	dual,
+	helpstring("IProjectDO Interface"),
+	pointer_default(unique)
+]
+interface IProjectDO : IDispatch
+{
+	IVCDESIGNEROBJECT_V7_0
+	IPROJECTDO_AUTOMATION_V6_1
+};
+
+#endif // VC61_WORKSPACE_PROJECT
+
+
+#define ICOLLECTIONDO_AUTOMATION_V6_1 \
+	[propget, restricted, id(DISPID_NEWENUM)]	HRESULT NewEnum	([out, retval] IUnknown ** ppIUnknown); \
+	[propget]									HRESULT Count	([out, retval] LONG * plCount); \
+	[id(DISPID_VALUE)]							HRESULT Item	([in] VARIANT varItem, [out, retval] IDispatch ** ppIDispatch); \
+												HRESULT Remove	([in] VARIANT varItem);
+
+[
+	object,
+	uuid(29BF7877-FE8C-11d2-AAE9-00C04F72DB55),
+	dual,
+	helpstring("ICollectionDO Interface"),
+	pointer_default(unique)
+]
+interface ICollectionDO : IDispatch
+{
+	IVCDESIGNEROBJECT_V7_0
+	ICOLLECTIONDO_AUTOMATION_V6_1
+};
+
+
+};

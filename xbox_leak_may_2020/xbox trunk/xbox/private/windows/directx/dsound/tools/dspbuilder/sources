@@ -1,0 +1,65 @@
+TARGETNAME=dspbuilder
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=windows
+UMENTRY=winmain
+
+NOT_UNICODE=1
+
+SOURCES=\
+	ChildView.cpp \
+	cipher.cpp \
+	ConnectDialog.cpp \
+	dspbuilder.cpp \
+	ExportDialog.cpp \
+	Graph.cpp \
+	MainFrm.cpp \
+	Module.cpp \
+	WinDspImageBuilder.cpp \
+	dspbuilder_razzle.rc \
+	dspfixup.cpp \
+	fxdspimg.cpp \
+	DirectoryDialog.cpp \
+	DirsDialog.cpp \
+	Jack.cpp \
+	PatchCord.cpp \
+	Knob.cpp \
+	Parameter.cpp \
+	ParameterDialog.cpp \
+	Unique.cpp \
+	EffectNameDialog.cpp
+
+INCLUDES=$(WSDK_INC_PATH)\atlmfc; \
+         $(WSDK_INC_PATH); \
+         $(SDK_INC_PATH)
+
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+C_DEFINES = $(C_DEFINES) -DDEBUG
+!endif
+
+USE_MFC=1
+PLATFORM_MFC_VER = 0x0421
+USE_MSVCRT=1
+WIN32_IE_VERSION=0x0400
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+MFC_LIBS=  \
+          $(WSDK_LIB_PATH)\mfc42d.lib \
+          $(WSDK_LIB_PATH)\mfcd42d.lib \
+          $(WSDK_LIB_PATH)\mfcn42d.lib \
+          $(WSDK_LIB_PATH)\mfco42d.lib \
+          $(WSDK_LIB_PATH)\mfcs42d.lib
+!else
+MFC_LIBS=  \
+          $(WSDK_LIB_PATH)\mfc42.lib \
+          $(WSDK_LIB_PATH)\mfcs42.lib
+!endif
+
+MFC_INCLUDES=$(WSDK_INC_PATH)\mfc42
+
+TARGETLIBS=\
+	$(SDK_LIB_PATH)\xboxdbg.lib \
+	$(WSDK_LIB_PATH)\kernel32.lib \
+	$(WSDK_LIB_PATH)\advapi32.lib \
+	$(WSDK_LIB_PATH)\user32.lib \
+	$(WSDK_LIB_PATH)\ws2_32.lib
+

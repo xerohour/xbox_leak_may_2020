@@ -1,0 +1,48 @@
+TARGETNAME = Fur
+PROJNAME   = Fur
+SOURCES    = Fur.cpp XBFur.cpp XBFurMesh.cpp OctoSphere.cpp util.cpp Mipmap.cpp
+TITLEID    = 0xffff0602
+
+#
+# The fin and fur vertex shaders come in several configurations, built from
+# the same source files but with different defines.  Here we define all the
+# target assembled vertex-shader files.
+#
+VSPATH = .\Media\Shaders
+FURVERTEXSHADERS = \
+	$(VSPATH)\fur_wind0_local0_self0.xvu	\
+	$(VSPATH)\fur_wind0_local0_self1.xvu	\
+	$(VSPATH)\fur_wind0_local1_self0.xvu	\
+	$(VSPATH)\fur_wind0_local1_self1.xvu	\
+	$(VSPATH)\fur_wind1_local0_self0.xvu	\
+	$(VSPATH)\fur_wind1_local0_self1.xvu	\
+	$(VSPATH)\fur_wind1_local1_self0.xvu	\
+	$(VSPATH)\fur_wind1_local1_self1.xvu
+FINVERTEXSHADERS = \
+	$(VSPATH)\fin_wind0_local0_self0.xvu	\
+	$(VSPATH)\fin_wind0_local0_self1.xvu	\
+	$(VSPATH)\fin_wind0_local1_self0.xvu	\
+	$(VSPATH)\fin_wind0_local1_self1.xvu	\
+	$(VSPATH)\fin_wind1_local0_self0.xvu	\
+	$(VSPATH)\fin_wind1_local0_self1.xvu	\
+	$(VSPATH)\fin_wind1_local1_self0.xvu	\
+	$(VSPATH)\fin_wind1_local1_self1.xvu
+VERTEXSHADERS = $(FURVERTEXSHADERS) $(FINVERTEXSHADERS)
+
+NTTARGETFILE0 = $(O)\Fur.dsp $(VERTEXSHADERS) $(O)\Font.xpr $(O)\Gamepad.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000 /TITLEIMAGE:titleimage.xbx
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES   = $(INCLUDES);..\..\common\include;
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib
+
+USE_LIBCMT=1

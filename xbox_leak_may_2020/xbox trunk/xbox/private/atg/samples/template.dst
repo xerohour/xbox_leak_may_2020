@@ -1,0 +1,146 @@
+POUND Microsoft Developer Studio Project File - Name="PROJNAME" - Package Owner=<4>
+POUND Microsoft Developer Studio Generated Build File, Format Version 60000
+POUND ** DO NOT EDIT **
+
+POUND TARGTYPE "Xbox Application" 0x0b01
+
+CFG=PROJNAME - Xbox Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "PROJNAME.mak".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "PROJNAME.mak" CFG="PROJNAME - Xbox Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "PROJNAME - Xbox Release" (based on "Xbox Application")
+!MESSAGE "PROJNAME - Xbox Debug" (based on "Xbox Application")
+!MESSAGE 
+
+POUND Begin Project
+POUND PROP AllowPerConfigDependencies 0
+POUND PROP Scc_ProjName ""
+POUND PROP Scc_LocalPath ""
+CPP=cl.exe
+
+!IF  "$(CFG)" == "PROJNAME - Xbox Release"
+
+ifdef(`USE_INSTRUMENTED_D3D8_LIB',`define(D3D8RELEASELIB,`d3d8i.lib')',`define(D3D8RELEASELIB,`d3d8.lib')')
+POUND PROP BASE Use_MFC 0
+POUND PROP BASE Use_Debug_Libraries 0
+POUND PROP BASE Output_Dir "Release"
+POUND PROP BASE Intermediate_Dir "Release"
+POUND PROP BASE Target_Dir ""
+POUND PROP Use_MFC 0
+POUND PROP Use_Debug_Libraries 0
+POUND PROP Output_Dir "Release"
+POUND PROP Intermediate_Dir "Release"
+POUND PROP Ignore_Export_Lib 0
+POUND PROP Target_Dir ""
+POUND ADD BASE CPP /nologo /W3 /GX /Zvc6 /O2 /D "WIN32" /D "_USE_XGMATH" /D "_XBOX" /D "NDEBUG" /YX /FD /G6 /c
+POUND ADD CPP /nologo /W3 /GX /Zvc6 /O2 /I "ROOTPATH\Common\include" /D "WIN32" /D "_USE_XGMATH" /D "_XBOX" /D "NDEBUG" /YX /FD /G6 /c
+BSC32=bscmake.exe
+POUND ADD BASE BSC32 /nologo
+POUND ADD BSC32 /nologo
+LINK32=link.exe
+POUND ADD BASE LINK32 xapilib.lib D3D8RELEASELIB d3dx8.lib xgraphics.lib dsound.lib dmusic.lib xboxkrnl.lib /nologo /incremental:no /machine:I386 /subsystem:xbox  /opt:ref /fixed:no /debugtype:vc6
+POUND ADD LINK32 xapilib.lib D3D8RELEASELIB d3dx8.lib xgraphics.lib dsound.lib dmusic.lib xboxkrnl.lib RELEASELIBS /nologo /incremental:no /machine:I386 /subsystem:xbox  /opt:ref /fixed:no /debugtype:vc6
+XBE=imagebld.exe
+POUND ADD BASE XBE /nologo /stack:0x10000
+POUND ADD XBE /nologo /testid:"TITLEID" /testname:"PROJNAME" /stack:0x10000 /INITFLAGS:0x00000000 ifdef(`TITLEIMAGEFILE',`/TITLEIMAGE:TITLEIMAGEFILE ',`') ifdef(`DEFAULTSAVEIMAGEFILE',`/DEFAULTSAVEIMAGE:DEFAULTSAVEIMAGEFILE ',`')/out:"Release/TARGETNAME.xbe"ifdef(`XBEFLAGS',` XBEFLAGS',`')
+XBCP=xbecopy.exe
+POUND ADD BASE XBCP /NOLOGO
+POUND ADD XBCP /NOLOGO
+ifdef(`NOMEDIACOPY',`',`POUND Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=xbcp -r -y -d -t -f media\*.* $(RemoteDir)\media
+POUND End Special Build Tool')
+
+!ELSEIF  "$(CFG)" == "PROJNAME - Xbox Debug"
+
+POUND PROP BASE Use_MFC 0
+POUND PROP BASE Use_Debug_Libraries 1
+POUND PROP BASE Output_Dir "Debug"
+POUND PROP BASE Intermediate_Dir "Debug"
+POUND PROP BASE Target_Dir ""
+POUND PROP Use_MFC 0
+POUND PROP Use_Debug_Libraries 1
+POUND PROP Output_Dir "Debug"
+POUND PROP Intermediate_Dir "Debug"
+POUND PROP Ignore_Export_Lib 0
+POUND PROP Target_Dir ""
+POUND ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Zvc6 /Od /D "WIN32" /D "_USE_XGMATH" /D "_XBOX" /D "_DEBUG" /YX /FD /G6 /c
+POUND ADD CPP /nologo /W3 /Gm /GX /Zi /Zvc6 /Od /I "ROOTPATH\Common\include" /D "WIN32" /D "_USE_XGMATH" /D "_XBOX" /D "_DEBUG" /YX /FD /G6 /c
+BSC32=bscmake.exe
+POUND ADD BASE BSC32 /nologo
+POUND ADD BSC32 /nologo
+LINK32=link.exe
+POUND ADD BASE LINK32 xapilibd.lib d3d8d.lib d3dx8d.lib xgraphicsd.lib dsoundd.lib dmusicd.lib xboxkrnl.lib /nologo /incremental:no /debug /machine:I386 /subsystem:xbox  /fixed:no /debugtype:vc6
+POUND ADD LINK32 xapilibd.lib d3d8d.lib d3dx8d.lib xgraphicsd.lib dsoundd.lib dmusicd.lib xboxkrnl.lib DEBUGLIBS /nologo /incremental:no /debug /machine:I386 /subsystem:xbox  /fixed:no /debugtype:vc6
+XBE=imagebld.exe
+POUND ADD BASE XBE /nologo /stack:0x10000 /debug
+POUND ADD XBE /nologo /testid:"TITLEID" /testname:"PROJNAME" /stack:0x10000 /debug /INITFLAGS:0x00000000 ifdef(`TITLEIMAGEFILE',`/TITLEIMAGE:TITLEIMAGEFILE ',`') ifdef(`DEFAULTSAVEIMAGEFILE',`/DEFAULTSAVEIMAGE:DEFAULTSAVEIMAGEFILE ',`')/out:"Debug/TARGETNAME.xbe"ifdef(`XBEFLAGS',` XBEFLAGS',`')
+XBCP=xbecopy.exe
+POUND ADD BASE XBCP /NOLOGO
+POUND ADD XBCP /NOLOGO
+ifdef(`NOMEDIACOPY',`',`POUND Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=xbcp -r -y -d -t -f media\*.* $(RemoteDir)\media
+POUND End Special Build Tool')
+
+!ENDIF 
+
+POUND Begin Target
+
+POUND Name "PROJNAME - Xbox Release"
+POUND Name "PROJNAME - Xbox Debug"
+ifdef(`NOCOMMONFILES',`',`POUND Begin Group "Common"
+
+POUND PROP Default_Filter ""
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBApp.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBFont.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBHelp.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBInput.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBMesh.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBResource.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\Common\src\XBUtil.cpp
+POUND End Source File
+COMMONSOURCEFILELIST
+POUND End Group')
+ifdef(`RESOURCEFILELIST',`POUND Begin Group "Resources"
+
+POUND PROP Default_Filter "*.rdf"
+RESOURCEFILELIST
+POUND End Group
+',`')ifdef(`DSPIMAGEFILELIST',`POUND Begin Group "DSP Images"
+
+POUND PROP Default_Filter "*.ini"
+DSPIMAGEFILELIST
+POUND End Group
+',`')SOURCEFILELIST
+POUND End Target
+POUND End Project

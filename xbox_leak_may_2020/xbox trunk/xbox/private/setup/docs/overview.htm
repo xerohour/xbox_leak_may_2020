@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<Title>Xbox Setup Technology Overview</Title>
+</HEAD>
+<BODY>
+<B>Xbox Setup Technology Overview</B>
+<P>
+Xbox Setup Technology was designed to give the team more control over the setup process.
+Using InstallShield (R) technology has been problematic for a number of reasons. First,
+buying enough copies of the installer to allow every member of the team to build setup
+is obviously impractical. Also, training all members of the team to use this technology
+is not feasible, requiring a 'setup person' to take part in every change to the file list.
+We were also hitting the limit of the CD because the the installer didn't have the ability
+to make multiple copies of the same file packaged on the install media. Finally, we
+have had a number of setup regressions from making very small changes late in the
+cycle. Having a data-driven setup should reduce these problems.
+<P>
+Xbox Setup Technologies are based on new code, but use the standard Microsoft Cabfile
+technology to manage compression and decompression. This allows a variety of
+compression/decompression algorithms to be used. Setup is simplified by the need to
+only support Windows 2000. The UI is driven entirely from Wizard 97, the standard
+UI on Windows 2000. The feature set has been streamlined to reduce bugs and the size
+of the installer.
+<P>
+Xbox Setup consists of several tools that combine to drive what the end-user sees.
+<P><B>Xpacker</B><BR>
+The first tool is the Xpacker. This tool is used to build the final setup binary, which
+will be a self-extracting setup file. It locates all the input files, builds Cabfiles,
+and inserts the cabfiles into the final executable. Xpacker is a console application,
+designed to run from the command line as part of the build process. It is designed such
+that it could be driven from a GUI frontend tool as well, but this tool has not yet
+been written. Rather than having a complex set of command line switches, Xpacker uses
+a text settings file in traditional Windows .INI file format. This settings file contains
+information useful in locating the input files and contains settings that are passed
+through to the end user setup program, the unpacker.
+<P><B>Xpacker settings file</B><BR>
+The settings file points the packer to the most important file, the Packing List.
+The Packing List contains information about every source file and how to find it and where
+to put the file on the target machine. It also contains instructions that instruct the
+unpacker to add or remove registry keys or values, to remove files or directories on the target,
+and instructions about how to copy files on the target so that files need not be duplicated
+in the installer executable. The Packing List is in CSV (comma-separated value) format and can
+easily be edited and saved in Microsoft Excel.
+<P><B>Unpacker</B><BR>
+The Unpacker is a Windows GUI setup program that steps the user through the install process.
+The user interface is based on Wizard 97 and is simple to navigate. It receives settings that
+are passed on from the packer, some that come from its initial settings file. The unpacker
+also receives a File Manifest that was generated from the Packing List which tells it how to
+install on the target system. While it is installing files, the unpacker merges the uninstall
+list with any list already accumulated on the same machine. This permits multiple different
+setups to run and when uninstall is done later, all files installed from a variety of monthly
+updates and QFEs can all be uninstalled properly. The Unpacker also builds Start Menu shortcuts.
+<P><B>Uninstall</B><BR>
+The Unpacker leaves behind the uninstaller, called xbuinst.exe in the Windows directory.
+This uninstall program is left in a public location so that it can completely delete the files
+in the Program Files subdirectory. This executable is never removed from the machine, though
+the registration that causes the control panel to locate it as an uninstaller is removed.
+The Uninstaller is a simple Windows program that walks the accumulated uninstall information,
+deleting files and registry keys.
+
+</BODY>
+</HTML>

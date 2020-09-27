@@ -1,0 +1,176 @@
+#
+# Copyright (c) 1998, NVIDIA Corporation.  All rights reserved.
+#
+# MAKE.d3ddefs
+# Values common to all D3D compilations
+#
+# This following should be defined:
+#
+#       NVCLASS   = (nv3 | nv4 | celsius)
+#                   the chip for which we're compiling the .dll
+#       TARGET_OS = (win9x | winnt)
+#                   the operating system for which we're compiling
+#       PROJECT   = (common | nv3 | nv4 | celsius)
+#                   the library we're currently compiling
+#       DIR_BASE  = path to the base d3d directory in which this
+#                   file and the top-level makefile are located
+#       C_VER     = (msvc42 | msvc50)
+#       DEBUG     = (retail | debug | develop | browse)
+#
+
+#--------------------------------------------------------------------
+#                 D E R I V A T I V E   V A L U E S
+#--------------------------------------------------------------------
+
+# unfortunately, not all parts of the tree share our class-based
+# code philosophy so we need to derive an architecture from the class
+
+!if "$(NVCLASS)" == "nv3"
+NVARCH = nv3
+!else if "$(NVCLASS)" == "nv4"
+NVARCH = nv4
+!else if "$(NVCLASS)" == "celsius"
+NVARCH = nv10
+!else if "$(NVCLASS)" == "kelvin"
+NVARCH = nv10
+!endif
+
+#--------------------------------------------------------------------
+#                            P A T H S
+#--------------------------------------------------------------------
+
+# global directories
+
+DIR_BRANCH  = $(DIR_BASE)\..\..
+DIR_DRIVERS = $(DIR_BRANCH)\drivers
+DIR_SDKNV   = $(DIR_BRANCH)\sdk\nvidia
+
+DIR_NVROOT  = $(DIR_BRANCH)\..
+
+!if defined (BUILD_TOOLS_DIR)
+DIR_TOOLS   = $(BUILD_TOOLS_DIR)
+!else
+DIR_TOOLS   = $(DIR_NVROOT)\tools
+!endif
+
+DIR_VCROOT  = $(DIR_TOOLS)\$(C_VER)
+DIR_DDK     = $(DIR_TOOLS)\ddk\DirectX8
+
+# local directories
+
+DIR_DEF         = $(DIR_BASE)\$(NVCLASS)\src                                    # location of .def file
+DIR_RC          = $(DIR_BASE)\$(NVCLASS)\src                                    # location of .rc file
+DIR_SRC         = $(DIR_BASE)\$(PROJECT)\src                                    # location of source code files
+DIR_OBJ         = $(DIR_BASE)\$(PROJECT)\obj.$(NVCLASS).$(TARGET_OS).$(DEBUG)   # destination for .obj files
+DIR_LST         = $(DIR_BASE)\$(PROJECT)\lst.$(NVCLASS).$(TARGET_OS).$(DEBUG)   # destination for .cod files
+DIR_RES         = $(DIR_BASE)\bin.$(NVCLASS).$(TARGET_OS).$(DEBUG)              # destination for .res file
+DIR_LIB         = $(DIR_BASE)\bin.$(NVCLASS).$(TARGET_OS).$(DEBUG)              # destination for .lib files
+DIR_INTERM_BIN  = $(DIR_BASE)\bin.$(NVCLASS).$(TARGET_OS).$(DEBUG)              # intermediate destination for .dll, .map, etc.
+DIR_BIN         = $(DIR_BASE)\bin.$(NVCLASS).$(TARGET_OS)                       # final destination for .dll, .map, etc.
+
+# include search paths
+
+# what i really want to do here is something of the form:
+# PROJECTPATHS = $(NVPROJECTS:.ext =\inc;$(DIR_BASE)\)
+# PROJECTPATHS = $(PROJECTPATHS:.ext=\inc)
+# PROJECTPATHS = $(DIR_BASE)\$(PROJECTPATHS)
+# but nmake is too stupid for such things, so we're stuck with this high-maintainance hideousness:
+
+PROJECTPATHS = $(DIR_BASE)\common\inc;
+PROJECTPATHS = $(PROJECTPATHS);$(DIR_BASE)\nv4\inc;
+PROJECTPATHS = $(PROJECTPATHS);$(DIR_BASE)\celsius\inc;
+PROJECTPATHS = $(PROJECTPATHS);$(DIR_BASE)\kelvin\inc;
+
+OSCOMMONINC = $(PROJECTPATHS)
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_DRIVERS)\common\VPE
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_DRIVERS)\common\inc
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_DRIVERS)\common\win9x\inc
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_SDKNV)\$(NVARCH)\inc
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_SDKNV)\inc
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_DDK)\inc
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_VCROOT)\include
+OSCOMMONINC = $(OSCOMMONINC);$(DIR_DRIVERS)\common\VPE\inc
+
+!if ("$(TARGET_OS)" == "win9x")
+INCLUDE     = $(OSCOMMONINC);$(DIR_TOOLS)\ddk\nt5\inc
+!else
+# Winnt expects the include path to be in the following order:
+#       1) Win2K DDK includes
+#       2) Non os specific common includes (DX DDK, etc.)
+#       3) Win2K display driver include path
+INCLUDE     = $(DIR_TOOLS)\ddk\nt5\inc;$(DIR_TOOLS)\ddk\nt5\src\video\inc;$(DIR_TOOLS)\ddk\nt5\src\video\displays\inc
+INCLUDE     = $(INCLUDE);$(OSCOMMONINC);$(DIR_DRIVERS)\display\winnt4\displays\nv_disp;$(DIR_DRIVERS)\display\winnt4\miniport\nv_mini
+!endif
+
+# library search paths
+
+LIB         = $(DIR_LIB)
+LIB         = $(LIB);$(DIR_BASE)\$(NVCLASS)\lib
+LIB         = $(LIB);$(DIR_SDKNV)\$(NVARCH)\lib
+LIB         = $(LIB);$(DIR_VCROOT)\lib
+
+# rc search paths
+
+RCINC       = -I$(DIR_DRIVERS)\common\inc \
+              -I$(DIR_DRIVERS)\common\$(NVCLASS)\inc
+# the last part of this path has been removed as VC6 has a "version.h" file which conflicts with our "version.h"
+#              -I$(DIR_VCROOT)\include
+
+# set the paths in the environment
+
+!if [set INCLUDE=$(INCLUDE)]
+!endif
+!if [set LIB=$(LIB)]
+!endif
+!if [set PATH=$(DIR_VCROOT)\bin]
+!endif
+
+#--------------------------------------------------------------------
+#                            T O O L S
+#--------------------------------------------------------------------
+
+CC          = $(DIR_VCROOT)\bin\cl
+LINK        = $(DIR_VCROOT)\bin\link
+LIBEXE      = $(DIR_VCROOT)\bin\lib
+RC          = $(DIR_VCROOT)\bin\rc
+MAPSYM      = $(DIR_VCROOT)\bin\mapsym
+ASM         = $(DIR_TOOLS)\masm611\bin\ml
+OBJ2NMS     = $(DIR_TOOLS)\w9xice\nmsym
+ETAGS       = $(DIR_TOOLS)\etags\etags
+ENCRYPT     = $(DIR_TOOLS)\nvidia\bin\encrypt.exe
+
+CP          = copy
+
+# Select the proper way to delete files for Win95/WinNT.
+!if "$(OS)" == "Windows_NT"
+RM          = del /q
+!else
+RM          = del
+!endif
+
+#--------------------------------------------------------------------
+#                            F I L E S
+#--------------------------------------------------------------------
+
+EXT_NAME    = dd32
+EXT_DLL     = dll
+EXT_LIB     = lib
+EXT_SYM     = sym
+EXT_NMS     = nms
+
+FILE_RC     = $(DIR_RC)\$(NVCLASS)$(EXT_NAME).rc
+FILE_RES    = $(DIR_LIB)\$(NVCLASS)$(EXT_NAME).res
+FILE_DEF    = $(DIR_DEF)\$(NVCLASS)$(EXT_NAME).def
+
+!if ("$(NVCLASS)" == "nv3")
+TARGET      = nv3$(EXT_NAME)
+!else
+TARGET      = nv$(EXT_NAME)
+!endif
+
+#--------------------------------------------------------------------
+#                          O P T I O N S
+#--------------------------------------------------------------------
+
+!include $(DIR_BASE)\MAKE.d3dopts
+

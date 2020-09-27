@@ -1,0 +1,33 @@
+
+C_DEFINES=$(C_DEFINES) -DTEST_HAWK_SAMPLING_RATE=16000
+TARGETNAME=hawkprod
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS=/TESTNAME:"Xbox Hawk Production Test"
+
+INCLUDES=\
+	$(BASEDIR)\public\sdk\inc;\
+	$(BASEDIR)\private\inc;\
+	$(BASEDIR)\private\ntos\inc;
+
+
+SOURCES= \
+    devices.cpp\
+	PlayBack.cpp\
+	XbInput.cpp\
+	XbSound.cpp\
+	XbUtil.cpp
+
+USE_NOLIB=1
+
+LINKLIBS=\
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(BASEDIR)\private\lib\*\xapilibpd.lib \
+	$(BASEDIR)\public\sdk\lib\*\xhawk.lib \
+	$(LIBRARY_PATH)\d3dx8$(D).lib \
+	$(LIBRARY_PATH)\xgraphics$(D).lib \
+	$(LIBRARY_PATH)\dsound$(D).lib \
+	$(LIBRARY_PATH)\dmusic$(D).lib 
+

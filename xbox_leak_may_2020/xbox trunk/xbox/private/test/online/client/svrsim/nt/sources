@@ -1,0 +1,40 @@
+!IF 0
+
+Copyright (c) 1989-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    NT
+
+Revision History:
+
+!ENDIF
+
+!include ..\..\sources.inc
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE
+
+TARGETNAME=svrsim
+TARGETTYPE=PROGRAM
+TARGETPATH=..\..\bin
+
+UMTYPE=console
+
+USE_NOLIBS=1
+
+SOURCES=..\svrsim.cpp \
+	svrsim.rc
+
+TARGETLIBS= $(LIBRARY_PATH)\msvcrt.lib \
+            $(LIBRARY_PATH)\ws2_32.lib

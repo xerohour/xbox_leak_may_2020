@@ -1,0 +1,35 @@
+TARGETNAME=DukeInfo
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFEE0000 /TESTNAME:"Duke Information" /INITFLAGS:0x00000000
+
+XDBG_COMPILE_LEVEL=5
+
+INCLUDES = \
+    $(PRIVATE_INC_PATH); \
+    $(PRIVATE_INC_PATH)\crypto; \
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\test\inc;
+     
+LINKLIBS = \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib \
+    $(LIBRARY_PATH)\xbdm.lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib
+
+SOURCES=\
+    xboxvideo.cpp \
+    usbmanager.cpp \
+    xitem.cpp \
+    menuscreen.cpp \
+    imagefile.cpp \
+    dukeinfo.cpp
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_CXX=1

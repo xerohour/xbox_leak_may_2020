@@ -1,0 +1,261 @@
+***************************************************************************
+                                                                           
+       Copyright 2001 NVIDIA Corporation.  All rights reserved.           
+                                                                           
+     NOTICE TO USER:   The source code  is copyrighted under  U.S. and     
+     international laws.  Users and possessors of this source code are     
+     hereby granted a nonexclusive,  royalty-free copyright license to     
+     use this code in individual and commercial software.                  
+                                                                           
+     Any use of this source code must include,  in the user documenta-     
+     tion and  internal comments to the code,  notices to the end user     
+     as follows:                                                           
+                                                                           
+       Copyright 2001 NVIDIA Corporation.  All rights reserved.      
+                                                                           
+     NVIDIA, CORPORATION MAKES NO REPRESENTATION ABOUT THE SUITABILITY     
+     OF  THIS SOURCE  CODE  FOR ANY PURPOSE.  IT IS  PROVIDED  "AS IS"     
+     WITHOUT EXPRESS OR IMPLIED WARRANTY OF ANY KIND.  NVIDIA, CORPOR-     
+     ATION DISCLAIMS ALL WARRANTIES  WITH REGARD  TO THIS SOURCE CODE,     
+     INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY, NONINFRINGE-     
+     MENT,  AND FITNESS  FOR A PARTICULAR PURPOSE.   IN NO EVENT SHALL     
+     NVIDIA, CORPORATION  BE LIABLE FOR ANY SPECIAL,  INDIRECT,  INCI-     
+     DENTAL, OR CONSEQUENTIAL DAMAGES,  OR ANY DAMAGES  WHATSOEVER RE-     
+     SULTING FROM LOSS OF USE,  DATA OR PROFITS,  WHETHER IN AN ACTION     
+     OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,  ARISING OUT OF     
+     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOURCE CODE.     
+                                                                           
+     U.S. Government  End  Users.   This source code  is a "commercial     
+     item,"  as that  term is  defined at  48 C.F.R. 2.101 (OCT 1995),     
+     consisting  of "commercial  computer  software"  and  "commercial     
+     computer  software  documentation,"  as such  terms  are  used in     
+     48 C.F.R. 12.212 (SEPT 1995)  and is provided to the U.S. Govern-     
+     ment only as  a commercial end item.   Consistent with  48 C.F.R.     
+     12.212 and  48 C.F.R. 227.7202-1 through  227.7202-4 (JUNE 1995),     
+     all U.S. Government End Users  acquire the source code  with only     
+     those rights set forth herein.                                        
+    
+                                                                           
+***************************************************************************
+                                                                           
+ File: BlitCalls.txt                                                        
+   Notes/overview about blitting routines                        
+                                                                           
+***************************************************************************
+                                                                           
+ History:                                                                  
+       Kelvin Thompson               Feb 2001 - wrote it                     
+                                                                           
+***************************************************************************
+
+
+
+This file is mostly an overview of calling hierarchies for various top-
+level blit-related driver routines.
+
+Legend:
+
+    <indentation> -- usually denotes subroutine or macro call; 
+	    sometimes denotes a possible sequence of calls within a routine
+
+	: -- subroutine or macro call
+
+    | -- alternative call path
+
+    + -- sequential call path
+    , -- sequential call path
+
+	CPU -- blit action implemented by CPU
+
+	GPU -- blit action implemented by graphics chip
+
+	nvPushData() -- blit action implemented by graphics chip
+
+
+
+
+Blit32
+
+    | bltTexture  // either Src or Dst is a texture
+
+        | nvTextureColorFill:
+          + cpuLockSwz
+          + CPU
+          + cpuUnlockSwz
+
+        | nvTextureStretchBlit: CPU
+
+        | nvTextureBltDX7  // non-stretch or -colorfill case
+
+            | + cpuLock
+              + nvSwizBlt_cpu_lin2lin
+                | nvSwizzleBlt_Lin_Lin: nvMemCopy
+              + cpuUnLock
+
+            | + cpuLock
+              + nvSwizBlt_lin2swz
+                | nvVolumeSwizBlt_cpu_lin2swz: CPU
+                | + hwLock
+                  + nvSwizBlt_gpu_lin2swz
+                    | nvHWSwizzleBlt: nvPushData()
+                  + hwUnlock
+                | nvSwizzleBlt_Lin_Swz_FullTexture
+                | nvSwizzleBlt_Lin_Swz
+              + cpuUnlock
+
+            | + cpuLock
+              + nvSwizBlt_cpu_lin2swz
+                | nvSwizzleBlt_Lin_Swz_FullTexture:  CPU
+                | nvSwizzleBlt_Lin_Swz: CPU
+              + cpuUnlock
+
+            | + cpuLock
+              + nvSwizBlt_cpu_swz2lin
+                | nvSwizzleBlt_Swz_Lin: TEXELCOPY, nvMemCopy
+              + cpuUnlock
+
+            | + cpuLock
+              + nvSwizBlt_cpu_swz2swz
+                | nvSwizzleBlt_Swz_Swz: TEXELCOPY
+              + cpuUnlock
+
+    + bltSetBltState
+      + nvPushData() // for ROP, colorkey, alpha
+      + hwLock       // only texture and system memory
+                     //  ... misses non-texture video memory
+
+    + bltControlTraffic
+
+    | bltColourFill: GPU  // no hwLock
+    
+    | blt4CCto4CC: GPU  // no hwLock
+    
+    | bltStrBlt: nvPushData()
+      | blt8bppStrBlt: nvPushData()
+    
+    | nvSwizBlt_cpu_swz2lin
+        | nvSwizzleBlt_Swz_Lin: CPU 
+    
+    | bltSimpleCopy: nvPushData()
+    
+    | bltAllocWorkSpace, bltSimpleCopy, bltStrBlt //overlapping
+    
+//  | bltAllocWorkSpace, bltStrBlt, bltSetBltState, bltSimpleVtoVBlt
+    
+    | bltAllocWorkSpace, bltStrBlt, bltStrBlt, bltStrBlt
+    
+    | bltSimpleVtoVBlt: nvPushData()
+    
+    | bltAllocWorkSpace, bltSimpleCopy, bltSimpleVtoVBlt
+    
+    | bltFallback
+      | bltSlowVtoSBlt: CPU
+      | bltAllocWorkSpace, bltSimpleCopy
+      | bltSlowStoVBlt: nvPushData()
+
+    + BLT_EXIT: nvPushData, hwUnlock, nvPusherStart
+
+
+
+nvDP2TexBlt
+
+    | nvPaletteBlt
+
+    | nvTextureBltDX7  [mostly CPU]
+
+    | nvTexManageFetch
+
+
+
+nvTextureLock
+    + CTexture::updateLinearSurface
+      + | CSimpleSurface::create
+      + | CSimpleSurface::cpuLock, CSimpleSurface::cpuLock
+      + | nvSwizBlt_cpu_lin2lin  // for DXT
+        | nvSwizBlt_cpu_swz2lin
+      + | CSimpleSurface::cpuUnlock, CSimpleSurface::cpuUnlock
+	  + | getSwizzled()->cpuLock: wait  // for DXT
+	    | getLinear()->cpuLock: wait
+
+
+
+nvTextureUnlock
+    | + CTexture::cpuUnlockSwz
+        + CComplexSurface::cpuUnlock
+          + CSimpleSurface::cpuUnlock: NOP
+      + invalidateTextureCache
+    | CTexture::cpuUnlockLin
+      + CSimpleSurface::cpuUnlock: NOP
+
+
+
+CSimpleSurface::cpuLock
+    CReferenceCount::wait
+        CReferenceCount::read
+          | CSemaphore::read           // NV20: Kelvin+DAC+CHANNELDMA case
+          | CPushBuffer::getRefCount   // Kelvin or Celsius
+          | VIDMEM_ADDR                // otherwise
+
+
+
+CComplexSurface::cpuUnlock
+    + CSimpleSurface::cpuUnlock: NOP
+    
+
+
+CTexture::hwLock
+    + CTexture::updateSwizzledSurfaces
+      + updateMipMapChain
+        + | nvMemCopy  // optional
+        + CTexture::updateSwizzleSurface
+          + | CSimpleSurface::create
+          | + nop, nop
+            + nvSwizBlt_gpu_lin2swz
+              + nvHWSwizzleBlt: nvPushData()
+            + CSimpleSurface::hwUnlock, CSimpleSurface::hwUnlock
+          | + cpuLock, cpuLock
+            | nvSwizBlt_cpu_lin2lin
+            | nvSwizBlt_cpu_lin2swz  // 'nvSwizBlt_lin2swz' preferred
+            + cpuUnlock, cpuUnlock
+            + invalidateTextureCache
+    + CComplexSurface::hwLock
+      + CSimpleSurface::hwLock: NOP
+    
+
+CTexture::hwUnlock
+    + CComplexSurface::hwUnlock
+      + CSimpleSurface::hwUnlock
+        + m_dwRetireDate = CReferenceCount::inc(INC_LAZY);
+
+
+
+
+
+VARIABLES affecting blit implementation...
+
+SrcMem:     system, PCI, AGP, video, none, pushbuff, DefltVtxBuff
+SrcFmt:     txt-swz, txt-lin, fourcc, clrfill, <bpp>
+SrcTiny:    yes, no
+SrcRenamed: yes, no
+SrcReady:   yes, no
+
+DstMem:     system, PCI, AGP, video
+DstFmt:     txt-swz, txt-lin, fourcc, <bpp>
+DstTiny:    yes, no
+DstRenamed: yes, no
+DstReady:   yes, no
+
+Stretch:    yes, no, >2Xshrink
+Overlap:    yes, no
+Clrkey:     yes, no
+ROP:        yes, no
+GfxArch:    NV4, NV5, NV10, NV20
+UMA:        yes, no
+OS:         NT, 9x
+API:        DD7, D3D7, DX8
+DOSWin:     yes, no
+3DTexture:  yes, no
+
+
+
+

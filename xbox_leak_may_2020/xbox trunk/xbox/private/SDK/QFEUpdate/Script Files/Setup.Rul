@@ -1,0 +1,211 @@
+//////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                          //
+//  IIIIIII SSSSSS                                                                          //
+//    II    SS                          InstallShield (R)                                   //
+//    II    SSSSSS      (c) 1996-2000, InstallShield Software Corporation                   //
+//    II        SS      (c) 1990-1996, InstallShield Corporation                            //
+//  IIIIIII SSSSSS                     All Rights Reserved.                                 //
+//                                                                                          //
+//                                                                                          //
+//  File Name:    Setup.rul                                                                 //
+//                                                                                          //
+//  Description:  InstallShield script                                                      //
+//                                                                                          //
+//  Comments:     This project demonstrates setup that works as an maintenance pack of      //
+//                Microsoft Xbox SDK application. It will run only if the application       //
+//                is already installed on the machine. The setup will install new/updated   //
+//                files for existing components.  Components are updated only if they       //
+//                were originally installed for the application.                            //
+//                                                                                          //
+//                This template script performs a basic setup on a Windows 2000 platform.   //
+//                                                                                          //
+//  History       Emily Wang Create for Xbox on December 5, 2000                            //
+//                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// Include header files
+
+#include "ifx.h"
+prototype Shell32.ShellExecuteA( HWND,LPSTR, LPSTR, LPSTR, LPSTR, INT);
+prototype ShellExecute(STRING);
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFirstUIBefore
+//
+//  EVENT:      FirstUIBefore event is sent when installation is run for the first
+//              time on given machine. In the handler installation usually displays
+//              UI allowing end user to specify installation parameters. After this
+//              function returns, ComponentTransferData is called to perform file
+//              transfer.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFirstUIBefore()
+begin
+    MessageBox(@ERROR_SDK_CHECK, INFORMATION);
+    abort;
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMaintUIBefore
+//
+//  EVENT:      MaintUIBefore event is sent when end user runs installation that
+//              has already been installed on the machine. Usually this happens
+//              through Add/Remove Programs applet. In the handler installation
+//              usually displays UI allowing end user to modify existing installation
+//              or uninstall application. After this function returns,
+//              ComponentTransferData is called to perform file transfer.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMaintUIBefore()
+    STRING szTitle, szMsg, szBuild;
+    NUMBER nResult, nBuild, nType, nvSize;
+begin
+    SetTitle( @TITLE_MAIN, 24, WHITE );
+    SetTitle( @TITLE_CAPTIONBAR, 0, BACKGROUNDCAPTION );
+
+Dlg_Start:
+
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    RegDBGetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Build", nType, szBuild, nvSize);
+    StrToNum(nBuild, szBuild);
+
+    //***** 3146 is the build number of the December release, but 3136 is what was written into the registry
+    //***** 3223 is the build number of the February release
+    // The February SDK update didn't overwrite the December build number
+    // Thus we need to allow the February build number or the December build number if 
+    // a file introduced in February is there
+    // The March updater should properly replace the build number.
+
+    if !(nBuild = 3223 || (nBuild = 3136 && Is(FILE_EXISTS, TARGETDIR ^ "Xbox\\Bin\\DXTex.Exe") ) ) then
+        MessageBox(@ERROR_WRONG_BUILD, SEVERE);         
+        abort;
+    endif;
+
+    szTitle = @MSG_WELCOME_TITLE;
+    szMsg   = @MSG_WELCOME;
+
+    SetDialogTitle(DLG_STATUS, @SETUP_DIALOG_TITLE );
+    Enable(STATUSDLG);
+    nResult = SdWelcome( szTitle, szMsg );
+    if (nResult = BACK) goto Dlg_Start;
+
+    ComponentUpdate("");
+
+    // setup default status
+    SetStatusWindow(0, "");
+    Enable(STATUSEX);
+    StatusUpdate(ON, 100);
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMoving
+//
+//  EVENT:      Moving event is sent when file transfer is started as a result of
+//              ComponentTransferData call, before any file transfer operations
+//              are performed.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMoving()
+begin
+    //Load the original values of SRCDIR, etc., from IS6's log file
+    //into memory so that they are re-entered into the log by IFX's
+    //call to ComponentSaveTarget( "" ).
+    ComponentLoadTarget("");
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnBegin
+//
+//  EVENT:      Begin event is always sent as the first event during installation.
+//
+//////////////////////////////////////////////////////////////////////////////
+function OnBegin()
+begin
+
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMaintUIAfter
+//
+//  EVENT:      MaintUIAfter event is sent after file transfer, when end user runs
+//              installation that has already been installed on the machine. Usually
+//              this happens through Add/Remove Programs applet.
+//              In the handler installation usually displays UI that will inform
+//              end user that maintenance/uninstallation has been completed successfully.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMaintUIAfter()
+    STRING szTitle, szMsg1, szMsg2, szOption1, szOption2;
+    NUMBER bOpt1, bOpt2;
+begin
+
+    Disable(STATUSEX);
+
+    ShowObjWizardPages(NEXT);
+
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        ShellExecute( TARGETDIR ^ "XDKUpdateNotes.Htm" );
+    else
+        ShellExecute( TARGETDIR ^ "XDKUpdateNotesJpn.Htm" );
+    endif;
+
+    bOpt1   = FALSE;
+    bOpt2   = FALSE;
+    szMsg1  = SdLoadString(IFX_SDFINISH_MAINT_MSG1);
+    szTitle = SdLoadString(IFX_SDFINISH_MAINT_TITLE);
+    SdFinishEx(szTitle, szMsg1, szMsg2, szOption1, szOption2, bOpt1, bOpt2);
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   ShellExecute
+//
+//  Calls the Windows ShellExecute API
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function ShellExecute(szFile)
+    STRING szMsg, szFormat;
+    NUMBER nHwndFlag, nResult;
+    HWND hInstallHwnd;
+    STRING szOperation, szPath, szParameter;
+    POINTER pszOperation, pszFile, pszPath, pszParameter;
+
+begin
+
+   nHwndFlag = HWND_INSTALL;
+
+   // GetWindowHandle retrieves the handle of the installation main window
+   hInstallHwnd = GetWindowHandle(nHwndFlag);
+
+   // Load shell32.DLL into memory.
+   nResult = UseDLL ("Shell32.Dll");
+   if (nResult != 0) then
+      MessageBox ("UseDLL failed.\n\nCouldn't load .DLL file.", INFORMATION);
+      abort;
+   endif;
+
+   szOperation="OPEN";
+   pszOperation=&szOperation;
+   pszFile=&szFile;
+   szPath=SUPPORTDIR;
+   pszPath=&szPath;
+   szParameter="";
+   pszParameter=&szParameter;
+   ShellExecuteA( hInstallHwnd, pszOperation, pszFile, pszParameter, pszPath, SW_SHOWNORMAL);
+
+   // The following removes Shell32.dll from memory.
+   if (UnUseDLL ("Shell32.Dll") < 0) then
+      MessageBox("UnUseDLL failed.\n\nDLL still in memory.", SEVERE);
+   endif;
+
+end;

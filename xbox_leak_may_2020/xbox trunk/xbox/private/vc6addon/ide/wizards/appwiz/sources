@@ -1,0 +1,98 @@
+
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!include $(BASEDIR)\private\vc6addon\ide\sources.inc
+
+MAJORCOMP=wizard
+MINORCOMP=appwiz
+TARGETNAME=mfcapwz$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=windows
+TARGETPATHLIB=$(IDE_ROOT)\lib
+
+WIZ_BUILD_DIR=vcshell
+APPWIZ_ROOT=$(IDE_ROOT)\\wizards\\appwiz
+
+
+APPWIZ_LANG=APPWZENU
+
+TPL_LOC_DIR=$(APPWIZ_ROOT)\\TEMPLATE.LOC
+TPL_TAG_DIR=$(APPWIZ_ROOT)\\TEMPLATE.TAG
+TPL_NOLOC_DIR = $(APPWIZ_ROOT)\\template
+
+#MSC_WARNING_LEVEL=/W4
+
+!if "$(_VCBUILD)"=="1"
+MISCFILES=$(TARGETPATHLIB)\$(TARGET_DIRECTORY)\$(TARGETNAME).lib
+!endif
+
+DLLDEF=$(O)\$(TARGETNAME).def
+COFFBASE=appwz_dll
+DLLENTRY=_DllMainCRTStartup
+
+INCLUDES=$(O);$(IDE_INCLUDES);$(IDE_ROOT)\pkgs\include;..\
+
+RESDLL_NAME = $(TARGETPATH)\$(TARGET_DIRECTORY)\$(APPWIZ_LANG).dll
+MISCFILES=$(MISCFILES) $(RESDLL_NAME)
+USE_MFC=1
+USE_ATL=1
+NTTARGETFILE1=$(RESDLL_NAME)
+NTTARGETFILES=$(DLLDEF)
+SYNCHRONIZE_BLOCK=1
+
+C_DEFINES=$(C_DEFINES) /D_APWZEXT
+
+SOURCES=\
+    advanced.cpp    \
+    awiface.cpp     \
+    codegen.cpp     \
+    customaw.cpp    \
+    datbdlg.cpp     \
+    ddxddv.cpp      \
+    extend.cpp      \
+    exports.cpp     \
+    lang.cpp        \
+    mfcappwz.cpp    \
+    miscdlgs.cpp    \
+    oledlg.cpp      \
+    oleutil.cpp     \
+    pagedlg.cpp     \
+    platname.cpp    \
+    projtype.cpp    \
+    seqdlg.cpp      \
+    symbols.cpp     \
+    mfcappwz.rc
+
+TARGETLIBS=   \
+    $(IDE_ROOT)\lib\*\devshl$(D).lib \
+    $(SDK_LIB_PATH)\ole32.lib   \
+    $(SDK_LIB_PATH)\kernel32.lib    \
+    $(SDK_LIB_PATH)\gdi32.lib   \
+    $(SDK_LIB_PATH)\user32.lib  \
+    $(SDK_LIB_PATH)\shell32.lib \
+    $(SDK_LIB_PATH)\advapi32.lib    \
+    $(SDK_LIB_PATH)\comdlg32.lib    \
+    $(SDK_LIB_PATH)\version.lib \
+    $(SDK_LIB_PATH)\winspool.lib
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_PCH=stdafx.pch
+PRECOMPILED_OBJ=stdafx.obj
+PRECOMPILED_CXX=1
+

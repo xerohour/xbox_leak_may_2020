@@ -1,0 +1,31 @@
+TARGETNAME=slixbox
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+#C_DEFINES=$(C_DEFINES) -D_XBOX_
+
+BROWSER_INFO=1
+
+SYNCRHONIZE_DRAIN=1
+
+INCLUDES=$(SDKDIR);$(BASEDIR)\private\ntos\dd\usb\inc; \
+    $(BASEDIR)\private\test\inc; \
+    $(BASEDIR)\private\ntos\dd\usb\usbd; \
+    $(BASEDIR)\private\test\tools\slixbox\slixd; \
+    $(DDK_INC_PATH)\
+ 
+
+SOURCES=\
+    slixbox.cpp \
+    slixboxsock.cpp
+
+TARGETLIBS=\
+    $(SDK_LIB_PATH)\xnet$(D).lib                \
+    $(BASEDIR)\private\test\lib\*\tsc.lib       \
+    $(BASEDIR)\private\test\tools\slixbox\slixd\obj\*\slixd.lib
+    
+
+#    $(BASEDIR)\private\test\lib\*\kernel32.lib  \
+#    $(SDK_LIB_PATH)\libcmt.lib                  \
+

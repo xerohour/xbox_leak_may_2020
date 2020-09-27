@@ -1,0 +1,49 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+MAJORCOMP=xboxtest
+MINORCOMP=harness
+
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETNAME=harnesslib
+TARGETTYPE=LIBRARY
+
+SOURCES=init.c \
+        loader.c \
+        logging.c \
+        runner.c
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(BASEDIR)\private\inc\crypto; \
+         $(BASEDIR)\private\ntos\bootx\inc; \
+         $(BASEDIR)\private\ntos\bootx\bldr32\$(TARGET_DIRECTORY); \
+         $(BASEDIR)\private\ntos\xapi\inc
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+PRECOMPILED_INCLUDE=precomp.h
+

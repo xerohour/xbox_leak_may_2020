@@ -1,0 +1,75 @@
+import "oaidl.idl";
+import "ocidl.idl";
+//for VCProject
+import "vcpb2.idl";
+
+// External types
+//
+
+typedef DWORD_PTR HPROJECT;
+interface IResourceProject;
+interface IResourceControl;
+
+// IResourceRoot is accessible from the res package.
+[
+    object,
+    uuid(971DC6F0-20F2-11d2-99C7-00A0C91BC8E5),
+    helpstring("IResourceRoot interface"),
+    pointer_default(unique)
+]
+interface IResourceRoot : IUnknown
+{
+    HRESULT GetResourceProject ([in] VCProject *pProject, [out] IResourceProject ** ppIResProj);
+}
+
+
+// IResourceProject
+// resources in a project
+[
+    object,
+    uuid(971DC6F1-20F2-11d2-99C7-00A0C91BC8E5),
+    helpstring("IResourceProject interface"),
+    pointer_default(unique)
+]
+interface IResourceProject : IUnknown
+{
+    // gets a dialog given a dialog ID
+//  HRESULT GetDialog ([in] LPCSTR lpszDialogID, [out] IResourceDialog ** ppIResDlg);
+    HRESULT GetDialogControls ([in] LPOLESTR lpszDialogID,	// dialogID 
+                               [in] BOOL allControls,       // including grouped controls
+                               [out] UINT  * puCount,       // number of controls
+                               [out] BSTR ** prgszID,       // array of string of control IDs
+                               [out] BSTR ** prgszType);    // array of string of control types
+    HRESULT GetCommandIDs     ([out] BSTR ** prgbstrIDs,    // array of string of menu and Accelerator IDs (no duplicates)
+                               [out] UINT * puMenuCount,    // number of Menu IDs in the whole resource file
+                               [out] UINT * puAccelCount);  // number of Accelerator IDs in the whole resource file
+    HRESULT GetDialogIDs      ([out] UINT * puCount,        // number of dialogIDs in the whole resource file
+                               [out] BSTR ** prgbstrIDs);   // array of string of dialog IDs (there could be duplicates)
+}
+
+//TODO
+/*
+[
+    object,
+    uuid(971DC6F2-20F2-11d2-99C7-00A0C91BC8E5),
+    helpstring("IResourceDialog interface"),
+    pointer_default(unique)
+]
+interface IResourceDialog : IUnknown
+{
+    HRESULT GetControls ([out] IResourceControl *** pprgIResCtrl, [out] UINT * puCount);
+}
+
+[
+    object,
+    uuid(971DC6F3-20F2-11d2-99C7-00A0C91BC8E5),
+    helpstring("IResourceControl interface"),
+    pointer_default(unique)
+]
+interface IResourceControl : IUnknown
+{
+    HRESULT GetID ([out] LPSTR * ppszID, [out] UINT * puID);
+    HRESULT GetType ([out] LPSTR * ppszType, [out] UINT * puType);
+}
+//TODO
+*/

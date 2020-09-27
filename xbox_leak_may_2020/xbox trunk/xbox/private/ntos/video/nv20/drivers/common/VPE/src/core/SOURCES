@@ -1,0 +1,18 @@
+TARGETNAME=nvpecore
+TARGETTYPE=LIBRARY
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(BASEDIR)\lib
+!ENDIF
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+
+C_DEFINES = $(C_DEFINES) -DNVPE
+INCLUDES=$(BASEDIR)\src\video\inc;$(NTMAKEENV);$(BASEDIR)\inc\ddk;$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\VPE\inc;$(BUILD_TREE)\drivers\display\winnt4\miniport\nv_mini;..\..\displays\nv_disp\i386
+
+
+SOURCES =   nvpecore.c

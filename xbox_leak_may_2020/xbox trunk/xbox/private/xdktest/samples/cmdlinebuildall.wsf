@@ -1,0 +1,68 @@
+<job>
+<script language="VBScript" src="common.vbs"/>
+<script language="VBScript">
+'
+' CmdLineBuildAll
+' emmang@xbox.com
+'
+Const SCRIPTNAME = "CmdLineBuildAll"
+Const BATCHBAT = "c:\clbldall.bat"
+Const BATCHLOG = "c:\clbldall.txt"
+Const BATCHTMP = "c:\clbldall.tmp"
+
+Dim gfileBatch, gChoice
+Main()
+
+Sub Main
+    On Error Resume Next
+
+    If Not Init() Then
+        Exit Sub
+    End If
+
+    ' ask the user if /REBUILD will be used
+    ' 32 = question mark icon
+    ' 4 = yes/no type dialog
+    gChoice = gobjShell.PopUp("Use the /REBUILD option?" & vbCrLf & _
+            "(5 second timeout => NO)", _
+            5, SCRIPTNAME, (32 + 4))
+
+    If (gChoice = 6) Then
+        gChoice = " /REBUILD"
+    Else
+        gChoice = ""
+    End If
+
+    ' create the batch file which will be filled with MSDev commands
+    Set gfileBatch = gobjFileSystem.CreateTextFile(BATCHBAT, True)
+    gfileBatch.WriteLine("@rem auto-generated batch file")
+    gfileBatch.WriteLine("@if exist " & BATCHLOG & " del " & BATCHLOG)
+    ProcessSubdirs(gstrXDKInstall)
+    gfileBatch.WriteLine(":done")
+    gfileBatch.WriteLine("del /q " & ABORTFILE)
+    gfileBatch.Close
+    gobjShell.Run BATCHBAT, 5, True
+    
+    ' see the results
+    gChoice = gobjShell.PopUp("View " & BATCHLOG & " in Notepad?" & _
+        vbCrLf & "(5 second timeout => NO)", _
+        5, SCRIPTNAME, (32 + 4))
+    If (gChoice = 6) Then
+        gobjShell.Run "notepad " & BATCHLOG, 5, True
+    End If
+End Sub
+
+Sub ProcessSingleFile(objFile)
+    strExt = gobjFileSystem.GetExtensionName(objFile.Path)
+    strExt = lcase(strExt)
+    If (strExt = "dsp") Then
+    'add dsp to list of files to build
+        gfileBatch.WriteLine(Chr(34) & gstrMsdevInstall & Chr(34) & _
+                " " & Chr(34) & objFile.Path & Chr(34) & _
+                " /MAKE ALL" & gChoice & " /OUT " & BATCHTMP)
+        gfileBatch.WriteLine("@type " & BATCHTMP & " >> " & BATCHLOG)
+        gfileBatch.WriteLine("@if exist " & ABORTFILE & " goto done")
+    End If
+End Sub
+</script>
+</job>

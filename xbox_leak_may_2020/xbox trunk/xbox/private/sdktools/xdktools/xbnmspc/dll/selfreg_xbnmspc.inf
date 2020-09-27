@@ -1,0 +1,105 @@
+; Microsoft Internet Explorer XBOX Folder
+;
+; Copyright 1995-99 Microsoft Corporation.  All Rights Reserved.
+;
+
+[Version]
+Signature="$CHICAGO$"
+AdvancedINF=2.0
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Warning: Because of the use of Backup/Restore
+;;          it's necessary for IE4 to be installed.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[XboxNamespaceShellExtensionInstall]
+ComponentName=XBNMSPC
+ComponentVersion=1
+AdvOptions=36
+AddReg=RegXBOX,!RegRollbackControls
+RequiredEngine=SETUPAPI,%ERR_NOSETUPAPI%
+
+[XboxNamespaceShellExtensionUninstall]
+ComponentName=XBNMSPC
+AdvOptions=260
+RequiredEngine=SETUPAPI,%ERR_NOSETUPAPI%
+
+[XboxForceAssociations]
+AddReg=RegForceXBOXAssoc
+RequiredEngine=SETUPAPI,%ERR_NOSETUPAPI%
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;  Rollback Registration
+;
+;  These registry keys will kick off the RollBack during uninstall.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[!RegRollbackControls]
+HKLM,"Software\Microsoft\Advanced INF Setup", "Xbox CompList",0,""
+HKLM,"Software\Microsoft\Advanced INF Setup\Xbox CompList","XBNMSPC",0,""
+
+[RegXBOX]
+HKCR,"CLSID\%XBOX_GUID%",,,"%DESC%"
+HKCR,"CLSID\%XBOX_GUID%\InProcServer32","",,"%THISDLL%"
+HKCR,"CLSID\%XBOX_GUID%\InProcServer32","ThreadingModel",,"Apartment"
+HKCR,"CLSID\%XBOX_GUID%\DefaultIcon","",,"%THISDLL%,0"
+HKCR,"CLSID\%XBOX_GUID%\ShellFolder","Attributes",1,34,00,00,a0
+;HKCR,"CLSID\%XBOX_GUID%\shellex\ExtShellFolderViews\%WEBVIEW_GUID%","PersistMoniker",0x00020000,"%25%\web\xbox.htt"
+
+; Root the view in MyComputer
+HKLM,"Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\%XBOX_GUID%",,,"%DESC%"
+HKLM,"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved","%XBOX_GUID%",,"%DESC%"
+
+HKCR,"xbox\DefaultIcon","",,"%THISDLL%,0"
+HKCR,"xbox","ShellFolder",0,"%XBOX_GUID%"
+HKCR,"xbox","URL Protocol",0,""
+HKCR,"xbox\Shell","",,""
+HKCR,"xbox\Shell\Open","",,""
+HKCR,"xbox\Shell\Open\Command","",,"%25%\explorer.exe %1"
+
+HKCR,"CLSID\%CLSID_CXboxWebView%",,,"%DESC_CXboxWebView%"
+HKCR,"CLSID\%CLSID_CXboxWebView%\InProcServer32",,0x00020000,"%THISDLL%"
+HKCR,"CLSID\%CLSID_CXboxWebView%\InProcServer32","ThreadingModel",,"Apartment"
+HKCR,"CLSID\%CLSID_CXboxWebView%\TypeLib",,,"%CXboxWebView_TYPELIB%"
+
+;HKCR,"CLSID\%CLSID_CFtpInstaller%",,,"%DESC_CFtpInstaller%"
+;HKCR,"CLSID\%CLSID_CFtpInstaller%\InProcServer32",,0x00020000,"%THISDLL%"
+;HKCR,"CLSID\%CLSID_CFtpInstaller%\InProcServer32","ThreadingModel",,"Apartment"
+
+HKCR,"CLSID\%CLSID_XboxDataObject%",,,"%DESC_XboxDataObject%"
+HKCR,"CLSID\%CLSID_XboxDataObject%\InProcServer32",,0x00020000,"%THISDLL%"
+HKCR,"CLSID\%CLSID_XboxDataObject%\InProcServer32","ThreadingModel",,"Apartment"
+
+
+
+;; Show that the feature has been installed.
+HKLM,"%ACTIVE_SETUP%\Installed Components\%CXboxJIT_Component%","KeyFileName",0,"%THISDLL%"
+
+
+[RegForceXBOXAssoc]
+; In this case force the association
+HKCR,"xbox","ShellFolder",0,"%XBOX_GUID%"
+HKCR,"xbox","URL Protocol",0,""
+
+[Strings]
+XBOX_GUID            = "{9FA6C2C0-852C-4aed-8CEB-C8FFEABF7921}"
+WEBVIEW_GUID         = "{5984FFE0-28D4-11CF-AE66-08002B2E1262}"
+CLSID_CXboxWebView   = "{9FA6C2C1-852C-4aed-8CEB-C8FFEABF7921}"
+CLSID_CXboxInstaller = "{9FA6C2C2-852C-4aed-8CEB-C8FFEABF7921}"
+CLSID_XboxDataObject = "{9FA6C2C3-852C-4aed-8CEB-C8FFEABF7921}"
+CXboxWebView_TYPELIB = "{9FA6C2C4-852C-4aed-8CEB-C8FFEABF7921}"
+DESC                 = "Xbox Consoles"
+DESC_CXboxWebView    = "Xbox Folder Web View Automation"
+DESC_CXboxInstaller  = "Xbox Installer to handle Xbox Associations"
+DESC_XboxDataObject  = "Xbox IDataObject impl"
+ERR_NOSETUPAPI       = "Internet Explorer 5.0 needs to be installed for this product to be installed."
+DESC_USENEWUI        = "Enable folder view for Networked Xbox Development Kits"
+CXboxJIT_Component   = "{9FA6C2C5-852C-4aed-8CEB-C8FFEABF7921}"
+ACTIVE_SETUP         = "Software\Microsoft\Active Setup"
+
+;unused GUID's
+;{9FA6C2C7-852C-4aed-8CEB-C8FFEABF7921}
+;{9FA6C2C8-852C-4aed-8CEB-C8FFEABF7921}
+;{9FA6C2C9-852C-4aed-8CEB-C8FFEABF7921}
+;{9FA6C2D0-852C-4aed-8CEB-C8FFEABF7921}

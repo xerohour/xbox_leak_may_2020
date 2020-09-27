@@ -1,0 +1,79 @@
+!IF 0
+
+Copyright (c) 1990-1998  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+
+!include $(VSROOT)\sources.inc
+
+TARGETNAME=vseeguids
+TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+TARGETTYPE=LIBRARY
+
+UMTYPE=windows
+
+SYNCHRONIZE_BLOCK=1
+
+USE_IDLPCH=1
+
+PASS0_HEADERDIR=$(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)
+PASS0_TLBDIR=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+PASS0_DLLDATADIR=$(VSBUILT)\$(BUILT_FLAVOR)\dlldata
+PASS0_PROXYDIR=$(VSBUILT)\$(BUILT_FLAVOR)\proxy
+PASS0_SOURCEDIR=$(O)
+
+# MIDL only finds TLBs in the current directory or the path...
+PATH=$(PATH);$(PASS0_TLBDIR);$(EXTERNAL_ROOT)\tlb
+
+# Needs some header files from common VSEE include
+USER_INCLUDES=$(COMMON_ROOT)\inc\vsee;$(COMMON_ROOT)\idl\vs
+
+LIBRARIAN_FLAGS=$(LIBRARIAN_FLAGS) -ignore:4006
+
+# These files are ordered non-alphabetically because some depend on outputs of others
+VSEE_IDL_FILES= \
+	IVsExternalCommandTarget.idl \
+	vspkg.idl \
+	vsqryed.idl \
+	vsscceng.idl \
+	vssccitm.idl \
+	vssccmgr.idl \
+	IVsSccManagerTooltip.idl \
+	vssccprj.idl \
+	vssolutn.idl \
+	vstrkdoc.idl \
+	vapiemp.idl \
+	vsempweb.idl \
+	IVsSCCToolsOptions.idl
+# These files are ordered identically to their corresponding IDL files above
+VSEE_UUID_C_FILES= \
+	$(PASS0_SOURCEDIR)\IVsExternalCommandTarget.c \
+	$(PASS0_SOURCEDIR)\vspkg.c \
+	$(PASS0_SOURCEDIR)\vsqryed.c \
+	$(PASS0_SOURCEDIR)\vsscceng.c \
+	$(PASS0_SOURCEDIR)\vssccitm.c \
+	$(PASS0_SOURCEDIR)\vssccmgr.c \
+	$(PASS0_SOURCEDIR)\IVsSccManagerTooltip.c \
+	$(PASS0_SOURCEDIR)\vssccprj.c \
+	$(PASS0_SOURCEDIR)\vssolutn.c \
+	$(PASS0_SOURCEDIR)\vstrkdoc.c \
+	$(PASS0_SOURCEDIR)\vapiemp.c \
+	$(PASS0_SOURCEDIR)\vsempweb.c \
+	$(PASS0_SOURCEDIR)\IVsSCCToolsOptions.c
+
+SOURCES= \
+	$(VSEE_IDL_FILES)\
+	$(VSEE_UUID_C_FILES)

@@ -1,0 +1,86 @@
+// ADSREnvelope.odl : type library source for ActiveX Control project.
+
+// This file will be processed by the Make Type Library (mktyplib) tool to
+// produce the type library (ADSREnvelope.tlb) that will become a resource in
+// ADSREnvelope.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(71AE3623-A9BD-11D0-BCBA-00AA00C08146), version(1.0),
+  helpfile("ADSREnvelope.hlp"),
+  helpstring("ADSREnvelope ActiveX Control module"),
+  control ]
+library ADSRENVELOPELib
+{
+	importlib(STDOLE_TLB);
+	importlib(STDTYPE_TLB);
+
+	//  Primary dispatch interface for CADSREnvelopeCtrl
+
+	[ uuid(71AE3624-A9BD-11D0-BCBA-00AA00C08146),
+	  helpstring("Dispatch interface for ADSREnvelope Control"), hidden ]
+	dispinterface _DADSREnvelope
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CADSREnvelopeCtrl)
+			[id(1)] long ReleaseTime;
+			[id(2)] long AttackTime;
+			[id(3)] long DecayTime;
+			[id(4)] long SustainLevel;
+			[id(5)] long DelayTime;
+			[id(6)] long HoldTime;
+			//}}AFX_ODL_PROP
+
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CADSREnvelopeCtrl)
+			[id(7)] void SetDLS1(boolean bDLS1);
+			//}}AFX_ODL_METHOD
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	//  Event dispatch interface for CADSREnvelopeCtrl
+
+	[ uuid(71AE3625-A9BD-11D0-BCBA-00AA00C08146),
+	  helpstring("Event interface for ADSREnvelope Control") ]
+	dispinterface _DADSREnvelopeEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+			// NOTE - ClassWizard will maintain event information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_EVENT(CADSREnvelopeCtrl)
+			[id(1)] void ADSREDecayTimeChanged(long NewDecayTime);
+			[id(2)] void ADSREAttackTimeChanged(long NewAttackTime);
+			[id(3)] void ADSREReleaseTimeChanged(long NewReleaseTime);
+			[id(4)] void ADSRESustainLevelChanged(long NewSustainLevel);
+			[id(5)] void RealDecayChanged(long lNewRealDecay);
+			[id(6)] void RealReleaseChanged(long lNewRealRelease);
+			[id(7)] void ADSRMouseMoveStart();
+			[id(8)] void ADSRHoldTimeChanged(long lNewHoldTime);
+			[id(9)] void ADSREDelayTimeChanged(long lNewDelayTime);
+			[id(10)] void ADSREHoldTimeChanged(long lNewHoldTime);
+			//}}AFX_ODL_EVENT
+	};
+
+	//  Class information for CADSREnvelopeCtrl
+
+	[ uuid(71AE3626-A9BD-11D0-BCBA-00AA00C08146),
+	  helpstring("ADSREnvelope Control"), control ]
+	coclass ADSREnvelope
+	{
+		[default] dispinterface _DADSREnvelope;
+		[default, source] dispinterface _DADSREnvelopeEvents;
+	};
+
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

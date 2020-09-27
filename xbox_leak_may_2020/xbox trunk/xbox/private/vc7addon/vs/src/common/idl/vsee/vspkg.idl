@@ -1,0 +1,2369 @@
+// vspkg.idl
+//
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "vsshell.idl";
+import "vssolutn.idl";
+
+interface IVsPackageDescription;
+
+interface IVsJARPackageDescription;
+interface IVsCABPackageDescription;
+interface IVsSetupPackageDescription;
+
+interface IVsEnumPackageItems;
+interface IVsPackageItem;
+
+interface IVsPackagingEngine;
+interface IVsPackagingEngineStatusCallback;
+
+interface IVsPackagingHelper;
+interface IVsPackagingEngineFilter;
+
+interface IVsPackagingEnginePropertyInterfaceBroker;
+interface IVsPackagingPropertyObject;
+
+interface IVsPackagingGeneralPPageController;
+interface IVsPackagingGeneralPPageSettings;
+interface IVsPackagingGeneralProperties;
+
+interface IVsCABPPageController;
+interface IVsCABPPageSettings;
+interface IVsCABProperties;
+
+interface IVsJARPPageController;
+interface IVsJARPPageSettings;
+interface IVsJARProperties;
+
+interface IVsSetupPPageController;
+interface IVsSetupPPageSettings;
+interface IVsSetupProperties;
+
+interface IVsEnumVMPermissions;
+interface IVsVMPermissionProvider;
+interface IVsVMPermissionCollection;
+interface IVsVMPermission;
+interface IVsVMPermissionProperty;
+interface IVsEnumVMPermissionProperty;
+
+interface IVsEnumWebLibraries;
+interface IVsWebLibraryProvider;
+interface IVsWebLibraryCollection;
+interface IVsWebLibrary;
+
+interface IVsAdditionalItemCollection;
+interface IVsAdditionalItemProvider;
+
+interface IVsDeploymentDescription;
+
+[
+uuid(52383877-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsEnumBSTRs : IUnknown
+{
+	HRESULT Next([in] ULONG celt, [in, out, size_is(celt)] BSTR rgbstr[], [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt);
+	HRESULT Reset();
+	HRESULT Clone([out] IVsEnumBSTRs **ppIVsEnumBSTRs);
+};
+
+
+//
+//	The IVsPackageDescription interface is fed to an IVsPackagingEngine
+//	for it to obtain the list of settings and files for the packaging
+//	engine.	 The packaging engine will usually attempt to IUnknown::QueryInterface()
+//	for a package-type-specific settings interface, but should have reasonable
+//	behavior if it cannot find a more specialized one than just getting a
+//	list of file names.
+//
+
+[
+uuid(52383865-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackageDescription : IUnknown
+{
+	HRESULT EnumItems([out] IVsEnumPackageItems **ppIVsEnumPackageItems);
+	HRESULT put_OSDFilename([in, string, ptr] LPCOLESTR szFilename);
+	HRESULT get_OSDFilename([out]BSTR *pbstrFileName );
+}
+
+
+//
+//	The IVsJARPackageDescription interface gives access to JAR-specific
+//	advanced packaging settings/options.
+//
+
+[
+uuid(52383866-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsJARPackageDescription : IVsPackageDescription
+{
+	HRESULT put_PackageComment([in, string, ptr] LPCOLESTR szFilename);
+	HRESULT get_PackageComment([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+}
+
+//
+//	The IVsCABPackageDescription interface gives access to CAB-specific
+//	advanced packaging settings/options.
+//
+
+[
+uuid(52383867-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABPackageDescription : IVsPackageDescription
+{
+	HRESULT get_ReservedSpace([out]UINT *plReservedSpace);
+	HRESULT get_CompressionType([out]unsigned short *tcomp);
+	HRESULT put_CompressionType([in]unsigned short tcomp);
+}
+
+[
+uuid(3C0B95F0-8B92-11d1-A218-0000F8026F55),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsDeploymentCABPackageDescription : IVsCABPackageDescription
+{
+	HRESULT get_IVsOutputWindowPane([out] IVsOutputWindowPane **ppIVsOutputWindowPane);
+	HRESULT get_StoredFilenameCodePage([out] UINT *puiCodePage);
+}
+
+
+//
+//	The IVsEnumPackageItems interface is used by packaging engines; they
+//	are provided with an IVsPackageDescription, call IVsPackageDescription::EnumItems()
+//	to get this enumerator, and then use the enumerator to find all the relevant
+//	contents for the package.
+//
+
+[
+uuid(52383868-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsEnumPackageItems : IUnknown
+{
+	HRESULT Next([in] ULONG celt, [out, size_is(celt), length_is(*pceltFetched)] IVsPackageItem **prgpelt, [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt);
+	HRESULT Reset();
+	HRESULT Clone([out] IVsEnumPackageItems **ppIVsEnumPackageItems);
+}
+
+//
+//	The IVsPackageItem interface describes a single file to go into a generated
+//	package.  Specialized interfaces may be available on the object to provide
+//	information for the file relevant for putting the file into a particular
+//	kind of package.
+//
+
+[
+uuid(52383869-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackageItem : IUnknown
+{
+	HRESULT get_Filename([in] ULONG cch, [in, out, size_is(cch), unique] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+	HRESULT get_ProjectRelativeFilename([in] ULONG cch, [in, out, size_is(cch), unique] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+	HRESULT get_ItemSource([in] ULONG cch, [in, out, size_is(cch), unique] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+}
+
+//
+//	The IVsJARPackageItem interface gives specialized information about how to
+//	place the file described by IVsPackageItem::get_Filename() into a JAR
+//	package.  This may include signature types, compression methods etc.  The
+//	interface is not yet filled in (5/20/97) as the various options for individual
+//	files in a JAR are not fully understood as of yet.
+//
+
+[
+uuid(5238386a-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsJARPackageItem : IVsPackageItem
+{
+	HRESULT put_ItemComment([in, string, ptr] LPCOLESTR szFilename);
+	HRESULT get_ItemComment([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+}
+
+//
+//	The IVsCABPackageItem interface gives specialized information about how to
+//	place the file described by IVsPackageItem::get_Filename() into a CAB
+//	package.  This may include signature types, compression methods etc.  The
+//	interface is not yet filled in (5/20/97) as the various options for individual
+//	files in a CAB are not fully understood as of yet.
+//
+
+[
+uuid(5238386b-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0)
+]
+interface IVsCABPackageItem : IVsPackageItem
+{
+	HRESULT get_StoredFilename([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+	// CompressionType must be a valid TCOMP value from fci.h
+	HRESULT get_CompressionType([out] USHORT *pusCompressionType);
+}
+
+//
+//	The IVsPackagingEngineStatusCallback interface is used by clients of
+//	IVsPackagingEngine which want to receive status reports on the progress
+//	of generating the package(s).
+//
+//	The sequence of callbacks/events is:
+//		[the notation (*) after an event implies that it may be fired 0 or more
+//			times at this point in the sequence]
+//
+//		Tick (always first; S_FALSE disables further ticks for the sink)
+//		OnPackageStart
+//
+//		OnFileInsertionStart
+//		OnFileInsertionProgress(*)
+//		OnFileInsertionDone
+//
+//		OnPackageEnd
+//
+//	OnPackageStart is always fired; if a failure occurs during the firing of any of
+//	the OnPackageStart events, corresponding OnPackageEnd events are fired for the
+//	starts which were fired, and an unsuccessful HRESULT is returned by
+//	IVsPackagineEngine::Start().
+//
+//	OnPackageEnd is *always* fired, even if the package construction was cancelled or
+//	failed.
+//
+
+[
+uuid(FB61C8EA-A6E4-11d0-8A43-00A0C91E2ACD),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingEngineStatusCallback : IUnknown
+{
+	HRESULT Tick([in, out, unique] BOOL *pfContinue);
+
+	HRESULT OnPackagingStart(
+				[in] IVsPackageDescription *pIVsPackageDescription);
+	HRESULT OnPackagingEnd(
+				[in] IVsPackageDescription *pIVsPackageDescription,
+				[in] BOOL fSuccessful);
+
+	HRESULT OnFileInsertionStart(
+				[in] IVsPackageItem *pIVsPackageItem,
+				[in, out] BOOL *pfContinue);
+	HRESULT OnFileInsertionProgress(
+				[in] IVsPackageItem *pIVsPackageItem,
+				[in] ULONG ulProgressMax,
+				[in] ULONG ulProgressCurrent,
+				[in, out] BOOL *pfContinue);
+	HRESULT OnFileInsertionEnd(
+				[in] IVsPackageItem *pIVsPackageItem,
+				[in, out] BOOL *pfContinue);
+
+	HRESULT ReportError(
+				[in, unique] IVsPackageDescription *pIVsPackageDescription,
+				[in, unique] IVsPackageItem *pIVsPackageItem,
+				[in] HRESULT hr,
+				[in] IErrorInfo *pIErrorInfo,
+				[in, out] BOOL *pfContinue);
+}
+
+//
+//	The IVsCABPackagingEngineStatusCallback interface is used on the
+//	CAB packaging engine only, and provides additional detail on
+//	progress information about the cabinet creation process.  You
+//	advise on it by QIing for the IVsCABPackagingEngine interface on
+//	the packaging engine and then calling AdviseCABPackagingEngineStatusCallback().
+//
+//	Note that it's a derived interface of IVsPackagingEngineStatusCallback,
+//	so all the normal events will be fired through the interface.  A very
+//	important thing to note is that even if your event sink object supports
+//	both interfaces, if you advise for callbacks on the engine's
+//	IVsPackagingEngine interface, you will not get cab specific callbacks.
+//
+
+[
+uuid(52383875-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABPackagingEngineStatusCallback : IVsPackagingEngineStatusCallback
+{
+	// This function echos the FCI interface's statusFile callback.
+	//
+	// from the FCI documentation:
+	//
+	//		If typeStatus equals statusFile, then it means that FCI
+	//		is compressing data blocks into a folder.  In this case, cb1
+	//		[aka ulCompressedBlockSize] is either zero, or the compressed
+	//		size of the most recently read block, and cb2
+	//		[aka ulUncompressedBlockSize] is either zero
+	//		or the uncompressed size of the most recently read block
+	//		(which is usually 32K, except for the last block in a folder
+	//		which may be smaller). There is no direct relation between
+	//		cb1 and cb2; FCI may read several blocks of uncompressed data
+	//		before emitting any compressed data; if this happens, some
+	//		statusFile messages may contain, for example, cb1 = 0 and cb2=32768,
+	//		followed later by other messages which contain cb1=20000 and cb2=0.
+	//
+	HRESULT OnFileInsertionStatus(
+				[in] IVsPackageItem *pIVsPackageItem,
+				[in] ULONG ulCompressedBlockSize,
+				[in] ULONG ulUncompressedBlockSize,
+				[in, out] BOOL *pfContinue);
+}
+
+cpp_quote("extern const __declspec(selectany) GUID CATID_VS_PACKAGING_ENGINE  = { /* 707d11b3-91ca-11d2-8a3e-00a0c91e2acd */")
+cpp_quote("	   0x707d11b3,")
+cpp_quote("	   0x91ca,")
+cpp_quote("	   0x11d2,")
+cpp_quote("	   {0x8a, 0x3e, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}")
+cpp_quote("	 };")
+
+[
+uuid(FB61C8E9-A6E4-11d0-8A43-00A0C91E2ACD),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingEngine : IUnknown
+{
+	HRESULT put_PackageDescription([in] IVsPackageDescription *pIVsPackageDescription);
+	HRESULT get_PackageDescription([out] IVsPackageDescription **ppIVsPackageDescription);
+
+	HRESULT put_OutputFilename([in, string, ptr] LPCOLESTR szFilename);
+	HRESULT get_OutputFilename([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+
+	// Packaging engines should support at least 2 callback sinks
+	HRESULT AdvisePackagingEngineStatusCallback(
+				[in] IVsPackagingEngineStatusCallback *pIVsPackagingEngineStatusCallback,
+				[out] VSCOOKIE *pdwCookie);
+	HRESULT UnadvisePackagingEngineStatusCallback([in] VSCOOKIE dwCookie);
+
+	HRESULT Start();
+
+	HRESULT QueryStatus([out] BOOL *pfDone);
+	HRESULT Stop([in] BOOL fSync);
+	HRESULT Wait([in] DWORD dwMilliseconds, [in] BOOL fTickOnMessages);
+};
+
+[
+uuid(52383876-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABPackagingEngine : IVsPackagingEngine
+{
+	HRESULT AdviseCABPackagingEngineStatusCallback(
+				[in] IVsCABPackagingEngineStatusCallback *pIVsCABPackagingEngineStatusCallback,
+				[out] VSCOOKIE *pdwCookie);
+	HRESULT UnadviseCABPackagingEngineStatusCallback([in] VSCOOKIE dwCookie);
+};
+
+
+[
+uuid(52383862-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackageExplorerStatusCallback : IUnknown
+{
+	HRESULT Tick([in, out] BOOL *pfContinue);
+	HRESULT OnOpenedPackage([in] LPCOLESTR szFile, [in, out] BOOL *pfContinue);
+	HRESULT OnClosedPackage([in] LPCOLESTR szFile, [in] BOOL fSuccess);
+
+	HRESULT OnNextPackageItem(
+				[in] LPCOLESTR szItemName,
+				[in, out] BOOL *pfExtract,
+				[in, out] BOOL *pfContinue);
+
+	HRESULT PackageItemProgress(
+				[in] LPCOLESTR szItemName,
+				[in] ULONG ulProgressCurrent,
+				[in] ULONG ulProgressMaximum,
+				[in, out] BOOL *pfContinue);
+};
+
+cpp_quote("extern const __declspec(selectany) GUID CATID_VS_PACKAGE_EXPLORER  = { /* 707d11b2-91ca-11d0-8a3e-00a0c91e2acd */")
+cpp_quote("	   0x707d11b2,")
+cpp_quote("	   0x91ca,")
+cpp_quote("	   0x11d0,")
+cpp_quote("	   {0x8a, 0x3e, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}")
+cpp_quote("	 };")
+
+[
+uuid(52383863-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackageExplorer : IUnknown
+{
+	HRESULT put_InputFile([in] LPCOLESTR szFileName);
+	HRESULT get_InputFile([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+
+	HRESULT put_OutputRoot([in] LPCOLESTR szOutputRoot);
+	HRESULT get_OutputRoot([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+
+	HRESULT AdvisePackageExplorerStatusCallback(
+				[in] IVsPackageExplorerStatusCallback *pIVsPackageExplorerStatusCallback,
+				[out] VSCOOKIE *pdwCookie);
+	HRESULT UnadvisePackageExplorerStatusCallback([in] VSCOOKIE dwCookie);
+
+	HRESULT Start();
+	HRESULT QueryStatus([out] BOOL *pfDone);
+	HRESULT Stop([in] BOOL fSync);
+	HRESULT Wait([in] DWORD dwMilliseconds, BOOL fTickOnMessage);
+}
+
+//
+//	The IVsPackagingHelper interface is proferred as a shell service, and is
+//	used by projects which want to implement native packaging.
+//
+
+typedef enum tagVSPKGCWPF
+{
+	VSPKGCWPF_OWNS_PROJECT_CFG = 1,	// see text before CreateWrapperProjectCfg()
+} VSPKGCWPF;
+
+[
+uuid(5238386c-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingHelper : IUnknown
+{
+	//	Creates a new packaging project configuration wrapper object.  The project
+	//	must add it to its list of project configurations.	The IVsProjectCfg
+	//	passed in pIVsProjectCfg must already exist, but need not be available
+	//	directly from the configuration provider.  (For example, VJ is talking about
+	//	using this wrapper object always around its project configurations.	 It
+	//	would implement its project configuration object and persist it as part of
+	//	its project file, followed by the persisted form of the wrapper object.
+	//	When the VJ project loads, it will first depersist its own project configuration
+	//	object instance, call IVsPackagingHelper::CreateWrapperProjectCfg() to create wrapper
+	//	around the native project configuration, call IUnknown::QueryInterface() on the
+	//	wrapper configuration for IPersistStream or IPersistPropertyBag and
+	//	tell the wrapper to load its state from the stream or property bag passed in.)
+	//
+	//	The alternative is to pass VSPKGCWPF_OWNS_PROJECT_CFG in dwOptions.	 When
+	//	this bit is set in dwOptions, the wrapper project configuration assumes it
+	//	owns the contained configuration, and persists the configuration using
+	//	either (1) IVsPersistPropertyStream, (2) IPersistPropertyBag or (3) IPersistStream.
+	//	(IPersistStreamInit is not used, because a project configuration doesn't have
+	//	much meaning unless connected to a project.)
+	//
+	//	When such a project configuration is being depersisted, the project must first
+	//	construct the inner project configuration, and pass its IVsProjectCfg in to
+	//	CreateWrapperProjectCfg().	If the wrapper project configuration is told to
+	//	load using one of its supported persistance interfaces (IVsPersistPropertyStream,
+	//	IPersistPropertyBag and IPersistStream), it will load the wrapped project cfg
+	//	using the same mechanism that was used when persisting the inner configuration.
+	HRESULT CreateWrapperProjectCfg(
+				[in] IVsProjectCfgProvider *pIVsProjectCfgProvider,
+				[in] IVsProjectCfg *pIVsProjectCfg,
+				[in] LPCOLESTR szCanonicalName,
+				[in] LPCOLESTR szDisplayName,
+				[in] LPCOLESTR szCfgRootDirectory,		// e.g. "c:\my\project\" (not the trailing slash)
+				[in] LPCOLESTR szProjectBaseName,		// e.g. "project 1"
+				[in] IVsPackagingEngineFilter *pIVsPackagingEngineFilter,
+				[in] DWORD dwOptions,
+				[out] IVsProjectCfg **ppIVsProjectCfg);
+}
+
+cpp_quote("#define SID_SVsPackagingHelper IID_IVsPackagingHelper")
+
+//
+//	The IVsPackagingWrapperProjectCfg interface is implemented by the packaging
+//	wrapper object; it may be used to obtain the inner IVsProjectCfg.
+//
+
+[
+uuid(52383874-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingWrapperProjectCfg : IVsProjectCfg
+{
+	HRESULT get_WrappedProjectCfg([out] IVsProjectCfg **ppIVsProjectCfg);
+	HRESULT IsDirty(); // S_OK -> yes; S_FALSE -> no
+	HRESULT Close();
+}
+
+
+//
+//	The IVsPackagingEngineFilter interface is implemented by projects which
+//	want to limit the available packaging engines from which the user may
+//	select.
+//
+
+[
+uuid(5238386d-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingEngineFilter : IUnknown
+{
+	//	Filter is called passing in cclsid packaging engine CLSIDs in rgguid and
+	//	cclsid BOOLs in rgfEnable.	Any packaging engine CLSIDs which the project
+	//	wants to disable should have the corresponding BOOL in rgfEnable set to
+	//	FALSE.	Note that GUID_NULL may be passed in as one of the GUIDs which
+	//	represents essentially a null wrapper (meaning that the project configuration
+	//	in question which had been created by IVsPackagingHelper::CreateWrapperProjectCfg()
+	//	will pass all interesting IVsProjectCfg methods on through to the inner
+	//	project configuration object.)
+	HRESULT DoFilter(
+				[in] ULONG cclsid,
+				[in, size_is(cclsid)] CLSID rgclsid[],
+				[in, out, size_is(cclsid)] BOOL rgfEnable[]);
+}
+
+// If this is building the private IDL for the VS bundling package, we don't
+// need to include this CLSID definition:
+cpp_quote("#if !defined(__bundle_h__)")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_PACKAGING_GENERAL_PROPERTY_PAGE = {0xa57e3d70, 0xd2d3, 0x11d2, {0x8a, 0x50, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_CAB_PROPERTY_PAGE = {0xa57e3d71, 0xd2d3, 0x11d2, {0x8a, 0x50, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_CAB_PERMISSIONS_PAGE = {0xa57e3d76, 0xd2d3, 0x11d0, {0x8a, 0x50, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_JAR_PROPERTY_PAGE = {0xa57e3d73, 0xd2d3, 0x11d2, {0x8a, 0x50, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_SETUP_PROPERTIES_TARGET_PAGE = {0x4c2b25c3, 0x02f7, 0x11d2, {0xa4, 0xbe, 0x00, 0x60, 0x97, 0xc9, 0x93, 0x3c}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_SETUP_PROPERTIES_DEPENDENCIES_PAGE = {0x4c2b25c4, 0x02f7, 0x11d2, {0xa4, 0xbe, 0x00, 0x60, 0x97, 0xc9, 0x93, 0x3c}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_CAB_PACKAGING_ENGINE = {0xFB61C8EE,0xA6E4,0x11d2, {0x8A,0x43,0x00,0xA0,0xC9,0x1E,0x2A,0xCD}};")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_VS_PACKAGING_OUTPUTS_PROPERTY_PAGE = { 0xa57e3dae, 0xd2d3, 0x11d2, {0x8a, 0x50, 0x00, 0xa0, 0xc9, 0x1e, 0x2a, 0xcd}};")
+cpp_quote("#endif")
+
+//
+//	The IVsPackagingGeneralPPageController interface is used by the packaging
+//	property page to find out if the object which is being connected to the
+//	property page wants to set any custom attributes for the object.  When
+//	the property page's IPropertyPage::SetObjects() is called, it will
+//	call IUnknown::QueryInterface() on each of the objects passed in for
+//	IVsPackagingGeneralPropertyPageController.	If the object supports this interface,
+//	the property page will then call IVsPackagingGeneralPPageController::OnSetObject()
+//	passing in the IVsPackagingGeneralPPageSettings interface for the property
+//	page.
+//
+//	Note that in the case of multiple selection, this interface will be queried
+//	for on each object connected to the page, and the behavior if each object
+//	sets settings on the property pages which conflict is not defined.	In
+//	practice, the last object to change settings will win, but the order of
+//	queries will be the same as that of the objects passed in IPropertyPage::SetObjects().
+//
+//	(This may have the most effect if multiple objects are selected some of which
+//	have more restrictive packaging engine filters than another.)
+
+[
+uuid(5238386e-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingGeneralPPageController : IUnknown
+{
+	HRESULT OnSetObject([in] IVsPackagingGeneralPPageSettings *pIVsPackagingGeneralPPageSettings);
+}
+
+//
+//	The IVsPackagingGeneralPPageSettings interface is supported by the
+//	standard packaging property page object, and allows the page's host
+//	to control aspects of the property page's behavior (notably to
+//	enable/disable certain packaging engines via an IVsPackagingEngineFilter)
+//
+
+[
+uuid(5238386f-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingGeneralPPageSettings : IUnknown
+{
+	HRESULT get_PackagingEngineFilter([out] IVsPackagingEngineFilter **ppIVsPackagingEngineFilter);
+	HRESULT put_PackagingEngineFilter([in] IVsPackagingEngineFilter *pIVsPackagingEngineFilter);
+
+	//	Set IsFileListEnabled to TRUE to enable the list of output files for
+	//	the package to appear on the property page; FALSE to hide it.
+	HRESULT get_IsFileListEnabled([out] BOOL *pfEnabled);
+	HRESULT put_IsFileListEnabled([in] BOOL fEnable);
+
+	// Set IsEngineTypeListEnabled to TRUE to enable the dropdown combo of
+	// packaging engine types.	The default is TRUE.
+	HRESULT get_IsEngineTypeListEnabled([out] BOOL *pfEnabled);
+	HRESULT put_IsEngineTypeListEnabled([in] BOOL fEnable);
+}
+
+//
+//	The IVsPackagingGeneralProperties interface is the interface that the
+//	general packaging property page requires in order to get and set the
+//	properties for packaging.
+//
+
+[
+uuid(52383870-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingGeneralProperties : IUnknown
+{
+	HRESULT get_PackagingEngine([out] CLSID *pclsidPackagingEngine);
+	HRESULT put_PackagingEngine([in] REFCLSID rclsidPackagingEngine);
+
+	HRESULT get_OutputFilename([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_OutputFilename([in] LPCOLESTR szOutputFilename);
+
+	// Get a list of the candidate outputs.	 If the file list is disabled,
+	// set *ppIVsEnumOutputs to NULL and return E_NOTIMPL.	The implementation
+	// is almost certainly a call straight through to an IProjectCfg::EnumOutputs()
+	// implementation.
+	HRESULT EnumPackagingCandidates([out] IVsEnumOutputs **ppIVsEnumOutputs, [in]unsigned short uFilter);
+
+	// Get/set a list of the canonical names of the selected outputs.  If
+	// the file list for this packaging object is disabled, return E_NOTIMPL
+	// after setting *pcbstrActual to 0.  get_SelectedOutputs() may be
+	// called with 0 for cbstr and rgbstrCanonicalNames being NULL to have
+	// the number of selected outputs returned in *pcbstrActual.  If cbstr
+	// is larger than the number of selected outputs, rgbstrCanonicalNames[]
+	// past *pcbstrActual is not modified.	Callers must set all the BSTRs
+	// in rgbstrCanonicalNames[] to NULL prior to calling get_SelectedOutputs().
+	//
+	// Note: contrary to the obvious implications of the name, the list of selected
+	// output canonical names (for when SelectedOutputsAreFilters is FALSE) is a
+	// list of outputs to OMIT from the package, not just the ones to include.	This
+	// is to alleviate the relatively unobvious case of a new class not getting into
+	// a built package.
+	HRESULT get_OutputsToPackage([in] ULONG cbstr, [in, out, size_is(cbstr)] BSTR rgbstrCanonicalNames[], [out] ULONG *pcbstrActual);
+	HRESULT put_OutputsToPackage([in] ULONG cbstr, [in, size_is(cbstr)] LPCOLESTR rgszCanonicalNames[]);
+
+	// If the OutputsAreFilters property is TRUE, the list of selected outputs are just filter
+	// strings to be applied to the output URLs prior to packaging.	 If it is FALSE,
+	// they are canonical names.
+	HRESULT get_OutputsToPackageAreFilters([out] BOOL *pfOutputsAreFilter);
+	HRESULT put_OutputsToPackageAreFilters([in] BOOL fOutputsAreFilter);
+
+	HRESULT get_PackageAllOutputs([out] BOOL *pfPackageAllOutputs);
+	HRESULT put_PackageAllOutputs([in] BOOL fPackageAllOutputs);
+
+	// The property interface broker is used for packaging's "Advanced..." button's
+	// handling of engine-specific properties.
+	HRESULT get_PackagingEnginePropertyInterfaceBroker(
+				[out] IVsPackagingEnginePropertyInterfaceBroker **ppIVsPackagingEnginePropertyInterfaceBroker);
+
+	// Returns the root directory for the output file; if the output filename
+	// is not an absolute path, it's assumed to be relative to this directory.
+	HRESULT get_RootDirectory([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+
+    // Manipulating the Additional files that are added to a project during native packaging
+	HRESULT get_AdditionalFileCollection([out] IVsAdditionalItemCollection **ppIVsAdditionalFileCollection );
+	HRESULT put_AdditionalFileCollection([in] IVsAdditionalItemCollection *pIVsAdditionalFileCollection );
+}
+
+//
+//	The IVsPackagingOutputsProperties interface is the interface that the
+//	outputs packaging property page requires in order to get and set the
+//	properties for packaging.
+//
+
+[
+uuid(a57e3daf-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingOutputsProperties : IUnknown
+{
+	// Get a list of the candidate outputs.	 If the file list is disabled,
+	// set *ppIVsEnumOutputs to NULL and return E_NOTIMPL.	The implementation
+	// is almost certainly a call straight through to an IProjectCfg::EnumOutputs()
+	// implementation.
+	HRESULT EnumPossibleOutputs([out] IVsEnumOutputs **ppIVsEnumOutputs);
+
+	// Get/set a list of the canonical names of the selected outputs.  If
+	// the file list for this packaging object is disabled, return E_NOTIMPL
+	// after setting *pcbstrActual to 0.  get_SelectedOutputs() may be
+	// called with 0 for cbstr and rgbstrCanonicalNames being NULL to have
+	// the number of selected outputs returned in *pcbstrActual.  If cbstr
+	// is larger than the number of selected outputs, rgbstrCanonicalNames[]
+	// past *pcbstrActual is not modified.	Callers must set all the BSTRs
+	// in rgbstrCanonicalNames[] to NULL prior to calling get_SelectedOutputs().
+	//
+	// Note: contrary to the obvious implications of the name, the list of selected
+	// output canonical names (for when SelectedOutputsAreFilters is FALSE) is a
+	// list of outputs to OMIT from the package, not just the ones to include.	This
+	// is to alleviate the relatively unobvious case of a new class not getting into
+	// a built package.
+	HRESULT get_OutputsToOutput([in] ULONG cbstr, [in, out, size_is(cbstr)] BSTR rgbstrCanonicalNames[], [out] ULONG *pcbstrActual);
+	HRESULT put_OutputsToOutput([in] ULONG cbstr, [in, size_is(cbstr)] LPCOLESTR rgszCanonicalNames[]);
+
+	// If the OutputsAreFilters property is TRUE, the list of selected outputs are just filter
+	// strings to be applied to the output URLs prior to packaging.	 If it is FALSE,
+	// they are canonical names.
+	HRESULT get_OutputsToOutputAreFilters([out] BOOL *pfOutputsAreFilter);
+	HRESULT put_OutputsToOutputAreFilters([in] BOOL fOutputsAreFilter);
+
+	HRESULT get_OutputAllOutputs([out] BOOL *pfPackageAllOutputs);
+	HRESULT put_OutputAllOutputs([in] BOOL fPackageAllOutputs);
+
+	// Settings to describe whether the package is or is not considered an output of the
+	// wrapped project configuration.
+	HRESULT get_OutputPackage([out] BOOL *pfOutputPackage);
+	HRESULT put_OutputPackage([in] BOOL fOutputPackage);
+
+	// Settings to describe whether files which were put into a package should be
+	// considered as candidates for outputs of a packaging wrapper project cfg.
+	HRESULT get_OmitPackagedFiles([out] BOOL *pfOmitPackagedFiles);
+	HRESULT put_OmitPackagedFiles([in] BOOL fOmitPackagedFiles);
+}
+
+//
+//	The IVsPackagingPropertyObject interface is a required interface of
+//	packaging engine property objects so that they may be cloned and
+//	merged.
+//
+
+[
+uuid(5238387a-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingPropertyObject : IUnknown
+{
+	// This is a way to move backwards to the property interface broker.  If a property page needs
+	// to get additional information (such as a list of dependencies), it should QI its
+	// IUnknown for IVsPackagingPropertyObject, the property interface broker from it, and then
+	// call IVsPropertyInterfaceBroker::QueryPropertyInterface() for the interface needed.	For
+	// example, the setup property page would QI for IVsPackagingPropertyObject on its IUnknown(s),
+	// and then call IVsPropertyInterfaceBroker::QueryProperty(IID_IVsDependencyProvider, &...) to
+	// get the dependencies it's looking for.  The broker is responsible for handing back the
+	// correct interface pointer.
+	HRESULT get_PackagingEnginePropertyInterfaceBroker([out] IVsPackagingEnginePropertyInterfaceBroker **ppIVsPackagingEnginePropertyInterfaceBroker);
+	// Only the creator of the property object shoudl put the packaging engine property
+	// interface broker property.
+	HRESULT put_PackagingEnginePropertyInterfaceBroker([in] IVsPackagingEnginePropertyInterfaceBroker *pIVsPackagingEnginePropertyInterfaceBroker);
+
+	HRESULT Clone([out] IVsPackagingPropertyObject **ppIVsPackagingPropertyObject);
+	HRESULT Merge([in] IVsPackagingPropertyObject *pIVsPackagingPropertyObject);
+
+	// Close method should only be called by the parent property interface broker object
+	HRESULT Close();
+
+	// Name of the package output filename
+	HRESULT get_OutputFilename([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR rgochBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_OutputFilename([in] LPCOLESTR szFilename);
+
+	// Base directory to use as the relative root for the output filename.	The base directory
+	// should only be modified when the object is being initialized prior to loading its
+	// state from a persistance mechanism.
+	HRESULT get_BaseDirectory([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR rgochBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_BaseDirectory([in] LPCOLESTR szBaseDirectory);
+
+}
+
+//
+//	The IVsCABPPageController interface is the
+//	controller interface queried for on objects which have the
+//	VS cab packaging property page as one of their property
+//	pages.	It enables the objects to change settings on the
+//	packaging files property page.
+//
+//	Objects should only support this interface if they have particular
+//	things they want to change on the property page.
+//
+
+[
+uuid(52383871-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABPPageController : IUnknown
+{
+	HRESULT OnSetObject([in] IVsCABPPageSettings *pIVsCABPPageSettings);
+}
+
+//
+//	The IVsCABPPageSettings interface is the
+//	interface exposed by the packaging files property page for
+//	changing global settings on the page.
+//
+
+[
+uuid(52383872-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABPPageSettings : IUnknown
+{
+}
+
+//
+//	The IVsCABProperties interface is the interface that
+//	the packaging files property page exposes for adding and removing
+//	candidate files from the list of files being included into the
+//	package.
+//
+
+[
+uuid(52383873-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABProperties : IVsPackagingPropertyObject
+{
+	HRESULT get_CompressionType([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_CompressionType([in] LPCOLESTR sz);
+
+	HRESULT EnumCompressionTypes([out] IVsEnumBSTRs **ppIVsEnumBSTRs);
+
+	// CABs store their filenames as multibyte strings.
+	// Use CP_UTF8 or codepage 1200 store the filenames preserving Unicode characters.
+	HRESULT get_FilenameCodePage([out] UINT *puiCodePage);
+	HRESULT put_FilenameCodePage([in] UINT uiCodePage);
+
+	HRESULT get_StoreUTF8([out] BOOL *fStoreUTF8);
+	HRESULT put_StoreUTF8([in] BOOL fStoreUTF8);
+}
+
+
+[
+uuid(a57e3d86-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSigningProperties : IUnknown
+{
+	HRESULT get_SigningEnabled([out] BOOL *fSigningEnabled);
+	HRESULT put_SigningEnabled([in] BOOL fSigningEnabled);
+
+	// The Software Producer Certificate filename being a blank string indicates
+	// that no signing is to occur.
+	HRESULT get_SPCFilename([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_SPCFilename([in] LPCOLESTR szFilename);
+
+	HRESULT get_KeyName([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_KeyName([in] LPCOLESTR szFilename);
+
+	HRESULT get_SelectCertificate([out] BOOL *fActiveXControls);
+	HRESULT put_SelectCertificate([in] BOOL fActiveXControls);
+
+	HRESULT get_TimeserverURL([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_TimeserverURL([in] LPCOLESTR szTimeserverURL);
+}
+
+[
+uuid(a57e3d87-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSigningJavaPermissionProperties : IUnknown
+{
+	HRESULT get_JavaPermissionsEnabled([out] BOOL *fJavaPermissionsEnabled);
+	HRESULT put_JavaPermissionsEnabled([in] BOOL fJavaPermissionsEnabled);
+
+	HRESULT get_ActiveXControls([out] BOOL *fActiveXControls);
+	HRESULT put_ActiveXControls([in] BOOL fActiveXControls);
+
+	HRESULT get_PermissionLevel([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_PermissionLevel([in] LPCOLESTR szFilename);
+
+	HRESULT get_CustomPermissionCollection([out] IVsVMPermissionCollection **ppIVsVMPermissionCollection );
+	HRESULT put_CustomPermissionCollection([in] IVsVMPermissionCollection *pIVsVMPermissionCollection );
+}
+
+cpp_quote("#define VS_OSD_CONTAINS_UNPACKAGED_CLASSES	0x01")
+cpp_quote("#define VS_OSD_CONTAINS_PACKAGES				0x02")
+cpp_quote("#define VS_OSD_CONTAINS_NATIVECODE			0x04")
+cpp_quote("#define VS_OSD_CONTAINS_JAVA_CLASSES			0x08")
+
+[
+uuid(a57e3d88-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsOSDProperties : IUnknown
+{
+	HRESULT get_WebLibraryCollection([out] IVsWebLibraryCollection **ppIVsWebLibraryCollection );
+	HRESULT put_WebLibraryCollection([in] IVsWebLibraryCollection *pIVsWebLibaryCollection );
+
+	HRESULT get_ExternalDependencyCollection([out] IVsAdditionalItemCollection **ppIVsAdditionalItemCollection );
+	HRESULT put_ExternalDependencyCollection([in] IVsAdditionalItemCollection *pIVsAdditionalItemCollection );
+
+	HRESULT get_FriendlyName([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_FriendlyName([in] LPCOLESTR szFriendlyName);
+
+	HRESULT get_VersionString([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_VersionString([in] LPCOLESTR szVersionString);
+
+	HRESULT get_Namespace([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR szBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_Namespace([in] LPCOLESTR szNamespaceString);
+
+	HRESULT get_IsSystem([out] BOOL *pfIsSystem);
+	HRESULT put_IsSystem([in] BOOL fIsSystem);
+
+	HRESULT get_NeedsTrustedSource([out] BOOL *pfNeedsTrustedSource);
+	HRESULT put_NeedsTrustedSource([in] BOOL fNeedsTrustedSource);
+}
+
+//
+//	The IVsSetupPPageController interface is the
+//	controller interface queried for on objects which have the
+//	VS setup packaging property pages as one of their property
+//	pages.	It enables the objects to change settings on the
+//	packaging files property page.
+//
+//	Objects should only support this interface if they have particular
+//	things they want to change on the property page.
+//
+
+[
+uuid(4C2B25CE-02F7-11d1-A4BE-006097C9933C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupPPageController : IUnknown
+{
+	HRESULT OnSetObject([in] IVsSetupPPageSettings *pIVsSetupPPageSettings);
+}
+
+//
+//	The IVsSetupPPageSettings interface is the
+//	interface exposed by the packaging files property page for
+//	changing global settings on the page.
+//
+[
+uuid(4C2B25C9-02F7-11d1-A4BE-006097C9933C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupPPageSettings : IUnknown
+{
+}
+
+
+//
+//	The IVsSetupProperties interface is the interface that
+//	the packaging files property page exposes for adding and removing
+//	candidate files from the list of files being included into the
+//	package.
+//
+[
+uuid(4C2B25C8-02F7-11d1-A4BE-006097C9933C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupProperties : IVsPackagingPropertyObject
+{
+	HRESULT get_AppName([out] BSTR *bstrInput);
+	HRESULT put_AppName([in] LPCOLESTR szFilename);
+
+	HRESULT get_InstallDirName([out] BSTR *bstrInput);
+	HRESULT put_InstallDirName([in] LPCOLESTR szFilename);
+
+	HRESULT get_StartName([out] BSTR *bstrInput);
+	HRESULT put_StartName([in] LPCOLESTR szFilename);
+
+	HRESULT get_StartInvokeEXE([out] BSTR *bstrInput);
+	HRESULT put_StartInvokeEXE([in] LPCOLESTR szFilename);
+
+	HRESULT get_StartInvokeArgument([out] BSTR *bstrInput);
+	HRESULT put_StartInvokeArgument([in] LPCOLESTR szFilename);
+
+	HRESULT get_IncludeAll([out] BOOL *pfvalue);
+	HRESULT put_IncludeAll([in] BOOL fvalue);
+	
+	HRESULT get_CreateInProgramFiles([out] BOOL *pfvalue);
+	HRESULT put_CreateInProgramFiles([in] BOOL fvalue);
+
+	HRESULT get_CreateInStartMenu([out] BOOL *pfvalue);
+	HRESULT put_CreateInStartMenu([in] BOOL fvalue);
+
+	HRESULT get_EXEsToRun([in] ULONG cbstr, [in, out, size_is(cbstr), unique] BSTR *rgbstrCanonicalNames, [out] ULONG *pcbstrActual);
+	HRESULT put_EXEsToRun([in] ULONG cbstr, [in, size_is(cbstr)] LPCOLESTR *prgszCanonicalNames);
+
+	HRESULT get_RemoteComponents([in] ULONG cbstr, [in, out, size_is(cbstr), unique] BSTR *prgbstrCanonicalNames, [out] ULONG *pcbstrActual);
+	HRESULT put_RemoteComponents([in] ULONG cbstr, [in, size_is(cbstr)] LPCOLESTR *prgszCanonicalNames);
+
+	HRESULT get_RemoteServer([out] BSTR *bstrBuffer);
+	HRESULT put_RemoteServer([in] LPCOLESTR szFilename);
+
+	HRESULT get_PromptAlways([out] BOOL *pfvalue);
+	HRESULT put_PromptAlways([in] BOOL fvalue);
+
+
+	// Get/set a list of the canonical names of the selected outputs.  If
+	// the file list for this packaging object is disabled, return E_NOTIMPL
+	// after setting *pcbstrActual to 0.  get_SelectedOutputs() may be
+	// called with 0 for cbstr and rgbstrCanonicalNames being NULL to have
+	// the number of selected outputs returned in *pcbstrActual.  If cbstr
+	// is larger than the number of selected outputs, rgbstrCanonicalNames[]
+	// past *pcbstrActual is not modified.	Callers must set all the BSTRs
+	// in rgbstrCanonicalNames[] to NULL prior to calling get_SelectedOutputs().
+	//
+	// Note: contrary to the obvious implications of the name, the list of selected
+	// output canonical names (for when SelectedOutputsAreFilters is FALSE) is a
+	// list of outputs to OMIT from the package, not just the ones to include.	This
+	// is to alleviate the relatively unobvious case of a new class not getting into
+	// a built package.
+
+	//NOTE: When you try to put in a dependencies list and it corresponding array of
+	//BOOL values, make sure that you put the dependencies list FIRST.	That's because
+	//they're both stored in the same array, and we need to create the dependencies array
+	//before the BOOL array.
+
+	HRESULT get_WebLibraryCollection([out] IVsWebLibraryCollection **ppIVsWebLibraryCollection );
+	HRESULT put_WebLibraryCollection([in] IVsWebLibraryCollection *pIVsWebLibaryCollection );
+
+	//NOTE:  These 2 methods should really be in IVsPackagingPropertyObject instead
+	//of being in this interface.  
+	HRESULT get_ProjectName([in] ULONG cchBuffer, [in, out, size_is(cchBuffer)] OLECHAR rgochBuffer[], [out] ULONG *pcchActual);
+	HRESULT put_ProjectName([in] LPCOLESTR szProjectName);
+
+	//This is the method to get all the outputs from the projects.  In native packaging, we
+	//have only one input source, so that's OK; but in packaging projects, we have to aggregate
+	//all the input sources that are contributing to the project.
+	HRESULT EnumEngineInputs([out]IVsEnumOutputs **ppIVsEnumOutputs);
+
+//	Attempt at putting EnumOutputs here instead of having a property page directly
+//	access PackagingWrapperProjectCfg
+	HRESULT EnumPossibleExposedObjects([out] IVsEnumExposedObjects **ppIVsEnumExposedObjects);
+
+	HRESULT GetSolutionName([out]BSTR *bstrSol);
+
+	//This method is called before inserting each file-related entry into the DAT file.  We input
+	//the canonical name of IVsOutput, and get back the destination (ie. <AppDir>, <SysDir>, etc), 
+	//whether it should be ref-counted, and whether we prompt when the ref-count for this file
+	//goes to zero.
+	HRESULT GetOutputDestination([in] LPCOLESTR szOutputCanonicalName, [out] BSTR *pbstrOutputDestination, [out] BOOL *pfReferenceCount, [out] BOOL *pfPromptForUninstallDelete);
+}
+
+typedef struct tagVSSETUPFILEPROP
+{
+	BSTR m_bstrCanonicalName;
+	BSTR m_bstrOutputDestination;
+	BOOL m_fReferenceCount;
+	BOOL m_fPromptForDelete;
+} VSSETUPFILEPROP;
+
+[
+uuid(1eecc150-93a6-11d1-929f-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsEnumVSSETUPFILEPROP : IUnknown
+{
+	HRESULT Reset();
+	HRESULT Next([in] ULONG celt, [in, out, size_is(celt)] VSSETUPFILEPROP *prgvssfp, [out] ULONG *pcActual);
+	HRESULT Skip([in] ULONG celt);
+	HRESULT Clone([out] IVsEnumVSSETUPFILEPROP **ppIVsEnumVSSETUPFILEPROP);
+}
+
+
+[
+uuid(5238387d-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupFilePlacementProperties : IUnknown
+{
+	// This is the list of files to go into the system/system32 directory.  The IDE knows which are
+	// core and which are not.
+	HRESULT EnumPlacedFiles([out] IVsEnumVSSETUPFILEPROP **ppIVsEnumVSSETUPFILEPROP);
+	HRESULT put_PlacedFiles(
+				[in] ULONG celt,
+				[in, unique, size_is(celt)] VSSETUPFILEPROP *prgvssfp);
+	HRESULT GetOutputDestination([in] LPCOLESTR szOutputCanonicalName, [out] BSTR *pbstrOutputDestination, [out] BOOL *pfReferenceCount, [out] BOOL *pfPromptForDelete);
+	HRESULT EnumEngineInputs([out]IVsEnumOutputs **ppIVsEnumOutputs);
+}
+
+//
+//	The IVsSetupPackageDescription interface gives access to CAB-specific
+//	advanced packaging settings/options.
+//
+[
+uuid(4C2B25CA-02F7-11d1-A4BE-006097C9933C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupPackageDescription : IVsPackageDescription
+{
+	HRESULT get_ReservedSpace([out]UINT *plReservedSpace);
+}
+
+
+//
+//	The IVsSetupPackageItem interface gives specialized information about how to
+//	place the file described by IVsPackageItem::get_Filename() into a CAB
+//	package.  This may include signature types, compression methods etc.  The
+//	interface is not yet filled in (5/20/97) as the various options for individual
+//	files in a CAB are not fully understood as of yet.
+//
+[
+uuid(4C2B25CB-02F7-11d1-A4BE-006097C9933C),
+version(1.0)
+]
+interface IVsSetupPackageItem : IVsPackageItem
+{
+	HRESULT get_StoredFilename([in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+	HRESULT get_OutputDestination([out] BSTR *pbstrDestination, [out] BOOL *pfReferenceCount, [out] BOOL *pfPromptForDelete);
+}
+
+//	The IVsSetupPackagingEngineStatusCallback interface is used on the
+//	CAB packaging engine only, and provides additional detail on
+//	progress information about the cabinet creation process.  You
+//	advise on it by QIing for the IVsCABPackagingEngine interface on
+//	the packaging engine and then calling AdviseCABPackagingEngineStatusCallback().
+//
+//	Note that it's a derived interface of IVsPackagingEngineStatusCallback,
+//	so all the normal events will be fired through the interface.  A very
+//	important thing to note is that even if your event sink object supports
+//	both interfaces, if you advise for callbacks on the engine's
+//	IVsPackagingEngine interface, you will not get cab specific callbacks.
+//
+[
+uuid(4C2B25CC-02F7-11d1-A4BE-006097C9933C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupPackagingEngineStatusCallback : IVsPackagingEngineStatusCallback
+{
+	// This function echos the FCI interface's statusFile callback.
+	//
+	// from the FCI documentation:
+	//
+	//		If typeStatus equals statusFile, then it means that FCI
+	//		is compressing data blocks into a folder.  In this case, cb1
+	//		[aka ulCompressedBlockSize] is either zero, or the compressed
+	//		size of the most recently read block, and cb2
+	//		[aka ulUncompressedBlockSize] is either zero
+	//		or the uncompressed size of the most recently read block
+	//		(which is usually 32K, except for the last block in a folder
+	//		which may be smaller). There is no direct relation between
+	//		cb1 and cb2; FCI may read several blocks of uncompressed data
+	//		before emitting any compressed data; if this happens, some
+	//		statusFile messages may contain, for example, cb1 = 0 and cb2=32768,
+	//		followed later by other messages which contain cb1=20000 and cb2=0.
+	//
+	HRESULT OnFileInsertionStatus(
+				[in] IVsPackageItem *pIVsPackageItem,
+				[in] ULONG ulCompressedBlockSize,
+				[in] ULONG ulUncompressedBlockSize,
+				[in, out] BOOL *pfContinue);
+}
+
+
+[
+uuid(A54695A1-038A-11d1-A4BF-006097C9933C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSetupPackagingEngine : IVsPackagingEngine
+{
+	HRESULT AdviseSetupPackagingEngineStatusCallback(
+				[in] IVsSetupPackagingEngineStatusCallback *pIVsSetupPackagingEngineStatusCallback,
+				[out] VSCOOKIE *pdwCookie);
+	HRESULT UnadviseSetupPackagingEngineStatusCallback([in] VSCOOKIE dwCookie);
+};
+
+
+// This is the interface for creating basic INF files.	The functionalities
+// here are pretty limited, but they will be augmented with an 
+// IVsINFAdvancedGeneration interface when INF generation gets
+// more exposure
+[
+uuid(52DCF8A2-0A94-11d1-A53E-006097B7186F),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsINFBasicGeneration : IUnknown
+{
+	HRESULT put_PackageDescription([in] IVsPackageDescription *pIVsPackageDescription);
+	HRESULT get_PackageDescription([out] IVsPackageDescription **ppIVsPackageDescription);
+
+	HRESULT put_OutputFilename([in] LPCOLESTR szFilename);
+	HRESULT get_OutputFilename([out] BSTR *bstrInput);
+
+	HRESULT put_InstallDirName([in] LPCOLESTR szInstallDirName);
+	HRESULT get_InstallDirName([out] BSTR *bstrInput);
+	HRESULT put_FileToInstall([in] LPCOLESTR szFileToInstall);
+	HRESULT put_SystemFileToInstall([in] LPCOLESTR szSystemFileToInstall, [in] BOOL toRegister);
+	HRESULT put_RegistryKeyRequired([in] LPCOLESTR bstrRegKey, [in] LPCOLESTR bstrRegPath, [in] LPCOLESTR bstrRegSubKey);
+	HRESULT get_AppName([out] BSTR *bstrInput);
+	HRESULT put_AppName([in] LPCOLESTR szFilename);
+	HRESULT get_StartName([out] BSTR *bstrInput);
+	HRESULT put_StartName([in] LPCOLESTR szFilename);
+	HRESULT get_StartInvokeEXE([out] BSTR *bstrInput);
+	HRESULT put_StartInvokeEXE([in] LPCOLESTR szFilename);
+	HRESULT get_StartInvokeArgument([out] BSTR *bstrInput);
+	HRESULT put_StartInvokeArgument([in] LPCOLESTR szFilename);
+	HRESULT put_WorkingDir([in] LPCOLESTR szWorkingDir);
+	HRESULT put_BaseDirectory([in] LPCOLESTR szBaseDirectory);
+	HRESULT put_CreateInProgramFiles([in] BOOL fCreateInProgramFiles);
+
+	HRESULT MakeINF();
+
+}
+
+
+
+//
+//	The IVsPackagingEnginePropertyInterfaceBroker interface is used by
+//	the packaging engine property interface broker object (imageine that)
+//	to allow an object which generically refers to packaging engines and
+//	their settings to store a set of per-engine-type properties.
+//
+
+[
+uuid(52383878-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPackagingEnginePropertyInterfaceBroker : IVsPropertyInterfaceBroker
+{
+	HRESULT SwitchPackagingEngine([in] REFCLSID rclsidPackagingEngine, [in] BOOL fRetainOldSettings);
+	HRESULT get_PackagingEngine([out] CLSID *pclsid);
+	HRESULT get_PropertyObject([out] IVsPackagingPropertyObject **ppIVsPackagingPropertyObject);
+	HRESULT Clone([out] IVsPackagingEnginePropertyInterfaceBroker **ppIVsPackagingEnginePropertyInterfaceBroker);
+	HRESULT Merge([in] IVsPackagingEnginePropertyInterfaceBroker *pIVsPackagingEnginePropertyInterfaceBroker);
+	HRESULT EnumPossibleDependencies([out] IVsEnumDependencies **ppIVsEnumDependencies);
+	HRESULT EnumPossibleExposedObjects([out] IVsEnumExposedObjects **ppIVsEnumExposedObjects);
+	HRESULT get_IVsOutputWindowPane([out] IVsOutputWindowPane **ppIVsOutputWindowPane);
+	HRESULT put_IVsOutputWindowPane([in] IVsOutputWindowPane *pIVsOutputWindowPane);
+	HRESULT Close();
+	HRESULT SetDirty(BOOL fDirty);
+};
+
+[
+uuid(52383879-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsJARProperties : IVsPackagingPropertyObject
+{
+};
+
+[
+uuid(5238387b-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsJARPPageController : IUnknown
+{
+	HRESULT OnSetObject([in] IVsJARPPageSettings *pIVsJARPPageSettings);
+}
+
+[
+uuid(5238387c-c56b-11d0-8a49-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsJARPPageSettings : IUnknown
+{
+}
+
+[
+uuid(a57e3d75-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsOpenSoftwareDistributionInfo : IUnknown
+{
+	HRESULT get_OSDTitle([out] BSTR *pbstrTitle);
+	HRESULT get_OSDName([out] BSTR *pbstrName);
+	HRESULT get_OSDAbstract([out] BSTR *pbstrAbstract);
+	HRESULT get_OSDVersion([out] BSTR *pbstrVersion);
+}
+
+[
+uuid(a57e3d77-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABPermissionsPageSettings : IUnknown
+{
+}
+
+//
+//	The IVsVMPermission is a description of a VM permission.  Currently, it has the
+//	friendly name of the permission, which is a short string that can be displayed to
+//	the user in list boxes, tree views, etc; the description, which is a longer, full
+//	sentence which is suitable for a status bar; and the ID which is the full classname
+//	of the permission e.g. "com.ms.security.permissions.FileIOPermission".
+//
+
+[
+uuid(a57e3d79-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsVMPermission : IUnknown
+{
+	HRESULT get_FriendlyName( [out] BSTR *pbstrFriendlyName );
+	HRESULT get_Description( [out] BSTR *pbstrDescription );
+	HRESULT get_PermissionId( [out] BSTR *pbstrPermissionId );
+
+	HRESULT put_Setting( [in] BOOL fState );
+	HRESULT get_Setting( [out] BOOL *pfState );
+	HRESULT Copy( [out] IVsVMPermission **ppIVsVMPermission );
+}
+
+//
+//	IVsVMPermissionProvider performs two services: the first is to load the permission from the
+//	property bag form which is stored in the project file; and to provide a enumerator which lists
+//	the permissions known to the system VM.
+//
+[
+uuid(a57e3d78-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+
+]
+interface IVsVMPermissionProvider : IUnknown
+{
+	HRESULT LoadPermission( [in] IPropertyBag *pIPropertyBag, [out] IVsVMPermission **ppIVsVMPermission );
+	HRESULT ConstructVMPermissionCollection([in] int iCollectionType, [out] IVsVMPermissionCollection **ppIVsVMPermissionCollection );
+}
+
+cpp_quote("#define SID_SVsVMSystemPermissionProvider IID_IVsVMPermissionProvider")
+
+//
+//	IVEnumVMPermissions is for walking lists of permissions.  It is used by the UI for the signing tab
+//	of the project to populate the list of selectable permissions.
+//
+
+[
+uuid(a57e3d7a-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsEnumVMPermissions : IUnknown
+{
+	HRESULT Next([in] ULONG celt, [in, out, size_is(celt)] IVsVMPermission *rgelt[], [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt);
+	HRESULT Reset();
+	HRESULT Clone([out] IVsEnumVMPermissions **ppIVsEnumVMPermissions);
+}
+
+[
+uuid(a57e3d7b-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsVMPermissionCollection : IUnknown
+{
+	HRESULT EnumCollectionVMPermissions([out] IVsEnumVMPermissions **ppIVsEnumVMPermissions);
+	HRESULT WriteCollectionAsIni([in, string, ptr] LPCOLESTR szIniFilename, [in] BOOL fActiveX );
+	HRESULT Copy( [out] IVsVMPermissionCollection **ppIVsVMPermissionCollection );
+}
+
+[
+uuid(a57e3d7c-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsVMPermissionProperty : IUnknown
+{
+	HRESULT get_PropertyName( [out] BSTR *pbstrPropertyName );
+
+	HRESULT get_PropertyType( [out] UINT *puiPropertyType );
+
+	HRESULT put_PropertyValue([in] LPCOLESTR pszPropertyValue );
+	HRESULT get_PropertyValue( [out] BSTR *pbstrPropertyValue );
+
+	HRESULT Copy( [out] IVsVMPermissionProperty **ppIVsVMPermissionProperty );
+}
+
+[
+uuid(a57e3d7d-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsEnumVMPermissionProperties : IUnknown
+{
+	HRESULT Next([in] ULONG celt, [in, out, size_is(celt)] IVsVMPermissionProperty *rgelt[], [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt);
+	HRESULT Reset();
+	HRESULT Clone([out] IVsEnumVMPermissionProperties **ppIVsEnumVMPermissionProperties );
+}
+
+[
+uuid(a57e3d7e-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsCABExternalDependenciesPageSettings : IUnknown
+{
+}
+
+[
+uuid(a57e3d7f-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsPNPAdditionalFilesPageSettings : IUnknown
+{
+}
+
+// Used by deployment:
+cpp_quote("#ifndef __ENUMVSPACKAGEWEBLIBENUMS")
+cpp_quote("#define __ENUMVSPACKAGEWEBLIBENUMS")
+enum __VSPKGWEBLIBUSES
+	{
+		// One or more must be specified, based on what the project contains:
+		VSPKGWEBLIBEXTERNALDEPENDENCY = 0x00000001,
+		VSPKGWEBLIBSETUPLIBRARY = 0x00000002,
+	};
+cpp_quote("#endif")
+[
+uuid(a57e3d82-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsWebLibrary : IUnknown
+{
+    // Returns the INF section by name, along with the priority of the section.
+    //     pszSectionName is the section name to load
+    //     pdwPriority is a pointer to a location to store the relative priority of the section.
+    //     rgchBuffer contains the section, with cch being the buffer size, and pcchActual returning the number of chars in the buffer
+    //   If the section has no INF string, priority should be ignored, with the buffer being empty and the actual number of chars zero.
+    
+	HRESULT get_INFSectionByName( [in] LPCOLESTR pszSectionName, [out] DWORD *pdwPriority, [in] ULONG cch, [in, out, size_is(cch)] OLECHAR rgchBuffer[], [out] ULONG *pcchActual);
+
+	// Returns the "SLIB" section -- this section contains the resource ID
+	// where the actual string for the corresponding sections is.  The resource ID is
+	// contained in string format where ((DWORD) rgchBuffer[0]) would give us the actual
+	// ID (See "slibcoll.cpp" for implementation).
+	// So this method gets the section corresponding to "pszSectionName", translates
+	// the string to a resource ID, gets the string from the resources, and returns it.
+	HRESULT get_SLIBSectionByName( [in] LPCOLESTR pszSectionName, [out] BSTR *pbstrOut);
+
+	HRESULT get_SectionName( [out] BSTR *pbstrSectionName );
+    // Returns flags for the library/package.  These flags will be one or both of the __VSPKGWEBLIBUSES flags defined above.
+    // Other bits are currently undefined and should be ignored.
+	// Note that if you change (add or remove packages) from these flags, you must
+	// update "bpkg.rgs".
+    HRESULT get_Flags( [out] DWORD *pdwFlags );
+
+    // Gets/puts state of library, whether or not it has been selected.
+	HRESULT put_Setting( [in] BOOL fState );
+	HRESULT get_Setting( [out] BOOL *pfState );
+
+	HRESULT Copy( [out] IVsWebLibrary **ppIVsWebLibrary );
+}
+
+
+[
+uuid(a57e3d83-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+
+]
+interface IVsWebLibraryProvider : IUnknown
+{
+	HRESULT LoadPermission( [in] IPropertyBag *pIPropertyBag, [out] IVsWebLibrary **ppIVsWebLibrary );
+	HRESULT ConstructWebLibraryCollection([in] int iCollectionType, [out] IVsWebLibraryCollection **ppIVsWebLibraryCollection );
+}
+
+typedef [unique] IVsWebLibrary *PIVsWebLibrary;
+
+[
+uuid(a57e3d80-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsEnumWebLibraries : IUnknown
+{
+	HRESULT Next([in] ULONG celt, [out, size_is(celt)] PIVsWebLibrary *prgelt, [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt);
+	HRESULT Reset();
+	HRESULT Clone([out] IVsEnumWebLibraries **ppIVsEnumWebLibraries);
+}
+
+[
+uuid(a57e3d81-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsWebLibraryCollection : IUnknown
+{
+	HRESULT EnumCollectionWebLibraries([out] IVsEnumWebLibraries **ppIVsEnumWebLibraries);
+	HRESULT Copy( [out] IVsWebLibraryCollection **ppIVsWebLibraryCollection );
+}
+
+[
+uuid(a57e3d84-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsAdditionalItemProvider : IUnknown
+{
+	// FIXME: need an [out]
+	HRESULT LoadPermission( [in] IPropertyBag *pIPropertyBag );
+	HRESULT ConstructAdditionalItemCollection([in] int iCollectionType, [out] IVsAdditionalItemCollection **ppIVsAdditionalItemCollection );
+}
+
+[
+uuid(a57e3d85-d2d3-11d0-8a50-00a0c91e2acd),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsAdditionalItemCollection : IUnknown
+{
+	HRESULT EnumCollectionAdditionalItems([out] IVsEnumBSTRs **ppIVsEnumBSTRs);
+	HRESULT Add([in] LPCOLESTR pszAdditionalItem);
+	HRESULT RemoveByIndex([in] ULONG ulIndex);
+	HRESULT SetAt( [in] ULONG ulIndex, [in] LPCOLESTR pszModifiedItem );
+	HRESULT Empty( );
+	HRESULT Copy( [out] IVsAdditionalItemCollection **ppIVsAdditionalItemCollection );
+}
+
+[
+uuid(4bfaa76b-cde4-11d0-a95b-00aa004786a8),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSubProcess : IUnknown
+{
+	HRESULT Start( );
+	HRESULT QueryStatus(BOOL *pfBuildDone);
+	HRESULT Stop(BOOL fSync);
+	HRESULT Wait(DWORD dwMilliseconds, BOOL fTickWhenMessageQNotEmpty);
+}
+
+#if 0 // Unused interface guids
+
+[
+uuid(1eecc151-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc152-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc153-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc154-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc155-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc156-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc157-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc158-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc159-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc15a-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc15b-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc15c-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc15d-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc15e-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc15f-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc160-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc161-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc162-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc163-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc164-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc165-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc166-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc167-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc168-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc169-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc16a-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc16b-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc16c-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc16d-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc16e-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc16f-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc170-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc171-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc172-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc173-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc174-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc175-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc176-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc177-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc178-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc179-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc17a-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc17b-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc17c-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc17d-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc17e-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc17f-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc180-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc181-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc182-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc183-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc184-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc185-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc186-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc187-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc188-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc189-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc18a-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc18b-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc18c-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc18d-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc18e-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc18f-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc190-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc191-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc192-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc193-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc194-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc195-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc196-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc197-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc198-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc199-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc19a-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc19b-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc19c-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc19d-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc19e-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc19f-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a0-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a1-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a2-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a3-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a4-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a5-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a6-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a7-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a8-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1a9-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1aa-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1ab-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1ac-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1ad-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1ae-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1af-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1b0-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1b1-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1b2-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+[
+uuid(1eecc1b3-93a6-11d1-929f-00a0c91e2acd),
+version(1.0)
+]
+interface INTERFACENAME
+{
+
+}
+
+
+
+a57e3d89-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d8a-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d8b-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d8c-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d8d-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d8e-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d8f-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d90-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d91-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d92-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d93-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d94-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d95-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d96-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d97-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d98-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d99-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d9a-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d9b-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d9c-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d9d-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d9e-d2d3-11d0-8a50-00a0c91e2acd
+a57e3d9f-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da0-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da1-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da2-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da3-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da4-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da5-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da6-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da7-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da8-d2d3-11d0-8a50-00a0c91e2acd
+a57e3da9-d2d3-11d0-8a50-00a0c91e2acd
+a57e3daa-d2d3-11d0-8a50-00a0c91e2acd
+a57e3dab-d2d3-11d0-8a50-00a0c91e2acd
+a57e3dac-d2d3-11d0-8a50-00a0c91e2acd
+a57e3dad-d2d3-11d0-8a50-00a0c91e2acd
+
+
+#endif

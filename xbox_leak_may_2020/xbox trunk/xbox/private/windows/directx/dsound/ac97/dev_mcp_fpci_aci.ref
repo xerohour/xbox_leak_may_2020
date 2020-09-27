@@ -1,0 +1,1411 @@
+
+
+
+
+
+
+
+
+
+                         MCP1 FPCI Bus Reference Manual
+
+                                  Gary Hicok
+
+
+                               NVidia Corporation
+
+                                 3535 Monroe Street
+
+                              Santa Clara, CA  95051
+
+
+
+                               $Revision: 1.00 $
+
+                           $Date: 2000/01/10 13:02:38 $ 
+
+                  /home/nv3/CVS/manuals/$RCSfile: dev_fpci.ref,v $
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This Document contains unpublished, proprietary information and describes
+subject matter proprietary to NVidia Corporation.  This document may not be
+disclosed to third parties or copied or duplicated in any form without the
+prior written consent of NVidia Corporation.
+
+
+
+
+CONTENTS
+
+Chapter  1  -  Introduction
+
+Chapter  2  -  Boot Registers
+
+Chapter  3  -  Delay Registers
+
+Chapter  4  -  Debug Registers
+
+Chapter  5  -  Green Registers
+
+Chapter  6  -  Interrupt Registers
+
+Chapter  7  -  Context Switching Registers
+
+Chapter  8  -  Configuration Registers
+
+Chapter  9  -  Real Mode Control Registers
+
+Chapter 10  -  PCI Configuration Registers
+
+
+Appendix A  -  NV3 Memory Map
+
+Appendix B  -  Bus Interface Acknowledges
+
+Appendix C  -  Issues
+
+Appendix D  -  Key
+
+
+
+
+0  -  PRELIMINARY MANUAL CAVEATS/WARNINGS/ISSUES/EDITORIAL NOTES
+
+	The module is paramatizable. Therefore, this manual will need to be
+modified for each block.
+
+**I would like to move all the parameter's to within each block's FPCI spec. 
+	
+	The individual manuals should be named "dev_fpci_xxx" where "xxx"= APU, 
+IDE, etc.
+
+1  -  INTRODUCTION
+
+	The FPCI is a standard interface used internally to the Crush architecture.
+It is based on PCI 2.2 but has extentions for support split read
+transactions. 
+
+
+
+
+
+2  -  BOOT REGISTERS
+
+     The BOOT registers are used to configure each of the devices in NV at
+reset.  These register are not normally changed after reset.  Only the BIOS
+should access these registers.
+
+	Only one boot register is defined: Device_Enable. This register bit will
+reside in another block of the device. This register bit will control whether
+the FPCI (and interfaced device) is "seen" by the system.
+
+     There currently are no boot registers (0x0000).
+
+
+
+
+3  -  DELAY REGISTERS
+
+     The DELAY registers allow the output signals to be shifted in time with
+respect to the clock.  Only the BIOS should access these registers.
+
+     There currently are no delay registers (0x0040).
+
+
+
+
+4  -  DEBUG REGISTERS
+
+     The DEBUG registers are used to reconfigure NV during debug or chip
+testing.  These registers may contain function disable bits and hidden
+context.  Only the BIOS should access these registers.
+
+     There currently are no debug registers (0x0080).
+
+
+
+
+
+
+5  -  GREEN REGISTERS
+
+     The GREEN registers control power down levels for each of the devices in
+NV.  Only the BIOS should access these registers.
+
+     There currently are no green registers (0x00c0).
+
+
+
+
+6  -  INTERRUPT REGISTERS
+
+     The interrupt registers control the interrupts for the local devices.
+Interrupts are set by an event and are cleared by software.
+
+     There currently are no interrupt registers (0x00c0).
+     
+
+
+
+7  -  CONTEXT SWITCHING REGISTERS
+
+     The context switching registers control the context switching of the
+local user devices.
+
+     There currently are no context switching registers (0x0180).
+
+
+
+
+8  -  CONFIGURATION REGISTERS
+
+     The CONFIG registers are used to configure each of the devices in NV
+after reset.
+
+     There currently are no config registers (0x0180).
+
+
+
+
+9  -  REAL MODE CONTROL REGISTERS
+
+     There currently are no real mode registers (0x0180).
+
+
+
+
+10  -  PCI CONFIGURATION REGISTERS
+
+     The PCI definition provides for totally software driven initialization
+and configuration via a separate configuration address space.  PCI devices are
+required to provide 256 bytes of configuration register for this purpose.
+     FPCI defines one PCI unit:function and only decodes and acknowledges the 
+first 256 bytes of the configuration address space.
+
+     The VENDOR_ID bits identify the manufacturer of the device.  Valid vendor
+identifiers are allocated by the PCI SIG to ensure uniqueness.  VENDOR_ID is
+the joint SGS/NVidia PCI vendor ID.
+     The DEVICE_ID bits identify the particular device.  This identifier is
+allocated by the vendor.  DEVICE_ID_FUNC bits contain the function number from
+the Configuration Address bits 10-8.  DEVICE_ID_UNIT bits contain the Unit
+number within the chip.
+
+	The Unit and Function are defined by parameters per block.
+ 
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 1 1 0 1 1 0 0 0 1|0 0 0 1 0 0 0 0 1 1 0 1 1 1 1 0| CFG_0
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_0                                    0x00000000 /* R--4R */
+
+#define MCP_ACI_CFG_0_VENDOR_ID                                15:0 /* C--UF */
+#define MCP_ACI_CFG_0_VENDOR_ID_NVIDIA                   0x000010DE /* C---V */
+
+#define MCP_ACI_CFG_0_DEVICE_ID_UNIT                          31:16 /* C--UF */
+#define MCP_ACI_CFG_0_DEVICE_ID_UNIT_MCP_ACI             0x000001B1 /* C---V */
+
+		Figure 10-1  FPCI Configuration Register 00h
+
+
+
+       Figure 10-2  FPCI Configuration Register 00h - Short Defines
+
+     The Device Control Command register provides coarse control over a
+device's ability to generate and respond to PCI cycles.
+     The IO_SPACE bit indicates that the device will respond to I/O space
+accesses.  A value of 0 disables the device response.  A value of 1 allows the
+device to respond to I/O space accesses.  IO_SPACE is writable.
+     The MEMORY_SPACE bit indicates that the device will respond to memory
+space accesses.  A value of 0 disables the device response.  A value of 1
+allows the device to respond to Memory space accesses.  MEMORY_SPACE is
+writable.
+     The BUS_MASTER bit indicates that the device can act as a master on the
+PCI bus.  A value of 0 disables the device from generating PCI accesses.  A
+value of 1 allows the device to behave as a bus master.  BUS_MASTER is
+writable.
+     The WRITE_AND_INVAL bit indicates that the device can use the Memory
+Write and Invalidate command when the transfer is aligned and 16 bytes and the
+contents of the Cache Line Size Register is 4 DWORDS.  When this bit is 1,
+masters may generate the command.  When it is 0, Memory Write must be used
+instead.  State after RST# is 0.  This bit must be implemented by master
+devices that can generate the Memory Write and Invalidate command.
+     The PALETTE_SNOOP bit indicates that VGA compatible devices should snoop
+their palette registers.  When this bit is set, special palette snooping
+behavior is enabled (ie, device must not respond).  When the bit is reset, the
+device should treat palette accesses like all other accesses.  VGA compatible
+devices should implement this bit.  PALETTE_SNOOP is writable.
+
+     The Device Status register is used to record status information for PCI
+bus related events.
+     The CAPLIST bit indicates that the device configuration space includes a
+capabilities list starting at the offset indicated by CFG_13.
+     The 66MHZ bit indicates that the device is capable of 66 MHz PCI Bus
+operation.  This value is initialized by a strapping bit.
+     The FAST_BACK2BACK bit indicates that the device is capable of handling
+back-to-back transfers when the transactions are not to the same agent.  This
+bit can be set to 1 if the device can accept these transactions, and must be
+set to 0 otherwise.
+     The DEVSEL_TIMING bits contain the timing of DEVSEL#.  There are three
+allowable timings for assertion of DEVSEL#.  These are encoded as 00b for
+fast, 01b for medium, and 10b for slow (11b is reserved).  These bits are read
+only and must indicate the slowest time that a device asserts DEVSEL# for any
+bus command except Configuration Read and Configuration Write.  FPCI positive 
+decode device are required to respond with fast DEVSEL# (0-cycle). Only the
+subtractive FPCI function will respond with medium DEVSEL# to accept the 
+cycle for the subtractive bus. 
+     The SIGNALED_TARGET bit indicates that the device has terminated a
+transaction with target-abort.  Devices that will never signal target-abort
+do not need to implement this bit.  When this bit is set, an interrupt is
+signaled in the PBUS_INTR_0 register.
+     The RECEIVED_TARGET bit indicates that a master device's transaction was
+terminated with a target-abort.  All master devices must implement this bit.
+When this bit is set, an interrupt is signaled in the PBUS_INTR_0 register.
+     The RECEIVED_MASTER bit indicates that a master device's transaction
+(except for Special Cycle) was terminated with a master-abort.  This means
+that no device on the PCI bus responded to the address of the mastered
+transaction.  All master devices must implement this bit.  When this bit is
+set, an interrupt is signaled in the PBUS_INTR_0 register.
+	 Regarding the SIGNALED_TARGET, RECEIVED_TARGET, and RECEIVED_MASTER bits,
+unfortunately, there is no way of knowing what the offending address of the bus
+error was, except by using a logic analyzer.
+     The SIGNALED_SERR bit indicates that the device has asserted SERR#.
+     The DETECTED_PERR bit indicates that the device has detected a parity
+error, even if parity error handing is disabled. (Bit 6 - 
+MCP_CONFIG_FPCI_PERR_DISABLED)
+	 
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| | | | |0|0 0| |1|0|1|1|0 0 0 0|0 0 0 0 0 0|1| |0| |0|0|0| | | | CFG_1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_1                                    0x00000004 /* RW-4R */
+
+#define MCP_ACI_CFG_1_IO_SPACE                                  0:0 /* RWIVF */
+#define MCP_ACI_CFG_1_IO_SPACE_DISABLED                  0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_1_IO_SPACE_ENABLED                   0x00000001 /* RW--V */
+#define MCP_ACI_CFG_1_MEMORY_SPACE                              1:1 /* RWIVF */
+#define MCP_ACI_CFG_1_MEMORY_SPACE_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_1_MEMORY_SPACE_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACI_CFG_1_BUS_MASTER                                2:2 /* RWIVF */
+#define MCP_ACI_CFG_1_BUS_MASTER_DISABLED                0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_1_BUS_MASTER_ENABLED                 0x00000001 /* RW--V */
+#define MCP_ACI_CFG_1_SPECIAL_CYCLE                             3:3 /* C--VF */
+#define MCP_ACI_CFG_1_SPECIAL_CYCLE_DISABLED             0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_SPECIAL_CYCLE_ENABLED              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_WRITE_AND_INVAL                           4:4 /* C--VF */
+#define MCP_ACI_CFG_1_WRITE_AND_INVAL_DISABLED           0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_WRITE_AND_INVAL_ENABLED            0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_PALETTE_SNOOP                             5:5 /* C--VF */
+#define MCP_ACI_CFG_1_PALETTE_SNOOP_DISABLED             0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_PALETTE_SNOOP_ENABLED              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_PERR                                      6:6 /* C--VF */
+#define MCP_ACI_CFG_1_PERR_DISABLED                      0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_PERR_ENABLED                       0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_STEP                                      7:7 /* C--VF */
+#define MCP_ACI_CFG_1_STEP_DISABLED                      0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_STEP_ENABLED                       0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_SERR                                      8:8 /* C--VF */
+#define MCP_ACI_CFG_1_SERR_DISABLED                      0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_SERR_ENABLED                       0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_BACK2BACK                                 9:9 /* C--VF */
+#define MCP_ACI_CFG_1_BACK2BACK_DISABLED                 0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_BACK2BACK_ENABLED                  0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_CAPLIST                                 20:20 /* C--VF */
+#define MCP_ACI_CFG_1_CAPLIST_NOT_PRESENT                0x00000000 /* ----V */
+#define MCP_ACI_CFG_1_CAPLIST_PRESENT                    0x00000001 /* C---V */
+#define MCP_ACI_CFG_1_66MHZ                                   21:21 /* C--VF */
+#define MCP_ACI_CFG_1_66MHZ_INCAPABLE                    0x00000000 /* ----V */
+#define MCP_ACI_CFG_1_66MHZ_CAPABLE                      0x00000001 /* C---V */
+#define MCP_ACI_CFG_1_FAST_BACK2BACK                          23:23 /* C--VF */
+#define MCP_ACI_CFG_1_FAST_BACK2BACK_INCAPABLE           0x00000000 /* ----V */
+#define MCP_ACI_CFG_1_FAST_BACK2BACK_CAPABLE             0x00000001 /* C---V */
+#define MCP_ACI_CFG_1_MASTER_DATA_PERR                        24:24 /* C--VF */
+#define MCP_ACI_CFG_1_MASTER_DATA_PERR_NOT_ACTV          0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_MASTER_DATA_PERR_ACTIVE            0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_MASTER_DATA_PERR_CLEAR             0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_DEVSEL_TIMING                           26:25 /* C--VF */
+#define MCP_ACI_CFG_1_DEVSEL_TIMING_FAST                 0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_DEVSEL_TIMING_MEDIUM               0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_DEVSEL_TIMING_SLOW                 0x00000002 /* ----V */
+#define MCP_ACI_CFG_1_SIGNALED_TARGET                         27:27 /* C--VF */
+#define MCP_ACI_CFG_1_SIGNALED_TARGET_NO_ABORT           0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_SIGNALED_TARGET_ABORT              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_SIGNALED_TARGET_CLEAR              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_RECEIVED_TARGET                         28:28 /* C--VF */
+#define MCP_ACI_CFG_1_RECEIVED_TARGET_NO_ABORT           0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_RECEIVED_TARGET_ABORT              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_RECEIVED_TARGET_CLEAR              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_RECEIVED_MASTER                         29:29 /* C--VF */
+#define MCP_ACI_CFG_1_RECEIVED_MASTER_NO_ABORT           0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_RECEIVED_MASTER_ABORT              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_RECEIVED_MASTER_CLEAR              0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_SIGNALED_SERR                           30:30 /* C--VF */
+#define MCP_ACI_CFG_1_SIGNALED_SERR_NOT_ACTIVE           0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_SIGNALED_SERR_ACTIVE               0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_SIGNALED_SERR_CLEAR                0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_DETECTED_PERR                           31:31 /* C--VF */
+#define MCP_ACI_CFG_1_DETECTED_PERR_NOT_ACTIVE           0x00000000 /* C---V */
+#define MCP_ACI_CFG_1_DETECTED_PERR_ACTIVE               0x00000001 /* ----V */
+#define MCP_ACI_CFG_1_DETECTED_PERR_CLEAR                0x00000001 /* ----V */
+
+		Figure 10-2  PCI Configuration Register 04h
+
+
+
+     The REVISION_ID bits specify a device specific revision identifier.  The
+value is chosen by the vendor.  Zero is an acceptable value.  This field
+should be viewed as a vendor defined extension to the DEVICE_ID.
+     The CLASS_CODE bits identify the the generic function of the device and
+(in some cases) a specific register-level programming interface.  The register
+is broken into three byte-size fields.  The upper byte (at offset 0BH) is a
+base class code which broadly classifies the type of function the device
+performs.  The middle-byte (at offset 0BH)is a sub-class code which identifies
+more specificly the function of the device.  The lower byte (at offset 09H)
+identifies a specific register-level programming interface (if any) so that
+device independent software can interact with the device.
+
+	The Class Code and Revision ID are defined by parameters per block.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0|1 0 1 0 0 0 0 1| CFG_2
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_2                                    0x00000008 /* R--4R */
+
+#define MCP_ACI_CFG_2_REVISION_ID                               7:0 /* C--UF */
+#define MCP_ACI_CFG_2_REVISION_ID_01                     0x000000B1 /* C---V */
+#define MCP_ACI_CFG_2_REVISION_ID_02                     0x00000010 /* ----V */
+
+#define MCP_ACI_CFG_2_CLASS_CODE                               31:8 /* C--VF */
+#define MCP_ACI_CFG_2_CLASS_CODE_ACI                     0x00040100 /* C---V */
+
+
+		Figure 10-3  PCI Configuration Register 08h
+
+
+
+
+     The LATENCY_TIMER bits contain, in units of PCI bus clocks, the value of
+the Latency Timer for this PCI bus master.  This register must be implemented
+as writable by any master that can burst more than two data phases.  This
+register may be implemented as read-only for devices that burst two or fewer
+data phases, but the hardwired value must be limited to 16 or less.  A typical
+implementation would be to build the five high-order bits (leaving the bottom
+three as read-only), resulting in a timer granularity of eight clocks.  At
+reset, the register should be set to 0 (if programmable).  LATENCY_TIMER bits
+are writable.
+     The HEADER_TYPE bits identify the layout of the bytes 10h through 3FH in
+configuration space and also whether or not the device contains multiple
+functions.  Bit 7 in this register is used to identify a multi-function
+device.  If the bit is 0, then the device is single function.  If the bit is
+1, then the device has multiple functions.  Bits 6 through 0 specify the
+layout of bytes 10h through 3Fh.
+
+     The LATENCY_TIMER and HEADER_TYPE are defined by parameters per block. 
+	 
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 1|         |0 0 0|0 0 0 0 0 0 0 0| CFG_3
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_3                                    0x0000000C /* RW-4R */
+
+#define MCP_ACI_CFG_3_CACHE_LINE_SIZE                           7:0 /* C--VF */
+#define MCP_ACI_CFG_3_CACHE_LINE_SIZE_0                  0x00000000 /* C---V */
+#define MCP_ACI_CFG_3_CACHE_LINE_SIZE_32                 0x00000020 /* ----V */
+#define MCP_ACI_CFG_3_CACHE_LINE_SIZE_64                 0x00000040 /* ----V */
+#define MCP_ACI_CFG_3_LATENCY_TIMER                           15:11 /* C--VF */
+#define MCP_ACI_CFG_3_LATENCY_TIMER_0_CLOCKS             0x00000000 /* C---V */
+#define MCP_ACI_CFG_3_LATENCY_TIMER_8_CLOCKS             0x00000001 /* ----V */
+#define MCP_ACI_CFG_3_LATENCY_TIMER_240_CLOCKS           0x0000001E /* ----V */
+#define MCP_ACI_CFG_3_LATENCY_TIMER_248_CLOCKS           0x0000001F /* ----V */
+#define MCP_ACI_CFG_3_HEADER_TYPE_DEVICE                      22:16 /* C--VF */
+#define MCP_ACI_CFG_3_HEADER_TYPE_NON_BRIDGE             0x00000000 /* C---V */
+#define MCP_ACI_CFG_3_HEADER_TYPE_P2P_BRIDGE             0x00000001 /* ----V */
+#define MCP_ACI_CFG_3_HEADER_TYPE_FUNC                        23:23 /* C--VF */
+#define MCP_ACI_CFG_3_HEADER_TYPE_SINGLEFUNC             0x00000000 /* ----V */
+#define MCP_ACI_CFG_3_HEADER_TYPE_MULTIFUNC              0x00000001 /* C---V */
+
+		Figure 10-4  PCI Configuration Register 0Ch
+
+
+
+
+     The SPACE_TYPE bit indicates whether the register maps into Memory or I/O
+space.
+     The ADDRESS_TYPE bits contain the type of the Base Address.  It can be 32
+bits, 20 bits, or 64 bits wide.
+     The PREFETCHABLE bit indicates that there are no side effects on reads
+and the device returns all bytes on reads regardless of the byte enableds, and
+host bridges can merge processor writes into this range without causing
+errors.
+     The BASE_ADDRESS bits contain the base address of the device.  The number
+of upper bits that a device actually implements depends on how much of the
+address space the device will respond to.  A device that wants a 1 MB memory
+address space (using a 32-bit base address register) would build the top 12
+bits of the address register, hardwiring the other bits to 0.  Power-up
+software can determine how much address space the device required by writing a
+value of all 1's to the register and then reading the value back.  The device
+will return 0's in all don't-care address bits, effectively specifying the
+address space required.
+
+     The number and type of BARs are defined by parameters per block. CFG_4
+below is setup as a Memory BAR and CFG_5 below is setup as an IO BAR. This
+will change according to each blocks needs.
+ 
+//NAMBAR - Native Audio Mixer Base Address Register.  Maps the CODECs'
+//audio mixer registers to I/O space.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                               |0 0 0 0 0 0|0|1| CFG_4
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_4                                    0x00000010 /* RW-4R */
+
+#define MCP_ACI_CFG_4_SPACE_TYPE                                0:0 /* C--VF */
+#define MCP_ACI_CFG_4_SPACE_TYPE_IO                      0x00000001 /* C---V */
+#define MCP_ACI_CFG_4_BASE_ADDRESS                             31:8 /* RWXUF */
+
+
+//NABMBAR - Native Audio Bus Mastering Base Address Register.  Maps
+//a contiguous block of I/O Space for the Native Mode Audio software
+//Interface.
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                 |0 0 0 0 0 0|1| CFG_5
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_5                                    0x00000014 /* RW-4R */
+
+#define MCP_ACI_CFG_5_SPACE_TYPE                                0:0 /* C--VF */
+#define MCP_ACI_CFG_5_SPACE_TYPE_IO                      0x00000001 /* C---V */
+#define MCP_ACI_CFG_5_BASE_ADDRESS                             31:7 /* RWXUF */
+
+
+//NAMBAR + NABMBAR mapped into memory space.
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |0 0 0 0 0 0 0 0|0|0 0|0| CFG_6
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_6                                    0x00000018 /* RW-4R */
+
+#define MCP_ACI_CFG_6_SPACE_TYPE                                0:0 /* C--VF */
+#define MCP_ACI_CFG_6_SPACE_TYPE_MEMORY                  0x00000000 /* C---V */
+#define MCP_ACI_CFG_6_ADDRESS_TYPE                              2:1 /* C--VF */
+#define MCP_ACI_CFG_6_ADDRESS_TYPE_32_BIT                0x00000000 /* C---V */
+#define MCP_ACI_CFG_6_ADDRESS_TYPE_20_BIT                0x00000001 /* ----V */
+#define MCP_ACI_CFG_6_ADDRESS_TYPE_64_BIT                0x00000002 /* ----V */
+#define MCP_ACI_CFG_6_PREFETCHABLE                              3:3 /* C--VF */
+#define MCP_ACI_CFG_6_PREFETCHABLE_NOT                   0x00000000 /* C---V */
+#define MCP_ACI_CFG_6_PREFETCHABLE_MERGABLE              0x00000001 /* ----V */
+#define MCP_ACI_CFG_6_BASE_ADDRESS                            31:12 /* RWXUF */
+
+
+
+     These are unused BAR locations.
+	 
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_7
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_8
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_9
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_10
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+#define MCP_ACI_CFG_7(i)                         (0x0000001C+(i)*4) /* R--4A */
+#define MCP_ACI_CFG_7__SIZE_1                                     4 /*       */
+
+#define MCP_ACI_CFG_7_RESERVED                                 31:0 /* C--VF */
+#define MCP_ACI_CFG_7_RESERVED_0                         0x00000000 /* C---V */
+
+		Figure 10-5  PCI Configuration Register 10h-28h
+
+
+
+
+     The SUBSYSTEM_VENDOR_ID bits and SUBSYSTEM_ID bits are used to uniquely
+identify the add-in board or subsystem where the device resides.  When the 
+device is on the motherboard, there is no serial ROM and the registers both 
+initialize to NONE.  The motherboard BIOS must set the values of the Subsystem 
+ID and Subsystem Vendor ID by writing the proper values to the 
+SUBSYSTEM_VENDOR_ID and SUBSYSTEM_ID bits in the CFG_16 register 
+(NOT CFG_11).
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |                               | CFG_11
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_11                                   0x0000002C /* R--4R */
+
+#define MCP_ACI_CFG_11_SUBSYSTEM_VENDOR_ID                     15:0 /* R--UF */
+#define MCP_ACI_CFG_11_SUBSYSTEM_VENDOR_ID_NONE          0x00000000 /* R---V */
+#define MCP_ACI_CFG_11_SUBSYSTEM_ID                           31:16 /* R--UF */
+#define MCP_ACI_CFG_11_SUBSYSTEM_ID_NONE                 0x00000000 /* R---V */
+
+
+		Figure 10-6  PCI Configuration Register 2Ch
+
+
+
+
+     The Expansion ROM Base Address configuration register should not be used 
+for any FPCI integrated blocks.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_12
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_12                                   0x00000030 /* R--4R */
+
+#define MCP_ACI_CFG_12_RESERVED                                31:0 /* C--VF */
+#define MCP_ACI_CFG_12_RESERVED_0                        0x00000000 /* C---V */
+
+
+		Figure 10-7  PCI Configuration Register 30h
+
+
+
+
+     The CAP_PTR bits indicate the offset into configuration space where the
+capabilities list begins. This always points to 0x44 where at least the PCI-PM 
+registers are expected to reside.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0|0 1 0 0 0 1 0 0| CFG_13
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_13                                   0x00000034 /* RW-4R */
+
+#define MCP_ACI_CFG_13_CAP_PTR                                  7:0 /* C--VF */
+#define MCP_ACI_CFG_13_CAP_PTR_PCIPM                     0x00000044 /* C---V */
+
+		Figure 10-8  PCI Configuration Register 34h
+
+
+     The RESERVED bits are reserved for future use.
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_14
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_14                                   0x00000038 /* R--4A */
+
+#define MCP_ACI_CFG_14_RESERVED                                31:0 /* C--VF */
+#define MCP_ACI_CFG_14_RESERVED_0                        0x00000000 /* C---V */
+
+		Figure 10-9  PCI Configuration Register 38h
+
+
+
+
+     The INTR_LINE bits contain the interrupt routing information.  The
+register is read/write and must be implemented by any device (or device
+function) that uses an interrupt pin.  POST software will write the routing
+information into this register as it initializes and configures the system.
+The value in this register tells which input of the system interrupt
+controller(s) the device's interrupt pin is connected to.  Device drivers and
+operating systems can use this information to determine priority and vector
+information.  INTR_LINE is initialized to 0xff (no connection) at reset.  Some
+PCI BIOS' can't handle aliased INTR_LINEs.  Some PCI BIOS' can't handle
+INTR_LINE intialized to 0xff.
+     The INTR_PIN bits contain the interrupt pin the device (or device
+function) uses.  A value of 1 corresponds to INTA#.  A value of 2 corresponds
+to INTB#.  A value of 3 corresponds to INTC#.  A value of 4 corresponds to
+INTD#.  Devices (or device functions) that don't use an interrupt pin must put
+a 0 in this register.  This register is read-only.
+     The MIN_GNT bits contain the length of the burst period a device needs
+assuming a clock rate of 33 MHz.  This read-only register is used to specify
+the device's desired settings for Latency Timer values.  The value specifies a
+period of time in units of 1/4 microsecond.  Values of 0 indicate that the
+device has no major requirements for the settings of Latency Timers.  MIN_GNT
+is nonzero.
+     The MAX_LAT bits contain the maximum time the device requires to gain
+access to the CPI bus.  This read-only register is used to specify the
+device's desired settings for Latency Timer values.  The value specifies a
+period of time in units of 1/4 microsecond.  Values of 0 indicate that the
+device has no major requirements for the settings of Latency Timers.  MAX_LAT
+is nonzero.
+
+     The INTR_PIN, MIN_GNT, and MAX_LAT are configurable per block.
+
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 1 0 1|0 0 0 0 0 0 1 0|0 0 0 0 0 0 0 1|               | CFG_15
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_15                                   0x0000003C /* RW-4R */
+
+#define MCP_ACI_CFG_15_INTR_LINE                                7:0 /* RWIVF */
+#define MCP_ACI_CFG_15_INTR_LINE_IRQ0                    0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_15_INTR_LINE_IRQ1                    0x00000001 /* RW--V */
+#define MCP_ACI_CFG_15_INTR_LINE_IRQ15                   0x0000000F /* RW--V */
+#define MCP_ACI_CFG_15_INTR_LINE_UNKNOWN                 0x000000FF /* RW--V */
+#define MCP_ACI_CFG_15_INTR_PIN                                15:8 /* C--VF */
+#define MCP_ACI_CFG_15_INTR_PIN_NONE                     0x00000000 /* ----V */
+#define MCP_ACI_CFG_15_INTR_PIN_INTA                     0x00000001 /* C---V */
+#define MCP_ACI_CFG_15_INTR_PIN_INTB                     0x00000002 /* ----V */
+#define MCP_ACI_CFG_15_INTR_PIN_INTC                     0x00000003 /* ----V */
+#define MCP_ACI_CFG_15_INTR_PIN_INTD                     0x00000004 /* ----V */
+#define MCP_ACI_CFG_15_MIN_GNT                                23:16 /* C--VF */
+#define MCP_ACI_CFG_15_MIN_GNT_NO_REQUIREMENTS           0x00000000 /* ----V */
+#define MCP_ACI_CFG_15_MIN_GNT_500NS                     0x00000002 /* C---V */
+#define MCP_ACI_CFG_15_MIN_GNT_750NS                     0x00000003 /* ----V */
+#define MCP_ACI_CFG_15_MAX_LAT                                31:24 /* C--VF */
+#define MCP_ACI_CFG_15_MAX_LAT_NO_REQUIREMENTS           0x00000000 /* ----V */
+#define MCP_ACI_CFG_15_MAX_LAT_250NS                     0x00000001 /* ----V */
+#define MCP_ACI_CFG_15_MAX_LAT_1250NS                    0x00000005 /* C---V */
+
+		Figure 10-10  PCI Configuration Register 3Ch
+
+
+
+
+      The CFG_16 through CFG_63 registers are Device Specific FPCI
+configuration registers.
+      The CFG_16 register is a writable alias of the CFG_11 register.
+This allows software to modify the SUBSYSTEM_ID and SUBSYSTEM_VENDOR_ID bits
+in the case of a motherboard, where there is no ROM available for the hardware
+to read the values from.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |                               | CFG_16
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_16                                   0x00000040 /* RW-4R */
+
+#define MCP_ACI_CFG_16_SUBSYSTEM_VENDOR_ID                     15:0 /* RW-VF */
+#define MCP_ACI_CFG_16_SUBSYSTEM_VENDOR_ID_NONE          0x00000000 /* R---V */
+#define MCP_ACI_CFG_16_SUBSYSTEM_ID                           31:16 /* RW-VF */
+#define MCP_ACI_CFG_16_SUBSYSTEM_ID_NONE                 0x00000000 /* R---V */
+
+		Figure 10-11  PCI Configuration Register 40h
+
+     The CFG_17 through CFG_18 registers are for PCI Power Management
+operation. The ROM Based Power Data is not supported.
+
+The CFG_17 register is the Capabilities Identification information register
+for the PCI PM functionality.  NEXT_PTR is a byte offset which points to the 
+next item in the capabilities list, which is null for ACI.  CAP_ID indicates 
+this capability's record type.
+
+// This register needs to reside in the Device side of the fpci/device logic
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0|0 0 0|0 0 0|0 1 0|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 1| CFG_17
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#define MCP_ACI_CFG_17                                   0x00000044 /* R--4R */
+
+#define MCP_ACI_CFG_17_PME_SUPPORT_D3C                        31:31 /* C--VF */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D3C_YES               0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D3C_NO                0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D3H                        30:30 /* C--VF */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D3H_YES               0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D3H_NO                0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D2                         29:29 /* C--VF */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D2_YES                0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D2_NO                 0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D1                         28:28 /* C--VF */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D1_YES                0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D1_NO                 0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D0                         27:27 /* C--VF */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D0_YES                0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PME_SUPPORT_D0_NO                 0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_D2_SUPPORT                             26:26 /* C--VF */
+#define MCP_ACI_CFG_17_D2_SUPPORT_YES                    0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_D2_SUPPORT_NO                     0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_D1_SUPPORT                             25:25 /* C--VF */
+#define MCP_ACI_CFG_17_D1_SUPPORT_YES                    0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_D1_SUPPORT_NO                     0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_AUX_CURRENT                            24:22 /* C--VF */
+#define MCP_ACI_CFG_17_AUX_CURRENT_0                     0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_55mA                  0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_100mA                 0x00000002 /* ----V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_160mA                 0x00000003 /* ----V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_220mA                 0x00000004 /* ----V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_270mA                 0x00000005 /* ----V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_320mA                 0x00000006 /* ----V */
+#define MCP_ACI_CFG_17_AUX_CURRENT_375mA                 0x00000007 /* ----V */
+#define MCP_ACI_CFG_17_DEV_SPEC_INIT                          21:21 /* C--VF */
+#define MCP_ACI_CFG_17_DEV_SPEC_INIT_NOT_NEEDED          0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_DEV_SPEC_INIT_NEEDED              0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PME_CLOCK                              19:19 /* C--VF */
+#define MCP_ACI_CFG_17_PME_CLOCK_NOT_NEEDED              0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_PME_CLOCK_NEEDED                  0x00000001 /* ----V */
+#define MCP_ACI_CFG_17_PCIPM_REV                              18:16 /* C--VF */
+#define MCP_ACI_CFG_17_PCIPM_REV_11                      0x00000002 /* C---V */
+#define MCP_ACI_CFG_17_NEXT_PTR                                15:8 /* C--VF */
+#define MCP_ACI_CFG_17_NEXT_PTR_NULL                     0x00000000 /* C---V */
+#define MCP_ACI_CFG_17_CAP_ID                                   7:0 /* C--VF */
+#define MCP_ACI_CFG_17_CAP_ID_PM                         0x00000001 /* C---V */
+
+                Figure 10-12  PCI Configuration Register 44h
+
+// This register needs to reside in the Device side of the fpci/device logic
+//    along w/ any additional extened capability registers.
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0|0 0 0 0 0 0 0 0|0|0 0|0 0 0 0|0|0 0 0 0 0 0|   | CFG_18
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#define MCP_ACI_CFG_18                                   0x00000048 /* RW-4R */
+
+#define MCP_ACI_CFG_18_PME_STATUS                             15:15 /* C--VF */
+#define MCP_ACI_CFG_18_PME_STATUS_NOT_ACTIVE             0x00000000 /* C---V */
+#define MCP_ACI_CFG_18_PME_STATUS_ACTIVE                 0x00000001 /* ----V */
+#define MCP_ACI_CFG_18_DATA_SCALE                             14:13 /* C--VF */
+#define MCP_ACI_CFG_18_DATA_SCALE_NONE                   0x00000000 /* C---V */
+#define MCP_ACI_CFG_18_DATA_SELECT                             12:9 /* C--VF */
+#define MCP_ACI_CFG_18_DATA_SELECT_NONE                  0x00000000 /* C---V */
+#define MCP_ACI_CFG_18_PME                                      8:8 /* C--VF */
+#define MCP_ACI_CFG_18_PME_DISABLE                       0x00000000 /* C---V */
+#define MCP_ACI_CFG_18_PME_ENABLE                        0x00000001 /* ----V */
+#define MCP_ACI_CFG_18_PM_STATE                                 1:0 /* RWIVF */
+#define MCP_ACI_CFG_18_PM_STATE_D0                       0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_18_PM_STATE_D1                       0x00000001 /* RW--V */
+#define MCP_ACI_CFG_18_PM_STATE_D2                       0x00000002 /* RW--V */
+#define MCP_ACI_CFG_18_PM_STATE_D3                       0x00000003 /* RW--V */
+
+		Figure 10-12  PCI Configuration Register 48h
+###############################
+// This register needs to reside in the Device side of the fpci/device logic
+      The CFG_19 register contains the LDT Unit ID(s) for the Device.
+The Unit IDs are used by the device as a transaction ID on the LDT interface
+to uniquely identify where the request originated. Some devices will support
+2 Unit IDs, 1 for isonchronous requests and the other for non-isonchronous 
+requests.
+      CFG_19 also contains the Interrupt Routing bit.  If reset, all ACI
+and MCI interrupts will be routed through the ACI IRQ.  If set, only
+audio-specific interrupts will be routed through the ACI IRQ (and modem-
+specific interrupts will be routed through the MCI IRQ, based on the status
+of the MCI's Interrupt Routing bit).
+      CFG_19 also contains the Ignore Last Valid Buffer bit.  When set, 
+DMA is not halted when the last valid buffer is reached, but instead processing
+loops back to the beginning of the buffer list and continues.  When reset, DMA
+halts when the last valid buffer is reached and processed.
+      CFG_19 contains the visibility control bit for the SPDIF DMA interrupt
+status bit in the global control register. The SPDIF interrupt status bit
+is mapped to an intel reserved bit, MCP_ACI_GLB_STATUS[4], and is only
+visible when MCP_ACI_CFG_19[24] is high.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| |0 0 0 0 0 0 0| |0 0 0|         | CFG_19
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_19                                   0x0000004C /* RW-4R */
+
+#define MCP_ACI_CFG_19_SPDIF_GLB_INT                          24:24 /* RWIVF */
+#define MCP_ACI_CFG_19_SPDIF_GLB_INT_INVISIBLE           0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_19_SPDIF_GLB_INT_VISIBLE             0x00000001 /* RW--V */
+#define MCP_ACI_CFG_19_IGNORE_LVB                             16:16 /* RWIVF */
+#define MCP_ACI_CFG_19_IGNORE_LVB_INACTIVE               0x00000000 /* RWI-V */
+#define MCP_ACI_CFG_19_IGNORE_LVB_ACTIVE                 0x00000001 /* RW--V */
+#define MCP_ACI_CFG_19_INT_ROUTE                                8:8 /* RWIVF */
+#define MCP_ACI_CFG_19_INT_ROUTE_SINGLE                  0x00000000 /* RW--V */
+#define MCP_ACI_CFG_19_INT_ROUTE_SPLIT                   0x00000001 /* RWI-V */
+#define MCP_ACI_CFG_19_ISO_UNIT_ID                              4:0 /* RWIVF */
+#define MCP_ACI_CFG_19_ISO_UNIT_ID_0                     0x00000000 /* RW--V */
+#define MCP_ACI_CFG_19_ISO_UNIT_ID_1                     0x00000001 /* RW--V */
+#define MCP_ACI_CFG_19_ISO_UNIT_ID_2                     0x00000002 /* RW--V */
+#define MCP_ACI_CFG_19_ISO_UNIT_ID_6                     0x00000006 /* RWI-V */
+#define MCP_ACI_CFG_19_ISO_UNIT_ID_31                    0x0000001F /* RW--V */
+
+		Figure 10-13  PCI Configuration Register 4Ch
+
+// We need to add FPCI/Device specific registers within this group
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_20
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	:	:	:	:	:	:	:
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_62
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| CFG_63
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACI_CFG_20(i)                        (0x00000050+(i)*4) /* R--4A */
+#define MCP_ACI_CFG_20__SIZE_1                                   44 /*       */
+
+#define MCP_ACI_CFG_20_RESERVED                                31:0 /* C--VF */
+#define MCP_ACI_CFG_20_RESERVED_0                        0x00000000 /* C---V */
+
+		Figure 10-18  PCI Configuration Register 4Ah-FCh
+
+
+
+APPENDIX A  -  FPCI MEMORY MAP
+
+This is device specific. Any legacy registers or memory will need to be 
+added by modifying the FPCI block. 
+
+CONFIG space is accessed via the PCI Configuration access mechanism.
+
+
+APPENDIX B  -  BUS INTERFACE ACKNOWLEDGES
+
+
+APPENDIX C  -  FPCI DEFINES
+
+==============================================================================
+// Verilog Specific Defines
+// Due the the configurabilty of the FPCI block and the desire to use
+//    the same piece of verilog FPCI code for all SB Units this section has been
+//    added. These are the defines that the verilog code will be using to 
+//    determine what functionality the FPCI block will implement.
+//    Any of these w/ the XXX_ prefix can be changed, all other defines
+//    shouldn't be changed. These are global for all fpci blocks and will 
+//    reside in dev_fpci.vh.
+==============================================================================
+//
+// Global FPCI Defines
+//
+#define FPCI_CMD_LENGTH                                         5
+#define FPCI_ADR_LENGTH                                         32
+#define FPCI_SIZE_LENGTH                                        4
+// always 32-bit so this is not implemented
+//#define FPCI_WIDTH_LENGTH                                       2
+#define FPCI_SUBID_LENGTH                                       5
+#define FPCI_DATA_LENGTH                                        32
+#define FPCI_WE_LENGTH                                          4
+
+#define FPCI_CMD                                      `FPCI_CMD_LENGTH - 1
+#define FPCI_CMD_ISO_BIT                              `FPCI_CMD_LENGTH - 1
+#define FPCI_ADR                                      `FPCI_ADR_LENGTH - 1
+#define FPCI_SIZE                                     `FPCI_SIZE_LENGTH - 1
+#define FPCI_SUBID                                    `FPCI_SUBID_LENGTH - 1
+#define FPCI_DATA                                     `FPCI_DATA_LENGTH - 1
+#define FPCI_WE                                       `FPCI_WE_LENGTH - 1
+// always 32-bit so this is not implemented
+//#define FPCI_WIDTH                                    `FPCI_WIDTH_LENGTH - 1
+
+#define PCI_CMD_LENGTH                                         4
+#define PCI_MEM_READ 				                                    4'b0110
+#define PCI_MEM_READ_LINE 		                                    4'b1110
+#define PCI_MEM_READ_MULTIPLE	                                    4'b1100
+#define PCI_MEM_WRITE 				                                 4'b0111
+#define PCI_MEM_WRITE_AND_INV 	                                    4'b1111
+
+#define PCI_IO_READ                                                              4'b0010
+#define PCI_IO_WRITE                                                          4'b0011
+#define PCI_SPECIAL                                                              4'b0001
+#define PCI_INT_ACK                                                              4'b0000
+#define PCI_CFG_READ                                                          4'b1010
+#define PCI_CFG_WRITE                                                         4'b1011
+
+
+//
+// Determine if FPCI will be used in External FPGA: Un-comment if TRUE
+//
+#define ACI_EXTERNAL_PCI_USE
+
+
+// Define whether or not the fpci block should contain ISO and NonISO read
+// queues. If the queue is not desired then comment those lines corresponding
+// to that queue. If the queue is desired then setup the depth and the size
+// needed of the read and write pointers (i.e. if depth=8 then ptr_sz=3).
+// Current valid depths are 2 for ISO and 2, 4 or 8 for NonISO.
+#define ACI_ISO_QUEUE
+#define ACI_ISO_QUEUE_DEPTH                                         2
+#define ACI_ISO_QUEUE_RDWR_PTR_SZ                                   1
+//#define XXX_NON_ISO_QUEUE
+//#define XXX_NON_ISO_QUEUE_DEPTH                                     4
+//#define XXX_NON_ISO_QUEUE_RDWR_PTR_SZ                               2
+
+==============================================================================
+PCI Device/Vendor ID Register
+#define PCI_ID_0x00_ADDR                                     0x00
+
+Determine Function #
+#define ACI_PCI_FUNC_NUMBER                                  3'b000
+#define ACI_PCI_MULTI_FUNC                                   1
+
+Determine Device ID # (Lower 3-bits include PCI_FUNC_NUMBER)
+#define ACI_PCI_DEVICEID                                     16'h01B1
+
+#define PCI_VENDORID_NVIDIA                                  0x10DE
+
+Define which IDSEL/fpci_adi[x] is used
+IDSEL SubFunction Descrition
+0     x           Rreserved for Host Bridge due to Win9x bug
+1     0           Legacy
+1     1           SMBus
+2     0           USBA
+3     0           USBB
+4     0           MAC
+5     0           APU
+6     0           ACI
+6     1           MCI
+8     0           P2P
+9     0           IDE
+
+#define ACI_PCI_IDSEL                                         0x06
+
+==============================================================================
+PCI Command / Status Register
+#define PCI_ST_CMD_0x04_ADDR                                   0x04
+#define PCI_ISPACE_ENABLE_INDEX                             0 /*bit[00]*/
+#define PCI_MSPACE_ENABLE_INDEX                             1 /*bit[01]*/
+#define PCI_BMASTER_ENABLE_INDEX                            2 /*bit[02]*/
+#define PCI_SCYC_ENABLE_INDEX                               3 /*bit[03]*/
+#define PCI_MWRI_ENABLE_INDEX                               4 /*bit[04]*/
+#define PCI_VGASNP_ENABLE_INDEX                             5 /*bit[05]*/
+#define PCI_SERR_ENABLE_INDEX                               8 /*bit[08]*/
+#define PCI_FB2B_ENABLE_INDEX                               9 /*bit[09]*/
+
+Determine if PCI IO cycles will be decoded (optional): Un-comment if TRUE
+#define ACI_INCLUDE_PCI_ISPACE_ENABLE
+Determine the PCI IO bit default (optional): Un-comment if TRUE
+#define ACI_PCI_ISPACE_ENABLE_DEFAULT                        1'b0 /*Normal */
+// #define XXX_PCI_ISPACE_ENABLE_DEFAULT                        1'b1 /*Legacy */
+
+Determine if PCI Memory cycles will be decoded (optional): Un-comment if TRUE
+#define ACI_INCLUDE_PCI_MSPACE_ENABLE
+Determine the PCI Memory bit default (optional): Un-comment if TRUE
+#define ACI_PCI_MSPACE_ENABLE_DEFAULT                        1'b0 /*Normal */
+// #define XXX_PCI_MSPACE_ENABLE_DEFAULT                        1'b1 /*Legacy */
+
+Determine if PCI can do Bus Master cycles (optional): Un-comment if TRUE
+#define ACI_INCLUDE_PCI_BMASTER_ENABLE
+Determine the PCI Bus Master bit default (optional): Un-comment if TRUE
+#define ACI_PCI_BMASTER_ENABLE_DEFAULT                       1'b0 /*Normal */
+
+Determine if PCI can decode Specail cycles (optional): Un-comment if TRUE
+// #define XXX_INCLUDE_PCI_SCYC_ENABLE
+Determine the PCI Special bit default (optional): Un-comment if TRUE
+// #define XXX_PCI_SCYC_ENABLE_DEFAULT                          1'b0 /*Normal */
+
+Determine if PCI can do Memory Write Invalidate cycles (optional): 
+Un-comment if TRUE
+// #define XXX_INCLUDE_PCI_MWRI_ENABLE
+Determine the PCI Memory Write Invalidate bit default (optional): 
+Un-comment if TRUE
+// #define XXX_PCI_MWRI_ENABLE_DEFAULT                          1'b0 /*Normal */
+
+Determine if PCI can do VGA Palette snoops cycles (optional): 
+Un-comment if TRUE
+// #define XXX_INCLUDE_PCI_VGASNP_ENABLE
+Determine the PCI VGA Palette snoop bit default (optional): 
+Un-comment if TRUE
+// #define XXX_PCI_VGASNP_ENABLE_DEFAULT                        1'b0 /*Normal */
+
+Determine if PCI can do SERR# (optional): 
+Un-comment if TRUE
+#define ACI_INCLUDE_PCI_SERR_ENABLE
+Determine the PCI SERR default (optional): 
+Un-comment if TRUE
+#define ACI_PCI_SERR_ENABLE_DEFAULT                          1'b0 /*Normal */
+
+Determine if PCI can do Fast back-to-back cycles (optional): 
+Un-comment if TRUE
+#define ACI_INCLUDE_PCI_FB2B_ENABLE
+Determine the PCI Fast back-to-back default (optional): 
+Un-comment if TRUE
+#define ACI_PCI_FB2B_ENABLE_DEFAULT                          1'b0 /*Normal */
+
+------------------------------------------------------------------------------
+// The devsel, fb2b and 66MHz capable bits will be chosen by whether 
+//    the device is setup for internal or external use. All devices will
+//    have at least 1 extended capability (power management).
+Set up other PCI capabilities as needed:
+#define PCI_DEVSEL_TIMING_FAST                           2'b00 /*Fast   */
+#define PCI_DEVSEL_TIMING_MEDIUM                         2'b01 /*Medium */
+#define PCI_FB2B_CAPABLE_YES                             1'b1  /*Enable */
+#define PCI_FB2B_CAPABLE_NO                              1'b0  /*Disable*/
+#define PCI_66MHZ_CAPABLE_YES                            1'b1 /*Enable */
+#define PCI_66MHZ_CAPABLE_NO                             1'b0 /*Disable*/
+#define PCI_CAPABILITIES_LIST                            1'b1 /*Enable */
+// #define PCI_CAPABILITIES_LIST                         1'b0 /*Disable*/
+
+==============================================================================
+PCI Class Code / Revision Register
+#define PCI_CLASS_REV_0x08_ADDR                                0x08
+
+This is the device/function specific Class Code
+ISA Bridge
+// #define XXX_PCI_CLASSCODE                                   0x060100
+IDE Controller - Master with Programmable Mode for Primary & Secondary
+// #define XXX_PCI_CLASSCODE                                   0x01018A
+USB Controller - Serial Bus Controller, USB w/OHCI
+// #define XXX_PCI_CLASSCODE                                   0x0C0310
+SMBus Controller - Serial Bus Controller, SMBus
+// #define XXX_PCI_CLASSCODE                                   0x0C0500
+Audio Controller - Multimedia, Audio
+#define ACI_PCI_CLASSCODE                                      0x040100
+Other Multimedia Controller - Multimedia, Other
+// #define XXX_PCI_CLASSCODE                                   0x048000
+Generic Modem - Simple Communication Devices, Modem, Generic
+// #define XXX_PCI_CLASSCODE                                   0x070300
+Other Comm Device - Simple Communication Devices, Other
+// #define XXX_PCI_CLASSCODE                                   0x078000
+Other Comm Device - Network Devices, Ethernet
+// #define XXX_PCI_CLASSCODE                                   0x020000
+Other Network Device - Network Devices, Other
+// #define XXX_PCI_CLASSCODE                                   0x028000
+
+==============================================================================
+PCI Misc Control Register
+#define PCI_MISC_CTL_0x0C_ADDR                         0x0C
+#define PCI_CACHE_LSIZE_INDEX                             7:0 /*[7:0]  */
+
+BIST Not supported
+#define PCI_BIST                                           0x00
+
+Single or Multi-function Device Header
+#define ACI_PCI_HEADER                                      0x80 /*Multi */
+///#define ACI_PCI_HEADER                                         0x00 /*Single*/
+
+Determine if PCI Cache Line Size (optional): 
+Un-comment if TRUE
+//#define ACI_INCLUDE_PCI_CACHE_LSIZE
+Determine the PCI Cache Line Size default (optional): 
+Un-comment if TRUE
+//#define ACI_PCI_CACHE_LSIZE_DEFAULT                     8'b00000000 /*Normal */
+
+Determine if PCI Latency Timer: 
+Un-comment if TRUE
+#define ACI_INCLUDE_PCI_LAT_TIMER
+Determine the PCI Latency Timer default (optional): 
+Un-comment if TRUE
+#define ACI_PCI_LAT_TIMER_DEFAULT                       8'b00000000 /*Normal */
+#define PCI_LAT_TIMER_INDEX                         15:11 /*[15:11] */
+
+==============================================================================
+// Since I haven't figured out a way to make these bar registers easily
+//    configurable through verilog ifdef's these registers will be
+//    hard coded in a separate block (ie FPCI_CREG_XXX_base.v where xxx is ide,
+//    aci, mci ...). You still need to make sure the above base register fields
+//    are correct for the software guys. The only
+//    define that needs to be looked at is the define describing what UNIT
+//    is being developed (ie ide, mci ...). This define will instantiate the 
+//    correct base register block in the FPCI_creg.v file.
+
+// Uncomment out the UNIT that is being developed
+#define ACI_FPCI_UNIT
+// valid possibilities
+//#define IDE_FPCI_UNIT
+//#define USB_FPCI_UNIT
+//#define APU_FPCI_UNIT
+//#define ACI_FPCI_UNIT
+//#define MCI_FPCI_UNIT
+//#define MAC_FPCI_UNIT
+//#define VPR_FPCI_UNIT
+
+// Uncomment the Unit's UnitID default value (0-31)
+//#define IDE_FPCI_UNITID_DEFAULT       5'b01000
+//#define P2P_FPCI_UNITID_DEFAULT       5'b00111
+//#define MCI_FPCI_UNITID_DEFAULT       5'b00110
+#define ACI_FPCI_UNITID_DEFAULT       5'b00110
+//#define MACB_FPCI_UNITID_DEFAULT      5'b00100
+//#define MACA_FPCI_UNITID_DEFAULT      5'b00011
+//#define USBB_FPCI_UNITID_DEFAULT      5'b00010
+//#define USBA_FPCI_UNITID_DEFAULT      5'b00001
+//#define VPR_FPCI_UNITID_DEFAULT       5'b00000
+
+#define PCI_BASE_REG_0x10_ADDR                                   0x10
+#define PCI_BASE_REG_0x14_ADDR                                   0x14
+#define PCI_BASE_REG_0x18_ADDR                                   0x18
+#define PCI_BASE_REG_0x1C_ADDR                                   0x1C
+#define PCI_BASE_REG_0x20_ADDR                                   0x20
+#define PCI_BASE_REG_0x24_ADDR                                   0x24
+
+==============================================================================
+PCI Cardbus CIS Pointer Register
+#define PCI_CIS_0x28_ADDR                                       0x28
+
+Not Supported
+#define PCI_CIS_PTR                                       0x00000000
+
+==============================================================================
+PCI Subsystem & Subsystem Vendor ID Register
+#define PCI_SUB_ID_0x2C_ADDR                                    0x2C
+#define PCI_SUB_ID_0x40_ADDR                                    0x40
+
+// the Subsys ID and Subsys Vendor ID are aliased to 0x40 which defaults
+//    to 0. Bios will set 0x40 up the the correct value which will then
+//    be reflected at this address. Currently we are defaulting these registers
+//    to the NVIDIA vendor ID and the device ID but we need to make sure this
+//    is the correct thing to do.
+Subsystem Vendor ID Default - NVIDIA
+#define ACI_PCI_SUBSYS_VENDORID_DEFAULT        `PCI_VENDORID_NVIDIA 
+
+Subsystem ID Default - Device ID
+#define ACI_PCI_SUBSYS_ID_DEFAULT              `ACI_PCI_DEVICEID
+
+==============================================================================
+PCI Expansion ROM Register
+#define PCI_ROM_0x30_ADDR                                       0x30
+
+Not Supported
+#define PCI_ROM_BASE_ADR                                  0x00000000
+
+==============================================================================
+PCI Capabilities Pointer Register
+#define PCI_CAP_PTR_0x34_ADDR                                   0x34
+
+Pointer to the Start of Capabilities List - Power Management
+#define PCI_CAP_PTR                                             0x44
+
+==============================================================================
+PCI Reserved Location
+#define PCI_RSVD_0x38_ADDR                                      0x38
+
+==============================================================================
+PCI Misc Interrupt/Latency Register
+#define PCI_INT_LAT_0x3C_ADDR                                   0x3C
+
+// Choose 1 of the following 5 define choices. We will probably need to 
+//    discuss how each device will handle this. We might be able to hook
+//    all devices w/ an interrupt to INTA# but I am not sure how this will
+//    affect software.
+Interrupt Select
+//#define XXX_PCI_INT_PIN                                    0x00 /* None */
+#define ACI_PCI_INT_PIN                                      0x01 /* INTA */
+//#define XXX_PCI_INT_PIN                                    0x02 /* INTB */
+//#define XXX_PCI_INT_PIN                                    0x03 /* INTC */
+//#define XXX_PCI_INT_PIN                                    0x04 /* INTD */
+
+//  We can probably leave these as is but again I am not sure what
+//     software is going to do w/ these values. These values will have
+//     no affect on the internal FPCI operation.
+Define the Minimum Grant = 240ns or 8 Dwords
+#define ACI_PCI_MIN_GNT                                             0x02
+Define the Maximum Latency = 3.0us (3.0u/0.25u = 12 -> 0x0C)
+#define ACI_PCI_MAX_LAT                                             0x05
+
+Determine if PCI Interrupt Line Size (optional): 
+Un-comment if TRUE
+#define ACI_INCLUDE_PCI_INT_LINE
+Determine the PCI Cache Line Size default (optional): 
+Un-comment if TRUE
+#define ACI_PCI_INT_LINE_DEFAULT                     8'b00000000 /*Normal */
+#define PCI_INT_LINE_INDEX                       7:0 /*[7:0]  */
+
+==============================================================================
+Determine if Legacy IO ranges will be decoded (optional): Un-comment if TRUE
+// #define LEGACY_IO_ADDRESS
+
+Determine which Legacy IO ranges will be decoded (only use if above is true):
+Un-comment to Enable
+// #define LEGACY_8237_0_BASE                                0x0000
+// #define LEGACY_8237_0_SIZE                                0x0010 /* 16B */
+// #define LEGACY_8259_0_BASE                                0x0020
+// #define LEGACY_8259_0_SIZE                                0x0002 /*  2B */
+// #define LEGACY_8254_BASE                                  0x0040
+// #define LEGACY_8254_SIZE                                  0x0004 /* 04B */
+// #define LEGACY_KBD_0_BASE                                 0x0060
+// #define LEGACY_KBD_0_SIZE                                 0x0001 /*  1B */
+// #define LEGACY_PORT61_BASE                                0x0061
+// #define LEGACY_PORT61_SIZE                                0x0001 /*  1B */
+// #define LEGACY_KBD_1_BASE                                 0x0064
+// #define LEGACY_KBD_1_SIZE                                 0x0001 /*  1B */
+// #define LEGACY_NMI_MASK_BASE                              0x0070
+// #define LEGACY_NMI_MASK_SIZE                              0x0001 /*  1B */
+// #define LEGACY_RTC_BASE                                   0x0070
+// #define LEGACY_RTC_SIZE                                   0x0004 /*  4B */
+// #define LEGACY_PORT_80_BASE                               0x0080
+// #define LEGACY_PORT_80_SIZE                               0x0001 /* 01B */
+// #define LEGACY_DMA_PAGE_REG_BASE                          0x0080
+// #define LEGACY_DMA_PAGE_REG_SIZE                          0x0010 /* 16B */
+// #define LEGACY_PORT92_BASE                                0x0092
+// #define LEGACY_PORT92_SIZE                                0x0001 /*  1B */
+// #define LEGACY_8259_1_BASE                                0x00A0
+// #define LEGACY_8259_1_SIZE                                0x0002 /*  2B */
+// #define LEGACY_8237_1_BASE                                0x00C0
+// #define LEGACY_8237_1_SIZE                                0x0010 /* 16B */
+// #define LEGACY_MATH_COPROC_BASE                           0x00F0
+// #define LEGACY_MATH_COPROC_SIZE                           0x0002 /*  2B */
+
+// #define LEGACY_ACPI_0_BASE                                0x0062
+// #define LEGACY_ACPI_0_SIZE                                0x0001 /*  1B */
+// #define LEGACY_ACPI_1_BASE                                0x0066
+// #define LEGACY_ACPI_1_SIZE                                0x0001 /*  1B */
+
+// #define LEGACY_HDD_PRIMARY_0_BASE                         0x01F0
+// #define LEGACY_HDD_PRIMART_0_SIZE                         0x0008 /*  8B */
+// #define LEGACY_HDD_PRIMARY_1_BASE                         0x03F6
+// #define LEGACY_HDD_PRIMART_1_SIZE                         0x0001 /*  1B */
+// #define LEGACY_HDD_SECONDARY_0_BASE                       0x0170
+// #define LEGACY_HDD_SECONDARY_0_SIZE                       0x0008 /*  8B */
+// #define LEGACY_HDD_SECONDARY_1_BASE                       0x0376
+// #define LEGACY_HDD_SECONDARY_1_SIZE                       0x0001 /*  1B */
+// #define LEGACY_FDD_PRIMARY_0_BASE                         0x03F0
+// #define LEGACY_FDD_PRIMART_0_SIZE                         0x0005 /*  6B */
+// #define LEGACY_FDD_PRIMARY_1_BASE                         0x03F7
+// #define LEGACY_FDD_PRIMART_1_SIZE                         0x0001 /*  1B */
+// #define LEGACY_FDD_SECONDARY_0_BASE                       0x0370
+// #define LEGACY_FDD_SECONDARY_0_SIZE                       0x0005 /*  6B */
+// #define LEGACY_FDD_SECONDARY_1_BASE                       0x0377
+// #define LEGACY_FDD_SECONDARY_1_SIZE                       0x0001 /*  1B */
+
+// #define LEGACY_GAME_PORT_BASE                             0x0200
+// #define LEGACY_GAME_PORT_SIZE                             0x0008 /*  8B */
+// #define LEGACY_MIDI_UART_0_BASE                           0x0300
+// #define LEGACY_MIDI_UART_0_SIZE                           0x0002 /*  2B */
+// #define LEGACY_MIDI_UART_1_BASE                           0x0310
+// #define LEGACY_MIDI_UART_1_SIZE                           0x0002 /*  2B */
+// #define LEGACY_MIDI_UART_2_BASE                           0x0320
+// #define LEGACY_MIDI_UART_2_SIZE                           0x0002 /*  2B */
+// #define LEGACY_MIDI_UART_3_BASE                           0x0330
+// #define LEGACY_MIDI_UART_3_SIZE                           0x0002 /*  2B */
+// #define LEGACY_ADLIB_BASE                                 0x0388
+// #define LEGACY_ADLIB_SIZE                                 0x0002 /*  2B */
+// #define LEGACY_SOUND_BLASTER_0_BASE                       0x0220
+// #define LEGACY_SOUND_BLASTER_0_SIZE                       0x0014 /* 20B */
+// #define LEGACY_SOUND_BLASTER_1_BASE                       0x0240
+// #define LEGACY_SOUND_BLASTER_1_SIZE                       0x0014 /* 20B */
+// #define LEGACY_SOUND_BLASTER_2_BASE                       0x0260
+// #define LEGACY_SOUND_BLASTER_2_SIZE                       0x0014 /* 20B */
+// #define LEGACY_SOUND_BLASTER_3_BASE                       0x0280
+// #define LEGACY_SOUND_BLASTER_3_SIZE                       0x0014 /* 20B */
+// #define LEGACY_MSS_0_BASE                                 0x0530
+// #define LEGACY_MSS_0_SIZE                                 0x0008 /*  8B */
+// #define LEGACY_MSS_1_BASE                                 0x0604
+// #define LEGACY_MSS_1_SIZE                                 0x0008 /*  8B */
+// #define LEGACY_MSS_2_BASE                                 0x0E80
+// #define LEGACY_MSS_2_SIZE                                 0x0008 /*  8B */
+// #define LEGACY_MSS_3_BASE                                 0x0F40
+// #define LEGACY_MSS_3_SIZE                                 0x0008 /*  8B */
+
+// #define LEGACY_PARALLEL_PORT_0_BASE                       0x0378
+// #define LEGACY_PARALLEL_PORT_0_SIZE                       0x0008 /*  8B */
+// #define LEGACY_PARALLEL_PORT_1_BASE                       0x0278
+// #define LEGACY_PARALLEL_PORT_1_SIZE                       0x0008 /*  8B */
+// #define LEGACY_PARALLEL_PORT_2_BASE                       0x03BC
+// #define LEGACY_PARALLEL_PORT_2_SIZE                       0x0004 /*  4B */
+// #define LEGACY_ECP_PORT_0_BASE                            0x0778
+// #define LEGACY_ECP_PORT_0_SIZE                            0x0008 /*  8B */
+// #define LEGACY_ECP_PORT_1_BASE                            0x0678
+// #define LEGACY_ECP_PORT_1_SIZE                            0x0008 /*  8B */
+// #define LEGACY_ECP_PORT_2_BASE                            0x07BC
+// #define LEGACY_ECP_PORT_2_SIZE                            0x0008 /*  8B */
+
+// #define LEGACY_MDA_0_BASE                                 0x03B0
+// #define LEGACY_MDA_0_SIZE                                 0x000C /* 12B */
+// #define LEGACY_CGA_0_BASE                                 0x03D0
+// #define LEGACY_CGA_0_SIZE                                 0x0010 /* 16B */
+// #define LEGACY_EGA_0_BASE                                 0x03C0
+// #define LEGACY_EGA_0_SIZE                                 0x0010 /* 16B */
+// #define LEGACY_EGA_1_BASE                                 0x02B0
+// #define LEGACY_EGA_1_SIZE                                 0x0010 /* 16B */
+// #define LEGACY_EGA_2_BASE                                 0x02C0
+// #define LEGACY_EGA_2_SIZE                                 0x0010 /* 16B */
+// #define LEGACY_EGA_3_BASE                                 0x02D0
+// #define LEGACY_EGA_3_SIZE                                 0x0010 /* 16B */
+
+// #define LEGACY_SERIAL_PORT_0_BASE                         0x03F8
+// #define LEGACY_SERIAL_PORT_0_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_1_BASE                         0x02F8
+// #define LEGACY_SERIAL_PORT_1_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_2_BASE                         0x03E8
+// #define LEGACY_SERIAL_PORT_2_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_3_BASE                         0x02E8
+// #define LEGACY_SERIAL_PORT_3_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_4_BASE                         0x0220
+// #define LEGACY_SERIAL_PORT_4_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_5_BASE                         0x0228
+// #define LEGACY_SERIAL_PORT_5_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_6_BASE                         0x0238
+// #define LEGACY_SERIAL_PORT_6_SIZE                         0x0008 /*  8B */
+// #define LEGACY_SERIAL_PORT_7_BASE                         0x0338
+// #define LEGACY_SERIAL_PORT_7_SIZE                         0x0008 /*  8B */
+
+// #define LEGACY_SIO_0_BASE                                 0x002E
+// #define LEGACY_SIO_0_SIZE                                 0x0002 /* 02B */
+// #define LEGACY_SIO_1_BASE                                 0x004E
+// #define LEGACY_SIO_1_SIZE                                 0x0002 /* 02B */
+
+// #define LEGACY_IRQ_LEVEL_BASE                             0x04D0
+// #define LEGACY_IRQ_LEVEL_SIZE                             0x0002 /* 02B */
+// #define LEGACY_SMI_STATUS_BASE                            0x0CF9
+// #define LEGACY_SMI_STATUS_SIZE                            0x0001 /* 01B */
+
+==============================================================================
+PCI Power State Definitions
+#define PCI_POWER_STATE_D0 	2'b00
+#define PCI_POWER_STATE_D1 	2'b01
+#define PCI_POWER_STATE_D2 	2'b10
+#define PCI_POWER_STATE_D3 	2'b11
+
+
+==============================================================================
+
+APPENDIX D  -  KEY
+
+	Read
+	  ' ' = Other Information
+	  '-' = Field is part of a write-only register
+	  'C' = Value read is always the same, constant value line follows (C)
+	  'R' = Value is read
+
+	Write
+	  ' ' = Other Information
+	  '-' = Must not be written (D), value ignored when written (R,A,F)
+	  'W' = Can be written
+
+	Internal State
+	  ' ' = Other Information
+	  '-' = No internal state
+	  'X' = Internal state, initial value is unknown
+	  'I' = Internal state, initial value is known and follows (I)
+
+	Declaration/Size
+	  ' ' = Other Information
+	  '-' = Does Not Apply
+	  'V' = Type is void
+	  'U' = Type is unsigned integer
+	  'S' = Type is signed integer
+	  'F' = Type is IEEE floating point
+	  '1' = Byte size (008)
+	  '2' = Short size (016)
+	  '3' = Three byte size (024)
+	  '4' = Word size (032)
+	  '8' = Double size (064)
+
+	Define Indicator
+	  ' ' = Other Information
+	  'D' = Device
+	  'M' = Memory
+	  'R' = Register
+	  'A' = Array of Registers
+	  'F' = Field
+	  'V' = Value
+

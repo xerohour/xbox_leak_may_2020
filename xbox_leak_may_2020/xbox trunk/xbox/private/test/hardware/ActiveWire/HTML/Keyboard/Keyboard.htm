@@ -1,0 +1,168 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>ActiveWire USB Control Page</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1 align="center">ActiveWire USB Beeper HTML</h1>
+
+<br>
+<br>
+
+<p align="center"><script language="JavaScript"><!--
+
+var	opened = 0;
+
+function Open (devnum)
+{
+	if (opened)
+		skill.Close();
+
+	debug.value = "open #" + devnum + " ";
+	debug.value += skill.Open (devnum);
+	opened = 1;
+}	
+
+function Close ()
+{
+	debug.value = "close "
+	debug.value += skill.Close();
+	opened = 0;
+}	
+
+function Pin (ionum)
+{
+	if (opened)
+	{
+		debug.value = "using I/O #" + ionum + " ";
+		debug.value += skill.EnablePort ((1<<ionum));
+	}
+	else
+		debug.value = "not opened yet";
+}	
+
+function Beep (freq)
+{
+	var		data = "";
+	var		numdata;
+
+	if (opened)
+	{
+		debug.value = "making " + freq + " Heltz tone ";
+		
+		numdata = 30000 / freq / 2;
+		for (i=0; i<numdata; i++)
+			data += "ff ff ";
+		for (i=0; i<numdata; i++)
+			data += "00 00 ";
+
+		debug.value += skill.OutPortBlock (data, 8192);
+	}
+	else
+		debug.value = "not opened yet";
+
+}
+
+function About ()
+{
+	debug.value = "about...";
+	skill.AboutBox();
+	debug.value += "done";
+}
+
+// --></script></p>
+
+<p align="center">
+	Please select Device# and I/O pin#. <br>
+	Device# <input type="text" size="5" name="DevNum" onchange="Open(this.value)"> <br>
+	I/O# <input type="text" size="5" name="PinNum" onchange="Pin(this.value)"> <br>
+	<input type="button" name="Open" value="Open" onclick="Open(DevNum.value)">
+	<input type="button" name="Close" value="Close" onclick="Close()">
+</p>
+
+<br>
+
+<p align="center">
+	Connect the I/O pin you selected to your Sound card's Line In.<br>
+	<img src="Fig.jpg" width="500" height="250"><br>
+</p>
+
+
+<br>
+<br>
+
+<p align="center">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(466)">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(523)" >
+	<img src="NoBlackKey.jpg" width="70" height="130">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(622)">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(698)">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(784)">
+	<img src="NoBlackKey.jpg" width="70" height="130">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(932)">
+	<img src="BlackKey.jpg" width="70" height="130" onclick="Beep(1046)">
+	<br>
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(440)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(494)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(554)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(587)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(659)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(740)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(830)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(880)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(988)">
+	<img src="WhiteKey.jpg" width="70" height="80" onclick="Beep(1108)">
+</p>
+
+<br>
+
+<p align="center">
+	debug message : <input type="text" size="40" name="debug" value="debug"> 
+</p>
+
+<br>
+
+<p align="center">
+	If you see ActiveWire bitmap below, ActiveX control is loaded successfully.
+</p>
+
+<p align="center">
+	<object id="skill" name="skill"
+			classid="clsid:95438945-F98A-11D2-AC25-00104B306BEE"
+			align="baseline" border="0" width="64" height="64">
+	</object>
+	<input type="button" name="About" value="About..." onclick="About()">
+</p>
+
+<p align="left">If you see broken picture above, either ;</p>
+
+<ol>
+    <li><p align="left">
+			Microsoft Internet Explorer 4.0 or above is required. 
+			Download the latest from Microsoft web site.</p>
+    </li>
+    <li><p align="left">
+			Security setting of your Internet Explorer is preventing from loading ActiveX control.
+			Choose View-&gt;Internet Option-&gt;Security,
+			then set Local intra net zone security setting to Low.</p>
+    </li>
+    <li><p align="left">
+			ActiveX control is not installed in your system properly. 
+			Download AwusbIO.OCX, and follow instruction.</p>
+    </li>
+    <li><p align="left">
+			ActiveWire USB Windows Driver is not installed properly. 
+			Download RegClear.exe and try reinstall driver.</p>
+    </li>
+</ol>
+
+<br>
+
+</body>
+</html>
+

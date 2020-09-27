@@ -1,0 +1,29 @@
+TARGETNAME=xpong
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+C_DEFINES=$(C_DEFINES) -D_XpongOnly_
+
+BROWSER_INFO=1
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+INCLUDES=$(SDKDIR); $(BASEDIR)\private\test\inc; $(BASEDIR)\private\test\inc\cpx;
+
+SOURCES=\
+    xpongmain.cpp
+
+
+TARGETLIBS=\
+    $(BASEDIR)\private\test\lib\*\cpxlib.lib    \
+    $(LIBC_LIB)                                 \
+    $(SDK_LIB_PATH)\uuid.lib                    \
+    $(SDK_LIB_PATH)\dsound$(D).lib              \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib           \
+    $(SDK_LIB_PATH)\waveldr$(D).lib             \
+    $(LIBRARY_PATH)\d3d8$(D).lib                \
+    $(BASEDIR)\private\test\lib\*\tsc.lib
+

@@ -1,0 +1,25 @@
+Reboot (reboot.xbe)
+Written by Josh Poley
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+This test is used to verify media detection by rebooting
+the xbox multiple times and checking the contents of
+the dvd drive.
+
+These are the settings and the type of reboot that 
+happens:
+
+    RebootType=0 - Soft Reboot
+        HalReturnToFirmware(HalRebootRoutine)
+
+    RebootType=1 - Hard Reboot
+        HalWriteSMBusByte(POWERCYCLE)
+        Note that you need a recent version of the
+        SMC for this command to be recognized.
+
+    RebootType=2 - Quick Reboot
+        XLaunchNewImage()
+
+    RebootType=3 - SMC Reset
+        HalWriteSMBusByte(RESET)

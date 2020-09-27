@@ -1,0 +1,90 @@
+//-----------------------------------------------------------------------------
+// Microsoft Visual Studio Deployment Code
+//
+// Microsoft Confidential
+// Copyright 1995-2000 Microsoft Corporation. All Rights Reserved.
+//
+// DPkg.idl - deployment debugging interfaces.
+//-----------------------------------------------------------------------------
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "oleidl.idl";
+import "vsshell.idl";
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+// If you want to check to see if the deployment package is loaded before calling these functions, 
+// or want to look for it in the registry, here's the GUID for that package.  The deployment team
+// will keep this GUID up-to-date in the event that it should change (i.e., if we re-guid in subsequent versions).
+
+cpp_quote("#define VS_GUID_DEPLOYMENT_PACKAGE L\"{54565901-D257-11d2-B0A1-00A0C9CFCEE6}\"")
+
+// This service lives in dpdpl(d).dll.  The old service, SID_SVsSolutionDebuggingAssistant,
+// in vsshell.idl is obsolete.
+// Believe this ships in all SKUs, but if the service can't be found, for whatever reason, then
+// the debugger and projects should assume that everything is local, and that nothing was deployed.
+cpp_quote("#define SID_SVsSolutionDebuggingAssistant2 IID_IVsSolutionDebuggingAssistant2")
+[
+uuid(dc9030f5-1137-493a-a972-f294993856d0),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsSolutionDebuggingAssistant2 : IUnknown
+{
+	// Projects start out their debugging sessions by calling MapOutputToDeployedURLs().
+	// The project sends through its configuration and the relevant IVsOutput.  Deployment
+	// check to see if it deployed the output.  If not, S_FALSE is returned.  
+	// If it was deployed, however, S_OK is returned, and lists of locations and machines
+	// are returned in the arrays.  (This is necessary since we might have deployed
+	// it to more than one place.)  Locations will be in the format "file:///D:\foo\bar\bang.exe"
+	// or, if relevant, "http://foo/bar/bang.html". Machines will be in the format "machine".
+	HRESULT MapOutputToDeployedURLs(
+		[in] DWORD dwReserved, // Reserved; must be 0 (may need flags later)
+		[in] IVsProjectCfg *pProjectCfg,
+		[in] LPCOLESTR pszOutputCanonicalName,
+		[in] ULONG celt,
+		[in,out,size_is(celt)] BSTR rgbstrMachines[],
+		[in,out,size_is(celt)] BSTR rgbstrURLs[],
+		[out] ULONG *pcActual);
+
+	// When the debugger traverses into a new area of code, it uses this method
+	// to determine the hierarchy and itemid of the thing it just traversed into.
+	// (1) If we didn't deploy it, we return S_FALSE, set *pphier to NULL,
+	//		and *pitemid to VSITEMID_NIL.  It's then up to the debugger to
+	//		call IsDocumentInProject or whatever to try to locate it.
+	// (2) If we deployed it but it doesn't have an itemid in its project, we'll
+	//		return S_OK, set *pphier to the hierarchy, and *pitemid to VSITEMID_NIL.
+	// (3) If we deployed it and it has an itemid, we return S_OK, *pphier to the
+	//		hierarchy, and *pitemid to the itemid.
+	HRESULT MapDeployedURLToProjectItem(
+		[in] DWORD dwReserved, // Reserved; must be 0 (may need flags later)
+		[in] LPCOLESTR pszDUrl,
+		[out] IVsHierarchy **pphier,
+		[out] VSITEMID *pitemid);
+}
+
+
+// Deployment projects which provide debugging information must support this interface.
+[
+uuid(c8c003cd-8553-43b5-a288-a114069e839e),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsProvideDebuggingInfo : IUnknown
+{
+	// When this is called, the deployment project returns a list of all of the outputs
+	// it has deployed, along with the corresponding owning hierarchies and configurations.
+	// Additionally, the deployment project must create a unique identifier for each instance
+	// an an IVsOutput, in case it was deployed more than once.  This "key" is subsequentally
+	// used to refer to the output.
+	HRESULT GetDeployedOutputs([in]ULONG celt,
+			[in,out,size_is(celt)]IVsHierarchy *pIVsHierarchy[],
+			[in,out,size_is(celt)]IVsProjectCfg *pIVsProjectCfg[], 
+			[in,out,size_is(celt)]IVsOutput *pIVsOutput[], 
+			[in,out,size_is(celt)]BSTR rgbstrMachines[],
+			[in,out,size_is(celt)]BSTR rgbstrURLs[],
+			[out]ULONG *pcActual);
+}

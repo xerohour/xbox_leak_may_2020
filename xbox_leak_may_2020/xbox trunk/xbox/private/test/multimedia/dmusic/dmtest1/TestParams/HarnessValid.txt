@@ -1,0 +1,68 @@
+[TestList]
+dmtest1                           ;DMusic tests
+
+[DMTest1]
+
+ThreadStackSize=0x10000
+
+Wait  =1
+BVT   =0
+Valid =1
+Invalid = 0
+Fatal =0
+Perf  =0
+WaitAtTestEnd   =1
+InitPerformance = Once
+LocalLogLevel        =2
+SkipUserInput = 1
+MaxTestOmit=320
+
+;This test blows up (need to file bug!!!)
+TestOmit0021 = Loader_CollectGarbage_Valid
+
+;User-defined Audiopaths not in yet.
+TestOmit0006=Script_AudioPath_SetGetVolume
+TestOmit0007=Script_AudioPath_SetVolumeListeningTest
+TestOmit0008=Script_AudioPathConfig_Create
+TestOmit0009=Script_AudioPathConfig_Load
+TestOmit0015 = Script_AutoLoadUnchecked_AudioPathNoLoad
+TestOmit0016 = Script_AutoLoadUnchecked_AudioPathLoad
+
+;Don't need these.
+TestOmit0075 = Script_TransSimple_PlayIntro(Startup)
+TestOmit0076 = Script_TransSimple_PlayIntro(SameSeg)
+TestOmit0077 = Script_TransSimple_PlayIntro(DiffSeg)
+TestOmit0078 = Script_TransSimple_PlayFill (Startup)
+TestOmit0079 = Script_TransSimple_PlayFill (SameSeg)
+TestOmit0080 = Script_TransSimple_PlayFill (DiffSeg)
+TestOmit0081 = Script_TransSimple_PlayBreak(Startup)
+TestOmit0082 = Script_TransSimple_PlayBreak(SameSeg)
+TestOmit0083 = Script_TransSimple_PlayBreak(DiffSeg)
+TestOmit0084 = Script_TransSimple_PlayEnd  (Startup)
+TestOmit0085 = Script_TransSimple_PlayEnd  (SameSeg)
+TestOmit0086 = Script_TransSimple_PlayEnd  (DiffSeg)
+TestOmit0087 = Script_TransSimple_PlayEndAndIntro  (Startup)
+TestOmit0088 = Script_TransSimple_PlayEndAndIntro  (SameSeg)
+TestOmit0089 = Script_TransSimple_PlayEndAndIntro  (DiffSeg)
+TestOmit0090 = Script_TransSimple_AtMeasure_Startup
+TestOmit0091 = Script_TransSimple_AtMeasure_SameSeg
+TestOmit0092 = Script_TransSimple_AtMeasure_DiffSeg
+TestOmit0093 = Script_TransSimple_AtMeasure_Startup_PlayIntro
+TestOmit0094 = Script_TransSimple_AtMeasure_SameSeg_PlayIntro
+TestOmit0095 = Script_TransSimple_AtMeasure_DiffSeg_PlayIntro
+TestOmit0096 = Script_TransSimple_AtMeasure_DiffSeg_PlayBreak
+TestOmit0097 = Script_TransSimple_AtMeasure_DiffSeg_PlayFill
+TestOmit0098 = Script_TransSimple_AtMeasure_DiffSeg_PlayEndAndIntro
+TestOmit0099 = Script_TransSimple_AtMeasure_SameSeg_PlayEndAndIntro
+TestOmit0100 = Script_TransSimple_AtMeasure_DiffSeg_PlayEnd
+TestOmit0101 = Script_TransSimple_AtMeasure_End_PlayEnd
+
+;Crashes, by design though.
+TestOmit0150 = Segment8_SetLength_Test1_Valid
+
+;Bug 5330 DMusic: Leak:  Pool of allocated PMsgs can never decrease its size.
+TestOmit0200 = Performance8_AllocPMsg_Valid
+
+;Bug 5984
+TestOmit0210 = Performance8_AddNotificationType_Valid
+

@@ -1,0 +1,31 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+USE_MSVCRT=1
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETNAME=GenOnlineKey
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+INCLUDES=\
+        $(BASEDIR)\private\inc\crypto; \
+        $(BASEDIR)\private\ntos\inc; \
+        $(BASEDIR)\public\wsdk\inc; \
+        $(BASEDIR)\public\sdk\inc
+         
+SOURCES= \
+        Base64.cpp \
+        GenOnlineKey.cpp \
+        GenOnlineKey.rc
+
+LINKLIBS=$(LIBRARY_PATH)\user32.lib   \
+         $(LIBRARY_PATH)\crypt32.lib \
+         $(BASEDIR)\private\lib\*\rsa32.lib
+
+UMTYPE=console
+

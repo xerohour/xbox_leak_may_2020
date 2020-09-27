@@ -1,0 +1,29 @@
+TARGETNAME=xbperf
+
+SOURCES= \
+    xbperf.rc \
+    xbperf.cpp \
+    ptrmap.cpp \
+    capdata.cpp \
+    symbol.cpp
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_SOURCEFILE=stdafx.cpp
+PRECOMPILED_CXX=1
+
+!include ..\sources.inc
+
+INCLUDES= \
+    $(BASEDIR)\private\ntos\inc; \
+    $(WSDK_INC_PATH); \
+    $(INCLUDES)
+
+TARGETLIBS= \
+    $(WSDK_LIB_PATH)\dbghelp.lib
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+!if !$(FREEBUILD)
+MSC_OPTIMIZATION=/Odi
+!endif
+

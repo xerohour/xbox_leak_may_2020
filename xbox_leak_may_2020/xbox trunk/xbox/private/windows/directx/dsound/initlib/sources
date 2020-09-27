@@ -1,0 +1,55 @@
+TARGETTYPE=LIBRARY
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+C_DEFINES=$(C_DEFINES) -DDPF_LIBRARY=\"TESTSND\" -DDSNDVER
+
+!ifdef DPFLVL_DEFAULT
+C_DEFINES=$(C_DEFINES) -DDPFLVL_DEFAULT="$(DPFLVL_DEFAULT)"
+!endif
+
+!ifdef DPFLVL_DEFAULT_BREAK
+C_DEFINES=$(C_DEFINES) -DDPFLVL_DEFAULT_BREAK="$(DPFLVL_DEFAULT_BREAK)"
+!endif
+
+NTDBGFILES=1
+USE_MAPSYM=1
+
+USER_C_FLAGS=$(USER_C_FLAGS) /FAcs
+
+!if $(FREEBUILD)
+C_DEFINES=$(C_DEFINES) -DASSUME_VALID_PARAMETERS
+!else
+C_DEFINES=$(C_DEFINES) -DDEBUG
+MSC_OPTIMIZATION=$(MSC_OPTIMIZATION) /Od
+!endif
+
+INCLUDES=\
+    $(SDK_INC_PATH);\
+    $(DDK_INC_PATH);\
+    $(PRIVATE_INC_PATH);\
+    $(BASEDIR)\private\ntos\inc;\
+    ..\tools\inc
+
+TARGETNAME = testsnd$(D)
+
+NTTARGETFILES = \
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib
+
+SOURCES =\
+    ac97.cpp\
+    ac97xmo.cpp\
+    cipher.cpp\
+    debug.c\
+    drvhlp.cpp\
+    dsapi.cpp\
+    dspdma.cpp\
+    epdsp.cpp\
+    format.c\
+    globals.c\
+    gpdsp.cpp\
+    heap.cpp\
+    mcpapu.cpp\
+    mcpxcore.cpp\
+    memmgr.cpp
+
+PRECOMPILED_INCLUDE = dsoundi.h

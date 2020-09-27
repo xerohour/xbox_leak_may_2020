@@ -1,0 +1,52 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+TARGETNAME=mtldr
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS=/TESTID:0xdb731d28 /INITFLAGS:3 /TESTNAME:"Xbox Mfg Test Loader"
+
+SOURCES=mtldr.cpp \
+        xtl.cpp \
+        startup.cpp \
+        debug.cpp
+
+XNOLIBS=1
+USE_NOLIBS=1
+
+TARGETLIBS=$(SDK_LIB_PATH)\xboxkrnl.lib \
+           ..\lib\*\mtldrlib$(D).lib \
+           $(SDK_LIB_PATH)\libcntpr.lib \
+           $(SDK_LIB_PATH)\xnet$(D).lib
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(BASEDIR)\private\inc\crypto; \
+         ..\inc
+
+MSC_WARNING_LEVEL=/W4 /WX
+PRECOMPILED_INCLUDE=mtldrp.h
+#PRECOMPILED_CXX=1
+
+!IF "$(FREEBUILD)" == "0"
+C_DEFINES=$(C_DEFINES) -D_DEBUG
+MSC_OPTIMIZATION=/Od
+!ENDIF

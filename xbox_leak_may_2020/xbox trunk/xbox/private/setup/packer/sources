@@ -1,0 +1,54 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=setup
+MINORCOMP=xpacker
+
+TARGETNAME=xpacker
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+NOT_UNICODE=1
+USE_LIBC=1
+USE_NATIVE_EH=1
+
+!if "$(NTDEBUG)" != ""
+MSC_OPTIMIZATION=/Odi
+!endif
+
+INCUDES=..\common
+
+SOURCES= \
+        packer.cpp   \
+        dirs.cpp     \
+        manifest.cpp \
+        plist.cpp    \
+        resource.cpp \
+        cabfile.cpp  \
+        filehash.cpp \
+        packer.rc
+
+
+TARGETLIBS= \
+        ..\common\$(O)\common.lib \
+        $(LIBRARY_PATH)\fci.lib
+        
+              
+PRECOMPILED_INCLUDE=packer.h
+PRECOMPILED_PCH=packerpch.pch
+PRECOMPILED_OBJ=packerpch.obj
+PRECOMPILED_CXX=1

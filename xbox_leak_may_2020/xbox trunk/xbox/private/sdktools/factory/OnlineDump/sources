@@ -1,0 +1,32 @@
+TARGETNAME=OnlineDump
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+# We don't want any directories created or drives mapped for us.
+#XNOHARDDISK=1
+#XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFFF0022 /TESTNAME:"Online Dump" /NOSETUPHD
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFFF0022 /TESTNAME:"Online Dump"
+
+INCLUDES = \
+    $(BASEDIR)\private\inc; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\inc\crypto; \
+    $(BASEDIR)\public\sdk\inc;\
+    $(BASEDIR)\public\wsdk\inc;\
+    ..\include;
+
+LINKLIBS=\
+     $(SDK_LIB_PATH)\xgraphics$(D).lib \
+     $(LIBRARY_PATH)\d3d8$(D).lib \
+     $(LIBRARY_PATH)\d3dx8$(D).lib \
+
+SOURCES=\
+    OnlineDump.cpp \
+    Xboxvideo.cpp \
+    CXCrypto.cpp
+

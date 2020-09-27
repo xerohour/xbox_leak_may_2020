@@ -1,0 +1,665 @@
+//////////////////////////////////////////////////////////////////////////////
+//                                                                          //
+//  IIIIIII SSSSSS                                                          //
+//    II    SS                         InstallShield (R)                    //
+//    II    SSSSSS      (c) 1996-1997, InstallShield Software Corporation   //
+//    II        SS      (c) 1990-1996, InstallShield Corporation            //
+//  IIIIIII SSSSSS                     All Rights Reserved.                 //
+//                                                                          //
+//  This code was taken from the IS starting template.  It has been         //
+//  modified significantly to work for the DirectX SDK Install.             //
+//                                                                          //
+//    File Name:  Setup.rul                                                 //
+//                                                                          //
+//  Description:  DirectX SDK InstallShield script                          //
+//                                                                          //
+//     Comments:  This template script performs a basic setup on a          //
+//                Windows 2000 platform.                                    //
+//                                                                          //
+//                                                                          //
+//////////////////////////////////////////////////////////////////////////////
+
+#include "ifx.h" //DO NOT REMOVE
+#include "xboxverp.h"
+#include "ComponentEvents.rul"
+#include "SDADPATH.RUL"
+
+prototype Shell32.ShellExecuteA( HWND,BYVAL STRING, BYREF STRING, BYREF STRING, BYREF STRING, INT);
+prototype ShellExecute(STRING);
+
+BOOL    bRestartNeeded;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnBegin
+//
+//  EVENT:      Begin event is always sent as the first event during installation.
+//
+//////////////////////////////////////////////////////////////////////////////
+function OnBegin()
+	NUMBER nResult, nvType, nvSize;
+	STRING szVCPath, szAdmin;
+
+begin
+//BUGBUG (checking error messages)
+//EnterDisk(@ERROR_DISK1, "");
+//BUGBUG
+    if (MODE=SILENTMODE) then
+       TARGETDIR = PROGRAMFILES ^ @PRODUCT_NAME;
+    endif; 
+    
+    //Check if user is the administrator or not.
+    if( Is( USER_ADMINISTRATOR, szAdmin) != 1) then 
+    	MessageBox(@ERROR_ADMINISTRATOR, SEVERE);
+        abort;
+    endif;
+    
+     //Check if VC in use 
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    nResult = RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\Setup","VsCommonDir",nvType,szVCPath,nvSize);
+    if (nResult = 0) then
+        if (Is (FILE_LOCKED, szVCPath ^ "\\MSDev98\\Bin\\msdev.exe") = 1) then
+            MessageBox(@ERROR_VCINUSE, SEVERE);
+            abort;
+        endif;
+    endif;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnAppSearch
+//
+//  EVENT:      AppSearch event is used as an entry point to implement code to
+//              search for previous versions of the current application. This
+//              event is sent only for a first time installation.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnAppSearch()
+
+begin
+      VCComponents_CheckRequirements();
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFirstUIBefore
+//
+//  EVENT:      FirstUIBefore event is sent when installation is run for the first
+//              time on given machine. In the handler installation usually displays
+//              UI allowing end user to specify installation parameters. After this
+//              function returns, ComponentTransferData is called to perform file
+//              transfer.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFirstUIBefore()
+    NUMBER  nResult,nSetupType,nFreeSpace, nReqSpace, nLength, nFileResult;
+    STRING  szTitle, szMsg, szReadMeFile,szQuestion;
+    STRING  szDir, szTempDir;
+    STRING  szfolder;
+    LIST    listStartCopy, list;
+    
+begin
+
+    SetTitle( @TITLE_MAIN, 24, WHITE );
+    SetTitle( @TITLE_CAPTIONBAR, 0, BACKGROUNDCAPTION );
+
+    Enable( CORECOMPONENTHANDLING );
+
+    TARGETDIR = PROGRAMFILES ^ @PRODUCT_NAME;
+    SHELL_OBJECT_FOLDER = @FOLDER_NAME;
+    szDir = TARGETDIR;
+
+    SdProductName( @PRODUCT_NAME );
+
+    Enable( DIALOGCACHE );
+
+    // Initialize global flags
+    bRestartNeeded = FALSE;
+   
+    //svDefGroup = @FOLDER_NAME;
+
+    Enable( INDVFILESTATUS );
+    SetDialogTitle(DLG_STATUS, @SETUP_DIALOG_TITLE );
+
+Dlg_Start:
+    // beginning of dialogs label
+
+Dlg_SdWelcome:
+    szTitle = @MSG_WECOME_TITLE;
+    szMsg   = @MSG_WELCOME;
+    nResult = SdWelcome( szTitle, szMsg );
+    if (nResult = BACK) goto Dlg_Start;
+
+Dlg_SdLicense:
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        szReadMeFile = SRCDIR ^ "ReadMe1st.Txt";
+    else
+        szReadMeFile = SRCDIR ^ "ReadMe1stJpn.Txt";
+    endif;
+    szTitle    = @README_TITLE;
+    szMsg      = @README_MESSAGE;
+    szQuestion = @README_QUESTION;
+    nResult    = SdLicense( szTitle, szMsg, szQuestion, szReadMeFile );
+    if (nResult = BACK) goto Dlg_SdWelcome;
+
+Dlg_SdRegisterUserEx:
+//    szMsg   = "";
+//    szTitle = "";
+//    nResult = SdRegisterUserEx( szTitle, szMsg, svName, svCompany, svSerial );
+    if (nResult = BACK) goto Dlg_SdLicense;
+
+Dlg_SdAskDestPath:
+    szTitle = "";
+    szMsg   = "";
+    nResult = SdAskDestPath( szTitle, szMsg, szDir, 0 );
+    if (ExistsDir(szDir) == 0) then
+        szTempDir = szDir;
+       	if (Is(DIR_WRITEABLE,szDir)!= TRUE || CreateTempFile( szTempDir, nFileResult) = 0 ) then
+            MessageBox (szDir + "\n " + @ERROR_PATH, SEVERE);
+            goto Dlg_SdAskDestPath;
+        endif;
+    endif;
+
+    if (nResult = BACK) goto Dlg_SdLicense;
+    //Check req space.
+    nReqSpace  = ComponentTotalSize( MEDIA, "", TRUE, TRUE );
+    nFreeSpace = GetDiskSpaceEx(szDir, BYTES);
+    if ( nReqSpace > nFreeSpace ) then
+        MessageBox (@ERROR_TARGETSIZE, WARNING);
+        goto Dlg_SdAskDestPath;
+    endif;
+    TARGETDIR = szDir;
+
+Dlg_ObjDialogs:
+    nResult = ShowObjWizardPages(nResult);
+    if (nResult = BACK) then
+        DeleteDir(szDir, ONLYDIR);
+        TARGETDIR = szDir;
+        goto Dlg_SdAskDestPath;
+    endif;
+Dlg_SdSelectFolder:
+    szfolder = SHELL_OBJECT_FOLDER;
+    szTitle    = "";
+    szMsg      = "";
+    nResult    = SdSelectFolder( szTitle, szMsg, szfolder );
+    SHELL_OBJECT_FOLDER = szfolder;
+    if (nResult = BACK) goto Dlg_ObjDialogs;
+
+Dlg_SdStartCopy:
+    szTitle = "";
+    szMsg   = "";
+
+    ComponentSelectItem( MEDIA, "DX CD Image", FALSE);
+    listStartCopy = ListCreate( STRINGLIST );
+    ListAddString(listStartCopy, @MSG_LIST, AFTER);
+    ListAddString(listStartCopy, "       "+ szDir, AFTER);
+
+    //Set Target Variable for Readme and releasenote.
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        ComponentSetTarget (MEDIA, "<TargetReadMe>", TARGETDIR ^ "ReadMe1st.Txt");
+        ComponentSetTarget (MEDIA, "<TargetRelNotes>", TARGETDIR ^ "RelNotes.Htm");
+        ComponentSetTarget (MEDIA, "<TargetXDKInstall>", TARGETDIR ^ "XDKUpdateInstall.Htm");
+    else
+        ComponentSetTarget (MEDIA, "<TargetReadMe>", TARGETDIR ^ "ReadMe1stJpn.Txt");
+        ComponentSetTarget (MEDIA, "<TargetRelNotes>", TARGETDIR ^ "RelNotesJpn.Htm");
+        ComponentSetTarget (MEDIA, "<TargetXDKInstall>", TARGETDIR ^ "XDKUpdateInstallJpn.Htm");
+    endif;
+
+    VCComponents_BackupVCDLLs();
+    nResult = SdStartCopy( szTitle, szMsg, listStartCopy );
+    ListDestroy(listStartCopy);
+    if (nResult = BACK) goto Dlg_SdSelectFolder;
+    TARGETDIR = szDir;
+    // setup default status
+    SetStatusWindow(0, "");
+    Enable(STATUSEX);
+    StatusUpdate(ON, 100);
+    VCComponents_Installing();
+    //return 0;
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFirstUIAfter
+//
+//  EVENT:      FirstUIAfter event is sent after file transfer, when installation
+//              is run for the first time on given machine. In this event handler
+//              installation usually displays UI that will inform end user that
+//              installation has been completed successfully.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFirstUIAfter()
+    STRING szTitle, szOption1, szOption2, szMsg1, szMsg2;
+    STRING szValueName, szKey, szString, szC2Path;
+    NUMBER bOpt1, bOpt2, nResult, nDefOptions, nvType, nvSize;
+begin
+
+    Disable(STATUSEX);
+    ShowObjWizardPages(NEXT);
+
+
+    //Create the Registry sets that were defined in the Resources pane.
+    if (CreateRegistrySet ("") < 0) then
+        MessageBox (@ERROR_REG,SEVERE);
+        abort;
+    endif;
+
+    //Create the Shell objects that were defined in the Resources pane.
+    if (CreateShellObjects ("") < 0) then
+        MessageBox (@ERROR_SHELL,SEVERE);
+        abort;
+    endif;
+
+    // Get the paths used for Win32 (x86)
+    RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+    szValueName = "Path Dirs";
+    szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+    if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+        // prepend the Xbox bin directory to the path
+        szString = TARGETDIR ^ "\\Xbox\\Bin;" + szString;
+    else // Win32 project type hadn't been built. Fabricate a path.
+        RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+        RegDBGetKeyValueEx("Software\\Microsoft\\DevStudio\\6.0\\Products\\Microsoft Visual C++","ProductDir",nvType,szC2Path,nvSize);
+        RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+        GetEnvVar("Path", szString);
+        szString = TARGETDIR ^ "\\Xbox\\Bin;" +
+                       szC2Path + "\\\.\.\\Common\\MSDev98\\Bin;" +
+                       szC2Path + "\\Bin;" +
+                       szC2Path + "\\\.\.\\Common\\Tools;" +
+                       szString;
+    endif;
+    szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Xbox\\Directories";
+    RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+
+    szKey = "Environment";
+    szValueName = "Path";
+    
+    //Disable(LOGGING);
+    RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize);
+    RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString + ";" + TARGETDIR ^ "Xbox\\Bin",-1);
+
+    //Enable(LOGGING);
+
+    // write to registry what build is installed on the machine
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    NumToStr(szString,VER_PRODUCTBUILD);
+    RegDBSetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Build", REGDB_NUMBER, szString, -1);
+
+    RegDBDeleteKey ("Software\\Microsoft\\Microsoft Xbox SDK"); 
+    
+    SendMessage(-1, 0x001A /* WM_WININICHANGE */, 0, &szKey);
+
+    // If we didn't install the runtime (either for the first time, or by
+    // overwriting an existing DX version), then we don't need to reboot.
+    if (bRestartNeeded) then
+        nDefOptions = SYS_BOOTMACHINE;
+        szTitle     = "";
+        szMsg1      = @WARNING_REBOOT;
+        szMsg2      = "";
+        nResult     = SdFinishReboot( szTitle, szMsg1, nDefOptions, szMsg2, 0 );
+        return nResult;
+    else
+        bOpt1 = FALSE;
+        bOpt2 = FALSE;
+        szMsg1 = @MSG_FINISH;
+        szMsg2 = "";
+        szOption1 = "";
+        szOption2 = "";
+        szTitle = @SETUP_DIALOG_TITLE;
+        nResult = SdFinish( szTitle, szMsg1, szMsg2, szOption1, szOption2,bOpt1, bOpt2 );
+    endif;
+
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        ShellExecute( TARGETDIR ^ "XDKUpdateInstall.Htm" );
+    else
+        ShellExecute( TARGETDIR ^ "XDKUpdateInstallJpn.Htm" );
+    endif;
+        return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMaintUIBefore
+//
+//  EVENT:      MaintUIBefore event is sent when end user runs installation that
+//              has already been installed on the machine. Usually this happens
+//              through Add/Remove Programs applet. In the handler installation
+//              usually displays UI allowing end user to modify existing installation
+//              or uninstall application. After this function returns,
+//              ComponentTransferData is called to perform file transfer.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMaintUIBefore()
+    NUMBER nResult, nvSize, nType;
+    STRING szTitle, szMsg, szDir, svResult, szCaption, szExistingVersion;
+
+begin
+    // TO DO: if you want to enable background, window title, and caption bar title
+    // SetTitle( @TITLE_MAIN, 24, WHITE );
+    // SetTitle( @TITLE_CAPTIONBAR, 0, BACKGROUNDCAPTION );
+    // SetColor(BACKGROUND,RGB (0, 128, 128));
+    // Enable( FULLWINDOWMODE );
+    // Enable( BACKGROUND );
+
+    // Check if SDK already installed.
+    if (CheckVersionNumber()!= TRUE) then
+        MessageBox(@ERROR_UNINSTALLFIRST,SEVERE);
+        abort;
+    endif;
+
+Dlg_Start:
+
+    szTitle = @MSG_WECOME_TITLE;
+    szMsg   = @MSG_UNINSTALL;
+    Disable(BACKBUTTON);
+    nType = SdWelcomeMaint(szTitle, szMsg, REMOVEALL);
+    Enable(BACKBUTTON);
+
+    if (nType = REMOVEALL) then
+        svResult = SdLoadString(IFX_MAINTUI_MSG);
+        szCaption = SdLoadString(IFX_ONMAINTUI_CAPTION);
+        nResult = SprintfBox(MB_OKCANCEL,szCaption,"%s",svResult);
+        if (nResult = IDCANCEL) goto Dlg_Start;
+    endif;
+
+    nResult = NEXT;
+
+Dlg_SdComponentTree:
+    if (nType = MODIFY) then
+        MessageBox (@ERROR_MODIFY, WARNING);
+        goto Dlg_Start;
+    endif;
+
+Dlg_ObjDialogs:
+    nResult = ShowObjWizardPages(nResult);
+    if ((nResult = BACK) && (nType != MODIFY)) goto Dlg_Start;
+
+    switch(nType)
+        case REMOVEALL:
+
+            if (Is(FILE_LOCKED,TARGETDIR ^"Doc\\XBoxSDK.Chm"))then
+                MessageBox(@MSG_FILE_LOCKED,SEVERE);
+                abort;
+            endif;
+            ComponentRemoveAll();
+
+
+        case REPAIR:
+            ComponentReinstall();
+            VCComponents_CheckRequirements();
+            VCComponents_Installing();
+    endswitch;
+
+    // setup default status
+    SetStatusWindow(0, "");
+    Enable(STATUSEX);
+    StatusUpdate(ON, 100);
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMaintUIAfter
+//
+//  EVENT:      MaintUIAfter event is sent after file transfer, when end user runs
+//              installation that has already been installed on the machine. Usually
+//              this happens through Add/Remove Programs applet.
+//              In the handler installation usually displays UI that will inform
+//              end user that maintenance/uninstallation has been completed successfully.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMaintUIAfter()
+    STRING szTitle, szMsg1, szMsg2, szOption1, szOption2, szVersion, szSubKey, szValue;
+    NUMBER bOpt1, bOpt2, nResult, listDirs, listID, nvType,nvSize ;
+begin
+    Disable(STATUSEX);
+
+    ShowObjWizardPages(NEXT);
+
+    bOpt1   = FALSE;
+    bOpt2   = FALSE;
+    szMsg1  = SdLoadString(IFX_SDFINISH_MAINT_MSG1);
+    szTitle = SdLoadString(IFX_SDFINISH_MAINT_TITLE);
+
+    //Check if removeall or repair for reset regPath in envionment
+    if (CheckVersionNumber() != TRUE ) then
+        VCComponents_ResetRegPathValues();
+        //VCComponents_RestoreVCDLLs();
+    endif;
+
+    SdFinish(szTitle, szMsg1, szMsg2, szOption1, szOption2, bOpt1, bOpt2);
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnCanceling
+//
+//  EVENT:      Canceling event is sent when installation is being canceled,
+//              usually as result of end user clicking Cancel button or pressing
+//              Esc key. Execution of Do(EXIT) will also trigger this event.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnCanceling()
+begin
+    if (IDYES = SprintfBox(MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2,
+                            SdLoadString(SD_STR_ONCANCELING_TITLE),
+                            SdLoadString(SD_STR_ONCANCELING_MSG))) then
+        abort;
+    endif;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//  FUNCTION:   OnFileError
+//
+//  EVENT:      File Error event is sent when an unknown error occurs as a
+//              result from a call to ComponentTransferData.
+//
+//  ARGUMENTS:  File - full path of the file
+//              Error - result of GetLastError
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - the file is now available in location pointed to by Path
+//              ERR_ABORT  - file transfer should be aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFileError(File, Error)
+STRING szErrMsg, szCaption, szDesc, svResult;
+NUMBER nRet;
+begin
+    // Error - result of GetLastError
+    // return ERR_IGNORE, ERR_RETRY or ERR_ABORT
+
+    szErrMsg = SdLoadString(IFX_ONFILE_ERROR);
+    szCaption = SdLoadString(IFX_ONFILE_CAPTION);
+    szDesc = FormatMessage(Error);
+
+    //SprintfBox (SEVERE, "Problem", "Don't go there");
+    DISPLAY_ERROR:
+
+    nRet = SprintfBox(MB_ABORTRETRYIGNORE, szCaption, szErrMsg, File,szDesc,Error);
+    if(nRet = IDABORT)then
+        Do(EXIT);
+        goto DISPLAY_ERROR:
+    endif;
+
+    return nRet;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//  FUNCTION:   OnMD5Error
+//
+//  EVENT:      MD5 event is sent when the file requested doesn't match the file
+//              in the InstallShield CAB file.
+//
+//  ARGUMENTS:  File - full path of the file
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - the file is now available in location pointed to by Path
+//              ERR_ABORT  - file transfer should be aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMD5Error(File)
+STRING szErrMsg, szCaption;
+NUMBER nRet;
+begin
+    return ERR_IGNORE;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnHelp
+//
+//  EVENT:      Help event is sent when end user presses F1 key. Execution
+//              of Do(HELP) will also trigger this event.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnHelp()
+begin
+    MessageBox (@MSG_ONHELP, INFORMATION);
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFileReadOnly
+//
+//  EVENT:      FileReadOnly event is sent during file transfer when a read-only
+//              file is needs to be overwritten or removed.
+//
+//  ARGUMENTS:  File - full path of file that is marked as read-only.
+//
+//  RETURN:     ERR_YES - the file should be overwritten or removed.
+//              ERR_NO  - the file should not be modified.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFileReadOnly(File)
+begin
+    return ERR_YES;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFileLocked
+//
+//  EVENT:      FileLocked event is sent during file transfer when a file that needs
+//              to be overwritten or removed is in use by other application.
+//              This event will not be sent for files that are in file group
+//              marked as potentially locked. In this case operation is automatically
+//              performed after reboot.
+//
+//  ARGUMENTS:  File - full path of file that is locked
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - engine should retry to perform operation on the file
+//              ERR_ABORT  - file transfer should be aborted
+//              ERR_PERFORM_AFTER_REBOOT - necessary operation should be performed
+//                                         after system is rebooted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFileLocked(File)
+begin
+    bRestartNeeded = TRUE;
+    return ERR_PERFORM_AFTER_REBOOT;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnRemovingSharedFile
+//
+//  EVENT:      RemovingSharedFile event is sent during file transfer when a
+//              shared file is being uninstalled and ref. count for the file
+//              reached zero.
+//
+//  ARGUMENTS:  File - full path of the shared file
+//
+//  RETURN:     ERR_YES - the file should be removed from system
+//              ERR_NO  - the file should not be removed from system
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnRemovingSharedFile(File)
+begin
+    if (File % "mfcapwz.dll") then
+        return ERR_NO;
+    else
+        return ERR_YES;
+    endif;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnNextDisk
+//
+//  EVENT:      NextDisk event is sent during file transfer when engine can not
+//              automatically locate a file. For example it will be sent for
+//              floppy disk installation when next floppy is needed.
+//
+//  ARGUMENTS:  File - name of file that is needed, for example data3.cab
+//              Disk - number of disk on which this file should be located
+//              Path - when the function is called this argument contains
+//                     path where engine expected to find the file, for example A:\
+//                     When the function returns this argument should contain the
+//                     path where the file is really located. It can be the same as
+//                     path originally passed to the function or different.
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - the file is now available in location pointed to by Path
+//              ERR_ABORT  - file transfer should be aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnNextDisk(File, Disk, Path)
+    STRING szMsg, szFormat;
+    NUMBER nResult;
+begin
+
+    VarSave(SRCTARGETDIR);
+    SRCDIR = Path;
+    nResult = EnterDisk(@ERROR_DISK1, "");
+
+    if (nResult = OK) then
+        Path = SRCDIR;
+        nResult = ERR_RETRY;
+    elseif(nResult < 0) then
+        nResult = ERR_ABORT;
+    endif;
+
+    VarRestore(SRCTARGETDIR);
+
+    return nResult;
+
+end;
+
+ 
+ 
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   ShellExecute is called when finish install to open file
+//              XDKUpdateInstall.Htm or XDKUpdateInstallJpn.Htm
+//  
+///////////////////////////////////////////////////////////////////////////////
+
+function ShellExecute(szFile)
+    HWND hInstallHwnd;
+    STRING szOperation, szPath, szParameter;
+    NUMBER nHwndFlag;
+begin
+
+   // Load shell32.DLL into memory.
+   UseDLL ("Shell32.Dll");
+   ShellExecuteA( hInstallHwnd, "OPEN", szFile, szParameter, szPath, SW_SHOWNORMAL);
+   
+   // The following removes Shell32.dll from memory.
+   UnUseDLL ("Shell32.Dll");
+  
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnAbort
+//
+//  EVENT:      Abort event is sent at the end of installation that was aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnAbort()
+begin
+end;

@@ -1,0 +1,39 @@
+#include <winver.h>
+
+#define _STRINGIZE( x ) #x
+#define STRINGIZE( x ) _STRINGIZE( x )
+
+#define VERSIONTEXT STRINGIZE( VERSION )
+
+
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     RC_VERSION
+PRODUCTVERSION  RC_VERSION
+//FILEVERSION      2,45,0,0
+//PRODUCTVERSION   2,45,0,0
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+FILEFLAGSMASK   0
+FILEFLAGS       0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"   /* LANG_ENGLISH/SUBLANG_ENGLISH_US, Unicode CP */
+        BEGIN
+            VALUE "CompanyName",      "Microsoft Corporation"
+            VALUE "ProductName",      "CDIMAGE"
+            VALUE "ProductVersion",   VERSIONTEXT
+            VALUE "FileDescription",  "Microsoft CD-ROM Premastering Utility"
+            VALUE "FileVersion",      VERSIONTEXT
+            VALUE "LegalCopyright",   "Copyright (C) Microsoft Corporation, 1993-1996"
+            VALUE "Comments",         "For Microsoft internal use only"
+            VALUE "OriginalFilename", STRINGIZE( TARGETNAMEWITHEXTENSION )
+            VALUE "InternalName",     STRINGIZE( TARGETNAME )
+        END
+    END
+END
+
+

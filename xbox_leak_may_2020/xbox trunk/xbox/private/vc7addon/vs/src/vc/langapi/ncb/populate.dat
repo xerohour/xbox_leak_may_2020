@@ -1,0 +1,319 @@
+// CRT/Win32 Headers
+
+// Added the version for so that stuff that uses this can be resolved correctly
+// while populating the prebuilts and the project NCBs
+_MSC_VER					1300
+
+
+// Uppercase macros used for parameters of functions usually #defined to nothing
+IN
+OUT
+OPTIONAL
+
+
+// Calling Conventions
+__RPC_API					__stdcall
+__RPC_CALLEE				__stdcall
+__RPC_STUB					__stdcall
+__RPC_USER					__stdcall
+cdecl						__cdecl
+CDECL						__cdecl
+pascal						__stdcall
+PASCAL						__stdcall
+RPC_ENTRY					__stdcall
+RPC_VAR_ENTRY				__cdecl
+STDMETHODCALLTYPE			__stdcall
+STDMETHODVCALLTYPE			__cdecl
+APIPRIVATE					__stdcall
+APIENTRY					__stdcall
+D3DRMAPI					__stdcall
+FASTCALL					__fastcall
+IMAGEAPI					__stdcall
+INSTAPI						__stdcall
+NET_API_FUNCTION			__stdcall
+NTAPI						__stdcall
+SQL_API						__stdcall
+STDAPICALLTYPE				__stdcall
+STDAPIVCALLTYPE				__cdecl
+STDMAPIINITCALLTYPE			__cdecl
+
+
+// Used in CRT
+_TEMPLATE					template<>
+_TEMPLATE_STAT				template<>
+_TEMPLATE_MEMBER			template
+
+
+// Std stuff
+_STD_BEGIN					namespace std {
+_STD_END					};
+_STD						std::
+_STD_USING
+
+
+// Any Macros that need to be defined at pop time for better results
+TRUE						1
+FALSE						0
+NULL						0
+
+
+// Macros for some keywords (upper case) and some macros defined to nothing
+EXTERN_C					extern "C"
+FAR							far
+NEAR						near
+PURE						= 0
+SIZE_T_MAX					UINT_MAX
+EXPORT
+CALLBACK
+UNALIGNED
+SRVAPI
+VFWAPIV
+BASED_CODE
+BASED_DEBUG
+BASED_STACK
+
+
+// API's used for declaring / defining functions
+STDAPI						EXTERN_C HRESULT STDAPICALLTYPE
+STDAPI_(type)				EXTERN_C type STDAPICALLTYPE
+STDAPIV						EXTERN_C HRESULT STDAPIVCALLTYPE
+STDAPIV_(type)				EXTERN_C type STDAPIVCALLTYPE
+STDMETHOD(method)			virtual HRESULT STDMETHODCALLTYPE method
+STDMETHOD_(type, method)	virtual type STDMETHODCALLTYPE method
+STDMETHODIMP				HRESULT STDMETHODCALLTYPE
+STDMETHODIMP_(type)			type STDMETHODCALLTYPE
+STDMETHODIMPV				HRESULT STDMETHODVCALLTYPE
+STDMETHODIMPV_(type)		type STDMETHODVCALLTYPE
+WINOLEAPI					HRESULT STDAPICALLTYPE
+WINOLEAPI_(type)			type STDAPICALLTYPE
+
+// <tchar.h> macros
+_T(x)						x
+__T(x)						x
+
+
+// ATL/MFC headers
+ATL_NO_VTABLE				__declspec(novtable)
+ATLAPI						HRESULT
+ATLAPI_(x)					x
+RUNTIME_CLASS(class_name)	(class_name::GetThisClass())
+_RUNTIME_CLASS(class_name)	((CRuntimeClass*)(&class_name::class##class_name))
+
+
+// Tell atlprov.dll that it is dealing with feacp.dll and not c1xx.dll
+__FEACP__					1
+
+
+// Stuff that is in here so that we don't have dogfooding problems in
+// some glaring cases.
+PdbInterface				struct
+CASSERT(x)					
+
+
+// Declare Stuff that is of no consequence whatsoever at population time
+// and which we do not want to attempt to parse and get into problems
+DECLARE_CONNECTION_MAP()
+DECLARE_DISPATCH_MAP()
+DECLARE_EMPTY_MSG_MAP()
+DECLARE_EVENT_MAP()
+DECLARE_EVENTSINK_MAP()
+DECLARE_INTERFACE_MAP()
+DECLARE_MESSAGE_MAP()
+DECLARE_OLECMD_MAP()
+DECLARE_PARSE_MAP()
+
+DECLARE_GET_CONTROLLING_UNKNOWN()
+DECLARE_LIBID(libid)
+DECLARE_NO_REGISTRY()
+DECLARE_NOT_AGGREGATABLE(x)
+DECLARE_OBJECT_DESCRIPTION(x)
+DECLARE_ONLY_AGGREGATABLE(x)
+DECLARE_OPAQUE32(x)
+DECLARE_POLY_AGGREGATABLE(x)
+DECLARE_PROTECT_FINAL_CONSTRUCT()
+DECLARE_REGISTRY(class, pid, vpid, nid, flags)
+DECLARE_REGISTRY_APPID_RESOURCEID(resid, appid)
+DECLARE_REGISTRY_RESOURCE(x)
+DECLARE_REGISTRY_RESOURCEID(x)
+DECLARE_VIEW_STATUS(statusFlags)
+DECLARE_WND_CLASS(WndClassName)
+DECLARE_WND_SUPERCLASS(WndClassName, OrigWndClassName)
+
+
+// Implement Stuff (required so that the Class.Rename() renames all those macros below, that are placed at global scope)
+// NOTE: There is much more of this stuff in MFC headers, but I did put down here only those minimal macros that are in our wizard templates
+IMPLEMENT_RUNTIMECLASS(class_name, base_class_name, wSchema, pfnNew, class_init) AFX_COMDAT const CRuntimeClass class_name::class##class_name = {#class_name, sizeof(class class_name), wSchema, pfnNew,&base_class_name::GetThisClass, NULL, class_init };CRuntimeClass* PASCAL class_name::GetThisClass(){ return _RUNTIME_CLASS(class_name); }CRuntimeClass* class_name::GetRuntimeClass() const{ return _RUNTIME_CLASS(class_name); }
+IMPLEMENT_SERIAL(class_name, base_class_name, wSchema) CObject* PASCAL class_name::CreateObject(){ return new class_name; }AFX_CLASSINIT _init_##class_name(RUNTIME_CLASS(class_name));_IMPLEMENT_RUNTIMECLASS(class_name, base_class_name, wSchema, class_name::CreateObject, &_init_##class_name)CArchive& AFXAPI operator>>(CArchive& ar, class_name* &pOb){ pOb = (class_name*) ar.ReadObject(RUNTIME_CLASS(class_name));return ar; }
+IMPLEMENT_DYNAMIC(class_name, base_class_name) IMPLEMENT_RUNTIMECLASS(class_name, base_class_name, 0xFFFF, NULL, NULL)
+IMPLEMENT_DYNCREATE(class_name, base_class_name) CObject* PASCAL class_name::CreateObject(){ return new class_name; }IMPLEMENT_RUNTIMECLASS(class_name, base_class_name, 0xFFFF, class_name::CreateObject, NULL)
+IMPLEMENT_OLECREATE(class_name, external_name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) COleObjectFactory class_name::factory(class_name::guid, RUNTIME_CLASS(class_name), FALSE, _T(external_name));const GUID class_name::guid = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } };
+IMPLEMENT_OLECREATE_EX(class_name, external_name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) const TCHAR _szProgID_##class_name[] = _T(external_name);AFX_COMDAT class_name::class_name##Factory class_name::factory(class_name::guid, RUNTIME_CLASS(class_name), FALSE,_szProgID_##class_name);AFX_COMDAT const GUID class_name::guid = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } };HRESULT class_name::GetClassID(LPCLSID pclsid){ *pclsid = guid; return NOERROR; }
+IMPLEMENT_OLECREATE_FLAGS(class_name, external_name, nFlags, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) COleObjectFactory class_name::factory(class_name::guid, RUNTIME_CLASS(class_name), FALSE, nFlags, _T(external_name));const GUID class_name::guid = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } };
+IMPLEMENT_OLECTLTYPE(class_name, idsUserTypeName, dwOleMisc) UINT class_name::GetUserTypeNameID() { return idsUserTypeName; }DWORD class_name::GetMiscStatus() { return dwOleMisc; }
+IMPLEMENT_OLETYPELIB(class_name, tlid, wVerMajor, wVerMinor) UINT class_name::GetTypeInfoCount() { return 1; }HRESULT class_name::GetTypeLib(LCID lcid, LPTYPELIB* ppTypeLib){ return ::LoadRegTypeLib(tlid, wVerMajor, wVerMinor, lcid, ppTypeLib); }CTypeLibCache* class_name::GetTypeLibCache(){ AFX_MANAGE_STATE(m_pModuleState); return AfxGetTypeLibCache(&tlid); }
+// Declare stuff (required to match the implement stuff)
+DECLARE_SERIAL(class_name) _DECLARE_DYNCREATE(class_name) AFX_API friend CArchive& AFXAPI operator>>(CArchive& ar, class_name* &pOb);
+DECLARE_DYNAMIC(class_name)	public: static const CRuntimeClass class##class_name; static CRuntimeClass* PASCAL GetThisClass(); virtual CRuntimeClass* GetRuntimeClass() const;
+DECLARE_DYNCREATE(class_name)	DECLARE_DYNAMIC(class_name) static CObject* PASCAL CreateObject();
+DECLARE_OLECREATE(class_name)    public: static COleObjectFactory factory; static const GUID guid;
+DECLARE_OLECREATE_EX(class_name) BEGIN_OLEFACTORY(class_name) END_OLEFACTORY(class_name)
+DECLARE_OLECTLTYPE(class_name) virtual UINT GetUserTypeNameID(); virtual DWORD GetMiscStatus();
+DECLARE_OLETYPELIB(class_name) protected: virtual UINT GetTypeInfoCount();virtual HRESULT GetTypeLib(LCID, LPTYPELIB*);virtual CTypeLibCache* GetTypeLibCache();
+DECLARE_OLEMISC_STATUS(x) static DWORD _GetMiscStatus() throw() { static DWORD m_dwOleMisc = x; return m_dwOleMisc; }
+
+_DECLARE_DYNCREATE(class_name)				_DECLARE_DYNAMIC(class_name)  static CObject* PASCAL CreateObject();
+_DECLARE_DHRESULT STDMETHODCALLTYPEYNAMIC(class_name)	public: static CRuntimeClass class##class_name; static CRuntimeClass* PASCAL GetThisClass(); virtual CRuntimeClass* GetRuntimeClass() const;
+
+INIT_INTERFACE_PART(theClass, localClass)
+
+// More Declare Stuff but not #defined to nothing this time (should review)
+DECLARE_HANDLE(name)						struct name##__ { int unused; }; typedef struct name##__ *name
+DECLARE_HANDLE32(x)							struct name##__ { int unused; }; typedef const struct name##__ FAR* name
+DECLARE_MAPI_INTERFACE(iface)				typedef struct ifaceVtbl ifaceVtbl, FAR * iface; struct ifaceVtbl
+DECLARE_MAPI_INTERFACE_PTR(iface, piface)	typedef struct ifaceVtbl ifaceVtbl, FAR * iface, FAR * FAR * piface;
+
+
+// Define Stuff
+DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) EXTERN_C const GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
+
+DEFINE_COMMAND(x, szCommand) typedef x _CommandClass;static HRESULT GetDefaultCommand(LPCTSTR* ppszCommand)
+
+
+// BEGIN and END Stuff that are not exactly maps
+BEGIN_INTERFACE_PART(localClass, baseClass) class X##localClass : public baseClass 	{ public: BEGIN_COM_MAP(X##localClass, localClass) COM_INTERFACE_ENTRY (baseClass) END_COM_MAP() public: virtual ULONG STDMETHODCALLTYPE AddRef(); virtual ULONG STDMETHODCALLTYPE Release(); virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void * * ppvObj);
+END_INTERFACE_PART(localClass) };
+END_INTERFACE_PART_STATIC END_INTERFACE_PART
+
+BEGIN_CONNECTION_PART(theClass, localClass) class X##localClass : public CConnectionPoint { public: X##localClass();
+END_CONNECTION_PART(localClass) };
+
+BEGIN_OLEFACTORY(class_name) protected: class class_name##Factory : public COleObjectFactoryEx { public:class_name##Factory(REFCLSID clsid, CRuntimeClass* pRuntimeClass,BOOL bMultiInstance, LPCTSTR lpszProgID);virtual BOOL UpdateRegistry(BOOL);
+END_OLEFACTORY(class_name) }; friend class class_name##Factory; static class_name##Factory factory; public: static const GUID guid; virtual HRESULT GetClassID(LPCLSID pclsid);
+CONNECTION_IID(iid)     REFIID GetIID();
+
+
+// Map related ??
+OBJECT_ENTRY(classid, class)
+OBJECT_ENTRY_NON_CREATABLE(class)
+OBJECT_ENTRY_AUTO(classid, class)
+OBJECT_ENTRY_NON_CREATABLE_EX_AUTO(classid, class)
+HANDLER_ENTRY_SDL(ARG1, ARG2, ARG3)
+DECLARE_REQUEST_HANDLER(ARG1, ARG2)
+
+PROCESS_LOCAL(class_name, ident_name) AFX_DATADEF CProcessLocal<class_name> ident_name;
+EXTERN_PROCESS_LOCAL(class_name, ident_name) extern AFX_DATA PROCESS_LOCAL(class_name, ident_name)
+EXT_SNAPINMENUID(id)    public:static const UINT GetMenuID();
+
+// BEGIN_???????_MAP(???) and END_???????_MAP(???) for all maps
+// IF YOU ADD ANY NEW ONES MAKE SURE YOU ADD THE END MAP IF YOU ADD A BEGIN MAP
+
+#if __FE_PARSER__
+
+// Note: Make sure the __NCB__NAME_ parts are unique across ATL and MFC 
+//		(NAME shouldn't contain a '_') and the parameters are all added as base
+//		classes (so faHRESULT STDMETHODCALLTYPEr all params can be base classes)
+//		Hack a rama for ATL
+
+BEGIN_COLUMN_MAP(x)		class __NCB__COLUMN_##x : public COLUMN {
+END_COLUMN_MAP()		};
+
+BEGIN_COM_MAP(x)		class __NCB__COM_##x : public COM {
+END_COM_MAP()			};
+
+BEGIN_CONNECTION_POINT_MAP(x)	class __NCB__CONNECTIONPOINT_##x : public CONNECTION_POINT {
+END_CONNECTION_POINT_MAP()		};
+
+BEGIN_EXTENSION_SNAPIN_NODEINFO_MAP(x)	class __NCB__EXTENSIONSNAPINNODEINFO_##x : public EXTENSION_SNAPIN_NODEINFO {
+END_EXTENSION_SNAPIN_NODEINFO_MAP()		};
+
+BEGIN_FILTER_MAP(x)		class __NCB__FILTER_##x : public FILTER {
+END_FILTER_MAP()		};
+
+BEGIN_MSG_MAP(x)		class __NCB__MSG_##x : public MSG {
+END_MSG_MAP()			};
+
+BEGIN_OBJECT_MAP(x)		class __NCB__OBJECT_##x : public OBJECT {
+END_OBJECT_MAP()		};
+
+BEGIN_PARAM_MAP(x)		class __NCB__PARAM_##x : public PARAM {
+END_PARAM_MAP()			};
+
+BEGIN_PROP_MAP(x)		class __NCB__PROP_##x : public PROP {
+END_PROP_MAP()			};
+
+BEGIN_PROPERTY_MAP(x)	class __NCB__PROPERTY_##x : public PROPERTY {
+END_PROPERTY_MAP()		};
+
+BEGIN_SCHEMA_MAP(x)		class __NCB__SCHEMA_##x : public SCHEMA {
+END_SCHEMA_MAP()		};
+
+BEGIN_SERVICE_MAP(x)	class __NCB__SERVICE_##x : public SERVICE {
+END_SERVICE_MAP()		};
+
+BEGIN_SINK_MAP(x)		class __NCB__SINK_##x : public SINK {
+END_SINK_MAP()			};
+
+BEGIN_SNAPINTOOLBARID_MAP(x)	class __NCB__SNAPINTOOLBARID_##x : public SNAPINTOOLBARID {
+END_SNAPINTOOLBARID_MAP()		};
+
+BEGIN_UPDATE_UI_MAP(x)	class __NCB__UPDATEUI_##x : public UPDATE_UI {
+END_UPDATE_UI_MAP()		};
+
+//The next few are problematic ... to be done ...
+
+BEGIN_ACCESSOR_MAP(x, y)	class __NCB__ACCESSOR_##x : public ACCESSOR, public y {
+END_ACCESSOR_MAP()			};
+
+BEGIN_CATEGORY_MAP()	class __NCB__CATEGORY_CATEGORY : public CATEGORY {
+END_CATEGORY_MAP()		};
+
+BEGIN_PROPSET_MAP(x)	class __NCB__PROPSET_##x : public PROPSET {
+END_PROPSET_MAP()		};
+
+BEGIN_PROVIDER_COLUMN_MAP(x)	class __NCB__PROVIDERCOLUMN_##x : public PROVIDER_COLUMN {
+END_PROVIDER_COLUMN_MAP()		};
+
+BEGIN_SNAPINCOMMAND_MAP(x, y)	class __NCB__SNAPINCOMMAND_##x : public SNAPINCOMMAND, public y {
+END_SNAPINCOMMAND_MAP()			};
+
+// Hack a rama for MFC
+BEGIN_CONNECTION_MAP(x,y)	class __NCB__CONNECTION_##x : public CONNECTION, public y {
+END_CONNECTION_MAP()		};
+
+BEGIN_DISPATCH_MAP(x,y)		class __NCB__DISPATCH_##x : public DISPATCH, public y {
+END_DISPATCH_MAP()			};
+
+BEGIN_EVENT_MAP(x,y)		class __NCB__EVENT_##x : public EVENT, public y {
+END_EVENT_MAP()				};
+
+BEGIN_EVENTSINK_MAP(x,y)	class __NCB__EVENTSINK_##x : public EVENTSINK, public y {
+END_EVENTSINK_MAP()			};
+
+BEGIN_INTERFACE_MAP(x,y)	class __NCB__INTERFACE_##x : public INTERFACE, public y {
+END_INTERFACE_MAP()			};
+
+BEGIN_MESSAGE_MAP(x,y)	class __NCB__MESSAGE_##x : public MESSAGE, public y {
+END_MESSAGE_MAP()		};
+
+BEGIN_OLECMD_MAP(x,y)	class __NCB__OLECMD_##x : public OLECMD, public y {
+END_OLECMD_MAP()		};
+
+BEGIN_PARSE_MAP(x,y)	class __NCB__PARSE_##x : public PARSE, public y {
+END_PARSE_MAP()			};
+
+BEGIN_PERF_MAP(x)		class __NCB__PERF_##x : public PERF {
+END_PERF_MAP()			};
+
+BEGIN_HANDLER_MAP()		class __NCB__HANDLER_HANDLER : public HANDLER {
+END_HANDLER_MAP()		};
+
+BEGIN_REPLACEMENT_METHOD_MAP(x)		class __NCB__REPLACEMENTMETHOD_##x : public REPLACEMENT_METHOD {
+END_REPLACEMENT_METHOD_MAP()		};
+
+BEGIN_ATTR_REPLACEMENT_METHOD_MAP(x)	class __NCB__ATTRREPLACEMENTMETHOD_##x : public ATTR_REPLACEMENT_METHOD {
+END_ATTR_REPLACEMENT_METHOD_MAP()		};
+
+BEGIN_COUNTER_MAP(x)	class __NCB__COUNTER_##x : public COUNTER {
+END_COUNTER_MAP()		};
+
+#endif	// __FE_PARSER__

@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+long fibon(long n)
+{
+	if(n==0)
+		return 1;
+	if(n==1)
+		return 1;
+	return fibon(n-2) + fibon(n-1);
+}
+
+
+/*template <long nn>
+long factorial(long  nn)
+{ 
+	return nn*factorial<nn-1>(nn-1); 
+}
+
+template<> long factorial<0>(long n)
+{ return 1; }*/
+double factorial(double nn)
+{
+	return (nn==1)?1:factorial(nn-1)*nn;
+}
+
+
+//long fact(long)
+
+void main(int argc, char *argv[])
+{
+
+	long n=(argc>1)?atoi(*(argv+1)):0; //arg for fibon
+	long m=(argc>2)?atoi(*(argv+2)):0; //arg for factorial
+//	long fact = factorial<40>(40);
+//	double fact = factorial(m);
+
+	long fib=fibon(n);
+	printf("fibon(%d):%d:",n,fib);
+}
+
+

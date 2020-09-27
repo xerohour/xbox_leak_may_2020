@@ -1,0 +1,22 @@
+TARGETNAME=XFApi
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING -DXFONT_TRUETYPE
+
+XE_FLAGS=/TESTNAME:"XFApi" /TESTID:0xA7049955
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc
+
+TARGETLIBS =        $(LIBRARY_PATH)\xgraphics$(D).lib \
+		    $(LIBRARY_PATH)\d3d8$(D).lib
+
+SOURCES= 			                                       \
+    ..\XFApi.cpp \
+    ..\XFApiTest.cpp \
+    ..\Test.cpp

@@ -1,0 +1,30 @@
+TARGETNAME=xmoTest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION=$(MSC_OPTIMIZATION) /Od
+
+XEINCLUDES=$(_NT386TREE)\bbcover
+
+SYNCHRONIZE_DRAIN = 1
+
+INCLUDES =          $(PRIVATE_INC_PATH);                                \
+                    $(BASEDIR)\private\test\inc;                        \
+                    $(BASEDIR)\private\test\multimedia\inc;             \
+                    $(BASEDIR)\private\windows\directx\dsound\wavldxmo; \
+                    $(BASEDIR)\private\windows\directx\dsound\waveldr;  \
+                    $(BASEDIR)\private\windows\directx\dsound\srcxmo;   \
+                    $(BASEDIR)\private\ntos\xnet\test\netxmo
+
+LINKLIBS =          $(SDK_LIB_PATH)\waveldr$(D).lib                    \
+                    $(SDK_LIB_PATH)\srcxmo$(D).lib                     \
+                    $(SDK_LIB_PATH)\netxmo$(D).lib                     \
+                    $(SDK_LIB_PATH)\testglue.lib
+
+TARGETLIBS =        $(LIBRARY_PATH)\dsound$(D).lib                     \
+                    $(LIBRARY_PATH)\xnet$(D).lib
+
+SOURCES=                                                               \
+    xmoTest.cpp

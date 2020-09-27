@@ -1,0 +1,121 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Developer Studio generated include file.
+// Used by ToolGraphDesignerDLL.rc
+//
+#define IDI_ABOUTDLL                    1
+#define IDS_GRAPH                       2
+#define IDD_ABOUTBOX_GRAPH              2
+#define IDB_GRAPH                       2
+#define IDD_DLG_GRAPH                   101
+#define IDC_PCHANNEL_SPLITTER           103
+#define IDC_TOOL_SPLITTER               104
+#define IDD_OLE_PROPPAGE_LARGE          105
+#define IDS_GRAPH_COMPONENT_NAME        201
+#define IDC_SOURCE                      201
+#define IDC_LIST_CHANNEL                201
+#define IDS_HELP_FILE_EXT               202
+#define IDS_ERR_INVALIDARG              203
+#define IDC_EDIT_PCHANNEL               203
+#define IDR_GRAPH_DOCTYPE               204
+#define IDC_BUTTON_ADD                  204
+#define IDI_GRAPH_DOCTYPE_SEL           205
+#define IDS_ERR_REGISTER_CF             205
+#define IDM_GRAPH_NODE_RMENU            205
+#define IDC_BTN_REMOVE                  205
+#define IDI_GRAPHREF                    206
+#define IDS_ERR_ADD_CLIPFORMAT          206
+#define IDC_SPIN_PCHANNEL               206
+#define IDI_GRAPHREF_SEL                207
+#define IDS_ERR_ADD_IMAGELIST           207
+#define IDC_EDIT_PCHANNEL_NAME          207
+#define IDS_ERR_MEMORY                  208
+#define IDD_DLG_ADD_PCHANNEL            208
+#define IDS_ERR_ADD_DOCTYPE             209
+#define IDS_ERR_MISSING_CONDUCTOR       210
+#define IDS_TOOLGRAPH_TEXT              211
+#define IDS_GRAPH_VERSION_TEXT          212
+#define IDS_NO_GRAPH                    213
+#define IDS_UNDO_GRAPH_NAME             214
+#define IDS_UNDO_GRAPH_GUID             215
+#define IDS_UNDO_GRAPH_LANGUAGE         216
+#define IDS_UNDO                        217
+#define IDS_UNDO_ACCEL                  218
+#define IDS_REDO                        219
+#define IDS_REDO_ACCEL                  220
+#define IDC_FILE_VERSION                222
+#define IDS_UNDO_GRAPH_AUTHOR           222
+#define IDS_UNDO_GRAPH_COPYRIGHT        223
+#define IDS_UNDO_GRAPH_SUBJECT          224
+#define IDC_AUTHOR                      225
+#define IDS_UNDO_GRAPH_VERSION          225
+#define IDC_COPYRIGHT                   226
+#define IDS_GRAPH_OBJECT_TEXT           226
+#define IDC_VERSION_1                   227
+#define IDS_TOOL_TEXT                   227
+#define IDC_VERSION_2                   228
+#define IDS_UNDO_GRAPH_INFO             228
+#define IDC_VERSION_3                   229
+#define IDS_TOOL_PALETTE_TEXT           229
+#define IDC_VERSION_4                   230
+#define IDD_TAB_GRAPH                   230
+#define IDS_PCHANNEL_GROUP_TEXT         230
+#define IDC_NAME                        231
+#define IDC_SUBJECT                     231
+#define IDS_TITLE_CHANGE_PCHANNEL_GROUP 231
+#define IDS_TITLE_INSERT_PCHANNEL_GROUP 232
+#define IDS_UNDO_INSERT_PCHANNELGROUP   233
+#define IDS_UNDO_CHANGE_PCHANNELGROUP   234
+#define IDS_UNDO_DELETE_PCHANNELGROUP   235
+#define IDR_GRAPH_EDITOR                237
+#define IDS_UNDO_INSERT_TOOLS           237
+#define IDS_UNDO_DELETE_TOOLS           238
+#define IDR_GRAPH_ACCELS                239
+#define IDS_UNDO_MOVE_TOOLS             239
+#define IDS_UNDO_CHANGE_PCHANNELS       240
+#define IDS_NO_TOOLS_PROMPT             241
+#define IDM_GRAPHREF_NODE_RMENU         242
+#define IDS_MULTIPLE_TOOLS_SELECTED     242
+#define IDM_DRAG_RMENU                  243
+#define IDC_BUTTON_ADD16                243
+#define IDS_UNDO_CHANGE_TOOL_NAME       243
+#define IDD_DLG_GUID                    244
+#define IDM_GRAPH_PCHANNELGROUPS        244
+#define IDS_UNDO_CHANGE_TOOL_PROPERTIES 244
+#define IDD_TAB_INFO                    245
+#define IDM_GRAPH_TOOLS                 245
+#define IDD_TAB_TOOL                    246
+#define IDM_PROPERTIES                  247
+#define IDM_RENAME                      248
+#define IDM_INSERT_PCHANNEL_GROUP       249
+#define IDM_DELETE_PCHANNEL_GROUP       250
+#define IDM_CHANGE_PCHANNEL_GROUP       251
+#define IDM_TOOL_PROPERTIES             252
+#define IDM_DRAG_MOVE                   253
+#define IDM_DRAG_CANCEL                 254
+#define IDM_DRAG_COPY                   255
+#define IDM_SELECT_ALL                  256
+#define IDC_SPLITTER                    300
+#define IDC_EDIT_GUID                   305
+#define IDC_NEW_GUID                    306
+#define IDC_TOOL_HEADER                 503
+#define IDC_TOOL_LIST                   504
+#define IDC_PCHANNEL_LIST               505
+#define IDC_GRAPH_HEADER                506
+#define IDC_PCHANNEL_HEADER             507
+#define IDC_GRAPH_LIST                  508
+#define IDC_BUTTON_TOOL_PROPERTIES      509
+#define IDC_INFO                        1017
+#define ID_EDIT_DELETE                  32777
+#define ID_EDIT_INSERT                  32796
+#define IDM_HELP_FINDER                 32815
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        302
+#define _APS_NEXT_COMMAND_VALUE         32775
+#define _APS_NEXT_CONTROL_VALUE         510
+#define _APS_NEXT_SYMED_VALUE           105
+#endif
+#endif

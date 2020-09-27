@@ -1,0 +1,40 @@
+[TestList]
+dmtest1                           ;DMusic tests
+
+[DMTest1]
+ThreadStackSize=0x10000
+
+
+[DMTest1_Suites]
+DMTest1_DMThread
+DMTest1_10FPS
+DMTest1_1FPS
+DMTest1_CloseDownEveryTime
+
+
+;***************************************************************************************************************
+;***************************************************************************************************************
+[DMTest1_DMThread]
+WaitAtTestEnd   =1
+InitPerformance = Once
+SkipUserInput = 1
+MaxTestOmit=30
+doworklocalthread = 0
+doworkfrequency = 0
+
+[DMTest1_DMThread_TestAdd]
+Performance8_PlaySegmentEx_BVT
+
+;***************************************************************************************************************
+;***************************************************************************************************************
+[DMTest1_10FPS]
+Valid =0
+WaitAtTestEnd   =1
+InitPerformance = Once
+SkipUserInput = 1
+MaxTestOmit=30
+doworklocalthread = 1
+doworkfrequency = 10
+
+[DMTest1_10FPS_TestAdd]
+Performance8_PlaySegmentEx_BVT

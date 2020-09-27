@@ -1,0 +1,136 @@
+import "oaidl.idl";
+[
+    object,
+    uuid(7a2c1c80-c63d-11d0-a466-00a0c90c9156),
+    local,
+    helpstring("IRTPSourceStream Interface"),
+    pointer_default(unique)
+]
+interface IRTPSourceStream : IUnknown
+{
+    HRESULT 
+    GetRTPAddress (
+        [out]     BYTE *  pRtpAddr,
+        [in][out] DWORD * pdwRtpAddrLen
+        );
+
+    HRESULT 
+    SetRTPAddress (
+        [out] BYTE * pRtpAddr,
+        [in]  DWORD  dwRtpAddrLen
+        );
+}
+
+[
+    object,
+    uuid(7a2c1c81-c63d-11d0-a466-00a0c90c9156),
+    local,
+    helpstring("IRTPRenderStream Interface"),
+    pointer_default(unique)
+]
+interface IRTPRenderStream : IUnknown
+{
+    HRESULT 
+    GetRTPAddress (
+        [out]     BYTE *  pRtpAddr,
+        [in][out] DWORD * pdwRtpAddrLen
+        );
+
+    HRESULT 
+    SetRTPAddress (
+        [out] BYTE * pRtpAddr,
+        [in]  DWORD  dwRtpAddrLen
+        );
+
+    HRESULT 
+    GetRTPScope (
+        [out] DWORD * pdwMulticastScope
+        );
+
+    HRESULT 
+    SetRTPScope (
+        [in] DWORD dwMulticastScope
+        );
+
+    HRESULT 
+    GetSSRC(
+        [out] DWORD * pdwSSRC
+        );
+
+    HRESULT 
+    SetSSRC(
+        [in] DWORD dwSSRC
+        );
+
+    HRESULT 
+    GenerateSSRC(
+        [out] DWORD * pdwSSRC
+        );
+
+    HRESULT 
+    SetStreamClockFrequency(
+        [in] DWORD dwClockFrequency
+        );
+}
+
+[
+    object,
+    uuid(7a2c1c82-c63d-11d0-a466-00a0c90c9156),
+    local,
+    helpstring("IRTCPStream Interface"),
+    pointer_default(unique)
+]
+interface IRTCPStream : IUnknown
+{
+    HRESULT 
+    GetSdesItem(
+        [in]      DWORD   dwSdesType, 
+        [out]     BYTE *  pSdesItem, 
+        [in][out] DWORD * pdwSdesItemLen
+        );
+
+    HRESULT 
+    SetSdesItem(
+        [in]  DWORD  dwSdesType, 
+        [out] BYTE * pSdesItem, 
+        [in]  DWORD  dwSdesItemLen
+        );
+
+    HRESULT 
+    GetRTCPScope(
+        [out] DWORD * pdwMulticastScope
+        );
+
+    HRESULT 
+    SetRTCPScope(
+        [in] DWORD dwMulticastScope
+        );
+
+    HRESULT 
+    DisableRTCPBye(
+        [in] BOOL fDisableBye
+        );
+
+    HRESULT 
+    DisableRTCP(
+        [in] BOOL fDisable
+        );
+
+    HRESULT 
+    GetRTCPReports(
+        [in]  DWORD   dwIndex, 
+        [in]  DWORD   dwFilterFlags,
+        [in]  BYTE *  pFilterPattern, 
+        [in]  DWORD   dwFilterPatternLen,
+        [out] BYTE *  pReportBuffer, 
+        [in]  DWORD   dwReportBufferLen,
+        [out] DWORD * pdwNumEntriesReturned, 
+        [out] BOOL *  pfMoreEntriesAvailable 
+        );
+}
+
+cpp_quote("EXTERN_C const CLSID CLSID_RTPSourceFilter;")
+cpp_quote("EXTERN_C const CLSID CLSID_RTPSourceFilterProperties;")
+
+cpp_quote("EXTERN_C const CLSID CLSID_RTPRenderFilter;")
+cpp_quote("EXTERN_C const CLSID CLSID_RTPRenderFilterProperties;")

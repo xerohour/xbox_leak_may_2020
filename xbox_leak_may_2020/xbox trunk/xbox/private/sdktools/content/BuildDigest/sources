@@ -1,0 +1,35 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+!ENDIF
+
+UMTYPE=console
+
+TARGETNAME=BuildDigest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+USE_MSVCRT=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) /MAP
+
+TARGETLIBS=\
+	 $(BASEDIR)\public\wsdk\lib\kernel32.lib \
+	 $(BASEDIR)\private\lib\*\cryptcab.lib \
+         $(LIBRARY_PATH)\crypt32.lib \
+         $(BASEDIR)\private\lib\*\rsa32.lib \
+
+INCLUDES=\
+         $(BASEDIR)\public\wsdk\inc; \
+         $(BASEDIR)\public\xdk\inc; \
+	 $(BASEDIR)\private\inc; \
+	 $(BASEDIR)\private\inc\crypto; \
+	 $(BASEDIR)\private\sdktools\content\inc;
+
+SOURCES=\
+        BuildDigest.c \
+        BuildDigest.rc
+
+C_DEFINES = $(C_DEFINES) -DCONSOLE -DLZX_CAPABLE
+

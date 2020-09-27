@@ -1,0 +1,45 @@
+// vcpberrcontext.idl : IDL source for the shared build error context code
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+[
+	object,
+	uuid(A8F1429B-1E96-11D3-B96D-00C04F685D26),
+	dual,
+	helpstring("IVCBuildErrorContext Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildErrorContext : IDispatch
+{
+	HRESULT AddError([in] BSTR bstrMessage, [in] BSTR bstrHelp ,[in] BSTR bstrFile, [in] long nLine, [in] BSTR bstrFull);
+	HRESULT AddWarning([in] BSTR bstrMessage, [in] BSTR bstrHelp, [in] BSTR bstrFile, [in] long nLine, [in] BSTR bstrFull);
+	HRESULT AddInfo([in] BSTR bstrMessage);
+	HRESULT AddLine([in] BSTR bstrMessage);
+
+	HRESULT WriteLog([in] BSTR bstrMessage);
+	HRESULT ActivateWindow([in] VARIANT_BOOL bForce);
+	HRESULT ActivateTaskList([in] VARIANT_BOOL bForce);	// activate tasklist iff Tools->Options says to activate task list at end of build
+	HRESULT ClearWindow();
+	HRESULT Close();
+
+	[propget] HRESULT Warnings([out, retval] long *pnErr);
+	[propget] HRESULT Errors([out, retval] long *pnWrn);
+	
+	[propget] HRESULT BaseDirectory([out, retval] BSTR* pbstrBaseDir);
+	[propput] HRESULT BaseDirectory([in] BSTR bstrBaseDir);
+
+	[propget] HRESULT ProjectName([out, retval] BSTR* pbstrName);
+	[propput] HRESULT ProjectName([in] BSTR bstrBaseName);
+
+	[propget] HRESULT AssociatedBuildEngine([out, retval] IDispatch** ppBldEngine);	
+	[propput] HRESULT AssociatedBuildEngine([in] IDispatch* pBldEngine);	
+
+	// WARNING: USE THIS PROPERTY AT YOUR OWN RISK
+	// ShowOutput is here to allow EnC to turn off sending output to the output window on a temporary basis
+	[nonbrowsable, hidden, propget] HRESULT ShowOutput([out, retval] VARIANT_BOOL* pbShow);
+	[nonbrowsable, hidden, propput] HRESULT ShowOutput([in] VARIANT_BOOL bShow);
+};
+	

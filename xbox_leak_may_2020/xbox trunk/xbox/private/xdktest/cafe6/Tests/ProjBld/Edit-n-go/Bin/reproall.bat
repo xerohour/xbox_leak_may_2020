@@ -1,0 +1,12 @@
+@cd appwiz.v2
+@call repro.bat
+@cd ..
+@cd spyxx.v2
+@call repro.bat
+@cd ..
+@cd multipad.v2
+@call repro.bat
+@cd ..
+@cd windiff.v2
+@call repro.bat
+@cd ..

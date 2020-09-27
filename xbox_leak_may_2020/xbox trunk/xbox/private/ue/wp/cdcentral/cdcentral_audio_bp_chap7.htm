@@ -1,0 +1,123 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+</td><td>
+<H2>Chapter 7: Mixing Audio for Xbox</H2>
+
+<P><I>By Scott Selfon, Audio Content Consultant<br>
+Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<H3>Introduction</h3>
+
+<P>A general goal for the Xbox&#8482 video game system from Microsoft is for titles to use reasonable sound levels so that the user won't constantly have to tweak their home stereo from game to game, or leave the volume too high or too low to properly enjoy a title's audio nuances. </P>
+
+<P>This chapter discusses ways to mix your audio so that it will line up with the sounds built into the Xbox, as well as fairly closely matching the audio levels from some of the user's other possible devices. We'll also discuss mixing in general, and methods for balancing normal audio levels with high levels appropriate for intense moments in the game.</P>
+
+<p><i><b>Note</b></i>&nbsp;&nbsp;&nbsp;This chapter discusses the audio behaviors for Xbox Title Libraries version 1.0, the August Final release of Xbox System Software. For possible behavior changes in subsequent libraries, consult the Xbox Development Kit documentation.</i></P>
+
+<P>As always, if you have any questions on the topics presented here, or suggestions/requests for future topics, please contact <a href="mailto:content@xbox.com"><B>content@xbox.com</B></a>.</P>
+
+<H3>Default Levels on Consumer Devices</h3>
+<p>Ideally, when a consumer turns on their Xbox, the audio should be fairly similar to other devices connected to their receiver. DVD movies generally normalize dialog to around &#8211;16 decibels (dB), while television programming is approximately &#8211;10 to &#8211;12 dB. By comparison, CDs and television commercials are often mixed much higher; advertisements tend to "squash" their audio such that they hover near full-scale 0 dB, as have many commercial music recordings in the past few years.
+<p>Rather than compete with such full-scale volume presentations, we've opted to target DVDs and broadcast television signals for the audio levels to match. In particular, we generally recommend that games target &#8211;12 dB for the average volume of dialog output from the Xbox (if dialog is present). This builds in a fair amount of room for dialog to grow (for instance, yelling), and as we'll see below, has been adopted as default attenuation setting for playback of audio elements.
+<p>Unlike other devices, where the audio is pre-rendered and therefore the peak signals known far ahead of time, this allows for dynamic audio to have plenty of headroom for beefy explosions and crescendoing music, as appropriate. In particular, with the potential for 256 voices to simultaneously sound, this default headroom helps avoid some potential issues with clipping.
+
+<H3>Audio Levels "Hard-Coded" on Xbox</h3>
+<p>Before we discuss default audio behaviors in a title, let's first go over the volumes presented by audio elements built into Xbox.
+<p>The startup sound has been normalized to peak at around &#8211;7 dB. Again, the general hope is that the user uses this startup sound as a way to set their speaker volume to be comfortable. When compared to a network television or DVD signal, the startup sound is generally loud but comfortable, though individual user tastes will vary.
+<p>The Xbox Dashboard is, in general, mixed to around &#8211;12 dB, at the level that we recommend targeting for dialog. The exception to this rule is CD- and WMA-playback from in the Xbox Dashboard, which are played full scale to conform to signals expected out of a consumer CD player. When CDs are ripped into WMAs, the signals are normalized, leading to audio that might be even slightly louder than the source CD audio tracks. Again, this is in the Xbox Dashboard only (although as we'll discuss below, you could potentially play some audio elements in your game at this level if you wanted to).
+
+<H3>Default In-Game Audio Levels</h3>
+<p>In part to allow for the possibility of numerous sounds to mix without clipping, playback on Xbox defaults to &#8211;12 dB for all voices. Of course, audio content should generally be authored as "hot" (loud) as possible, and attenuation/mixing should be performed during playback, not during authoring, to ensure the highest fidelity. The breakdown of how the &#8211;12 dB headroom is achieved:
+<UL>
+<li>For 2-D voices, the headroom defaults to 600 millibels (mB) = 6 dB. This can be adjusted using <b>IDirectSoundBuffer8::SetHeadroom</b> or <b>IDirectSoundStream8::SetHeadroom</b>.
+<li>For 3-D (HRTF) voices, headroom defaults to 0 dB. However, the HRTF processing applies the equivalent of 6-dB attenuation, so 2-D and 3-D voices are effectively balanced in volume by default. But this also means that a 3-D positioned voice cannot be louder than &#8211;6 dB.
+<li>Mixbins default to &#8211;6 dB (more accurately, 1 bit) of headroom. This can be modified by using <b>IDirectSound8::SetMixbinHeadroom</b> for mixbins (for instance, specific speakers or effects paths) you want to hear more loudly.
+</ul>
+<p>Note that due to the different implementations&#8212;whether the volume of a sound is adjusted in the process of reading it from memory, or a hardware attenuation is applied by the Xbox MCP&#8212;voice headroom (calculated software attenuation) is set in <i>millibels</i> (hundredths of a decibel), while mixbin headroom (hardware attenuation) is set in bits (one bit roughly equals 6 dB).
+
+<H3>Modifying Audio Levels: The Libraries</h3>
+<p>There are several different functions and methods in Microsoft&reg; DirectSound&reg; and Microsoft&reg; DirectMusic&reg; made available for altering the volume of voices and mixbins. We'll discuss them each individually, as well as how they are applied additively.
+
+<p><h4><b>DirectSound</b></h4>
+<UL>
+<li><b>IDirectSoundBuffer8::SetHeadroom / IDirectSoundStream8::SetHeadroom</b>: As discussed above, the default setting for a 2-D buffer is 600 mB, or 6 dB. Headroom is set as a <i>positive</i> value.
+<li><b>IDirectSoundBuffer8::SetVolume</b> / <b>IDirectSoundStream8::SetVolume</b>: Functionally equivalent to SetHeadroom, but applied additively (separately) and set as a <i>negative</i> value.
+<li><b>IDirectSoundBuffer8::SetMixBinVolumes</b> / <B>IDirectSoundStream8::SetMixBinVolumes</b>: Independently set the volumes a buffer or stream will play on individual mixbins (for instance, for manual panning). Set in millibels, and cumulative with both <B>SetVolume</B> and <B>SetHeadroom</B>.
+<li><b>IDirectSound8::SetMixbinHeadroom</b>: Controls the output volume of a mixbin (effectively, every sound mixed into it). Set in <i>bits</i>, with one bit rougly equal to 6 dB of headroom.
+</ul>
+
+<p>Not including attenuation created by 3-D positioning, filtering, effects, or DirectMusic, sound volume will be roughly:
+<br><br>
+<i>Total effective attenuation = volume &#8211; headroom &#8211; mixbin headroom</i>
+
+<p><h4><b>DirectMusic</b></h4>
+<UL>
+<li><b>MIDI Controllers</b>: MIDI messages, whether originating in authored content (segments) or created by the developer, can be used to control volume:
+	<UL>
+	<LI>MIDI continuous controllers 7 (volume) and 11 (expression) &#8211; global volume on a performance channel
+	<LI>MIDI controllers 91 (reverb depth) and 93 (chorus) &#8211; mixbin volume for FXSEND_0 and FXSEND_1 mixbins
+	<LI>MIDI controller 10 (pan) &#8211; relative mixbin volumes for the left and right mixbins for a channel
+	</ul>
+<li><b>Audiopath::SetVolume</b> and <b>SegmentState::SetVolume</b> &#8211; control the volume for an audiopath or a playing segment&sup1;.
+<li><b>IDirectMusicPerformance8::SetGlobalParam</b> using GUID_PerfMasterVolume &#8211; Globally affects all DirectMusic content that uses this performance. Typically there is only one performance in use, so in that case, this API call will affect the volume of all playing content.
+</ul>
+
+<h3>Default Channel Assignments</h3>
+<p>When playing back a non-positioned mono sound, keep in mind that <i>the default behavior</i>&sup2;<i> is to play mono sounds out of all speakers</i>. In the case of a 5.1 system, this means six separate speakers will be playing the sound. When compared to stereo sounds (which default to the left and right speakers only), mono sounds will be much louder, particularly on a Dolby&reg; Digital system. In most cases, if you're playing a non-3-D positioned mono sound, you'll want to set it to use either the center or left and right channels only, or at least turn down the buffer's volume.
+
+<h3>Listening to the Mix</h3>
+<p>To make sure all listeners get an audio experience that balances sound elements appropriately, you should generally audition your mix on an Xbox attached to the following systems:
+<OL>
+<LI>Dolby Digital (5.1 speaker system)
+<LI>Stereo
+<LI>Dolby&reg; Surround (either 4.0 speakers or through a 6-speaker system) &#8211; optional; stereo testing may be sufficient, particularly if you are not using 3-D (HRTF) voice processing
+</ol>
+<P>If you want to be thorough, you could also listen through a mono system (using the Xbox RF Adapter), though stereo should generally be adequate. A few key items to watch for that may appear as differences between these systems:
+<UL>
+<LI>The LFE channel will only be used by a Dolby Digital system; it will not be played by Dolby Surround and stereo environments.
+<LI>The two surround channels are mixed into a single monaural surround channel for Dolby Surround playback.
+</ul>
+<p>These differences shouldn't necessarily impact your relative mix volume, but are still good to keep in mind while authoring and auditioning your content.
+
+<h3>Other Audio Level Tips</h3>
+<UL>
+<LI>Dialog, particularly when it provides instructions for gameplay, should generally take priority in the mix.
+<LI>If your title uses the default effects program (dsstdfx.bin), make sure you updated it with the XTL 1.0 final version of the program, or the version supplied with your latest Xbox System Software release. Some pre-release versions of the program had issues with surround-level volumes compared to front left and right.
+<LI>For dynamic audio systems, make sure you pay attention to possible audio levels based on the intensity of the music/ambience. If a high-volume musical cue has just started playing, you might want to duck it for a character's dialog.&sup3 
+</ul>
+
+<h3>Wrap-Up</h3>
+<p>Remember that in general, you’ll want to author your content as loud (close to 0 dB) as possible and programmatically reduce the volume as appropriate. Dialog provides a good reference point&#8212;attenuate it as necessary in the mix so that it plays at &#8211;12 dB, and mix your other sounds around it. If all of your sound levels are too quiet or too loud, you can increase them by altering <b>IDirectSound8::SetMixBinHeadroom</b> and/or <b>IDirectSoundBuffer/Stream::SetHeadroom</b>.</p>
+
+<BR><BR>
+<i>For more information about topics presented here, please consult the Xbox Audio Best Practices Guide, the Xbox Development Kit documentation, the white papers in the Audio Designer's Corner, or send an e-mail message to <a href="mailto:content@xbox.com"><B>content@xbox.com</B></a>.</i>
+
+<BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;Note that these volume controls are specific to the physical pchannels used by the content. If two <i>segmentstate</i> objects on a single audiopath share a pchannel, lowering the volume on one segmentstate will lower the volume of content playing on the shared pchannel(s) in the other <i>segmentstate</i> object.</p>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;This is the default behavior for XTL v1.0. The behavior in November and beyond is to play mono sounds from the front left and right speakers, rather than all six speakers, by default.</p>
+<P style="font-size:12"><SUP>3</SUP>&nbsp;For a discussion on volume ducking and fading using DirectMusic, see the white paper entitled <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_crossfades.htm" title="Crossfade Solutions Using DirectMusic: Volume Controller Curves, Audiopaths, and DirectX Audio Scripting"><B>Crossfade Solutions Using DirectMusic: Volume Controller Curves, Audiopaths, and DirectX Audio Scripting</B></a>.</p>
+
+<BR><BR>
+<SMALL>Thursday, October 11, 2001</SMALL>
+</td>

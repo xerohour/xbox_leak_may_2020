@@ -1,0 +1,32 @@
+DDKROOT=$(_NTDRIVE)$(_NTROOT)
+
+TARGETNAME=dinput
+TARGETPATHLIB=$(BASEDIR)\public\sdk\lib
+TARGETTYPE=DYNLINK
+TARGETPATH=obj
+UMTYPE=xboxdll
+
+DLLENTRY=DllMain
+
+INCLUDES=..\inc;$(SDK_INC_PATH);$(BASEDIR)\private\ntos\dd\usb\inc
+
+C_DEFINES=$(C_DEFINES) -D_UNICODE -DUNICODE -DNT
+
+USER_C_FLAGS=$(USER_C_FLAGS) /FAcs
+MSC_WARNING_LEVEL=/W3 /WX
+
+DLLDEF=$(O)\di.def
+
+SOURCES=dinput.rc\
+        di.cpp\
+        did.cpp\
+        aggregat.cpp\
+        main.cpp
+
+
+USE_NOLIBS=1
+
+TARGETLIBS=\
+    $(BASEDIR)\public\sdk\lib\*\xid.lib
+
+LINKER_FLAGS=-align:32 -driver

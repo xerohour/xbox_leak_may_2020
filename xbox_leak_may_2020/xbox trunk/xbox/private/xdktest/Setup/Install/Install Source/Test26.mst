@@ -1,0 +1,50 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Use CD Source Path, using buttons"
+	Dim tempBuild$, setupPath$
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Query user for setup to run
+	'
+	tempBuild = LatestBuild()
+if false then
+	setupPath = ""
+	while setupPath = ""
+		setupPath = Inputbox("Enter Full CD Path to setup.exe", "Setup testing of CD install", "e:\setup.exe")
+		if not exists(setupPath) then
+			Msgbox("Path is invalid! Please re-enter")
+			setupPath = ""
+		end if
+	wend
+else
+	setupPath = "e:\setup.exe"
+end if
+	'
+	' Install from CD
+	'
+	Install(BuildNumber, false, false, , setupPath)
+
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

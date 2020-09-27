@@ -1,0 +1,33 @@
+TARGETNAME=USBXBServer
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+
+BROWSER_INFO=1
+
+SYNCRHONIZE_DRAIN=1
+
+INCLUDES=$(SDKDIR);$(BASEDIR)\private\ntos\dd\usb\inc; \
+    $(BASEDIR)\private\test\inc; \
+    $(BASEDIR)\private\ntos\dd\usb\usbd; \
+    $(BASEDIR)\private\test\tools\usbxb\inclib; \
+	$(BASEDIR)\private\test\inc\cpx;				\
+	$(DDK_INC_PATH)\
+ 
+
+SOURCES=\
+    USBXBServer.cpp \
+    USBXBSock.cpp
+
+TARGETLIBS=\
+    $(SDK_LIB_PATH)\xnet$(D).lib                \
+    $(BASEDIR)\private\test\lib\*\cpxlib.lib    \
+    $(BASEDIR)\private\test\lib\*\tsc.lib       \
+    $(SDK_LIB_PATH)\xfont$(D).lib               \
+    $(LIBRARY_PATH)\d3d8$(D).lib                \
+    $(BASEDIR)\private\test\tools\USBXBox\inclib\*\USBXBDriver.lib
+    
+USE_MAPSYM  = 1
+
+

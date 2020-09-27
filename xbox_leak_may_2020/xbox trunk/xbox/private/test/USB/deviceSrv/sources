@@ -1,0 +1,66 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+TARGETNAME=deviceSrv
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+SYNCHRONIZE_DRAIN=1
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+
+SOURCES=csockserver.cpp \
+        cworkerthread.cpp \
+        deviceSrv.cpp \
+        utils.cpp \
+        iString.cpp \
+        usbmanager.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0x12340000 /INITFLAGS:3 /TESTNAME:"USB Device Server"
+
+TARGETLIBS=\
+           $(SDK_LIB_PATH)\xnet$(D).lib \
+           $(BASEDIR)\private\test\lib\*\xnetref$(D).lib \
+           $(SDK_LIB_PATH)\dplay8$(D).lib \
+           $(SDK_LIB_PATH)\d3d8$(D).lib \
+           $(SDK_LIB_PATH)\d3dx8$(D).lib \
+           $(SDK_LIB_PATH)\xfont$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+           $(SDK_LIB_PATH)\dmusic$(D).lib \
+           $(SDK_LIB_PATH)\netxmo$(D).lib \
+           $(SDK_LIB_PATH)\xgraphics$(D).lib \
+           $(SDK_LIB_PATH)\echoxmo$(D).lib
+
+
+

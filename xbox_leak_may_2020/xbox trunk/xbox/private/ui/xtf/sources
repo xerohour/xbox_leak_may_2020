@@ -1,0 +1,49 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+TARGETNAME=xtf
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+UMENTRY=main
+
+NOT_UNICODE=1
+USE_MFC=1
+USE_STL=1
+
+WIN32_WINNT_VERSION=0x0500
+WIN32_IE_VERSION=0x0501
+
+NO_BINPLACE=1
+
+SOURCES=\
+    fontextr.cpp\
+    fontoutl.cpp\
+    xtf.cpp\
+    xtf.rc
+
+INCLUDES=$(WSDK_INC_PATH)\mfc42
+
+TARGETLIBS=\
+    $(WSDK_LIB_PATH)\gdi32.lib\
+    $(WSDK_LIB_PATH)\glu32.lib
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_SOURCEFILE=stdafx.cpp
+
+MSC_WARNING_LEVEL=/W3 /WX

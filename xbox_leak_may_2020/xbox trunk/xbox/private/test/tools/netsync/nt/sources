@@ -1,0 +1,42 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+
+!include ..\sources.inc
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE
+
+TARGETNAME=netsync_nt
+TARGETTYPE=DYNLINK
+
+DLLDEF=netsync_nt.def
+
+UMTYPE=windows
+
+USE_NOLIBS=1
+
+TARGETLIBS= \
+    $(BASEDIR)\private\test\lib\*\xmem.lib \
+    $(LIBRARY_PATH)\kernel32.lib \
+    $(LIBRARY_PATH)\ntdll.lib    \
+    $(LIBRARY_PATH)\msvcrt.lib   \
+    $(LIBRARY_PATH)\ws2_32.lib   \
+    $(LIBRARY_PATH)\rpcrt4.lib   \
+
+SOURCES=$(SOURCES) \
+    netsync.rc     \

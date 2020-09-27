@@ -1,0 +1,271 @@
+;
+; This file defines the base virtual address for Dynamic Link Libraries (DLL)
+; that are part of the Olympus NT/Chicago product.
+;
+; The first token on a line is the name
+; of the DLL and the second token is the base virtual address, in hexidecimal.
+; The third token is the maximum size of the DLL image file,
+; including mapped symbols.
+;
+; NOTE: THESE ADDRESSES ARE NOT CHOSEN AT RANDOM.  THEY ARE CHOSEN TO MAKE IT
+;   EASIER TO FIND FAULTS W/O DEBUGGERS, TO MAKE THE DLL'S LOAD FASTER, AND TO
+;   KEEP OUT OF THE WAY OF MEMORY ALLOCATIONS IN GENERAL.
+;
+; NOTE ALSO: this file exists in tools\<platform>\nonship\lib as well and needs
+;   to be kept in sync with it.  Sizes here may be a little big, but that is to
+;   accomodate the larger image sizes on RISC platforms.
+;
+; Default images
+;
+usermode    0x00400000  0x000d0000
+;
+; main exes
+;
+msdev       0x00400000  0x000d0000
+;
+; main packages
+;
+devshl      0x50000000  0x00300000
+devprj      0x50300000  0x00100000
+devres      0x50400000  0x00400000
+devedit     0x50800000  0x00400000
+devdbg      0x50c00000  0x00400000
+devbld      0x51000000  0x00300000
+devmsin     0x51300000  0x00140000
+;
+; Help Packages [__DEVHELP98__]
+;
+;deviv       0x51300000  0x00140000
+deviv       0x51300000  0x00100000
+devhelp	0x51400000  0x00040000		
+;
+; build add on packages
+;
+devtool     0x51440000  0x00060000
+devxbox     0x514a0000  0x00060000
+devpmc      0x51600000  0x00030000
+devjvm      0x51630000  0x00030000
+;
+; language packages
+;
+devhtmx     0x51660000  0x00020000
+devcpp      0x51680000  0x00140000
+devjava     0x517c0000  0x000d0000
+devodl      0x51890000  0x00070000
+;
+; extra packages
+;
+devhtm      0x51900000  0x000b0000
+devpkg      0x519b0000  0x00030000
+devncb      0x519e0000  0x00050000
+devgal      0x51a30000  0x00130000
+devclvw     0x51b60000  0x00080000
+devddk      0x51be0000  0x00060000
+devxpgl     0x51c40000  0x00020000
+devent      0x51c60000  0x00080000
+devbied     0x51cd0000  0x00030000
+devdtg      0x51d10000  0x00100000
+devisws     0x51e10000  0x00100000
+devtlv      0x51f10000  0x00100000
+;
+; automation packages
+;
+devaut1     0x52010000  0x00200000
+devTLDc     0x52210000  0x00010000
+;
+; gap here from 52220000 to 52500000, to allow changes to those 
+; addresses above without necessitating changes to those below.
+;
+; expression evaluators
+;
+ee          0x52500000  0x00090000
+;
+; symbol handlers
+;
+sh          0x52590000  0x00040000
+shxbox      0x52590000  0x00040000
+symcvt      0x525d0000  0x00010000
+;
+; transport layers
+;
+tlloc        0x525e0000  0x00020000
+tln0t        0x525e0000  0x00020000
+tln0x        0x525e0000  0x00020000
+;tln0com     0x525e0000  0x00020000
+;tln0m0a     0x525e0000  0x00020000
+;tln0m1a     0x525e0000  0x00020000
+;tln0m0s     0x525e0000  0x00020000
+;tln0m0t     0x525e0000  0x00020000
+;tln0m1s     0x525e0000  0x00020000
+;tln0m1t     0x525e0000  0x00020000
+;tln1com     0x525e0000  0x00020000
+;tln1m0a     0x525e0000  0x00020000
+;tln1m1a     0x525e0000  0x00020000
+;tln1m0s     0x525e0000  0x00020000
+;tln1m1s     0x525e0000  0x00020000
+;tln2t       0x525e0000  0x00020000
+;tln3t       0x525e0000  0x00020000
+;
+; debug models and non-native debug models
+;
+dm          0x52600000  0x00050000
+dmkd        0x52600000  0x00050000
+nmn0m1p     0x52650000  0x00010000
+nmn0m0p     0x52660000  0x00010000
+nmsql       0x52670000  0x00010000
+;
+; execution models
+;
+em          0x52680000  0x00050000
+xem         0x52680000  0x00050000
+;
+; Vegas shell debugging components
+;
+native		0x52690000	0x00080000
+nativeD		0x52690000	0x00080000
+
+;
+; more wizards!
+;
+mfcapwz     0x52700000  0x00180000
+appwz_dll   0x52880000  0x00180000
+mfcclwz     0x52a00000  0x00180000
+mfcctlwz    0x52b80000  0x00050000
+custmwz     0x52bd0000  0x00080000
+cpstpdll    0x52c50000  0x00020000
+inetawiz    0x52c70000  0x00030000
+pkgwiz      0x52ca0000  0x00030000
+;free space from 0x52cd000 to 0x52ce000
+addinwz     0x52ce0000  0x00050000
+vjappwiz    0x52d30000  0x00080000
+atlwiz	    0x52db0000	0x00030000
+vjdbwiz     0x52de0000	0x00020000
+;
+; app wizard data
+;
+appwzenu    0x52e00000	0x00050000
+appwzjpn    0x52e50000	0x00050000
+appwzdeu    0x52ea0000	0x00050000
+appwzfra    0x52ef0000	0x00050000
+;
+; resource compilers
+;
+rcdll	    0x52f40000	0x00040000
+rcxdti	    0x52f80000	0x00030000
+;
+;yet more wizards
+;
+;
+crestyp     0x52fb0000	0x00060000
+exewz       0x53010000  0x00020000
+dllwz       0x53030000  0x00020000
+conwz       0x53050000  0x00020000
+makwz       0x53070000  0x00020000
+genwz       0x53090000  0x00020000
+libwz       0x530B0000  0x00020000
+xpwiz       0x530D0000	0x00020000
+xbgwz       0x530f0000  0x00020000
+xslwz       0x53110000  0x00020000
+; component libs
+;
+occ         0x54000000  0x00100000
+cawutil     0x54100000  0x00100000
+sysinfo     0x54200000  0x00100000
+tooltips    0x54300000  0x00100000
+dlgbar      0x54400000  0x00100000
+idle        0x54500000  0x00100000
+splash      0x54600000  0x00100000
+splitter    0x54700000  0x00100000
+docreg      0x54800000  0x00100000
+media       0x54900000  0x00100000
+password    0x54A00000  0x00100000
+addauto     0x54B00000  0x00100000
+sockets     0x54C00000  0x00100000
+progdlg     0x54D00000  0x00100000
+clipasst    0x54E00000  0x00100000
+guidgen     0x54F00000  0x00100000
+palette     0x55000000  0x00100000
+addpage     0x55100000  0x00100000
+mapicomp    0x55200000  0x00100000
+ctip        0x55300000  0x00100000
+statbar     0x55400000  0x00100000
+cmapi       0x55500000  0x00100000
+reminder    0x55600000  0x00100000
+pnp         0x55700000  0x00100000
+owndraw     0x55800000  0x00100000
+propsht     0x55900000  0x00100000
+popup       0x55a00000  0x00100000
+atlobj	    0x55b00000  0x00100000
+imecomp     0x55c00000  0x00100000
+;
+; Namespace DLL's
+;
+nsodbc      0x56000000  0x00100000
+nspcprj     0x56100000  0x00100000
+;
+; AutoResize
+;
+autolayt    0x56200000  0x00010000
+;
+; SQL SAPI and EE
+;
+eeswt       0x56310000  0x00010000
+shsql       0x56320000  0x00010000
+eesql       0x56330000  0x00010000
+;
+; InfoViewer COM goodies
+;
+ivtmon      0x56340000  0x00060000
+ivauto      0x563a0000  0x00050000
+;
+; miscellaneous stuff
+;
+slmscc      0x57fd0000  0x00030000
+slmhdlr     0x57fd0000  0x00030000
+;
+; da Vinci DLL's
+; (currently the build lives elsewhere, this is just a place-holder.)
+davinci     0x58000000  0x00800000
+;
+; Internet Studio DLL's
+fpclnt      0x59000000  0x00100000
+is20wel     0x59100000  0x00200000
+is20wec     0x59300000  0x00100000
+is20utl     0x59400000  0x00100000
+is20tl      0x59500000  0x00080000
+is20txt     0x59580000  0x00080000
+is20htp     0x59600000  0x00040000
+;
+; Internet Studio provided wizards
+iswframe    0x5a000000  0x00100000
+iswiz1      0x5a200000  0x00200000
+dbwiz1      0x5a400000  0x00200000
+;
+; misc
+;
+instrapi    0x5f000000  0x00010000
+cpdbase     0x5f010000  0x00020000
+feacp       0x5f030000  0x00200000
+;
+; CRT
+;
+msvcrt20    0x10100000  0x00080000
+msvcrt30    0x10200000  0x00100000
+;
+; program database components
+;
+mspdb30     0x10300000  0x00100000
+mspdb40     0x10300000  0x00100000
+mspdb41     0x10300000  0x00100000
+mspdb       0x10300000  0x00100000
+;
+; batch tool exes and dlls
+;
+cl          0x00400000  0x00020000
+c1xx        0x10400000  0x00200000
+c1          0x10600000  0x00100000
+c2          0x10700000  0x00200000
+
+; components for "edit & continue"
+msobj10     0x10900000  0x00040000
+msenc10     0x10940000  0x000c0000

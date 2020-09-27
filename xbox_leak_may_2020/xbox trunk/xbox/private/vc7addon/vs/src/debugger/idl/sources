@@ -1,0 +1,67 @@
+!IF 0
+
+Copyright (c) 1990-1998  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+
+BUILD_USING_VC7PDBS=1
+
+!include $(VSROOT)\sources.inc
+
+# must finish building this directory before anything else
+SYNCHRONIZE_BLOCK=1
+
+TARGETTYPE=DYNLINK
+TARGETNAME=msdbg2
+TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+TARGETPATHLIB=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+
+UMTYPE=windows
+NO_NTDLL=1
+
+COFFBASE=msdbg2
+DLLDEF=msdbg.def
+
+PASS0_HEADERDIR=$(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)
+PASS0_TLBDIR=$(VSBUILT)\$(BUILT_FLAVOR)\tlb
+PASS0_DLLDATADIR=$(O)
+PASS0_PROXYDIR=$(O)
+PASS0_SOURCEDIR=$(O)
+
+# MIDL only finds TLBs in the current directory or the path...
+PATH=$(PATH);$(PASS0_TLBDIR);$(EXTERNAL_ROOT)\tlb;$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+
+DLLDATA=dbgdlldata.c
+
+USER_INCLUDES=..\inc;$(URTSDKROOT)\include;..\..\common\idl\vs;..\..\common\idl\debugger
+
+USER_C_DEFINES=-DVS_IDL_BUILD -D_WIN32_DCOM -DREGISTER_PROXY_DLL 
+USER_C_DEFINES=$(USER_C_DEFINES) -DPROXY_CLSID_IS={0xc5621364,0x87cc,0x4731,{0x89,0x47,0x92,0x9c,0xae,0x75,0x32,0x3e}}
+
+LIBRARIAN_FLAGS=$(LIBRARIAN_FLAGS) -ignore:4006
+
+DLLENTRY=_DllMainCRTStartup
+
+DBG_IDL_FILES= \
+	enc.idl \
+	msdbg.idl \
+	sh.idl \
+
+
+DBG_UUID_C_FILES= \
+
+SOURCES= \
+	$(DBG_IDL_FILES) \
+	$(DBG_UUID_C_FILES)

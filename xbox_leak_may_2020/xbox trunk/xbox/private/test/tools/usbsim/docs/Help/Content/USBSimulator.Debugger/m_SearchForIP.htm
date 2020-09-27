@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Debugger.SearchForIP</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>SearchForIP</H1>
+    <DIV CLASS=BLOCK>
+    Resolves an XBox's machine name into an IP address.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("BSTR SearchForIP(BSTR machineName)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>machineName</I><BR>
+        The name of the XBOX.
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>This method must use a UDP broadcast to request the IP address from the specified XBOX. If the machine is behind a switch that doesnt propogate network broadcasts, then you will be unable to resolve the name.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var debugmontor = WScript.CreateObject(\"USBSimulator.Debugger\");\n\ndebugmonitor.Connect(debugmonitor.SearchForIP(\"myxbox\"));\nWScript.Echo(debugmonitor.GetResponse());\n\ndebugmonitor.SendCommand(\"QUERYKMEMINFO\\r\\n\");\nWScript.Echo(debugmonitor.GetResponse());\n\ndebugmonitor.Disconnect();");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="m_Connect.htm">Connect</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

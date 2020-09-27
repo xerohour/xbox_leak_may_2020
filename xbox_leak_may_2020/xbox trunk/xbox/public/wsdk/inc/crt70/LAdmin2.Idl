@@ -1,0 +1,978 @@
+/*--------------------------------------------------------------------------
+    ladmin2.idl
+        
+	Copyright (C) 1997 - 1999 Microsoft Corporation. All rights reserved.
+
+
+	Interfaces: Ildapcfg
+	
+	Description: The Ildapcfg interface is the central administration
+					interface for the Microsoft LDAP Server.
+
+ --------------------------------------------------------------------------*/
+
+import "oaidl.idl";
+import "ocidl.idl";
+	
+	[
+		object,
+		uuid(40E9AD63-E2A1-11D0-920F-00C04FB954C7),
+		dual,
+		helpstring("Ildapcfg Interface"),
+		pointer_default(unique)
+	]
+	interface Ildapcfg : IDispatch
+	{
+		/* REMOTE ADMINISTRATION METHODS */
+
+		/* METHOD AttachToRemoteMachine 
+
+			[in] VARIANT szMachineName: 
+						A string representing the name of the remote
+						machine whose LDAP server is to be configured. 
+						The string can be a UNC name, a DNS name, or
+						an IP address. 
+
+			This method permits for remote administration using the Ildapcfg
+			interface. 
+			
+			For performance and ease-of-use reasons, the object
+			that implements the Ildapcfg interface is a COM object. This 
+			object, in turn, connects to a DCOM object that is part 
+			of the LDAP server in order to perform the necessary
+			configuration activities. 
+
+			By default, the Ildapcfg object connects to the LDAP server
+			on the local machine. Using this method, however, connections
+			can be established to an LDAP server on some other machine. 
+			This allows the use of the Ildapcfg methods and properties
+			in the administration of that remote server. 
+
+			The AttachToRemoteMachine must be called before any attempt
+			to configure a remote LDAP server. The effects of this
+			method last until the next call to AttachToRemoteMachine, or
+			a call to AttachToLocalMachine. 
+		*/
+
+		[helpstring("Attaches the LDAP Administration Object to an LDAP server on a remote machine.")]
+				HRESULT AttachToRemoteMachine([in] VARIANT szMachineName); 
+
+		/* METHOD AttachToLocalMachine
+
+			Attaches the LDAP Administration object to the LDAP server 
+			on the local machine. This is the default behavior. 
+			This method can be used to reset the effects of 
+			AttachToRemoteMachine. 
+
+		*/
+
+		[helpstring("Attaches the LDAP Administration Object to the LDAP server on the local machine.")]
+				HRESULT AttachToLocalMachine(); 
+
+		/* CONFIGURATION CONTROL METHODS */
+
+		/* METHOD LoadConfig
+		 
+		   [in] VARIANT Data: An integer specifying the instance (virtual server) number
+								of the LDAP server who's configuration we want to load.
+
+			Once a configuration has been loaded with LoadConfig, the below described
+			properties can be used to modify the configuration. The configuration is 
+			saved with the SaveConfig method. 
+		*/
+					
+		[helpstring("method LoadConfig")] HRESULT LoadConfig([in] VARIANT Data);
+
+		/* METHOD SaveConfig
+
+			Saves the previously loaded configuration. 
+
+		*/
+
+		[helpstring("method SaveConfig")] HRESULT SaveConfig();
+
+		/* METHOD CreateConfig
+
+			[in] VARIANT Data: An integer server instance number, this should be an
+								unused instance number. 
+
+			The CreateConfig method creates a new default configuration with
+			a given instance number. In essence, therefore, a new LDAP server
+			instance is created, in a STOPPED state and with a completely default 
+			configuration. 
+
+			Once a configuration is created, it becomes accessible through the below
+			properties and thus the new server can be reconfigured. Any reconfigurations
+			must be saved with SaveConfig. The server can be started via the server
+			control functions below 
+		*/
+
+		[helpstring("method CreateConfig")] HRESULT CreateConfig([in] VARIANT Data);
+
+		/* METHOD DeleteConfig
+
+			[in] VARIANT lInstanceId: An integer server instance number, must be an instance
+								number used by some LDAP server. 
+
+			The DeleteConfig method completed a deletes a server's configuration
+			from the system. This anihilating the server from existence. The given
+			instance number therefore becomes available for a CreateConfig operation. 
+		*/
+
+		[helpstring("method DeleteConfig")]
+				HRESULT DeleteConfig(
+							[in]  VARIANT lInstanceId
+							); 
+
+		/* PROPERTIES */
+
+		/* GENERAL PROPERTIES */
+
+		/* PROPERTY Port (Type: integer)
+
+			The TCP/IP Port to which the LDAP server instance listens. 
+		*/
+		
+		[propget, helpstring("method Port")] HRESULT Port([out, retval] VARIANT *pData);
+		[propput, helpstring("method Port")] HRESULT Port([in] VARIANT Data);
+
+		/* PROPEPRTY SecurePort (Type: integer)
+
+			The secure (SSL) port to which the LDAP server instance listens. 
+		*/
+
+		[propget, helpstring("method SecurePort")] HRESULT SecurePort([out, retval] VARIANT *pData);
+		[propput, helpstring("method SecurePort")] HRESULT SecurePort([in] VARIANT Data);
+
+		/* PROPERTY IP (Type: string)
+
+			The IP address to which the LDAP server instance binds. Can be empty string
+			to allow binding to any available interface on the local computer.
+
+			The list of vald IP Addresses on the LDAP server machine can be obtained
+			from the SupportedIPs read-only property. This valid IP address list is
+			checked whenever an IP change is attempted. An error is returned on 
+			an attempt to change the LDAP server IP to one which is not valid 
+			on the LDAP server machine. 
+		*/
+
+		[propget, helpstring("method IP")] HRESULT IP([out, retval] VARIANT *pData);
+		[propput, helpstring("method IP")] HRESULT IP([in] VARIANT Data);
+
+
+		/* PROPERTY SupportedIPs (Type: SAFEARRAY of Variant of BSTR)
+
+			A list of IP addresses supported on the LDAP server machine. This list is
+			automatically checked when the IP or DNSName properties are modified to make 
+			sure the new IP address is supported. This property should be used primarily
+			for UI elements (such as a list box that allows the user to select only valid
+			IP addresses). SupportedIPs is a read-only property. 
+		*/
+
+		[propget, helpstring("IP Addresses Supported on the LDAP server machine.")]
+					HRESULT SupportedIPs([out, retval] VARIANT *pData); 
+
+		/* PROPERTY DNSName (Type: string)
+
+			The hostname of the machine to which the LDAP server instance is bound. 
+			This property reads as the local machine's name if an IP address is unspecified. 
+
+			Setting this property makes appropriate changes to the IP property and vice-versa. 
+		*/
+
+		[propget, helpstring("method DNSName")] HRESULT DNSName([out, retval] VARIANT *pData);
+		[propput, helpstring("method DNSName")] HRESULT DNSName([in] VARIANT Data);
+
+		/* PROPETY ReadOnlyMode (Type: boolean)
+
+			Specifies whether the server instance is in read only mode. 
+		*/
+
+		[propget, helpstring("method ReadOnlyMode")] HRESULT ReadOnlyMode([out, retval] VARIANT *pData);
+		[propput, helpstring("method ReadOnlyMode")] HRESULT ReadOnlyMode([in] VARIANT Data);
+
+		/* PROPERTY EnableAllSub (type: boolean)
+
+			Specifies whether the server instance enables the finding or all substrings on
+			a substring search or only the initial substring. 
+		*/
+
+		[propget, helpstring("method EnableAllSub")] HRESULT EnableAllSub([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableAllSub")] HRESULT EnableAllSub([in] VARIANT Data);
+
+		/* PROPERTY MaxPageSize (type: integer)
+
+			The maximum page size of each query. 
+		*/
+
+		[propget, helpstring("method MaxPageSize")] HRESULT MaxPageSize([out, retval] VARIANT *pData);
+		[propput, helpstring("method MaxPageSize")] HRESULT MaxPageSize([in] VARIANT Data);
+
+		/* PROPERTY MaxResultSet (type: integer)
+
+			The maximum result set of each query. 
+		*/
+
+		[propget, helpstring("method MaxResultSet")] HRESULT MaxResultSet([out, retval] VARIANT *pData);
+		[propput, helpstring("method MaxResultSet")] HRESULT MaxResultSet([in] VARIANT Data);
+
+		/* PROPETY MaxQueryTime (type: integer)
+
+			The maximum time before the query times out in ms. 
+		*/
+
+		[propget, helpstring("method MaxQueryTime")] HRESULT MaxQueryTime([out, retval] VARIANT *pData);
+		[propput, helpstring("method MaxQueryTime")] HRESULT MaxQueryTime([in] VARIANT Data);
+
+
+		/* PROPETY MaxConnection (type: integer)
+
+			The maximum ldap connection per instance
+		*/
+
+		[propget, helpstring("method MaxConnection")] HRESULT MaxConnection([out, retval] VARIANT *pData);
+		[propput, helpstring("method MaxConnection")] HRESULT MaxConnection([in] VARIANT Data);
+
+		/* PROPETY ConnectionTimeout (type: integer)
+
+			Idle time allowed for each connection before it is dropped (in second)
+		*/
+
+		[propget, helpstring("method ConnectionTimeout")] HRESULT ConnectionTimeout([out, retval] VARIANT *pData);
+		[propput, helpstring("method ConnectionTimeout")] HRESULT ConnectionTimeout([in] VARIANT Data);
+
+		/* BLACKLISTING PROPERTIES */
+
+		/* PROPETY EnableShortTermIPBlacklisting (type: integer)
+		*/
+		[propget, helpstring("method EnableShortTermIPBlacklisting")] HRESULT EnableShortTermIPBlacklisting([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableShortTermIPBlacklisting")] HRESULT EnableShortTermIPBlacklisting([in] VARIANT Data);
+
+
+		/* PROPETY EnableShortTermAccountBlacklisting (type: integer)
+		*/
+		[propget, helpstring("method EnableShortTermAccountBlacklisting")] HRESULT EnableShortTermAccountBlacklisting([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableShortTermAccountBlacklisting")] HRESULT EnableShortTermAccountBlacklisting([in] VARIANT Data);
+
+
+		/* SECURITY PROPERTIES */
+
+		/* PROPERTY Authorization (type: integer)
+
+			Describes the authorization method supported by the server.
+			Valid values are 
+						MD_AUTH_ANONYMOUS  (1) 
+						MD_AUTH_BASIC      (2) - Clear Text
+						MD_AUTH_NT		   (4) - NTLM or DPA
+					or any additive combination (bitwise or) of the three. 
+		*/
+
+		[propget, helpstring("method Authorization")] HRESULT Authorization([out, retval] VARIANT *pData);
+		[propput, helpstring("method Authorization")] HRESULT Authorization([in] VARIANT Data);
+
+		/* PROPERTY EnableSSL (type: boolean)
+
+			Reflects whether the server instance supports SSL. 
+		*/
+
+		[propget, helpstring("method EnableSSL")] HRESULT EnableSSL([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableSSL")] HRESULT EnableSSL([in] VARIANT Data);
+
+		/* PROPERTY EnableSSL128 (type: boolean)
+
+			Reflects whether the server isntance supports 128bit SSL. 
+		*/
+
+		[propget, helpstring("method EnableSSL128")] HRESULT EnableSSL128([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableSSL128")] HRESULT EnableSSL128([in] VARIANT Data);
+
+		/* DYNAMIC OBJECT PROPERTIES */
+
+		/* PROPERTY EnableDynamic (type: boolean)
+
+			Determines whether the server supports dynamic objects (ILS). 
+		*/
+
+		[propget, helpstring("method EnableDynamic")] HRESULT EnableDynamic([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableDynamic")] HRESULT EnableDynamic([in] VARIANT Data);
+
+		/* PROPERTY MinTTL (type: integer)
+
+			The minimum Time To Live of a dynamic object in seconds. 
+		*/
+
+		[propget, helpstring("method MinTTL")] HRESULT MinTTL([out, retval] VARIANT *pData);
+		[propput, helpstring("method MinTTL")] HRESULT MinTTL([in] VARIANT Data);
+
+		/* PROPERTY MaxDynamObj (type: integet)
+
+			The maximum number of dynamic objects. 
+		*/
+
+		[propget, helpstring("method MaxDynamObj")] HRESULT MaxDynamObj([out, retval] VARIANT *pData);
+		[propput, helpstring("method MaxDynamObj")] HRESULT MaxDynamObj([in] VARIANT Data);
+
+		/* PROPERTY EnableRTPerson (type: boolean)
+
+			TRUE if the server supports v1 backwards compatibility. 
+		*/
+
+		[propget, helpstring("method EnableRTPerson")] HRESULT EnableRTPerson([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableRTPerson")] HRESULT EnableRTPerson([in] VARIANT Data);
+
+		/* PROPERTY EnableReplicate (type: boolean)
+			
+			TRUE if the server replicates to other ILS servers. 
+		*/
+
+		[propget, helpstring("method EnableReplicate")] HRESULT EnableReplicate([out, retval] VARIANT *pData);
+		[propput, helpstring("method EnableReplicate")] HRESULT EnableReplicate([in] VARIANT Data);
+
+		/* LOGGING PROPERTIES */
+
+		/* PROPERTY EnableLog (type: boolean)
+
+			Indicates whether the server is to perform transaction logging. 
+		*/
+
+		[propget, helpstring("method EnableLog")] HRESULT EnableLog([out, retval] VARIANT *pData);		
+		[propput, helpstring("method EnableLog")] HRESULT EnableLog([in] VARIANT Data);
+
+		/* ROOT DATA STORE CONFIGURATION PROPERTIES */
+
+		/* PROPERTY DBType (type: integer)
+
+			The type of the root data store for the server. 
+			Valid values are 1 for a SQL Database or 2 for a JET Database. 
+		*/
+
+		[propget, helpstring("method DBType")] HRESULT DBType([out, retval] VARIANT *pData);
+		[propput, helpstring("method DBType")] HRESULT DBType([in] VARIANT Data);
+
+		/* PROPERTY DBSource (type: string)
+
+			For a SQL Database, the name of the server the database is on.
+			For a JET Database, the path to the MDB file that contains the database. 
+		*/
+
+		[propget, helpstring("method DBSource")] HRESULT DBSource([out, retval] VARIANT *pData);
+		[propput, helpstring("method DBSource")] HRESULT DBSource([in] VARIANT Data);
+
+		/* PROPERTY DBName (type: string)
+			
+			For SQL, the name of the database the server uses. 
+			This property is not used if a JET data store is selected.
+		*/
+
+		[propget, helpstring("method DBName")] HRESULT DBName([out, retval] VARIANT *pData);
+		[propput, helpstring("method DBName")] HRESULT DBName([in] VARIANT Data);
+
+		/* PROPERTY DBUsername (type: string)
+
+			The login name for the database. 
+		*/
+
+		[propget, helpstring("method DBUsername")] HRESULT DBUsername([out, retval] VARIANT *pData);
+		[propput, helpstring("method DBUsername")] HRESULT DBUsername([in] VARIANT Data);
+
+		/* PROPERTY DBPassword (type: string)
+
+			The login password for the database. 
+		*/
+
+		[propget, helpstring("method DBPassword")] HRESULT DBPassword([out, retval] VARIANT *pData);
+		[propput, helpstring("method DBPassword")] HRESULT DBPassword([in] VARIANT Data);		
+
+		/* SERVER STATE CONTROL METHODS */
+
+		/* METHOD GetServerState
+
+			[in] VARIANT Instance: The instance number of the server of interest. 
+			[out] VARIANT *lState: returned integer value indicating the state of the server. 
+
+			Possible values for lState are:
+						1 - "Server is Starting"
+						2 - "Server has been Started"
+						3 - "Server is Stopping"
+						4 - "Server has been Stopped"
+						5 - "Server is Pausing"
+						6 - "Server has been Paused"
+						7 - "Server is trying to Continue after a Pause"
+				
+		*/			
+
+		[helpstring("method GetServerState")] HRESULT GetServerState([in] VARIANT Instance, [out] VARIANT *lState);
+
+		/* METHODS StartServer, StopServer, PauseServer, ContinueServer. 
+
+			[in] VARIANT lInstanceId: The instance number of the server of interest. 
+
+			These methods attempts to Start, Stop, Pause, or Continue the given server instance. 
+		*/
+
+		[helpstring("method StartServer")] 
+				HRESULT StartServer(
+							[in]  VARIANT lInstanceId
+							);
+		[helpstring("method StopServer")] 
+				HRESULT StopServer(
+							[in]  VARIANT lInstanceId
+							);
+		[helpstring("method PauseServer")] 
+				HRESULT PauseServer(
+							[in]  VARIANT lInstanceId
+							);
+		[helpstring("method ContinueServer")] 
+				HRESULT ContinueServer(
+							[in]  VARIANT lInstanceId
+							);
+
+		/* ADVANCED ADMINISTRATIVE FUNCTIONS */
+
+		/* DATABASE MANAGEMENT FUNCTIONS */
+
+
+		/* METHOD CompactDatabase
+
+			[in] VARIANT lInstanceId: The instance number of the server of interest.
+
+			Compact the database used by the given LDAP server instance. 
+			This procedure is only applicable to LDAP servers that use
+			Access as an underlying database. 
+
+			WARNING: The given LDAP server instance will be stopped
+			and restarted during the compaction process. This is necessary in 
+			order for the Access DB driver to obtain an exclusive lock 
+			on the database as mandated by its compaction procedure. 
+
+			The CompactDatabase method will fail if another LDAP instance, 
+			aside from the given one, is also using the same Access Database.
+			Such instances must be stopped in order for the compact 
+			operation to succeed. 
+		*/
+
+		[helpstring("Compact an Access Database for a particular LDAP Server.")]
+				HRESULT CompactDatabase(
+							[in] VARIANT lInstanceId
+							);
+
+		/* METHOD RepairDatabase
+
+			[in] VARIANT lInstanceId: The instance number of the server of interest.
+
+			Repair the database used by the given LDAP server instance. 
+			This procedure is only applicable to LDAP servers that use
+			Access as an underlying database. 
+
+			WARNING: The given LDAP server instance will be stopped
+			and restarted during the repair process. This is necessary in 
+			order for the Access DB driver to obtain an exclusive lock 
+			on the database as mandated by its repair procedure. 
+
+			The RepairDatabase method will fail if another LDAP instance, 
+			aside from the given one, is also using the same Access Database.
+			Such instances must be stopped in order for the repair 
+			operation to succeed. 
+		*/
+
+		[helpstring("Repair an Access Database for a particular LDAP Server.")] 
+				HRESULT RepairDatabase(
+							[in] VARIANT lInstanceId
+							); 
+
+		/* REPLICATION/PARTITIONING FUNCTIONS */
+
+		/* METHOD GetDynamicReplicationList
+
+			[in] VARIANT lInstanceId: The instance number of the server of interest
+			[out] VARIANT *rgszReplNames: The list of machine names
+			[out] VARIANT *rgszReplIDs: The list of machine IDs
+
+			Retrieves the list of LDAP/ILS servers that replicate to each other. 
+
+			The rgszRepl* out parameters are VARIANT Safe Arrays of VARIANT BSTRs. 
+
+		*/
+
+		[helpstring("method GetDynamicReplicationList")] 
+				HRESULT GetDynamicReplicationList(
+							[in] VARIANT lInstanceId,
+							[out] VARIANT * rgszReplNames,		
+							[out] VARIANT * rgszReplIDs 		
+							);
+
+		//
+		// GetDirectoryProperties
+		//
+		// Purpose: Gets the information displayed on the MMC directory properties page
+		//
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szRealm (out):
+		//		the NT security realm
+		//
+		//	szDnPrefix (out): 
+		//		the naming prefix
+		//
+		//	fIsSQL (out):
+		//		indicates whether this directory has a sql (hence partitioned/replicated)
+		//		store.  Zero (0) indicates false, or NON-sql, One (1) indicates TRUE.
+		//
+		//	fExtSec (out):
+		//		indicates whether this directory uses NtSecurity or U2Security
+		//		Zero (0) indicates U2, or (1) NT.
+		//
+		//	rgszContainerPartitions (out):
+		//		this is a variant of type SAFEARRAY.  The SAFEARRAY in turn contains
+		//		VARIANTS of VT_BSTR (BSTR's).  The strings represent the names of 
+		//		the namespace partitions of the directory, e.g. c=us or 
+		//		ou=members;o=microsoft
+		//
+		[helpstring("method GetDirectoryProperties")]
+				HRESULT GetDirectoryProperties(
+							[in] VARIANT lInstanceId,
+							[out] VARIANT *szRealm,
+							[out] VARIANT *szDnPrefix,
+							[out] VARIANT * fIsSQL,
+							[out] VARIANT * fExtSec,
+							[out] VARIANT * rgszContainerPartitions  
+							);
+		//
+		// SetDirectoryProperties
+		//
+		// Purpose: Sets the Realm and Naming prefix based on changes in the 
+		//		Directory Properties page.
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szRealm (in):
+		//		the NT security realm
+		//
+		//	szDnPrefix (in): 
+		//		the naming prefix
+		//
+		[helpstring("method SetDirectoryProperties")]
+				HRESULT SetDirectoryProperties(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szRealm,
+							[in] VARIANT szDnPrefix
+							);
+
+		//
+		// GetSubPartitions
+		//
+		// Purpose: Obtains a list of subpartitions for a particular container
+		//
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szContainer (in)
+		//		The container for which the list of SubPartitions (aka Value Partitions)
+		//		is being requested.
+		// 
+		//	rgdwSubPartitionNumber (out)
+		//		Variant which contains a SAFEARRAY of VT_I4 (4 byte integer).  This integer
+		//		specifies each of the available subpartitions on a namespace partition.
+		//
+		[helpstring("method GetSubPartitions")]
+				HRESULT GetSubPartitions(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szContainer,
+							[out] VARIANT *  rgdwSubPartitionNumber
+							); 
+
+		//
+		// GetPartitionDbInfo
+		//
+		// Purpose: Queries all the information on the databases which support a given
+		//		partition.
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szContainerPartition (in):
+		//		The name of the namespace partition for which the information is requested.
+		//
+		//	lSubPartitionNumber (in):
+		//		The number of the subpartition for which the information is requested.
+		//
+		//	NOTE: Indices on the remaining parameters are correlated; 
+		//		e.g. rgdwServerId[n] correllates to rgszServerName[n]
+		//
+		//	rgdwServerId (out):
+		//		A VARIANT of type SAFEARRAY containing VT_I4 integers indicating the 
+		//		server id of each supporting server/database combination.
+		//
+		//	rgszServerName (out):
+		//		A VARIANT of type SAFEARRAY containing VT_BSTR strings indicating the
+		//		name of each of the supporting SQL servers.
+		//
+		//	rgszDatabaseName (out):
+		//		A VARIANT of type SAFEARRAY containing VT_BSTR strings indicating the
+		//		targeted database on each of the supporting SQL servers.
+		//	
+		//	rgszLogin (out):
+		//		A VARIANT of type SAFEARRAY containing VT_BSTR strings indicating the
+		//		login name for each of the supporting SQL servers.
+		//
+		//	rgszPassword (out):
+		//		A VARIANT of type SAFEARRAY containing VT_BSTR strings indicating the
+		//		login password for each of the supporting SQL servers.
+		//
+		//	rgdwMaxCnx (out):
+		//		A VARIANT of type SAFEARRAY containing VT_I4 integers indicating the
+		//		maximum number of concurrent connections allowed from the LDAP server
+		//		to the SQL server.
+		//
+		//	rgdwTimeout (out):
+		//		A VARIANT of type SAFEARRAY containing VT_I4 integers indicating the
+		//		maximum time a request should be allowed to remain outstanding on the
+		//		SQL server (how long before the LDAP server gives up on getting a
+		//		response back from the SQL server.
+		// 
+		//	rgdwReplicationType (out):
+		//		A VARIANT of type SAFEARRAY containing VT_I4 integers indicating the
+		//		replication type of the supporting SQL server.  A SQL server can be of
+		//		types U2_REPLTYPE_WRITE, U2_REPLTYPE_READ, or U2_REPLTYPE_BOTH.
+		//
+
+		[helpstring("method GetPartitionDbInfo")]
+				HRESULT GetPartitionDbInfo(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szContainerPartition,
+							[in] VARIANT lSubPartitionNumber,		
+							[out] VARIANT * rgdwServerId,		
+							[out] VARIANT * rgszServerName,		
+							[out] VARIANT * rgszDatabaseName,	
+							[out] VARIANT * rgszLogin,			
+							[out] VARIANT * rgszPassword,		
+							[out] VARIANT * rgdwMaxCnx,			
+							[out] VARIANT * rgdwTimeout,		
+							[out] VARIANT * rgdwReplicationType	
+							);
+		//
+		// GetParitionDbServer
+		//
+		// Purpose: Queries all the information on a database which supports a given
+		//		partition.
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szContainerPartition (in):
+		//		The name of the namespace partition for which the information is requested.
+		//
+		//	lSubPartitionNumber (in):
+		//		The number of the subpartition for which the information is requested.
+		//
+		//	dwServerId (in):
+		//		server id of the server/database combination for which the information
+		//		is requested.
+		//
+		//	szServerName (out):
+		//		The name of the supporting SQL server.
+		//
+		//	szDatabaseName (out):
+		//		The targeted database on the supporting SQL server.
+		//	
+		//	szLogin (out):
+		//		The login name for the supporting SQL server.
+		//
+		//	szPassword (out):
+		//		The login password for each the supporting SQL server.
+		//
+		//	dwMaxCnx (out):
+		//		The maximum number of concurrent connections allowed from the LDAP server
+		//		to the SQL server.
+		//
+		//	dwTimeout (out):
+		//		The maximum time a request should be allowed to remain outstanding on the
+		//		SQL server (how long before the LDAP server gives up on getting a
+		//		response back from the SQL server).
+		// 
+		//	dwReplicationType (out):
+		//		The replication type of the supporting SQL server.  A SQL server can be of
+		//		types U2_REPLTYPE_WRITE, U2_REPLTYPE_READ, or U2_REPLTYPE_BOTH.
+		//
+
+		[helpstring("method GetPartitionDBServer")]
+				HRESULT GetPartitionDbServer(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szContainerPartition,
+							[in] VARIANT lSubPartitionNumber,		
+							[in] VARIANT dwServerId,				
+							[out] VARIANT * szServerName,		
+							[out] VARIANT * szDatabaseName,			
+							[out] VARIANT * szLogin,						
+							[out] VARIANT * szPassword,				
+							[out] VARIANT * dwMaxCnx,					
+							[out] VARIANT * dwTimeout,					
+							[out] VARIANT * dwReplicationType														
+							);
+
+		//
+		// AddPartitionDbServer
+		//
+		// Purpose: Adds a db server to a given partition.
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szContainerPartition (in):
+		//		The name of the namespace partition for which the addition is targeted.
+		//
+		//	lSubPartitionNumber (in):
+		//		The number of the subpartition for which the addition is targeted.
+		//
+		//	dwServerId (out):
+		//		server id of the server/database combination for which the
+		//		addition is targeted; generated by the db and returned here.
+		//
+		//	szServerName (in):
+		//		The name of the supporting SQL server.
+		//
+		//	szDatabaseName (in):
+		//		The targeted database on the supporting SQL server.
+		//	
+		//	szLogin (in):
+		//		The login name for the supporting SQL server.
+		//
+		//	szPassword (in):
+		//		The login password for each the supporting SQL server.
+		//
+		//	dwMaxCnx (in):
+		//		The maximum number of concurrent connections allowed from the LDAP server
+		//		to the SQL server.
+		//
+		//	dwTimeout (in):
+		//		The maximum time a request should be allowed to remain outstanding on the
+		//		SQL server (how long before the LDAP server gives up on getting a
+		//		response back from the SQL server).
+		// 
+		//	dwReplicationType (in):
+		//		The replication type of the supporting SQL server.  A SQL server can be of
+		//		types U2_REPLTYPE_WRITE, U2_REPLTYPE_READ, or U2_REPLTYPE_BOTH.
+		//
+		//	lSubrefPartitionID (in):
+		//		If this is a subref partition, this tells us what partition the subref
+		//		which references the new database lives on.  
+		//		If this is not a partition this value MUST be bitwise not zero 
+		//		(~0, or 0xffffffff)
+		//
+		//	lSubrefObjectID (in):
+		//		If this is a subref partition, this tells us the DSID of the object
+		//		which references the new database.
+		//		If this is not a partition this value MUST be bitwise not zero
+		//		(~0, or 0xffffffff)
+
+		[helpstring("method AddPartitionDbServer")]
+				HRESULT AddPartitionDbServer(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szContainerPartition,
+							[in] VARIANT lSubPartitionNumber,		
+							[out] VARIANT * dwServerId,				
+							[in] VARIANT szServerName,		
+							[in] VARIANT szDatabaseName,			
+							[in] VARIANT szLogin,						
+							[in] VARIANT szPassword,				
+							[in] VARIANT dwMaxCnx,					
+							[in] VARIANT dwTimeout,					
+							[in] VARIANT dwReplicationType,  											
+							[in] VARIANT lSubrefPartitionID,  
+							[in] VARIANT lSubrefObjectID    												
+							);
+		//
+		// EditPartitionDbServer
+		//
+		// Purpose: Changes the information about a database server that supports a given partition
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szContainerPartition (in):
+		//		The name of the namespace partition to be edited.
+		//
+		//	lSubPartitionNumber (in):
+		//		The number of the subpartition to be edited.
+		//
+		//	dwServerId (in):
+		//		server id of the server/database combination to be edited.
+		//
+		//	szServerName (in):
+		//		The name of the supporting SQL server.
+		//
+		//	szDatabaseName (in):
+		//		The targeted database on the supporting SQL server.
+		//	
+		//	szLogin (in):
+		//		The login name for the supporting SQL server.
+		//
+		//	szPassword (in):
+		//		The login password for each the supporting SQL server.
+		//
+		//	dwMaxCnx (in):
+		//		The maximum number of concurrent connections allowed from the LDAP server
+		//		to the SQL server.
+		//
+		//	dwTimeout (in):
+		//		The maximum time a request should be allowed to remain outstanding on the
+		//		SQL server (how long before the LDAP server gives up on getting a
+		//		response back from the SQL server).
+		// 
+		//	dwReplicationType (in):
+		//		The replication type of the supporting SQL server.  A SQL server can be of
+		//		types U2_REPLTYPE_WRITE, U2_REPLTYPE_READ, or U2_REPLTYPE_BOTH.
+		//
+		[helpstring("method EditPartitionDbServer")]
+				HRESULT EditPartitionDbServer(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szContainerPartition,
+							[in] VARIANT lSubPartitionNumber,		
+							[in] VARIANT dwServerId,				
+							[in] VARIANT szServerName,		
+							[in] VARIANT szDatabaseName,			
+							[in] VARIANT szLogin,						
+							[in] VARIANT szPassword,				
+							[in] VARIANT dwMaxCnx,					
+							[in] VARIANT dwTimeout,					
+							[in] VARIANT dwReplicationType														
+							);
+
+		//
+		// RemoveDbServer
+		//
+		// Purpose: Allows removal of a db server which supports a partition.
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szContainerPartition (in):
+		//		The name of the namespace partition for which the removal is targeted.
+		//
+		//	lSubPartitionNumber (in):
+		//		The number of the subpartition for which the removal is targeted.
+		//
+		//	dwServerId (in):
+		//		server id of the server/database combination for which the removal
+		//		is targeted.
+		//
+		[helpstring("method RemovePartitionDbServer")]
+				HRESULT RemovePartitionDbServer(
+							[in] VARIANT lInstanceId,
+							[in] VARIANT szContainerPartition,
+							[in] VARIANT lSubPartitionNumber,		
+							[in] VARIANT dwServerId													
+							);	
+
+		//
+		// CreateDSPartition
+		//
+		// Purpose: Adds a partition set to the dsotbl and dsogrid..
+		// 
+		// Parameters:
+		//		
+		//	lInstanceId (in): 
+		//		the virtual server instance the root db information is requested for
+		//
+		//	szDn (in): 
+		//		the dn of the new partition
+		//
+		//	lCount (in): 
+		//		the number of subpartitions to put on this partition
+		//
+		//  plPartitionID (out):
+		//		the partition of the object to be converted to a subref
+		//
+		//  plObjectID (out):
+		//		the target object being converted
+		//
+		[helpstring("method CreateDSPartition")] 
+				HRESULT CreateDSPartition(
+							[in] VARIANT lInstanceId, 
+							[in] VARIANT szDn, 
+							[in] VARIANT lCount,
+							[out] VARIANT * plPartitionID,
+							[out] VARIANT * plObjectID
+							);
+
+		[helpstring("method ListAllReplica")]
+			HRESULT ListAllReplica(
+							[out] VARIANT * rgServerId,			// SAFEARRAY OF VARIANT OF LONG
+							[out] VARIANT * rgszServerName,		// SAFEARRAY OF VARIANT OF BSTR
+							[out] VARIANT * rgszRpcGuid			// SAFEARRAY OF VARIANT OF BSTR
+							);
+
+		[helpstring("method AddReplica")]
+			HRESULT AddReplica(
+							[in]	long	lServerId,
+							[in]	BSTR	szServerName,
+							[in]	BSTR	szRpcGuid
+							);
+
+		[helpstring("method DelReplica")]
+			HRESULT DelReplica(
+							[in]	long	lServerId
+							);
+
+		[helpstring("method ConfigLocalReplica")]
+			HRESULT ConfigLocalReplica(
+							[in]	long	lNewServerId,
+							[out]	VARIANT *szRpcGuid
+							);
+
+		[helpstring("method QueryLocalReplica")]
+			HRESULT QueryLocalReplica(
+							[out]	VARIANT* lServerId
+							);
+
+		[helpstring("method IsAddrInUse")]
+			HRESULT IsAddrInUse(
+							[in]	long lIP,
+							[in]	long lPort
+							);
+
+	};
+
+
+
+[
+	uuid(40E9AD54-E2A1-11D0-920F-00C04FB954C7),
+	version(1.0),
+	helpstring("ladmin2 1.0 Type Library")
+]
+library LADMIN2Lib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	
+	[
+		uuid(40E9AD64-E2A1-11D0-920F-00C04FB954C7),
+		helpstring("ldapcfg Class")
+	]
+	coclass ldapcfg
+	{
+		[default] interface Ildapcfg;
+	};
+
+};

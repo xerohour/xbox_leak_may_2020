@@ -1,0 +1,137 @@
+
+%ENVIRONMENT    DRV16.ENV
+SDKINC     =    ..\..\..\..\..\sdk\nvidia\inc
+COMMONINC  =    ..\..\..\..\common\inc
+COMW9XINC  =    ..\..\..\..\common\win9x\inc
+DXDDKINC   =    $(BUILD_TOOLS_DIR)\ddk\DirectX7\inc
+
+%SPECIAL
+all:   nvtypes.h        nv32.inc        hwboard.inc     nvcm.inc        \
+       files.inc        nvos.inc        nvmisc.inc      nvreg.inc       \
+       hwcrtc.inc       hwlogdev.inc    dxshare.inc
+
+nvtypes.h: $(SDKINC)\nvtypes.h
+#   Copy the nvtypes.h file down to this directory and change a few
+#   variable names that are reserved assembly keywords
+    $(SED) "s/low;/dwLow;/g;s/high;/dwHigh;/g;s/offset;/dwOffset;/g" $(SDKINC)\nvtypes.h > nvtypes.h
+
+nv32.inc:  $(SDKINC)\nv32.h     nvtypes.h
+    set PATH=$(PATH)
+#   Copy the nv32.h file down to this directory and change a few
+#   variable names that are reserved assembly keywords
+    $(FGREP) -v _TYPEDEF $(SDKINC)\nv32.h > temp1.h
+    $(FGREP) -v "union {" temp1.h | $(FGREP) -v "/* cls" > temp.h
+    $(SED) "s/offset/dwOffset/g;s/Offset/dwOffset/g;s/Size/dwMMze/g;s/size/dwSize/g" temp.h  > temp1.h
+    $(SED) "s/dwMMze/dwSize/g;s/length/dwLength/g;s/push/dwPush/g;s/pop/dwPop/g"     temp1.h > temp.h
+#   Convert the composite file to a .inc file
+    copy temp.h nv32.h
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znnv32 nv32.h
+#   Clean up
+    erase temp1.h
+    erase temp.h
+
+hwlogdev.inc:   hwlogdev.h
+    echo #include "..\..\include\sysdata.h" > temp.h
+    copy temp.h+hwlogdev.h templd.h
+    $(H2INC) /Ht /Ni /DH2INC /Znhwlogdev templd.h
+    $(FGREP) -v INCLUDE templd.inc > hwlogdev.inc
+    erase temp.h
+    erase templd.h
+    erase templd.inc
+
+hwcrtc.inc:     hwcrtc.h
+    echo #include "nv32.h" > temp.h
+    copy temp.h+hwcrtc.h tempcr.h
+    $(H2INC) /Ht /Ni /DH2INC /Znhwcrtc tempcr.h
+    $(FGREP) -v INCLUDE tempcr.inc > hwcrtc.inc
+    erase temp.h
+    erase tempcr.h
+    erase tempcr.inc
+
+hwboard.inc:    hwboard.h       nv32.h  nvtypes.h
+    echo #include "nv32.h" > temp.h
+    $(FGREP) MAX_ATTACHED_CRTCS ..\..\include\sysdata.h >> temp.h
+    copy temp.h+hwboard.h tempbd.h
+    $(H2INC) /Ht /Ni /DH2INC /Znhwboard tempbd.h
+    $(FGREP) -v INCLUDE tempbd.inc > hwboard.inc
+    erase temp.h
+    erase tempbd.h
+    erase tempbd.inc
+
+modeext.inc:    ..\..\..\..\modeset\include\modeext.h
+    copy ..\..\..\..\modeset\include\modeext.h temp.h
+    $(H2INC) /Ht /DH2INC /Znmodeext temp.h
+    $(FGREP) -v __far temp.inc > modeext.inc
+    erase temp.h
+    erase temp.inc
+
+nvcm.inc:  $(SDKINC)\nvcm.h  $(COMMONINC)\nvver.h
+    set PATH=$(PATH)
+#   Copy the nvcm.h file down to this directory and change a few
+#   variable names that are reserved assembly keywords
+    copy $(SDKINC)\nvcm.h temp.h
+    copy temp.h+$(COMMONINC)\nvver.h
+    $(SED) s/offset/dwOffset/g temp.h > temp1.h
+    $(SED) s/Offset/dwOffset/g temp1.h > temp.h
+    $(SED) s/Size/dwSize/g temp.h > temp1.h
+    $(SED) s/length/dwLength/g temp1.h > temp.h
+    $(SED) s/push/dwPush/g temp.h > temp1.h
+    $(SED) s/pop/dwPop/g temp1.h > temp.h
+    $(SED) s/Type/dwType/g temp.h > temp1.h
+    $(SED) s/Width/dwWidth/g temp1.h > temp.h
+#   Convert the file to a .inc file
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znnvcm temp.h
+#   Remove the anoying structure definitions
+    $(SED) "/NvV64/D;/NvU64/D;/NvS64/D;/NvP64/D" temp.inc > nvcm.inc
+#   Clean up
+    erase temp1.h
+    erase temp.h
+    erase temp.inc
+
+files.inc: $(COMW9XINC)\files.h
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znfiles $(COMW9XINC)\files.h
+
+nvos.inc :  $(SDKINC)\nvos.h  nvtypes.h
+    set PATH=$(PATH)
+    $(SED) "s/size;/dwSize;/g;s/type;/dwType;/g;s/width;/dwWidth;/g;s/offset;/dwOffset;/g" $(SDKINC)\nvos.h    > nvos.h
+#   Convert the files to a .inc file
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znnvos nvos.h
+#   Remove the annoying structure definitions that will trip us
+#   up because other include files already contain nvtypes.h
+    $(SED) "/NvV64/D;/NvU64/D;/NvS64/D;/NvP64/D" nvos.inc > nvos1.inc
+#   Clean up
+    erase nvos.inc
+    copy  nvos1.inc nvos.inc
+    erase nvos1.inc
+    erase nvos.h
+
+nvmisc.inc :  $(SDKINC)\nvmisc.h
+    set PATH=$(PATH)
+#   Convert the file to a .inc file
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znnvmisc $(SDKINC)\nvmisc.h
+
+nvreg.inc :  $(COMMONINC)\nvreg.h
+    set PATH=$(PATH)
+#   Convert the file to a .inc file
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Znnvreg $(COMMONINC)\nvreg.h
+#   Convert silly double backslashes that H2INC can't grok
+    $(SED) "s:\\\\:\\:g" nvreg.inc > temp.inc
+    $(FGREP) -v CURSORCACHE temp.inc > nvreg.inc
+    erase temp.inc
+
+dxshare.inc: $(COMW9XINC)\dxshare.h
+        set PATH=$(PATH)
+        $(H2INC) /Ht /D_WIN32 /Zndxshare $(COMW9XINC)\dxshare.h
+
+spotless:
+  if exist nv32.inc    erase nv32.inc
+  if exist hwboard.inc erase hwboard.inc
+  if exist nvcm.inc    erase nvcm.inc
+  if exist files.inc   erase files.inc
+  if exist nvos.inc    erase nvos.inc
+  if exist nvmisc.inc  erase nvmisc.inc
+  if exist nvreg.inc   erase nvreg.inc
+  if exist modeext.inc erase modeext.inc
+  if exist dxshare.inc erase dxshare.inc
+%ENDS
+

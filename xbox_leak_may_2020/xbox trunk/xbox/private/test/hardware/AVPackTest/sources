@@ -1,0 +1,68 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+ $(BASEDIR)\private\inc; \
+
+			$(SDK_LIB_PATH)\xapilib$(D).lib \
+			$(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+			$(SDK_LIB_PATH)\xfont$(D).lib \
+			$(SDK_LIB_PATH)\xfonttt$(D).lib \
+			$(SDK_LIB_PATH)\xnet$(D).lib 
+			$(SDK_LIB_PATH)\xnet$(D).lib \
+			$(SDK_LIB_PATH)\xboxkrnl$(D).lib \
+			$(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+			$(SDK_LIB_PATH)\xfont$(D).lib \
+			$(SDK_LIB_PATH)\xfonttt$(D).lib
+
+			MSC_WARNING_LEVEL=/W4 /WX
+
+!ENDIF
+
+
+TARGETNAME=AVPAckTest			
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=AVPackTest.cpp \
+		xbapp.cpp \
+		xbfont.cpp \
+		xbinput.cpp \
+		xbresource.cpp \
+		xbutil.cpp \
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(SDK_INC_PATH);
+
+XE_FLAGS=/TESTID:0x00000001 /TESTNAME:"AV Pack Test"
+
+LINKLIBS=	$(XDK_LIB_PATH)\d3d8$(D).lib \
+            $(XDK_LIB_PATH)\d3dx8$(D).lib \
+            $(XDK_LIB_PATH)\xgraphics$(D).lib \
+			$(SDK_LIB_PATH)\xapilib$(D).lib

@@ -1,0 +1,28 @@
+TARGETNAME=XFFunc
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+USE_STL = 1
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING -DXFONT_TRUETYPE
+
+XE_FLAGS=/TESTNAME:"XFont Functionality" /TESTID:0xA7049955
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc
+
+TARGETLIBS =    $(LIBRARY_PATH)\d3d8$(D).lib	\
+		$(LIBRARY_PATH)\d3dx8$(D).lib	\
+		$(LIBRARY_PATH)\xgraphics$(D).lib \
+		$(BASEDIR)\private\test\lib\i386\xtestlib.lib	\
+		$(BASEDIR)\private\test\lib\i386\medialoader.lib	\
+		$(BASEDIR)\private\test\lib\i386\xnetrefi$(D).lib	\
+		$(LIBRARY_PATH)\xnet$(D).lib
+
+SOURCES= 			                                       \
+    ..\XFFunc.cpp \
+    ..\XFFuncTest.cpp \
+    ..\Test.cpp

@@ -1,0 +1,134 @@
+// vcpb.idl : IDL source for vcpb.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (vcpb.tlb) and marshalling code.
+
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "vsmanaged.idl";
+import "vsshell.idl";
+import "vcpbobjects.idl";
+
+interface ICategorizeProperties;
+
+interface VCConfiguration;
+interface VCFileConfiguration;
+interface VCPlatform;
+interface VCProject;
+interface VCProjectItem;
+interface VCFile;
+interface VCStyleSheet;
+interface VCDebugSettings;
+interface IVCCollection;
+
+interface IServiceProvider;
+interface IWFCPropertyBrowser;
+
+[
+	uuid(9F367018-33C6-11D3-8D52-00C04F8ECDB6),
+	version(1.0),
+	helpstring("Microsoft Development Environment VC++ Project System Engine 7.0 Type Library"),
+	helpstringdll("VCProjectEngine.dll")
+]
+library VCProjectEngineLibrary
+{
+	importlib("stdole2.tlb");
+	
+	interface VCCLCompilerTool;
+	interface VCLinkerTool;
+	interface VCLibrarianTool;
+	interface VCCustomBuildTool;
+	interface VCMidlTool;
+	interface VCResourceCompilerTool;
+	interface VCPreBuildEventTool;
+	interface VCPreLinkEventTool;
+	interface VCPostBuildEventTool;
+	interface VCBscMakeTool;
+	interface VCNMakeTool;
+	interface VCWebServiceProxyGeneratorTool;
+	interface VCWebDeploymentTool;
+	interface XboxDeploymentTool;
+	interface XboxImageTool;
+	interface VCDebugSettings;
+	interface IVCCollection;
+	interface VCPlatform;
+	interface VCProject;
+	interface VCProjectItem;
+	interface VCFile;
+	interface VCFilter;
+	interface VCConfiguration;
+	interface VCStyleSheet;
+	interface VCFileConfiguration;
+	
+        // the need for these next 2 here is questionable
+	interface IVCBuildErrorContext;
+	interface IVCBuildOptionsPage;	// also used as an automation object...
+	
+	[
+		uuid(66DC6C13-D282-11D2-8D1A-00C04F8EEA30),
+		dual
+	]
+	interface IVCProjectEngineEvents : IDispatch
+	{
+		[id(ENGEVENTID_ItemAdded), helpstringcontext(ENGEVENTID_ItemAdded)] HRESULT ItemAdded(IDispatch *Item, IDispatch *ItemParent);
+		[id(ENGEVENTID_ItemRemoved), helpstringcontext(ENGEVENTID_ItemRemoved)] HRESULT ItemRemoved(IDispatch *Item, IDispatch *ItemParent);
+		[id(ENGEVENTID_ItemRenamed), helpstringcontext(ENGEVENTID_ItemRenamed)] HRESULT ItemRenamed(IDispatch *Item, IDispatch *ItemParent, BSTR OldName);
+		[id(ENGEVENTID_ItemMoved), helpstringcontext(ENGEVENTID_ItemMoved)] HRESULT ItemMoved(IDispatch* Item, IDispatch* NewParent, IDispatch* OldParent);
+		[id(ENGEVENTID_ItemPropertyChange), helpstringcontext(ENGEVENTID_ItemPropertyChange)] HRESULT ItemPropertyChange(IDispatch *Item, long dispid);
+		[id(ENGEVENTID_SccEvent), helpstringcontext(ENGEVENTID_SccEvent)] HRESULT SccEvent(IDispatch* Item, enumSccEvent event, [out, retval] VARIANT_BOOL *Ret);
+		[id(ENGEVENTID_ReportError), helpstringcontext(ENGEVENTID_ReportError)] HRESULT ReportError(BSTR ErrMsg, HRESULT hr, BSTR HelpKeyword);
+		[id(ENGEVENTID_ProjectBuildStarted), helpstringcontext(ENGEVENTID_ProjectBuildStarted)] HRESULT ProjectBuildStarted(IDispatch *Cfg);
+		[id(ENGEVENTID_ProjectBuildFinished), helpstringcontext(ENGEVENTID_ProjectBuildFinished)] HRESULT ProjectBuildFinished(IDispatch *Cfg, long warnings, long errors, VARIANT_BOOL Cancelled);
+	};
+	
+	[
+		uuid(5F495F17-94D6-43d2-AF66-490AA1E04A79)
+	]
+	dispinterface _dispVCProjectEngineEvents
+	{
+	properties:
+	methods:
+		[id(ENGEVENTID_ItemAdded)] void ItemAdded([in] IDispatch *Item, [in] IDispatch *ItemParent);
+		[id(ENGEVENTID_ItemRemoved)] void ItemRemoved([in] IDispatch *Item, [in] IDispatch *ItemParent);
+		[id(ENGEVENTID_ItemRenamed)] void ItemRenamed([in] IDispatch *Item, [in] IDispatch *ItemParent, [in] BSTR OldName);
+		[id(ENGEVENTID_ItemMoved)] void ItemMoved([in] IDispatch* Item, [in] IDispatch* NewParent, [in] IDispatch* OldParent);
+		[id(ENGEVENTID_ItemPropertyChange)] void ItemPropertyChange([in] IDispatch *Item, [in] long propertyID);
+		[id(ENGEVENTID_SccEvent)] void SccEvent([in] IDispatch* Item, [in] enumSccEvent eventID);
+		[id(ENGEVENTID_ReportError)] void ReportError([in] BSTR ErrMsg, [in] SCODE errCode, [in] BSTR HelpKeyword);
+		[id(ENGEVENTID_ProjectBuildStarted)] void ProjectBuildStarted([in] IDispatch *Cfg);
+		[id(ENGEVENTID_ProjectBuildFinished)] void ProjectBuildFinished([in] IDispatch *Cfg, [in] long warnings, [in] long errors, [in] VARIANT_BOOL Cancelled);
+	};
+	
+	[
+		uuid(5F495F18-94D6-43d2-AF66-490AA1E04A79),
+		dual
+	]
+	interface _VCProjectEngineEvents : IDispatch
+	{
+	};
+
+	// CoClasses that we expect end users to want to new up.
+	[
+		uuid(9B3BFEA2-2039-4702-9F2F-0B0E8669154D)
+	]
+	coclass VCProjectEngineEvents
+	{
+		[default] interface _VCProjectEngineEvents;
+		[source] dispinterface _dispVCProjectEngineEvents;
+	};
+
+	[
+		uuid(9F367027-33C6-11D3-8D52-00C04F8ECDB6),
+		helpstringcontext(VCProjectEngine_Class)
+	]
+	coclass VCProjectEngineObject
+	{
+		[default] interface VCProjectEngine;
+	};
+	
+}; // END OF LIBRARY
+
+#include "vcpbtools.idl"

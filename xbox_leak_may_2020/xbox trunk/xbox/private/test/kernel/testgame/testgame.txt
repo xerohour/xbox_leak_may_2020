@@ -1,0 +1,410 @@
+multi-title disk layout
+a.) build ~350 'titles'
+        - the title is built 1 time
+        - a batch file re-runs imagebld with a new XUID and saves off the file 
+        - the file is just the harness with the title code included
+        
+from C:\xbox\private\test\buildxbe\harness
+imagebld /libpath:c:\xbox\public\sdk\lib\i386 /path:.;c:\xboxbins;c:\xboxbins\xboxtest;c:\xboxbins\dump /config:xefiles.txt /DRIVERCONFIG:c:\xbox\public\sdk\lib\xdrivers.txt > imagebld.log
+add this switch:
+/TESTID:id                Test id for this image
+
+b.) run them all
+c.) as each runs
+        a.) save games (100 by default, settable) 
+        b.) fill cache
+        c.) make metadata
+        d.) save some title persistant data
+d.) report before / after info on partitions drives etc
+        a.) gets and logs volume info for all drives so we can make sure 
+the right cache etc was used / cleared
+
+e.) make sure everything looks kosher 
+f.) re-run from top, make sure game finds everything it needs
+        a.) open saved games
+        b.) check metadata
+        c.) check for and use cache data if found
+                - run limited variations that will always find / use cached data in LRU order
+
+notes:
+        The cache drive (Z:) is now assigned to partition 2, 3, or 4 on an LRU (least 
+        recently used) basis.  These are drives D:, E:, and F: in the DOS world.  If 
+        the Z: drive is being mapped to a partition that contained another title's 
+        data, it is quick formatted.  In order for the LRU algorithm to work, you 
+        need to include a TitleId GUID when you build your XBE file.  Today, most 
+        XBE files do not and therefore, they all share the same TitleId (all zeros).  
+        If you'd like to add a TitleId GUID, run uuidgen and then add this line to 
+        your exe's sources file:
+        
+        XE_FLAGS = $(XE_FLAGS) /TESTGUID:{insert GUID here}
+        
+        If you are using the Z: drive to access files from test apps, you may want 
+        to consider using the T: drive (title persistent data) which maps to C:\TDATA\{TitleId}.  
+        The Z: drive assignment is more variable - it could map to D:\, E:\, or F:\ depending 
+        on the order in which you have executed various titles.
+
+to run this test:
+1.) start with clean box that has been restored with the recovery disk
+
+
+using a list of images supplied in the ini file, the testgame will munge
+an autoexec.bat to boot the next iteration of the test
+
+image directory:
+c:\images\XXXX -> 0000...0350+        
+
+list of GUIDs to use for this test (350):
+(Note: the first 4 digits are a lie, they are my serial number so I can 
+look at short file names and figure out what the heck is going on)
+
+00001dfb
+00013873
+00025ccd
+00037487
+0004778c
+0005a2b3
+00060045
+000767f6
+00087b4b
+0009c0b8
+0010586d
+0011370b
+001205d7
+0013ae64
+0014cefc
+00159909
+00162a79
+00176928
+0018eac8
+001957c4
+00201ef0
+00217e00
+00228817
+0023df09
+002418b7
+00253510
+00265a32
+0027ce4c
+00282fd1
+002958f7
+0030e9fd
+00316452
+0032376a
+00332ae1
+00343508
+00357f2c
+00364b8e
+0037dae6
+00388e26
+0039d3e1
+00406d11
+00411974
+00429cc3
+00432696
+00445900
+004566f8
+0046e652
+00476a11
+0048c7f3
+004990aa
+00506f34
+005159a2
+0052a6fb
+00539d28
+0054cafb
+00556a6a
+00563173
+00575e74
+00580d05
+00596bab
+0060685c
+006165ef
+0062dcea
+0063f636
+0064873a
+0065b3d3
+0066095a
+0067ffd2
+0068415d
+0069a7b1
+007023b5
+007171a4
+00725c2d
+00737b34
+00746a79
+00751606
+0076d517
+0077cc76
+00786e3f
+007940b1
+0080fb71
+008144f6
+00828b8e
+0083c359
+0084a5a6
+008576fe
+0086fe04
+0087ad2f
+008856f5
+00892970
+0090695b
+00917a52
+0092fce3
+009387e5
+00946860
+00956a63
+009665ca
+0097a308
+0098f9a9
+0099ad27
+01008660
+010183f3
+0102b266
+01030a3e
+01049054
+01056e3a
+01061419
+01076cc3
+01085687
+01096393
+011036ac
+011194b4
+01121bc0
+01139879
+01144344
+01154207
+0116f21e
+011768ad
+0118d5a3
+0119adaf
+01209dd8
+01215b3e
+012277e0
+01233390
+0124a0a0
+01250c0a
+01269be6
+0127a50c
+01286a39
+012993d3
+013033c4
+01315274
+0132da7a
+0133a4a2
+013423b8
+0135fc59
+0136afbb
+01378587
+0138e795
+01392cc8
+0140493c
+01416214
+0142715d
+01435fd0
+0144f343
+01454531
+0146f1ab
+0147efeb
+0148eb29
+0149e113
+0150f9ed
+0151f78b
+0152cc2a
+01531655
+0154da34
+01552274
+01564be8
+0157cdd5
+015854c3
+015978d3
+01605690
+0161cc09
+01626dad
+0163f57d
+0164721d
+0165666a
+01667ae6
+016761d3
+01684b40
+01691b60
+01701008
+0171a18d
+01721a83
+0173052d
+0174fe8c
+0175b6bf
+0176a8e5
+01771a50
+01785d87
+0179d614
+018073e2
+0181f5d2
+0182d24b
+0183e25b
+018427b0
+01852762
+0186b843
+01874b19
+01880394
+018958f1
+0190fffb
+0191d3f9
+01929590
+01934764
+01945132
+01957a2c
+0196f27a
+01975480
+01989075
+0199b2a6
+0200496b
+020187b7
+020253e0
+0203081d
+020460d7
+0205f0cf
+02067eb6
+0207b5bd
+02082163
+020931c4
+0210bd30
+02114083
+0212d24f
+02134990
+021426e0
+02152f8c
+021623e5
+0217adc1
+0218c144
+02191d35
+0220a4ae
+0221a97a
+0222032c
+022396d5
+022493b4
+02255c27
+022609f5
+0227bb76
+02288b17
+0229622f
+02309255
+0231921e
+023295b1
+02332048
+0234a498
+02355e2c
+02364edb
+0237807f
+0238156d
+023954ad
+02407dde
+0241d806
+0242dbd0
+0243af79
+0244254c
+0245a857
+02466cc6
+02478bc8
+0248e9de
+02495a9b
+0250bdd8
+0251e03f
+0252d2fa
+02533dfb
+02541c4f
+0255af20
+02569f8d
+0257050b
+0258502e
+0259a5de
+02600843
+0261c4d7
+0262a07a
+0263f4ec
+02645941
+0265bc2d
+02664cb0
+0267fdd2
+02688553
+0269e258
+0270f99a
+0271140c
+02723ae4
+02738dee
+02746717
+0275d487
+02761543
+02770b79
+0278102f
+027956d3
+0280509f
+02813ed5
+0282c118
+0283fed5
+0284f6d8
+02855183
+02867c60
+02871298
+02883583
+02890a3c
+029044c5
+02918bfd
+0292c8aa
+02936802
+0294a78e
+029573fd
+0296d40a
+02972b38
+02982b12
+02995d84
+030093d0
+030130e3
+03021634
+030397bb
+0304a543
+0305cbc4
+030689c1
+03071194
+030824cb
+0309fc46
+0310468a
+0311c8bf
+03123e7e
+0313636d
+0314a25a
+0315d01f
+031647c5
+0317c539
+03181552
+0319772e
+03207779
+0321de07
+03226137
+0323daef
+03244277
+0325d4df
+03264f42
+0327976b
+0328626a
+0329da24
+03300b03
+033116b6
+03328271
+0333cdad
+0334e3b7
+0335b108
+03360abc
+03378f30
+0338287a
+03396892
+0340aa09
+0341e863
+03427f5e
+03435a44
+03441115
+034522a1
+03461682
+0347ae00
+0348c6a1
+034986f6
+fffffffe

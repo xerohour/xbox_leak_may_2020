@@ -1,0 +1,51 @@
+// MacroPicker.idl : IDL source for MacroPicker.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (MacroPicker.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+#include "olectl.h"
+
+typedef struct	// data struct that needs to be passed to Create in dwInitParam when creating a window of this type
+{
+	IUnknown* m_pContainer;
+	IUnknown* m_pProjEngine;
+	HWND      m_hwndEdit;
+} SMacroPickerData;
+
+[
+	object,
+	uuid(04A9645F-D651-4FB2-B614-D221E04AE611),
+	dual,
+	helpstring("IVCMacroPicker Interface"),
+	pointer_default(unique)
+]
+interface IVCMacroPicker : IDispatch
+{
+	[propget, bindable, requestedit, id(DISPID_HWND)]HRESULT HWND([out, retval]LONG_PTR* pHWND);
+
+	HRESULT OnInsertMacro();
+	HRESULT Initialize([in] IUnknown* pPropContainer, [in] IUnknown* pProjEngine, [in] LONG_PTR hwnd, 
+		[in] BSTR bstrName /* the word 'Name', localized */, [in] BSTR bstrValue /* the word 'Value', localized */);
+};
+
+[
+	uuid(8EBB1B99-9F5A-4F7B-AA2F-F4250A60FFFF),
+	version(1.0),
+	helpstring("MacroPicker 1.0 Type Library")
+]
+library MacroPickerLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		uuid(3781071C-736B-4121-B7CE-CE7B7EED649D),
+		helpstring("VCMacroPicker Class")
+	]
+	coclass VCMacroPicker
+	{
+		[default] interface IVCMacroPicker;
+	};
+};

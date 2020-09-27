@@ -1,0 +1,89 @@
+NVCHIP=NV4
+NVARCH=0x04
+TARGETNAME=nv4ddrw
+TARGETTYPE=LIBRARY
+
+# The following source files do not appear to be necessary for NT5 builds. They
+# appear to contain DX5 support only):
+#           d3dstate.c
+!IFNDEF TARGETPATH
+TARGETPATH=$(BASEDIR)\lib
+!ENDIF
+
+DLLBASE=0x62200000
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+!IFDEF QUIET
+C_DEFINES= $(C_DEFINES) -DQUIET
+!ENDIF
+
+!IFDEF NVPE
+C_DEFINES = $(C_DEFINES) -DNVPE
+!ENDIF
+
+D3DOPT = -DNVD3D -DD3D_PUSH=1 -DNVD3D_DX6=1 -DxxxDEBUG=1 -DxxxCACHE_FREECOUNTxxx -DxxxNV_FASTLOOPS -DxxxNV_TEX2 -DNVARCH=$(NVARCH)
+NV_OPTS = -D$(NVCHIP)=1 -DRM_HEAPMGR=1
+MM_OPTS = -DMULTI_MON=1 -DNVHEAPMGR=1
+
+C_DEFINES= $(C_DEFINES) $(D3DOPT) $(NV_OPTS) $(MM_OPTS) -DNVDEPRECATED -DIS_32=1 -DOLDDRV=1
+INCLUDES= $(BUILD_DDK_DIR)\directx7\inc;..\inc;..\..\common\inc;$(BUILD_NVSDK_DIR)\inc;$(VPEDIR);$(BUILD_TREE)\drivers\common\inc;$(BUILD_TREE)\drivers\common\win9x\inc;$(BASEDIR)\src\video\inc;$(BASEDIR)\src\video\displays\inc;$(BUILD_TREE)\drivers\display\nt5\displays\nv_disp;$(BUILD_TREE)\drivers\display\nt5\miniport\nv_mini;$(BUILD_NVSDK_DIR)\$(NVCHIP)\inc;$(INCLUDES);$(NTMAKEENV)
+# LIB= .\lib;$(BUILD_DDK_DIR)\DirectX6\lib;$(BUILD_NVSDK_DIR)\$(NVCHIP)\lib;$(BUILD_TOOLS_DIR)\tools\lib;$(INCLUDES)
+
+!IFDEF NV_BUILD_INTERNAL
+INCLUDES= $(INCLUDES);$(BUILD_TREE)\drivers\common\$(NVCHIP)\inc
+!ENDIF
+
+USE_LIBCNTPR = 1
+
+TARGETLIBS= $(BASEDIR)\lib\*\$(DDKBUILDENV)\libcntpr.lib \
+            $(BUILD_DDK_DIR)\ddraw.lib
+
+
+# LIBS    =   kernel32.lib    user32.lib      advapi32.lib    thunk32.lib     \
+#            gdi32.lib       nvrmapi.lib     nvw32ms.lib     ddraw.lib       libc.lib
+
+SOURCES =   dddrv32.c     \
+            enablec.c     \
+            disablec.c    \
+            blt832.c      \
+            blt1632.c     \
+            blt3232.c     \
+            dvideo32.c    \
+            d3danti.c     \
+            d3dmini.c     \
+            nv4mini.c     \
+            d3dctxt.c     \
+            nv4ctxt.c     \
+            nv4rendr.c    \
+            nv4vx.c       \
+            d3dtex.c      \
+            nv4tex.c      \
+            nv4tman.c     \
+            nv4mip.c      \
+            nv4scene.c    \
+            nv4tri.c      \
+            nv4point.c    \
+            nv4line.c     \
+            nv4state.c    \
+            nv4multi.c    \
+            d3ddebug.c    \
+            global.c      \
+            d3drendr.c    \
+            nv4prim2.c    \
+            nv4clear.c    \
+            nv4index.c    \
+            nv4prim.c     \
+            nv4comp.c     \
+            nv4swiz.c     \
+            nv4mem.c      \
+            nv4prof.c
+
+

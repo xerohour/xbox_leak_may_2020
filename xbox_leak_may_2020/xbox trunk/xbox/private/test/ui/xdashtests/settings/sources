@@ -1,0 +1,56 @@
+!IF 0
+
+Copyright (c) 1989-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    XBox
+
+Revision History:
+
+!ENDIF
+
+#
+# IceCAP properties
+#
+#USE_ICECAP4=1
+#LINKER_FLAGS=/DEBUGTYPE:FIXUP
+
+MAJORCOMP=xboxtest
+MINORCOMP=XDashSettings
+
+TARGETNAME=XDashSettings
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+
+USE_LIBCMT=1
+
+SOURCES=\
+    XDashSettings.cpp \
+    Tests.cpp
+
+INCLUDES=\
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\test\inc; \
+    $(BASEDIR)\private\test\ui\xdashtests\inc \
+
+#
+# Precompiled Header
+#
+PRECOMPILED_INCLUDE = stdafx.h
+PRECOMPILED_PCH = stdafx.pch
+PRECOMPILED_OBJ = stdafx.obj
+PRECOMPILED_CXX = 1
+

@@ -1,0 +1,21 @@
+!include ..\..\sources.nv
+
+TARGETNAME=vesadata
+TARGETTYPE=LIBRARY
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ENDIF
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+INCLUDES= $(INCLUDES)
+
+INCLUDES=$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+
+SOURCES =   vesadata.c

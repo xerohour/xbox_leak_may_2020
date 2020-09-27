@@ -1,0 +1,37 @@
+!IF 0
+
+Copyright (c) 1999  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+TARGETNAME=dmxapi
+TARGETPATH=..\..\obj
+
+!include ..\sources.inc
+
+C_DEFINES=$(C_DEFINES) -DBUILD_FOR_XBDM
+
+SOURCES=\
+    error.c \
+    process.c \
+    lcompata.c \
+    compstra.c \
+    debug.c \
+    format.c \
+    xvalue.c \
+    launch.c
+
+NTTARGETFILE0=\
+    ..\lcompata.c \
+    ..\compstra.c

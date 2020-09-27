@@ -1,0 +1,61 @@
+//-----------------------------------------------------------------------
+// Microsoft Windows 4.0 DIB Engine based Mini driver Resource File
+// Copyright (c) 1992 Microsoft Corporation
+//-----------------------------------------------------------------------
+#define OEMRESOURCE
+#include "windows.h"
+
+1               oembin  PRELOAD         "..\\drvres\\bin\\config.bin"
+2               oembin                  "..\\drvres\\bin\\colortab.bin"
+3               oembin  PRELOAD         "..\\drvres\\bin\\fonts.bin"
+fonts           oembin                  "..\\drvres\\bin\\fonts.bin"
+2003            oembin  PRELOAD         "..\\drvres\\bin\\fonts120.bin"
+
+#define VER_FILETYPE                    VFT_DRV
+#define VER_FILESUBTYPE                 VFT2_DRV_DISPLAY
+#define VER_FILEDESCRIPTION_STR         NV_NVDISPVER95
+#define VER_INTERNALNAME_STR            "DISPLAY"
+#define VER_LEGALCOPYRIGHT_YEARS        "1992-1999"
+#define VER_ORIGINALFILENAME_STR        "NVDISP.DRV"
+
+#include "version.h"
+#undef VERSION
+#undef VER_PRODUCTVERSION_STR
+#undef VER_PRODUCTVERSION
+#undef VER_PRODUCTVERSION_DW
+
+#include <..\..\..\..\common\inc\nvver.h>
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION NV_VERSION_NUMBER
+ PRODUCTVERSION NV_VERSION_NUMBER
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e2"
+        BEGIN
+            VALUE "CompanyName", NV_COMPANY_NAME_STRING
+            VALUE "FileDescription", VER_FILEDESCRIPTION_STR
+            VALUE "FileVersion", NV_VERSION_MS_STRING
+            VALUE "InternalName", VER_INTERNALNAME_STR
+            VALUE "LegalCopyright", "Copyright (c) 1998-99 " NV_COMPANY_NAME_STRING
+            VALUE "OriginalFilename", VER_ORIGINALFILENAME_STR
+            VALUE "ProductName", NV_NVDISPVER95
+            VALUE "ProductVersion", NV_VERSION_MS_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1250
+    END
+END
+

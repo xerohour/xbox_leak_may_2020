@@ -1,0 +1,125 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdsinfol.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdShowInfoList        */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdShowInfoList                                             */
+ /*                                                                        */
+ /*   Descrip:  This dialog will show user some predefined infomation      */
+ /*                                                                        */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdShowInfoList(szTitle, szMsg, list )
+          STRING  szDlg, szTemp, svString, svIgnore;
+          NUMBER  nId, nTemp, nResult, nvItem;
+          BOOL    bDone;
+          INT     hwndDlg;
+            LIST    nOldlist;
+        begin
+
+           szDlg     = SD_DLG_SHOWINFOLIST;
+           nSdDialog = SD_NDLG_SHOWINFOLIST;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdShowInfoList );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            return nId;
+          endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_SHOWINFOLIST ) = DLG_ERR) then
+               return -1;
+           endif;
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch(nId)
+              case DLG_INIT:
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_COMPONENT_MSG, szMsg );
+                   endif;
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                         nResult = ListCurrentString( list, svIgnore );
+
+                         if( nResult < 0 && nResult != END_OF_LIST ) then
+                                nOldlist = list;
+                                list = ListCreate( STRINGLIST );
+
+                                nResult = ListGetFirstItem( nOldlist, nvItem );
+                                while( nResult != END_OF_LIST && nResult >= 0 )
+                                        NumToStr( svString, nvItem );
+                                        ListAddString( list, svString, AFTER);
+                                        nResult = ListGetNextItem( nOldlist, nvItem );
+                                endwhile;
+                         endif;
+
+                   CtrlSetMLEText(szDlg, SD_EDIT_INFO, list);
+
+              case NEXT:
+                   nId    = NEXT;
+                   bDone  = TRUE;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdShowInfoList" );
+                   nId    = -1;
+                   bDone  = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                       bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdShowInfoList );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+       end;

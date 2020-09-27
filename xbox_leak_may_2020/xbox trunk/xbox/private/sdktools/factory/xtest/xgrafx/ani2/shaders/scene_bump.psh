@@ -1,0 +1,40 @@
+xps.1.1
+
+#define AMBIENT  c0
+#define DIFFUSE  c1
+#define SPECULAR c2
+   
+#define NORMAL_MAP  t0
+#define LIGHT_DIR   t1
+#define HALF_DIR    t2
+#define SHADOW_MAP  t3
+#define FALLOFF     v0 
+
+def c4, 0.25f,0.25f,0.25f,1.f
+
+
+tex t0 ; normal map
+tex t1 ; light dir cubemap
+tex t2 ; half dir cubemap
+tex t3 ; shadow depth map
+
+; Compute N dot L and N dot H
+xdd  r0,r1,t0_bx2,t1_bx2,t0_bx2,t2_bx2
+
+; Raise N dot H to 16th power
+mul  r1.rgb,r1_sat.rgb,r1_sat.rgb
+mul  r1.rgb,r1.rgb,r1.rgb
+mul  r1.rgb,r1.rgb,r1.rgb
+mul  r1.rgb,r1.rgb,r1.rgb
+
+; Scale diffuse and specular terms by coefficients, and sum the resulting terms.
+xmma r0.rgb,r1.rgb,v1.rgb,DIFFUSE.rgb,r0_sat.rgb,SPECULAR.rgb,r1_sat.rgb
+
+
+; Scale by falloff, and add in ambient term
+mad r0.rgb,v0.rgb,v1_sat.rgb,AMBIENT.rgb
+
+
+
+
+xfc r0,t3,zero,prod,r0,c4,c4.a

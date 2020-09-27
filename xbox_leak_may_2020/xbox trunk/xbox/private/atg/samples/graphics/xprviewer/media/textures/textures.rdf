@@ -1,0 +1,119 @@
+/***************************************
+ * Sample packed resource definition
+ * file.  Shows how to load and convert
+ * textures and how to define vertex
+ * buffers.
+ ***************************************/
+ 
+out_header textures.h
+out_packedresource textures.xpr
+out_error foo.err
+
+// This is a single line comment
+Texture Flame
+{
+   Source flame1.bmp
+}
+
+Texture Forest
+{
+   Source forestground.bmp
+   Format D3DFMT_LIN_R5G6B5
+}
+
+Texture greydirt
+{
+   Source grydirt1.bmp
+   Width 256
+   Height 128
+   Levels 0             // generate all mip levels
+}
+
+Texture lightoak
+{
+   Source LightOaksm.bmp
+   Format D3DFMT_DXT1
+   Levels 0
+}
+
+Texture ProcWood
+{
+   Source procwood4.bmp
+}
+
+VertexBuffer QuadVB
+{
+    VertexFormat {D3DVSDT_FLOAT3 D3DVSDT_FLOAT3 D3DVSDT_D3DCOLOR D3DVSDT_FLOAT1 D3DVSDT_FLOAT1}
+    VertexData 
+    { 
+        -0.5 -0.5 1.0 0.0 0.0 -1.0 1 1 1 1 0.0 1.0      // v0
+        -0.5  0.5 1.0 0.0 0.0 -1.0 1 1 1 1 0.0 0.0      // v1
+         0.5 -0.5 1.0 0.0 0.0 -1.0 1 1 1 1 1.0 1.0      // v2
+         0.5  0.5 1.0 0.0 0.0 -1.0 1 1 1 1 1.0 0.0      // v3    
+    }
+}
+
+VertexBuffer Triangle
+{
+    VertexFormat {D3DVSDT_FLOAT3 D3DVSDT_FLOAT3 D3DVSDT_D3DCOLOR D3DVSDT_FLOAT2}
+    VertexFile triangle.vb
+}
+
+IndexBuffer FooIndex
+{
+    IndexData
+    {
+        1 2 3 4 5 6 7 8
+    }
+}
+
+Texture sdirt
+{
+   Source sdirt.bmp
+   Width 1024
+   Height 512
+}
+
+Texture shground
+{
+   Source stonehengeground.bmp
+   Format D3DFMT_DXT2
+   Levels 0
+}
+
+Texture shrock
+{
+   Source stonehengerock.bmp
+   Width 128
+   Height 128
+   Format D3DFMT_A4R4G4B4
+}
+
+Texture temprock
+{
+   Source temprock.bmp
+   Format D3DFMT_DXT4
+   Levels 0
+}
+
+Texture volslice
+{
+   Source volslice003.bmp
+   Levels 3
+}
+
+Texture waterbump
+{
+   Source waterbumps.bmp
+   AlphaSource volslice003.bmp
+}
+
+Texture undergrass
+{
+   Source undergrass.bmp
+   Format D3DFMT_A8R8G8B8
+   Filter TRIANGLE|WRAP
+   Levels 0
+}
+
+// End of file

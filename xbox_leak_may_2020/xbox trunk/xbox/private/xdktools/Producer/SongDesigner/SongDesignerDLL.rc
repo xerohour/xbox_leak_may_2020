@@ -1,0 +1,908 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\TabBoundaryFlags.rc""\r\n"
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "SONGDESIGNER.OCX\0"
+#define VERSIONDESCRIPTION          "SongDesigner ActiveX Control Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "SongDesigner ActiveX Control Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "SONGDESIGNER.OCX\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ABOUTDLL            ICON    DISCARDABLE     "Res\\AboutDLL.ico"
+IDR_SONG_DOCTYPE        ICON    DISCARDABLE     "Res\\SongNode.ico"
+IDI_SONG_DOCTYPE_SEL    ICON    DISCARDABLE     "Res\\SongNodeSel.ico"
+IDI_SONGREF_SEL         ICON    DISCARDABLE     "Res\\SongRefNodeSel.ico"
+IDI_SONGREF             ICON    DISCARDABLE     "Res\\SongRefNode.ico"
+IDI_FOLDER_SEL          ICON    DISCARDABLE     "Res\\FolderNodeSel.ico"
+IDI_FOLDER              ICON    DISCARDABLE     "Res\\FolderNode.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SONG                BITMAP  DISCARDABLE     "Res\\SongCtl.bmp"
+IDB_TRANSITION          BITMAP  DISCARDABLE     "Res\\Transition.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TAB_SONG DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Song"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Name",IDC_STATIC,3,7,37,10
+    EDITTEXT        IDC_NAME,42,5,205,14,ES_AUTOHSCROLL
+END
+
+IDD_ABOUTBOX_SONG DIALOG DISCARDABLE  0, 0, 229, 62
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Song Designer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_ABOUTDLL,IDC_STATIC,11,17,20,20
+    LTEXT           "",IDC_FILE_VERSION,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright © 1998-2001 Microsoft Corporation.",
+                    IDC_STATIC,40,25,147,8
+    DEFPUSHBUTTON   "OK",IDOK,190,7,32,14,WS_GROUP
+    LTEXT           "All rights reserved.",IDC_STATIC,40,40,119,8
+END
+
+IDD_DLG_SONG DIALOGEX 0, 0, 446, 257
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Virtual Segments:",IDC_STATIC,5,24,65,8
+    LISTBOX         IDC_LIST_VIRTUAL_SEGMENTS,5,34,106,218,
+                    LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | 
+                    LBS_WANTKEYBOARDINPUT | LBS_EXTENDEDSEL | WS_VSCROLL | 
+                    WS_HSCROLL | WS_TABSTOP
+    LTEXT           "&Name:",IDC_STATIC,126,25,150,8
+    EDITTEXT        IDC_EDIT_NAME,125,34,150,12,ES_AUTOHSCROLL
+    LTEXT           "Ne&xt Virtual Segment:",IDC_STATIC,283,25,150,8
+    COMBOBOX        IDC_COMBO_NEXT_VIRTUAL_SEGMENT,282,34,150,200,
+                    CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Source Segment:",IDC_STATIC,126,59,150,8
+    COMBOBOX        IDC_COMBO_SEGMENT,125,68,150,200,CBS_DROPDOWNLIST | 
+                    CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Source Tool&Graph:",IDC_STATIC,282,59,150,8
+    COMBOBOX        IDC_COMBO_TOOLGRAPH,282,68,150,200,CBS_DROPDOWNLIST | 
+                    CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Add &Tracks (from Source Segments):",IDC_STATIC,126,88,
+                    150,8
+    LISTBOX         IDC_LIST_TRACKS,125,97,150,148,LBS_SORT | 
+                    LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | 
+                    LBS_WANTKEYBOARDINPUT | LBS_EXTENDEDSEL | WS_VSCROLL | 
+                    WS_HSCROLL | WS_TABSTOP
+    LTEXT           "&Interactive Transitions:",IDC_STATIC,283,88,150,8
+    LISTBOX         IDC_LIST_TRANSITIONS,282,97,150,148,LBS_OWNERDRAWFIXED | 
+                    LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | 
+                    LBS_EXTENDEDSEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    PUSHBUTTON      "",IDC_TRANSITION,6,5,16,14,BS_BITMAP
+    GROUPBOX        "Virtual Segment",IDC_STATIC,118,9,321,243,WS_GROUP,
+                    WS_EX_TRANSPARENT
+END
+
+IDD_DLG_GUID DIALOG DISCARDABLE  0, 0, 230, 49
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Guid"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,173,28,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,116,28,50,14
+    EDITTEXT        IDC_EDIT_GUID,7,7,216,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Create New GUID",IDC_NEW_GUID,7,28,100,14
+END
+
+IDD_TAB_INFO DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Subject:",IDC_STATIC,3,4,32,10
+    EDITTEXT        IDC_SUBJECT,42,2,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Author:",IDC_STATIC,3,20,32,10
+    EDITTEXT        IDC_AUTHOR,42,18,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Copyright:",IDC_STATIC,3,36,32,10
+    EDITTEXT        IDC_COPYRIGHT,42,34,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Version:",IDC_STATIC,3,51,38,10
+    EDITTEXT        IDC_VERSION_1,42,50,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_2,66,50,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_3,90,50,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_4,114,50,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "&Edit GUID...",IDC_EDIT_GUID,166,49,50,14
+    LTEXT           "&Information:",IDC_STATIC,3,66,37,10
+    EDITTEXT        IDC_INFO,42,65,205,42,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_WANTRETURN | WS_VSCROLL
+END
+
+IDD_TAB_SEGMENT_DESIGN DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE DS_MODALFRAME | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "Design"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "File:",IDC_STATIC,4,5,21,10,NOT WS_GROUP
+    EDITTEXT        IDC_DESIGN_FILENAME,36,5,211,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,3,22,
+                    244,1
+    LTEXT           "Created:",IDC_STATIC,4,26,32,10,NOT WS_GROUP
+    LTEXT           "",IDC_DESIGN_CREATE,36,26,183,10,NOT WS_GROUP
+    LTEXT           "Modified:",IDC_STATIC,4,38,32,10,NOT WS_GROUP
+    LTEXT           "",IDC_DESIGN_MODIFIED,36,38,183,10,NOT WS_GROUP
+    LTEXT           "Size:",IDC_STATIC,4,50,17,10,NOT WS_GROUP
+    LTEXT           "",IDC_DESIGN_SIZE,36,50,184,10,NOT WS_GROUP
+END
+
+IDD_TAB_SEGMENT_RUNTIME DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE DS_MODALFRAME | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "Runtime"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "File:",IDC_STATIC,4,5,21,10,NOT WS_GROUP
+    EDITTEXT        IDC_RUNTIME_FILE,36,5,211,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN,3,22,
+                    244,1
+    LTEXT           "Created:",IDC_STATIC,4,26,32,10,NOT WS_GROUP
+    LTEXT           "",IDC_RUNTIME_CREATE,36,26,183,10,NOT WS_GROUP
+    LTEXT           "Modified:",IDC_STATIC,4,38,32,10,NOT WS_GROUP
+    LTEXT           "",IDC_RUNTIME_MODIFIED,36,38,183,10,NOT WS_GROUP
+    LTEXT           "Size:",IDC_STATIC,4,50,17,10,NOT WS_GROUP
+    LTEXT           "",IDC_RUNTIME_SIZE,36,50,184,10,NOT WS_GROUP
+END
+
+IDD_DUPLICATE_FILE DIALOG DISCARDABLE  0, 0, 278, 135
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Duplicate File"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "",IDC_DUPE_PROMPT,12,6,254,23
+    LTEXT           "Do you want to:",IDC_STATIC,12,32,186,8
+    CONTROL         "&Replace the embedded segment file wth the existing file",
+                    IDC_USE_EXISTING,"Button",BS_AUTORADIOBUTTON | 
+                    BS_MULTILINE | WS_GROUP | WS_TABSTOP,14,46,250,18
+    CONTROL         "R&eplace the existing file with the embedded segment file",
+                    IDC_USE_EMBEDDED,"Button",BS_AUTORADIOBUTTON | 
+                    BS_MULTILINE,14,66,250,18
+    CONTROL         "&Keep both files",IDC_KEEP_BOTH,"Button",
+                    BS_AUTORADIOBUTTON | BS_MULTILINE,14,86,250,18
+    DEFPUSHBUTTON   "OK",IDOK,79,115,50,14,WS_GROUP
+    PUSHBUTTON      "OK A&ll",IDC_OK_ALL,148,115,50,14,WS_GROUP
+END
+
+IDD_TAB_TRANSITION DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE DS_MODALFRAME | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "Transition"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Transition Virtual Segment:",IDC_STATIC,4,5,110,8
+    COMBOBOX        IDC_COMBO_TRANSITION_SEGMENT,4,14,120,140,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "To &Virtual Segment:",IDC_STATIC,129,5,110,8
+    COMBOBOX        IDC_COMBO_TO_SEGMENT,129,14,120,140,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Intro",IDC_CHECK_INTRO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,4,40,82,10
+    LTEXT           "An intro transition is used only when there is nothing already playing.",
+                    IDC_STATIC_INTRO_PROMPT,16,53,231,20
+END
+
+IDD_TAB_VIRTUAL_SEGMENT DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE DS_MODALFRAME | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "Virtual Segment"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Name",IDC_STATIC,8,7,20,8
+    EDITTEXT        IDC_EDIT_NAME,29,5,130,12,ES_AUTOHSCROLL
+    LTEXT           "&Length",IDC_STATIC,168,7,23,8
+    PUSHBUTTON      "4",IDC_BUTTON_LENGTH,194,5,30,12
+    LTEXT           "Bars",IDC_STATIC,227,7,15,8
+    GROUPBOX        "Start Time",IDC_STATIC,8,24,234,52
+    LTEXT           "&Start at:",IDC_STATIC,22,43,26,8
+    EDITTEXT        IDC_EDIT_PLAY_START_BAR,59,41,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_PLAY_START_BAR,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,88,42,11,10
+    EDITTEXT        IDC_EDIT_PLAY_START_BEAT,101,41,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_PLAY_START_BEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,130,42,11,10
+    EDITTEXT        IDC_EDIT_PLAY_START_GRID,143,41,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_PLAY_START_GRID,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,172,42,11,10
+    EDITTEXT        IDC_EDIT_PLAY_START_TICK,185,41,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_PLAY_START_TICK,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,217,42,11,10
+    LTEXT           "&Base On Time Signature of Track Group",IDC_STATIC,22,
+                    59,128,8
+    EDITTEXT        IDC_EDIT_TRACK_GROUP,155,57,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_TRACK_GROUP,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,184,58,11,10
+    LTEXT           "Bar",IDC_STATIC,59,32,12,8
+    LTEXT           "Beat",IDC_STATIC,101,32,16,8
+    LTEXT           "Grid",IDC_STATIC,143,32,14,8
+    LTEXT           "Tick",IDC_STATIC,185,32,15,8
+    CONTROL         "&Extend Primary TimeSig",IDC_CHECK_EXTEND_TIMESIG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,84,90,10
+    CONTROL         "&Play on new instance of embedded audiopath",
+                    IDC_CHECK_AUDIOPATH,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,8,96,162,10
+END
+
+IDD_TAB_VIRTUAL_SEGMENT_LOOP DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE DS_MODALFRAME | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "Loop"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Loop Repeat",IDC_STATIC,25,9,42,8
+    EDITTEXT        IDC_EDIT_LOOP_REPEAT,69,7,36,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_REPEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,101,8,11,10
+    CONTROL         "&Infinite",IDC_CHECK_REPEAT_FOREVER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,114,8,37,10
+    GROUPBOX        "Loop Points",IDC_STATIC,13,30,225,72
+    LTEXT           "Loop &Start",IDC_STATIC,25,50,34,8
+    EDITTEXT        IDC_EDIT_LOOP_START_BAR,69,50,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_START_BAR,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,93,50,11,10
+    EDITTEXT        IDC_EDIT_LOOP_START_BEAT,103,50,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_START_BEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,129,50,11,10
+    EDITTEXT        IDC_EDIT_LOOP_START_GRID,143,50,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_START_GRID,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,169,50,11,10
+    EDITTEXT        IDC_EDIT_LOOP_START_TICK,183,50,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_START_TICK,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,209,50,11,10
+    LTEXT           "Loop &End",IDC_STATIC,25,65,32,8
+    EDITTEXT        IDC_EDIT_LOOP_END_BAR,69,65,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_END_BAR,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,93,65,11,10
+    EDITTEXT        IDC_EDIT_LOOP_END_BEAT,103,65,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_END_BEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,129,65,11,10
+    EDITTEXT        IDC_EDIT_LOOP_END_GRID,143,65,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_END_GRID,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,169,65,11,10
+    EDITTEXT        IDC_EDIT_LOOP_END_TICK,183,65,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LOOP_END_TICK,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,209,65,11,10
+    PUSHBUTTON      "&Reset Loop to Entire Segment",IDC_RESET_LOOP,91,83,102,
+                    14
+    LTEXT           "Bar",IDC_STATIC,75,40,12,8
+    LTEXT           "Beat",IDC_STATIC,105,40,16,8
+    LTEXT           "Grid",IDC_STATIC,145,40,14,8
+    LTEXT           "Tick",IDC_STATIC,190,40,15,8
+END
+
+IDD_DLG_ADD_TRACKS DIALOG DISCARDABLE  0, 0, 212, 260
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Insert Track(s)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,45,241,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,117,241,50,14
+    LISTBOX         IDC_LIST_TRACKS,6,15,200,218,LBS_SORT | 
+                    LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | 
+                    LBS_EXTENDEDSEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    LTEXT           "Select one or more tracks:",IDC_STATIC,6,4,200,8
+END
+
+IDD_SET_LENGTH DIALOG DISCARDABLE  0, 0, 153, 45
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Length"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Measures:",IDC_STATIC,5,19,33,8
+    EDITTEXT        IDC_LENGTH,41,17,28,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_LENGTH_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,69,17,10,12
+    DEFPUSHBUTTON   "OK",IDOK,107,7,40,14
+    PUSHBUTTON      "Cancel",IDCANCEL,107,24,40,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TAB_SONG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_ABOUTBOX_SONG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_DLG_SONG, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 442
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 253
+    END
+
+    IDD_DLG_GUID, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+
+    IDD_TAB_INFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_SEGMENT_DESIGN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_SEGMENT_RUNTIME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_DUPLICATE_FILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 271
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 128
+    END
+
+    IDD_TAB_TRANSITION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_VIRTUAL_SEGMENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_VIRTUAL_SEGMENT_LOOP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_DLG_ADD_TRACKS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 253
+    END
+
+    IDD_SET_LENGTH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 146
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 38
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_SONG_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Song"
+    BEGIN
+        POPUP "&New"
+        BEGIN
+            MENUITEM "&Audiopath",                  IDM_NEW_AUDIOPATH
+            MENUITEM "&Container",                  IDM_NEW_CONTAINER
+            MENUITEM "&Segment",                    IDM_NEW_SOURCE_SEGMENT
+            MENUITEM "&Toolgraph",                  IDM_NEW_SOURCE_TOOLGRAPH
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Rename...",                  IDM_RENAME
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDR_SONG_EDITOR MENU DISCARDABLE 
+BEGIN
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM "&Redo\tCtrl+Y",               ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE
+    END
+    MENUITEM SEPARATOR
+    MENUITEM SEPARATOR
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents",                   IDM_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About Song Designer...",     ID_APP_ABOUT
+    END
+END
+
+IDM_SONGREF_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "SongRef"
+    BEGIN
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDM_FOLDER_SEGMENTS_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "SourceSegments"
+    BEGIN
+        MENUITEM "&New Segment",                IDM_NEW_SOURCE_SEGMENT
+        MENUITEM SEPARATOR
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDM_FOLDER_TOOLGRAPHS_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "SourceToolGraphs"
+    BEGIN
+        MENUITEM "&New Toolgraph",              IDM_NEW_SOURCE_TOOLGRAPH
+        MENUITEM SEPARATOR
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDM_FOLDER_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Folder"
+    BEGIN
+        MENUITEM "&New Segment",                IDM_NEW_SOURCE_SEGMENT
+        MENUITEM SEPARATOR
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDM_SOURCE_SEGMENT_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "SourceSegment"
+    BEGIN
+        MENUITEM "&Locate in Tree",             IDM_LOCATE
+        MENUITEM SEPARATOR
+        MENUITEM "&Delete",                     IDM_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+IDM_VIRTUAL_SEGMENT_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "VirtualSegment"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste Virtual Segment(s)\tCtrl+V", ID_EDIT_PASTE
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert Virtual Segment\tIns", IDM_INSERT_VIRTUAL_SEGMENT
+        MENUITEM "&Delete Virtual Segment(s)\tDel", 
+                                                IDM_DELETE_VIRTUAL_SEGMENT
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            IDM_VIRTUAL_SEGMENT_PROPERTIES
+
+    END
+END
+
+IDM_TRACK_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Track"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste Track(s)\tCtrl+V",     ID_EDIT_PASTE
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert Track(s)\tIns",       IDM_INSERT_TRACK
+        MENUITEM "&Delete Track(s)\tDel",       IDM_DELETE_TRACKS
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            IDM_TRACK_PROPERTIES
+    END
+END
+
+IDM_TRANSITION_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Transition"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste Transition(s)\tCtrl+V", ID_EDIT_PASTE
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert Transition\tIns",     IDM_INSERT_TRANSITION
+        MENUITEM "&Delete Transition(s)\tDel",  IDM_DELETE_TRANSITIONS
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            IDM_TRANSITION_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_SONG_ACCELS ACCELERATORS DISCARDABLE 
+BEGIN
+    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
+    VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SONG                "Song Control"
+    IDS_SONG_PPG            "Song Property Page"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SONG_PPG_CAPTION    "General"
+    IDS_SONG_COMPONENT_NAME "Song Designer"
+    IDS_HELP_FILE_EXT       ".chm"
+    IDS_ERR_INVALIDARG      "IDMUSProdComponent::Initialize() received invalid arguments."
+    IDR_SONG_DOCTYPE        "\nSong\nSong\nSong Files (*.sng;*.snp)\n.sng;.snp\nDirectMusic.Song\nDirectMusic Song"
+    IDS_ERR_REGISTER_CF     "Cannot register clipboard formats."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_ADD_CLIPFORMAT  "Cannot register Song file's clipboard format with Framework."
+    IDS_ERR_ADD_IMAGELIST   "Cannot add Project Tree images to Framework."
+    IDS_ERR_MEMORY          "Out of Memory."
+    IDS_ERR_ADD_DOCTYPE     "Cannot register file type with Framework."
+    IDS_ERR_MISSING_CONDUCTOR "Conductor initialization failed."
+    IDS_SONG_TEXT           "Song"
+    IDS_SONG_VERSION_TEXT   "Song Designer Version %1"
+    IDS_NO_SONG             "No Song"
+    IDS_UNDO_SONG_NAME      "Song Name"
+    IDS_UNDO_SONG_GUID      "Song GUID"
+    IDS_UNDO                "&Undo"
+    IDS_UNDO_ACCEL          "\tCtrl+Z"
+    IDS_REDO                "&Redo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Song Designer"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_REDO_ACCEL          "\tCtrl+Y"
+    IDS_UNDO_SONG_DOWNLOAD_ALL "Song Download Flag"
+    IDS_UNDO_SONG_AUTHOR    "Song Author"
+    IDS_UNDO_SONG_COPYRIGHT "Song Copyright"
+    IDS_UNDO_SONG_SUBJECT   "Song Subject"
+    IDS_UNDO_SONG_VERSION   "Song Version"
+    IDS_SONG_OBJECT_TEXT    "Song"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CONTAINER_NODE_NAME "Song Content"
+    IDS_UNDO_SONG_LOAD_ALL  "Song Load Flag"
+    IDS_ERR_MISSING_CONTAINER_DESIGNER 
+                            "Container Designer initialization failed."
+    IDS_UNDO_SOURCE         "Change Song"
+    IDS_ERR_MISSING_SEGMENT_DESIGNER "Segment Designer initialization failed."
+    IDS_ERR_MISSING_AUDIOPATH_DESIGNER 
+                            "Audiopath Designer initialization failed."
+    IDS_ERR_MISSING_TOOLGRAPH_DESIGNER 
+                            "Toolgraph Designer initialization failed."
+    IDS_SEGMENTS_FOLDER_NAME "Source Segments"
+    IDS_TOOLGRAPHS_FOLDER_NAME "Source Toolgraphs"
+    IDS_EMBED_FOLDER_NAME   "Embed Runtime"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_REF_FOLDER_NAME     "Reference Runtime"
+    IDS_DELETE_NODE_PROMPT  "Are you sure you want to delete this reference to '%1'?"
+    IDS_EMPTY_TEXT          "Empty"
+    IDS_V_EMPTY_TEXT        "V_Empty"
+    IDS_SEGMENT_TEXT        "Segment"
+    IDS_VIRTUAL_SEGMENT_PREFIX_TEXT "V_"
+    IDS_NOT_SAVED           "<not saved>"
+    IDS_UNKNOWN             "<Unknown>"
+    IDS_SIZE_BYTES          "%1 bytes"
+    IDS_SIZE_KB             "%1KB   (%2 bytes)"
+    IDS_UNDO_SONG_INFO      "Song Information"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FILE_OPEN_SEGMENT   "Open '%1' Segment"
+    IDS_FILE_OPEN_ANY_SEGMENT "Open Segment"
+    IDS_DUPE_FILE_PROMPT1   "Project '%1' already contains a %2"
+    IDS_DUPE_FILE_PROMPT2   " named '%1'.  The song '%2' is trying to unpack a segment of the same name."
+    IDS_DUPE_FILE_PROMPT3   "Replace the embedded segment file with the existing file in project '%1'."
+    IDS_DUPE_FILE_PROMPT4   "Replace the file in project '%1' with the embedded segment file."
+    IDS_DUPE_FILE_PROMPT5   "Keep both files (unpack the embedded file into a new file in project '%1')."
+    IDS_DUPE_FILE_PROMPT6   "Keep both files (unpack the embedded file into a new file)."
+    IDS_MULTIPLE_SEGMENTS_SELECTED "Multiple Segments Selected"
+    IDS_UNDO_CHANGE_SOURCE_TOOLGRAPH "Change Source Toolgraph"
+    IDS_UNDO_DELETE_SOURCE_TOOLGRAPH "Delete Source Toolgraph"
+    IDS_UNDO_CHANGE_SOURCE_SEGMENT "Change Source Segment"
+    IDS_UNDO_DELETE_SOURCE_SEGMENT "Delete Source Segment"
+    IDS_UNDO_CHANGE_NEXT_SEGMENT "Change Next Segment"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_DELETE_NEXT_SEGMENT "Delete Next Segment"
+    IDS_UNDO_ADD_VIRTUAL_SEGMENT "Add Virtual Segment(s)"
+    IDS_UNDO_DELETE_VIRTUAL_SEGMENT "Delete Virtual Segment"
+    IDS_UNDO_CHANGE_VIRTUAL_SEGMENT_NAME "Change Virtual Segment Name"
+    IDS_DUPE_VIRTUAL_SEGMENT_NAME 
+                            """A virtual segment with the name '%1' already exists.  You must enter a unique virtual segment name."""
+    IDS_NONE_TEXT           "<None>"
+    IDS_UNDO_MOVE_VIRTUAL_SEGMENTS "Move Virtual Segments"
+    IDS_ANY_TEXT            "<Any>"
+    IDS_UNDO_MOVE_TRANSITIONS "Move Transition(s)"
+    IDS_UNDO_ADD_TRANSITION "Add Transition(s)"
+    IDS_UNDO_DELETE_TRACK   "Delete Track(s)"
+    IDS_UNDO_DELETE_TRANSITION "Delete Transition(s)"
+    IDS_UNDO_ADD_TRACK      "Add Track(s)"
+    IDS_UNDO_MOVE_TRACKS    "Move Track(s)"
+    IDS_TRANSITION_TEXT     "Transition"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TO_TEXT             "To:"
+    IDS_TRAN_TEXT           "Tran:"
+    IDS_NEXT_BOUNDARY_TEXT  "Next Boundary"
+    IDS_UNDO_TRACK_EXTRAS_FLAGS "Change Track Flags"
+    IDS_UNDO_TRANSITION_FROM_SEGMENT "Change From Segment"
+    IDS_UNDO_TRANSITION_TRAN_SEGMENT "Change Transition Segment"
+    IDS_MULTIPLE_TRANSITIONS_SELECTED "Multiple Transitions Selected"
+    IDS_UNDO_VIRTUAL_SEGMENT_START "Change Start Point"
+    IDS_UNDO_VIRTUAL_SEGMENT_LENGTH "Change Length"
+    IDS_UNDO_VIRTUAL_SEGMENT_LOOP_REPEATS "Change Loop Repeats"
+    IDS_UNDO_VIRTUAL_SEGMENT_LOOP_START "Change Loop Start Point"
+    IDS_UNDO_VIRTUAL_SEGMENT_LOOP_END "Change Loop End Point"
+    IDS_UNDO_VIRTUAL_SEGMENT_GROUP_BITS "Change Time Sig Track Group"
+    IDS_INTRO_TEXT          "Intro:"
+    IDS_UNDO_VIRTUAL_SEGMENT_USE_AUDIOPATH "Change Use Audiopath Flag"
+    IDS_UNDO_VIRTUAL_SEGMENT_EXTEND_TIMESIG "Change Extend TimeSig Flag"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TRACK_TEXT          "Track"
+    IDS_VIRTUAL_SEGMENT_TEXT "Virtual Segment"
+    IDS_ERR_REG_OBJECT      "Error reading registry while attempting to load the registered DirectMusic Producer Container Objects. Please run Setup and reinstall."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_VIRTUAL_SEGMENT_BOUNDARY_FLAGS "Change Boundary Flags"
+    IDS_UNDO_VIRTUAL_SEGMENT_RESET_LOOP "Reset Loop"
+    IDS_ERR_MIN_MAX         "You must enter a number between %1 and %2."
+    IDS_CONTAINER_TEXT      "Container"
+    IDS_AUDIOPATH_TEXT      "Audiopath"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\TabBoundaryFlags.rc"
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

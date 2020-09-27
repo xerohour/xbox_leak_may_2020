@@ -1,0 +1,30 @@
+TARGETNAME=vstune
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+SOURCES= \
+    vstune.cpp \
+    bitfont.cpp \
+    inifile.cpp \
+    utils.cpp  \
+
+UMTYPE=xboxapp
+
+INCLUDES=$(INCLUDES);..
+
+!if $(FREEBUILD)
+D3D8LIB=d3d8i
+!else
+D3D8LIB=d3d8d
+!endif
+
+# Comment out this line if you want to build
+# with d3d8i.lib instead of d3d8.lib when
+# building retail.
+D3D8LIB = d3d8$(D)
+
+LINKLIBS=\
+    $(SDK_LIB_PATH)\$(D3D8LIB).lib    \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib \
+    $(SDK_LIB_PATH)\d3dx8$(D).lib
+

@@ -1,0 +1,8 @@
+/////////////////////////////////////////////////////////////////////////////
+// Copyright © 2001 Microsoft.  ALL RIGHTS RESERVED
+// Programmer: Sean Wohlgemuth (mailto:seanwo@microsoft.com)
+/////////////////////////////////////////////////////////////////////////////
+
+#include "winsock2.h"  //using winsock2
+#include <windows.h>  //standard windows includes
+#include <stdio.h>  //standard io

@@ -1,0 +1,121 @@
+NTSYSAPI
+NTSTATUS
+NTAPI
+ZwContinue (
+    IN PCONTEXT ContextRecord,
+    IN BOOLEAN TestAlert
+    );
+NTSYSAPI
+NTSTATUS
+NTAPI
+ZwRaiseException (
+    IN PEXCEPTION_RECORD ExceptionRecord,
+    IN PCONTEXT ContextRecord,
+    IN BOOLEAN FirstChance
+    );
+
+#define ZwAccessCheckAndAuditAlarm      NtAccessCheckAndAuditAlarm
+#define ZwAdjustPrivilegesToken         NtAdjustPrivilegesToken
+#define ZwAlertThread                   NtAlertThread
+#define ZwAllocateVirtualMemory         NtAllocateVirtualMemory
+#define ZwCancelIoFile                  NtCancelIoFile
+#define ZwCancelTimer                   NtCancelTimer
+#define ZwClearEvent                    NtClearEvent
+#define ZwClose                         NtClose
+#define ZwCloseObjectAuditAlarm         NtCloseObjectAuditAlarm
+#define ZwConnectPort                   NtConnectPort
+#define ZwCreateDirectoryObject         NtCreateDirectoryObject
+#define ZwCreateEvent                   NtCreateEvent
+#define ZwCreateFile                    NtCreateFile
+#define ZwCreateKey                     NtCreateKey
+#define ZwCreateSection                 NtCreateSection
+#define ZwCreateSymbolicLinkObject      NtCreateSymbolicLinkObject
+#define ZwCreateTimer                   NtCreateTimer
+#define ZwDeleteFile                    NtDeleteFile
+#define ZwDeleteKey                     NtDeleteKey
+#define ZwDeleteValueKey                NtDeleteValueKey
+#define ZwDeviceIoControlFile           NtDeviceIoControlFile
+#define ZwDisplayString                 NtDisplayString
+#define ZwDuplicateObject               NtDuplicateObject
+#define ZwDuplicateToken                NtDuplicateToken
+#define ZwEnumerateKey                  NtEnumerateKey
+#define ZwEnumerateValueKey             NtEnumerateValueKey
+#define ZwFlushBuffersFile              NtFlushBuffersFile
+#define ZwFlushInstructionCache         NtFlushInstructionCache
+#define ZwFlushKey                      NtFlushKey
+#define ZwFlushVirtualMemory            NtFlushVirtualMemory
+#define ZwFreeVirtualMemory             NtFreeVirtualMemory
+#define ZwFsControlFile                 NtFsControlFile
+#define ZwInitiatePowerAction           NtInitiatePowerAction
+#define ZwInitializeRegistry            NtInitializeRegistry
+#define ZwLoadDriver                    NtLoadDriver
+#define ZwLoadKey                       NtLoadKey
+#define ZwMakeTemporaryObject           NtMakeTemporaryObject
+#define ZwMapViewOfSection              NtMapViewOfSection
+#define ZwNotifyChangeKey               NtNotifyChangeKey
+#define ZwOpenDirectoryObject           NtOpenDirectoryObject
+#define ZwOpenEvent                     NtOpenEvent
+#define ZwOpenFile                      NtOpenFile
+#define ZwOpenKey                       NtOpenKey
+#define ZwOpenProcess                   NtOpenProcess
+#define ZwOpenProcessToken              NtOpenProcessToken
+#define ZwOpenSection                   NtOpenSection
+#define ZwOpenSymbolicLinkObject        NtOpenSymbolicLinkObject
+#define ZwOpenThread                    NtOpenThread
+#define ZwOpenThreadToken               NtOpenThreadToken
+#define ZwOpenTimer                     NtOpenTimer
+#define ZwPowerInformation              NtPowerInformation
+#define ZwPulseEvent                    NtPulseEvent
+#define ZwQueryDefaultLocale            NtQueryDefaultLocale
+#define ZwQueryDefaultUILanguage        NtQueryDefaultUILanguage
+#define ZwQueryInstallUILanguage        NtQueryInstallUILanguage
+#define ZwQueryDirectoryFile            NtQueryDirectoryFile
+#define ZwQueryDirectoryObject          NtQueryDirectoryObject
+#define ZwQueryEaFile                   NtQueryEaFile
+#define ZwQueryInformationFile          NtQueryInformationFile
+#define ZwQueryInformationProcess       NtQueryInformationProcess
+#define ZwQueryInformationToken         NtQueryInformationToken
+#define ZwQueryInformationToken         NtQueryInformationToken
+#define ZwQueryAttributesFile           NtQueryAttributesFile
+#define ZwQueryKey                      NtQueryKey
+#define ZwQueryObject                   NtQueryObject
+#define ZwQuerySection                  NtQuerySection
+#define ZwQuerySecurityObject           NtQuerySecurityObject
+#define ZwQuerySymbolicLinkObject       NtQuerySymbolicLinkObject
+#define ZwQuerySystemInformation        NtQuerySystemInformation
+#define ZwQueryValueKey                 NtQueryValueKey
+#define ZwQueryVirtualMemory            NtQueryVirtualMemory
+#define ZwQueryVolumeInformationFile    NtQueryVolumeInformationFile
+#define ZwRaiseHardError                NtRaiseHardError
+#define ZwReadFile                      NtReadFile
+#define ZwReplaceKey                    NtReplaceKey
+#define ZwRequestWaitReplyPort          NtRequestWaitReplyPort
+#define ZwResetEvent                    NtResetEvent
+#define ZwRestoreKey                    NtRestoreKey
+#define ZwSaveKey                       NtSaveKey
+#define ZwSaveMergedKeys                NtSaveMergedKeys
+#define ZwSetDefaultLocale              NtSetDefaultLocale
+#define ZwSetDefaultUILanguage          NtSetDefaultUILanguage
+#define ZwSetEaFile                     NtSetEaFile
+#define ZwSetEvent                      NtSetEvent
+#define ZwSetInformationFile            NtSetInformationFile
+#define ZwSetInformationObject          NtSetInformationObject
+#define ZwSetInformationProcess         NtSetInformationProcess
+#define ZwSetInformationThread          NtSetInformationThread
+#define ZwSetSecurityObject             NtSetSecurityObject
+#define ZwSetSystemInformation          NtSetSystemInformation
+#define ZwSetSystemPowerState           NtSetSystemPowerState
+#define ZwSetSystemTime                 NtSetSystemTime
+#define ZwSetTimer                      NtSetTimer
+#define ZwSetValueKey                   NtSetValueKey
+#define ZwSetVolumeInformationFile      NtSetVolumeInformationFile
+#define ZwTerminateProcess              NtTerminateProcess
+#define ZwTerminateThread               NtTerminateThread
+#define ZwUnloadDriver                  NtUnloadDriver
+#define ZwUnloadKey                     NtUnloadKey
+#define ZwUnmapViewOfSection            NtUnmapViewOfSection
+#define ZwWaitForMultipleObjects        NtWaitForMultipleObjects
+#define ZwWaitForSingleObject           NtWaitForSingleObject
+#define ZwWriteFile                     NtWriteFile
+#define ZwWriteVirtualMemory            NtWriteVirtualMemory
+#define ZwYieldExecution                NtYieldExecution

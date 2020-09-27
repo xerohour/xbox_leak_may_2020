@@ -1,0 +1,920 @@
+############################################################################################
+## This makefile will munge all template, and other non standeard resource
+## from a resource only stub (.stb) dll to an existing .dll.
+##
+##   $(IDELOC) = path for the root directory of the D IDE files
+##             Example: SET IDELOC=D:\MSDEV
+##
+############################################################################################
+
+!ifndef IDELOC
+!MESSAGE IDELOC is not defined.
+!ERROR	 Example: SET IDELOC=D:\MSDEV (pointing to the ..\MSDEV directory of the J product)
+!endif
+
+!ifndef RELEASE
+RELEASE=0
+!endif
+
+!ifndef DEBUG
+DEBUG=1
+!endif
+
+!IF "$(DEBUG)"=="0"
+!UNDEF DEBUG
+!ENDIF
+
+!IF "$(OS)" == "Windows_NT"
+LOGNT=
+!ELSE
+!UNDEF LOGNT
+!ERROR Resource copy requires Windows NT!!
+!ENDIF
+
+!IFDEF DEBUG
+LOGDIR=..\bldlogs.dbg
+!ELSE
+LOGDIR=..\bldlogs.ret
+!ENDIF
+
+FILE_LOG=results.log
+ERRORLOG= \
+!       IFDEF VERB
+		| tee $(FILE_LOG) 2>&1
+!       ELSE
+		>> $(FILE_LOG) 2>&1
+!       ENDIF
+
+!IFDEF LOGNT
+STDERROUT=$(ERRORLOG) || copy $(FILE_LOG) $(LOGDIR)\$@.log
+!ELSE
+STDERROUT=
+!ENDIF
+
+all:  mfcclwz custmwz mfcapwz mfctlwz inetawiz atlwiz atlobj addinwz devcpp cawutil dlgbar ctip mapicomp owndraw progdlg propsht popup splash statbar sysinfo exewz dllwz libwz conwz makwz genwz xpwiz crestyp done
+
+
+
+
+always: logdir
+	set PATH=$(PATH)
+	set IDELOC=$(IDELOC)
+	set IDE=$(IDE)
+	set INCLUDE=$(IDE)\include;$(IDE)\MFC\include;$(INCLUDE)
+	set LIB=$(IDE)\lib;$(IDE)\MFC\lib;$(LIB)
+	set CPU=$(CPU)
+	set MAKEFLAGS=K
+	set WIN32=1
+
+logdir:
+	if not exist $(LOGDIR) md $(LOGDIR)
+
+cleanbin:
+	-attrib /S -r bin\*.*
+	-del /s bin\*.stb
+
+clean: clean_mfcclwz clean_custmwz clean_mfcapwz clean_mfctlwz clean_inetawiz clean_atlwiz clean_atlobj clean_addinwz clean_devcpp clean_cawutil clean_ctip clean_dlgbar clean_mapicomp clean_owndraw clean_progdlg clean_propsht clean_popup clean_splash clean_statbar clean_sysinfo clean_exewz clean_conwz clean_genwz clean_libwz clean_makwz clean_dllwz clean_xpwiz clean_crestyp
+
+
+#######################################################
+###		CLEAN DEV-STUDIO
+#######################################################
+
+###############
+clean_mfcclwz:
+	-@echotime /t  Cleaning $@ stub
+	cd mfcclwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+##############
+clean_custmwz:
+	-@echotime /t  Cleaning $@ stub
+	cd custmwz
+
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+##############
+clean_mfcapwz: 
+	-@echotime /t  Cleaning $@ stub
+	cd mfcapwz
+
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+##############
+clean_mfctlwz:
+	-@echotime /t  Cleaning $@ stub
+	cd mfctlwz
+
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_inetawiz:
+	-@echotime /t  Cleaning $@ stub
+	cd inetawiz
+
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+############
+clean_atlwiz:
+	-@echotime /t  Cleaning $@ stub
+	cd atlwiz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_atlobj:
+	-@echotime /t  Cleaning $@ stub
+	cd atlobj
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_addinwz:
+	-@echotime /t  Cleaning $@ stub
+	cd addinwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_devcpp:
+	-@echotime /t  Cleaning $@ stub
+	cd devcpp
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_cawutil:
+	-@echotime /t  Cleaning $@ stub
+	cd cawutil
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_ctip:
+	-@echotime /t  Cleaning $@ stub
+	cd ctip
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_dlgbar:
+	-@echotime /t  Cleaning $@ stub
+	cd dlgbar
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_mapicomp:
+	-@echotime /t  Cleaning $@ stub
+	cd mapicomp
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_owndraw:
+	-@echotime /t  Cleaning $@ stub
+	cd owndraw
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_progdlg:
+	-@echotime /t  Cleaning $@ stub
+	cd progdlg
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_propsht:
+	-@echotime /t  Cleaning $@ stub
+	cd propsht
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_popup:
+	-@echotime /t  Cleaning $@ stub
+	cd popup
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_splash:
+	-@echotime /t  Cleaning $@ stub
+	cd splash
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_statbar:
+	-@echotime /t  Cleaning $@ stub
+	cd statbar
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+
+###############
+clean_sysinfo:
+	-@echotime /t  Cleaning $@ stub
+	cd sysinfo
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_exewz:
+	-@echotime /t  Cleaning $@ stub
+	cd exewz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_libwz:
+	-@echotime /t  Cleaning $@ stub
+	cd libwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_conwz:
+	-@echotime /t  Cleaning $@ stub
+	cd conwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_makwz:
+	-@echotime /t  Cleaning $@ stub
+	cd makwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_genwz:
+	-@echotime /t  Cleaning $@ stub
+	cd genwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_dllwz:
+	-@echotime /t  Cleaning $@ stub
+	cd dllwz
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_xpwiz:
+	-@echotime /t  Cleaning $@ stub
+	cd xpwix
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+clean_crestyp:
+	-@echotime /t  Cleaning $@ stub
+	cd crestyp
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 clean $(STDERROUT)
+	delnode /q Debug
+!ELSE
+	$(MAKE) /k DEBUG=0 clean $(STDERROUT)
+	delnode /q Release
+!ENDIF DEBUG
+	cd ..\
+###############
+
+#######################################################
+###		END CLEANING DEV-STUDIO
+#######################################################
+
+
+
+#######################################################
+###		DEV-STUDIO TEMPLATE MUNGE
+#######################################################
+
+################
+mfcclwz: always
+	-@echotime /t  Building $@ stub
+
+	cd mfcclwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\mfcclwz.stb $(IDELOC)\bind\mfcclwzd.dll "SRCDATA":all
+	rescopy .\bin\mfcclwz.stb $(IDELOC)\bind\mfcclwzd.dll "STRINGARRAY":all
+!ELSE
+	rescopy .\bin\mfcclwz.stb $(IDELOC)\bin\mfcclwz.dll "SRCDATA":all
+	rescopy .\bin\mfcclwz.stb $(IDELOC)\bin\mfcclwz.dll "STRINGARRAY":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+
+################
+custmwz: always
+	-@echotime /t  Building $@ stub
+
+	cd custmwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+
+	cd ..\
+
+!IFDEF DEBUG
+    rescopy bin\custmwz.stb $(IDELOC)\bind\ided\custmwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy bin\custmwz.stb $(IDELOC)\bin\ide\custmwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+mfcapwz: always
+	-@echotime /t  Building $@ stub
+
+	cd mfcapwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+
+	cd ..\
+
+!IFDEF DEBUG
+	$(MAKE) /k DEBUG=1 $(STDERROUT)
+	rescopy .\bin\mfcapwz.stb $(IDELOC)\bind\ided\mfcapwzd.dll "TEMPLATE":all
+!ELSE
+	rescopy .\bin\mfcapwz.stb $(IDELOC)\bin\ide\mfcapwz.dll "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+###############
+mfctlwz: always
+	-@echotime /t  Building $@ stub
+
+	cd mfctlwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\mfctlwz.stb $(IDELOC)\bind\ided\mfctlwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\mfctlwz.stb $(IDELOC)\bin\ide\mfctlwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+###############
+inetawiz: always
+	-@echotime /t  Building $@ stub
+
+	cd inetawiz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\inetawiz.stb $(IDELOC)\bind\ided\inetawzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\inetawiz.stb $(IDELOC)\bin\ide\inetawz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+atlwiz: always
+	-@echotime /t  Building $@ stub
+	cd atlwiz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\atlwiz.stb $(IDELOC)\bind\ided\\atlwizd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\atlwiz.stb $(IDELOC)\bin\ide\atlwiz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+atlobj: always
+	-@echotime /t  Building $@ stub
+	cd atlobj
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\atlobj.stb $(IDELOC)\bind\ided\\atlobjd.dll "REGISTRY":all
+!ELSE
+	rescopy .\bin\atlobj.stb $(IDELOC)\bin\ide\atlobj.dll "REGISTRY":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+addinwz: always
+	-@echotime /t  Building $@ stub
+	cd addinwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\addinwz.stb $(IDELOC)\bind\ided\addinwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\addinwz.stb $(IDELOC)\bin\ide\addinwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+devcpp: always
+	-@echotime /t  Building $@ stub
+
+	cd devcpp
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+
+	cd ..\
+
+!IFDEF DEBUG
+    rescopy bin\devcpp.stb $(IDELOC)\bind\ided\devcppd.pkg "TEMPLATE":all
+	rescopy bin\devcpp.stb $(IDELOC)\bind\ided\devcppd.pkg "RESOURCE":all
+!ELSE
+	rescopy bin\devcpp.stb $(IDELOC)\bin\ide\devcpp.pkg "TEMPLATE":all
+	rescopy bin\devcpp.stb $(IDELOC)\bin\ide\devcpp.pkg "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+cawutil: always
+	-@echotime /t  Building $@ stub
+	cd cawutil
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\cawutil.stb $(IDELOC)\bind\ided\cawutild.dll "TEMPLATE":all
+	rescopy .\bin\cawutil.stb $(IDELOC)\bind\ided\cawutild.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\cawutil.stb $(IDELOC)\bin\ide\cawutil.dll "TEMPLATE":all
+	rescopy .\bin\cawutil.stb $(IDELOC)\bin\ide\cawutil.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+ctip: always
+	-@echotime /t  Building $@ stub
+	cd ctip
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\ctip.stb $(IDELOC)\bind\ided\ctipd.dll "TEXTCODE":all
+	rescopy .\bin\ctip.stb $(IDELOC)\bind\ide\ctipd.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\ctip.stb $(IDELOC)\bin\ide\ctip.dll "TEXTCODE":all
+	rescopy .\bin\ctip.stb $(IDELOC)\bin\ide\ctip.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+dlgbar: always
+	-@echotime /t  Building $@ stub
+	cd dlgbar
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\dlgbar.stb $(IDELOC)\bind\ided\dlgbard.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\dlgbar.stb $(IDELOC)\bin\ide\dlgbar.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+mapicomp: always
+	-@echotime /t  Building $@ stub
+	cd mapicomp
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\mapicomp.stb $(IDELOC)\bind\ided\mapicompd.dll "TEMPLATE":all
+!ELSE
+	rescopy .\bin\mapicomp.stb $(IDELOC)\bin\ide\mapicomp.dll "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+
+################
+owndraw: always
+	-@echotime /t  Building $@ stub
+	cd owndraw
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\owndraw.stb $(IDELOC)\bind\ided\owndrawd.dll "TEMPLATE":all
+!ELSE
+	rescopy .\bin\owndraw.stb $(IDELOC)\bin\ide\owndraw.dll "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+progdlg: always
+	-@echotime /t  Building $@ stub
+	cd progdlg
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\progdlg.stb $(IDELOC)\bind\ided\progdlgd.dll "TEMPLATE":all
+	rescopy .\bin\progdlg.stb $(IDELOC)\bind\ided\progdlgd.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\progdlg.stb $(IDELOC)\bin\ide\progdlg.dll "TEMPLATE":all
+	rescopy .\bin\progdlg.stb $(IDELOC)\bin\ide\progdlg.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+propsht: always
+	-@echotime /t  Building $@ stub
+	cd propsht
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\propsht.stb $(IDELOC)\bind\ided\propshtd.dll "TEMPLATE":all
+	rescopy .\bin\propsht.stb $(IDELOC)\bind\ided\propshtd.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\propsht.stb $(IDELOC)\bin\ide\propsht.dll "TEMPLATE":all
+	rescopy .\bin\propsht.stb $(IDELOC)\bin\ide\propsht.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+popup: always
+	-@echotime /t  Building $@ stub
+	cd popup
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\popup.stb $(IDELOC)\bind\ided\popupd.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\popup.stb $(IDELOC)\bin\ide\popup.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+splash: always
+	-@echotime /t  Building $@ stub
+	cd splash
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\splash.stb $(IDELOC)\bind\ided\splashd.dll "TEMPLATE":all
+	rescopy .\bin\splash.stb $(IDELOC)\bind\ided\splashd.dll "RESOURCE":all
+!ELSE
+	rescopy .\bin\splash.stb $(IDELOC)\bin\ide\splash.dll "TEMPLATE":all
+	rescopy .\bin\splash.stb $(IDELOC)\bin\ide\splash.dll "RESOURCE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+statbar: always
+	-@echotime /t  Building $@ stub
+	cd statbar
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\statbar.stb $(IDELOC)\bind\ided\statbard.dll "TEXTCODE":all
+!ELSE
+	rescopy .\bin\statbar.stb $(IDELOC)\bin\ide\statbar.dll "TEXTCODE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+sysinfo: always
+	-@echotime /t  Building $@ stub
+	cd sysinfo
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\sysinfo.stb $(IDELOC)\bind\idedsysinfod.dll "TEMPLATE":all
+!ELSE
+	rescopy .\bin\sysinfo.stb $(IDELOC)\bin\ide\sysinfo.dll "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+exewz: always
+	-@echotime /t  Building $@ stub
+	cd exewz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\exewz.stb $(IDELOC)\bind\ided\exewzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\exewz.stb $(IDELOC)\bin\ide\exewz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+dllwz: always
+	-@echotime /t  Building $@ stub
+	cd dllwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\dllwz.stb $(IDELOC)\bind\ided\dllwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\dllwz.stb $(IDELOC)\bin\ide\dllwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+
+################
+libwz: always
+	-@echotime /t  Building $@ stub
+	cd libwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\libwz.stb $(IDELOC)\bind\ided\libwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\libwz.stb $(IDELOC)\bin\ide\libwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+genwz: always
+	-@echotime /t  Building $@ stub
+	cd genwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\genwz.stb $(IDELOC)\bind\ided\genwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\genwz.stb $(IDELOC)\bin\ide\genwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+makwz: always
+	-@echotime /t  Building $@ stub
+	cd makwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\makwz.stb $(IDELOC)\bind\ided\makwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\makwz.stb $(IDELOC)\bin\ide\makwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+################
+conwz: always
+	-@echotime /t  Building $@ stub
+	cd conwz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\conwz.stb $(IDELOC)\bind\ided\conwzd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\conwz.stb $(IDELOC)\bin\ide\conwz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+
+###############
+xpwiz: always
+	-@echotime /t  Building $@ stub
+	cd xpwiz
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\xpwiz.stb $(IDELOC)\bind\ided\xpwizd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\xpwiz.stb $(IDELOC)\bin\ide\xpwiz.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+###############
+crestyp: always
+	-@echotime /t  Building $@ stub
+	cd crestyp
+	$(MAKE) /k DEBUG=0 /all $(STDERROUT)
+	cd ..\
+
+!IFDEF DEBUG
+	rescopy .\bin\crestyp.stb $(IDELOC)\bind\ided\crestypd.awx "TEMPLATE":all
+!ELSE
+	rescopy .\bin\crestyp.stb $(IDELOC)\bin\ide\crestyp.awx "TEMPLATE":all
+!ENDIF
+	-@echotime /t  Done Building $@ stub
+###############
+
+done: always
+	-@echotime /t  End of resource munging.
+
+
+#######################################################
+###		END DEV-STUDIO TEMPLATE MUNGE
+#######################################################
+
+
+help:
+!MESSAGE
+!MESSAGE TARGETS:
+!MESSAGE        mfcclwz:   mfcclwz resource only stub dll
+!MESSAGE        custmwz:    custmwz resource only stub dll
+!MESSAGE        mfcapwz:    mfcapwz resource only stub dll
+!MESSAGE        mfctlwz:    mfctlwz resource only stub dll
+!MESSAGE        inetawiz:   inetawiz resource only stub dll
+!MESSAGE        atlwiz:     atlwiz resource only stub dll
+!MESSAGE        atlobj:     atlobj resource only stub dll
+!MESSAGE        addinwz:    addinwz resource only stub dll
+!MESSAGE        devcpp:     devcpp resource only stub dll
+!MESSAGE        cawutil:    cawutil resource only stub dll
+!MESSAGE        ctip:       ctip resource only stub dll
+!MESSAGE        dlgbar:     dlgbar resource only stub dll
+!MESSAGE        mapicomp:   mapicomp resource only stub dll
+!MESSAGE        owndraw:    owndraw resource only stub dll
+!MESSAGE        progdlg:    progdlg resource only stub dll
+!MESSAGE        propsht:    propsht resource only stub dll
+!MESSAGE        popup:		popup resource only stub dll
+!MESSAGE        splash:     splash resource only stub dll
+!MESSAGE        statbar:    statbar resource only stub dll
+!MESSAGE        sysinfo:    sysinfo resource only stub dll
+!MESSAGE        exewz:     exewz resource only stub dll
+!MESSAGE        libwz :    libwz resource only stub dllv
+!MESSAGE        conwz:     conwz resource only stub dll
+!MESSAGE        makwz:     makwz resource only stub dll
+!MESSAGE        dllwz :    dllwz resource only stub dll
+!MESSAGE        genwz:     genwz resource only stub dll
+!MESSAGE        xpwiz:     xpwiz resource only stub dll
+!MESSAGE        crestyp:   crestyp resource only stub dll
+!MESSAGE        all:        all above
+!MESSAGE SWITCHES:
+!MESSAGE        VERB=     Don't silence NMAKE
+!MESSAGE        DEBUG=0   Build the release version (defaults to release)
+!MESSAGE        DEBUG=1   Build the debug version (defaults to release)

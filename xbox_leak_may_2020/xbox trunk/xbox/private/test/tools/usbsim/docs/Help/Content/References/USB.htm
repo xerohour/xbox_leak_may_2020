@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Mini USB Reference</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<SCRIPT>
+var pids = "" +
+    "//\n" +
+    "// USB PID values (USB Specification section 8.3.1 table 8-1)\n" +
+    "//\n" +
+    "#define USB_PID_MDATA       0xF0\n" +
+    "#define USB_PID_DATA2       0xE1\n" +
+    "#define USB_PID_DATA1       0xD2\n" +
+    "#define USB_PID_DATA0       0xC3\n" +
+    "#define USB_PID_SETUP       0xB4\n" +
+    "#define USB_PID_SOF         0xA5\n" +
+    "#define USB_PID_IN          0x96\n" +
+    "#define USB_PID_OUT         0x87\n" +
+    "#define USB_PID_STALL       0x78\n" +
+    "#define USB_PID_NYET        0x69\n" +
+    "#define USB_PID_NAK         0x5A\n" +
+    "#define USB_PID_ACK         0x4B\n" +
+    "#define USB_PID_ERR         0x3C\n" +
+    "#define USB_PID_PING        0x2D\n" +
+    "#define USB_PID_SPLIT       0x1E\n" +
+    "#define USB_PID_RESERVED    0x0F\n" +
+    "#define USB_PID_PRE         USB_PID_ERR\n";
+
+bulkCmd = "" +
+    "#pragma pack(push, 1) // align structure members on a byte boundry\n" +
+    "struct CBW\n" +
+    "    {\n" +
+    "    // header\n" +
+    "    unsigned __int32 sig;           // CBW Signature - same for all transactions\n" +
+    "    unsigned __int32 tag;           // CBW Tag - unique identifier for a transaction, returned in CSW\n" +
+    "    unsigned __int32 dataLength;    // Length (in bytes) of the data stage of the transaction\n" +
+    "    unsigned __int8  flag;          // Sets data direction among other things, 0x00-WRTIE, 0x80-READ\n" +
+    "    unsigned __int8  drive;         // Sets Logical Unit (if device has multiple drives)\n" +
+    "    unsigned __int8  length;        // Length of the valid portion of the RBC\n" +
+    "\n" +
+    "    // RBC\n" +
+    "    unsigned __int8  opCode;        // Command ID\n" +
+    "    unsigned __int8  rbcDrive;      // Bitwise field containing LUN\n" +
+    "    unsigned __int32 address;       // Address in Block numbers of the destination\n" +
+    "    unsigned __int8  reserved2;     \n" +
+    "    unsigned __int16 param2;        // RBC Length - Length in Block numbers of the data\n" +
+    "    unsigned __int8  control;       \n" +
+    "    unsigned __int8  fill[6];       \n" +
+    "    };\n" +
+    "struct CSW\n" +
+    "    {\n" +
+    "    // header\n" +
+    "    unsigned __int32 sig;\n" +
+    "    unsigned __int32 tag;\n" +
+    "    unsigned __int32 dataLength;\n" +
+    "    unsigned __int8  result;\n" +
+    "    };\n" +
+    "#pragma pack(pop)";
+
+</SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Mini USB Reference</H1>
+
+<DIV CLASS=BLOCKHEADER>USB PID Values</DIV>
+    <DIV CLASS=BLOCK>
+    <SCRIPT>WriteCode(pids);</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Bulk Command Structures</DIV>
+    <DIV CLASS=BLOCK>
+    <SCRIPT>WriteCode(bulkCmd);</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A TARGET=top HREF="http://www.usb.org/developers/docs.html">http://www.usb.org/developers/docs.html</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

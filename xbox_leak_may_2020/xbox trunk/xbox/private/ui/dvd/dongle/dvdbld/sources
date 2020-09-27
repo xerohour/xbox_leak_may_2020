@@ -1,0 +1,47 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+TARGETNAME=dvdbld
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+UMENTRY=main
+
+NOT_UNICODE=1
+
+SOURCES=dvdbld.cpp
+
+INCLUDES=$(WSDK_INC_PATH); \
+         $(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(PRIVATE_INC_PATH)\crypto; \
+         $(BASEDIR)\private\ntos\inc; \
+         ..\dvdlib
+
+TARGETLIBS=$(BASEDIR)\private\lib\*\lci.lib \
+           $(BASEDIR)\private\lib\*\rsa32.lib \
+           $(BASEDIR)\private\lib\*\xcrypt.lib
+
+
+NO_BINPLACE=1
+
+PRECOMPILED_INCLUDE=dvdbldp.h
+PRECOMPILED_CXX=1
+
+!if !$(FREEBUILD)
+MSC_OPTIMIZATION=/Odi
+!endif

@@ -1,0 +1,149 @@
+//+--------------------------------------------------------------------------
+//
+//  Microsoft Site Server v3.00
+//  Copyright (C) 1997-1999 Microsoft Corporation.  All rights reserved.
+//
+//  File:       SchemaEdit.idl
+//
+//  Contents:   Schema Editor interfaces.
+//
+//  Interfaces: ISearchSchema
+//              IColumn
+//              IColumns
+//              IStoplist
+//              IStoplists
+//
+//---------------------------------------------------------------------------
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// SearchSchema
+	[
+		object,
+		uuid(1F0B79D5-1B41-11D1-BCD1-00C04FB6EAD7),
+		dual,
+		helpstring("ISearchSchema Interface"),
+		pointer_default(unique)
+	]
+	interface ISearchSchema : IDispatch
+	{
+		[id(2), helpstring("method Save")] HRESULT Save();
+		[propget, id(3), helpstring("property Columns")] HRESULT Columns([out, retval] VARIANT *pVal);
+		[propget, id(4), helpstring("property Stoplists")] HRESULT Stoplists([out, retval] VARIANT *pVal);
+	};
+
+// Column
+	[
+		object,
+		uuid(1F0B79D9-1B41-11D1-BCD1-00C04FB6EAD7),
+		dual,
+		helpstring("IColumn Interface"),
+		pointer_default(unique)
+	]
+	interface IColumn : IDispatch
+	{
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propput, id(2), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+		[propget, id(3), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+		[propput, id(3), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(4), helpstring("property PropGuid")] HRESULT PropGuid([out, retval] BSTR *pVal);
+		[propput, id(4), helpstring("property PropGuid")] HRESULT PropGuid([in] BSTR newVal);
+		[propget, id(5), helpstring("property PropPid")] HRESULT PropPid([out, retval] BSTR *pVal);
+		[propput, id(5), helpstring("property PropPid")] HRESULT PropPid([in] BSTR newVal);
+		[propget, id(6), helpstring("property Retrieve")] HRESULT Retrieve([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(6), helpstring("property Retrieve")] HRESULT Retrieve([in] VARIANT_BOOL newVal);
+		[propget, id(7), helpstring("property Index")] HRESULT Index([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(7), helpstring("property Index")] HRESULT Index([in] VARIANT_BOOL newVal);
+		[propget, id(8), helpstring("property Type")] HRESULT Type([out, retval] BSTR *pVal);
+		[propput, id(8), helpstring("property Type")] HRESULT Type([in] BSTR newVal);
+		[propget, id(9), helpstring("property Length")] HRESULT Length([out, retval] LONG *pVal);
+		[propput, id(9), helpstring("property Length")] HRESULT Length([in] LONG newVal);
+	};
+
+
+// Columns
+	[
+		object,
+		uuid(FC33E907-1E62-11d1-BCD1-00C04FB6EAD7),
+		dual,
+		helpstring("IColumns Interface"),
+		pointer_default(unique)
+	]
+	interface IColumns : IDispatch
+	{
+		[propget, id(DISPID_VALUE), helpstring("method Item")] 
+			HRESULT Item([in] BSTR Key, 
+						 [out, retval] VARIANT *pVal);
+		[propget, id(DISPID_NEWENUM), helpstring("property _NewEnum")] 
+			HRESULT _NewEnum([out,retval] IUnknown **ppUnkIter);
+		[propget, id(2), helpstring("property Count")] 
+			HRESULT Count([out, retval] LONG *pVal);
+		[id(3), helpstring("method Remove")] 
+			HRESULT Remove([in] BSTR Key, 
+						 [out, retval] VARIANT *pVal);
+		[id(4), helpstring("method Append")] 
+			HRESULT 	Add
+							([in] BSTR Name, [in] BSTR Description, 
+							[in] BSTR Type, 
+							[in] BSTR PropGuid, [in] BSTR PropPid,
+							[in] VARIANT_BOOL Index, [in] VARIANT_BOOL Retrieve,
+							[in] LONG Length, 
+							[out,retval] VARIANT *pResult);
+
+		[id(5), helpstring("method Clear")] 
+            HRESULT Clear();
+	};
+
+// Stoplist
+	[
+		object,
+		uuid(1F0B79D8-1B41-11D1-BCD1-00C04FB6EAD7),
+		dual,
+		helpstring("IStoplist Interface"),
+		pointer_default(unique)
+	]
+	interface IStoplist : IDispatch
+	{
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propput, id(2), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+		[propget, id(3), helpstring("property Language")] HRESULT Language([out, retval] LONG *pVal);
+		[propput, id(3), helpstring("property Language")] HRESULT Language([in] LONG newVal);
+		[propget, id(4), helpstring("property SubLanguage")] HRESULT SubLanguage([out, retval] LONG *pVal);
+		[propput, id(4), helpstring("property SubLanguage")] HRESULT SubLanguage([in] LONG newVal);
+		[propget, id(5), helpstring("property Filename")] HRESULT Filename([out, retval] BSTR *pVal);
+		[propput, id(5), helpstring("property Filename")] HRESULT Filename([in] BSTR newVal);
+	};
+
+
+// Stoplists
+	[
+		object,
+		uuid(69A5414B-1F07-11D1-BCD1-00C04FB6EAD7),
+		dual,
+		helpstring("IStoplists Interface"),
+		pointer_default(unique)
+	]
+	interface IStoplists : IDispatch
+	{
+		[propget, id(DISPID_VALUE), helpstring("method Item")] 
+			HRESULT Item([in] BSTR Key, 
+						 [out, retval] VARIANT *pVal);
+		[propget, id(DISPID_NEWENUM), helpstring("property _NewEnum")] 
+			HRESULT _NewEnum([out,retval] IUnknown **ppUnkIter);
+		[propget, id(2), helpstring("property Count")] 
+			HRESULT Count([out, retval] LONG *pVal);
+		[id(3), helpstring("method Remove")] 
+			HRESULT Remove([in] BSTR Key, 
+						 [out, retval] VARIANT *pVal);
+		[id(4), helpstring("method Append")] 
+			HRESULT 	Add
+							([in] BSTR Name, [in] BSTR Filename, 
+							[in] LONG Language , [in] LONG SubLanguage, 
+							[out,retval] VARIANT *pResult);
+
+		[id(5), helpstring("method Clear")] 
+            HRESULT Clear();
+	};
+
+

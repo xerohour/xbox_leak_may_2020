@@ -1,0 +1,31 @@
+TARGETNAME=edttst
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+LINKER_FLAGS=/MAP
+
+C_DEFINES=$(C_DEFINES) -DDEBUG_KEYBOARD
+
+SOURCES= \
+    edit.cpp\
+    devices.cpp\
+    draw.cpp\
+    bitfont.cpp\
+    main.cpp
+
+INCLUDES=$(BASEDIR)\private\atg\samples\common\include
+
+LINKLIBS=\
+!if $(FREEBUILD)
+    $(SDK_LIB_PATH)\xkbd.lib \
+    $(SDK_LIB_PATH)\d3d8.lib \
+    $(SDK_LIB_PATH)\d3dx8.lib \
+    $(SDK_LIB_PATH)\xgraphics.lib \
+    $(BASEDIR)\private\atg\samples\common\src\obj\i386\XBFrame.lib
+!else
+	$(SDK_LIB_PATH)\xkbdd.lib \
+    $(SDK_LIB_PATH)\d3d8d.lib \
+    $(SDK_LIB_PATH)\d3dx8d.lib \
+    $(SDK_LIB_PATH)\xgraphicsd.lib \
+    $(BASEDIR)\private\atg\samples\common\src\obj\i386\XBFrame.lib
+!endif

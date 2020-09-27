@@ -1,0 +1,35 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim segst
+sub TPlay
+	set seg = LoadSegment("Sample.sgt")
+	seg.SetStartPoint 1234
+	seg.SetRepeats 5
+	seg.Download
+	set segst = PlaySegment(seg)
+end sub
+
+dim VRepeats
+dim VSeek
+dim VGetStartPoint
+dim VGetStartTime
+dim VCurrentTime
+sub TGets
+	VRepeats = segst.GetRepeats()
+	VSeek = segst.GetSeek()
+	VGetStartPoint = segst.GetStartPoint()
+	VGetStartTime = segst.GetStartTime()
+	VCurrentTime = GetMusicTime()
+end sub
+
+sub TGetSegment
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	set segstX = PlaySegment(seg)
+	set seg2 = segstX.GetSegment()
+	if not seg is seg2 then
+		PlaySegment Nothing
+	end if
+	seg2.SetLoopPoints 768*2, 768*3
+	PlaySegment seg2
+end sub

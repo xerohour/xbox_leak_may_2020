@@ -1,0 +1,91 @@
+// ipenhsnd.idl : IDL source for ipenhsnd.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ipenhsnd.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(4FAB8E00-C7EF-11D0-A261-00AA0062C797),
+		dual,
+		helpstring("Iipsend Interface"),
+		pointer_default(unique)
+	]
+	interface Iipsend : IDispatch
+	{
+		[propput, id(1), helpstring("property NetCard")] HRESULT NetCard([in] BSTR newVal);
+		[propget, id(1), helpstring("property NetCard")] HRESULT NetCard([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property TriggerPort")] HRESULT TriggerPort([out, retval] short *pVal);
+		[propget, id(3), helpstring("property TriggerAddress")] HRESULT TriggerAddress([out, retval] BSTR *pVal);
+		[id(4), helpstring("method ConnectTrigger")] HRESULT ConnectTrigger(BSTR bstrAddress, short sPort);
+		[id(5), helpstring("method SendTrigger")] HRESULT SendTrigger(long Key, BSTR data);
+		[propget, id(6), helpstring("property FTSPort")] HRESULT FTSPort([out, retval] short *pVal);
+		[propget, id(7), helpstring("property FTSAddress")] HRESULT FTSAddress([out, retval] BSTR *pVal);
+		[id(8), helpstring("mehtod ConnectFTS")] HRESULT ConnectFTS(BSTR bstrAddress, short sPort);
+		[id(9), helpstring("method SendFTSFile")] HRESULT SendFTSFile(BSTR SrcFile);
+		[propget, id(10), helpstring("property AnncPort")] HRESULT AnnouncementPort([out, retval] short *pVal);
+		[propget, id(11), helpstring("property AnncAddress")] HRESULT AnnouncementAddress([out, retval] BSTR *pVal);
+		[id(12), helpstring("method ConnectAnnouncement")] HRESULT ConnectAnnouncement(BSTR bstrAddress, short sPort);
+		[id(13), helpstring("method SendAnnouncement")] HRESULT SendAnnouncement(BSTR bstrAnncFile);
+		[id(14), helpstring("method SendDeleteAnnouncement")] HRESULT SendDeleteAnnouncement(BSTR bstrAnncFile);
+		[propput, id(15), helpstring("property TTL")] HRESULT TTL([in] long lTTL);
+		[propget, id(15), helpstring("property TTL")] HRESULT TTL([out, retval] long* plTTL); 
+		[propput, id(16), helpstring("property ReportStatus")] HRESULT ReportStatus([in] BOOL bEnable);
+		[propget, id(16), helpstring("property ReportStatus")] HRESULT ReportStatus([out, retval] BOOL* pbEnable);
+		[propput, id(17), helpstring("property Throttle")] HRESULT Throttle([in] long lBandwidth);
+		[propget, id(17), helpstring("property Throttle")] HRESULT Throttle([out, retval] long* plBandwidth);
+		[id(18), helpstring("method TriggerFTS")] HRESULT TriggerFTS(BSTR bstrAddress, short sPort, BSTR bstrSubDir, long lTimeout);
+		[id(19), helpstring("method TriggerCAB")] HRESULT TriggerCAB(BSTR bstrCabFilename);
+		[id(20), helpstring("method TriggerScript")] HRESULT TriggerScript(BSTR bstrScript, BSTR bstrLanguage);
+		[id(21), helpstring("method TriggerNavigate")] HRESULT TriggerNavigate(BSTR bstrURL, BSTR bstrTarget);
+		[id(22), helpstring("method SendEvent")] HRESULT SendEvent(IUnknown *lp);
+		[id(23), helpstring("method ValidateAnnoucement")] HRESULT ValidateAnnouncement(BSTR bstrAnncFile);
+	};
+
+	[
+		object,
+		uuid(FE6916B6-951E-11D1-AE76-00C04FBBDEBC),
+		dual,
+		helpstring("IEnhCab Interface"),
+		pointer_default(unique)
+	]
+	interface IEnhCab : IDispatch
+	{
+	    [id(1)] HRESULT NewCabinet(BSTR bstrCab, long lMediaSize, long lFolderSize, short sSetID);
+	    [id(2)] HRESULT AddFile(BSTR bstrFile, BSTR bstrCabFileName);
+	    [id(3)] HRESULT CloseCabinet();
+	    [id(4)] HRESULT EnumerateCabinet(BSTR bstrCab, long* plNumFiles);
+	    [id(5)] HRESULT FileName(long lIndex, BSTR* pbstrFileName);
+	};
+
+[
+	uuid(4FAB8DF1-C7EF-11D0-A261-00AA0062C797),
+	version(1.0),
+	helpstring("ipenhsnd 1.0 Type Library")
+]
+library IPENHSNDLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(4FAB8E01-C7EF-11D0-A261-00AA0062C797),
+		helpstring("ipsend Class")
+	]
+	coclass ipsend
+	{
+		[default] interface Iipsend;
+	};
+
+	[
+		uuid(FE6916B7-951E-11D1-AE76-00C04FBBDEBC),
+		helpstring("EnhCab Class")
+	]
+	coclass EnhCab
+	{
+		[default] interface IEnhCab;
+	};
+};

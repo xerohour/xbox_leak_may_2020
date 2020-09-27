@@ -1,0 +1,124 @@
+Prefix naming convention:
+    nv  - hardware specific
+    dd  - DirectDraw
+    d3d - Direct3D
+    Mo  - motion compensation
+    
+File list:
+Source file (implementation)    Header (Interface)      Description
+------------------------------------------------------------------------------------------------------
+  37,963 ColorCtl.cpp           -                       YUV422ColourControl routine
+  15,672 d3dContext.cpp         -                       Direct3d context related routines
+  82,279 d3dDebug.cpp           nvdebug.h(nvDebug.h)    Direct3d debug stuff
+   9,148 d3dMini.cpp            -                       Direct3d HAL driver routines 
+  12,367 d3dRender.cpp          -                       Direct3d Rendering routines
+   2,457 d3dState.cpp           -                       nvGetState() and nvGetDriverState()
+  81,302 d3dTex.cpp             -                       Direct3d texture routines        
+ 183,917 ddDrv.cpp              -                       DirectDraw HAL driver
+  14,185 ddDrvMem.cpp           -                       Local memory management routines
+  55,879 ddFlip.cpp             ddFlip.h                DirectDraw HAL surface flipping support
+  10,986 ddProcMan.cpp          ddProcMan.h             Process management routines
+ 152,553 ddSurf.cpp             ddSurface.h             DirectDraw HAL surface management
+ 100,310 ddVideo.cpp            ddVideo.h               DirectDraw video/Active Movie support
+   7,284 Global.cpp             GLOBAL.H                init_globals(void) + misc stuff.
+  35,986 MoComp.cpp             nvmocomp.h              DirectDraw motion compensation high level stuff
+  35,986 MoCompEx.cpp           -                       Motion compensation macroblock loop (Celsius)
+  35,986 MoCompExKelvin.cpp     -                       Motion compensation macroblock loop (Kelvin)
+  26,667 MoCorr.cpp             -                       Motion correction (Celsius)
+  26,667 MoCorrKelvin.cpp       -                       Motion correction (Kelvin)
+  67,778 MoInit.cpp             -                       Celsius motion compensation init
+  67,778 MoInitKelvin.cpp       -                       Kelvin motion compensation init
+  69,498 MoPred.cpp             -                       Motion prediction (Celsius)
+  69,498 MoPredKelvin.cpp       -                       Motion prediction (Kelvin)
+  32,440 nvAGP.cpp              -                       AGP memory management
+ 284,011 nvBlit.cpp             nvBlit.h                Blit routines
+  36,954 nvClear.cpp            -                       Surface clearing routines
+  20,833 nvClip.cpp             -                       Clipping routines used after doing T&L
+ 100,733 nvComp.cpp             -                       Triangle Inner Loop Compiler
+  50,134 nvContext.cpp          -                       Hardware specific context management routines
+  83,776 nvDP2ops.cpp           nvdp2ops.h              Draw Primitive routines
+ 105,529 nvEnable.cpp           nvEnable.h              nvDDEnable32(), NvDDDisable32()
+   7,048 nvIndex.cpp            -                       nvDrawOneIndexedPrimitive()
+  29,144 nvLight.cpp            -                       NV4 T&L lighting routines
+  54,370 nvLine.cpp             -                       Direct3D line rendering routines
+  05,892 nvLogo.cpp             nvLogo.h                Draws NVIDIA logo
+  13,140 nvMem.cpp              -                       Fast memory copy loops
+  38,616 nvMini.cpp             -                       Hardware specific driver setup routines
+  14,216 nvMip.cpp              -                       Mipmapping routines
+  40,257 nvPoint.cpp            -                       Direct3D point rendering routines
+  13,512 nvPrim.cpp             -                       DX5 DrawPrimitives and DrawOnePrimitive DDI routines
+  18,619 nvPrim2.cpp            -                       NV4 DX6 DrawPrimitives2 routines
+  22,986 nvProf.cpp             -                       NV4 specific profiling routines
+   5,817 nvScene.cpp            -                       Direct3D HAL scene capture routines
+  26,544 nvSpeak.cpp            nvspeak.h               NV push buffer manager logic
+ 301,719 nvState.cpp            -                       NV4 state management routines
+  11,258 nvStateSet.cpp         -                       Manage DP2 state sets
+   8,392 nvSurf.cpp             -                       Management of surface lists added in DX7
+  44,223 nvSwiz.cpp             -                       Texture swizzling routines (some HW dependence)
+ 156,021 nvTex.cpp              -                       HW Specific Texture routines
+  22,905 nvTL.cpp               -                       NV4 T&L routines - general management stuff            
+  44,626 nvTLPrim.cpp           -                       NV4 routines for drawing T&L primitives
+   3,812 nvTLUtil.cpp           -                       NV4 T&L utility routines
+  21,313 nvTMan.cpp             -                       Texture Blit Manager routines
+   8,831 nvTransform.cpp        -                       NV4 T&L viewport / transformation routines
+   9,487 nvTranslate.cpp        nvtranslate.h           Tables used to translate from generic (D3D or NV) to HW-specific constants
+   7,208 nvTri.cpp              -                       Old Execute Buffer Style RenderPrimitive DDI routines
+  69,838 nvVideoPort.cpp        nvVideoPort.h           VideoPort stuff
+   6,836 nvVx.cpp               -                       NV4 Triangle Inner Loops
+  52,793 Surfaces.cpp           -                       ???
+   4,638 TexInit.cpp            -                       Init texture surface
+   8,037 TransInit.cpp          -                       SetupMTM() & TearDownMTM()
+
+
+Header file list:
+Header file                 Used by                     Description
+------------------------------------------------------------------------------------------------------
+      4,411 arb_fifo.h      ddVideo.cpp
+      6,306 clipping.h      several                     * included but not referenced *
+     17,843 d3dflt.h        several                     Microsoft float stuff
+     15,460 D3DINC.H        nvprecomp.h                 NV specific Direct3D structure definitions
+      2,115 d3dSurface.h    * none *                    C++ surface stuff
+      1,247 ddFlip.h        ddFlip.cp
+      1,255 DDHal.h         nvprecomp.h                 Microsoft DDK stuff
+     13,863 ddkmapi.h       * none *                    Kernel mode APIs for accessing DirectDraw support
+        961 ddlist.h        * none *                    Direct Draw list of functions.
+      1,532 ddProcMan.h     ddProcMan.cpp                    
+      1,753 ddSurface.h     ddSuface.cpp                    
+      1,746 ddVideo.h       ddVideo.cpp                
+      9,416 GLOBAL.H        nvprecomp.h                 Stategy/registry/GUID/global
+      4,839 k32exp.h        ddrv32.cpp                  Win32 code to import by ordinal from KERNEL32.DLL in Windows 95
+      9,416 matrix.h        several                     matrix and vector routines
+     35,439 MINIVDD.H       * none *                    VDD definitions for other VxD's and multiple VDD's
+      1,519 nvBlit.h        nvBlit.cpp
+      3,775 NVD3DCAP.H      nvprecomp.h                 Define the capabilities of the NV D3D driver
+     14,489 NVD3DMAC.H      D3DINC.H                    Macros used in the D3D driver
+     21,771 nvdblnd.h       nvState.cpp                 DX6 Class Blending definitions
+      7,624 nvdebug.h       nvprecomp.h                 Define debug related values
+     35,437 nvdinc.h        D3DINC.H                    NV4 specific direct 3d structure definitions
+    133,145 nvDMAC.H        NV3DMAC.H                   Macros used to interact with the hardware
+      4,273 nvdp2ops.h      nvprecomp.h
+     13,242 nvDREG.H        nvprecomp.h                 D3D driver registry strings and default settings
+       1,468 nvEnable.h     nvEnable.cpp
+      1,240 nvLogo.h        nvLogo.c
+     32,601 nvmocomp.h      nvprecomp.h                 DDraw 32 bit driver motion compensation definitions
+      2,613 nvprecomp.h     * all *                     Precompiled header file
+     14,481 nvproto.h       D3DINC.H                    Function Prototypes
+      8,042 nvspeak.h       nvprecomp.h                 NV push buffer manager logic
+     11,691 NVSTAT.h        nvprecomp.h                 Created by VxDWriter
+     27,128 NVTEXFMT.H      nvprecomp.h                 Define the texture format available for the NV D3D driver
+      5,491 nvtranslate.h   nvprecomp.h                 Constants and prototypes for translation tables
+      2,425 nvVideoPort.h   nvVideoPort.cpp             VideoPort stuff
+     36,833 nvvxmac.h       nvprecomp.h                 Inner Loop Prototypes and Vertex Macros
+     12,911 reftnl.h        nvdinc.h/several            Direct3D Reference Transform and Lighting - Main Header File
+     19,152 x86.h           several                     x86 architexture specific macros - used mainly to generate assembly
+
+Major filename changes:
+(Blt832)       -> nvBlit.cpp
+(Blt1632.c)    -> merged with nvBlit.cpp
+(Blt3232)      -> merged with nvBlit.cpp
+(ddpm.c)       -> ddProcMan.cpp
+(ddsurf.c)     -> ddSurface.cpp
+(disablec.c)   -> merged with nvEnable.cpp
+(dvideo32.c)   -> ddVideo.cpp
+(enablec.c)    -> nvEnable.cpp
+(vp.c)         -> nvVideoPort.cpp

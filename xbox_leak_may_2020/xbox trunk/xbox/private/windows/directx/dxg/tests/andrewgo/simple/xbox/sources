@@ -1,0 +1,18 @@
+!include ..\sources.inc
+
+UMENTRY=TestMain@0
+UMTYPE=xboxapp
+
+C_DEFINES=$(C_DEFINES) -DXBOX
+
+INCLUDES=$(INCLUDES);..
+
+LINKLIBS=\
+    $(BASEDIR)\public\sdk\lib\i386\xapi.lib \
+    $(BASEDIR)\public\sdk\lib\i386\libcntpr.lib \
+!if $(FREEBUILD)
+    $(SDK_LIB_PATH)\d3d8.lib \
+!else
+    $(SDK_LIB_PATH)\d3d8d.lib \
+!endif
+

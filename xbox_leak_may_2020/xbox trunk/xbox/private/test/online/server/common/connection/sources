@@ -1,0 +1,85 @@
+
+#
+# The MAJORCOMP and MINORCOMP variables are defined
+# so that $(MAJORCOMP)$(MINORCOMP)filename can be used in
+# cross compiling to provide unique filenames in a flat namespace.
+#
+
+MAJORCOMP=test
+MINORCOMP=connection
+
+#required or you get the cryptic error on Win95 gold : "Expects newer version of windows"
+UMTYPE=windows
+
+#
+# The TARGETNAME variable is defined by the developer.  It is the name of
+# the target (component) that is being built by this makefile.  It
+# should NOT include any path or file extension information.
+#
+
+TARGETNAME=connection
+
+#
+# The TARGETPATH and TARGETTYPE variables are defined by the developer.
+# The first specifies where the target is to be build.  The second specifies
+# the type of target (either PROGRAM, DYNLINK, LIBRARY, DRIVER, etc
+# UMAPPL_NOLIB is used when you're only building user-mode
+# apps and don't need to build a library.
+#
+
+TARGETPATH=$(BASEDIR)\private\test\online\server\lib
+TARGETTYPE=LIBRARY
+
+#
+# The TARGETLIBS specifies additional libraries to link with you target
+# image.  Each library path specification should contain an asterisk (*)
+# where the machine specific subdirectory name should go.
+#
+
+
+#
+# 04/10/2000 - allows for addition of BoundsChecker, etc 
+#  libs specified in the OS environment
+#
+
+TARGETLIBS=$(TARGETLIBS) \
+	   $(WSDK_LIB_PATH)\ws2_32.lib \
+	  
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=\
+
+#
+# The SOURCES variable is defined by the developer.  It is a list of all the
+# source files for this component.  Each source file should be on a separate
+# line using the line continuation character.  This will minimize merge
+# conflicts if two developers adding source files to the same component.
+#
+	
+SOURCES=\
+	connection.cpp
+
+#
+# Next specify options for the compiler.
+#
+
+C_DEFINES = $(C_DEFINES)
+
+USER_C_FLAGS=-nologo $(USER_C_FLAGS)
+
+MIDL_FLAGS=/no_warn
+
+# BINPLACE_PLACEFILE=placefil.txt
+
+#
+# Precompiled header options
+#
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_CXX=1
+
+USE_VC7_WINDOWS=1

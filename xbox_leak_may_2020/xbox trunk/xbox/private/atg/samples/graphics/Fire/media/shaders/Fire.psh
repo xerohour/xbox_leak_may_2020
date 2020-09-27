@@ -1,0 +1,21 @@
+;------------------------------------------------------------------------------
+; Vertex shader to do a fire effect 
+;------------------------------------------------------------------------------
+xps.1.1
+
+;------------------------------------------------------------------------------
+; Texture address ops
+;------------------------------------------------------------------------------
+
+tex t0 ; The base fire texture
+tex t1 ; The long, skinny, scrolling, noise texture
+tex t2 ; A mask to control the range of the noise texture
+
+; Load the flame base texture
+mov r0.rgb, t0.rgb
+
+; Mask the noise texture (use the mask to lerp between the noise texture and 1)
+lrp r0.a, t2.a, 1-t1.a, 1-zero
+
+; Use the result to modulate the flame base texture's alpha
+mul r0.a, r0.a, t0.a

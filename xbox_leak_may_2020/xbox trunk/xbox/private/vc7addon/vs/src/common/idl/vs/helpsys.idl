@@ -1,0 +1,174 @@
+///////////////////////////////////////////////////////////
+//
+// helpsys.idl -	This file describes the interfaces and services implemented
+//			by the help system.
+//
+// Created: 23 Apr 97 by dalero
+//
+/****************************************************************************
+ *  Copyright (c) 1997-1998, Microsoft Corporation, All Rights Reserved
+ *  Information Contained Herein Is Proprietary and Confidential.
+ ****************************************************************************/
+
+///////////////////////////////////////////////////////////
+//
+// Imports
+//
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Include the vb param switching code.
+#include "vhsdefs.h"
+
+///////////////////////////////////////////////////////////
+//
+// Errors Unique to IVsHelpSystem.
+//
+// some general definitions
+#define VSHELP_FACILITY 4				// Save as (FACILITY_ITF) from winerror.h
+#define VSHELP_ERROR(x) (0x80000000 /* failure bit */ | (VSHELP_FACILITY << 16) /* facility bits */ | (x) /* plus the error code */)
+
+typedef [v1_enum, public] enum _VsHelpErrors
+{
+	// HTML Help generated an unknown error.
+	VSHELP_E_HTMLHELP_UNKNOWN					= VSHELP_ERROR(0x1000),
+
+	// The collection name read from the registry does not exist on disk.
+	VSHELP_E_COLLECTIONDOESNOTEXIST				= VSHELP_ERROR(0x1001),
+
+	// MSDN has not been registered.
+	VSHELP_E_COLLECTIONNOTREGISTERED			= VSHELP_ERROR(0x1002),
+
+	// The MSDN collection has been improperly registered.
+	VSHELP_E_REGISTRATION						= VSHELP_ERROR(0x1003),
+
+	// The preferred collection is incorrectly registered. Select a new preferred collection or reinstall.
+	VSHELP_E_PREFERREDCOLLECTION				= VSHELP_ERROR(0x1004)
+} VsHelpErrors;
+
+
+///////////////////////////////////////////////////////////
+//
+// IVsHelpSystem
+//
+
+[
+	object,
+	uuid(854d7ac0-bc3d-11d0-b421-00a0c90f9dc4), //NOTE: This guid is reused in HelpPkg.rgs. 
+	helpstring("IVsHelpSystem Interface"),
+	pointer_default(unique)
+]
+interface IVsHelpSystem : IUnknown
+{
+	///////////////////////////////////////////////////////////
+	//
+	// IVsHelpSystem Commands
+	//
+
+	typedef [v1_enum, public] enum _VHS_COMMANDS
+	{
+		// Used by all functions
+		VHS_Default			= 0x00000000,	// Used by All functions. Same as using NULL.
+		VHS_NoErrorMessages	= 0x00000008,	// Set this to display error messages yourself.
+
+		// Used only by DisplayTopicFromURL
+		VHS_UseBrowser		= 0x00000001,	
+		VHS_UseHelp			= 0x00000002,	
+
+		// Used only by DisplayTopicFromIdentifier and DisplayTopicFromURL.
+		VHS_Localize		= 0x00000004,
+		
+		// Used only by DisplayTopicFromIdentifier
+		VHS_OutsideCollectionSpace	= 0x00000010	// Do not how context id in collection's window.
+
+	} VHS_COMMAND ;
+
+
+	// Todo move helpstrings to localizable position.
+	[
+		helpstring("Performs a F1 search based on a keyword, flags and context.  The context will be converted to infotypes")
+	]
+	HRESULT KeywordSearch(	[in] LPCOLESTR pszKeyword, 
+							[in] const INT_TYPE dwFlags, 
+							[in] INT_TYPE dwReserved);
+
+	[
+		helpstring("Performs a Alink search based on a word, flags and context.  The context will be converted to infotypes")
+	]				
+	HRESULT ALinkSearch([in] LPCOLESTR pszALink, 
+						[in] const INT_TYPE dwFlags, 
+						[in] INT_TYPE dwReserved);
+
+
+	[
+		helpstring("Displays the keyword search wordwheel seeded with the keyword passed in.")
+	]				
+	HRESULT KeywordSearchDlg(	[in] LPCOLESTR pszKeyword, 
+								[in] const INT_TYPE dwFlags, 
+								[in] INT_TYPE dwReserved);
+
+         		
+	[
+		helpstring("Displays HTML Help's FTS Dialog")
+	]				
+	HRESULT FullTextSearchDlg(	[in] LPCOLESTR pszQuery, 
+								[in] const INT_TYPE dwFlags, 
+								[in] INT_TYPE dwReserved);
+		
+	[
+		helpstring("Returns the current URL that is being displayed by the topic window.  Allocated with SysAllocString and it is expected that the caller free with SysAllocFree.")
+	]				
+	HRESULT GetCurrentURL( [out] BSTR* ppszURL);
+
+	/*
+		To use VHS_Localize with this function, the URL must be in one of the following forms.
+			filename.CHM
+		or
+			filename.CHM::/path\name.html
+
+		The following are valid:
+			vj98help.chm
+			vj98help.chm::/html\vjmsgcompilererrorj0001.htm
+
+		The function will take the string and add the help directory and LCID to it.
+	*/		
+	[
+		helpstring("Displays a topic based on a URL")
+	]				
+	HRESULT DisplayTopicFromURL([in] LPCOLESTR pszURL, 
+								[in] const INT_TYPE Command);
+		
+
+	/*
+		pszFile is a full pathname, except when the VHS_Localize flag is use.
+		If the VHS_Localize flag is used, pszFile should just be filename.CHM.
+		The help system will prepend onto the filename the name of the common help file
+		directory and the LCID.
+	*/
+	[
+		helpstring("Displays a topic based on an identifier.  The command parameter maps to the HTML Help command parameter.  See the HTML Help specification for more details.")
+	]				
+	HRESULT DisplayTopicFromIdentifier(	[in] LPCOLESTR pszFile, 
+										[in] const INT_TYPE Id, 
+										[in] const INT_TYPE Command);
+		
+	[
+		helpstring("Starts the help system, and displays the table of contents.  The title collection name is internal to the interface.")
+	]				
+	HRESULT ActivateHelpSystem([in] const INT_TYPE dwFlags);
+
+	[
+		helpstring("Placeholder.")
+	]
+	HRESULT Reserved([in] VHS_COMMAND command, [in] VsHelpErrors error) ;
+};
+
+///////////////////////////////////////////////////////////
+//
+// SID_SHelpSystem Defined
+//
+cpp_quote("#define SID_SVsHelpService IID_IVsHelpSystem")
+
+// For backward compatibility. Please use SID_SVsHelpService
+cpp_quote("#define SID_SHelpService IID_IVsHelpSystem")
+

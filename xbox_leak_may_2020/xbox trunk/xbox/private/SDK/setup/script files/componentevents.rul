@@ -1,0 +1,261 @@
+///////////////////////////////////////////////////////////////////////////////
+//  EVENT:      Installing event is sent just before files for the component:
+//              VC Components are transferred.
+///////////////////////////////////////////////////////////////////////////////
+
+export prototype VCComponents_Installing();
+function VCComponents_Installing()
+NUMBER nResult, nvType, nvSize;
+STRING  svValue, szVCDirectory,szReferenceFile;
+
+begin
+    RegDBSetDefaultRoot ( HKEY_LOCAL_MACHINE );
+       if ( ComponentIsItemSelected(MEDIA,"C Compile Environment") ) then
+          nResult =  RegDBGetKeyValueEx ( "Software\\Microsoft\\VisualStudio\\6.0\\Setup",
+                                    "VsCommonDir", nvType , svValue , nvSize );
+          if ( 0 == nResult ) then
+             szVCDirectory = svValue ^ "\\MSDev98\\Bin";
+             nResult = ComponentSetTarget (MEDIA, "<VCAddIn>", szVCDirectory);
+             if (nResult < 0) then
+               MessageBox( "Error in ComponentSetTarget, <VCAddIn>\n" ^ FormatMessage(nResult), WARNING );
+             endif;
+          else
+             SprintfBox ( SEVERE, "",
+                "Unable to read VisualStudio install location!\n\nError code: 0x%08xd\nMessage text: %s",
+                nResult, FormatMessage ( nResult ) );
+             abort;
+          endif;
+       endif;
+
+     ComponentSelectItem( MEDIA, "DX CD Image", FALSE);
+ //    return 0;
+
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//  EVENT:      CheckRequirements event is called in the beginning of
+//              installing and repairing.
+///////////////////////////////////////////////////////////////////////////////
+
+export prototype VCComponents_CheckRequirements();
+function VCComponents_CheckRequirements()
+    NUMBER  nvDx, nvDy, nvResult, nvType, nvSize,nResult;
+    STRING  svResult,svValue, szTempTargetDir, szVersion, szC2Path, szVCPath;
+    BOOL    bProcessorPackInstalled;
+begin
+
+    bProcessorPackInstalled = FALSE;
+
+    // Check screen resolution.
+    GetExtents( nvDx, nvDy );
+    if (nvDy < 480) then
+        MessageBox( @ERROR_VGARESOLUTION, SEVERE );
+        abort;
+    endif;
+
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    if (0 < ( nResult = RegDBGetKeyValueEx ( "System\\CurrentControlSet\\Services\\VGASave", "Dev",
+                        nvType , svValue , nvSize ))) then
+       // Value returned; it shouldn't even exist
+       MessageBox( @ERROR_NOTTARGET, SEVERE );
+       abort;
+   endif;
+
+    // Determine the target system's operating system.
+    if ((SYSINFO.WINNT.bWin2000)= 0) then
+        MessageBox( @MSG_INSTALL_INFO, SEVERE );
+        abort;
+    endif;
+
+    VarSave(SRCTARGETDIR);   // Save TARGETDIR
+    RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+    RegDBGetKeyValueEx("Software\\Microsoft\\DevStudio\\6.0\\Products\\Microsoft Visual C++","ProductDir",nvType,szC2Path,nvSize);
+    szTempTargetDir = szC2Path + "\\Bin";
+    TARGETDIR = szTempTargetDir;
+
+    nvResult = VerFindFileVersion("C2.Dll",szTempTargetDir,szVersion);
+    // Compare. ProcssorPack C2 = 13.0.8942.0. SPx w/o PP 12.0.0.0 < ver < 13.0.0.0
+    if (GREATER_THAN == VerCompare(szVersion,"13.0.8941.0",VERSION)) then
+        bProcessorPackInstalled = TRUE;
+    endif;
+
+    // check to see if sp4 reg key exists; if not, error out.
+    if (0>RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\ServicePacks","sp4",nvType,szC2Path,nvSize)) then
+        bProcessorPackInstalled = FALSE;
+    endif;
+
+    VarRestore(SRCTARGETDIR); // restore TARGETDIR
+
+    if (/*(SYSINFO.WINNT.nServicePack < 1) ||*/ !bProcessorPackInstalled) then
+        MessageBox(@ERROR_REQPROCESSORPACK, SEVERE);
+        abort;
+    endif;
+
+   	// 2197: Remove extra XboxDbg.Dll
+    DeleteFile(szVCPath ^ "\\MSDev98\\Bin\\XboxDbg.Dll");
+ 
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  EVENT:      ResetRegPathValues event is called in the removeall of
+//              uninstalling
+///////////////////////////////////////////////////////////////////////////////
+
+export prototype VCComponents_ResetRegPathValues();
+function VCComponents_ResetRegPathValues()
+    STRING szKey, szValueName, szValue, szString, szSubStr, szRegPathValue, szSubString, szFindString, szResetString;
+    NUMBER nLength, nSemicolon, nvType, nvSize, nSubLength, nResult;
+begin
+
+    // delete the items that added to path
+    RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+    szKey = "Environment";
+    szValueName = "Path";
+
+    RegDBGetKeyValueEx(szKey,szValueName,nvType,szValue,nvSize);
+    szString = szValue;
+    nLength = StrLength (szString);
+
+    repeat
+        nSemicolon = StrFind (szString, ";");
+        StrSub(szSubStr, szString, 0, nSemicolon + 1);
+        szFindString = TARGETDIR;
+        if (StrFind (szSubStr, szFindString) < 0) then
+            szRegPathValue = szRegPathValue + szSubStr;
+        endif;
+
+        nSubLength = nLength - nSemicolon;
+        StrSub (szSubString, szString, nSemicolon + 1, nSubLength);
+        szString = szSubString;
+        nLength = nSubLength;
+    until (nSemicolon < 0);
+    nLength = StrLength (szRegPathValue);
+    StrSub (szResetString, szRegPathValue, 0, nLength-1);
+    nResult = RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szResetString,-1);
+
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      CheckVersionNumber event is called before uninstall and after removeall
+//
+///////////////////////////////////////////////////////////////////////////////////
+
+export prototype CheckVersionNumber();
+function CheckVersionNumber()
+    STRING svValue;
+    NUMBER nVer, nType, nvSize;
+begin
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    RegDBGetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Build", nType, svValue, nvSize);
+    StrToNum(nVer, svValue);
+
+    if(nVer != VER_PRODUCTBUILD) then
+        return FALSE;
+    else
+        return TRUE;
+    endif;
+end;
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      BackupVCDLLs is called before install SDK to backup VC components
+//              .Dll file to .Dll.VC file in same folder
+////////////////////////////////////////////////////////////////////////////////////
+
+export prototype VCComponents_BackupVCDLLs();
+function VCComponents_BackupVCDLLs()
+NUMBER  nResult, nvType, nvSize;
+STRING  szVCPath, svResult, szSrcDir, szFileName1, szFileName2,szFileName3,szFileName4;
+
+begin
+
+    RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+    nResult = RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\Setup","VsCommonDir",nvType,szVCPath,nvSize);
+    if (nResult = 0) then
+
+        Disable (LOGGING);
+        szSrcDir = szVCPath ^ "\\MSDev98\\Bin";
+        szFileName1 = "DevShl.Dll.VC";
+        if (FindFile (szSrcDir, szFileName1, svResult) != 0) then
+            CopyFile (szSrcDir ^ "\\DevShl.Dll", szSrcDir ^ "\\" ^ szFileName1);
+        endif;
+
+        szSrcDir = szSrcDir ^ "\\IDE";
+        szFileName2 = "DevBld.Pkg.VC";
+        if (FindFile (szSrcDir, szFileName2, svResult) != 0 ) then
+            CopyFile (szSrcDir ^ "\\DevBld.Pkg", szSrcDir ^ "\\" ^ szFileName2);
+        endif;
+        szFileName3 = "DevDbg.Pkg.VC";
+        if (FindFile (szSrcDir, szFileName3, svResult) != 0 ) then
+            CopyFile (szSrcDir ^ "\\DevDbg.Pkg", szSrcDir ^ "\\" ^ szFileName3);
+        endif;
+        szFileName4 = "MfcApWz.Dll.VC";
+        if (FindFile (szSrcDir, szFileName4, svResult) != 0 ) then
+            CopyFile (szSrcDir ^ "\\mfcapwz.Dll", szSrcDir ^ "\\" ^ szFileName4);
+        endif;
+        Enable(LOGGING);
+
+    endif;
+
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      GetTempFileName event is called to get a temporary file name
+//              to create a file with this name to check if the destination
+//              is read only or not
+///////////////////////////////////////////////////////////////////////////////////
+
+prototype Kernel32.GetTempFileNameA( BYREF STRING, BYREF STRING, INT, BYREF STRING );
+export prototype CreateTempFile(BYREF STRING, BYREF NUMBER);
+function CreateTempFile( szTempDir, nFileResult)
+    STRING szFileName, szTempFileName;
+ 
+begin
+
+   // Load Kernel32.Dll into memory.
+   UseDLL ("Kernel32.Dll");
+
+   szFileName = "XDK";
+   nFileResult = GetTempFileNameA (szTempDir, szFileName, 0, szTempFileName);
+   if (nFileResult != 0) then
+        DeleteFile (szTempFileName);
+   endif;
+   
+   // The following removes Kernel32.Dll from memory.
+   UnUseDLL ("Kernel32.Dll");
+   return nFileResult;
+end;
+
+
+/*
+////////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      RestoreVCDLLs is called during uninstall SDK using original VC
+//              component to replace Xbox VC components
+////////////////////////////////////////////////////////////////////////////////////
+
+export prototype VCComponents_RestoreVCDLLs();
+function VCComponents_RestoreVCDLLs()
+NUMBER  nResult, nvType, nvSize;
+STRING  szVCPath, svResult, szSrcDir, szFileName1, szFileName2,szFileName3,szFileName4;
+
+begin
+
+    RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+    nResult = RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\Setup","VsCommonDir",nvType,szVCPath,nvSize);
+    if (nResult = 0) then
+
+        szSrcDir = szVCPath ^ "\\MSDev98\\Bin";
+        CopyFile (szSrcDir ^ "\\DevShl.Dll.VC", szSrcDir ^ "\\DevShl.Dll");
+
+        szSrcDir = szSrcDir ^ "\\IDE";
+        CopyFile (szSrcDir ^ "\\DevBld.Pkg.VC", szSrcDir ^ "\\Devbld.Pkg");
+        CopyFile (szSrcDir ^ "\\DevDbg.Pkg.VC", szSrcDir ^ "\\Devdbg.Pkg");
+        CopyFile (szSrcDir ^ "\\MfcApWz.Dll.VC", szSrcDir ^ "\\MfcApWz.Dll");
+    endif;
+
+end;
+
+*/

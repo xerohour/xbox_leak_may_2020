@@ -1,0 +1,33 @@
+TARGETNAME=dmtut1
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+UMENTRY=wWinMainCRTStartup
+
+C_DEFINES=$(C_DEFINES) -DXBOX
+
+!if $(FREEBUILD)
+D=
+!else
+D=d
+!endif
+
+LINKLIBS = \
+    $(SDK_LIB_PATH)\xapi.lib \
+    $(SDK_LIB_PATH)\uuid.lib \
+    $(SDK_LIB_PATH)\libcmt$(D).lib \
+    $(SDK_LIB_PATH)\dsound$(D).lib \
+    $(SDK_LIB_PATH)\dsmixer$(D).lib \
+    $(SDK_LIB_PATH)\ntoskrnl.lib \
+    $(SDK_LIB_PATH)\dmband.lib                         \
+    $(SDK_LIB_PATH)\dmcompos.lib                       \
+    $(SDK_LIB_PATH)\dmime.lib                          \
+    $(SDK_LIB_PATH)\dmloader.lib                       \
+    $(SDK_LIB_PATH)\dmscript.lib                       \
+    $(SDK_LIB_PATH)\dmstyle.lib                        \
+    $(SDK_LIB_PATH)\dmsynth.lib                        \
+    $(SDK_LIB_PATH)\dmusic.lib                         \
+
+SOURCES= 			                                       \
+    tutorial1.cpp 		                                       \
+

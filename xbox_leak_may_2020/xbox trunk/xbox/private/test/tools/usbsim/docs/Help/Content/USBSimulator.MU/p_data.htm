@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>MU.data</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>data</H1>
+    <DIV CLASS=BLOCK>
+    Sets or retrieves a block of memory.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("BSTR data(unsigned long offset, unsigned long length)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>offset</I><BR>
+        Zero based offset into the memory.
+    <DT><I>length</I><BR>
+        Number of characters to read or write.
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>If the offset + length extends past the size of the mu (<A HREF="m_SetCapacity.htm">SetCapacity</A>) then any write or read will fail with E_INVALIDARG.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var mu = WScript.CreateObject(\"USBSimulator.MU\");\nmu.Format();\n\n// Display the first 16 bytes of the memory unit\nWScript.Echo( ToBinaryString(mu.data(0, 16), 16) );\n\n// Change the serial number\nmu.data(8, 4) = String.fromCharCode(0xAA, 0xBB, 0xCC, 0xDD);\n\nfunction ToBinaryString(string, length)\n    {\n    var str = \"(\";\n    for(var i=0; i < length; i++)\n        {\n        str += \"0x\" + string.charCodeAt(i).toString(16);\n        if(i!=length-1) str += \", \";\n        }\n\n    return str + \")\";\n    }");</SCRIPT>
+    </DIV>
+
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>
+
+

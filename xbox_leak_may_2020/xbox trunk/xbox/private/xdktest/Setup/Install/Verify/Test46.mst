@@ -1,0 +1,129 @@
+'$include 'install.inc'
+
+
+Scenario "Verify SDK Clean Updater Setup modifies Include/Library/Source/Bin Paths correctly"
+	Dim XdkPath$, XboxKey$, Win32Key$
+	Dim temp$
+	Dim pass%
+
+	pass = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+
+	Win32Key = "HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Build System\Components\Platforms\Win32 (x86)\Directories"
+	XboxKey  = "HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Build System\Components\Platforms\Xbox\Directories"
+	'
+	'
+	'
+	Install(BuildNumber, true, false)
+	'
+	'
+	'
+	if RegistryValueExists("HKEY_CURRENT_USER\Environment","XDK") then
+		xdkpath = RegistryGetValue("HKEY_CURRENT_USER\Environment","XDK")
+	else
+		if not IsInstalled then
+			FAIL "Xbox SDK is not installed"
+		end if
+	end if
+
+	'
+	' Search Win32 directory keys for correct paths
+	'
+	if RegistryKeyExists(Win32Key) then
+		'
+		' Search Include directory
+		'
+		if RegistryValueExists(Win32Key, "Include Dirs") then
+			temp = RegistryGetValue(Win32Key, "Include Dirs")
+			if instr(lcase(temp), lcase(xdkpath+"\include")) = 0 then
+				pass = false
+			end if
+		else
+			FAIL "Win32 Include Dirs key does not exist"
+		end if
+		'
+		' Search Library directory
+		'
+		if RegistryValueExists(Win32Key, "Library Dirs") then
+			temp = RegistryGetValue(Win32Key, "Library Dirs")
+			if instr(lcase(temp), lcase(xdkpath+"\lib")) = 0 then
+				pass = false
+			end if
+		else
+			FAIL "Win32 Library Dirs key does not exist"
+		end if
+	end if
+	'
+	' Search Xbox directory keys for correct paths
+	'
+	if RegistryKeyExists(XboxKey) then
+		'
+		' Search Include directory
+		'
+		if RegistryValueExists(XboxKey, "Include Dirs") then
+			temp = RegistryGetValue(XboxKey, "Include Dirs")
+			if instr(lcase(temp), lcase(xdkpath+"\xbox\include")) = 0 then
+				pass = false
+			end if
+		else
+			FAIL "Xbox SDK Include Dirs key does not exist"
+		end if
+		'
+		' Search Library directory
+		'
+		if RegistryValueExists(XboxKey, "Library Dirs") then
+			temp = RegistryGetValue(XboxKey, "Library Dirs")
+			if instr(lcase(temp), lcase(xdkpath+"\xbox\lib")) = 0 then
+				pass = false
+			end if
+		else
+			FAIL "Xbox SDK Library Dirs key does not exist"
+		end if
+		'
+		' Search Path directory
+		'
+		if RegistryValueExists(XboxKey, "Path Dirs") then
+			temp = RegistryGetValue(XboxKey, "Path Dirs")
+			if instr(lcase(temp), lcase(xdkpath+"\xbox\bin\vc7")) = 0 or _
+				instr(lcase(temp), lcase(xdkpath+"\xbox\bin;")) = 0 then
+				pass = false
+			end if
+		else
+			FAIL "Xbox SDK Path Dirs key does not exist"
+		end if
+		'
+		' Search Source directory
+		'
+		if RegistryValueExists(XboxKey, "Source Dirs") then
+			temp = RegistryGetValue(XboxKey, "Source Dirs")
+			if instr(lcase(temp), lcase(xdkpath+"\samples")) = 0 then
+				pass = false
+			end if
+		else
+			FAIL "Xbox SDK Source Dirs key does not exist"
+		end if
+	end if
+
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

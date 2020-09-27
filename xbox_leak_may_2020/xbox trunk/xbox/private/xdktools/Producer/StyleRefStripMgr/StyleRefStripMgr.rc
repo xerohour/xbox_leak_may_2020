@@ -1,0 +1,341 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "STYLE_REFSTRIPMGR.DLL\0"
+#define VERSIONDESCRIPTION          "StyleRefStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "StyleRefStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "STYLE_REFSTRIPMGR.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_STYLE_REFMGR        REGISTRY DISCARDABLE    "StyleRefMgr.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_STYLE_REF_PROPPAGE DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Style"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Style:",IDC_STATIC,20,6,29,10
+    COMBOBOX        IDC_COMBO_STYLES,55,4,149,80,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Measure:",IDC_STATIC,20,21,33,10
+    EDITTEXT        IDC_EDIT_MEASURE,55,20,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_MEASURE,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,90,20,10,10
+END
+
+IDD_PROPPAGE_STYLE_GROUP DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Track Group Assignment"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Track Group Assignment",IDC_STATIC,3,4,244,53,WS_GROUP
+    LTEXT           "&Track Group:",IDC_STATIC,9,18,43,8
+    COMBOBOX        IDC_COMBO_GROUP_LIST,56,16,35,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "(Style Tracks can belong to only a single Track Group at any given time.)",
+                    IDC_STATIC,9,33,230,8
+END
+
+IDD_EDIT_VARIATION_SEED DIALOG DISCARDABLE  0, 0, 186, 54
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Variation Seed"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Variation Seed",IDC_STATIC,7,7,109,40
+    EDITTEXT        IDC_EDIT_VARIATION_SEED,21,23,65,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,33,50,14
+END
+
+IDD_PROPPAGE_STYLE_SEED DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Seed Variations"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Seed Variations for Audition",IDC_STATIC,7,7,155,54
+    CONTROL         "E&nable",IDC_CHECK_ENABLE_SEED,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,23,38,10
+    PUSHBUTTON      "&Generate New Seed",IDC_BUTTON_NEW_SEED,74,21,74,14
+    PUSHBUTTON      "Edit &Seed...",IDC_BUTTON_EDIT_SEED,74,39,74,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_PROPPAGE_STYLE_GROUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 15
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_EDIT_VARIATION_SEED, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 47
+    END
+
+    IDD_PROPPAGE_STYLE_SEED, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_PROPPAGE_STYLE_GROUP DLGINIT
+BEGIN
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0031, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0032, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0033, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0034, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0035, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0036, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0037, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0038, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0039, 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3031, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3131, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3231, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3331, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3431, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3531, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3631, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3731, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3831, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3931, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3032, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3132, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3232, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3332, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3432, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3532, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3632, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3732, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3832, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3932, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3033, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3133, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3233, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "StyleRefStripMgr"
+    IDS_PROPPAGE_STYLE_REF  "Style"
+    IDS_DELETE              "Delete Style(s)"
+    IDS_PASTE               "Insert Style(s)"
+    IDS_INSERT              "Insert Style"
+    IDS_TRACK_NAME          "Style Track"
+    IDS_EDITOR_NAME         "Style Track Editor"
+    IDS_PROPPAGE_GROUP_BITS "Style Track"
+    IDS_FILE_OPEN_STYLE     "Open '%1' Style"
+    IDS_FILE_OPEN_ANY_STYLE "Open Style"
+    IDS_MULTIPLE_SELECT     "Multiple Styles Selected"
+    IDS_CHANGE              "Change Style"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TRACK_GROUP         "Track Group Assignment"
+    IDS_UNDO_MOVE           "Move Style(s)"
+    IDS_CHANGE_NAME         "Change Style Name"
+    IDS_CHANGE_LINK         "Refresh Style Link"
+    IDS_EMPTY_TEXT          "Empty"
+    IDS_STYLES_TEXT         "Styles"
+    IDS_REPLACE             "Revert Style"
+    IDS_ERR_SEED_ZERO       "Please enter a number greater than 0."
+    IDS_ENABLE_VARIATION_SEED "Enable Variation Seed"
+    IDS_DISABLE_VARIATION_SEED "Disable Variation Seed"
+    IDS_CHANGE_VARIATION_SEED "Change Variation Seed"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

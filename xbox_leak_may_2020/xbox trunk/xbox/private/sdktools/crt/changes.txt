@@ -1,0 +1,53 @@
+Both the ansi and unicode versions of the runtime methods were
+modified in the same way.
+
+setlocale functionality has been mostly obliterated.  setlocale cannot be used
+to change the current locale, only to query it.
+
+These functions have been completely removed:
+    _diskfree_t (structure) removed
+    _getdiskfree removed
+    _seterrormode removed
+    _beep removed
+    _mbtow_environ removed
+    _setargv removed
+    _setenvp removed
+    _loaddll removed
+    _unloaddll removed
+
+These functions are now unsupported.  For the time being, they exist in the
+library, but they will fail when called:
+    _chdir
+    _getdrive
+    _getdrives
+    _chdrive
+    _fullpath
+    _getcwd
+    _getdcwd
+    validdrive
+    _getpid
+    all *spawn* methods
+    all *exec* methods
+    _cwait
+    _system
+    _locking
+    _pipe
+    _getenv
+    _putenv
+    _popen
+    _pclose
+    _setsystime
+    _cgets
+    _cprintf
+    _cputs
+    _cscanf
+    _getch
+    _getche
+    _kbhit
+    _putch
+    _ungetch
+
+_stat returns -1 for anything which is not a file
+stdin, stdout, stderr will all produce EOF when used
+assert forwards to RtlAssert
+_searchenv looks only in the current directory

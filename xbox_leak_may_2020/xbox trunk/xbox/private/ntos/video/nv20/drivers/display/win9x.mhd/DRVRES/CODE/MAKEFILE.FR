@@ -1,0 +1,42 @@
+
+%ENVIRONMENT DRV16.ENV
+NVXDISP = nvdisp
+
+%EXECUTABLE config.bin
+%BINARY
+%AFLAGS -nologo -Zm -Cp
+%LFLAGS /NOE /NOD /LI /AL:16
+config.asm
+%END
+
+%EXECUTABLE colortab.bin
+%BINARY
+%AFLAGS -nologo -Zm -Cp
+%LFLAGS /NOE /NOD /LI /AL:16
+colortab.asm
+%END
+
+%EXECUTABLE fonts.bin
+%BINARY
+%AFLAGS -nologo -Zm -Cp
+%LFLAGS /NOE /NOD /LI /AL:16
+fonts.asm
+%END
+
+%EXECUTABLE fonts120.bin
+%BINARY
+%AFLAGS -nologo -Zm -Cp
+%LFLAGS /NOE /NOD /LI /AL:16
+fonts120.asm
+%END
+
+%SPECIAL
+all:   ..\bin\$(NVXDISP).rc
+
+..\bin\$(NVXDISP).rc:   $(NVXDISP).rc ..\bin\config.bin         \
+                        ..\bin\colortab.bin ..\bin\fonts.bin    \
+                        ..\bin\fonts120.bin
+    copy $(NVXDISP).rc ..\bin\$(NVXDISP).rc
+    $(BUILD_TOOLS_DIR)\DTouch\dtouch ..\bin\$(NVXDISP).rc
+%ENDS
+

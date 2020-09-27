@@ -1,0 +1,21 @@
+TARGETNAME = AlphaFog
+PROJNAME   = AlphaFog
+SOURCES    = AlphaFog.cpp
+TITLEID    = 0xffff100d
+
+NTTARGETFILE0 = $(O)\AlphaFog.dsp $(O)\Font.xpr $(O)\Gamepad.xpr $(O)\Resource.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib
+

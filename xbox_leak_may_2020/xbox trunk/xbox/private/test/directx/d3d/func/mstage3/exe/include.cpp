@@ -1,0 +1,10 @@
+#pragma comment(linker, "/include:_mstage3_texture1")
+#pragma comment(linker, "/include:_mstage3_texture2")
+#pragma comment(linker, "/include:_mstage3_texture3")
+#pragma comment(linker, "/include:_mstage3_texture4")
+#pragma comment(linker, "/include:_mstage3_backgrnd")
+#pragma comment(linker, "/include:_mstage3_texture5")
+#pragma comment(linker, "/include:_mstage3_texture6")
+#pragma comment(linker, "/include:_mstage3_texture7")
+#pragma comment(linker, "/include:_mstage3_texture8")
+#include "exe\main.cpp"

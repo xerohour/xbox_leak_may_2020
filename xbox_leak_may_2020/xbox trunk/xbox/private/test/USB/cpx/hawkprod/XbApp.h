@@ -1,0 +1,87 @@
+//-----------------------------------------------------------------------------
+// File: XBApp.h
+//
+// Desc: Application class for the XBox samples.
+//
+// Hist: 11.01.00 - New for November XDK release
+//       12.15.00 - Changes for December XDK release
+//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+//-----------------------------------------------------------------------------
+#ifndef XBAPP_H
+#define XBAPP_H
+
+#include <xtl.h>
+#include <tchar.h>
+#include <stdio.h>
+#include "XBInput.h"
+#include "XBUtil.h"
+
+
+
+
+//-----------------------------------------------------------------------------
+// Global access to common members
+//-----------------------------------------------------------------------------
+extern LPDIRECT3DDEVICE8 g_pd3dDevice;
+
+
+
+
+//-----------------------------------------------------------------------------
+// Error codes
+//-----------------------------------------------------------------------------
+#define XBAPPERR_MEDIANOTFOUND       0x82000003
+
+
+
+
+//-----------------------------------------------------------------------------
+// Name: class CXBApplication
+// Desc: A base class for creating sample Xbox applications. To create a simple
+//       Xbox application, simply derive this class and override the following
+//       functions:
+//          Initialize()          - To initialize the device-dependant objects
+//          FrameMove()           - To animate the scene
+//          Render()              - To render the scene
+//-----------------------------------------------------------------------------
+class CXBApplication
+{
+protected:
+    // Main objects used for creating and rendering the 3D scene
+	D3DPRESENT_PARAMETERS m_d3dpp;
+    LPDIRECT3D8           m_pD3D;              // The D3D enumerator object
+    LPDIRECT3DDEVICE8     m_pd3dDevice;        // The D3D rendering device
+
+    // Variables for timing
+    BOOL       m_bPaused;           // Whether app time is paused by user
+   
+    // Members to init the XINPUT devices.
+	XDEVICE_PREALLOC_TYPE* m_InputDeviceTypes;
+	DWORD                  m_dwNumInputDeviceTypes;
+    XBGAMEPAD*             m_Gamepad;
+    XBGAMEPAD              m_DefaultGamepad;
+
+    // Helper functions
+    HRESULT RenderGradientBackground( DWORD dwTopColor, DWORD dwBottomColor );
+
+    // Overridable functions for the 3D scene created by the app
+    virtual HRESULT Initialize()            { return S_OK; }
+    virtual HRESULT FrameMove()             { return S_OK; }
+    virtual HRESULT Render()                { return S_OK; }
+    virtual HRESULT Cleanup()               { return S_OK; }
+
+public:
+    // Functions to create, run, and clean up the application
+    HRESULT Create();
+    virtual HRESULT     Run();
+    VOID    Destroy();
+
+    // Internal constructor
+    CXBApplication();
+};
+
+
+
+
+#endif

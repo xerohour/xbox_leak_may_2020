@@ -1,0 +1,47 @@
+[media]
+
+;Specify to repro bugs that happened with a certain seed.
+;Default: Random, based on time.
+;dwSeed = 1235301590
+
+dwBallDetail = 32
+dwWallDetail =  8
+dwNumLayers =  50
+dwNumBalls = 1
+dwMaxBalls = 50
+
+;Radius of the big spherical container, not the balls.
+fRadius = 5.5          ;Default:   5.5
+fMaxSpeed =0.2          ;Default:  15
+fMinSpeed = 0.1         ;Default:   0.1
+
+;Sound played when a ball hits something.
+szBounceSound = "t:\media\audio\pcm\ball.wav"
+
+;Enable or Disable music playback.
+bDMusic = 1
+
+;Tell DMusic to run its own DoWork() thread (0), or do it ourselves every frame (1).
+bDMDoWorkLocally = 0
+
+;Whether to tell the loader about the 128 General MIDI instrument set.
+;Not used in shipping apps, but allows us to test with over 800 segments converted from MIDI files.
+bDMUseGM = 1
+
+;Load all MIDI content from this directory and its subdirectories, if no DMSegments are specified.
+szDMStressDir = "t:\media\music\default"
+
+;1) If this string is one of the standard audiopath types (DMUS_APATH_SHARED_STEREOPLUSREVERB, DMUS_APATH_DYNAMIC_STEREO, 
+;   DMUS_APATH_DYNAMIC_MONO, or DMUS_APATH_DYNAMIC_3D) use it for music playback.
+;2) If it's RANDOM then choose a random standard audiopath.
+;3) If it's a full path and filename (begins with "T:\"), then try to load the audiopath config file.
+szDMAudioPath = DMUS_APATH_SHARED_STEREOPLUSREVERB
+
+dwDMVoiceCount=32
+
+;Uncomment the filenames under DMSegments to play them instead of the files in szDMStressDir.
+;If this option is used, szDMStressDir will be ignored and a warning will be displayed.
+[DMSegments]
+;t:\media\music\midi\chu.sgt
+;t:\media\music\midi\chu2.sgt
+t:\media\music\midi\Bug5411.sgt

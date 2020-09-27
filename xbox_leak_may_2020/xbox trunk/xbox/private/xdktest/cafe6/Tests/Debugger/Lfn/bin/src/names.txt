@@ -1,0 +1,243 @@
+##################################################
+# A '#' character in the first column make the line a comment line.
+##  <comment/example> A simple filename test
+##################################################
+file2
+##################################################
+##  <comment/example> A simple path/filename test
+##################################################
+dir1\dir2\file2
+####################################################################################
+##	<comment> This section contains filenames that produced bugs in the product.
+##		These are duplicated from the sections bellow for ease of use.
+####################################################################################
+#<bug>#dir 1\dir 2\file2		bug# 10095
+#<bug>#dir 1\dir 2\"file 2"		bug# 10095
+#<bug>#"file2,"			bug# 10161
+#<bug>#"fi,le2"			bug# 10161
+#<bug>#",file2"			bug# 10161
+#<bug>#"filr2{}"			bug# 10161
+#<bug>#"fi{l}e2"			bug# 10161
+#<bug>#"{}file2"			bug# 10161
+#<bug>#h‚½‚Ü‚È‚Í2Ah		bug# 10161
+#<bug>#h‚½‚Ü‚È‚Í2,h		bug# 10161
+#<bug>#h‚±‚ç‚à‚ÆA‚Î‚Î2h		bug# 10161
+#<bug>#hA‚£‚£2h			bug# 10161
+#<bug>#"‚»‚ëo  p"			bug# 10161
+#<bug>#"{‚ }e2"			bug# 10161
+#<bug>#"{p‚Ó‚Ÿ‚¢‚¥2"		bug# 10161
+####################################
+##  <comment> Special character tests
+####################################
+filr2=
+fi=le2
+=file2
+filr2;
+fi;le2
+;file2
+#<bug>#"filr2,"			Bug# 10161
+#<bug>#"fi,le2"			Bug# 10161
+#<bug>#",file2"			Bug# 10161
+filr2+
+fi+le2
++file2
+filr2&
+fi&le2
+&file2
+filr2#
+fi#le2
+##########################################################################################
+##file2         '#' This will not be tested since # in column 1 is taken as a comment line
+##########################################################################################
+filr2^
+fi^le2
+^file2
+filr2[]
+fi[l]e2
+[]file2
+#<bug>#"filefilr2()"			Bug# 10161
+#<bug>#"fi(l)e2"			Bug# 10161
+#<bug>#"()file2"			Bug# 10161
+filr2!
+fi!le2
+!file2
+filr2`
+fi`le2
+`file2
+filr2@
+fi@le2
+@file2
+filr2_
+fi_le2
+_file2
+filr2-
+fi-le2
+-file2
+filr2'
+fi'le2
+'file2
+filr2%
+fi%le2
+%file2
+filr2$
+fi$le2
+$file2
+filr2~
+fi~le2
+~file2
+filr2.file2
+fi.le2.fil.e2
+#<by design>#.file2			Doesn't work /w starting /w '.'
+"file 2"
+"file 2 2"
+"[ file2 ]"
+#########################################
+## <comment> Special/interesting filenames
+#########################################
+'file2'
+`file2`
+file2.exe
+file2.com
+file2.cmd
+file2.bat
+file2.sys
+file2.drv
+file2.c
+file2.cpp
+file2.h
+file2.bsc
+file2.pdb
+file2.mak
+file2.rc
+################################
+## <comment> Long filename tests
+################################
+ThisIsaLongFilename
+"This is a long filename with spaces"
+ThisIsaLong[Filename]
+'ThisIsaLongFilename'
+ThisIsaLongFilename
+NewPolyDraw\step0\file2
+##############################
+##  <comment> Long path tests
+##############################
+dir1\dir2\dir3\dir4\dir5\dir6\dir7\file2
+dir1\dir2\dir3\dir4\dir5\dir6\dir7\dir1\dir2\dir3\dir4\dir5\dir6\dir7\file2
+############################################
+##	<comment> Some High ASCII characters
+############################################
+fille__A
+_d+__
+_d+_•°_
+°_÷____±__________µ
+__¶_ß___§_
+_++++++++-
+---+---++
+-+-+--++++++++
+___»«¡¼½¬
+_¿ºªÑñúóíá;ƒP¥P
+£¢ÜÖÿùûòöôÆæÉÅÄìî
+ïèëêçåàäâé
+üÇ~zy
+üÇ~zy\ôÆæÉ
+ïèëêçåàä âé\ïèëêçåàäâé\zy\ôÆæÉ
+##################################
+## <comment> Japanese filenames
+##################################
+#‚½‚Ü‚È‚Í
+#‚í‚­‚ç‚Ÿ
+#‚ß‚©‚¤‚¢‚Ÿ
+#‚³‚Ÿ‚­‚­‚Ÿ‚Q
+#‚©‚ß‚í‚Ÿ‚Q
+#=‚Ã‚§‚ß‚§‚Œ‚†‚„‚„‚„‚Ÿ2
+#filr‚‹‚‡‚‡‚†‚†‚Š2;
+#fiG‚ ‚³‚ê2
+#;‚­‚­‚Ÿ‚Ü2
+#h‚½‚Ü‚È‚Í2Ah
+#h‚½‚Ü‚È‚Í2,h
+#h‚±‚ç‚à‚ÆA‚Î‚Î2h
+#hA‚£‚£2h
+#‚Š‚†‚Š‚†‚Š‚†2+
+#‚„‚„‚Š{‚Ÿ‚Ÿ‚Ÿ2
+#+‚¶‚á‚„2
+#‚©‚Ÿ‚í‚»‚§&
+#‚“‚„‚“‚“•‚Œ‚Œ‚Œ‚Œ‚Œ2
+#&‚Ó‚Ÿ‚Æaaa2
+#aaa‚ ‚ ‚ 2#
+#aaa”‚ ‚ ‚ 2
+#<by design>#‚Ÿ‚Ü2         '#' This will not be tested since # in column 1 is taken as a comment line
+#‚Á‚Ÿ^
+#fiO‚ 
+#^‚ 
+#‚»uv
+#‚ ‚“‚„[‚Ü]‚æ‚¨
+#[]‚­‚­‚Ü
+#<bug>#"ƒaˆŸ‚ï—¬@‚ ‚ ‚Ó‚¡‚¥‚Qh	bug# 10095
+#<bug>#"‚»‚ëo  p"			Bug# 10161
+#<bug>#"{‚ }e2"			Bug# 10161
+#<bug>#"{p‚Ó‚Ÿ‚¢‚¥2"		Bug# 10161
+#<bug>#‚­‚Æ‚Û‚’‚™()			Bug# 10161
+#<bug>#fiilje‚¤‚§			Bug# 10161
+#<bug>#(j‚ê2				Bug# 10161
+#‚ ‚r‚j‚e2!
+#f‚¢I‚¶‚å‚§‚ 
+#!fi‚¾‚¾‚¾2
+#‚Ã‚Ã‚Ã‚¾2`
+#‚Ü‚³e‚©2
+#e‚§‚§‚Q2
+#‚¾‚Ó‚Ÿ—
+#fi@‚Á‚³‚³
+#@‚¾‚¾le2
+#‚¾‚â‚­Q
+#fi_‚Ó‚£‚Ï
+#_‚ ‚„‚„‚‡‚„‚Q2
+#‚½‚©‚Ÿ[
+#fi-‚½‚©‚Q‚Ü
+#[‚Ç‚Ç‚¾‚©
+#‚Ü‚Î‚Ÿf
+#fi'‚Î‚Í
+#'‚Ã‚Ÿ‚2
+#‚­‚­‚Ï‚çƒ”‚Ÿ“
+#fi“‚Ó‚Ÿ‚­‚Ÿ‚£
+#%‚Ã‚·‚Â
+#‚¾‚³‚§‚Q
+#fi$‚Å‚ê‚¤‚¢
+#‚ ‚“‚“‚„‚ˆ
+#‚Ó‚Ÿ‚­‚Ÿ‚ÛP
+#fi~‚­‚Ÿ‚Û‚§
+#~‚§‚©‚±‚¦‚—
+#‚¾‚ª‚¤‚¥‚¦B‚ª‚¤‚¥‚ç
+#‚Û‚êB‚©‚¤‚¥B‚¤‚¢‚ê‚¤‚¥B‚¤‚¢‚Í‚Ó‚¥
+#<by design>#.‚Ó‚Ÿ‚Å			Doesn't work /w starting /w '.'
+#<bug>#h‚¾‚êÜ‚ê@‚¤‚™‚Qh		 bug# 10095
+#<bug>#hƒWƒƒƒX‚¢‚¦@‹ï@‚Ÿ‚êh	 bug# 10095
+#<bug>#[ ‚°‚é‚Û‚Ÿ ]			 bug# 10095
+##########################################
+## <comment> Special/interesting filenames
+##########################################
+#f‚ª‚ê‚Âf
+#e‚®‚ê‚¤‚§e
+#‚Ó‚Ÿ‚ê.exe
+#‚Ş‚¨‚§‚Û.com
+#‚½‚Ü‚È‚Í.cmd
+#‚®‚é.bat
+#‚ .sys
+#‚¤‚§‚Û‚¤‚¢.drv
+#‚Ó‚Ÿ‚¢‚¥.c
+#‚Ó‚Ÿ‚¢‚¥‚Q.cpp
+#‚­‚à.h
+#‚Û‚é‚Æ.bsc
+#‚¾‚¾‚§.pdb
+#‚©‚ê‚Æ.mak
+#‚Ş.rc
+#################################
+## <comment> Long filename tests
+#################################
+‚³‚ê‚¾‚¨‚Û‚Û‚§‚±‚¤‚¢‚æ‚Ô‚±‚·‚à‚§‚Å‚Ù‚§‚¼‚Û‚»‚Ÿ‚³‚­‚¥
+#<bug>#hê‚ª‚ê‚ÛŒê‚§@‚ª‚Î‚§‚Ÿ‚ª‚¶‚å‚Í@‚ª‚Ó‚Ÿ‚Û‚Ç‚µ‚µ@‚ª‡œˆŸ‰äƒpÜ‚ê@‚Í‚Ï‚¨h	 bug# 10095
+#<bug>#h‚¾‚†‚“‚‡‚„‚”‚…‚Š‚„‚‡‚“‚‡‚Š‚‹[@ƒK‚Ÿƒp‚¨‚¢‚@]h				bug# 10095
+'‚ª‚¾‚Ó‚¥‚¾‚Û‚¢‚§‚Ù‚ë‚ë‚ë‚ë‚ë‚ë‚ë'
+##############################
+##  <comment> Long path tests
+##############################
+‚À‚Ã‚P‚À‚Ã‚Q‚À‚Ã‚R‚À‚À‚À‚S‚À‚Ã‚²‚T‚±‚¤‚¨‚¢‚¨‚U‚§‚Û‚¢‚¨‚V‚§‚Û‚¤‚¨‚W

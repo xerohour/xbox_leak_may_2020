@@ -1,0 +1,33 @@
+Memory Check (memCheck.xbe)
+Written by James N. Helm
+Copyright (c) 2002 Microsoft Corporation
+All Rights Reserved
+
+Memory Check is a test that will perform reads and
+writes for every byte of memory that exists on the
+Xbox.  If at any time the memory does not match its
+expected value, a failure will be logged and the test
+will continue on to the next block.
+
+In order for this test to run properly, a few conditions
+have to be met.
+
+    1.) USB Must be disabled.  If you enabled USB during
+        this test, memory can change out from under the
+        test and a false failure can occur.
+
+    2.) XBDM Must be disabled.  If XBDM is enabled it
+        can cause the network adapter to manipulate 
+        memory out from under the test and a false
+        failure can occur.
+
+    3.) Interrupts must be disabled.  This will prevent
+        any other program or device from changing
+        memory out from under the test.
+
+Special Thanks to Sakphong Chanbai and Tracy Sharpe
+for their help in getting this test to work properly!
+
+If you have any questions about the Memory Check test,
+please feel free to e-mail jimhelm@microsoft.com or
+jpoley@microsoft.com.

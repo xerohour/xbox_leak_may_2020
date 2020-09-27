@@ -1,0 +1,557 @@
+// WIZARD.OLB
+//---------------------------------------------------------------------------
+// WIZARD.ODL
+//
+// This describes the object classes in the VB5 IDE wizard extensibility
+//
+// It is included in vbide.odl to 
+// which is used by IDE add-ins to manipulate these classes.
+//
+// Additional UUIDs, if needed, should be created with UUIDGEN.
+//---------------------------------------------------------------------------
+// Copyright (c) 1988-1995, Microsoft Corp.
+//		   All Rights Reserved
+// Information Contained Herein Is Proprietary and Confidential.
+//---------------------------------------------------------------------------
+
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// SEE COMMENTS IN VBIDE.ODL ABOUT HELP IDs AND HELPSTRINGS!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// Wizardid.h & wizardsbs.h #include's have been moved to vbide.odl !!!!
+
+
+
+
+
+
+
+    // This should match the bitfields in the SCCHandler specification (isccdefs.h)
+    // though the requirement is not absolute.
+    // These are the bits which are set by an add-in to control the display 
+    // of information which pertains to a file in the project window (typically 
+    // the glyphs)
+
+
+	typedef
+    [
+	uuid(BE39F3D2-1B13-11d0-887F-00A0C90F2744),
+	 HELP(vbext_VBAMode)]
+    enum vbext_VBAMode
+    {
+	  [HELP(vbext_VBAMode_vbext_vm_Run)]	vbext_vm_Run = 0,
+	  [HELP(vbext_VBAMode_vbext_vm_Break)]	vbext_vm_Break = 1,
+	  [HELP(vbext_VBAMode_vbext_vm_Design)]	vbext_vm_Design = 2,
+    } vbext_VBAMode;
+
+
+    [
+uuid(0002E106-0000-0000-C000-000000000046),
+	odl, dual, hidden]
+    interface _VBProject :  IDispatch
+ 
+    {
+
+	//Name 
+	[id(DISPID_VALUE), propget, HELP(vbext_VBProject_Name)]
+	HRESULT Name([out, retval] BSTR _far * lpbstrName);
+
+	[id(DISPID_VALUE), propput, HELP(vbext_VBProject_Name)]
+	HRESULT Name([in] BSTR bstrName);
+
+
+	//help file
+	[id(116), propget, HELP(vbext_VBProject_HelpFile)]
+	HRESULT HelpFile([out, retval] BSTR _far * lpbstrHelpFile);
+
+	[id(116), propput, HELP(vbext_VBProject_HelpFile)]
+	HRESULT HelpFile([in] BSTR bstrHelpFile);
+
+	[id(117), propget, HELP(vbext_VBProject_HelpContextID)]
+	HRESULT HelpContextID([out, retval] long _far * lpdwContextID);
+
+	[id(117), propput, HELP(vbext_VBProject_HelpContextID)]
+	HRESULT HelpContextID([in] long dwContextID);
+
+
+	//Description
+	[id(118), propget, HELP(vbext_VBProject_Description)]
+	HRESULT Description([out, retval] BSTR _far * lpbstrDescription);
+
+	[id(118), propput, HELP(vbext_VBProject_Description)]
+	HRESULT Description([in] BSTR bstrDescription);
+
+
+
+	//References
+	[id(120), propget, HELP(vbext_VBProject_References)]
+	HRESULT References([out, retval] References _far * _far * lppReferences);
+
+
+	// Required properties, all objects
+
+	//VBA -  for VBProject
+	[id(122), propget, HELP(vbext_VBProject_VBE)]
+	HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+	//Collection - for VBProject
+	[id(123), propget, HELP(vbext_VBProject_Collection)]
+	HRESULT Collection([out, retval] VBProjects _far * _far * lppaReturn);
+
+
+
+
+	[id(133), propget, HELP(vbext_VBProject_Saved)]
+	HRESULT Saved([out, retval] boolean _far *lpfReturn);
+
+	[id(135), propget, HELP(vbext_VBProject_VBComponents)]
+	HRESULT VBComponents([out, retval] VBComponents _far *_far * lppcReturn);
+
+
+	}					  
+
+
+    [
+	
+uuid(0002E105-0000-0000-C000-000000000046),
+		
+	HELP(vbext_VBProject)]
+    coclass VBProject
+    {
+	[default] interface _VBProject;
+    };
+
+
+    // -----------------------------------------------------
+    // The Projects collection object.
+    // Specifies the _ProjectTemplate objects.
+
+    [	
+uuid(0002E102-0000-0000-C000-000000000046),
+	odl, dual, HELP(vbext_VBProjects)]
+    interface _VBProjects : IDispatch
+    {
+	// Default (value) property/method
+	[id(DISPID_VALUE), HELP(vbext_VBProjects_Item)]
+	HRESULT Item([in] VARIANT index, 
+		     [out, retval] VBProject _far * _far * lppcReturn);
+
+	// Required Properties, all objects
+    [id(20), propget, HELP(vbext_VBProjects_VBE)]
+	HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+
+	[id(2), propget, HELP(vbext_VBProjects_Parent)]
+	HRESULT Parent([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+	// Standard properties & methods, this object type
+	[id(10), propget, HELP(vbext_VBProjects_Count)]
+	HRESULT Count([out, retval] long _far * lplReturn);
+
+	[restricted, id(DISPID_NEWENUM)]
+	HRESULT _NewEnum([out, retval] IUnknown _far * _far *lppiuReturn);
+
+#if 0
+	[id(101), propget]
+	HRESULT ActiveVBProject([out, retval] VBProject ** lppptReturn);
+#endif  // 0
+
+#if 0
+	[id(101), propput]
+	HRESULT ActiveVBProject([in] VBProject * lpptNewActiveProj);
+#endif  // 0
+
+    };  
+
+    [
+	uuid(BE39F3D3-1B13-11d0-887F-00A0C90F2744),
+	HELP(vbext_VBProjects)]
+    coclass VBProjects
+    {
+	[default] interface _VBProjects;
+    };
+
+    // -----------------------------------------------------
+    // The SelectedComponents collection object.
+    // Specifies the components that are currently selected.
+
+    //NOTE: No help needed for any of these
+    [
+	uuid(EF404E1C-EDA6-101A-8DAF-00DD010F7EBB), 
+	odl, dual, hidden]
+    interface SelectedComponents : IDispatch
+    {
+	// Default (value) property/method
+	[id(DISPID_VALUE)]
+	HRESULT Item([in] int index, 
+		     [out, retval] Component _far * _far * lppcReturn);
+
+	// Required Properties, all objects
+	[id(2), propget]
+	HRESULT Parent([out, retval] VBProject _far * _far * lppptReturn);
+
+	// Standard properties & methods, this object type
+	[id(10), propget]
+	HRESULT Count([out, retval] long _far * lplReturn);
+	[restricted, id(DISPID_NEWENUM)]
+	HRESULT _NewEnum([out, retval] IUnknown _far * _far *lppiuReturn);
+    };  
+
+
+
+    typedef 
+    [
+	uuid(BE39F3D5-1B13-11d0-887F-00A0C90F2744),
+	HELP(vbext_ComponentType)]
+    enum vbext_ComponentType
+    {
+	[HELP(vbext_ComponentType_StdModule)]		vbext_ct_StdModule			= 1,
+	[HELP(vbext_ComponentType_ClassModule)]		vbext_ct_ClassModule		= 2,
+	[HELP(vbext_ComponentType_MSForm)]		vbext_ct_MSForm				= 3,
+	[HELP(vbext_ComponentType_Document)]		vbext_ct_Document			= 100, 
+    } vbext_ComponentType;
+
+
+
+    [	
+uuid(2f3304a0-1602-11ce-bfdc-08002b2b8cda),
+	odl, dual, hidden]
+    interface _Components : IDispatch
+    {
+	// Default (value) property/method
+	[id(DISPID_VALUE)]
+	HRESULT Item([in] VARIANT index, 
+		     [out, retval] Component _far * _far * lppcReturn);
+
+	// Required Properties, all objects
+
+
+	// Standard properties & methods, this object type
+	[id(10), propget, HELP(vbext_VBComponents_Count)]
+	HRESULT Count([out, retval] long _far * lplReturn);
+
+	[restricted, id(DISPID_NEWENUM)]
+	HRESULT _NewEnum([out, retval] IUnknown _far * _far *lppiuReturn);
+
+#if 0
+
+	[id(11), HELP(vbext_VBComponents_Remove)]
+	HRESULT Remove([in] Component _far * Component);
+
+	[id(12), HELP(vbext_VBComponents_Add)]
+	HRESULT Add([in] vbext_ComponentType ComponentType, [out, retval] Component _far * _far * lppComponent);
+
+
+    [id(20), propget, HELP(vbext_VBComponents_VBE)]
+	HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+#endif  // 0
+    };  
+
+
+    [
+	uuid(0002E143-0000-0000-C000-000000000046), 
+	hidden]
+    coclass Components
+    {
+		[default] interface _Components;	
+	};
+
+
+    // undone _Components methods are duplicated here since
+	// item(DISPID_VALUE) is changed.
+    [
+uuid(0002E147-0000-0000-C000-000000000046),
+	odl, dual]
+    interface _VBComponents : IDispatch
+    {
+	// Default (value) property/method
+	[id(DISPID_VALUE), HELP(vbext_VBComponents_Item)]
+	HRESULT Item([in] VARIANT index, 
+		     [out, retval] VBComponent _far * _far * lppcReturn);
+
+	// Required Properties, all objects
+	[id(2), propget, HELP(vbext_VBComponents_Parent)]
+	HRESULT Parent([out, retval] VBProject _far * _far * lppptReturn);
+
+	// Standard properties & methods, this object type
+	[id(10), propget, HELP(vbext_VBComponents_Count)]
+	HRESULT Count([out, retval] long _far * lplReturn);
+
+	[restricted, id(DISPID_NEWENUM)]
+	HRESULT _NewEnum([out, retval] IUnknown _far * _far *lppiuReturn);
+
+	[id(11), HELP(vbext_VBComponents_Remove)]
+	HRESULT Remove([in] VBComponent _far * VBComponent);
+
+	[id(12), HELP(vbext_VBComponents_Add)]
+	HRESULT Add([in] vbext_ComponentType ComponentType, [out, retval] VBComponent _far * _far * lppComponent);
+
+
+    [id(20), propget, HELP(vbext_VBComponents_VBE)]
+	HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+    };  
+
+
+    [
+	uuid(0002E146-0000-0000-C000-000000000049), 
+	HELP(vbext_VBComponents)]
+    coclass VBComponents
+    {
+		[default] interface _VBComponents;
+    };
+
+    // -----------------------------------------------------
+    // The Component object.
+
+    // NOTE: these don't need help
+    [
+uuid(EF404E1F-EDA6-101A-8DAF-00DD010F7EBB),
+	odl, dual, hidden]
+
+    interface _Component : IDispatch
+    {
+	// Default (value) property/method
+
+	// Required Properties, all objects
+	[id(2), propget]
+	HRESULT Parent([out, retval] Components _far * _far *lppcReturn);
+	
+	// Standard properties & methods, this object type
+	[id(10), propget]
+	HRESULT IsDirty([out, retval] boolean _far *lpfReturn);
+	[id(10), propput]
+	HRESULT IsDirty([in] boolean DirtyFlag);
+	[id(48), propget]
+	HRESULT Name([out, retval] BSTR * pbstrReturn);
+    [id(48), propput]
+	HRESULT Name([in] BSTR bstrName);
+	
+    };
+	  
+    [
+	uuid(0002E144-0000-0000-C000-000000000046), 
+	hidden]
+    coclass Component
+    {
+		[default] interface _Component;	
+	};									 
+
+
+    [
+	uuid(0002E148-0000-0000-C000-000000000046),
+    odl, dual, HELP(vbext_VBComponent)]
+    interface _VBComponent : IDispatch
+    {
+
+	// Required Properties, all objects
+
+	// Default (value) property/method
+	
+	// Standard properties & methods, this object type
+	[id(10), propget, HELP(vbext_VBComponent_Saved)]
+	HRESULT Saved([out, retval] boolean _far *lpfReturn);
+
+
+	[id(48), propget, HELP(vbext_VBComponent_Name)]
+	HRESULT Name([out, retval] BSTR * pbstrReturn);
+
+	[id(48), propput, HELP(vbext_VBComponent_Name)]
+	HRESULT Name([in] BSTR bstrName);
+	
+	[id(49), propget, HELP(vbext_VBComponent_Designer)]
+	HRESULT Designer([out, retval] IDispatch ** ppDispatch);
+
+	[id(50), propget, HELP(vbext_VBComponent_CodeModule)]
+	HRESULT CodeModule([out, retval] CodeModule ** ppVbaModule);
+
+	[id(51), propget, HELP(vbext_VBComponent_Type)]
+	HRESULT Type([out, retval] vbext_ComponentType * pkind);
+
+
+	[id(53), propget, HELP(vbext_VBComponent_VBE)]
+	HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+	[id(54), propget, HELP(vbext_VBComponent_Collection)]
+	HRESULT Collection([out, retval] VBComponents _far * _far *lppcReturn);
+
+	[id(55), propget, HELP(vbext_VBComponent_HasOpenDesigner)]
+	HRESULT HasOpenDesigner([out, retval] boolean _far *lpfReturn);
+
+	[id(56), propget, HELP(vbext_VBComponent_Properties)]
+	HRESULT Properties([out, retval] Properties _far * _far * lpppReturn);
+
+	[id(57), HELP(vbext_VBComponent_DesignerWindow)]
+	HRESULT DesignerWindow([out, retval] Window ** lppcReturn);
+
+
+	[id(60), HELP(vbext_VBComponent_Activate)]
+	HRESULT Activate();
+
+
+
+	};
+
+	[
+	uuid(0002E145-0000-0000-C000-000000000049), 
+	HELP(vbext_VBComponent)]
+    coclass VBComponent
+    {
+		[default] interface _VBComponent;		
+    };
+
+    
+
+#if 0
+    [uuid(FA5E2EA1-5F59-11cf-BBA4-00AA00695293), HELP(vbext_Properties)]
+    dispinterface _PropertiesEvents
+    {
+	properties:
+	methods: // Events
+	[id(1)]    void PropertyChanged   ([in]Property _far *lppReturn);
+	};
+
+#endif  // 0
+
+
+
+
+
+
+
+#if 0
+    // The collections of addins
+    [uuid(0002E109-0000-0000-C000-000000000046), odl, dual, HELP(vbext_Addins)]
+    interface _AddIns : IDispatch
+	{
+      // Default (value) property/method
+      [id(DISPID_VALUE), HELP(vbext_Addins_Item)]
+      HRESULT Item([in] variant Index, 		   
+		   [out, retval] AddIn _far * _far * lppaddin);
+
+      // VBE
+      [id(1), propget, HELP(vbext_Addins_VBE)]
+      HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppVBA);
+
+	  // Parent
+      [id(2), propget, HELP(vbext_Addins_Parent)]
+      HRESULT Parent([out, retval] VBEOBJ ** lppVBA);
+    
+
+      // Count
+      [propget, id(40), HELP(vbext_Addins_Count)]
+      HRESULT Count([out, retval] long _far * lplReturn);
+
+	  // _NewEnum
+      [restricted, id(DISPID_NEWENUM)]
+      HRESULT _NewEnum([out, retval] IUnknown _far * _far * lppiuReturn);
+
+	  // Count
+      [id(41), HELP(vbext_Addins_Update)]
+      HRESULT Update();
+    }
+
+	[uuid(0002E183-0000-0000-C000-000000000046), HELP(vbext_Addins)]
+    coclass Addins
+    {
+	[default] interface _AddIns;
+    }
+
+#endif  // 0
+
+    typedef 
+    [uuid(0002E10C-0000-0000-C000-000000000046), HELP(vbext_ConnectMode)]
+    enum vbext_ConnectMode
+    {
+	[HELP(vbext_ConnectMode_vbext_cm_AfterStartup)]	vbext_cm_AfterStartup		 = 0,
+	[HELP(vbext_ConnectMode_vbext_cm_Startup)]	vbext_cm_Startup         = 1,
+	[HELP(vbext_ConnectMode_vbext_cm_External)]	vbext_cm_External		 = 2,
+	} vbext_ConnectMode;
+
+
+#if 0
+
+	// The AddIn Object
+    [uuid(0002E10B-0000-0000-C000-000000000046), odl, dual, HELP(vbext_Addin)]
+    interface AddIn : IDispatch
+	{
+
+	  // Default (value) 
+      [id(DISPID_VALUE), propget, HELP(vbext_Addin_Description)]
+	  HRESULT Description([out, retval] BSTR _far * lpbstr);
+
+	  [id(DISPID_VALUE), propput, HELP(vbext_Addin_Description)]
+	  HRESULT Description([in] BSTR bstr);
+
+
+	  //VBA -  for AddIn
+	  [id(1), propget, HELP(vbext_Addin_VBE)]
+	  HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppVBE);
+
+	  //Collection - for AddIn
+	  [id(2), propget, HELP(vbext_Addin_Collection)]
+	  HRESULT Collection([out, retval] AddIns  _far * _far * lppaddins);
+
+
+	  // ProgID
+      [propget, id(3), HELP(vbext_Addin_ProgID)]
+      HRESULT ProgID([out, retval] BSTR _far * lpbstr);
+
+	  // GUID
+      [propget, id(4), HELP(vbext_Addin_Guid)]
+      HRESULT Guid([out, retval] BSTR _far * lpbstr);
+
+	  // LoadMode: not required any longer. t-sheks, 06/06/96
+      //[propget, id(5)]
+      //HRESULT LoadMode([out, retval] vbext_ConnectMode _far * lpMode);
+      //[propput, id(5)]
+      //HRESULT LoadMode([in] vbext_ConnectMode Mode);
+
+	  // Connect
+      [propget, id(6), HELP(vbext_Addin_Connect)]
+      HRESULT Connect([out, retval] Boolean _far * lpfConnect);
+      [propput, id(6), HELP(vbext_Addin_Connect)]
+      HRESULT Connect([in] Boolean fConnect);
+
+	  // Object
+      [propget, id(7), HELP(vbext_Addin_Object)]
+      HRESULT Object([out, retval] IDispatch _far * _far * lppdisp);
+      [propput, id(7), HELP(vbext_Addin_Object)]
+      HRESULT Object([in] IDispatch _far * _lpdispObject);
+    }
+
+#endif  // 0
+
+	typedef
+    [uuid(0002E152-0000-0000-C000-000000000046), HELP(vbext_DisconnectMode)]
+    enum vbext_DisconnectMode
+    {
+	 [HELP(vbext_DisconnectMode_vbext_dm_HostShutdown)]    vbext_dm_HostShutdown = 0,
+	 [HELP(vbext_DisconnectMode_vbext_dm_UserClosed)]      vbext_dm_UserClosed = 1
+    } vbext_DisconnectMode;
+
+
+
+    [uuid(0002E151-0000-0000-C000-000000000046), odl, dual, HELP(vbext_IDTExtensibility)]
+    interface IDTExtensibility : IDispatch
+    {
+      [id(1), HELP(vbext_IDTExtensibility_OnConnection)]
+	  HRESULT OnConnection( [in] IDispatch _far * VBInst,  
+			  			    [in] vbext_ConnectMode ConnectMode,
+						    [in] AddIn _far *  AddInInst,
+						    [in] SAFEARRAY (Variant)* custom);
+
+	  [id(2), HELP(vbext_IDTExtensibility_OnDisconnection)]
+      HRESULT OnDisconnection([in] vbext_DisconnectMode RemoveMode,
+	                          [in] SAFEARRAY (Variant)* custom);
+
+	  [id(3), HELP(vbext_IDTExtensibility_OnAddInsUpdate)]
+      HRESULT OnAddInsUpdate([in] SAFEARRAY (Variant)* custom); // UNDONE: [JosephF] Spec: Name ?
+	                          
+	  [id(4), HELP(vbext_IDTExtensibility_OnStartupComplete)]
+      HRESULT OnStartupComplete([in] SAFEARRAY (Variant)* custom); // UNDONE: [JosephF] Spec: Name ?
+      	  
+	}
+

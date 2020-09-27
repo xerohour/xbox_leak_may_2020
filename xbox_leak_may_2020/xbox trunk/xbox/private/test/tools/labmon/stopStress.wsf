@@ -1,0 +1,124 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    registerBox.wsf
+
+Abstract:
+
+Arguments:
+    /box=       [required] xbox name
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript">
+
+
+main();
+
+function main()
+    {
+    var records = WScript.CreateObject("ADODB.Recordset");
+    var driver = "DRIVER={SQL Server};SERVER=xdb01;DATABASE=TestLab;UID=TestLabUser;PWD=TestLab1.User";
+
+    var xboxName = GetArgument("box");
+    var d = new Date();
+
+    try
+        {
+        //
+        // Update the entry in the BoxList
+        //
+        records.Open("SELECT * FROM BoxList WHERE [Machine Name]='" + xboxName + "'", driver, 1, 2);
+
+        if(!records.EOF)
+            {
+            records("Triage") = 0;
+            records("Current State") = 2; // idle
+            records("Crash Owner") = "";
+            records("Triage Notes") = "";
+            records.Update();
+            }
+
+        records.Close();
+
+
+        //
+        // Update test History
+        //
+        records.Open("SELECT * FROM TestHistory WHERE [MAC Address]='" + xboxName + "' ORDER BY [Timestamp] DESC;", driver, 1, 2);
+
+        if(!records.EOF)
+            {
+            records("Test Results") = "Stress Stopped by Owner";
+            records.Update();
+            }
+
+        records.Close();
+        }
+    catch(e)
+        {
+        var d = new Date();
+        WScript.Echo("XBOX Stress Register: " + e.description + " (" + e.number + ") " + d);
+        }
+
+    }
+
+
+/*****************************************************************************
+
+Routine Description:
+
+    GetArgument
+
+    Returns the value of a command line argument passed to the script
+
+Arguments:
+
+    the name of the value to retrieve
+
+Return Value:
+
+    the argument passed in
+
+Notes:
+
+    script.js /arg=bla
+
+    GetArgument("arg") == "bla"
+
+*****************************************************************************/
+function GetArgument(name)
+    {
+    name = "/" + name + "=";
+    for(var each = new Enumerator(WScript.Arguments); !each.atEnd(); each.moveNext())
+        {
+        var item = ""+each.item();
+        var start = item.search(new RegExp(name, "i"));
+        if(start >= 0)
+            {
+            return item.substr(start+name.length);
+            }
+        }
+
+    return null;
+    }
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>

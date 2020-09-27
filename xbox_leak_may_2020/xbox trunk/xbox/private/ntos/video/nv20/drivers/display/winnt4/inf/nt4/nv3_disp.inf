@@ -1,0 +1,148 @@
+;
+; NV Display INF file
+;
+
+[Version]
+Signature="$Windows NT$"
+Provider=%NVidia%
+Class=Display
+
+;
+; Dest directories are \windows\system32 and \windows\system32\drivers
+;
+
+[DestinationDirs]
+DefaultDestDir       = 11
+nv3.Miniport      = 12
+nv.Display       = 11
+nv.rm            = 12
+nv.oldrm         = 12
+
+;
+; The Manufacturer section lists all of the manufacturers that we will
+; display in the Dialog box. DEVICE sections are specified.
+;
+
+[Manufacturer]
+%NVidia%      = NVidia.Mfg
+
+;
+; Device section. Each section here corresponds with an entry listed in the
+; [Manufacturer] section, above. The models will be displayed in the order
+; that they appear in the INF file. This section identifies
+; the corresponding INSTALL sections.
+;
+
+
+[NVidia.Mfg]
+%NVidia.Nv3% = nv3, PCI\VEN_12D2&DEV_0018
+%NVidia.Nv3T% = nv3, PCI\VEN_12D2&DEV_0019
+
+;---------------------------------------------------------------------
+; NV Driver INSTALL Section. This INSTALL section specifies
+; what files are to to be copied (File List sections)
+;---------------------------------------------------------------------
+
+[nv3]
+CopyFiles=nv3.Miniport, nv.Display, nv3.icd
+DelFiles=nv.oldrm
+
+;
+; NV Driver INSTALL Section. This INSTALL section specifies
+; what registry fields are to be modified (ADD Registry section)
+;
+
+[nv3.SoftwareSettings]
+AddReg = nv_SoftwareDeviceSettings
+AddReg = nv3_icdSoftwareSettings
+DelReg = nv_ClearRegistrySwitches
+
+;
+; NV Service Installation
+;
+
+[nv3.Services]
+AddService = nv3, 0x00000002, nv3_Generic_Service_Inst, nv3_EventLog_Inst
+DelService=nvarch
+DelService=nvgfx
+
+[nv3_EventLog_Inst]
+AddReg = nv3_EventLog_AddReg
+
+[nv3_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%SystemRoot%\System32\IoLogMsg.dll;%SystemRoot%\System32\drivers\nv3_mini.sys"
+HKR,,TypesSupported,0x00010001,7
+
+[nv3_Generic_Service_Inst]
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 1                  ; SERVICE_SYSTEM_START
+ErrorControl   = 0                  ; SERVICE_ERROR_IGNORE
+LoadOrderGroup = Video
+ServiceBinary  = %12%\nv3_mini.sys
+
+;
+; File List sections for NV.Display and NV.Miniport
+;
+
+[nv.Display]
+nv3_disp.dll
+
+[nv3.Miniport]
+nv3_mini.sys
+
+[nv.oldrm]
+nvarch.sys,0x00000001
+nvgfx.sys,0x00000001
+
+[nv3.icd]
+nv3oglnt.dll
+
+[nv3.GeneralConfigData]
+MaximumDeviceMemoryConfiguration=80
+
+;
+; NVidia Add registry section
+;
+
+[nv_SoftwareDeviceSettings]
+HKR,, InstalledDisplayDrivers,     %REG_MULTI_SZ%, nv3_disp
+HKR,, VgaCompatible,               %REG_DWORD%,    0
+
+[nv3_icdSoftwareSettings]
+HKLM,"SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers",RIVA128, %REG_SZ%, nv3oglnt
+
+;
+; Clear out old registry switches
+;
+
+[nv_ClearRegistrySwitches]
+HKR,, DMTOVERRIDE
+HKR,, DisableExtRefresh
+HKR,, Max16x12
+HKR,, Disable19x12x32at60
+HKR,, Disable16x12x32ge70
+HKR,, Disable19x10x32ge70
+HKR,, DellSwitch1
+
+
+[Strings]
+;
+; Non-Localizable Strings
+;
+
+REG_SZ         = 0x00000000
+REG_MULTI_SZ   = 0x00010000
+REG_EXPAND_SZ  = 0x00020000
+REG_BINARY     = 0x00000001
+REG_DWORD      = 0x00010001
+serviceroot    = System\CurrentControlSet\Services
+
+;
+; Localizable Strings
+;
+
+NVidia       = "NVIDIA"
+NVidia.Nv3 = "NVIDIA RIVA 128"
+NVidia.Nv3T = "NVIDIA RIVA 128ZX"
+DiskId="NVIDIA NT Driver Library installation disk"
+drvlib="NVIDIA NT Driver Library"

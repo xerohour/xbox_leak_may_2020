@@ -1,0 +1,1011 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "CONDUCTOR.DLL\0"
+#define VERSIONDESCRIPTION          "DirectMusic Producer Conductor Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "DirectMusic Producer Conductor Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "CONDUCTOR.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_Transport           BITMAP  DISCARDABLE     "transpor.bmp"
+IDB_Status              BITMAP  DISCARDABLE     "status.bmp"
+IDB_EXPORT_WAVE         BITMAP  DISCARDABLE     "Exp_Wave.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_SETUP_MIDI, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 315
+        VERTGUIDE, 15
+        VERTGUIDE, 145
+        VERTGUIDE, 153
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 219
+        HORZGUIDE, 49
+        HORZGUIDE, 197
+        HORZGUIDE, 210
+    END
+
+    IDD_DIALOG_METRONOME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 202
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 141
+    END
+
+    IDD_SECONDARY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 248
+        VERTGUIDE, 14
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 135
+    END
+
+    IDD_ALTERNATE_TEMPO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_DIALOG_MIDI_EXPORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 171
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
+
+    IDD_DIALOG_TRANSITION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 254
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 197
+    END
+
+    IDD_DIALOG_EDIT_PCHANNEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 212
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_ECHO_ADVANCED, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        VERTGUIDE, 147
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDB_Transport TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_TRANSP_PLAY
+    BUTTON      ID_TRANS_STOPIMMEDIATE
+    BUTTON      ID_TRANSP_TRANSITION
+    BUTTON      ID_TRANSP_MIDI
+    BUTTON      ID_TRANSP_OPT
+    BUTTON      ID_TRANSP_RECORD
+    BUTTON      ID_TRANSP_METRONOME
+    BUTTON      ID_TRANSP_CURSOR
+    BUTTON      ID_TRANS_REWPLAY
+    BUTTON      ID_TRANSP_STOP
+END
+
+IDB_Status TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_TRANSP_PANIC
+END
+
+IDB_EXPORT_WAVE TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_WAVE_FILENAME
+    BUTTON      ID_WAVE_RECORD
+    SEPARATOR
+    BUTTON      ID_MIDI_FILENAME
+    BUTTON      ID_MIDI_EXPORT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SETUP_MIDI DIALOG DISCARDABLE  0, 0, 322, 226
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MIDI/Performance Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,265,7,50,14,WS_GROUP
+    PUSHBUTTON      "&Cancel",IDCANCEL,265,30,50,14
+    GROUPBOX        "&MIDI Input",IDC_STATIC,7,7,146,33
+    COMBOBOX        IDC_MIDI_INPUT,15,21,130,75,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Echo MIDI Input",IDC_STATIC,7,45,146,74
+    LTEXT           "&Echo MIDI Input Device:",IDC_STATIC,15,57,80,8
+    COMBOBOX        IDC_COMBO_ECHO_INPUT,15,68,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Ec&ho MIDI In",IDC_CHECK_ECHO_MIDI,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,84,58,10
+    PUSHBUTTON      "Adva&nced",IDC_ECHO_ADVANCED,15,97,55,15
+    LTEXT           "Output &PChannels:",IDC_STATIC,79,86,60,8
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS,79,96,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,145,95,11,
+                    13
+    GROUPBOX        "Adjust &Latency",IDC_STATIC,7,123,146,96
+    EDITTEXT        IDC_EDIT_LATENCY,15,138,37,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_LATENCY,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,45,138,13,11
+    LTEXT           "ms",IDC_STATIC_MS_CAPTION,55,140,10,8
+    PUSHBUTTON      "Set to &Default",IDC_BUTTON_LATENCY_DEFAULT,74,137,62,
+                    14
+    CONTROL         "Persist to &all Audiopaths",IDC_CHECK_LATENCY_PERSIST,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,159,91,10
+    GROUPBOX        "",IDC_STATIC,11,174,138,41
+    CONTROL         "Super low latency",IDC_CHECK_LOW_LATENCY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,174,72,10
+    LTEXT           "Use this sound card:",IDC_STATIC,15,187,66,8
+    COMBOBOX        IDC_COMBO_LOW_LAT_DEVICE,15,196,130,62,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Audio Initialization Settings",
+                    IDC_STATIC_AUDIO_SETTINGS,160,45,155,122
+    LTEXT           "Number of &Voices:",IDC_STATIC,165,61,59,8
+    EDITTEXT        IDC_EDIT_VOICES,239,59,30,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_VOICES,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,262,58,11,14
+    LTEXT           "Sample Rate:",IDC_STATIC,165,78,44,8
+    CONTROL         "&11 kHz",IDC_11,"Button",BS_AUTORADIOBUTTON | WS_GROUP | 
+                    WS_TABSTOP,217,78,39,10
+    CONTROL         "&22 kHz",IDC_22,"Button",BS_AUTORADIOBUTTON,217,89,39,
+                    10
+    CONTROL         "&44 kHz",IDC_44,"Button",BS_AUTORADIOBUTTON,217,100,39,
+                    10
+    CONTROL         "4&8 kHz",IDC_48,"Button",BS_AUTORADIOBUTTON,217,111,39,
+                    10
+    CONTROL         "&96 kHz",IDC_96,"Button",BS_AUTORADIOBUTTON,217,122,39,
+                    10
+    CONTROL         "O&ther",IDC_OTHER,"Button",BS_AUTORADIOBUTTON,262,79,33,
+                    10
+    EDITTEXT        IDC_EDIT_OTHER,264,89,30,12,ES_AUTOHSCROLL
+    LTEXT           "Default Synthesizer:",IDC_STATIC,167,136,64,8
+    COMBOBOX        IDC_DEFAULT_SYNTH,167,147,142,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Download Status",IDC_STATIC,160,172,146,47
+    LTEXT           "Download",IDC_STATIC,227,183,33,8
+    LTEXT           "Unload",IDC_STATIC,264,183,24,8
+    LTEXT           "GM Set",IDC_STATIC,168,193,25,8
+    CONTROL         "",IDC_RADIO_GM_DOWNLOAD,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,234,193,16,8
+    CONTROL         "",IDC_RADIO_GM_UNLOAD,"Button",BS_AUTORADIOBUTTON,270,
+                    193,16,8
+    LTEXT           "Custom DLS Sets",IDC_STATIC,168,206,56,8
+    CONTROL         "",IDC_RADIO_DLS_DOWNLOAD,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,234,206,16,8
+    CONTROL         "",IDC_RADIO_DLS_UNLOAD,"Button",BS_AUTORADIOBUTTON,270,
+                    206,16,8
+    LTEXT           "Hz",IDC_STATIC,298,91,10,8
+END
+
+IDD_DIALOG_METRONOME DIALOG DISCARDABLE  0, 0, 208, 148
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Metronome Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Beat One",IDC_STATIC,7,7,172,38
+    GROUPBOX        "&Velocity",IDC_STATIC,11,14,45,27
+    EDITTEXT        IDC_EDIT_ONE_VELOCITY,17,24,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_ONE_VELOCITY,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,47,24,11,13
+    GROUPBOX        "&Note value",IDC_STATIC,64,14,111,27
+    COMBOBOX        IDC_COMBO_ONE_VALUE,69,24,100,80,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Other Beats",IDC_STATIC,7,46,172,38
+    GROUPBOX        "V&elocity",IDC_STATIC,11,53,45,27
+    EDITTEXT        IDC_EDIT_OTHER_VELOCITY,17,63,35,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_OTHER_VELOCITY,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,47,63,11,13
+    GROUPBOX        "No&te value",IDC_STATIC,64,53,111,27
+    COMBOBOX        IDC_COMBO_OTHER_VALUE,69,63,100,80,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "&PChannel",IDC_STATIC,7,87,45,25
+    EDITTEXT        IDC_EDIT_PCHANNEL,13,96,35,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_PCHANNEL,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,43,96,11,13
+    GROUPBOX        "Count-In &Bars",IDC_STATIC,60,87,111,30
+    EDITTEXT        IDC_EDIT_COUNTIN,65,98,26,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_COUNTIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,85,97,11,12
+    CONTROL         "&Record Only",IDC_RADIO_RECORD,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,103,95,55,10
+    CONTROL         "&All Playback",IDC_RADIO_ALL_PLAYBACK,"Button",
+                    BS_AUTORADIOBUTTON,103,105,55,10
+    DEFPUSHBUTTON   "&OK",IDOK,32,125,50,16
+    PUSHBUTTON      "&Cancel",IDCANCEL,96,125,50,16
+END
+
+IDD_SECONDARY DIALOG DISCARDABLE  0, 0, 255, 142
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Secondary Segment Audition Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "&Start at next marker",IDC_CHECK_BOUNDARY,"Button",
+                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,14,20,77,10
+    GROUPBOX        "Performance &Boundary",IDC_STATIC,7,7,123,73
+    LTEXT           "If no markers, start:",IDC_STATIC_NO_MARKERS,14,38,61,8
+    COMBOBOX        IDC_COMBO_BOUNDARY,14,49,112,116,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Align Options",IDC_STATIC,136,7,112,73,WS_GROUP
+    LTEXT           "If no enter switchpoints (destination), switch:",
+                    IDC_ALIGN_OPTIONS_PROMPT,143,18,99,19,WS_DISABLED
+    CONTROL         "at an&y Time",IDC_RADIO_SWITCH_ANY_TIME,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_GROUP | WS_TABSTOP,
+                    149,38,53,10
+    CONTROL         "on any &Grid",IDC_RADIO_SWITCH_ANY_GRID,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,149,48,52,10
+    CONTROL         "on any Bea&t",IDC_RADIO_SWITCH_ANY_BEAT,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,149,58,54,10
+    CONTROL         "on any Ba&rline",IDC_RADIO_SWITCH_ANY_BAR,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,149,68,61,10
+    CONTROL         "&Controlling Segment",IDC_CONTROL,"Button",
+                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,7,88,79,10
+    CONTROL         "&Don't Cut Off",IDC_RADIO_NOINVALIDATE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,7,100,57,10
+    CONTROL         "Do&n't Cut Off Secondary Segs",IDC_RADIO_INVALIDATEPRI,
+                    "Button",BS_AUTORADIOBUTTON,7,110,111,10
+    CONTROL         "Cut Off (Regenerate &2ndary Segs)",IDC_RADIO_INVALIDATE,
+                    "Button",BS_AUTORADIOBUTTON,7,120,123,10
+    GROUPBOX        "Timing",IDC_STATIC,136,83,112,32,WS_GROUP
+    CONTROL         "&Quick Response",IDC_RADIO_TIMING_QUICK,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,143,93,69,10
+    CONTROL         "After &Prepare Time",IDC_RADIO_TIMING_AFTERPREPARETIME,
+                    "Button",BS_AUTORADIOBUTTON,143,103,75,10
+    DEFPUSHBUTTON   "&OK",IDOK,136,121,50,14,WS_GROUP
+    PUSHBUTTON      "C&ancel",IDCANCEL,198,121,50,14
+END
+
+IDD_ALTERNATE_TEMPO DIALOG DISCARDABLE  0, 0, 186, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Alternate Tempo"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    LTEXT           "Alternate Tempo",IDC_STATIC,10,18,54,8
+    EDITTEXT        IDC_RATIO_EDIT,66,16,36,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_RATIO,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_TABSTOP,95,16,11,13
+    LTEXT           "%",IDC_STATIC,104,18,8,8
+END
+
+IDD_DIALOG_MIDI_EXPORT DIALOG DISCARDABLE  0, 0, 178, 47
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set MIDI Export Start Time"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Save lead-in measure",IDC_LEADIN_MEASURE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,10,11,104,10
+    CONTROL         "Start at bar 1",IDC_FIRST_MEASURE,"Button",
+                    BS_AUTORADIOBUTTON,10,25,104,10
+    DEFPUSHBUTTON   "OK",IDOK,121,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,121,25,50,14
+END
+
+IDD_DIALOG_TRANSITION DIALOG DISCARDABLE  0, 0, 261, 204
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Transition Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Performance &Boundary",IDC_STATIC,7,1,113,63,WS_GROUP
+    CONTROL         "T&ransition at next marker",IDC_CHECK_BOUNDARY,"Button",
+                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,12,13,93,10
+    LTEXT           "If no markers, transition:",IDC_STATIC_NO_MARKERS,12,24,
+                    76,8
+    CONTROL         "Use Segment's &Default",IDC_CHECK_SEG_DEFAULT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,34,88,10
+    COMBOBOX        IDC_COMBO_BOUNDARY,12,46,103,94,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_GROUP | WS_TABSTOP
+    GROUPBOX        "Align Options",IDC_STATIC,9,66,112,73,WS_GROUP
+    LTEXT           "If no enter switchpoints (destination), switch:",
+                    IDC_ALIGN_OPTIONS_PROMPT,16,76,98,18,WS_DISABLED
+    CONTROL         "&at any Time",IDC_RADIO_SWITCH_ANY_TIME,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_GROUP,22,96,53,10
+    CONTROL         "on any &Grid",IDC_RADIO_SWITCH_ANY_GRID,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,22,106,52,10
+    CONTROL         "o&n any Beat",IDC_RADIO_SWITCH_ANY_BEAT,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,22,116,54,10
+    CONTROL         "&on any Barline",IDC_RADIO_SWITCH_ANY_BAR,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,22,126,61,10
+    CONTROL         "Don't C&ut Off",IDC_RADIO_NOINVALIDATE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,7,143,57,10
+    CONTROL         "Don't Cut Off Secondary Segments",
+                    IDC_RADIO_INVALIDATEPRI,"Button",BS_AUTORADIOBUTTON,7,
+                    153,119,10
+    CONTROL         "Cut Off (Regenerate &2ndary Segs)",IDC_RADIO_INVALIDATE,
+                    "Button",BS_AUTORADIOBUTTON,7,163,123,10
+    CONTROL         "&Quick Response",IDC_RADIO_QUICK_RESPONSE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,7,177,69,10
+    CONTROL         "A&fter Prepare Time",IDC_RADIO_AFTER_PREPARE,"Button",
+                    BS_AUTORADIOBUTTON,7,187,75,10
+    GROUPBOX        "Transition &Segment",IDC_STATIC,131,7,123,32,WS_GROUP
+    COMBOBOX        IDC_COMBO_TRANS_SEGMENT,138,19,109,55,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_GROUP | WS_TABSTOP
+    GROUPBOX        "&Transition Pattern",IDC_STATIC,131,45,123,131,WS_GROUP
+    COMBOBOX        IDC_COMBO_PATTERN,138,57,109,94,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_GROUP | WS_TABSTOP
+    RTEXT           "&Custom:",IDC_CUSTOM_PROMPT,175,77,37,8,WS_DISABLED
+    EDITTEXT        IDC_CUSTOM_ID,215,74,32,14,ES_AUTOHSCROLL | WS_DISABLED
+    CONTROL         "Spin1",IDC_CUSTOM_ID_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,240,75,12,12
+    CONTROL         "Play &Entire Pattern",IDC_RADIO_ENTIRE_PATTERN,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED | WS_GROUP | WS_TABSTOP,
+                    138,93,74,10
+    CONTROL         "Play &1 Bar of Pattern",IDC_RADIO_ONE_BAR_PATTERN,
+                    "Button",BS_AUTORADIOBUTTON | WS_DISABLED,138,103,81,10
+    CONTROL         "&Modulate",IDC_CHECK_MODULATE,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,138,115,45,10
+    CONTROL         "Transition to Not&hing",IDC_CHECK_TRANS_NOTHING,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,138,128,81,10
+    CONTROL         "&Long",IDC_CHECK_LONG,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,138,141,32,10
+    CONTROL         "&Play Entire Additional Pattern",
+                    IDC_RADIO_ENTIRE_ADDITIONAL,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED | WS_GROUP | WS_TABSTOP,140,151,107,10
+    CONTROL         "Pla&y 1 Bar of Additional Pattern",
+                    IDC_RADIO_ONE_BAR_ADDITIONAL,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,140,161,113,10
+    DEFPUSHBUTTON   "OK",IDOK,121,183,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,204,183,50,14
+END
+
+IDD_DIALOG_EDIT_PCHANNEL DIALOG DISCARDABLE  0, 0, 219, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit PChannel Name"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RTEXT           "99999:",IDC_STATIC_PCHANNEL,7,19,33,8
+    EDITTEXT        IDC_EDIT_PCHANNEL_NAME,45,17,106,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,162,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,162,24,50,14
+END
+
+IDD_ECHO_ADVANCED DIALOG DISCARDABLE  0, 0, 231, 161
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Echo MIDI Input"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Echo MIDI Input Device:",IDC_STATIC,7,7,80,8
+    LTEXT           "Output &PChannels:",IDC_STATIC,147,7,60,8
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_1,7,19,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_1,147,19,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_1,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,19,11,
+                    13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_2,7,34,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_2,147,34,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_2,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,34,11,
+                    13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_3,7,49,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_3,147,49,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_3,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,49,11,
+                    13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_4,7,64,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_4,147,64,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_4,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,64,11,
+                    13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_5,7,79,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_5,147,79,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_5,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,79,11,
+                    13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_6,7,94,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_6,147,94,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_6,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,94,11,
+                    13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_7,7,109,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_7,147,109,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_7,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,109,
+                    11,13
+    COMBOBOX        IDC_COMBO_ECHO_INPUT_8,7,124,130,75,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ECHO_PCHANNELS_8,147,124,66,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_ECHO_PCHANNELS_8,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,213,124,
+                    11,13
+    DEFPUSHBUTTON   "&OK",IDOK,7,140,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,174,140,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DIALOG_TRANSITION DLGINIT
+BEGIN
+    IDC_COMBO_BOUNDARY, 0x403, 10, 0
+0x6d49, 0x656d, 0x6964, 0x7461, 0x0065, 
+    IDC_COMBO_BOUNDARY, 0x403, 5, 0
+0x7247, 0x6469, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 5, 0
+0x6542, 0x7461, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 8, 0
+0x6142, 0x6c72, 0x6e69, 0x0065, 
+    IDC_COMBO_BOUNDARY, 0x403, 14, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x4220, 0x6165, 0x0074, 
+    IDC_COMBO_BOUNDARY, 0x403, 17, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x4220, 0x7261, 0x696c, 0x656e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 17, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x5320, 0x6765, 0x656d, 0x746e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 15, 0
+0x6e45, 0x2064, 0x666f, 0x5320, 0x6765, 0x656d, 0x746e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 21, 0
+0x6e45, 0x2064, 0x666f, 0x5320, 0x6765, 0x656d, 0x746e, 0x5120, 0x6575, 
+0x6575, "\000" 
+    IDC_COMBO_PATTERN, 0x403, 6, 0
+0x6e49, 0x7274, 0x006f, 
+    IDC_COMBO_PATTERN, 0x403, 6, 0
+0x7242, 0x6165, 0x006b, 
+    IDC_COMBO_PATTERN, 0x403, 5, 0
+0x6946, 0x6c6c, "\000" 
+    IDC_COMBO_PATTERN, 0x403, 4, 0
+0x6e45, 0x0064, 
+    IDC_COMBO_PATTERN, 0x403, 7, 0
+0x7543, 0x7473, 0x6d6f, "\000" 
+    IDC_COMBO_PATTERN, 0x403, 14, 0
+0x6e45, 0x2064, 0x6e61, 0x2064, 0x6e49, 0x7274, 0x006f, 
+    IDC_COMBO_PATTERN, 0x403, 16, 0
+0x6552, 0x7567, 0x616c, 0x2072, 0x6150, 0x7474, 0x7265, 0x006e, 
+    IDC_COMBO_PATTERN, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    0
+END
+
+IDD_SECONDARY DLGINIT
+BEGIN
+    IDC_COMBO_BOUNDARY, 0x403, 18, 0
+0x6553, 0x6d67, 0x6e65, 0x2774, 0x2073, 0x6544, 0x6166, 0x6c75, 0x0074, 
+
+    IDC_COMBO_BOUNDARY, 0x403, 10, 0
+0x6d49, 0x656d, 0x6964, 0x7461, 0x0065, 
+    IDC_COMBO_BOUNDARY, 0x403, 5, 0
+0x7247, 0x6469, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 5, 0
+0x6542, 0x7461, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 8, 0
+0x6142, 0x6c72, 0x6e69, 0x0065, 
+    IDC_COMBO_BOUNDARY, 0x403, 14, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x4220, 0x6165, 0x0074, 
+    IDC_COMBO_BOUNDARY, 0x403, 17, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x4220, 0x7261, 0x696c, 0x656e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 17, 0
+0x6c41, 0x6769, 0x206e, 0x6f74, 0x5320, 0x6765, 0x656d, 0x746e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 15, 0
+0x6e45, 0x2064, 0x666f, 0x5320, 0x6765, 0x656d, 0x746e, "\000" 
+    IDC_COMBO_BOUNDARY, 0x403, 21, 0
+0x6e45, 0x2064, 0x666f, 0x5320, 0x6765, 0x656d, 0x746e, 0x5120, 0x6575, 
+0x6575, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CONDUCTOR_DESC      "Conductor Class"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_PLAY          "Begin playback for active editor\nPlay (Alt+>)"
+    ID_TRANSP_STOP          "Stop the music engine.  Ctrl+click to stop primary transport only.\nStop. (Alt+>) Ctrl+click to stop primary only."
+    ID_TRANSP_TRANSITION    "Transition from the current playback to the active editor. Right click to set options.\nTransition. (Alt+"") Right click to set options."
+    IDS_CONDUCTOR_COMPONENT_NAME "Conductor"
+    IDS_TRANSPORT_HELP      "Show or hide the Transport Controls toolbar"
+    ID_TRANSP_AUDIOPATH     "Select the default audiopath.\nSelect the default audiopath."
+    ID_TRANSP_MIDI          "Enable or disable access to the MIDI device\nToggle MIDI"
+    ID_TRANSP_OPT           "Set up MIDI and Performance options\nMIDI/Performance Options"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_RECORD        "Enable or disable recording from MIDI input\nToggle Recording (Alt+?)"
+    ID_TRANSP_PANIC         "Send an All Notes Off event. Right click to remove all status buttons.\nAll Notes Off. Right click to remove all status buttons."
+    ID_TRANSP_METRONOME     "Enable or disable the metronome. Right click to set options.\nToggle Metronome. Right click to set options."
+    ID_TRANS_REWPLAY        "Begin playback from start for active editor\nPlay From Start (Alt+<)"
+    IDS_DEF_RATIO           "x100%"
+    IDS_DEFAULT_TRANSPORT_NAME "Unknown Transport"
+    IDS_ERR_CREATE_DMUSIC   "Conductor: Unable to create DirectMusic object.\nPlease install DirectMusic."
+    IDS_ERR_CREATE_PERF     "Conductor: Unable to create DirectMusic performance object.\nPlease install DirectMusic."
+    IDS_ERR_INIT_PERF       "Conductor: Unable to initialize DirectMusic performance object.\nPlease install DirectMusic."
+    IDS_ERR_CREATE_COLLEC   "Conductor: Unable to create DirectMusic collection.\nPlease install DirectMusic."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_LOAD_GMDLS      "Conductor: Unable to load GM.DLS.\nPlease install DirectMusic."
+    IDS_STATUS_HELP         "Show or hide the Output Status toolbar"
+    IDS_STATUS_TITLE        "Output Status"
+    IDS_STATUS_MENUTEXT     "&Output Status"
+    IDS_TRANSPORT_TITLE     "Transport Controls"
+    IDS_TRANSPORT_MENUTEXT  "Transport &Controls"
+    IDS_SECONDARY_TOOLBAR_TITLE "Secondary Segment Toolbar"
+    IDS_SECONDARY_TOOLBAR_MENUTEXT "Seco&ndary Segment Toolbar"
+    IDS_SECONDARY_TOOLBAR_HELP "Show or hide the Secondary Segment toolbar"
+    ID_TRANS_STOPIMMEDIATE  "Stop playback immediately.  Ctrl+click to immediately stop primary transport only.\nStop Immediate. (Alt+<) Ctrl+click to immediately stop primary only."
+    IDS_NO_TRANS_SEGMENT    "None"
+    IDS_NO_AUDIOPATH        "No Default Audiopath"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_PLAY1         "Trigger secondary segment 1. Right click to set options.\nPlay. (Ctrl+Alt+1) Right click to set options."
+    ID_TRANSP_PLAY2         "Trigger secondary segment 2. Right click to set options.\nPlay. (Ctrl+Alt+2) Right click to set options."
+    ID_TRANSP_PLAY3         "Trigger secondary segment 3. Right click to set options.\nPlay. (Ctrl+Alt+3) Right click to set options."
+    ID_TRANSP_PLAY4         "Trigger secondary segment 4. Right click to set options.\nPlay. (Ctrl+Alt+4) Right click to set options."
+    ID_TRANSP_PLAY5         "Trigger secondary segment 5. Right click to set options.\nPlay. (Ctrl+Alt+5) Right click to set options."
+    ID_TRANSP_PLAY6         "Trigger secondary segment 6. Right click to set options.\nPlay. (Ctrl+Alt+6) Right click to set options."
+    ID_TRANSP_PLAY7         "Trigger secondary segment 7. Right click to set options.\nPlay. (Ctrl+Alt+7) Right click to set options."
+    ID_TRANSP_PLAY8         "Trigger secondary segment 8. Right click to set options.\nPlay. (Ctrl+Alt+8) Right click to set options."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_PLAY9         "Trigger secondary segment 9. Right click to set options.\nPlay. (Ctrl+Alt+9) Right click to set options."
+    ID_TRANSP_PLAY10        "Trigger secondary segment 10. Right click to set options.\nPlay. (Ctrl+Alt+0) Right click to set options."
+    ID_TRANSP_PLAY11        "Trigger secondary segment A. Right click to set options.\nPlay. (Ctrl+Alt+A) Right click to set options."
+    ID_TRANSP_PLAY12        "Trigger secondary segment B. Right click to set options.\nPlay. (Ctrl+Alt+B) Right click to set options."
+    ID_TRANSP_PLAY13        "Trigger secondary segment C. Right click to set options.\nPlay. (Ctrl+Alt+C) Right click to set options."
+    ID_TRANSP_PLAY14        "Trigger secondary segment D. Right click to set options.\nPlay. (Ctrl+Alt+D) Right click to set options."
+    ID_TRANSP_PLAY15        "Trigger secondary segment E. Right click to set options.\nPlay. (Ctrl+Alt+E) Right click to set options."
+    ID_TRANSP_PLAY16        "Trigger secondary segment F. Right click to set options.\nPlay. (Ctrl+Alt+F) Right click to set options."
+    ID_TRANSP_PLAY17        "Trigger secondary segment G. Right click to set options.\nPlay. (Ctrl+Alt+G) Right click to set options."
+    ID_TRANSP_PLAY18        "Trigger secondary segment H. Right click to set options.\nPlay. (Ctrl+Alt+H) Right click to set options."
+    ID_TRANSP_PLAY19        "Trigger secondary segment I. Right click to set options.\nPlay. (Ctrl+Alt+I) Right click to set options."
+    ID_TRANSP_PLAY20        "Trigger secondary segment J. Right click to set options.\nPlay. (Ctrl+Alt+J) Right click to set options."
+    ID_TRANSP_PLAY21        "Trigger secondary segment K. Right click to set options.\nPlay. (Ctrl+Alt+K) Right click to set options."
+    ID_TRANSP_PLAY22        "Trigger secondary segment L. Right click to set options.\nPlay. (Ctrl+Alt+L) Right click to set options."
+    ID_TRANSP_PLAY23        "Trigger secondary segment M. Right click to set options.\nPlay. (Ctrl+Alt+M) Right click to set options."
+    ID_TRANSP_PLAY24        "Trigger secondary segment N. Right click to set options.\nPlay. (Ctrl+Alt+N) Right click to set options."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_PLAY25        "Trigger secondary segment O. Right click to set options.\nPlay. (Ctrl+Alt+O) Right click to set options."
+    ID_TRANSP_PLAY26        "Trigger secondary segment P. Right click to set options.\nPlay. (Ctrl+Alt+P) Right click to set options."
+    ID_TRANSP_PLAY27        "Trigger secondary segment Q. Right click to set options.\nPlay. (Ctrl+Alt+Q) Right click to set options."
+    ID_TRANSP_PLAY28        "Trigger secondary segment R. Right click to set options.\nPlay. (Ctrl+Alt+R) Right click to set options."
+    ID_TRANSP_PLAY29        "Trigger secondary segment S. Right click to set options.\nPlay. (Ctrl+Alt+S) Right click to set options."
+    ID_TRANSP_PLAY30        "Trigger secondary segment T. Right click to set options.\nPlay. (Ctrl+Alt+T) Right click to set options."
+    ID_TRANSP_PLAY31        "Trigger secondary segment U. Right click to set options.\nPlay. (Ctrl+Alt+U) Right click to set options."
+    ID_TRANSP_PLAY32        "Trigger secondary segment V. Right click to set options.\nPlay. (Ctrl+Alt+V) Right click to set options."
+    ID_TRANSP_PLAY33        "Trigger secondary segment W. Right click to set options.\nPlay. (Ctrl+Alt+W) Right click to set options."
+    ID_TRANSP_PLAY34        "Trigger secondary segment X. Right click to set options.\nPlay. (Ctrl+Alt+X) Right click to set options."
+    ID_TRANSP_PLAY35        "Trigger secondary segment Y. Right click to set options.\nPlay. (Ctrl+Alt+Y) Right click to set options."
+    ID_TRANSP_PLAY36        "Trigger secondary segment Z. Right click to set options.\nPlay. (Ctrl+Alt+Z) Right click to set options."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_STOP1         "Stop secondary segment 1\nStop. (Ctrl+Alt+1) Right click to set options."
+    ID_TRANSP_STOP2         "Stop secondary segment 2\nStop. (Ctrl+Alt+2) Right click to set options."
+    ID_TRANSP_STOP3         "Stop secondary segment 3\nStop. (Ctrl+Alt+3) Right click to set options."
+    ID_TRANSP_STOP4         "Stop secondary segment 4\nStop. (Ctrl+Alt+4) Right click to set options."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_STOP5         "Stop secondary segment 5\nStop. (Ctrl+Alt+5) Right click to set options."
+    ID_TRANSP_STOP6         "Stop secondary segment 6\nStop. (Ctrl+Alt+6) Right click to set options."
+    ID_TRANSP_STOP7         "Stop secondary segment 7\nStop. (Ctrl+Alt+7) Right click to set options."
+    ID_TRANSP_STOP8         "Stop secondary segment 8\nStop. (Ctrl+Alt+8) Right click to set options."
+    ID_TRANSP_STOP9         "Stop secondary segment 9\nStop. (Ctrl+Alt+9) Right click to set options."
+    ID_TRANSP_STOP10        "Stop secondary segment 10\nStop. (Ctrl+Alt+0) Right click to set options."
+    ID_TRANSP_STOP11        "Stop secondary segment A\nStop. (Ctrl+Alt+A) Right click to set options."
+    ID_TRANSP_STOP12        "Stop secondary segment B\nStop. (Ctrl+Alt+B) Right click to set options."
+    ID_TRANSP_STOP13        "Stop secondary segment C\nStop. (Ctrl+Alt+C) Right click to set options."
+    ID_TRANSP_STOP14        "Stop secondary segment D\nStop. (Ctrl+Alt+D) Right click to set options."
+    ID_TRANSP_STOP15        "Stop secondary segment E\nStop. (Ctrl+Alt+E) Right click to set options."
+    ID_TRANSP_STOP16        "Stop secondary segment F\nStop. (Ctrl+Alt+F) Right click to set options."
+    ID_TRANSP_STOP17        "Stop secondary segment G\nStop. (Ctrl+Alt+G) Right click to set options."
+    ID_TRANSP_STOP18        "Stop secondary segment H\nStop. (Ctrl+Alt+H) Right click to set options."
+    ID_TRANSP_STOP19        "Stop secondary segment I\nStop. (Ctrl+Alt+I) Right click to set options."
+    ID_TRANSP_STOP20        "Stop secondary segment J\nStop. (Ctrl+Alt+J) Right click to set options."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_TRANSP_STOP21        "Stop secondary segment K\nStop. (Ctrl+Alt+K) Right click to set options."
+    ID_TRANSP_STOP22        "Stop secondary segment L\nStop. (Ctrl+Alt+L) Right click to set options."
+    ID_TRANSP_STOP23        "Stop secondary segment M\nStop. (Ctrl+Alt+M) Right click to set options."
+    ID_TRANSP_STOP24        "Stop secondary segment N\nStop. (Ctrl+Alt+N) Right click to set options."
+    ID_TRANSP_STOP25        "Stop secondary segment O\nStop. (Ctrl+Alt+O) Right click to set options."
+    ID_TRANSP_STOP26        "Stop secondary segment P\nStop. (Ctrl+Alt+P) Right click to set options."
+    ID_TRANSP_STOP27        "Stop secondary segment Q\nStop. (Ctrl+Alt+Q) Right click to set options."
+    ID_TRANSP_STOP28        "Stop secondary segment R\nStop. (Ctrl+Alt+R) Right click to set options."
+    ID_TRANSP_STOP29        "Stop secondary segment S\nStop. (Ctrl+Alt+S) Right click to set options."
+    ID_TRANSP_STOP30        "Stop secondary segment T\nStop. (Ctrl+Alt+T) Right click to set options."
+    ID_TRANSP_STOP31        "Stop secondary segment U\nStop. (Ctrl+Alt+U) Right click to set options."
+    ID_TRANSP_STOP32        "Stop secondary segment V\nStop. (Ctrl+Alt+V) Right click to set options."
+    ID_TRANSP_STOP33        "Stop secondary segment W\nStop. (Ctrl+Alt+W) Right click to set options."
+    ID_TRANSP_STOP34        "Stop secondary segment X\nStop. (Ctrl+Alt+X) Right click to set options."
+    ID_TRANSP_STOP35        "Stop secondary segment Y\nStop. (Ctrl+Alt+Y) Right click to set options."
+    ID_TRANSP_STOP36        "Stop secondary segment Z\nStop. (Ctrl+Alt+Z) Right click to set options."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_TRANSP_COMBO1       "Select Secondary Segment 1\nSelect Segment"
+    IDC_TRANSP_COMBO2       "Select Secondary Segment 2\nSelect Segment"
+    IDC_TRANSP_COMBO3       "Select Secondary Segment 3\nSelect Segment"
+    IDC_TRANSP_COMBO4       "Select Secondary Segment 4\nSelect Segment"
+    IDC_TRANSP_COMBO5       "Select Secondary Segment 5\nSelect Segment"
+    IDC_TRANSP_COMBO6       "Select Secondary Segment 6\nSelect Segment"
+    IDC_TRANSP_COMBO7       "Select Secondary Segment 7\nSelect Segment"
+    IDC_TRANSP_COMBO8       "Select Secondary Segment 8\nSelect Segment"
+    IDC_TRANSP_COMBO9       "Select Secondary Segment 9\nSelect Segment"
+    IDC_TRANSP_COMBO10      "Select Secondary Segment 10\nSelect Segment"
+    IDC_TRANSP_COMBO11      "Select Secondary Segment A\nSelect Segment"
+    IDC_TRANSP_COMBO12      "Select Secondary Segment B\nSelect Segment"
+    IDC_TRANSP_COMBO13      "Select Secondary Segment C\nSelect Segment"
+    IDC_TRANSP_COMBO14      "Select Secondary Segment D\nSelect Segment"
+    IDC_TRANSP_COMBO15      "Select Secondary Segment E\nSelect Segment"
+    IDC_TRANSP_COMBO16      "Select Secondary Segment F\nSelect Segment"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_TRANSP_COMBO17      "Select Secondary Segment G\nSelect Segment"
+    IDC_TRANSP_COMBO18      "Select Secondary Segment H\nSelect Segment"
+    IDC_TRANSP_COMBO19      "Select Secondary Segment I\nSelect Segment"
+    IDC_TRANSP_COMBO20      "Select Secondary Segment J\nSelect Segment"
+    IDC_TRANSP_COMBO21      "Select Secondary Segment K\nSelect Segment"
+    IDC_TRANSP_COMBO22      "Select Secondary Segment L\nSelect Segment"
+    IDC_TRANSP_COMBO23      "Select Secondary Segment M\nSelect Segment"
+    IDC_TRANSP_COMBO24      "Select Secondary Segment N\nSelect Segment"
+    IDC_TRANSP_COMBO25      "Select Secondary Segment O\nSelect Segment"
+    IDC_TRANSP_COMBO26      "Select Secondary Segment P\nSelect Segment"
+    IDC_TRANSP_COMBO27      "Select Secondary Segment Q\nSelect Segment"
+    IDC_TRANSP_COMBO28      "Select Secondary Segment R\nSelect Segment"
+    IDC_TRANSP_COMBO29      "Select Secondary Segment S\nSelect Segment"
+    IDC_TRANSP_COMBO30      "Select Secondary Segment T\nSelect Segment"
+    IDC_TRANSP_COMBO31      "Select Secondary Segment U\nSelect Segment"
+    IDC_TRANSP_COMBO32      "Select Secondary Segment V\nSelect Segment"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_TRANSP_COMBO33      "Select Secondary Segment W\nSelect Segment"
+    IDC_TRANSP_COMBO34      "Select Secondary Segment X\nSelect Segment"
+    IDC_TRANSP_COMBO35      "Select Secondary Segment Y\nSelect Segment"
+    IDC_TRANSP_COMBO36      "Select Secondary Segment Z\nSelect Segment"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_TRANSP_COMBO        "Select a transport\nSelect Transport"
+    IDC_RELATIVE_TEMPO      "Change to alternate tempo. Right click to change.\n Tempo Modifier. Right click to change."
+    IDC_TEMPO               "Current tempo\nCurrent Tempo"
+    IDC_SPIN_TEMPO          "Current tempo\nCurrent Tempo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_STATUS              "Running status\nRunning Status"
+    IDC_EDIT_SECONDARY      "Number of Secondary Segments\nNumber of Secondary Segments"
+    IDC_SPIN_SECONDARY      "Number of Secondary Segments\nNumber of Secondary Segments"
+    IDC_SYNTH_CPU           "Percentage of CPU in use for all active output ports\nCPU use"
+    IDC_SYNTH_VOICES        "Number of voices in use for all active output ports\nActive voices"
+    IDC_SYNTH_RESET         "Reset the peak values and times\nReset peaks"
+    IDC_RECORD_FILENAME     "Name of Wave file to export\nWave Filename"
+    IDS_APATH_STEREOPLUSREVERB "Standard Stereo & Reverb"
+    IDC_SYNTH_MEMORY        "Amount of memory in use for all active output ports\nMemory use"
+    IDS_APATH_ENV           "Standard Environment"
+    IDC_SYNTH_LATENCY       "Average latency over last ten seconds\nAverage latency"
+    IDS_APATH_3D_DRY        "Standard 3D (Dry)"
+    IDS_APATH_MONO          "Standard Mono"
+    IDS_APATH_STEREO        "Standard Stereo"
+    IDS_SYNTH_CPU_STATUS    "CPU %02d.%1.1d%% Peak %02d.%1.1d%% at %s"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_MUTE1               "Click to Mute/Unmute PChannel 1. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE2               "Click to Mute/Unmute PChannel 2. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE3               "Click to Mute/Unmute PChannel 3. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE4               "Click to Mute/Unmute PChannel 4. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE5               "Click to Mute/Unmute PChannel 5. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE6               "Click to Mute/Unmute PChannel 6. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE7               "Click to Mute/Unmute PChannel 7. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_MUTE8               "Click to Mute/Unmute PChannel 8. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE9               "Click to Mute/Unmute PChannel 9. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE10              "Click to Mute/Unmute PChannel 10. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE11              "Click to Mute/Unmute PChannel 11. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE12              "Click to Mute/Unmute PChannel 12. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE13              "Click to Mute/Unmute PChannel 13. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE14              "Click to Mute/Unmute PChannel 14. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE15              "Click to Mute/Unmute PChannel 15. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE16              "Click to Mute/Unmute PChannel 16. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE17              "Click to Mute/Unmute PChannel 17. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE18              "Click to Mute/Unmute PChannel 18. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE19              "Click to Mute/Unmute PChannel 19. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+    IDC_MUTE20              "Click to Mute/Unmute PChannel 20. Double Click to Solo/Unsolo. Right Click to edit PChannel name.\nMute/Unmute. Right click to edit name."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DOWNLOADING_GM      "Downloading General MIDI Collection"
+    IDS_ERR_CREATE_DSOUND   "Conductor: Unable to create DirectSound object.\nPlease install DirectMusic and DirectSound."
+    IDS_ERR_ALLOCATE_PCHANNEL_GROUPSGROUPS 
+                            "Unable to allocate %d PChannel groups on ""%s""- only created %d groups.  Some PChannels may not be available for playback."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_REVERB_UNSUPPORTED "Unable to turn Reverb on for ""%s""."
+    IDS_ERR_CHORUS_UNSUPPORTED "Unable to turn Chorus on for ""%s""."
+    IDS_ERR_CREATE_PORT_INUSE 
+                            "Unable to create connection to ""%s"", the device is already in use.  To fix this, please close all other applications that can play audio on this device."
+    IDS_ERR_PORT_INUSE      "Unable to activate connection to ""%s"", the device is already in use.  To fix this, please close all other applications that can play audio on this device."
+    IDS_ERR_UNKNOWN_CREATE_PORT 
+                            "Unexpected error %x when trying to create connection to ""%s""."
+    IDS_ERR_DSOUND_INUSE    "Unable to connect to ""%s"".  To fix this, please close all other applications that are playing audio."
+    IDS_NO_MIDI_INPUT       "None"
+    IDS_PCHANNEL_GROUP_FORAMT "%d - %d"
+    IDS_ECHOMIDI_MENU_TEXT  "Echo MIDI In"
+    IDS_ECHOMIDI_HELP_TEXT  "Echo MIDI events from the selected input port to the selected output PChannels."
+    IDS_ERROR_NULLFRAMEWORK "Unable to find Framework."
+    IDS_ERROR_NULLTOOLBAR   "Unable to find toolbar."
+    IDS_ERR_UNKNOWN_ACTIVATEPORT 
+                            "Unexpected error %x when trying to activate connection to ""%s""."
+    ID_TRANSP_CURSOR        "Enable or disable tracking the current play position\nToggle Play Cursor"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "DirectMusic Producer"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_ALLOCATE_PCHANNEL_GROUPSONEGROUP 
+                            "Unable to allocate %d PChannel groups on ""%s""- only created 1 group.  Some PChannels may not be available for playback."
+    IDS_ERR_ALLOCATE_PCHANNEL_NOGROUPS 
+                            "Unable to allocate any PChannel groups on ""%s"".  Playback is disabled on this device."
+    IDS_OPTIONSTOOLBAR_MENUTEXT "Tr&ansport Options"
+    IDS_OPTIONSTOOLBAR_TITLE "Transport Options"
+    IDS_OPTIONSTOOLBAR_HELP "Show or hide the Transport Options toolbar"
+    IDS_SYSERR_OPEN         "Error opening '%1'.\n"
+    IDS_SYNTHSTATUS_MENUTEXT "S&ynth Status"
+    IDS_SYNTHSTATUS_TITLE   "Synth Status"
+    IDS_SYNTHSTATUS_HELP    "Show or hide the Synth Status toolbar"
+    IDS_TOOLBAR_FONT        "MS Sans Serif"
+    IDS_SYNTHSTATUS_RESET_BUTTON "Reset"
+    ID_WAVE_FILENAME        "Set path and filename to enable exporting performance (synth output) to wave file\nSet Wave Filename"
+    ID_WAVE_RECORD          "Start or stop export to wave file\nStart or stop export to wave file"
+    IDS_WAVERECORD_MENUTEXT "Wa&ve/MIDI Export Toolbar"
+    IDS_WAVERECORD_TITLE    "Wave/MIDI Export Toolbar"
+    IDS_WAVERECORD_HELP     "Show or hide the Wave/MIDI Export toolbar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WAVEFILE_FILTERDESC "Wave Files (*.wav)"
+    IDS_WAVEFILE_TITLE      "Export to Wave: Set Filename"
+    IDS_WAVEFILE_DEFAULTEXT "WAV"
+    IDS_WAVEFILE_FILTER_EXT "*.wav"
+    IDS_MIDIFILE_FILTERDESC "MIDI Files (*.mid)"
+    IDS_MIDIFILE_TITLE      "Export to MIDI: Set Filename"
+    IDS_MIDIFILE_DEFAULTEXT "MID"
+    IDS_MIDIFILE_FILTER_EXT "*.mid"
+    IDS_ERR_SAMPLE_RATE_MISMATCH 
+                            """%s"" returned a sample rate of %d kHz instead of the requested sample rate of %d kHz."
+    IDS_SYSERR_SAVE         "Error saving '%1'.\n"
+    IDS_ERR_NOT_ALL_FILE_OUTPUT 
+                            "Not all FileOutput DMOs were started successfully.  The following files may be in use by another application or marked as read-only:\n%1"
+    IDS_ERR_APATH_CREATE_STANDARD 
+                            "Unable to create a standard audiopath (Error 0x%1!x!)."
+    IDS_ERR_APATH_CREATENODE 
+                            "Unable to find the chosen audiopath.\nPlease choose a different audiopath."
+    IDS_ERR_APATH_GETCONFIG "Unable to load the chosen audiopath.\nIt may have a send effect with an undefined send destination.\nPlease choose a different audiopath."
+    IDS_ERR_APATH_CREATE_USER 
+                            "Unable to create a user-defined audiopath (Error %1).\nIt may reference a synth, effect, or a hardware capability that does not exist on this machine.\nPlease choose a different audiopath."
+    IDS_ERR_NEED_DX8_FRAMEWORK 
+                            "Unable to find the DirectX 8.0 DirectMusic Producer executable.\nPlease uninstall all versions of DirectMusic Producer, then re-install the DirectX 8.0 version of DirectMusic Producer."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_MIDI_FILENAME        "Set path and filename to enable exporting performance to MIDI file\nSet MIDI Filename"
+    ID_MIDI_EXPORT          "Start or stop export to MIDI file\nStart or stop export to MIDI file. Right click to set start time."
+    IDC_RECORD_MIDI_FILENAME "Name of MIDI file to export\nMIDI Filename"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_INVALID_VOICES  "Please enter a valid number of voices greater than zero."
+    IDS_ERR_INVALID_3D_VOICES "Please enter a valid number of 3D voices."
+    IDS_ERR_APATH_ACTIVATE  "Unable to use the chosen audiopath.\nIt may not contain any PChannels.\nPlease choose a different audiopath."
+    IDS_NO_DEFAULT_SYNTH    "Not Specified (Use DirectMusic Default)"
+    IDS_ERR_APATH_CREATE_USER_NOSENDDEST 
+                            "Unable to create a user-defined audiopath.\nIt may have a send effect with a non-existent send destination, or a send effect loop.\nPlease choose a different audiopath."
+    IDS_ERR_APATH_CREATE_USER_INVALIDARG 
+                            "Unable to create a user-defined audiopath.\nIt may reference an effect that does not exist on this machine,\nor may have an invalid number of channels in a buffer.\nPlease choose a different audiopath."
+    IDS_ERR_APATH_CREATE_USER_NOENVDEST 
+                            "Unable to create a user-defined audiopath.\nIt may have a Standard 3D buffer, but no Environmental Reverb mix group.\nPlease choose a different audiopath."
+    IDS_ERR_APATH_CREATE_USER_NOSYNTH 
+                            "Unable to create a user-defined audiopath.\nIt may reference a synth that does not exist on this machine.\nPlease choose a different audiopath."
+    IDS_LATENCY_TEXT        "ms + %1 ms = %2 ms"
+    IDS_UNKNOWN_LATENCY     "?"
+    IDS_MS_TEXT             "ms"
+    IDS_PCHANNEL_HELP       "%d:"
+    IDS_ERR_CANNOT_CONNECT_XBOX 
+                            "The Microsoft Xbox Synthesizer could not connect to the Xbox.\nLikely causes for this include:\nAudConsole is not running on the Xbox\nThe Xbox name is incorrect in the Xbox Experimenter\n\nWould you like to use only the PC syntheiszer?"
+    IDS_ERR_WRONG_VERSION_XBOX 
+                            "The Microsoft Xbox Synthesizer could not connect to\nthe correct version of AudConsole on the Xbox\n\nWould you like to use only the PC syntheiszer?"
+    IDS_ERR_INVALID_SAMPLERATE 
+                            "Please enter a sample rate between %1!d! and %2!d!."
+    IDS_PC_AUDIO_INIT_SETTINGS "PC Audio Initialization Settings"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SYNTH_VOICES_STATUS "Voices %d Peak %d at %s"
+    IDS_SYNTH_MEMORY_STATUS "Memory Use %dK"
+    IDS_SYNTH_LATENCY_STATUS "Latency %dms"
+    IDS_APATH_MIXBIN_QUAD   "Standard MixBin Quad"
+    IDS_APATH_MIXBIN_QUAD_MUSIC "Standard MixBin Quad + Music Reverb, Chorus"
+    IDS_APATH_MIXBIN_QUAD_ENV "Standard MixBin Quad + Env Reverb"
+    IDS_APATH_MIXBIN_5DOT1  "Standard MixBin 5.1"
+    IDS_APATH_MIXBIN_5DOT1_MUSIC "Standard MixBin 5.1 + Music Reverb, Chorus"
+    IDS_APATH_MIXBIN_5DOT1_ENV "Standard MixBin 5.1 + Env Reverb"
+    IDS_APATH_MIXBIN_STEREO_EFFECTS "Standard MixBin Stereo + Effects"
+    IDS_APATH_3D_WET        "Standard 3D"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+

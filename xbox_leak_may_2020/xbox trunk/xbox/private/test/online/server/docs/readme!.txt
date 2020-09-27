@@ -1,0 +1,1 @@
+Please update http://sts/xbox_online/ (sharepoint) with the latest copies of your documents as well.

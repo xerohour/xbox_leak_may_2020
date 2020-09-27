@@ -1,0 +1,955 @@
+//+-------------------------------------------------------------------------
+//
+//  Microsoft Windows
+//  Copyright (C) Microsoft Corporation, 2000
+//
+//  File: xmlsax.idl
+//
+//--------------------------------------------------------------------------
+
+cpp_quote("//+-------------------------------------------------------------------------")
+cpp_quote("//")
+cpp_quote("//  Microsoft Windows")
+cpp_quote("//  Copyright (C) Microsoft Corporation, 2000.")
+cpp_quote("//")
+cpp_quote("//--------------------------------------------------------------------------")
+
+cpp_quote("#undef ParseURL")
+
+#ifndef DO_NO_IMPORTS
+import "unknwn.idl";
+import "wtypes.idl";
+import "objidl.idl";
+import "oaidl.idl";
+#endif
+
+#include "saxxmldid.h"
+
+interface ISAXXMLReader;
+interface ISAXXMLFilter;
+interface ISAXLocator;
+interface ISAXEntityResolver;
+interface ISAXContentHandler;
+interface ISAXDTDHandler;
+interface ISAXErrorHandler;
+interface ISAXLexicalHandler;
+interface ISAXDeclHandler;
+interface ISAXAttributes;
+
+interface IVBSAXXMLReader;
+interface IVBSAXXMLFilter;
+interface IVBSAXLocator;
+interface IVBSAXEntityResolver;
+interface IVBSAXContentHandler;
+interface IVBSAXDTDHandler;
+interface IVBSAXErrorHandler;
+interface IVBSAXLexicalHandler;
+interface IVBSAXDeclHandler;
+interface IVBSAXAttributes;
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(a4f96ed0-f829-476e-81c0-cdc7bd2a0802), // IID_ISAXXMLReader
+    helpstring("ISAXXMLReader interface"),
+    pointer_default(unique)
+]
+interface ISAXXMLReader : IUnknown
+{
+    HRESULT getFeature( 
+        [in] const wchar_t * pwchName, 
+        [out, retval] VARIANT_BOOL * pvfValue);
+    HRESULT putFeature(
+        [in] const wchar_t * pwchName, 
+        [in] VARIANT_BOOL vfValue);
+
+    HRESULT getProperty(
+        [in] const wchar_t * pwchName,
+        [out, retval] VARIANT * pvarValue);
+    HRESULT putProperty(
+        [in] const wchar_t * pwchName,
+        [in] VARIANT varValue);
+
+    HRESULT getEntityResolver(
+        [out, retval] ISAXEntityResolver ** ppResolver);
+    HRESULT putEntityResolver(
+        [in] ISAXEntityResolver * pResolver);
+
+    HRESULT getContentHandler(
+        [out, retval] ISAXContentHandler ** ppHandler);
+    HRESULT putContentHandler(
+        [in] ISAXContentHandler * pHandler);
+
+    HRESULT getDTDHandler(
+        [out, retval] ISAXDTDHandler ** ppHandler);
+    HRESULT putDTDHandler(
+        [in] ISAXDTDHandler * pHandler);
+
+    HRESULT getErrorHandler(
+        [out, retval] ISAXErrorHandler ** ppHandler);
+    HRESULT putErrorHandler(
+        [in] ISAXErrorHandler * pHandler);
+
+    HRESULT getBaseURL(
+        [out, retval] const wchar_t ** ppwchBaseUrl);
+    HRESULT putBaseURL(
+        [in] const wchar_t * pwchBaseUrl);
+
+    HRESULT getSecureBaseURL(
+        [out, retval] const wchar_t ** ppwchSecureBaseUrl);
+    HRESULT putSecureBaseURL(
+        [in] const wchar_t * pwchSecureBaseUrl);
+
+    HRESULT parse(
+        [in] VARIANT varInput);
+    HRESULT parseURL(
+        [in] const wchar_t * pwchUrl);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(70409222-ca09-4475-acb8-40312fe8d145), // IID_ISAXXMLFilter
+    helpstring("ISAXXMLFilter interface"),
+    pointer_default(unique)
+]
+interface ISAXXMLFilter : ISAXXMLReader
+{
+    HRESULT getParent(
+        [out, retval] ISAXXMLReader ** ppReader);
+    HRESULT putParent(
+        [in] ISAXXMLReader * pReader);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(9b7e472a-0de4-4640-bff3-84d38a051c31), // IID_ISAXLocator
+    helpstring("ISAXLocator interface"),
+    pointer_default(unique)
+]
+interface ISAXLocator : IUnknown
+{   
+    HRESULT getColumnNumber(
+        [out, retval] int * pnColumn);
+
+    HRESULT getLineNumber(
+        [out, retval] int * pnLine);
+
+    HRESULT getPublicId(
+        [out, retval] const wchar_t ** ppwchPublicId);
+
+    HRESULT getSystemId(
+        [out, retval] const wchar_t ** ppwchSystemId);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(99bca7bd-e8c4-4d5f-a0cf-6d907901ff07), // IID_ISAXEntityResolver
+    helpstring("ISAXEntityResolver interface"),
+    pointer_default(unique)
+]
+interface ISAXEntityResolver : IUnknown
+{   
+    HRESULT resolveEntity(
+        [in] const wchar_t * pwchPublicId,
+        [in] const wchar_t * pwchSystemId,
+        [out, retval] VARIANT * pvarInput);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(1545cdfa-9e4e-4497-a8a4-2bf7d0112c44), // IID_ISAXContentHandler
+    helpstring("ISAXContentHandler interface"),
+    pointer_default(unique)
+]
+interface ISAXContentHandler : IUnknown
+{
+    HRESULT putDocumentLocator(
+        [in] ISAXLocator * pLocator);
+
+    HRESULT startDocument();
+
+    HRESULT endDocument();
+
+    HRESULT startPrefixMapping(
+        [in] const wchar_t * pwchPrefix,
+        [in] int cchPrefix,
+        [in] const wchar_t * pwchUri,
+        [in] int cchUri);
+
+    HRESULT endPrefixMapping(
+        [in] const wchar_t * pwchPrefix,
+        [in] int cchPrefix);
+
+    HRESULT startElement(
+        [in] const wchar_t * pwchNamespaceUri, 
+        [in] int cchNamespaceUri, 
+        [in] const wchar_t * pwchLocalName, 
+        [in] int cchLocalName, 
+        [in] const wchar_t * pwchQName, 
+        [in] int cchQName, 
+        [in] ISAXAttributes * pAttributes);
+
+    HRESULT endElement(
+        [in] const wchar_t * pwchNamespaceUri, 
+        [in] int cchNamespaceUri, 
+        [in] const wchar_t * pwchLocalName, 
+        [in] int cchLocalName, 
+        [in] const wchar_t * pwchQName, 
+        [in] int cchQName);
+
+    HRESULT characters(
+        [in] const wchar_t * pwchChars, 
+        [in] int cchChars);
+
+    HRESULT ignorableWhitespace(
+        [in] const wchar_t * pwchChars, 
+        [in] int cchChars);
+
+    HRESULT processingInstruction(
+        [in] const wchar_t * pwchTarget, 
+        [in] int cchTarget,
+        [in] const wchar_t * pwchData, 
+        [in] int cchData);
+
+    HRESULT skippedEntity(
+        [in] const wchar_t * pwchName, 
+        [in] int cchName);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(e15c1baf-afb3-4d60-8c36-19a8c45defed), // IID_ISAXDTDHandler
+    helpstring("ISAXDTDHandler interface"),
+    pointer_default(unique)
+]
+interface ISAXDTDHandler : IUnknown
+{   
+    HRESULT notationDecl(
+        [in] const wchar_t * pwchName,
+        [in] int cchName,
+        [in] const wchar_t * pwchPublicId,
+        [in] int cchPublicId,
+        [in] const wchar_t * pwchSystemId,
+        [in] int cchSystemId);
+
+    HRESULT unparsedEntityDecl(
+        [in] const wchar_t * pwchName,
+        [in] int cchName,
+        [in] const wchar_t * pwchPublicId,
+        [in] int cchPublicId,
+        [in] const wchar_t * pwchSystemId,
+        [in] int cchSystemId,
+        [in] const wchar_t * pwchNotationName,
+        [in] int cchNotationName);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(a60511c4-ccf5-479e-98a3-dc8dc545b7d0), // IID_ISAXErrorHandler
+    helpstring("ISAXErrorHandler interface"),
+    pointer_default(unique)
+]
+interface ISAXErrorHandler : IUnknown
+{   
+    //void error(SAXParserException exception)
+    HRESULT error(
+        [in] ISAXLocator * pLocator, 
+        [in] IErrorInfo * pErrorInfo,
+        [in] HRESULT hrErrorCode);
+
+    //void fatalError(SAXParseException exception)
+    HRESULT fatalError(
+        [in] ISAXLocator * pLocator, 
+        [in] IErrorInfo * pErrorInfo,
+        [in] HRESULT hrErrorCode);
+
+    // void warning(SAXParseException exception)
+    HRESULT warning(
+        [in] ISAXLocator * pLocator, 
+        [in] IErrorInfo * pErrorInfo,
+        [in] HRESULT hrErrorCode);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(7f85d5f5-47a8-4497-bda5-84ba04819ea6), // IID_ISAXLexicalHandler
+    helpstring("ISAXLexicalHandler interface"),
+    pointer_default(unique)
+]
+interface ISAXLexicalHandler : IUnknown 
+{
+    HRESULT startDTD(
+        [in] const wchar_t * pwchName,
+        [in] int cchName,
+        [in] const wchar_t * pwchPublicId,
+        [in] int cchPublicId,
+        [in] const wchar_t * pwchSystemId,
+        [in] int cchSystemId);
+
+    HRESULT endDTD();
+    
+    HRESULT startEntity(
+        [in] const wchar_t * pwchName,
+        [in] int cchName);
+
+    HRESULT endEntity(
+        [in] const wchar_t * pwchName,
+        [in] int cchName);
+    
+    HRESULT startCDATA();
+
+    HRESULT endCDATA();
+    
+    HRESULT comment(
+        [in] const wchar_t * pwchChars, 
+        [in] int cchChars);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(862629ac-771a-47b2-8337-4e6843c1be90), // IID_ISAXDeclHandler
+    helpstring("ISAXDeclHandler interface"),
+    pointer_default(unique)
+]
+interface ISAXDeclHandler : IUnknown 
+{
+    HRESULT elementDecl(
+        [in] const wchar_t * pwchName,
+        [in] int cchName,
+        [in] const wchar_t * pwchModel,
+        [in] int cchModel);
+    
+    HRESULT attributeDecl(
+        [in] const wchar_t * pwchElementName,
+        [in] int cchElementName,
+        [in] const wchar_t * pwchAttributeName,
+        [in] int cchAttributeName,
+        [in] const wchar_t * pwchType,
+        [in] int cchType,
+        [in] const wchar_t * pwchValueDefault,
+        [in] int cchValueDefault,
+        [in] const wchar_t * pwchValue,
+        [in] int cchValue);
+    
+    HRESULT internalEntityDecl(
+        [in] const wchar_t * pwchName,
+        [in] int cchName,
+        [in] const wchar_t * pwchValue,
+        [in] int cchValue);
+
+    HRESULT externalEntityDecl(
+        [in] const wchar_t * pwchName,
+        [in] int cchName,
+        [in] const wchar_t * pwchPublicId,
+        [in] int cchPublicId,
+        [in] const wchar_t * pwchSystemId,
+        [in] int cchSystemId);
+};
+
+[
+    hidden, 
+    object,
+    local,
+    uuid(f078abe1-45d2-4832-91ea-4466ce2f25c9), // IID_ISAXAttributes
+    helpstring("ISAXAttributes interface"),
+    pointer_default(unique)
+]
+interface ISAXAttributes : IUnknown
+{   
+    //public abstract int getLength ();
+    HRESULT getLength(
+        [out, retval] int * pnLength);
+
+    //public abstract String getURI (int index);
+    HRESULT getURI(
+        [in] int nIndex,
+        [out] const wchar_t ** ppwchUri,
+        [out] int * pcchUri);
+
+    //public abstract String getLocalName (int index);
+    HRESULT getLocalName(
+        [in] int nIndex,
+        [out] const wchar_t ** ppwchLocalName,
+        [out] int * pcchLocalName);
+
+    //public abstract String getQName (int index);
+    HRESULT getQName(
+        [in] int nIndex,
+        [out] const wchar_t ** ppwchQName,
+        [out] int * pcchQName);
+
+    HRESULT getName(
+        [in] int nIndex,
+        [out] const wchar_t ** ppwchUri,
+        [out] int * pcchUri,
+        [out] const wchar_t ** ppwchLocalName,
+        [out] int * pcchLocalName,
+        [out] const wchar_t ** ppwchQName,
+        [out] int * pcchQName);
+
+    //public int getIndex (String uri, String localPart);
+    HRESULT getIndexFromName(
+        [in] const wchar_t * pwchUri,
+        [in] int cchUri,
+        [in] const wchar_t * pwchLocalName,
+        [in] int cchLocalName,
+        [out, retval] int * pnIndex);
+
+    //public int getIndex (String rawName);
+    HRESULT getIndexFromQName(
+        [in] const wchar_t * pwchQName,
+        [in] int cchQName,
+        [out, retval] int * pnIndex);
+
+    //public abstract String getType (int index);
+    HRESULT getType(
+        [in] int nIndex,
+        [out] const wchar_t ** ppwchType,
+        [out] int * pcchType);
+
+    //public abstract String getType (String uri, String localName);
+    HRESULT getTypeFromName(
+        [in] const wchar_t * pwchUri,
+        [in] int cchUri,
+        [in] const wchar_t * pwchLocalName,
+        [in] int cchLocalName,
+        [out] const wchar_t ** ppwchType,
+        [out] int * pcchType);
+
+    //public abstract String getType (String rawName);
+    HRESULT getTypeFromQName(
+        [in] const wchar_t * pwchQName,
+        [in] int cchQName,
+        [out] const wchar_t ** ppwchType,
+        [out] int * pcchType);
+
+    //public abstract String getValue (int index);
+    HRESULT getValue(
+        [in] int nIndex,
+        [out] const wchar_t ** ppwchValue,
+        [out] int * pcchValue);
+
+    //public abstract String getValue (String uri, String localName);
+    HRESULT getValueFromName(
+        [in] const wchar_t * pwchUri,
+        [in] int cchUri,
+        [in] const wchar_t * pwchLocalName,
+        [in] int cchLocalName,
+        [out] const wchar_t ** ppwchValue,
+        [out] int * pcchValue);
+
+    //public abstract String getValue (String rawName);
+    HRESULT getValueFromQName(
+        [in] const wchar_t * pwchQName,
+        [in] int cchQName,
+        [out] const wchar_t ** ppwchValue,
+        [out] int * pcchValue);
+};
+
+// SAXXMLReader co-class, version independent
+[
+    hidden, 
+    uuid(079aa557-4a18-424a-8eee-e39f0a8d41b9), // CLSID_SAXXMLReader
+    helpstring("SAX XML Reader (version independent) coclass")
+]
+coclass SAXXMLReader
+{
+    [default] interface ISAXXMLReader;
+};
+
+// SAXXMLReader co-class, 3.0 version dependent
+[
+    hidden, 
+    uuid(3124c396-fb13-4836-a6ad-1317f1713688), // CLSID_SAXXMLReader30
+    helpstring("SAX XML Reader 3.0 coclass")
+]
+coclass SAXXMLReader30
+{
+    [default] interface ISAXXMLReader;
+};
+
+//+-------------------------------------------------------------------------
+//
+// Automation Interface and Objects
+//
+//--------------------------------------------------------------------------
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(8c033caa-6cd6-4f73-b728-4531af74945f), // IID_IVBSAXXMLReader
+    helpstring("IVBSAXXMLReader interface"),
+    pointer_default(unique)
+]
+interface IVBSAXXMLReader : IDispatch
+{
+    [id(DISPID_SAX_XMLREADER_GETFEATURE), helpstring("Look up the value of a feature.")]
+    HRESULT getFeature( 
+        [in] BSTR strName, 
+        [out, retval] VARIANT_BOOL * fValue);
+    [id(DISPID_SAX_XMLREADER_PUTFEATURE), helpstring("Set the state of a feature.")]
+    HRESULT putFeature(
+        [in] BSTR strName, 
+        [in] VARIANT_BOOL fValue);
+
+    [id(DISPID_SAX_XMLREADER_GETPROPERTY), helpstring("Look up the value of a property.")]
+    HRESULT getProperty(
+        [in] BSTR strName,
+        [out, retval] VARIANT * varValue);
+    [id(DISPID_SAX_XMLREADER_PUTPROPERTY), helpstring("Set the value of a property.")]
+    HRESULT putProperty(
+        [in] BSTR strName,
+        [in] VARIANT varValue);
+
+    [propget, id(DISPID_SAX_XMLREADER_ENTITYRESOLVER), helpstring("Allow an application to register an entity resolver or look up the current entity resolver.")]
+    HRESULT entityResolver(
+        [out, retval] IVBSAXEntityResolver ** oResolver);
+    [propputref, id(DISPID_SAX_XMLREADER_ENTITYRESOLVER), helpstring("Allow an application to register an entity resolver or look up the current entity resolver.")]
+    HRESULT entityResolver(
+        [in] IVBSAXEntityResolver * oResolver);
+
+    [propget, id(DISPID_SAX_XMLREADER_CONTENTHANDLER), helpstring("Allow an application to register a content event handler or look up the current content event handler.")]
+    HRESULT contentHandler(
+        [out, retval] IVBSAXContentHandler ** oHandler);
+    [propputref, id(DISPID_SAX_XMLREADER_CONTENTHANDLER), helpstring("Allow an application to register a content event handler or look up the current content event handler")]
+    HRESULT contentHandler(
+        [in] IVBSAXContentHandler * oHandler);
+
+    [propget, id(DISPID_SAX_XMLREADER_DTDHANDLER), helpstring("Allow an application to register a DTD event handler or look up the current DTD event handler.")]
+    HRESULT dtdHandler(
+        [out, retval] IVBSAXDTDHandler ** oHandler);
+    [propputref, id(DISPID_SAX_XMLREADER_DTDHANDLER), helpstring("Allow an application to register a DTD event handler or look up the current DTD event handler.")]
+    HRESULT dtdHandler(
+        [in] IVBSAXDTDHandler * oHandler);
+
+    [propget, id(DISPID_SAX_XMLREADER_ERRORHANDLER), helpstring("Allow an application to register an error event handler or look up the current error event handler.")]
+    HRESULT errorHandler(
+        [out, retval] IVBSAXErrorHandler ** oHandler);
+    [propputref, id(DISPID_SAX_XMLREADER_ERRORHANDLER), helpstring("Allow an application to register an error event handler or look up the current error event handler.")]
+    HRESULT errorHandler(
+        [in] IVBSAXErrorHandler * oHandler);
+
+    [propget, id(DISPID_SAX_XMLREADER_BASEURL), helpstring("Set or get the base URL for the document.")]
+    HRESULT baseURL(
+        [out, retval] BSTR * strBaseURL);
+    [propput, id(DISPID_SAX_XMLREADER_BASEURL), helpstring("Set or get the base URL for the document.")]
+    HRESULT baseURL(
+        [in] BSTR strBaseURL);
+
+    [propget, id(DISPID_SAX_XMLREADER_SECUREBASEURL), helpstring("Set or get the secure base URL for the document.")]
+    HRESULT secureBaseURL(
+        [out, retval] BSTR * strSecureBaseURL);
+    [propput, id(DISPID_SAX_XMLREADER_SECUREBASEURL), helpstring("Set or get the secure base URL for the document.")]
+    HRESULT secureBaseURL(
+        [in] BSTR strSecureBaseURL);
+
+    [id(DISPID_SAX_XMLREADER_PARSE), helpstring("Parse an XML document.")]
+    HRESULT parse(
+        [in] VARIANT varInput);
+    [id(DISPID_SAX_XMLREADER_PARSEURL), helpstring("Parse an XML document from a system identifier (URI).")]
+    HRESULT parseURL(
+        [in] BSTR strURL);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(1299eb1b-5b88-433e-82de-82ca75ad4e04), // IID_IVBSAXXMLFilter
+    helpstring("IVBSAXXMLFilter interface"),
+    pointer_default(unique)
+]
+interface IVBSAXXMLFilter : IDispatch
+{
+    [propget, id(DISPID_SAX_XMLFILTER_PARENT), helpstring("Set or get the parent reader")]
+    HRESULT parent(
+        [out, retval] IVBSAXXMLReader ** oReader);
+    [propputref, id(DISPID_SAX_XMLFILTER_PARENT), helpstring("Set or get the parent reader")]
+    HRESULT parent(
+        [in] IVBSAXXMLReader * oReader);
+
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(796e7ac5-5aa2-4eff-acad-3faaf01a3288), // IID_IVBSAXLocator
+    helpstring("IVBSAXLocator interface"),
+    pointer_default(unique)
+]
+interface IVBSAXLocator : IDispatch
+{   
+    [propget, id(DISPID_SAX_LOCATOR_COLUMNNUMBER), helpstring("Get the column number where the current document event ends.")]
+    HRESULT columnNumber(
+        [out, retval] int * nColumn);
+
+    [propget, id(DISPID_SAX_LOCATOR_LINENUMBER), helpstring("Get the line number where the current document event ends.")]
+    HRESULT lineNumber(
+        [out, retval] int * nLine);
+
+    [propget, id(DISPID_SAX_LOCATOR_PUBLICID), helpstring("Get the public identifier for the current document event.")]
+    HRESULT publicId(
+        [out, retval] BSTR * strPublicId);
+
+    [propget, id(DISPID_SAX_LOCATOR_SYSTEMID), helpstring("Get the system identifier for the current document event.")]
+    HRESULT systemId(
+        [out, retval] BSTR * strSystemId);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(0c05d096-f45b-4aca-ad1a-aa0bc25518dc), // IID_IVBSAXEntityResolver
+    helpstring("IVBSAXEntityResolver interface"),
+    pointer_default(unique)
+]
+interface IVBSAXEntityResolver : IDispatch
+{   
+    [id(DISPID_SAX_ENTITYRESOLVER_RESOLVEENTITY), helpstring("Allow the application to resolve external entities.")]
+    HRESULT resolveEntity(
+        [in] BSTR strPublicId,
+        [in] BSTR strSystemId,
+        [out, retval] VARIANT * varInput);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(2ed7290a-4dd5-4b46-bb26-4e4155e77faa), // IID_IVBSAXContentHandler
+    helpstring("IVBSAXContentHandler interface"),
+    pointer_default(unique)
+]
+interface IVBSAXContentHandler : IDispatch
+{
+    [propputref, id(DISPID_SAX_CONTENTHANDLER_DOCUMENTLOCATOR), helpstring("Receive an object for locating the origin of SAX document events.")]
+    HRESULT documentLocator(
+        [in] IVBSAXLocator * oLocator);
+
+    [id(DISPID_SAX_CONTENTHANDLER_STARTDOCUMENT), helpstring("Receive notification of the beginning of a document.")]
+    HRESULT startDocument();
+
+    [id(DISPID_SAX_CONTENTHANDLER_ENDDOCUMENT), helpstring("Receive notification of the end of a document.")]
+    HRESULT endDocument();
+
+    [id(DISPID_SAX_CONTENTHANDLER_STARTPREFIXMAPPING), helpstring("Begin the scope of a prefix-URI Namespace mapping.")]
+    HRESULT startPrefixMapping(
+        [in] BSTR strPrefix,
+        [in] BSTR strURI);
+
+    [id(DISPID_SAX_CONTENTHANDLER_ENDPREFIXMAPPING), helpstring("End the scope of a prefix-URI mapping.")]
+    HRESULT endPrefixMapping(
+        [in] BSTR strPrefix);
+
+    [id(DISPID_SAX_CONTENTHANDLER_STARTELEMENT), helpstring("Receive notification of the beginning of an element.")]
+    HRESULT startElement(
+        [in] BSTR strNamespaceURI, 
+        [in] BSTR strLocalName,
+        [in] BSTR strQName,
+        [in] IVBSAXAttributes * oAttributes);
+
+    [id(DISPID_SAX_CONTENTHANDLER_ENDELEMENT), helpstring("Receive notification of the end of an element.")]
+    HRESULT endElement(
+        [in] BSTR strNamespaceURI,
+        [in] BSTR strLocalName,
+        [in] BSTR strQName);
+
+    [id(DISPID_SAX_CONTENTHANDLER_CHARACTERS), helpstring("Receive notification of character data.")]
+    HRESULT characters(
+        [in] BSTR strChars);
+
+    [id(DISPID_SAX_CONTENTHANDLER_IGNORABLEWHITESPACE), helpstring("Receive notification of ignorable whitespace in element content.")]
+    HRESULT ignorableWhitespace(
+        [in] BSTR strChars);
+
+    [id(DISPID_SAX_CONTENTHANDLER_PROCESSINGINSTRUCTION), helpstring("Receive notification of a processing instruction.")]
+    HRESULT processingInstruction(
+        [in] BSTR strTarget,
+        [in] BSTR strData);
+
+    [id(DISPID_SAX_CONTENTHANDLER_SKIPPEDENTITY), helpstring("Receive notification of a skipped entity.")]
+    HRESULT skippedEntity(
+        [in] BSTR strName);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(24fb3297-302d-4620-ba39-3a732d850558), // IID_IVBSAXDTDHandler
+    helpstring("IVBSAXDTDHandler interface"),
+    pointer_default(unique)
+]
+interface IVBSAXDTDHandler : IDispatch
+{   
+    [id(DISPID_SAX_DTDHANDLER_NOTATIONDECL), helpstring("Receive notification of a notation declaration event.")]
+    HRESULT notationDecl(
+        [in] BSTR strName,
+        [in] BSTR strPublicId,
+        [in] BSTR strSystemId);
+
+    [id(DISPID_SAX_DTDHANDLER_UNPARSEDENTITYDECL), helpstring("Receive notification of an unparsed entity declaration event.")]
+    HRESULT unparsedEntityDecl(
+        [in] BSTR strName,
+        [in] BSTR strPublicId,
+        [in] BSTR strSystemId,
+        [in] BSTR strNotationName);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(d963d3fe-173c-4862-9095-b92f66995f52), // IID_IVBSAXErrorHandler
+    helpstring("IVBSAXErrorHandler interface"),
+    pointer_default(unique)
+]
+interface IVBSAXErrorHandler : IDispatch
+{   
+    //void error(SAXParserException exception)
+    [id(DISPID_SAX_ERRORHANDLER_ERROR), helpstring("Receive notification of a recoverable error.")]
+    HRESULT error(
+            [in] IVBSAXLocator * oLocator, 
+	    [in] BSTR strError,
+	    [in] long nErrorCode);
+
+    //void fatalError(SAXParseException exception)
+    [id(DISPID_SAX_ERRORHANDLER_FATALERROR), helpstring("Receive notification of a non-recoverable error.")]
+    HRESULT fatalError(
+	    [in] IVBSAXLocator * oLocator, 
+	    [in] BSTR strError,
+	    [in] long nErrorCode);
+
+    // void warning(SAXParseException exception)
+    [id(DISPID_SAX_ERRORHANDLER_WARNING), helpstring("Receive notification of a warning.")]
+    HRESULT warning(
+	    [in] IVBSAXLocator * oLocator, 
+	    [in] BSTR strError,
+	    [in] long nErrorCode);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(032aac35-8c0e-4d9d-979f-e3b702935576), // IID_IVBSAXLexicalHandler
+    helpstring("IVBSAXLexicalHandler interface"),
+    pointer_default(unique)
+]
+interface IVBSAXLexicalHandler : IDispatch 
+{
+    [id(DISPID_SAX_LEXICALHANDLER_STARTDTD), helpstring("Report the start of DTD declarations, if any.")]
+    HRESULT startDTD(
+        [in] BSTR strName,
+        [in] BSTR strPublicId,
+        [in] BSTR strSystemId);
+    [id(DISPID_SAX_LEXICALHANDLER_ENDDTD), helpstring("Report the end of DTD declarations.")]
+    HRESULT endDTD();
+    
+    [id(DISPID_SAX_LEXICALHANDLER_STARTENTITY), helpstring("Report the beginning of some internal and external XML entities.")]
+    HRESULT startEntity(
+        [in] BSTR strName);
+    [id(DISPID_SAX_LEXICALHANDLER_ENDENTITY), helpstring("Report the end of an entity.")]
+    HRESULT endEntity(
+        [in] BSTR strName);
+
+    [id(DISPID_SAX_LEXICALHANDLER_STARTCDATA), helpstring("Report the start of a CDATA section.")]    
+    HRESULT startCDATA();
+    [id(DISPID_SAX_LEXICALHANDLER_ENDCDATA), helpstring("Report the end of a CDATA section.")]
+    HRESULT endCDATA();
+
+    [id(DISPID_SAX_LEXICALHANDLER_COMMENT), helpstring("Report an XML comment anywhere in the document.")]    
+    HRESULT comment(
+        [in] BSTR strChars);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(e8917260-7579-4be1-b5dd-7afbfa6f077b), // IID_IVBSAXDeclHandler
+    helpstring("IVBSAXDeclHandler interface"),
+    pointer_default(unique)
+]
+interface IVBSAXDeclHandler : IDispatch 
+{
+    [id(DISPID_SAX_DECLHANDLER_ELEMENTDECL), helpstring("Report an element type declaration.")]
+    HRESULT elementDecl(
+        [in] BSTR strName,
+        [in] BSTR strModel);
+    
+    [id(DISPID_SAX_DECLHANDLER_ATTRIBUTEDECL), helpstring("Report an attribute type declaration.")]
+    HRESULT attributeDecl(
+        [in] BSTR strElementName,
+        [in] BSTR strAttributeName,
+        [in] BSTR strType,
+        [in] BSTR strValueDefault,
+        [in] BSTR strValue);
+
+    [id(DISPID_SAX_DECLHANDLER_INTERNALENTITYDECL), helpstring("Report an internal entity declaration.")]    
+    HRESULT internalEntityDecl(
+        [in] BSTR strName,
+        [in] BSTR strValue);
+
+    [id(DISPID_SAX_DECLHANDLER_EXTERNALENTITYDECL), helpstring("Report a parsed external entity declaration.")]
+    HRESULT externalEntityDecl(
+        [in] BSTR strName,
+        [in] BSTR strPublicId,
+        [in] BSTR strSystemId);
+};
+
+[
+    object,
+    local,
+    odl, 
+    dual,
+    oleautomation,
+    nonextensible,
+    uuid(10dc0586-132b-4cac-8bb3-db00ac8b7ee0), // IID_IVBSAXAttributes
+    helpstring("IVBSAXAttributes interface"),
+    pointer_default(unique)
+]
+interface IVBSAXAttributes : IDispatch
+{   
+    //public abstract int getLength ();
+    [propget, id(DISPID_SAX_ATTRIBUTES_LENGTH), helpstring("Get the number of attributes in the list.")]
+    HRESULT length(
+        [out, retval] int * nLength);
+
+    //public abstract String getURI (int index);
+    [id(DISPID_SAX_ATTRIBUTES_GETURI), helpstring("Look up an attribute's Namespace URI by index.")]
+    HRESULT getURI(
+        [in] int nIndex,
+        [out, retval] BSTR * strURI);
+
+    //public abstract String getLocalName (int index);
+    [id(DISPID_SAX_ATTRIBUTES_GETLOCALNAME), helpstring("Look up an attribute's local name by index.")]
+    HRESULT getLocalName(
+        [in] int nIndex,
+        [out, retval] BSTR * strLocalName);
+
+    //public abstract String getQName (int index);
+    [id(DISPID_SAX_ATTRIBUTES_GETQNAME), helpstring("Look up an attribute's XML 1.0 qualified name by index.")]
+    HRESULT getQName(
+        [in] int nIndex,
+        [out, retval] BSTR * strQName);
+
+    //public int getIndex (String uri, String localPart);
+    [id(DISPID_SAX_ATTRIBUTES_GETINDEXFROMNAME), helpstring("Look up the index of an attribute by Namespace name.")]
+    HRESULT getIndexFromName(
+        [in] BSTR strURI,
+        [in] BSTR strLocalName,
+        [out, retval] int * nIndex);
+
+    //public int getIndex (String rawName);
+    [id(DISPID_SAX_ATTRIBUTES_GETINDEXFROMQNAME), helpstring("Look up the index of an attribute by XML 1.0 qualified name.")]
+    HRESULT getIndexFromQName(
+        [in] BSTR strQName,
+        [out, retval] int * nIndex);
+
+    //public abstract String getType (int index);
+    [id(DISPID_SAX_ATTRIBUTES_GETTYPE), helpstring("Look up an attribute's type by index.")]
+    HRESULT getType(
+        [in] int nIndex,
+        [out, retval] BSTR * strType);
+
+    //public abstract String getType (String uri, String localName);
+    [id(DISPID_SAX_ATTRIBUTES_GETTYPEFROMNAME), helpstring("Look up an attribute's type by Namespace name.")]
+    HRESULT getTypeFromName(
+        [in] BSTR strURI,
+        [in] BSTR strLocalName,
+        [out, retval] BSTR * strType);
+
+    //public abstract String getType (String rawName);
+    [id(DISPID_SAX_ATTRIBUTES_GETTYPEFROMQNAME), helpstring("Look up an attribute's type by XML 1.0 qualified name.")]
+    HRESULT getTypeFromQName(
+        [in] BSTR strQName,
+        [out, retval] BSTR * strType);
+
+    //public abstract String getValue (int index);
+    [id(DISPID_SAX_ATTRIBUTES_GETVALUE), helpstring("Look up an attribute's value by index.")]
+    HRESULT getValue(
+        [in] int nIndex,
+        [out, retval] BSTR * strValue);
+
+    //public abstract String getValue (String uri, String localName);
+    [id(DISPID_SAX_ATTRIBUTES_GETVALUEFROMNAME), helpstring("Look up an attribute's value by Namespace name.")]
+    HRESULT getValueFromName(
+        [in] BSTR strURI,
+        [in] BSTR strLocalName,
+        [out, retval] BSTR * strValue);
+
+    //public abstract String getValue (String rawName);
+    [id(DISPID_SAX_ATTRIBUTES_GETVALUEFROMQNAME), helpstring("Look up an attribute's value by XML 1.0 qualified name.")]
+    HRESULT getValueFromQName(
+        [in] BSTR strQName,
+        [out, retval] BSTR * strValue);
+};
+
+// VBSAXXMLReader co-class, version independent
+[
+    uuid(e03da27e-945d-4ed8-b960-5695dac43e72), // CLSID_VBSAXXMLReader
+    helpstring("VBSAX XML Reader (version independent) coclass")
+]
+coclass VBSAXXMLReader
+{
+    [default] interface IVBSAXXMLReader;
+};
+
+// VBSAXXMLReader co-class, 3.0 version dependent
+[
+    uuid(b8487c57-f98a-40f8-a511-dfb9bd8a5186), // CLSID_VBSAXXMLReader30
+    helpstring("VBSAX XML Reader 3.0 coclass")
+]
+coclass VBSAXXMLReader30
+{
+    [default] interface IVBSAXXMLReader;
+};
+

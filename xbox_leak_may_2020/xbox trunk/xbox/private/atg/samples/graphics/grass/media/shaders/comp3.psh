@@ -1,0 +1,7 @@
+; 3-way premultiplied-alpha composite
+ps.1.0
+tex t0
+tex t1
+tex t2
+mad r1, t1, 1-t1.a, t0	; r1 = t1 over t0
+mad r0, t2, 1-t2.a, r1	; r0 = t2 over (t1 over t0)

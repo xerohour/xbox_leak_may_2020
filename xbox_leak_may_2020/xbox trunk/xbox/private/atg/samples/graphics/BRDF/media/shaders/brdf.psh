@@ -1,0 +1,14 @@
+; This is actually minneart reflections
+ps.1.0
+
+tex        t0	     ; Normalization cubemap
+texm3x2pad t1,t0_bx2 ; Dot normal with light vector (S coordinate)
+texm3x2tex t2,t0_bx2 ; Dot normal with eye vector (T coordinate)
+tex        t3        ; Grab normal again
+
+;dp3_sat r1, c0_bx2, t3_bx2
+dp3 r1, c0_bx2, t3_bx2
+mul r0, r1, t2	     ; Multiply in darkening limbs
+;mul r0, r1_sat, t2	     ; Multiply in darkening limbs
+mul_x2 r0, r0, v0    ; Multiply by diffuse (should be minnaert) color
+

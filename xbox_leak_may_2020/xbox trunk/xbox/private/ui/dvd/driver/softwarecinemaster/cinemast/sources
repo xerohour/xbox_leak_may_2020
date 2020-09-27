@@ -1,0 +1,35 @@
+TARGETNAME = cinemlib$(D)
+
+SYNCHRONIZE_DRAIN = 1
+
+SOURCES    = Cinmst32.cpp \
+             ..\DVDStreamDecoder.cpp
+
+OBJLIBFILES = \
+..\AC3Decoder\$(O)\AC3Decoder.lib \
+..\Audio\$(O)\audio.lib \
+..\ClosedCaption\$(O)\ClosedCaption.lib \
+..\Common\$(O)\common.lib \
+..\LPCMDecoder\$(O)\LPCMDecoder.lib \
+..\MPEGAudioDecoder\$(O)\MPEGAudioDecoder.lib \
+..\MPEGDecoder\$(O)\MPEGDecoder.lib \
+..\SPUDecoder\$(O)\SPUDecoder.lib \
+..\Video\$(O)\Video.lib \
+..\WinSockPerfMon\$(O)\WinSockPerfMon.lib \
+..\DecryptionLib\Decryptionlibxbox.lib \
+..\..\..\library\common\$(O)\dvdlibcommon.lib \
+..\..\..\library\support\vdsup32\win32\$(O)\vdsup32.lib \
+..\..\..\library\support\winsock\$(O)\libsupwinsock.lib
+
+
+INCLUDES   = $(INCLUDES);..\..\..
+
+TARGETPATH = obj
+TARGETTYPE = LIBRARY
+UMTYPE     = xbox
+
+C_DEFINES=$(C_DEFINES) -DDECRYPTION=1
+
+USE_NATIVE_EH = 1
+
+NOT_UNICODE = 1

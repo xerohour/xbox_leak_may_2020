@@ -1,0 +1,84 @@
+/////////////////////////////////////////////////////////////////////////////
+// Internal version of appdefs.h compiled into shell.odl.
+//  We need a separate internal version to hide helpstringcontext
+//  from the user.  C++ source files should #include appdefs.h, NOT this file
+// THE ENUMS IN THIS FILE MUST BE KEPT IN SYNC WITH THOSE IN
+//  IDE\PKGS\INCLUDE\OBJMODEL\APPDEFS.H
+
+#ifndef __APPDEFS_ODH__
+#define __APPDEFS_ODH__
+
+// Only put in helpstrings if we are running mktyplib
+#if defined(__MKTYPLIB__)
+#define DsHelpString(n) [ helpstringcontext(n) ]
+#else
+#define DsHelpString(xx)
+#endif // __MKTYPLIB__
+
+#if defined(__MIDL__) && !defined(__SHELL_ODL__)
+#define HIDE_TYPEDEF [ hidden ]
+#else
+#define HIDE_TYPEDEF
+#endif
+
+///////////////////////////////////////////////////////////////////////
+//
+// Enumerations used by Automation Methods
+//
+
+// Application.WindowState
+HIDE_TYPEDEF
+typedef DsHelpString(IDS_HS_DSWINDOWSTATE) enum tagDSWINDOWSTATE
+{
+	DsHelpString(IDS_HS_DSWINDOWSTATE_MAXIMIZED)	dsWindowStateMaximized	= 1,
+	DsHelpString(IDS_HS_DSWINDOWSTATE_MINIMIZED)	dsWindowStateMinimized	= 2,	
+	DsHelpString(IDS_HS_DSWINDOWSTATE_NORMAL)		dsWindowStateNormal		= 3,
+} DsWindowState;
+
+
+// Windows.Arrange()
+HIDE_TYPEDEF
+typedef DsHelpString(IDS_HS_DSARRANGESTYE) enum tagDSARRANGESTYLE
+{
+	DsHelpString(IDS_HS_DSARRANGESTYE_MINIMIZE)			dsMinimize			= 1,
+	DsHelpString(IDS_HS_DSARRANGESTYE_TILEHORIZONTAL)	dsTileHorizontal	= 2,
+	DsHelpString(IDS_HS_DSARRANGESTYE_TILEVERTICAL)		dsTileVertical		= 3,
+	DsHelpString(IDS_HS_DSARRANGESTYE_CASCADE)			dsCascade			= 4
+} DsArrangeStyle ;
+
+// Application.AddCommandBarButton
+HIDE_TYPEDEF
+typedef DsHelpString(IDS_HS_DSBUTTONTYPE) enum tagDSBUTTONTYPE
+{
+	DsHelpString(IDS_HS_DSBUTTONTYPE_GLYPH)	dsGlyph			= 1,
+	DsHelpString(IDS_HS_DSBUTTONTYPE_TEXT)	dsText			= 2
+} DsButtonType;
+
+// Save, Close, SaveAll CloseAll
+HIDE_TYPEDEF
+typedef DsHelpString(IDS_HS_DSSAVECHANGES) enum tagDSSAVECHANGES
+{
+	DsHelpString(IDS_HS_DSSAVECHANGES_YES)		dsSaveChangesYes	= 1, 
+	DsHelpString(IDS_HS_DSSAVECHANGES_NO)		dsSaveChangesNo		= 2,
+	DsHelpString(IDS_HS_DSSAVECHANGES_PROMPT)	dsSaveChangesPrompt	= 3
+} DsSaveChanges ;
+
+// Return value for Save, Close, SaveAll, CloseAll
+HIDE_TYPEDEF
+typedef DsHelpString(IDS_HS_DSAVESTATUS) enum tagDSSAVESTATUS
+{
+	DsHelpString(IDS_HS_DSAVESTATUS_SUCCEEDED)	dsSaveSucceeded = 1,	// The Save was successful.
+	DsHelpString(IDS_HS_DSAVESTATUS_CANCELED)	dsSaveCanceled = 2		//
+} DsSaveStatus;
+
+#ifdef __MKTYPLIB__ // Do the following if maketyplib is processing.
+
+#ifdef _DEBUG
+	#define DEVSHL_DLL "devshld.dll"
+#else
+	#define DEVSHL_DLL "devshl.dll"
+#endif
+
+#endif // __MKTYPLIB__
+
+#endif //__APPDEFS_ODH__

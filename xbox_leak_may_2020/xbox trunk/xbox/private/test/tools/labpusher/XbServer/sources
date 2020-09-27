@@ -1,0 +1,34 @@
+TARGETNAME=xbserver
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS= /INITFLAGS:0 /TESTID:0x1AB00000 /TESTNAME:"LabPusher Server"
+
+SOURCES=\
+    flashrom.cpp \
+    graphics.cpp \
+    mapdrives.cpp \
+    setled.cpp \
+    xbserver.cpp
+
+
+INCLUDES = $(DDK_INC_PATH);                     \
+           $(SDK_INC_PATH);                     \
+           $(INCLUDES);                         \
+           $(BASEDIR)\private\ntos\inc;         \
+           $(BASEDIR)\private\ntos\xapi\inc;    \
+           $(BASEDIR)\private\inc;              \
+           $(BASEDIR)\private\inc\crypto;       \
+           $(BASEDIR)\private\test\inc
+
+TARGETLIBS=\
+    $(SDK_LIB_PATH)\xboxkrnl.lib        \
+    $(SDK_LIB_PATH)\libcntpr.lib        \
+    $(SDK_LIB_PATH)\d3dx8d.lib           \
+    $(SDK_LIB_PATH)\xapilibd.lib           \
+    $(SDK_LIB_PATH)\xnetd.lib           \
+    $(SDK_LIB_PATH)\d3d8d.lib           \
+    $(SDK_LIB_PATH)\xbdm.lib           \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib
+

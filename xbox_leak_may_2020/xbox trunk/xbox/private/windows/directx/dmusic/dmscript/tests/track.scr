@@ -1,0 +1,67 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim seg
+dim C
+dim G
+dim Walk
+
+sub HitIt
+	G = 8
+	Walk = 1
+	set seg = LoadSegment("track.sgt")
+	seg.Download
+	PlaySegment seg, DMUS_SEGF_MEASURE
+end sub
+
+sub CloneIt
+	G = 8
+	Walk = 1
+	set segC = LoadSegment("track.sgt")
+	set seg = segC.Clone(3072)
+	seg.Download
+	PlaySegment seg, DMUS_SEGF_MEASURE
+end sub
+
+sub EndG
+	if G = 7 then
+		Walk = 0
+	end if
+
+	if G > 7 and Walk > 0 then
+		G = 0
+		C = 0
+	end if
+
+	' Fall through to c the 1st and 3rd times
+	' Go to D the 5th time
+	' Otherwise loop back to G
+	G = G + 1
+	if G <> 1 and G <> 3 then
+		dest = 0
+		if G = 5 then
+			dest = 6144
+		end if
+
+		seg.SetStartPoint dest
+		PlaySegment seg, DMUS_SEGF_MEASURE
+	end if
+end sub
+
+sub EndC
+	' Stay on C the second time
+	' Otherwise loop back to G
+	C = C + 1
+	dest = 0
+	if C = 2 then
+		dest = 3072
+	end if
+
+	seg.SetStartPoint dest
+	PlaySegment seg, DMUS_SEGF_MEASURE
+end sub
+
+sub EndD
+	' Always go back to C
+	seg.SetStartPoint 3072
+	PlaySegment seg, DMUS_SEGF_MEASURE
+end sub

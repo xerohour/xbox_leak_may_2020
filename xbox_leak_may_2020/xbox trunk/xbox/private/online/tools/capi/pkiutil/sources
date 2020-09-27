@@ -1,0 +1,50 @@
+MAJORCOMP=online
+MINORCOMP=pkiutil
+
+TARGETNAME=pkiutil
+TARGETTYPE=LIBRARY
+
+TARGETPATH=$(BASEDIR)\private\online\client\lib
+
+# NOT_UNICODE=1
+
+C_DEFINES=-D_WINDOWS -DUNDER_CE -DCE_BUILD
+
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=\
+    ..\include;\
+    ..\..\asn1\inc;\
+    $(BASEDIR)\private\online\client\inc;\
+    $(BASEDIR)\private\online\common\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\public\sdk\inc
+
+PRECOMPILED_INCLUDE = global.hxx
+PRECOMPILED_PCH =     global.pch
+PRECOMPILED_OBJ =     pkglobal.obj
+
+SOURCES= \
+    pkiasn1.cpp     \
+    asn1util.cpp    \
+    list.cpp        \
+    new.cpp         \
+    utf8.cpp        \
+    pkialloc.cpp    \
+    capi.cpp        \
+    reg.cpp         \
+    reghkcu.c
+
+#    ceutils.cpp     \
+#    reghkcu.c       \
+
+NTSOURCES= \
+    filever.cpp
+

@@ -1,0 +1,107 @@
+; Generates a distorion in z based on the input x and y coordinates
+; distortion is generated from sin and cosine functions.
+; a normal is also calculated which then looks into a cubic environment map, using
+; generated texture coordinates.  This normal is also used for lighting
+; Note that the input vertex is simply 2 floats - the z coordinate, and the
+; normal/texture coordinates are all generated here.
+#include "sinewave.h"
+
+#define R_EYE_NORMAL r9
+#define R_EYE_VECTOR r7
+#define R_EYE_VERTEX r10
+#define R_DOT2 r5
+
+vs.1.0
+
+; Decompress position
+mov r0, v0;
+mov r0.z, c[CV_ZERO].z
+
+; Compute theta from distance and time
+mov r4.xy, r0
+mov r4.zw, c[CV_ZERO].z
+dp3 r4.x, r4, r4     ; d2
+rsq r4.x, r4.x
+rcp r4.x, r4.x       ; d
+mov r9, r4.x
+
+mul r4, r4, c[CV_VECA].x     ; scale by time
+
+; Clamp theta to -pi..pi
+add r4.x, r4.x, c[CV_VECD].x
+mul r4.x, r4.x, c[CV_VECD].y
+expp r6.y, r4.x		; get fractional part
+mul r4.x, r6.y, c[CV_VECD].z
+add r4.x, r4.x,-c[CV_VECD].x
+
+; Compute first 4 values in sin and cos series
+mov r5.x, c[CV_VECA].w ; d^0
+mov r4.x, r4.x       ; d^1
+mul r5.y, r4.x, r4.x ; d^2
+mul r4.y, r4.x, r5.y ; d^3
+mul r5.z, r5.y, r5.y ; d^4
+mul r4.z, r4.x, r5.z ; d^5
+mul r5.w, r5.y, r5.z ; d^6
+mul r4.w, r4.x, r5.w ; d^7
+
+mul r4, r4, c[CV_VECSIN]      ; sin
+dp4 r4.x, r4, c[CV_VECA].w
+
+mul r5, r5, c[CV_VECCOS]      ; cos
+dp4 r5.x, r5, c[CV_VECA].w
+
+; Scale height
+mul r0.z, r4.x, c[CV_VECD].w
+
+; Transform position
+dp4 oPos.x, r0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, r0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, r0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, r0, c[CV_WORLDVIEWPROJ_3]
+
+; Transform eye vector
+dp4 R_EYE_VERTEX.x, v0, c[CV_WORLDVIEW_0]
+dp4 R_EYE_VERTEX.y, v0, c[CV_WORLDVIEW_1]
+dp4 R_EYE_VERTEX.z, v0, c[CV_WORLDVIEW_2]
+dp4 R_EYE_VERTEX.w, v0, c[CV_WORLDVIEW_3]
+
+; Create R_EYE_VECTOR, the normalized vector from the eye to the vertex
+dp3 R_EYE_VECTOR.w, R_EYE_VERTEX, R_EYE_VERTEX
+rsq R_EYE_VECTOR.w, R_EYE_VECTOR.w		
+mul R_EYE_VECTOR, R_EYE_VERTEX, R_EYE_VECTOR.w
+
+; Texgen
+; 1 / d
+rcp r9.w, r9.w
+
+; norm x dist = x * (1 / d)
+mul r9.x, v0.x, r9.w
+
+; norm y dist = y * (1 / d)
+mul r9.y, v0.y, r9.w
+
+; generate normal
+mul r8.x, r5.x, r9.x ; x = (x / d) * sin d
+mul r8.y, r5.x, r9.y ; y = (y / d) * sin d
+mov r8.zw, c[CV_ONE].x		 ; z = 1
+
+mov oD0, r8
+
+; transform to eye
+dp3 R_EYE_NORMAL.x, r8, c[CV_WORLDVIEWIT_0]
+dp3 R_EYE_NORMAL.y, r8, c[CV_WORLDVIEWIT_1]
+dp3 R_EYE_NORMAL.z, r8, c[CV_WORLDVIEWIT_2]
+
+; normalize normal
+dp3 R_EYE_NORMAL.w, R_EYE_NORMAL, R_EYE_NORMAL
+rsq R_EYE_NORMAL.w, R_EYE_NORMAL.w
+mul R_EYE_NORMAL, R_EYE_NORMAL, R_EYE_NORMAL.w
+
+; Calculate E - 2*(E dot N)*N
+dp3 R_DOT2, R_EYE_VECTOR, R_EYE_NORMAL
+add R_DOT2, R_DOT2, R_DOT2
+mul R_EYE_NORMAL, R_EYE_NORMAL, R_DOT2
+add oT0, R_EYE_VECTOR, -R_EYE_NORMAL
+mov oT0.w, c[CV_ONE].x
+
+

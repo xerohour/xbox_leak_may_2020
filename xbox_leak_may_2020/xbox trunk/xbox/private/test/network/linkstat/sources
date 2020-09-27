@@ -1,0 +1,48 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+TARGETNAME=linkstat
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_STL=1
+USE_NATIVE_EH=1
+
+MEDIADIR=$(BASEDIR)\private\online\tools\ui\media
+
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:"Ethernet Link Status Tool"
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(PRIVATE_INC_PATH); \
+    $(BASEDIR)\private\online\tools\ui\inc; \
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\xnet$(S)$(D).lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(SDK_LIB_PATH)\userinterface$(D).lib
+
+SOURCES=\
+    main.cpp

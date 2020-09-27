@@ -1,0 +1,130 @@
+<!--
+
+    GhProfiler Report
+    (C) 2000 Microsoft
+    Josh Poley
+
+-->
+
+<HTML>
+<HEAD>
+    <TITLE>GhProfiler Report</TITLE>
+
+    <!--
+    TODO
+        * 
+    -->
+
+    <STYLE><!--
+        A:link {  color:#00FF00; text-decoration: none; }
+        A:visited {  color:#00AA00; text-decoration: none; }
+        A:hover { text-decoration:underline; }
+        BODY { background-color:#FFFFFF; color:#000000; font:9pt Arial; }
+        TD { font:8pt Courier New; vertical-align: top; text-align:left; }
+        TH { font:bold 11pt Arial; cursor:hand; }
+        .NUMBERCOLUMN { text-align:right; }
+        .ROW0 { background-color:#DDDD99; }
+        .ROW1 {  background-color:#DDDDDD; }
+    --></STYLE>
+
+</HEAD>
+
+<XML ID=xmlReport></XML>
+
+<SCRIPT LANGUAGE=JavaScript>
+
+var xmlfile = "GhReport.xml";
+
+xmlReport.async = false;
+xmlReport.load(xmlfile);
+var resolution = xmlReport.getElementsByTagName("Resolution").item(0).text;
+
+var SORT_NAME       = 0;
+var SORT_HITCOUNT   = 1;
+var SORT_AVGTIME    = 2;
+var SORT_CHILDTIME  = 3;
+
+var results = new Array;
+var sortType = -1;
+var sortDirection = 1;
+
+function Summary(name, hit, time, child)
+    {
+    this.name = name;
+    this.hitCount = hit;
+    this.avgTime = time;
+    this.childTime = child;
+    }
+
+function SortSummary(o1, o2)
+    {
+    if(sortType == SORT_NAME)
+        {
+        if(o1.name < o2.name) return -sortDirection;
+        if(o1.name > o2.name) return sortDirection;
+        return 0;
+        }
+    else if(sortType == SORT_HITCOUNT)
+        {
+        if(parseInt(o1.hitCount) < parseInt(o2.hitCount)) return sortDirection;
+        if(parseInt(o1.hitCount) > parseInt(o2.hitCount)) return -sortDirection;
+        return 0;
+        }
+    else if(sortType == SORT_AVGTIME)
+        {
+        if(parseInt(o1.avgTime) < parseInt(o2.avgTime)) return sortDirection;
+        if(parseInt(o1.avgTime) > parseInt(o2.avgTime)) return -sortDirection;
+        return 0;
+        }
+    else if(sortType == SORT_CHILDTIME)
+        {
+        if(parseInt(o1.childTime) < parseInt(o2.childTime)) return sortDirection;
+        if(parseInt(o1.childTime) > parseInt(o2.childTime)) return -sortDirection;
+        return 0;
+        }
+
+    return 0;
+    }
+
+function DrawData()
+    {
+    var row = 1;
+    var output = "<TABLE><TR><TH onclick='CollectData(SORT_NAME);'>Name</TH><TH onclick='CollectData(SORT_HITCOUNT);'>Hit<BR>Count</TH><TH onclick='CollectData(SORT_AVGTIME);' TITLE='Time in ticks\n("+resolution+" ticks per sec)'>Avg<BR>Time</TH><TH onclick='CollectData(SORT_CHILDTIME);' TITLE='Time in ticks\n("+resolution+" ticks per sec)'>Child<BR>Time</TH></TR>";
+    for(i=0; i < results.length; i++)
+        {
+        output += "<TR CLASS=ROW"+row+"><TD>" + results[i].name + "</TD><TD CLASS=NUMBERCOLUMN>" + results[i].hitCount + "</TD><TD CLASS=NUMBERCOLUMN>" + results[i].avgTime + "</TD><TD CLASS=NUMBERCOLUMN>" + results[i].childTime + "</TD></TR>"
+        if(row==1) row = 0;
+        else row = 1;
+        }
+    REPORT.innerHTML = output + "</TABLE>";
+    }
+
+function CollectData(sort)
+    {
+    results = new Array;
+    var tree = xmlReport.getElementsByTagName("Call");
+    for(i=0; i < tree.length; i++)
+        {
+        results[results.length] = new Summary(tree.item(i).getElementsByTagName("Name").item(0).text, tree.item(i).getElementsByTagName("HitCount").item(0).text, tree.item(i).getElementsByTagName("AvgTime").item(0).text, tree.item(i).getElementsByTagName("ChildTime").item(0).text);
+        }
+
+    if(sortType == sort) sortDirection = -sortDirection;
+    sortType = sort;
+    results.sort(SortSummary);
+    DrawData();
+    }
+
+</SCRIPT>
+
+<BODY>
+
+<DIV NAME=REPORT ID=REPORT></DIV>
+
+<DIV NAME=DEBUG ID=DEBUG></DIV>
+
+<SCRIPT>
+    CollectData(SORT_AVGTIME);
+</SCRIPT>
+
+</BODY>
+</HTML>

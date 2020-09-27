@@ -1,0 +1,21 @@
+TARGETNAME=WaveInfo
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+UMENTRY=wWinMainCRTStartup
+
+C_DEFINES =         $(C_DEFINES) -DXBOX -DKERNEL_MODE -DUNICODE
+
+INCLUDES =          $(BASEDIR)\public\ddk\inc;\
+                    $(BASEDIR)\public\sdk\inc;\
+                    $(BASEDIR)\private\windows\directx\dsound\waveldr;\
+                    $(BASEDIR)\private\test\multimedia\inc
+               
+TARGETLIBS =        $(SDK_LIB_PATH)\dsound$(D).lib\
+                    $(SDK_LIB_PATH)\xmoguids.lib\
+                    $(SDK_LIB_PATH)\waveldr$(D).lib\
+                    $(LIBC_LIB)
+
+SOURCES= 			\
+    WaveInfo.cpp
+

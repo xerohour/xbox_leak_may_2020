@@ -1,0 +1,55 @@
+'$include 'install.inc'
+
+
+Scenario "Verify Full install of Full Dec2000 -> Dec2000 QFE -> Full Mar2001 -> Full Apr2001 -> Current"
+	Dim xdkpath$, BuildPass%
+	'
+	' Uninstall current XDK
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Delete contents from default XDK path
+	'
+	killdir("C:\Program Files\Microsoft Xbox SDK")
+	'
+	' Install December release (3146_Alpha2)
+	'
+	Install("3146", false, false, , "\\xdk\xdktest\XDK_Builds\3146_Alpha2\SDK\setup.exe")
+	'
+	' Install December QFE Updater
+	'
+	Install("3146.3", true, false, , "\\xdk\xdktest\XDK_Builds\3146_Alpha2\XboxSDKUpdate3146.3.exe")
+	'
+	' Install March release (3332_Mar)
+	'
+	Install("3332", false, false, , "\\xdk\xdktest\XDK_Builds\3332_Mar\SDK\setup.exe")
+	'
+	' Install April release (3425_April)
+	'
+	Install("3425", false, false, , "\\xdk\xdktest\XDK_Builds\3425_April\SDK\setup.exe")
+	'
+	' Install the latest updater on top
+	'
+	Install(BuildNumber, false, false)
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if not ValidateFilesOnUninstall then
+			FAIL "Files were not removed on uninstall"
+		end if
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

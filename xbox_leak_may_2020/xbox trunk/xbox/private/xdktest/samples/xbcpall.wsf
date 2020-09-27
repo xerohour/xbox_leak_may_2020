@@ -1,0 +1,77 @@
+<job>
+<script language="VBScript" src="common.vbs"/>
+<script language="VBScript">
+'
+' XbcpAll
+' emmang@xbox.com
+'
+Const SCRIPTNAME = "XbcpAll"
+Const BATCHBAT = "c:\xbcpall.bat"
+Const BATCHLOG = "c:\xbcpall.txt"
+Const BATCHTMP = "c:\xbcpall.tmp"
+
+Dim gfileBatch, gChoice
+Main()
+
+Sub Main
+    On Error Resume Next
+
+    If Not Init() Then
+        Exit Sub
+    End If
+
+    ' ask the user if media dirs should be copied
+    ' 32 = question mark icon
+    ' 4 = yes/no type dialog
+    gChoice = gobjShell.PopUp("Copy any media directories found?" & vbCrLf & _
+            "(5 second timeout => NO)", _
+            5, SCRIPTNAME, (32 + 4))
+
+    ' create the batch file which will be filled with MSDev commands
+    Set gfileBatch = gobjFileSystem.CreateTextFile(BATCHBAT, True)
+    gfileBatch.WriteLine("@rem auto-generated batch file")
+    gfileBatch.WriteLine("@if exist " & BATCHLOG & " del " & BATCHLOG)
+    ProcessSubdirs(gstrXDKInstall)
+    gfileBatch.WriteLine(":done")
+    gfileBatch.WriteLine("del /Q " & ABORTFILE)
+    gfileBatch.Close
+    gobjShell.Run BATCHBAT, 5, True
+    
+    ' see the results
+    gChoice = gobjShell.PopUp("View " & BATCHLOG & " in Notepad?" & _
+        vbCrLf & "(5 second timeout => NO)", _
+        5, SCRIPTNAME, (32 + 4))
+    If (gChoice = 6) Then
+        gobjShell.Run "notepad " & BATCHLOG, 5, True
+    End If
+End Sub
+
+Sub ProcessSingleFile(objFile)
+    strExt = lcase(gobjFileSystem.GetExtensionName(objFile.Path))
+    If (strExt = "xbe") Then
+        strBase = gobjFileSystem.GetBaseName(objFile.Path)
+        strRelease = lcase(gobjFileSystem.GetParentFolderName(objFile.Path))
+        strParent = gobjFileSystem.GetParentFolderName(strRelease)
+        strRelease = gobjFileSystem.GetBaseName(strRelease)
+        If (strRelease = "release") Then
+            strR = "R"
+        Else
+            strR = ""
+        End If
+        gfileBatch.WriteLine("xbcp /y /t /q " & Chr(34) & objFile.Path & Chr(34) & _
+                " " & Chr(34) & "xe:\samples\" & strBase & "\" & strBase & _
+                strR & ".xbe" & Chr(34) & " >>" & BATCHLOG)
+        '
+        ' copy any media directory
+        '
+        If gChoice = 6 And gobjFileSystem.FolderExists(strParent & "\media") Then
+            gfileBatch.WriteLine("xbcp /r /y /t /f /q " & Chr(34) & strParent & _
+                    "\media\*.*" & Chr(34) & " " & _
+                    Chr(34) & "xe:\samples\" & strBase & _
+                    "\media" & Chr(34) & " >>" & BATCHLOG)
+        End If
+        gFileBatch.WriteLine("@if exist " & ABORTFILE & " goto done")
+    End If
+End Sub
+</script>
+</job>

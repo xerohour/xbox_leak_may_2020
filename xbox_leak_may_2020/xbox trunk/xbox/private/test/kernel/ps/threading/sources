@@ -1,0 +1,40 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+TARGETNAME=threading
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+
+SOURCES=main.cpp     \
+        create.cpp   \
+        exit.cpp     \
+        threadid.cpp \
+        priority.cpp \
+        notify.cpp   \
+        tls.cpp      \
+        suspend.cpp  \
+        fiber.cpp
+
+INCLUDES=$(SDK_INC_PATH); \
+         $(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(BASEDIR)\private\test\kernel\utils
+
+PRECOMPILED_INCLUDE=threading.h
+PRECOMPILED_CXX=1
+
+MSC_WARNING_LEVEL=/W4 /WX

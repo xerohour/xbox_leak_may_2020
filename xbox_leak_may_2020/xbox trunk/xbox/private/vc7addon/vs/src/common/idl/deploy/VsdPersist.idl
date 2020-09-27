@@ -1,0 +1,182 @@
+//-----------------------------------------------------------------------------
+// Microsoft Visual Studio Deployment Code
+//
+// Microsoft Confidential
+// Copyright 1995-2000 Microsoft Corporation. All Rights Reserved.
+//
+// VsdPersist.idl - deployment persistence interfaces.
+//-----------------------------------------------------------------------------
+
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "oleidl.idl";
+import "vsshell.idl";
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Forward declarations */
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+interface IVsdPersistProperties;
+interface IVsdPersistPropertiesObject;
+interface IVsdProperty;
+interface IVsdPropertyStreamOut;
+interface IVsdPropertyStreamIn;
+interface IVsdPropertyStreamWrapper;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/* DISPIDs */
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef
+[
+	uuid(68D3D710-EBB6-11d2-B40D-00105A190680),
+	helpstring("DISPID_IVsdPersistProperties")
+]
+enum DISPID_IVsdPersistProperties
+{
+	[helpstring("DISPID_IVsdPersistProperties_WriteProperties")]  DISPID_IVsdPersistProperties_WriteProperties = 0,
+	[helpstring("DISPID_IVsdPersistProperties_ReadProperties")]   DISPID_IVsdPersistProperties_ReadProperties  = 1,
+	[helpstring("DISPID_IVsdPersistProperties_FixUpProperties")]   DISPID_IVsdPersistProperties_FixUpProperties = 2
+} DISPID_IVsdPersistProperties;
+
+typedef
+[
+	uuid(4E1BF63E-0267-11d3-8D6B-00A0C9CFCEE6),
+	helpstring("DISPID_IVsdPersistPropertiesObject")
+]
+enum DISPID_IVsdPersistPropertiesObject
+{
+	[helpstring("DISPID_IVsdPersistPropertiesObject_WriteProperties")]  DISPID_IVsdPersistPropertiesObject_WriteProperties = 0,
+	[helpstring("DISPID_IVsdPersistPropertiesObject_ReadProperties")]   DISPID_IVsdPersistPropertiesObject_ReadProperties  = 1,
+	[helpstring("DISPID_IVsdPersistPropertiesObject_FixUpProperties")]   DISPID_IVsdPersistPropertiesObject_FixUpProperties = 2,
+	[helpstring("DISPID_IVsdPersistPropertiesObject_CLSID")]  DISPID_IVsdPersistPropertiesObject_CLSID = 3
+} DISPID_IVsdPersistPropertiesObject;
+
+typedef
+[
+	uuid(CD652116-EBB8-11d2-B40D-00105A190680),
+	helpstring("DISPID_IVsdPropertyStreamOut")
+]
+enum DISPID_IVsdPropertyStreamOut
+{
+	[helpstring("DISPID_IVsdPropertyStreamOut_Write")]  DISPID_IVsdPropertyStreamOut_Write = 0,
+	[helpstring("DISPID_IVsdPropertyStreamOut_BeginSection")]  DISPID_IVsdPropertyStreamOut_BeginSection = 1,
+	[helpstring("DISPID_IVsdPropertyStreamOut_EndSection")]  DISPID_IVsdPropertyStreamOut_EndSection = 2
+} DISPID_IVsdPropertyStreamOut;
+
+typedef
+[
+	uuid(46757070-EBB8-11d2-B40D-00105A190680),
+	helpstring("DISPID_IVsdPropertyStreamIn")
+]
+enum DISPID_IVsdPropertyStreamIn
+{
+	[helpstring("DISPID_IVsdPropertyStreamIn__NewEnum")]  DISPID_IVsdPropertyStreamIn__NewEnum = -4,
+	[helpstring("DISPID_IVsdPropertyStreamIn_SkipToEnd")]  DISPID_IVsdPropertyStreamIn_SkipToEnd = 1,
+	[helpstring("DISPID_IVsdPropertyStreamIn_AddObject")]  DISPID_IVsdPropertyStreamIn_AddObject = 2,
+	[helpstring("DISPID_IVsdPropertyStreamIn_GetObject")]  DISPID_IVsdPropertyStreamIn_GetObject = 3,
+	[helpstring("DISPID_IVsdPropertyStreamIn_GetRootFolder")]  DISPID_IVsdPropertyStreamIn_GetRootFolder = 4,
+	[helpstring("DISPID_IVsdPropertyStreamIn_StreamInStatus")]  DISPID_IVsdPropertyStreamIn_StreamInStatus = 5
+} DISPID_IVsdPropertyStreamIn;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Persist Interfaces 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(762B1720-EBB6-11d2-B40D-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdPersistProperties Interface"),
+	pointer_default(unique)
+]
+interface IVsdPersistProperties : IDispatch
+{
+	[id(DISPID_IVsdPersistProperties_WriteProperties), helpstring("method WriteProperties")] HRESULT WriteProperties([in]IVsdPropertyStreamOut *PropertyStream );
+	[id(DISPID_IVsdPersistProperties_ReadProperties), helpstring("method ReadProperties")] HRESULT ReadProperties([in]IVsdPropertyStreamIn *PropertyStream);
+	[id(DISPID_IVsdPersistProperties_FixUpProperties), helpstring("method FixUpProperties")] HRESULT FixUpProperties([in]IVsdPropertyStreamIn *PropertyStream);
+};
+
+[
+	object,
+	uuid(8E20DAE2-0267-11d3-8D6B-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdPersistPropertiesObject Interface"),
+	pointer_default(unique)
+]
+interface IVsdPersistPropertiesObject : IDispatch
+{
+	[id(DISPID_IVsdPersistPropertiesObject_WriteProperties), helpstring("method WriteProperties")] HRESULT WriteProperties([in]IVsdPropertyStreamOut *PropertyStream );
+	[id(DISPID_IVsdPersistPropertiesObject_ReadProperties), helpstring("method ReadProperties")] HRESULT ReadProperties([in]IVsdPropertyStreamIn *PropertyStream);
+	[id(DISPID_IVsdPersistPropertiesObject_FixUpProperties), helpstring("method FixUpProperties")] HRESULT FixUpProperties([in]IVsdPropertyStreamIn *PropertyStream);
+	[propget, id(DISPID_IVsdPersistPropertiesObject_CLSID), helpstring("property CLSID")] HRESULT CLSID([out, retval] BSTR *pVal);
+};
+
+[
+	object,
+	uuid(269B7E70-EBB7-11d2-B40D-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdPropertyStreamOut Interface"),
+	pointer_default(unique)
+]
+interface IVsdPropertyStreamOut : IDispatch
+{
+	[id(DISPID_IVsdPropertyStreamOut_Write), helpstring("method Write")] HRESULT Write([in]BSTR Name, [in]VARIANT Value);
+	[id(DISPID_IVsdPropertyStreamOut_BeginSection), helpstring("method BeginSection")] HRESULT BeginSection([in]BSTR Name, [out,retval]IVsdPropertyStreamOut **retval);
+	[id(DISPID_IVsdPropertyStreamOut_EndSection), helpstring("method EndSection")] HRESULT EndSection();
+};
+
+[
+	object,
+	uuid(CD652117-EBB8-11d2-B40D-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdPropertyStreamIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdPropertyStreamIn : IDispatch
+{
+midl_pragma warning( disable: 2039 ) 
+	[propget, id(DISPID_IVsdPropertyStreamIn__NewEnum), helpstring("method _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IEnumVARIANT **NewEnum);
+midl_pragma warning( enable: 2039 ) 
+	[id(DISPID_IVsdPropertyStreamIn_SkipToEnd), helpstring("method SkipToEnd")] HRESULT SkipToEnd();
+	[id(DISPID_IVsdPropertyStreamIn_AddObject), helpstring("method AddObjects"), hidden] HRESULT AddObject([in]BSTR Key, [in]IDispatch *Object);
+	[id(DISPID_IVsdPropertyStreamIn_GetObject), helpstring("method GetObjects"), hidden] HRESULT GetObject([in]BSTR Key, [out, retval]IDispatch **Object);
+	[id(DISPID_IVsdPropertyStreamIn_GetRootFolder), helpstring("method GetRootFolder"), hidden] HRESULT GetRootFolder([out, retval]BSTR *Folder);
+	[propget, id(DISPID_IVsdPropertyStreamIn_StreamInStatus), helpstring("property StreamInStatus"), hidden] HRESULT StreamInStatus([out, retval]HRESULT *hr);
+	[propput, id(DISPID_IVsdPropertyStreamIn_StreamInStatus), helpstring("property StreamInStatus"), hidden] HRESULT StreamInStatus([in]HRESULT hr);
+};
+
+[
+	object,
+	uuid(0B259CB2-0326-11d3-8D6B-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdProperty Interface"),
+	pointer_default(unique)
+]
+interface IVsdProperty : IDispatch
+{
+	[propget, id(1), helpstring("property Name"), hidden] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(2), helpstring("property Value"), hidden] HRESULT Value([out, retval] VARIANT *pVal);
+};
+
+[
+	object,
+	uuid(3C9F22CE-0739-11d3-8D6B-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdPropertyWrapper Interface"),
+	pointer_default(unique)
+]
+interface IVsdPropertyStreamWrapper : IDispatch
+{
+midl_pragma warning( disable: 2039 ) 
+	[id(1), helpstring("method CreateStreamIn"), hidden]  HRESULT CreateStreamIn([in] IVsPropertyStreamIn *StreamIn, [in] BSTR RootFolder, [out, retval] IVsdPropertyStreamIn **pVal);
+	[id(2), helpstring("method CreateStreamOut"), hidden] HRESULT CreateStreamOut([in] IVsPropertyStreamOut *StreamOut,[out, retval] IVsdPropertyStreamOut **pVal);
+midl_pragma warning( enable: 2039 ) 
+};
+

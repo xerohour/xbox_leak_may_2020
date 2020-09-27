@@ -1,0 +1,119 @@
+LIBRARY dongle.exe
+
+EXPORTS
+
+;
+; XTL wrapper
+;
+
+    CloseHandle                         = dummy1
+    CreateEventA                        = dummy4
+    CreateFileA                         = dummy7
+    CreateMutexA                        = dummy3
+    CreateSemaphoreA                    = dummy4
+    CreateThread                        = dummy6
+    DebugBreak                          = dummy0
+    DeviceIoControl                     = dummy8
+    ExitThread                          = dummy1
+    FlushFileBuffers                    = dummy1
+    GetCurrentThreadId                  = dummy0
+    GetLastError                        = dummy0
+    GetProcessHeap                      = dummy0
+    GetThreadPriority                   = dummy1
+    GetTickCount                        = dummy0
+    GetTimeZoneInformation              = dummy1
+    HeapFree                            = dummy3
+#if DBG
+    HeapValidate                        = dummy3
+#endif
+    IsBadCodePtr                        = dummy1
+    IsBadReadPtr                        = dummy2
+    IsBadWritePtr                       = dummy2
+    OutputDebugStringA                  = dummy1
+    QueryPerformanceCounter             = dummy1
+    QueryPerformanceFrequency           = dummy1
+    RaiseException                      = dummy4
+    ReadFile                            = dummy5
+    ReleaseMutex                        = dummy1
+    ReleaseSemaphore                    = dummy3
+    ResetEvent                          = dummy1
+    ResumeThread                        = dummy1
+    RtlAllocateHeap                     = dummy3
+    RtlReAllocateHeap                   = dummy4
+    RtlSizeHeap                         = dummy3
+    SetEndOfFile                        = dummy1
+    SetEvent                            = dummy1
+    SetFilePointer                      = dummy4
+    SetLastError                        = dummy1
+    SetThreadPriority                   = dummy2
+    SetUnhandledExceptionFilter         = dummy1
+    Sleep                               = dummy1
+    TlsAlloc                            = dummy0
+    TlsFree                             = dummy1
+    TlsGetValue                         = dummy1
+    TlsSetValue                         = dummy2
+    UnhandledExceptionFilter            = dummy1
+    VirtualAlloc                        = dummy4
+    VirtualFree                         = dummy3
+    WaitForMultipleObjects              = dummy4
+    WaitForSingleObject                 = dummy2
+    WriteFile                           = dummy5
+    XRegisterThreadNotifyRoutine        = dummy2
+    _InterlockedDecrement               = dummy1
+    _InterlockedIncrement               = dummy1
+    wsprintfA                           = cdummy
+    wvsprintfA                          = dummy3
+
+;
+; DirectX wrapper
+;
+
+    D3DDevice_CreateImageSurface        = dummy4
+    D3DDevice_EnableCC                  = dummy1
+    D3DDevice_EnableOverlay             = dummy1
+    D3DDevice_GetCCStatus               = dummy2
+    D3DDevice_GetDisplayFieldStatus     = dummy1
+    D3DDevice_GetOverlayUpdateStatus    = dummy0
+    D3DDevice_GetRasterStatus           = dummy1
+    D3DDevice_SendCC                    = dummy3
+    D3DDevice_UpdateOverlay             = dummy5
+    D3DResource_IsBusy                  = dummy1
+    D3DResource_Release                 = dummy1
+    D3DSurface_GetDesc                  = dummy2
+    D3DSurface_LockRect                 = dummy4
+    D3DSurface_UnlockRect               = dummy1
+#ifdef SILVER
+    DirectSoundCreateStream             = dummy4
+#else
+    DirectSoundCreateStream             = dummy2
+#endif
+
+;
+; Winsock wrapper
+;
+
+    WSACleanup                          = dummy0
+    WSAGetLastError                     = dummy0
+    WSASetLastError                     = dummy1
+    WSAStartup                          = dummy2
+    XnetCleanup                         = dummy0
+    XnetInitialize                      = dummy2
+    _wspapi001                          = dummy1
+    accept                              = dummy3
+    bind                                = dummy3
+    closesocket                         = dummy1
+    connect                             = dummy3
+    getpeername                         = dummy3
+    getsockname                         = dummy3
+    htonl                               = dummy1
+    htons                               = dummy1
+    inet_addr                           = dummy1
+    inet_ntoa                           = dummy1
+    listen                              = dummy2
+    ntohs                               = dummy1
+    recv                                = dummy4
+    recvfrom                            = dummy6
+    send                                = dummy4
+    sendto                              = dummy6
+    shutdown                            = dummy2
+    socket                              = dummy3

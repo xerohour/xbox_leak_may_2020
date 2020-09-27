@@ -1,0 +1,113 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+</td><td><STYLE>
+table.tblconcept
+	{
+	width: 70%;
+	background: #999999;
+	margin-top: .6em;
+	margin-bottom: .3em;
+	}
+table.userdata td 
+	{
+	background: #ffffff;
+	background-color: #F5F5F5;
+	border-color: #ffffff;
+	border: none;
+	}	
+table.tblconcept th
+	{ 
+	padding: 4px 8px;
+	background: #cccccc;
+	text-align: left;
+	font-size: 70%;
+	vertical-align: bottom;
+	
+	}
+		
+table.tblconcept td
+	{ 
+	padding: 4px 8px;
+	background: #ffffff;
+	vertical-align: top;
+	font-size: 70%;	
+	}
+</STYLE><H2>DirectMusic Producer Components</H2>
+
+
+<H4><A NAME=Segment>Segment</A></H4>
+ 
+<P>A Segment is the basic unit of a Microsoft&#174; DirectMusic&#174; Performance. A Segment is the framework you use to combine multiple sound and music elements, including Musical Instrument Digital Interface (MIDI) files, wave files, and DirectMusic components such as Styles and Bands. You use the Segment to control playback of those elements, playing them individually or in combination. You can specify the length of the Segment--the number of measures--and for any music elements you place in a Segment, you can specify parameters, such as tempo, start and stop times, number of repeats, and instrument substitution. 
+You can create three basic types of Segments: Style-based, Sequence-based, or Wave-based.
+<BR>
+<BR>
+<P>A Style-based Segment is typically used to provide variable (non-repetitive) music. It uses the variable content of Style files to provide a musical performance that is different each time it plays. The Segment can vary even when it is simply repeating during playback. The Segment provides the overall structure to the musical performance, such as its length, key, chord structure, number of repeats, levels of intensity, and so on. The Style provides the notes along with rules for choosing which notes to play in what circumstances (based on intensity, chord, and so on). Because a Style contains multiple variations in its Patterns, the performance of a Style-based Segment sounds different each time it plays.
+<BR>
+<BR>
+<P>A Segment can contain multiple Styles, so the type of music can change dramatically during the playback of a single Segment. Similarly, a Segment can contain multiple Bands, which allow for instrumentation and mix (volume/pan) changes. You can also change chords, tempos, intensity levels, and other musical parameters to design a music performance.
+<BR>
+<BR>
+<P>A Sequence-based Segment is typically used to play a fixed sequence of MIDI data, with options for added flexibility. The Segment contains a sequence of MIDI data that is either imported as a MIDI file or created in the Segment using the mouse or MIDI recording. The sequenced notes and rhythms are combined with DLS (wavetable) instruments and other musical elements to create a complete musical piece.
+<BR>
+<BR>
+<P>A wave-based Segment is used to play one or more wave files against a timeline. In this way, wave data can be used rhythmically with sequenced data or other wave data. For instance, a wave can be triggered at the same time as a MIDI sequence’s third bar begins. Wave-based segments also combine the best of both of the other segment types, allowing for variability in wave playback or more linear sequenced wave triggering. Basic modifications such as pitch shift, attenuation, looping, and offsets are also supported.
+<BR>
+<BR>
+
+<P>Opening a Segment launches the Segment Designer, displaying a window similar to the following:</P>
+<IMG src="/content/img/segment1.gif" WIDTH="573" HEIGHT="410" BORDER="0" ALT="">
+<BR>
+<BR>
+
+
+<P>A special type of Segment, called a Template, uses a Signpost Track and a Chordmap Track to compose a variable chord progression. This progression adds an extra layer of variability to the playback of a DirectMusic file. A Template also serves as a guide for triggering changes in harmony and Patterns, and its chord progression can be composed (and recomposed) at run-time in an application.
+<BR>
+<BR>
+<P>You can also use a Template with any Style and Chordmap file to yield a predictable yet generalized result. For example, a Template might specify a two-measure introduction, followed by the Style&#39;s first Pattern for eight measures, followed by the Style&#39;s next Pattern for eight measures, followed by a two-measure ending. The Style and Chordmap used with the Template determine the music content of the 20 measures. Music that uses this particular Template always has the same form (Introduction-A-B-Ending), but the chord progression can be variable.
+<BR>
+<BR>
+<P>Following is an illustration of a Template Segment:
+
+ 
+<BR>
+<IMG src="/content/img/DMPC_TemplSeg.gif" WIDTH="320" HEIGHT="230" ALT="" BORDER="0">
+<BR>
+<BR>
+<P>You can designate (or a developer can designate) a segment as primary and designate all other segments that play in layers over it as secondary. You can create your DirectMusic files with this in mind. For example, a primary segment might be the main body of a musical piece that will play continuously. You can create any number of secondary segments that are added as enhancements to the sound of the primary segment. Secondary segments can be any length, but they are typically short segments of only a few measures. A motif is a secondary segment that lives entirely within a style and only contains variable MIDI information.
+<BR>
+<BR>
+<P>For example, the primary segment may feature rhythm section parts, while the secondary segments contain instrumental solos that can be interactively cued over the rhythm section. Or, the primary segment can contain ambient sounds, while the secondary segments contain sound effects that can be interactively cued.
+<BR>
+<BR>
+<P>You can also define a secondary segment as a controlling secondary segment. Then, instead of being layered on top, the tracks of the controlling segment will affect and often replace the tracks of the primary segment. When playback of the secondary segment stops, playback of the primary segment reverts to its original state.
+<BR>
+<BR>
+<P>For example, a controlling secondary segment might contain a Chord track and a Groove track. If you play a primary segment and then start playback of the controlling segment while the primary segment is playing, the secondary segment's Chord and Groove tracks temporarily replace the chords and the grooves of the primary segment. When playback of the secondary segment stops, playback of the primary segment reverts to using information in its own Chord and Groove tracks.
+<BR>
+<BR>
+<br>
+
+
+<A HREF="/BPProgInfo.asp?Page=content/cdcentral_DMP_comp_contributes2.htm" title="DirectMusic Producer Components Table">Back to Components table</A><BR>
+
+<A HREF="/BPProgInfo.asp?Page=content/cdcentral_DMP_comp_main.htm" title="DirectMusic Producer Components">DirectMusic Producer Components Home</A><BR><BR>
+<BR><SMALL>Friday, July 21, 2000</SMALL>
+
+</td>

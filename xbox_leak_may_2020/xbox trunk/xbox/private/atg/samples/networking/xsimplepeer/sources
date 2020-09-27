@@ -1,0 +1,29 @@
+TARGETNAME =        XSimplePeer
+TARGETPATH =        obj
+TARGETTYPE =        PROGRAM
+UMTYPE =            xboxapp
+
+PROJNAME   = XSimplePeer
+TITLEID    = 0xffff0022
+
+NTTARGETFILE0 = $(O)\xsimplepeer.dsp $(O)\Font.xpr $(O)\Gamepad.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /FAcs
+
+C_DEFINES =         $(C_DEFINES) -DKERNEL_MODE
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS =          $(XDK_LIB_PATH)\dplay8$(D).lib \
+                    $(XDK_LIB_PATH)\xnet$(D).lib \
+                    $(XDK_LIB_PATH)\d3d8$(D).lib \
+                    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+                    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+                    ..\..\common\src\obj\*\xbframe.lib \
+
+SOURCES =           xsimplepeer.cpp
+                    
+
+USE_LIBCMT=1

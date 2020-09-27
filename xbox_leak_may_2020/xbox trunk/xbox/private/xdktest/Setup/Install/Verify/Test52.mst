@@ -1,0 +1,80 @@
+'$include 'install.inc'
+
+
+scenario "Verify Uninstall after SDK Updater Setup leaves shared VC files intact"
+	Dim VSCommonPath$, VSPath$
+	Dim pass%
+	Dim xdkpath$
+
+	pass = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Default install
+	'
+	Install(BuildNumber, true, false)
+	'
+	' Do a full uninstall
+	'
+	Uninstall
+	'
+	' Make sure we're uninstalled
+	'
+	if IsInstalled then
+		FAIL "Uninstall failed"
+	end if
+	'
+	' Get the VStudio install path
+	'
+	if RegistryValueExists("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\6.0\Setup", "VsCommonDir") then
+		VSCommonPath = RegistryGetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\6.0\Setup", "VsCommonDir")
+	else
+		FAIL "Could not find VsCommonDir registry key"
+	end if
+	VSPath = VSCommonPath+"\msdev98\bin"
+	'
+	' Check to see if the 3 shared VC files are still intact
+	'
+	if Not exists(VSPath+"\devshl.dll") then
+		pass = false
+		LOG #10, "  "+VSPath+"\devshl.dll is missing"
+	end if
+
+	if Not exists(VSPath+"\ide\devbld.pkg") then
+		pass = false
+		LOG #10, "  "+VSPath+"\ide\devbld.pkg is missing"
+	end if
+
+	if Not exists(VSPath+"\ide\devdbg.pkg") then
+		pass = false
+		LOG #10, "  "+VSPath+"\ide\devdbg.pkg is missing"
+	end if
+
+	'
+	' If failed, the flag error
+	'
+	if NOT pass then
+		FAIL "Some Visual Studio shared files were incorrectly removed by uninstall"
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

@@ -1,0 +1,186 @@
+$$// confirm.inf = この構成用の確認ダイアログに表示する
+$$//    ためのテキストです
+$$IF(PROJTYPE_DLL)
+$$IF(EXTDLL)
+以下に示すﾀｰｹﾞｯﾄの MFC 拡張 DLL (MFC の共有 DLL を使用) $$Root$$.dll :
+$$ELSE //!EXTDLL
+$$IF(MFCDLL)
+以下に示すﾀｰｹﾞｯﾄの標準 DLL (MFC の共有 DLL を使用) $$Root$$.dll :
+$$ELSE //!MFCDLL
+以下に示すﾀｰｹﾞｯﾄの標準 DLL (MFC のｽﾀﾃｨｯｸ ﾗｲﾌﾞﾗﾘを使用) $$Root$$.dll :
+$$ENDIF //MFCDLL
+$$ENDIF //EXTDLL
+$$IF(TARGET_INTEL)
+        Win32
+$$ELIF(TARGET_MIPS)
+        Win32 (MIPS)
+$$ELIF(TARGET_ALPHA)
+        Win32 (ALPHA)
+$$ENDIF //INTEL&MIPS&ALPHA
+
+ﾒｲﾝ ｿｰｽｺｰﾄﾞ: $$Root$$.h , $$Root$$.cpp
+$$IF(AUTOMATION || SOCKETS)
+
+特徴:
+$$IF(AUTOMATION)
+   + ｵｰﾄﾒｰｼｮﾝのｻﾎﾟｰﾄ
+$$ENDIF
+$$IF(SOCKETS)
+   + Windows ｿｹｯﾄのｻﾎﾟｰﾄ
+$$ENDIF //SOCKETS
+$$ENDIF //AUTOMATION || SOCKETS
+$$ELSE //!PROJTYPE_DLL
+$$Root$$ のｱﾌﾟﾘｹｰｼｮﾝﾀｲﾌﾟ:
+$$IF(PROJTYPE_MDI)
+    以下に示すﾀｰｹﾞｯﾄの複数文書ｲﾝﾀｰﾌｪｲｽ (MDI) ｱﾌﾟﾘｹｰｼｮﾝ:
+$$ELIF(PROJTYPE_SDI)
+    以下に示すﾀｰｹﾞｯﾄの単一文書ｲﾝﾀｰﾌｪｲｽ (SDI) ｱﾌﾟﾘｹｰｼｮﾝ:
+$$ELIF(PROJTYPE_DLG)
+    以下に示すﾀｰｹﾞｯﾄのﾀﾞｲｱﾛｸﾞ ﾍﾞｰｽ ｱﾌﾟﾘｹｰｼｮﾝ:
+$$ENDIF //PROJTYPE
+$$IF(TARGET_INTEL)
+        Win32
+$$ELIF(TARGET_MIPS)
+        Win32 (MIPS)
+$$ELIF(TARGET_ALPHA)
+        Win32 (ALPHA)
+$$ENDIF //INTEL&MIPS&ALPHA
+
+作成されるｸﾗｽ:
+    ｱﾌﾟﾘｹｰｼｮﾝ: $$APP_CLASS$$ ｸﾗｽ ; $$Root$$.h , $$Root$$.cpp
+$$IF(PROJTYPE_DLG)
+    ﾀﾞｲｱﾛｸﾞ: $$DLG_CLASS$$ ｸﾗｽ ; $$DLG_HFILE$$.h , $$DLG_IFILE$$.cpp
+$$IF(AUTOMATION)
+    ｺﾏﾝﾄﾞﾀｰｹﾞｯﾄ: $$DLGAUTOPROXY_CLASS$$ in $$DLGAUTOPROXY_HFILE$$.h and $$DLGAUTOPROXY_IFILE$$.cpp
+$$ENDIF //AUTOMATION
+$$ELSE //!DLG
+    ﾌﾚｰﾑ: $$FRAME_CLASS$$ ｸﾗｽ ; $$FRAME_HFILE$$.h , $$FRAME_IFILE$$.cpp
+$$IF(MDICHILD)
+    MDI 子ﾌﾚｰﾑ: $$CHILD_FRAME_CLASS$$ ｸﾗｽ ; $$CHILD_FRAME_HFILE$$.h , $$CHILD_FRAME_IFILE$$.cpp
+$$ENDIF //MDICHILD
+$$ENDIF //DLG
+$$IF(!NODOCVIEW)
+$$IF(!PROJTYPE_DLG)
+    ﾄﾞｷｭﾒﾝﾄ: $$DOC_CLASS$$ ｸﾗｽ ; $$DOC_HFILE$$.h , $$DOC_IFILE$$.cpp
+$$ENDIF //!PROJTYPE_DLG
+$$IF(!PROJTYPE_DLG)
+$$IF(CView)
+    ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CEditView)
+    ｴﾃﾞｨｯﾄ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CFormView)
+    ﾌｫｰﾑ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CListView)
+    ﾘｽﾄ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CTreeView)
+    ﾂﾘｰ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CHtmlView)
+    HTML ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CRichEditView)
+    ﾘｯﾁｴﾃﾞｨｯﾄ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ELIF(CRecordView)
+    ﾚｺｰﾄﾞ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+    ﾚｺｰﾄﾞｾｯﾄ: $$RECSET_CLASS$$ ｸﾗｽ ;  $$RECSET_HFILE$$.h , $$RECSET_IFILE$$.cpp
+        (ﾃﾞｰﾀｿｰｽ '$$DB_DSN$$' 内のﾃｰﾌﾞﾙ '$$DB_SOURCE$$' に接続されています)
+$$ELIF(CDaoRecordView)
+    DAOﾚｺｰﾄﾞｾｯﾄ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+    DAOﾚｺｰﾄﾞｾｯﾄ: $$RECSET_CLASS$$ ｸﾗｽ ; $$RECSET_HFILE$$.h , $$RECSET_IFILE$$.cpp
+        (ﾃﾞｰﾀｿｰｽ '$$DB_DSN$$' 内のﾃｰﾌﾞﾙ '$$DB_SOURCE$$' に接続されています)
+$$ELIF(CScrollView)
+    ｽｸﾛｰﾙ ﾋﾞｭｰ: $$VIEW_CLASS$$ ｸﾗｽ ; $$VIEW_HFILE$$.h , $$VIEW_IFILE$$.cpp
+$$ENDIF
+$$IF(PROJTYPE_EXPLORER)
+    ﾚﾌﾄ ﾋﾞｭｰ: $$TREEVIEW_CLASS$$ ｸﾗｽ ; $$TREEVIEW_HFILE$$.h , $$TREEVIEW_IFILE$$.cpp
+$$ENDIF
+$$IF(CONTAINER || CONTAINER_SERVER)
+    ｺﾝﾃﾅ ｱｲﾃﾑ: $$CNTRITEM_CLASS$$ ｸﾗｽ ; $$CNTRITEM_HFILE$$.h , $$CNTRITEM_IFILE$$.cpp
+$$ENDIF
+$$IF(MINI_SERVER || FULL_SERVER || CONTAINER_SERVER)
+    埋め込みﾌﾚｰﾑ: $$IPFRAME_CLASS$$ ｸﾗｽ ; $$IPFRAME_HFILE$$.h , $$IPFRAME_IFILE$$.cpp
+    ｻｰﾊﾞｰ ｱｲﾃﾑ: $$SRVRITEM_CLASS$$ ｸﾗｽ ; $$SRVRITEM_HFILE$$.h , $$SRVRITEM_IFILE$$.cpp
+$$ENDIF
+$$ENDIF //!PROJTYPE_DLG
+$$ELSE //!NODOCVIEW
+    ﾋﾞｭｰ: $$WNDVIEW_CLASS$$ ｸﾗｽ ; $$WNDVIEW_HFILE$$.h , $$WNDVIEW_IFILE$$.cpp
+$$ENDIF //!NODOCVIEW
+
+特徴:
+$$IF(PROJTYPE_DLG)
+$$IF(ABOUT)
+   + ｼｽﾃﾑﾒﾆｭｰにﾊﾞｰｼﾞｮﾝ情報を付加
+$$ENDIF //ABOUT
+$$ELSE //!DLG
+$$IF(TOOLBAR)
+   + ﾒｲﾝﾌﾚｰﾑにﾂｰﾙﾊﾞｰを付加
+$$ENDIF
+$$IF(REBAR)
+   + ReBar ｽﾀｲﾙ ﾒﾆｭｰおよびﾂｰﾙ ﾊﾞｰを付加
+$$ENDIF
+$$IF(STATUSBAR)
+   + ﾒｲﾝﾌﾚｰﾑにｽﾃｰﾀｽﾊﾞｰを付加
+$$ENDIF
+$$IF(PRINT)
+   + 印刷と印刷ﾌﾟﾚﾋﾞｭｰをｻﾎﾟｰﾄ
+$$ENDIF
+$$ENDIF //DLG
+$$IF(HELP)
+   + 状況依存のﾍﾙﾌﾟと RTF ﾌｧｲﾙのｽｹﾙﾄﾝを生成
+$$ENDIF
+$$IF(3D)
+   + 3D ｺﾝﾄﾛｰﾙ
+$$ENDIF //3D
+$$IF(MAPI)
+   + MAPI ｻﾎﾟｰﾄ
+$$ENDIF //MAPI
+$$IF(SOCKETS)
+   + Windows ｿｹｯﾄをｻﾎﾟｰﾄ
+$$ENDIF //SOCKETS
+$$IF(SPLITTER)
+   + 分割ｳｨﾝﾄﾞｳの表示
+$$ENDIF
+$$IF(MFCDLL)
+   + 共有 DLL を使用 (MFC42.DLL)
+$$ENDIF
+$$IF(!PROJTYPE_DLG)
+$$IF(!MINI_SERVER)
+$$IF(HAS_SUFFIX)
+   + 拡張子 $$SUFFIX$$ のﾌｧｲﾙに対するﾄﾞｷｭﾒﾝﾄをｻﾎﾟｰﾄ
+$$ENDIF
+$$ENDIF
+$$IF(DB_NO_FILE)
+   + ﾃﾞｰﾀﾍﾞｰｽをｻﾎﾟｰﾄ (ﾌｧｲﾙ ｻﾎﾟｰﾄなし)
+$$ELIF(CRecordView || CDaoRecordView)
+   + ﾃﾞｰﾀﾍﾞｰｽとﾌｧｲﾙをｻﾎﾟｰﾄ
+$$ELIF(DB)
+   + ﾃﾞｰﾀﾍﾞｰｽ ﾍｯﾀﾞｰ ﾌｧｲﾙをｲﾝｸﾙｰﾄﾞ
+$$ENDIF //DB_OPTIONS
+$$IF(CONTAINER)
+   + OLE ｺﾝﾃﾅのｻﾎﾟｰﾄ
+$$ELIF(MINI_SERVER)
+   + OLE ﾐﾆ ｻｰﾊﾞｰのｻﾎﾟｰﾄ
+$$ELIF(FULL_SERVER)
+   + OLE ﾌﾙ ｻｰﾊﾞｰのｻﾎﾟｰﾄ
+$$ELIF(CONTAINER_SERVER)
+   + OLE ｺﾝﾃﾅ ｻｰﾊﾞｰのｻﾎﾟｰﾄ
+$$ENDIF
+$$IF(ACTIVE_DOC_SERVER)
+   + ｱｸﾃｨﾌﾞ ﾄﾞｷｭﾒﾝﾄ ｻｰﾊﾞｰのｻﾎﾟｰﾄ
+$$ENDIF
+$$IF(ACTIVE_DOC_CONTAINER)
+   + ｱｸﾃｨﾌﾞ ﾄﾞｷｭﾒﾝﾄ ｺﾝﾃﾅのｻﾎﾟｰﾄ
+$$ENDIF
+$$IF(COMPFILE)
+   + OLE 複合ﾌｧｲﾙのｻﾎﾟｰﾄ
+$$ENDIF
+$$ENDIF //!PROJTYPE_DLG
+$$IF(AUTOMATION)
+   + ｵｰﾄﾒｰｼｮﾝのｻﾎﾟｰﾄ
+$$ENDIF
+$$IF(OLECTL)
+   + ActiveX ｺﾝﾄﾛｰﾙのｻﾎﾟｰﾄ
+$$ENDIF
+   + ﾘｿｰｽの言語:
+$$BEGINLOOP(NUM_LANGS)
+         $$LANGUAGE$$
+$$ENDLOOP
+$$ENDIF //PROJTYPE_DLL

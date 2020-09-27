@@ -1,0 +1,32 @@
+TARGETNAME = wmvplay
+PROJNAME   = wmvplayback
+SOURCES    = wmvplayback.cpp projectedtexture.cpp
+TITLEID    = 0xffff0555
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+
+!if "$(NTDEBUG)" == "ntsd" || "$(NTDEBUG)" == "cvp" || "$(NTDEBUG)" == "sym"
+C_DEFINES = $(C_DEFINES) -DDEBUG=1
+MSC_OPTIMIZATION = $(MSC_OPTIMIZATION) /Od
+!endif
+
+INCLUDES=$(INCLUDES);..\..\common\include;\
+         $(SDK_INC_PATH);
+
+LINKLIBS= \
+         ..\..\common\src\obj\*\xbframe.lib \
+         $(XDK_LIB_PATH)\d3dx8$(D).lib \
+         $(XDK_LIB_PATH)\d3d8$(D).lib \
+         $(XDK_LIB_PATH)\xgraphics$(D).lib \
+         $(XDK_LIB_PATH)\dsound$(D).lib\
+         $(SDK_LIB_PATH)\wmf_decode_v8$(D).lib
+
+
+
+
+USE_LIBCMT=1

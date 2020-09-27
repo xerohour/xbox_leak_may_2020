@@ -1,0 +1,386 @@
+#ifndef VARIANT_FALSE
+#define VARIANT_FALSE 0
+#endif
+
+#ifndef VARIANT_TRUE
+#define VARIANT_TRUE (VARIANT_BOOL)0xffff
+#endif
+
+interface CodeModel;
+interface CodeElements;
+interface CodeElement;
+interface CodeType;
+interface CodeNamespace;
+interface CodeFunction;
+interface CodeVariable;
+interface CodeProperty;
+interface CodeType;
+interface CodeParameter;
+interface CodeAttribute;
+interface CodeInterface;
+interface CodeStruct;
+interface CodeEnum;
+interface CodeDelegate;
+interface CodeTypeRef;
+interface CodeClass;
+
+#include "CodeModelBases.h"
+
+[ uuid(D83C7FAD-BC3A-46bb-9BFC-C0091329626D), dllname(XSTRING(PRODBIN)) ] 
+module CodeModelLanguageConstants
+{
+	const LPSTR vsCMLanguageVC      = "{B5E9BD32-6D3E-4B5D-925E-8A43B79820B4}";
+	const LPSTR vsCMLanguageVB      = "{B5E9BD33-6D3E-4B5D-925E-8A43B79820B4}";
+	const LPSTR vsCMLanguageCSharp  = "{B5E9BD34-6D3E-4B5D-925E-8A43B79820B4}";
+	const LPSTR vsCMLanguageIDL     = "{B5E9BD35-6D3E-4B5D-925E-8A43B79820B4}";
+	const LPSTR vsCMLanguageMC      = "{B5E9BD36-6D3E-4B5D-925E-8A43B79820B4}";
+}
+
+typedef [ uuid(494815FD-49D0-41e0-912F-D9C673DD068A) ]
+enum vsCMPart
+{
+	vsCMPartName = 1,
+	vsCMPartAttributes = 2,
+	vsCMPartHeader = 4,
+	vsCMPartWhole = 8,
+	vsCMPartBody = 16,
+	vsCMPartNavigate = 32,
+	//vsCMPartDelimiter = 64,
+	vsCMPartAttributesWithDelimiter = 68,
+	vsCMPartBodyWithDelimiter = 80,
+	vsCMPartHeaderWithAttributes = 6,
+	vsCMPartWholeWithAttributes = 10
+} vsCMPart;
+
+
+typedef [ uuid(0CFBC2CD-0D4E-11D3-8997-00C04F688DDE)]
+enum vsCMElement
+{
+	vsCMElementOther = 0,
+	//Common
+	vsCMElementClass = 1,
+	vsCMElementFunction = 2,
+	vsCMElementVariable = 3,
+	vsCMElementProperty = 4,
+	vsCMElementNamespace = 5,
+	vsCMElementParameter = 6,
+	vsCMElementAttribute = 7,
+	vsCMElementInterface = 8,
+	vsCMElementDelegate = 9,
+	vsCMElementEnum = 10,
+	vsCMElementStruct = 11,
+	vsCMElementUnion = 12,
+	vsCMElementLocalDeclStmt = 13,
+	vsCMElementFunctionInvokeStmt = 14,
+	vsCMElementPropertySetStmt = 15,
+	vsCMElementAssignmentStmt = 16,
+
+	//VB
+	vsCMElementInheritsStmt = 17,
+	vsCMElementImplementsStmt = 18,
+	vsCMElementOptionStmt = 19,
+	vsCMElementVBAttributeStmt = 20,
+	vsCMElementVBAttributeGroup = 21,
+	vsCMElementEventsDeclaration = 22,
+	vsCMElementUDTDecl = 23,
+	vsCMElementDeclareDecl = 24,
+
+	//VC and CSharp
+	vsCMElementDefineStmt = 25,
+	vsCMElementTypeDef = 26,
+	vsCMElementIncludeStmt = 27,
+	vsCMElementUsingStmt = 28,
+	vsCMElementMacro = 29,
+	vsCMElementMap = 30,
+	//Where do these go?
+	vsCMElementIDLImport = 31,
+	vsCMElementIDLImportLib = 32,
+	vsCMElementIDLCoClass = 33,
+	vsCMElementIDLLibrary = 34,
+	vsCMElementImportStmt = 35,
+	vsCMElementMapEntry = 36,
+	vsCMElementVCBase = 37,
+	vsCMElementEvent = 38,
+	vsCMElementModule = 39
+} vsCMElement;
+
+typedef [ uuid(0CFBC2CE-0D4E-11D3-8997-00C04F688DDE)]
+enum vsCMFunction
+{
+	vsCMFunctionOther = 0,
+	vsCMFunctionConstructor = 1,
+	vsCMFunctionPropertyGet = 2,
+	vsCMFunctionPropertyLet = 4,
+	vsCMFunctionPropertySet = 8,
+	vsCMFunctionPutRef = 16,
+	vsCMFunctionPropertyAssign = 32,
+	vsCMFunctionSub = 64,
+	vsCMFunctionFunction = 128,
+	vsCMFunctionTopLevel = 256,
+	vsCMFunctionDestructor = 512,
+	vsCMFunctionOperator = 1024,
+	vsCMFunctionVirtual = 2048,
+	vsCMFunctionPure = 4096,
+	vsCMFunctionConstant = 8192,
+	vsCMFunctionShared = 16384,
+	vsCMFunctionInline = 32768,
+	vsCMFunctionComMethod = 65536
+} vsCMFunction;
+
+
+/*typedef [ uuid(0CFBC2D0-0D4E-11D3-8997-00C04F688DDE)]
+enum vsCMType
+{
+  vsCMTypeOther = 0,
+  vsCMTypeClass = 1,
+  vsCMTypeArray = 2,
+  vsCMTypeVoid = 4,
+  vsCMTypeString = 8,
+  vsCMTypeObject = 16,
+  vsCMTypeByte = 32,
+  vsCMTypeChar = 64,
+  vsCMTypeShort = 128,
+  vsCMTypeInt = 256,
+  vsCMTypeLong = 512,
+  vsCMTypeFloat = 1024,
+  vsCMTypeDouble = 2048,
+  vsCMTypeDecimal = 4096,
+  vsCMTypeBool = 8192,
+  vsCMTypeVariant = 16384
+} vsCMType;*/
+
+typedef [ uuid(ED1A3F96-4477-11d3-89BF-00C04F688DDE)]
+enum vsCMAccess
+{
+	vsCMAccessPublic = 1,
+	vsCMAccessPrivate = 2,
+	vsCMAccessProject = 4,
+	vsCMAccessProtected = 8,
+	vsCMAccessDefault = 32,
+	vsCMAccessAssemblyOrFamily = 64,
+	vsCMAccessWithEvents = 128,
+	vsCMAccessProjectOrProtected = 12,
+} vsCMAccess;
+
+typedef [ uuid(ED1A3F97-4477-11d3-89BF-00C04F688DDE)]
+enum vsCMInfoLocation
+{
+	vsCMInfoLocationProject = 1,
+	vsCMInfoLocationExternal = 2,
+	vsCMInfoLocationNone = 4,
+	vsCMInfoLocationVirtual = 8
+} vsCMInfoLocation;
+
+typedef [ uuid(ED1A3F98-4477-11d3-89BF-00C04F688DDE)]
+enum vsCMPrototype
+{
+	vsCMPrototypeFullname = 1,
+	vsCMPrototypeNoName = 2,
+	vsCMPrototypeClassName = 4,
+	vsCMPrototypeParamTypes = 8,
+	vsCMPrototypeParamNames = 16,
+	vsCMPrototypeParamDefaultValues = 32,
+	vsCMPrototypeUniqueSignature = 64,
+	vsCMPrototypeType = 128,
+	vsCMPrototypeInitExpression = 256
+} vsCMPrototype;
+
+typedef [ uuid(C58839C3-7435-4944-8277-EA97B8EB2FA2)]
+enum vsCMTypeRef
+{
+	vsCMTypeRefOther = 0,
+	vsCMTypeRefCodeType = 1,
+	vsCMTypeRefArray = 2,
+	vsCMTypeRefVoid = 3,
+	vsCMTypeRefPointer = 4,
+	vsCMTypeRefString = 5,
+	vsCMTypeRefObject = 6,
+	vsCMTypeRefByte = 7,
+	vsCMTypeRefChar = 8,
+	vsCMTypeRefShort = 9,
+	vsCMTypeRefInt = 10,
+	vsCMTypeRefLong = 11,
+	vsCMTypeRefFloat = 12,
+	vsCMTypeRefDouble = 13,
+	vsCMTypeRefDecimal = 14,
+	vsCMTypeRefBool = 15,
+	vsCMTypeRefVariant = 16
+} vsCMTypeRef;
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2B4-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelObj) ]
+interface CodeModel : IDispatch
+{
+	[id(1), propget, HELP(vsproDTEProperty)]
+	HRESULT DTE ([out, retval] DTE **DTEObject);
+
+	[id(2), propget, HELP(vsproParentProperty)]
+	HRESULT Parent([out, retval] Project **pProj);
+
+	[id(3), propget, HELP(vsextCodeModelLang)]
+	HRESULT Language([out, retval] BSTR *pLanguage);
+
+	[id(4), propget, HELP(vsextCodeModelElts)]
+	HRESULT CodeElements([out, retval] CodeElements **ppCodeElements);
+
+	[id(5), HELP(vsextCodeModelEltFromFullName)]
+	HRESULT CodeTypeFromFullName(BSTR Name, [out, retval] CodeType **ppCodeType);
+
+	ADDNAMESPACE(6)
+	ADDCLASS(7)
+	ADDINTERFACE(8)
+	ADDFUNCTION(9)
+	ADDVARIABLE(10)
+	ADDSTRUCT(11)
+	ADDENUM(12)
+	ADDDELEGATE(13)
+	ADDATTRIBUTE(14)
+	REMOVE(15)
+
+	[id(16), HELP(vsextCMIsValidID)]
+	HRESULT IsValidID(BSTR Name, [out, retval] VARIANT_BOOL *pValid);
+
+	[id(17), propget, HELP(vsextCMIsCaseSensitive)]
+	HRESULT IsCaseSensitive([out, retval] VARIANT_BOOL *pSensitive);
+
+	[id(18), HELP(vsextCreateTypeRef)]
+	HRESULT CreateCodeTypeRef(VARIANT Type, [out, retval]CodeTypeRef **ppCodeTypeRef);
+};
+
+[ odl, dual, oleautomation, object, uuid(ED1A3F99-4477-11d3-89BF-00C04F688DDE), HELP(vsextCodeModelObj) ]
+interface FileCodeModel : IDispatch
+{
+	[id(1), propget, HELP(vsproDTEProperty)] 
+	HRESULT DTE ([out, retval] DTE **DTEObject);
+
+	[id(2), propget, HELP(vsproParentProperty)] 
+	HRESULT Parent([out, retval] ProjectItem **pProjItem);
+
+	[id(3), propget, HELP(vsextCodeModelLang)]
+	HRESULT Language([out, retval] BSTR *pLanguage);
+
+	[id(4), propget, HELP(vsextCodeModelElts)]
+	HRESULT CodeElements([out, retval] CodeElements **ppCodeElements);
+
+	[id(5), HELP(vsextCodeModelEltFromPoint)]
+	HRESULT CodeElementFromPoint(TextPoint *Point, enum vsCMElement Scope, [out, retval] CodeElement **ppCodeElement);
+
+	ADDNAMESPACE_NOFILENAME(7)
+	ADDCLASS_NOFILENAME(8)
+	ADDINTERFACE_NOFILENAME(9)
+	ADDFUNCTION_NOFILE(10)
+	ADDVARIABLE_NOFILE(11)
+	ADDATTRIBUTE_NOFILENAME(12)
+	ADDSTRUCT_NOFILENAME(13)
+	ADDENUM_NOFILENAME(14)
+	ADDDELEGATE_NOFILENAME(15)
+	REMOVE(16)
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2B5-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelElementsObj) ]
+interface CodeElements : IDispatch
+{
+	[id(DISPID_NEWENUM), restricted]
+	HRESULT _NewEnum([out, retval] IUnknown **lppiuReturn);
+
+	[id(1), propget, HELP(vsproDTEProperty)] 
+	HRESULT DTE ([out, retval] DTE **DTEObject);
+
+	[id(2), propget, HELP(vsproDTEProperty)] 
+	HRESULT Parent ([out, retval] IDispatch **ParentObject);
+
+	[id(DISPID_VALUE), HELP(vsextItemMethod)]
+	HRESULT Item(VARIANT index, [out, retval] CodeElement **ppCodeElement);
+
+	[id(3), propget, HELP(vsproCountProperty)]
+	HRESULT Count([out, retval] long *CountOfCodeElements);
+
+	[id(4), hidden, restricted]
+	HRESULT Reserved1(VARIANT Element);
+
+	[id(5), HELP(vsextCreateUniqueID)]
+	HRESULT CreateUniqueID([in] BSTR Prefix, [in, out, defaultvalue(NULL)] BSTR *NewName, [out, retval] VARIANT_BOOL *pRootUnique);
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2B6-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelElementObj) ]
+interface CodeElement : IDispatch
+{
+	CODEELEMENTBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2B8-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelNamespaceObj) ]
+interface CodeNamespace : IDispatch
+{
+	CODENAMESPACEBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2B7-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelClassObj) ]
+interface CodeType : IDispatch
+{
+	CODETYPEBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(B1F42514-91CD-4D3A-8B25-A317D8032B24), HELP(vsextCodeClassObj) ]
+interface CodeClass : IDispatch
+{
+	CODECLASSBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(B1F42510-91CD-4D3A-8B25-A317D8032B24), HELP(vsextCodeInterfaceObj) ]
+interface CodeInterface : IDispatch
+{
+	CODEINTERFACEBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(B1F42511-91CD-4D3A-8B25-A317D8032B24), HELP(vsextCodeStructObj) ]
+interface CodeStruct : IDispatch
+{
+	CODESTRUCTBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(B1F42512-91CD-4D3A-8B25-A317D8032B24), HELP(vsextCodeEnumObj) ]
+interface CodeEnum : IDispatch
+{
+	CODEENUMBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(B1F42513-91CD-4D3A-8B25-A317D8032B24), HELP(vsextCodeDelegateObj) ]
+interface CodeDelegate : IDispatch
+{
+	CODEDELEGATEBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2B9-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelFunctionObj) ]
+interface CodeFunction : IDispatch
+{
+	CODEFUNCTIONBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2BA-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelVariableObj) ]
+interface CodeVariable : IDispatch
+{
+	CODEVARIABLEBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2BB-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelPropertyObj) ]
+interface CodeProperty : IDispatch
+{
+	CODEPROPERTYBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2BC-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelTypeObj) ]
+interface CodeTypeRef : IDispatch
+{
+	CODETYPEREFBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2BD-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelParameterObj) ]
+interface CodeParameter : IDispatch
+{
+	CODEPARAMETERBASEMETHODS_V7
+};
+
+[ odl, dual, oleautomation, object, uuid(0CFBC2BE-0D4E-11D3-8997-00C04F688DDE), HELP(vsextCodeModelAttributeObj) ]
+interface CodeAttribute : IDispatch
+{
+	CODEATTRIBUTEBASEMETHODS_V7
+};

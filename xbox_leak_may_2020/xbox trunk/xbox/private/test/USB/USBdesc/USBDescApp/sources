@@ -1,0 +1,39 @@
+TARGETNAME=USBDescApp
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+TITLEID    = 0xffffabd0
+PROJNAME = USB Descriptor Display
+BROWSER_INFO=1
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000 /NOSETUPHD
+
+
+
+USE_LIBCMT=1
+ 
+
+INCLUDES=\
+	$(SDKDIR); \
+	$(BASEDIR)\private\test\inc;\
+    $(BASEDIR)\private\ntos\inc;\
+	$(PRIVATE_INC_PATH);\
+	$(BASEDIR)\private\test\inc\cpx;\
+	$(SDK_INC_PATH);\
+	$(TEST_INCLUDE);\
+	$(BASEDIR)\public\ddk\inc;\
+	$(BASEDIR)\private\ntos\dd\usb\xid;\
+    $(INCLUDES)
+
+
+SOURCES=\
+    USBDescApp.cpp 
+
+LINKLIBS=\
+	$(XDK_LIB_PATH)\d3d8$(D).lib                \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib				\
+    $(XDK_LIB_PATH)\dsound$(D).lib              \
+    $(XDK_LIB_PATH)\xgraphics$(D).lib			\
+    $(BASEDIR)\private\test\lib\*\cpxlib.lib    \
+    $(BASEDIR)\private\test\USB\USBDesc\slixd\obj\*\slixd.lib
+

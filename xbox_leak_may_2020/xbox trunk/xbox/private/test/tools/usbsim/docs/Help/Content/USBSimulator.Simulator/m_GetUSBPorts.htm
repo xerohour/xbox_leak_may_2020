@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Simulator.GetUSBPorts</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>GetUSBPorts</H1>
+    <DIV CLASS=BLOCK>
+    This function returns a bitmask of which USB Boards are connected and responding. 
+    If a bit is 0 then the USB Board corresponding to the position of the bit is either missing or unusable.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("short GetUSBPorts(BSTR ipAddr)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>ipAddr</I><BR>
+        The IP address of the Simulator.
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var simulator = WScript.CreateObject(\"USBSimulator.Simulator\");\n\nvar flags = simulator.GetUSBPorts(\"157.56.10.18\");\nvar numberOfBoards = (flags&0x01?1:0) + (flags&0x02?1:0) + (flags&0x04?1:0) + (flags&0x08?1:0) + \n    (flags&0x10?1:0) + (flags&0x20?1:0) + (flags&0x40?1:0) + (flags&0x80?1:0);");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="m_GetVersion.htm">GetVersion</A>, <A HREF="m_GetMACAddr.htm">GetMACAddr</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

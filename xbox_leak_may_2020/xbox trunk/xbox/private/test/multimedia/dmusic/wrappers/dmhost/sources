@@ -1,0 +1,36 @@
+TARGETNAME=DMHost
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/INITFLAGS:3 /TESTNAME:"DMusic API Host"
+
+SYNCHRONIZE_DRAIN = 1
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    ..\;                                               \
+		            ..\trans;						                   \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc;            \
+
+#C_DEFINES =         $(C_DEFINES) -DD3D_OVERLOADS -DNOLOG
+C_DEFINES =         $(C_DEFINES) -DD3D_OVERLOADS
+
+                                            
+SOURCES= main.cpp
+
+TARGETLIBS= \
+#			$(TESTLIBS)\xtestlib.lib \
+           $(TESTLIBS)\xlog.lib \
+           $(TESTLIBS)\transX.lib \
+#           $(SDK_LIB_PATH)\xfont$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+#           $(SDK_LIB_PATH)\dmusic$(D).lib \
+		   $(LIBRARY_PATH)\dmusic$(D).lib \

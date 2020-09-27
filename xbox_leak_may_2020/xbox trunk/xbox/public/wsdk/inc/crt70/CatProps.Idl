@@ -1,0 +1,44 @@
+//+---------------------------------------------------------------------------
+//
+//  Microsoft Site Server v3.00
+//  Copyright (C) 1997-1999 Microsoft Corporation.  All rights reserved.
+//
+//  File:       catprops.idl
+//
+//  Contents:   Declares the catalog properties interface
+//
+//  Interfaces: ICatalogProperties
+//
+//----------------------------------------------------------------------------
+
+[
+    object,
+    public,
+    uuid(0b63e34f-9ccc-11d0-bcdb-00805fccce04),
+    dual,
+    helpstring("Catalog Properties"),
+    pointer_default(unique)
+]
+interface ICatalogProperties : IDispatch
+{
+    import "oaidl.idl";
+    
+    [propget, helpstring("Returns the date and time when the catalog was built.")]
+    HRESULT BuildDate([out, retval] DATE * pTime);
+
+    [propget, helpstring("Returns the number of documents in a catalog.")]
+    HRESULT NumberOfDocuments([out, retval] long* pCount);
+
+    [propget, helpstring("Returns the size of the catalog index")]
+    HRESULT IndexSize([out, retval] long* pCount);
+
+    [propget, helpstring("Returns the size of the property store")]
+    HRESULT PropertyStoreSize([out, retval] long* pCount);
+
+    [propget, helpstring("Returns the number of unique keys in the catalog")]
+    HRESULT UniqueKeyCount([out, retval] long* pCount);
+
+    [propget, helpstring("Returns the propagation sequence number (crawl number)")]
+    HRESULT PropSeqNum([out, retval] long* pCount);
+};
+

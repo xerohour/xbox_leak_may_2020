@@ -1,0 +1,29 @@
+TARGETNAME=xboxredsign
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+
+INCLUDES=$(BASEDIR)\private\cert\lib
+
+LINKLIBS=\
+    $(BASEDIR)\private\lib\*\certutil.lib \
+    $(BASEDIR)\private\lib\*\cklibver.lib \
+    $(BASEDIR)\private\lib\*\xcrypt.lib \
+    $(BASEDIR)\private\lib\*\rsa32.lib \
+    $(WSDK_LIB_PATH)\user32.lib \
+    $(WSDK_LIB_PATH)\gdi32.lib \
+    $(WSDK_LIB_PATH)\winspool.lib \
+    $(WSDK_LIB_PATH)\ole32.lib \
+    $(WSDK_LIB_PATH)\oleaut32.lib \
+    $(WSDK_LIB_PATH)\msxml3.lib
+
+SOURCES= \
+    blkred.cpp \
+    blkred.rc
+
+USE_MSVCRT=1
+USE_ATL=1
+ATL_VER=30
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_CXX=1

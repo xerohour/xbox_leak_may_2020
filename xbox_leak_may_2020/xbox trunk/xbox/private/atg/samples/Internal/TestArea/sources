@@ -1,0 +1,23 @@
+TARGETNAME = TestArea
+PROJNAME   = TestArea
+SOURCES    = TestArea.cpp
+TITLEID    = 0xffff3401
+
+NTTARGETFILE0 = $(O)\TestArea.dsp
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib
+
+
+USE_LIBCMT = 1

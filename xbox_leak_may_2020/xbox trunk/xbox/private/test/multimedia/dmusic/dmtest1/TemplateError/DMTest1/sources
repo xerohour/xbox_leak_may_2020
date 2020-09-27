@@ -1,0 +1,66 @@
+TARGETNAME=DMTEST_VALID
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+
+SYNCHRONIZE_DRAIN = 1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+INCLUDES =   \
+		   ..\..\..\dmth8;                                   \
+           $(BASEDIR)\private\test\inc;                       \
+           $(BASEDIR)\private\test\multimedia\inc;            \
+		   $(SDK_INC_PATH);                                   \
+
+
+C_DEFINES =         $(C_DEFINES) -DD3D_OVERLOADS
+
+#PRECOMPILED_CXX=1
+#PRECOMPILED_INCLUDE=..\dmth8\globals.h
+#PRECOMPILED_PCH=globals.pch
+#PRECOMPILED_OBJ=globals.obj
+
+                                            
+SOURCES=                                                            \
+    dmtest1.cpp                                                     \
+    CICMusicX.cpp                                                   \
+    Logging.cpp                                                     \
+    Helpers.cpp                                                     \
+    sample.cpp                                                      \
+    Audiopath_SetVolume.cpp                                         \
+    Audiopath_SetVolume_Invalid.cpp                                 \
+    Audiopath_GetObjectInPath1.cpp                                  \
+    Audiopath_Activate.cpp                                          \
+    Performance8_CloseDown.cpp                                      \
+    Performance8_IsPlaying.cpp                                      \
+    Performance8_IsPlaying_Invalid.cpp                              \
+    Performance8_PlaySegmentEx.cpp                                  \
+    Performance8_GetSegmentState.cpp                                \
+    Performance8_CreateStandardAudioPath.cpp                        \
+    Performance8_InitAudio.cpp                                      \
+    Performance8_StopEx.cpp                                         \
+    Performance8_AllocPMsg.cpp                                      \
+    Performance8_FreePMsg.cpp                                       \
+    Performance8_SendPMsg.cpp                                       \
+    Performance8_GetTime.cpp                                        \
+    Performance8_AddNotificationType.cpp                            \
+    Performance8_RemoveNotificationType.cpp                         \
+    Performance8_GetNotificationPMsg.cpp                            \
+    Performance8_SetGlobalParam.cpp                                 \
+    Performance8_GetGlobalParam.cpp                                 \
+    Performance8_Release.cpp                                        \
+    Segment8_Download.cpp                                           \
+    Segment8_Unload.cpp                                             \
+    Segment8_SetRepeats.cpp                                         \
+    SegmentState8_GetObjectInPath1.cpp                              \
+    script.cpp                                                      \
+    Script_Init.cpp                                                 \
+    Script_CallRoutine.cpp                                          \
+    Script_SetVariableNumber.cpp                                    \
+    Script_GetVariableNumber.cpp                                    \
+    Script_GetVariableObject.cpp                                    \
+    Script_SetVariableObject.cpp                                    \
+    loader8.cpp                                                     \
+    Loader_CollectGarbage.cpp                                       \
+#    tdmapth.cpp													\
+#    tdmperf.cpp													\

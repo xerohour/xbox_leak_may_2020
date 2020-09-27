@@ -1,0 +1,7 @@
+TARGETNAME=wbuffer
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+SOURCES= \
+    main.cpp
+

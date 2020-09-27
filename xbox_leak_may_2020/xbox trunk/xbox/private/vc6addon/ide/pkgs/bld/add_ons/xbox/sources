@@ -1,0 +1,55 @@
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=pkg
+MINORCOMP=xbox
+
+TARGETNAME=devxbox$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=pkg
+
+COFFBASE = devxbox
+DLLDEF=xbox.def
+
+VCROOT=$(BASEDIR)\private\vc6addon
+!include $(VCROOT)\ide\pkgs\bld\add_ons\sources.inc
+
+# if RCFILE is not defined, default to "xbox"
+!if "$(RCFILE)" == ""
+RCFILE=xbox
+!endif
+
+SOURCES=    \
+	xbox.cpp \
+	platxbox.cpp \
+	xbxoptnc.cpp \
+    xbxoptnl.cpp \
+	xbxtoolc.cpp \
+	xbxtooll.cpp \
+    toolxbe.cpp \
+    optnxbe.cpp \
+    toolxbcp.cpp \
+    optnxbcp.cpp \
+    $(RCFILE).rc
+
+NTTARGETFILE=
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_PCH=stdafx.pch
+PRECOMPILED_OBJ=stdafx.obj
+PRECOMPILED_CXX=1

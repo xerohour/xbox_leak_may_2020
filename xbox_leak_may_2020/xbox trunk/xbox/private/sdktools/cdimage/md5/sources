@@ -1,0 +1,41 @@
+MSC_OPTIMIZATION=/Od
+NTDEBUG=ntsd
+ntdebugtype=both
+
+MAJORCOMP=windows
+MINORCOMP=base
+
+TARGETNAME=MD5
+TARGETPATH=$(_OBJ_DIR)
+TARGETTYPE=LIBRARY
+TARGETLIBS=
+
+INCLUDES=.;..\crc
+
+USE_CRTDLL=1
+USE_CRT=1
+USE_PDB=1
+
+# Uncomment the line below to add symbols to the EXE
+#LINKER_FLAGS=$(LINKER_FLAGS) /PDB:NONE
+
+#Define DEBUG_BUILD to get a debug version of CDImage
+
+!IFDEF DEBUG_BUILD
+C_DEFINES=-DDEBUG -D_DEBUG
+MSC_OPTIMIZATION=/Od
+NTDEBUG=ntsd
+NTDEBUGTYPE=both
+DEBUG_CRTS=1
+!ENDIF
+
+C_DEFINES=$(C_DEFINES)
+
+MSC_WARNING_LEVEL= /W4 /WX
+
+SOURCES=md5.c
+       
+UMTYPE=console
+
+#UMLIBS=	$(EXTRA_LIBS) 			\
+#    	$(BASEDIR)\public\sdk\lib\*\user32.lib 	

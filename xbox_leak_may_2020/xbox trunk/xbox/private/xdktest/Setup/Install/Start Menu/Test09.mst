@@ -1,0 +1,31 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Non-default Start Menu, using buttons"
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+
+	Install(BuildNumber, false, false, , , , tempStartMenuPath)
+
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+ 

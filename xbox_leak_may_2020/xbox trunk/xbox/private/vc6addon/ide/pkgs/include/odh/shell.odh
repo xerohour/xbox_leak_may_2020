@@ -1,0 +1,276 @@
+
+/*
+	This file contains declarations for some dual interfaces from which other
+	interfaces inherit.  This file is directly #include'd into ODL, and is
+	thus in ODL syntax rather than C/C++ syntax.	
+*/
+
+#include "appdefs.odh"
+
+// Hide everything only if we're being fed to MkTyplib, but not to compile shell.odl
+#if defined(__MIDL__) && !defined(__SHEL_ODL__)
+#define helpstringcontext(id)
+#endif
+
+//  Primary dispatch interface for IGenericDocument
+[	uuid(FB7FDAE1-89B8-11cf-9BE8-00A0C90A632C),
+	helpstringcontext(IDS_HS_GENERICDOCUMENT),
+	oleautomation,
+	hidden,
+	dual
+]
+interface IGenericDocument: IDispatch
+{
+			[propget, id(0), helpstringcontext(IDS_HS_GENERICDOCUMENT_NAME)] 
+			HRESULT Name([out, retval] BSTR* pName);
+
+			[propget, id(1), helpstringcontext(IDS_HS_GENERICDOCUMENT_FULLNAME)] 
+			HRESULT FullName([out, retval] BSTR* pName) ;
+
+			[propget, id(2), helpstringcontext(IDS_HS_SHARED_APPLICATION)] 
+			HRESULT Application([out, retval] IDispatch** ppApplication);
+
+			[propget, id(3), helpstringcontext(IDS_HS_SHARED_PARENT)] 
+			HRESULT Parent([out, retval] IDispatch ** ppParent);
+
+			[propget, id(4), helpstringcontext(IDS_HS_GENERICDOCUMENT_PATH)] 
+			HRESULT Path([out, retval] BSTR* pPath);
+
+			[propget, id(5), helpstringcontext(IDS_HS_GENERICDOCUMENT_SAVED)] 
+			HRESULT Saved([out, retval] boolean* pSaved);
+
+			[propget, id(6), helpstringcontext(IDS_HS_GENERICDOCUMENT_ACTIVEWINDOW)] 
+			HRESULT ActiveWindow([out, retval] IDispatch ** ppWindow);
+
+			[propget, id(7), helpstringcontext(IDS_HS_GENERICDOCUMENT_READONLY)] 
+			HRESULT ReadOnly([out, retval] boolean* pReadOnly);
+
+			[propput, id(7), helpstringcontext(IDS_HS_GENERICDOCUMENT_READONLY)] 
+			HRESULT ReadOnly([in] boolean ReadOnly);
+
+			[propget, id(8), helpstringcontext(IDS_HS_GENERICDOCUMENT_TYPE)] 
+			HRESULT Type([out, retval] BSTR* pType);
+
+			[propget, id(9), helpstringcontext(IDS_HS_GENERICDOCUMENT_WINDOWS)] 
+			HRESULT Windows([out, retval] IDispatch **ppWindows);
+			
+			[propput, id(10), helpstringcontext(IDS_HS_GENERICWINDOW_ACTIVE)] 
+			HRESULT Active([in] boolean bActive);
+
+			[propget, id(10), helpstringcontext(IDS_HS_GENERICWINDOW_ACTIVE)]
+			HRESULT Active([out, retval] boolean *pbActive);
+
+//		methods:
+			[id(11), helpstringcontext(IDS_HS_GENERICDOCUMENT_NEWWINDOW)] 
+			HRESULT NewWindow([out, retval] IDispatch** ppWindow);
+
+			[id(12), helpstringcontext(IDS_HS_GENERICDOCUMENT_SAVE)] 
+			HRESULT Save([in, optional] VARIANT vFilename, [in, optional] VARIANT vBoolPrompt, [out, retval] DsSaveStatus* pSaved);
+
+			[id(13), helpstringcontext(IDS_HS_GENERICDOCUMENT_UNDO)] 
+			HRESULT Undo([out, retval] boolean* pSuccess);
+
+			[id(14), helpstringcontext(IDS_HS_GENERICDOCUMENT_REDO)] 
+			HRESULT Redo([out, retval] boolean* pSuccess);
+
+			[id(15), helpstringcontext(IDS_HS_GENERICDOCUMENT_PRINTOUT)] 
+			HRESULT PrintOut([out, retval] boolean* pSuccess);
+			
+
+			[id(16), helpstringcontext(IDS_HS_GENERICDOCUMENT_CLOSE)] 
+			HRESULT Close([in, optional] VARIANT vSaveChanges, [out, retval] DsSaveStatus* pSaved);
+
+			[id(50), hidden, restricted]
+			HRESULT Reserved1();
+
+			[id(51), hidden, restricted]
+			HRESULT Reserved2();
+
+			[id(52), hidden, restricted]
+			HRESULT Reserved3();
+
+			[id(53), hidden, restricted]
+			HRESULT Reserved4();
+
+			[id(54), hidden, restricted]
+			HRESULT Reserved5();
+
+			[id(55), hidden, restricted]
+			HRESULT Reserved6();
+
+			[id(56), hidden, restricted]
+			HRESULT Reserved7();
+
+			[id(57), hidden, restricted]
+			HRESULT Reserved8();
+
+			[id(58), hidden, restricted]
+			HRESULT Reserved9();
+
+			[id(59), hidden, restricted]
+			HRESULT Reserved10();
+};
+
+
+//  Primary dispatch interface for IGenericWindow
+[ uuid(FD20FC80-A9D2-11cf-9C13-00A0C90A632C),
+  helpstringcontext(IDS_HS_GENERICWINDOW),
+  oleautomation,
+  hidden,
+  dual
+]
+interface IGenericWindow: IDispatch
+{
+			[propget, id(0), helpstringcontext(IDS_HS_GENERICWINDOW_CAPTION)] 
+			HRESULT Caption([out, retval] BSTR *pbstrCaption);
+
+			[propget, id(1), helpstringcontext(IDS_HS_GENERICWINDOW_TYPE)] 
+			HRESULT Type([out, retval] BSTR *pbstrCaption);
+
+			[propput, id(2), helpstringcontext(IDS_HS_GENERICWINDOW_ACTIVE)] 
+			HRESULT Active([in] boolean bActive);
+
+			[propget, id(2), helpstringcontext(IDS_HS_GENERICWINDOW_ACTIVE)]
+			HRESULT Active([out, retval] boolean *pbActive);
+
+			[propput, id(3), helpstringcontext(IDS_HS_GENERICWINDOW_LEFT)]
+			HRESULT Left([in] long lVal);
+
+			[propget, id(3), helpstringcontext(IDS_HS_GENERICWINDOW_LEFT)] 
+			HRESULT Left([out, retval] long *plVal);
+
+			[propput, id(4), helpstringcontext(IDS_HS_GENERICWINDOW_TOP)] 
+			HRESULT Top([in] long lVal);
+
+			[propget, id(4), helpstringcontext(IDS_HS_GENERICWINDOW_TOP)] 
+			HRESULT Top([out, retval] long *plVal);
+
+			[propput, id(5), helpstringcontext(IDS_HS_GENERICWINDOW_HEIGHT)] 
+			HRESULT Height([in] long lVal);
+
+			[propget, id(5), helpstringcontext(IDS_HS_GENERICWINDOW_HEIGHT)] 
+			HRESULT Height([out, retval] long *plVal);
+
+			[propput, id(6), helpstringcontext(IDS_HS_GENERICWINDOW_WIDTH)] 
+			HRESULT Width([in] long lVal);
+
+			[propget, id(6), helpstringcontext(IDS_HS_GENERICWINDOW_WIDTH)] 
+			HRESULT Width([out, retval] long *plVal);
+
+			[propget, id(7), helpstringcontext(IDS_HS_GENERICWINDOW_INDEX)] 
+			HRESULT Index([out, retval] long *plVal);
+
+			[propget, id(8), helpstringcontext(IDS_HS_GENERICWINDOW_NEXT)] 
+			HRESULT Next([out, retval] IDispatch** ppDispatch);
+
+			[propget, id(9), helpstringcontext(IDS_HS_GENERICWINDOW_PREVIOUS)] 
+			HRESULT Previous([out, retval] IDispatch** ppDispatch);
+
+			[propput, id(10), helpstringcontext(IDS_HS_GENERICWINDOW_WINDOWSTATE)] 
+			HRESULT WindowState([in] DsWindowState lVal);
+
+			[propget, id(10), helpstringcontext(IDS_HS_GENERICWINDOW_WINDOWSTATE)] 
+			HRESULT WindowState([out, retval] DsWindowState *plVal);
+
+			[propget, id(11), helpstringcontext(IDS_HS_SHARED_APPLICATION)] 
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+
+			[propget, id(12), helpstringcontext(IDS_HS_GENERICWINDOW_PARENT)] 
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+			
+//		methods:
+			[id(13), helpstringcontext(IDS_HS_GENERICWINDOW_CLOSE)] 
+			HRESULT Close([in] VARIANT boolSaveChanges, [out, retval] DsSaveStatus* pSaved);
+
+			[id(50), hidden, restricted]
+			HRESULT Reserved1();
+
+			[id(51), hidden, restricted]
+			HRESULT Reserved2();
+
+			[id(52), hidden, restricted]
+			HRESULT Reserved3();
+
+			[id(53), hidden, restricted]
+			HRESULT Reserved4();
+
+			[id(54), hidden, restricted]
+			HRESULT Reserved5();
+
+			[id(55), hidden, restricted]
+			HRESULT Reserved6();
+
+			[id(56), hidden, restricted]
+			HRESULT Reserved7();
+
+			[id(57), hidden, restricted]
+			HRESULT Reserved8();
+
+			[id(58), hidden, restricted]
+			HRESULT Reserved9();
+
+			[id(59), hidden, restricted]
+			HRESULT Reserved10();
+};
+
+
+
+// Primary dual interface for IGenericProject
+	
+[ uuid(8CA5A960-FC7D-11cf-927D-00A0C9138C45),
+  helpstringcontext(IDS_HS_GENERICPROJECT),
+  oleautomation,
+  hidden,
+  dual
+]
+interface IGenericProject : IDispatch
+{
+// properties
+		[id(0), propget, helpstringcontext(IDS_HS_GENERICPROJECT_NAME)] 
+		HRESULT Name([out, retval] BSTR* Name);
+
+		[id(1), propget, helpstringcontext(IDS_HS_GENERICPROJECT_FULLNAME)] 
+		HRESULT FullName([out, retval] BSTR* Name);
+
+		[id(2), propget, helpstringcontext(IDS_HS_SHARED_APPLICATION)] 
+		HRESULT Application([out, retval] IDispatch** Application);
+
+		[id(3), propget, helpstringcontext(IDS_HS_SHARED_PARENT)] 
+		HRESULT Parent([out, retval] IDispatch** Parent);
+
+		[id(4), propget, helpstringcontext(IDS_HS_GENERICPROJECT_TYPE)] 
+		HRESULT Type([out, retval] BSTR* pType);
+
+// methods
+
+			[id(50), hidden, restricted]
+			HRESULT Reserved1();
+
+			[id(51), hidden, restricted]
+			HRESULT Reserved2();
+
+			[id(52), hidden, restricted]
+			HRESULT Reserved3();
+
+			[id(53), hidden, restricted]
+			HRESULT Reserved4();
+
+			[id(54), hidden, restricted]
+			HRESULT Reserved5();
+
+			[id(55), hidden, restricted]
+			HRESULT Reserved6();
+
+			[id(56), hidden, restricted]
+			HRESULT Reserved7();
+
+			[id(57), hidden, restricted]
+			HRESULT Reserved8();
+
+			[id(58), hidden, restricted]
+			HRESULT Reserved9();
+
+			[id(59), hidden, restricted]
+			HRESULT Reserved10();
+};
+

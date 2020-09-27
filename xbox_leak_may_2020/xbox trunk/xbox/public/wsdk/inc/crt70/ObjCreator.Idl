@@ -1,0 +1,58 @@
+// Generated .IDL file (by the OLE/COM Object Viewer)
+// 
+// typelib filename: objcreator.dll
+// Forward declare all types defined in this typelib
+interface IObjCreator;
+interface IObjCreatorAuth;
+
+[
+  uuid(C9C419C3-8B6A-11D0-BCD9-00805FCCCE04),
+  version(1.0),
+  helpstring("Site Server Search 3.0 Authentication Client Type Library")
+]
+library CREATORLib
+{
+    // TLib : OLE Automation : {00020430-0000-0000-C000-000000000046}
+    importlib("stdole2.tlb");
+
+    [
+      uuid(C9C419D1-8B6A-11D0-BCD9-00805FCCCE04),
+      helpstring("ObjCreator Class")
+    ]
+    coclass ObjCreator {
+        [default] interface IObjCreator;
+        interface IObjCreatorAuth;
+    };
+
+    [
+      odl,
+      uuid(C9C419D0-8B6A-11D0-BCD9-00805FCCCE04),
+      helpstring("IObjCreator Interface"),
+      dual,
+      oleautomation
+    ]
+    interface IObjCreator : IDispatch {
+        [id(0x60020000)]
+        HRESULT _stdcall CreateObj(
+                        [in] BSTR bstrProgId, 
+                        [in, optional] BSTR bstrServer, 
+                        [out, retval] VARIANT* pVarObject);
+        [id(0x60020001)]
+        HRESULT _stdcall CreateObjAuth(
+                        [in] BSTR bstrProgId, 
+                        [in, optional] BSTR bstrServer, 
+                        [out, retval] VARIANT* pVarObject);
+    };
+
+    [
+      odl,
+      uuid(0B63E394-9CCC-11D0-BCDB-00805FCCCE04),
+      helpstring("IObjCreatorAuth Interface")
+    ]
+    interface IObjCreatorAuth : IUnknown {
+        HRESULT _stdcall CreateClsObjAuth(
+                        [in] GUID* rClsid, 
+                        [in] BSTR bstrServer, 
+                        [out] IUnknown** ppUnknown);
+    };
+};

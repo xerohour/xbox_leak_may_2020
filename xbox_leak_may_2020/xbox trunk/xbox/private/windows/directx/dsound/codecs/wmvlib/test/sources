@@ -1,0 +1,28 @@
+TARGETNAME=wmvplay
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+INCLUDES=$(INCLUDES);$(PRIVATE_INC_PATH)
+
+SOURCES=\
+    wmvplay.cpp \
+    sound.cpp \
+    graphics.cpp \
+    input.cpp \
+    debugstats.cpp
+
+# C_DEFINES=$(C_DEFINES) -DDONT_PLAY_SOUND
+# C_DEFINES=$(C_DEFINES) -DDONT_PLAY_VIDEO
+
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:"WMV Playback Sample" /NOPRELOAD:WMVDEC
+
+LINKLIBS=\
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\dsound$(D).lib \
+    $(LIBRARY_PATH)\wmvdec$(D).lib
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=wmvplay.h
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=precomp.obj

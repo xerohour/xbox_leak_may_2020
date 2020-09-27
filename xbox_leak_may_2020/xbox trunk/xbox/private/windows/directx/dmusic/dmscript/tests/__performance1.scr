@@ -1,0 +1,91 @@
+<script language=limitedvbscript directmusicversion=8.0.0.0>
+
+dim TPlayTwoMeasuresMt
+dim TPlayTwoMeasuresSeg
+
+dim TPlayFiveSecondsCt
+dim TPlayFiveSecondsSeg
+
+dim TIsPlayingPlayed
+dim TIsPlayingState
+
+sub TPlayTwoMeasures
+	set TPlayTwoMeasuresSeg = LoadSegment("Sample.sgt")
+	TPlayTwoMeasuresSeg.Download
+	PlaySegment(TPlayTwoMeasuresSeg)
+	TPlayTwoMeasuresMt = GetMusicTime()
+end sub
+
+sub TPlayTwoMeasures2
+	if GetMusicTime() >= TPlayTwoMeasuresMt + 768 * 8 then
+		PerformanceStop TPlayTwoMeasuresSeg
+	end if
+end sub
+
+sub TPlayFiveSeconds
+	set TPlayFiveSecondsSeg= LoadSegment("Sample.sgt")
+	TPlayFiveSecondsSeg.Download
+	PlaySegment(TPlayFiveSecondsSeg)
+	TPlayFiveSecondsCt = GetClockTime()
+end sub
+
+sub TPlayFiveSeconds2
+	if GetClockTime() >= TPlayFiveSecondsCt + 5000 then
+		PerformanceStop TPlayFiveSecondsSeg
+	end if
+end sub
+
+sub TIsPlaying
+	Playing = False
+	if TIsPlayingPlayed then
+		Playing = IsPlaying(Nothing, TIsPlayingState)
+	end if
+
+	if Playing then
+		PerformanceStop
+		TIsPlayingPlayed = False
+	else
+		set seg = LoadSegment("Sample.sgt")
+		seg.Download
+		set TIsPlayingState = PlaySegment(seg)
+		TIsPlayingPlayed = True
+	end if
+end sub
+
+sub TGetSegmentState
+	set segst = GetSegmentState()
+	if segst is Nothing then
+		set seg = LoadSegment("Sample.sgt")
+		seg.Download
+		PlaySegment(seg)
+	else
+		PerformanceStop
+	end if
+end sub
+
+sub TInvalidate
+	Invalidate
+end sub
+
+sub TMusicClock
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	PlaySegment(seg)
+	m = GetMusicTime()
+	c = MusicToClockTime(m)
+	c = c + 500
+	m = ClockToMusicTime(c)
+	PerformanceStop seg, Nothing, 0, m
+end sub
+
+sub TMasterTempo
+	SetMasterTempo(100)
+	t = GetMasterTempo()
+	SetMasterTempo(t*2)
+end sub
+
+sub TMasterVolume
+	SetMasterVolume 100
+	v = GetMasterVolume()
+	SetMasterVolume(v*10)
+end sub

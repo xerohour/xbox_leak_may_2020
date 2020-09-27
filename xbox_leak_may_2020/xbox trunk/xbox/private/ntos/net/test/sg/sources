@@ -1,0 +1,38 @@
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+TARGETNAME=testsg
+UMTYPE=console
+USE_LIBCMT=1
+NO_BINPLACE=1
+
+MSC_WARNING_LEVEL=/W3 /WX /Ob1
+
+!if defined(GENASM)
+MSC_WARNING_LEVEL=$(MSC_WARNING_LEVEL) /Fa
+!endif
+
+!if $(FREEBUILD) == 0
+MSC_OPTIMIZATION=/Odi /Ob1
+!endif
+
+C_DEFINES=$(C_DEFINES) -D_UNICODE -DUNICODE -DNT -DXNET_BUILD_LIBXW
+
+LINKER_FLAGS=$(LINKER_FLAGS) /map /IGNORE:4099
+
+INCLUDES=$(INCLUDES); \
+    $(BASEDIR)\private\ntos\net; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\public\wsdk\inc; \
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\inc\crypto; \
+
+TARGETLIBS=\
+    $(WSDK_LIB_PATH)\ntdll.lib \
+    $(WSDK_LIB_PATH)\user32.lib \
+    $(BASEDIR)\private\lib\i386\rsa32.lib \
+    $(BASEDIR)\private\lib\i386\vlan$(D).lib \
+    $(BASEDIR)\private\lib\i386\sgadmin$(D).lib \
+    $(SDK_LIB_PATH)\xnetw$(D).lib \
+
+SOURCES=\
+    testsg.cpp \

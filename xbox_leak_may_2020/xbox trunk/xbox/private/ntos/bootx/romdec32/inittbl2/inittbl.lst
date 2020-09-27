@@ -1,0 +1,2511 @@
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 1 - 1
+
+
+				;++
+				;
+				;  Copyright (c) Microsoft Corporation. All rights reserved
+				;
+				;  Module Name:
+				;
+				;    inittbl.asm
+				;
+				;  Abstract:
+				;
+				;    This module contains table of commands used by South Bridge to initialize
+				;    hardware and test memory during boot startup.  For definition of each
+				;    command, please see initcode.inc and command.inc
+				;
+				;--
+				        INCLUDE chipset.inc
+			      C ;++
+			      C ;
+			      C ; Copyright (c) Microsoft Corporation
+			      C ;
+			      C ; Module Name:
+			      C ;
+			      C ;    chipset.inc
+			      C ;
+			      C ; Abstract:
+			      C ;
+			      C ;    This file contains defines that control which chipset romdec and
+			      C ;    init table are built for
+			      C ;
+			      C ;--
+			      C 
+			      C IFNDEF RETAILXM3
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; Define the following, when building for MCP Rev B01 in XMODE3
+			      C ; Otherwise, this should undefined
+			      C ;
+			      C ;MCP_REV_B01 = 1
+			      C 
+			      C 
+			      C IFDEF SYS_QT
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; If we are building retail, set the local retail define
+			      C ;
+			      C IFDEF RETAILXM3
+			      C 
+ = 0001			      C SYS_RETAIL = 1
+			      C 
+			      C ENDIF
+			      C 
+			      C 
+
+				;
+				; To build the init table for old A02 (without M7, fansink) DVT3s, DVT2s and 
+				; DVT1, define INITTABLE_OLDA02.  To build the init table for fullspeed systems, 
+				; this should undefined.  We are currently building two init tables:
+				;
+				;
+				;   Init Table            Ver    Defines
+				;   --------------------- ------ ----------------------------------------------------------
+				;   DVT4/5                0x46   SYS_DVT4  
+				;
+				;   DVT6                  0x60   SYS_DVT6 (SYS_DVT4 undefined)
+				;
+				;   QT                    0x70   SYS_QT (automatically defines SYS_DVT6)
+				;
+
+				        INCLUDE nv2ainit.inc
+			      C ;++
+			      C ;
+			      C ;  Copyright (c) Microsoft Corporation. All rights reserved
+			      C ;
+			      C ;  Module Name:
+			      C ;
+			      C ;    nv2ainit.inc
+			      C ;
+			      C ;  Abstract:
+			      C ;
+			      C ;    NV2A initialization table
+			      C ;
+			      C ;    This module contains table of commands used by South Bridge to initialize
+			      C ;    hardware and test memory during boot startup.  For definition of each
+			      C ;    command, please see initcode.inc and command.inc
+			      C ;--
+			      C 
+			      C page    84,132
+			      C .MODEL compact
+			      C .486p
+			      C 
+			      C INCLUDE COMMAND.INC
+			      C IFDEF MCP_XMODE2
+			      C ELSE
+			      C 
+			      C ;
+			      C ; Opcodes for internal ROM (XMODE3)
+			      C ;
+			      C 
+ = 0001			      C COMMAND_RESERVED             EQU 1h
+ = 0002			      C COMMAND_READ_MEM             EQU 2h
+ = 0003			      C COMMAND_WRITE_MEM            EQU 3h
+ = 0004			      C COMMAND_PCI_CFG_WRITE        EQU 4h
+ = 0005			      C COMMAND_PCI_CFG_READ         EQU 5h
+ = 0006			      C COMMAND_RMW_RESULT           EQU 6h
+ = 0007			      C COMMAND_USE_RESULT_AS_DATA   EQU 7h
+ = 0008			      C COMMAND_COMPARE_RESULT_JNE   EQU 8h
+ = 0009			      C COMMAND_JMP                  EQU 9h
+ = 0010			      C COMMAND_RMW_ACCUM            EQU 10h
+ = 0011			      C COMMAND_OUT_BYTE             EQU 11h
+ = 0012			      C COMMAND_IN_BYTE              EQU 12h
+ = 00EE			      C COMMAND_QUIT                 EQU 0EEh
+			      C 
+ = 00F5			      C COMMAND_UNUSED1              EQU 0F5h
+ = 0080			      C COMMAND_UNUSED2              EQU 080h
+			      C 
+			      C ENDIF
+			      C 
+			      C 
+ = 0000			      C DONT_CARE                    EQU 0
+			      C 
+ 0009			      C nv_command_struct struct
+ 0000  00		      C         nv_command db 0
+ 0001  00000000		      C         nv_address dd 0
+ 0005  00000000		      C         nv_data    dd 0
+			      C nv_command_struct ends
+			      C 
+			      C 
+			      C 
+			      C INCLUDE NV2A.INC
+			      C ;
+			      C ; NV2A ROM table ptr (NV20 Register Base/Limit (BAR0)
+			      C ;
+ = FF000008		      C NV2A_XBOX_ROM_TABLE_PTR          EQU 0FF000008h
+			      C 
+			      C ;
+			      C ; Datatbl starts at this offset
+			      C ;
+			      C ; IMPORTANT: This must be adjusted if the size of the init table
+			      C ; code has changed
+			      C ;
+			      C IFDEF SYS_RETAIL
+ = 0C90			      C DATATBL_BASE_OFFSET              EQU 0C90h
+			      C ELSE
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; Integrated NV20 Register Base (BAR0)
+			      C ;
+ = 0F000000		      C NV20_REG_BASE                    EQU 00F000000h    ; only during the init tbl
+ = FD000000		      C NV20_REG_BASE_KERNEL             EQU 0FD000000h    ; reloaded to agree with kernel code
+ = F0000000		      C NV20_FB_BASE                     EQU 0F0000000h
+ = 40000000		      C APERTURE_BASE                    EQU 040000000h
+			      C 
+ = C000			      C SMB_CONTROL_BASE                 EQU 00000C000h
+ = C200			      C SMB_DDC_SPIO_BASE                EQU 00000C200h
+			      C 
+			      C ;
+			      C ; NV2A config equates
+			      C ;
+ = 80000084		      C CR_CPU_MEMTOP                    EQU 080000084h
+ = 03FFFFFF		      C CR_CPU_MEMTOP_LIMIT_64MB         EQU 003FFFFFFh
+ = 07FFFFFF		      C CR_CPU_MEMTOP_LIMIT_128MB        EQU 007FFFFFFh
+			      C 
+ = 80000340		      C CR_CPU_CST_0                     EQU 080000340h
+ = 80000344		      C CR_CPU_CST_1                     EQU 080000344h
+ = 8000035C		      C CR_CPU_CST_7                     EQU 08000035Ch
+			      C 
+ = 8000036C		      C CR_CPU_MPLL_COEFF                EQU 08000036Ch
+			      C 
+ = 8000F004		      C CR_APC_P2P_1                     EQU 08000F004h
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 2 - 1
+
+
+ = 0007			      C CR_APC_P2P_1_BUS_MSTR_MEM_IO     EQU 000000007h    ; should be RMW, still ok?
+			      C 
+ = 8000F018		      C CR_APC_P2P_6                     EQU 08000F018h
+ = 00010100		      C CR_APC_P2P_6_SUB_SEC_PRI_BUS     EQU 000010100h    ; change CR_NV20, if bus changes
+			      C 
+ = 8000F020		      C CR_APC_P2P_8                     EQU 08000F020h
+ = 0FF00F00		      C CR_APC_P2P_8_MLIMIT_MBASE_INIT   EQU (NV20_REG_BASE + 0F00000h) OR (NV20_REG_BASE SHR 16)
+ = FDF0FD00		      C CR_APC_P2P_8_MLIMIT_MBASE_KERNEL EQU (NV20_REG_BASE_KERNEL + 0F00000h) OR (NV20_REG_BASE_KERNEL SHR 
+			      C 16)
+ = 8000F024		      C CR_APC_P2P_9                     EQU 08000F024h
+ = F7F0F000		      C CR_APC_P2P_9_PREF_MLIMIT_MBASE   EQU (NV20_FB_BASE +  7F00000h) OR (NV20_FB_BASE SHR 16)
+			      C 
+ = 8000F04C		      C CR_APC_P2P_19                    EQU 08000F04Ch
+ = 0001			      C CR_APC_P2P_19_NV20_ENABLE        EQU 000000001h    ; enables internal graphics
+			      C 
+			      C ;
+			      C ; MCP config equates
+			      C ;
+ = 80000804		      C MCP_LEG_CFG_1                    EQU 080000804h    ; enable IO space
+ = 80000808		      C MCP_LEG_CFG_2                    EQU 080000808h    ; holds MCP revision ID
+			      C 
+			      C IFDEF MCP_REV_C03
+			      C ELSE
+ = 80000810		      C MCP_LEG_CFG_4                    EQU 080000810h    ; IO BAR for revs < C03
+			      C ENDIF
+			      C 
+ = 8000084C		      C MCP_LEG_CFG_19                   EQU 08000084Ch
+ = 80000860		      C MCP_LEG_CFG_24                   EQU 080000860h
+ = 8000089C		      C MCP_LEG_CFG_39                   EQU 08000089Ch
+ = 800008B4		      C MCP_LEG_CFG_45                   EQU 0800008B4h
+			      C 
+ = 80000904		      C MCP_SMB_CFG_1                    EQU 080000904h
+ = 0001			      C MCP_SMB_CFG_1_IO_SPACE           EQU 000000001h    ; should be RMW, still ok?
+			      C 
+ = 80000914		      C MCP_SMB_CFG_5                    EQU 080000914h
+ = C001			      C MCP_SMB_CFG_5_IO_BASE            EQU SMB_CONTROL_BASE + 1
+			      C 
+ = 80000918		      C MCP_SMB_CFG_6                    EQU 080000918h
+ = C201			      C MCP_SMB_CFG_6_IO_BASE            EQU SMB_DDC_SPIO_BASE + 1
+			      C 
+ = 8000103C		      C MCP_USBA_CFG_15                  EQU 08000103Ch    ; scratch pad for meminit
+ = 8000183C		      C MCP_USBB_CFG_15                  EQU 08000183Ch    ; scratch pad for meminit
+			      C 
+			      C ;
+			      C ; MCP registers used as scratchpad for memory test
+			      C ;
+ = 8000103C		      C MEMTEST_TYPE                     EQU 08000103Ch    ; MCP_USBA_CFG_15 
+ = 8000183C		      C MEMTEST_RESULT                   EQU 08000183Ch    ; MCP_USBB_CFG_15 
+			      C 
+			      C ;
+			      C ; Memory test patterns
+			      C ;
+ = AAAAAAAA		      C MEMTEST_PATTERN1                 EQU 0AAAAAAAAh
+ = 5A5A5A5A		      C MEMTEST_PATTERN2                 EQU 05A5A5A5Ah
+ = 55555555		      C MEMTEST_PATTERN3                 EQU 055555555h
+ = CCCCCCCC		      C MEMTEST_PATTERN4                 EQU 0CCCCCCCCh
+			      C 
+			      C 
+			      C ; Internal NV20 config equates (assumes bus 1)
+			      C ;
+ = 80010004		      C CR_NV20_PCI_1                    EQU 080010004h
+ = 0007			      C CR_NV20_PCI_1_BUS_MSTR_MEM_IO    EQU 000000007h    ; should be RMW, still ok?
+			      C 
+ = 80010010		      C CR_NV20_PCI_4                    EQU 080010010h
+ = 80010014		      C CR_NV20_PCI_5                    EQU 080010014h
+			      C 
+			      C ;
+			      C ; NV20 register offsets and init values (from nv2a\manuals\rom_table.txt)
+			      C ;
+ = 10B0			      C NV_PBUS_DEBUG_CTRIM_0            EQU 0000010B0h
+ = 10B4			      C NV_PBUS_DEBUG_CTRIM_1            EQU 0000010B4h
+ = 10B8			      C NV_PBUS_DEBUG_CTRIM_2            EQU 0000010B8h
+ = 10BC			      C NV_PBUS_DEBUG_CTRIM_3            EQU 0000010BCh
+ = 10C4			      C NV_PBUS_DEBUG_CTRIM_4            EQU 0000010C4h
+ = 10C8			      C NV_PBUS_DEBUG_CTRIM_5            EQU 0000010C8h
+ = 10CC			      C NV_PBUS_DEBUG_CTRIM_6            EQU 0000010CCh
+ = 10D4			      C NV_PBUS_DEBUG_CTRIM_7            EQU 0000010D4h
+ = 10D8			      C NV_PBUS_DEBUG_CTRIM_8            EQU 0000010D8h
+ = 10DC			      C NV_PBUS_DEBUG_CTRIM_9            EQU 0000010DCh
+ = 10E8			      C NV_PBUS_DEBUG_CTRIM_10           EQU 0000010E8h
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 3 - 1
+
+
+			      C 
+ = 1210			      C NV_PBUS_FBIO_CFG                 EQU 000001210h
+			      C 
+ = 1220			      C NV_PBUS_FBIO_CALEN               EQU 000001220h
+ = 0000			      C NV_PBUS_FBIO_CALEN_OFF           EQU 000000000h
+			      C 
+ = 1228			      C NV_PBUS_FBIO_CALSEL              EQU 000001228h
+ = 0000			      C NV_PBUS_FBIO_CALSEL_VALUE        EQU 000000000h
+			      C 
+ = 1214			      C NV_PBUS_FBIO_DLY                 EQU 000001214h
+			      C 
+ = 122C			      C NV_PBUS_FBIO_ADRDRV              EQU 00000122Ch
+ = 1230			      C NV_PBUS_FBIO_CLKDRV              EQU 000001230h
+ = 1234			      C NV_PBUS_FBIO_DATDRV              EQU 000001234h
+ = AAAAAAAA		      C NV_PBUS_FBIO_DATDRV_INIT         EQU 0AAAAAAAAh
+ = 1238			      C NV_PBUS_FBIO_DQSDRV              EQU 000001238h
+ = AAAAAAAA		      C NV_PBUS_FBIO_DQSDRV_INIT         EQU 0AAAAAAAAh
+ = 123C			      C NV_PBUS_FBIO_ADRSLW              EQU 00000123Ch
+ = 8B8B8B8B		      C NV_PBUS_FBIO_ADRSLW_INIT         EQU 08B8B8B8Bh
+ = 1240			      C NV_PBUS_FBIO_CLKSLW              EQU 000001240h
+ = 1244			      C NV_PBUS_FBIO_DATSLW              EQU 000001244h
+ = 8B8B8B8B		      C NV_PBUS_FBIO_DATSLW_INIT         EQU 08B8B8B8Bh
+ = 1248			      C NV_PBUS_FBIO_DQSSLW              EQU 000001248h
+ = 8B8B8B8B		      C NV_PBUS_FBIO_DQSSLW_INIT         EQU 08B8B8B8Bh
+ = 124C			      C NV_PBUS_DISPIO_PADCTL            EQU 00000124Ch
+ = AA8BAA8B		      C NV_PBUS_DISPIO_PADCTL_INIT       EQU 0AA8BAA8Bh
+ = 1250			      C NV_PBUS_TVDIO_PADCTL             EQU 000001250h
+ = AA8B			      C NV_PBUS_TVDIO_PADCTL_INIT        EQU 00000AA8Bh
+			      C 
+ = 1264			      C NV_PBUS_TVDIO_CALEN              EQU 000001264h
+ = 0000			      C NV_PBUS_TVDIO_CALEN_OFF          EQU 000000000h
+			      C 
+ = 00101000		      C NV_PEXTDEV_BOOT_0                EQU 000101000h
+			      C 
+ = 001002D0		      C NV_PFB_REF                       EQU 0001002D0h
+ = 001002D4		      C NV_PFB_PRE                       EQU 0001002D4h
+ = 0001			      C NV_PFB_PRE_CMD_PRECHARGE_1       EQU 000000001h
+ = 001002C4		      C NV_PFB_EMRS                      EQU 0001002C4h
+ = 001002CC		      C NV_PFB_EMRS_EXT                  EQU 0001002CCh
+ = 001002C0		      C NV_PFB_MRS                       EQU 0001002C0h
+ = 0132			      C NV_PFB_MRS_DLL_RESET             EQU 000000132h
+ = 001002C8		      C NV_PFB_MRS_EXT                   EQU 0001002C8h
+ = 0132			      C NV_PFB_MRS_EXT_DLL_RESET         EQU 000000132h
+ = 00100210		      C NV_PFB_REFCTRL                   EQU 000100210h
+ = 80000000		      C NV_PFB_REFCTRL_VALID_1           EQU 080000000h
+ = 00100410		      C NV_PFB_WBC                       EQU 000100410h
+ = 00100420		      C NV_PFB_CPU_RRQ                   EQU 000100420h
+ = 0401			      C NV_PFB_CPU_RRQ_FWP_LAT_ENABLE    EQU 000000401h
+ = 00100424		      C NV_PFB_BYPASS                    EQU 000100424h
+ = F1780031		      C NV_PFB_BYPASS_VALUE              EQU 0F1780031h
+			      C 
+ = 0000			      C NV_PMC_BOOT_0                    EQU 000000000h
+			      C 
+ = 0068050C		      C NV_PRAMDAC_PLL_COEFF_SELECT      EQU 00068050Ch
+ = 00100200		      C NV_PFB_CFG0                      EQU 000100200h
+ = 00100204		      C NV_PFB_CFG1                      EQU 000100204h
+			      C 
+ = 00100228		      C NV_PFB_TIMING2                   EQU 000100228h
+			      C 
+ = 00100330		      C NV_PFB_ARB_XFER_SZ               EQU 000100330h
+ = 0010032C		      C NV_PFB_ARB_TIMEOUT               EQU 00010032Ch
+ = 00100328		      C NV_PFB_ARB_PREDIVIDER            EQU 000100328h
+ = 00100338		      C NV_PFB_ARB_DIFF_BANK             EQU 000100338h
+			      C 
+ = 1218			      C NV_PBUS_FBIO_RAM                 EQU 000001218h
+			      C 
+ = 00680500		      C NV_PRAMDAC_NVPLL_COEFF           EQU 000680500h
+			      C 
+ = 00400880		      C NV_PGRAPH_DEBUG_2                EQU 000400880h
+ = 002EC3FF		      C NV_PGRAPH_DEBUG_2_VALUE          EQU 0002EC3FFh
+ = 00400B88		      C NV_PGRAPH_DEBUG_10               EQU 000400b88h
+ = 0003			      C NV_PGRAPH_DEBUG_10_ROP_BLEND     EQU 000000003h
+			      C 
+			      C ;
+			      C ; Equates used for the memory detect/test
+			      C ;
+ = 0000			      C MEM_PART_0                       EQU 000000000h
+ = 0010			      C MEM_PART_1                       EQU 000000010h
+ = 0020			      C MEM_PART_2                       EQU 000000020h
+ = 0030			      C MEM_PART_3                       EQU 000000030h
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 4 - 1
+
+
+ = 04000000		      C MEM_PART_4                       EQU 004000000h
+ = 04000010		      C MEM_PART_5                       EQU 004000010h
+ = 04000020		      C MEM_PART_6                       EQU 004000020h
+ = 04000030		      C MEM_PART_7                       EQU 004000030h
+			      C 
+			      C 
+			      C ;
+			      C ; First byte of the desired SMC revision
+			      C ;
+ = 0050			      C DESIRED_SMC_VER                  EQU 050h
+			      C 
+			      C 
+			      C 
+			      C 
+			      C 
+			      C 
+ 0000			      C CODE SEGMENT PARA PUBLIC 'code'
+			      C   assume  ds:code,es:nothing,ss:nothing
+			      C org 0000h
+			      C 
+			      C ;
+			      C ; NB data for NV2A on the DVT boards
+			      C ;
+			      C 
+			      C ;
+			      C ; Not currently documented, NV2A expects table ptrs to exist in the first
+			      C ; 2 DWORDS of the ROM image, which point to the beginning of the ROM table.
+			      C ; The MCPX still expects to find it's init values starting at 0x70.
+			      C ;
+ 0000  FF000009		      C dd NV2A_XBOX_ROM_TABLE_PTR + 1        ; LSB needs to be 1 to appear valid
+ 0004  FF000008		      C dd NV2A_XBOX_ROM_TABLE_PTR
+			      C 
+			      C ; CR_ROM_NB_BOOT_HEADER                    (0*32+31):(0*32+0) /* R--VF */
+			      C ;
+ 0008  2B16D065		      C dd 2B16D065h
+			      C 
+			      C ; CR_ROM_NB_BOOT_PROC                       (1*32+0):(1*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_PROC_INTEL                        0x00000001 /* R---V */
+			      C ; CR_ROM_NB_BOOT_RAMTYPE                    (1*32+2):(1*32+2) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_RAMTYPE_DDR                       0x00000001 /* R---V */
+			      C ; CR_ROM_NB_BOOT_RAMWIDTH                   (1*32+3):(1*32+3) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_RAMWIDTH_128                      0x00000001 /* R---V */
+			      C ; CR_ROM_NB_BOOT_MEM_POSTDIV                (1*32+7):(1*32+4) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_AGP_POSTDIV               (1*32+11):(1*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_FSB_ROM                  (1*32+15):(1*32+12) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_FSB_66                   (1*32+19):(1*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_FSB_100                  (1*32+23):(1*32+20) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_FSB_TUALATIN             (1*32+27):(1*32+24) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_FSB_133                  (1*32+31):(1*32+28) /* R--VF */
+			      C ;
+			      C ; dd 4444444dh    ; (100MHz FSB hardcoded)
+			      C ; dd 3346323Dh      ; (AGP_PDIV = 2, MEM_PDIV = 3), start at 133MHz
+ 000C  3346322D		      C dd 3346322Dh    ; (AGP_PDIV = 2, MEM_PDIV = 2)
+			      C 
+			      C ;    These COREPLL values are based on using a 13.5MHz xtal.
+			      C ;
+			      C ;    NOTE: If you change the MDIV, NDIV, FSB POSTDIV or MEM_POSTDIV you'll
+			      C ;    need to sync the change with the  CR_CPU_MPLL_COEFF write in the inittbl
+			      C ;    below.
+			      C ;
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_66            (2*32+7):(2*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_66_VALUE             0x00000007 /* R---V */ 
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_100          (2*32+15):(2*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_100_VALUE            0x00000007 /* R---V */ 
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_TUALATIN    (2*32+23):(2*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_TUALATIN_VALUE       0x00000007 /* R---V */ 
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_133         (2*32+31):(2*32+24) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_133_VALUE            0x00000007 /* R---V */ 
+			      C ;
+			      C ; dd 07070707h
+			      C ; dd 01010101h
+ 0010  01010101		      C dd 01010101h
+			      C 
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_66            (3*32+7):(3*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_66_VALUE             0x00000022 /* R---V */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_100          (3*32+15):(3*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_100_VALUE            0x00000034 /* R---V */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_TUALATIN    (3*32+23):(3*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_TUALATIN_VALUE       0x00000045 /* R---V */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_133         (3*32+31):(3*32+24) /* R--VF */
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 5 - 1
+
+
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_133_VALUE            0x00000045 /* R---V */
+			      C ;
+			      C ; dd 45453422h
+			      C ; dd 07070707h        ; (100MHz FSB)
+			      C ; dd 08080808h        ; (106MHz FSB)
+			      C ; dd 0A0A0A0Ah        ; (135MHz FSB)
+			      C ; dd 09090909h        ; (133MHz FSB)
+ 0014  08080808		      C dd 08080808h          ; (133MHz FSB 16.66MHz input clock)
+			      C 
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_ROM           (4*32+7):(4*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_MDIV_ROM_VALUE            0x00000007 /* R---V */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_ROM          (4*32+15):(4*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_NDIV_ROM_VALUE            0x00000045 /* R---V */
+			      C ; CR_ROM_NB_BOOT_ASRC_CPU                 (4*32+23):(4*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_ASRC_LDT                 (4*32+31):(4*32+24) /* R--VF */
+			      C ;
+			      C ; dd 4507h
+			      C ; dd 0801h          ; (106MHz FSB)
+			      C ; dd 0701h          ; (100MHz FSB)
+			      C ; dd 0A01h          ; (135MHz FSB)
+			      C ; dd 1D03h          ; (133MHz FSB)
+ 0018  00000801		      C dd 0801h            ; (133MHz FSB w/ 16.66MHz input clock)
+			      C 
+			      C ; CR_ROM_NB_BOOT_SADDOUTCLK_DLY             (5*32+3):(5*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_SDATAOUTCLK_DLY            (5*32+7):(5*32+4) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CPU_VREF_EN_               (5*32+8):(5*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_APIC_33                    (5*32+9):(5*32+9) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_SETUP            (5*32+18):(5*32+10) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CPUPLL_SETUP             (5*32+27):(5*32+19) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_COREPLL_DLY              (5*32+31):(5*32+28) /* R--VF */
+			      C ;
+ 001C  C8FC7C8A		      C dd 0C8FC7C8Ah
+			      C 
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLKFB             (6*32+3):(6*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLKFB_VALUE              0x00000003 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK2X_BL          (6*32+7):(6*32+4) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK2X_BL_VALUE           0x00000001 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK2X_BR         (6*32+11):(6*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK2X_BR_VALUE           0x00000002 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK_NW          (6*32+15):(6*32+12) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK_NW_VALUE_DONTCARE    0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK_SW          (6*32+19):(6*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK_SW_VALUE             0x00000009 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK_SE          (6*32+23):(6*32+20) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLK_SE_VALUE             0x00000002 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUOCLK_BL         (6*32+27):(6*32+24) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUOCLK_BL_VALUE            0x00000002 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUOCLK_BR         (6*32+31):(6*32+28) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUOCLK_BR_VALUE            0x00000002 /* R---V */
+			      C ;
+ 0020  44290213		      C dd 44290213h        ; A03
+			      C 
+			      C 
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLKOUT            (7*32+3):(7*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUCLKOUT_VALUE             0x00000008 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_APICCLK_MCP          (7*32+7):(7*32+4) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_APICCLK_MCP_VALUE           0x00000009 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_APICCLK_CPU         (7*32+11):(7*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_APICCLK_CPU_VALUE           0x00000009 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_COREPLLFB          (7*32+15):(7*32+12) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_COREPLLFB_VALUE             0X00000004 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_CPUPLLFB           (7*32+19):(7*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_SPARE1             (7*32+23):(7*32+20) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_SPARE1_VALUE_DONTCARE       0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_SPARE2             (7*32+27):(7*32+24) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CTRIM_SPARE2_VALUE_DONTCARE       0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CTRIM_SPARE3             (7*32+31):(7*32+28) /* R--VF */
+			      C ;
+			      C IFDEF SYS_DVT6
+ 0024  90004998		      C dd 90004998h
+			      C ELSE
+			      C ENDIF
+			      C 
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLKFB            (8*32+3):(8*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLKFB_VALUE             0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLK2X            (8*32+7):(8*32+4) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLK2X_VALUE             0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLK             (8*32+11):(8*32+8) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLK_VALUE               0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLKOUT         (8*32+15):(8*32+12) /* R--VF */
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 6 - 1
+
+
+			      C ; CR_ROM_NB_BOOT_CSHAPE_CPUCLKOUT_VALUE            0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_APICCLK_CPU       (8*32+19):(8*32+16) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_APICCLK_CPU_VALUE          0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_APICCLK_MCP       (8*32+23):(8*32+20) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_APICCLK_MCP_VALUE          0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_SPARE1            (8*32+27):(8*32+24) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_SPARE1_VALUE_DONTCARE      0x00000000 /* R---V */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_SPARE2            (8*32+31):(8*32+28) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_CSHAPE_SPARE2_VALUE               0x00000000 /* R---V */
+			      C ;
+ 0028  00000000		      C dd 000000000h
+			      C 
+			      C ; CR_ROM_NB_BOOT_INTEL_BPRI_                (9*32+0):(9*32+0) /* R--VF */    
+			      C ; CR_ROM_NB_BOOT_INTEL_BNR_                 (9*32+1):(9*32+1) /* R--VF */    
+			      C ; CR_ROM_NB_BOOT_INTEL_ADS_                 (9*32+2):(9*32+2) /* R--VF */    
+			      C ; CR_ROM_NB_BOOT_INTEL_ADDR_               (9*32+31):(9*32+3) /* R--VF */    
+			      C ;
+ 002C  FFFFFFFF		      C dd 0FFFFFFFFh
+			      C 
+			      C ; CR_ROM_NB_BOOT_INTEL_TRDY_              (10*32+0):(10*32+0) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_RS_                (10*32+3):(10*32+1) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_REQ_               (10*32+8):(10*32+4) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_HITM_              (10*32+9):(10*32+9) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_HIT_             (10*32+10):(10*32+10) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_DRDY_            (10*32+11):(10*32+11) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_DEFER_           (10*32+12):(10*32+12) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_DBSY_            (10*32+13):(10*32+13) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_AGTL_PLUS        (10*32+14):(10*32+14) /* R--VF */
+			      C ; CR_ROM_NB_BOOT_INTEL_SPARE1           (10*32+31):(10*32+15) /* R--VF */
+			      C ;
+ 0030  FFFFFFFF		      C dd 0FFFFFFFFh
+			      C 
+			      C ;
+			      C ; 14 DWORDS used (11 for CR_ROM_BOOT, 2 table ptrs, 1 DWORD ROM rev)
+			      C ;
+ 0034  000E [		      C dd (28-14) dup (0h)
+        00000000
+       ]
+			      C 
+			      C ; ROM/Trims Revision number
+			      C ;
+			      C ; To keep track of TRIM changes and other inittbl/datatbl changes, we'll
+			      C ; use this DWORD as the revision ID. We'll also keep the history here, so
+			      C ; clear what's been changed.
+			      C ;
+			      C ; rev1.00 - 
+			      C ;    . set QUSE_NORMAL in NV_PBUS_FBIO_CFG
+			      C ;    . set NB_BOOT_CPUPLL_SETUP[3:0] and NB_BOOT_COREPLL_SETUP[3:0] to 0xF
+			      C ;    . set NB_BOOT_CTRIM_CPUPLLFB to 0x6
+			      C ;    . set NV_PBUS_DEBUG_CTRIM_6 to 0x66660000 and
+			      C ;          NV_PBUS_DEBUG_CTRIM_2 to 0x11110000, in that order
+			      C ;    . clear most significant nibble from NV_PBUS_DEBUG_CTRIM_4
+			      C ;    . add SYS_DVT3 ifdef for (DVT3) 13.5 vs. (DVT4) 16.6 input clocks,
+			      C ;      with changes to:
+			      C ;          NB_BOOT_COREPLL_NDIV and MDIV
+			      C ;          NV_PRAMDAC_NVPLL_COEFF
+			      C ;          CR_CPU_MPLL_COEFF
+			      C ;    . add NV2A_REV_A03 ifdef for A03 related trims:
+			      C ;          CTRIM_CPUOCLK_BL = 0x4
+			      C ;          CTRIM_CPUOCLK_BR = 0x4
+			      C ;          CR_CPU_CST_0     = 0xF0F0C0C0
+			      C ;    . update 13.5 and 16.6 calibration speedometer settings
+			      C ;          (previous VCC values were incorrect for both input clocks)
+			      C ;
+			      C ; rev1.01 - 
+			      C ;    . set WBC from 0x11000001 (which is no buffering) to 0x11000016
+			      C ;    . reset PFB_ARB_XFER_SZ_ZW from 0xF (unlimited burst) to 0x8
+			      C ;          since NV2A doesn't need the zcull workaround like NV20.
+			      C ;    . set DQS/DQ inbound delay to 0x1/0x0 in the Samsung calibration table
+			      C ;    . set the MCLK drive/slew parameters to their max (helps clock jitter).
+			      C ;
+			      C ; rev1.02 -
+			      C ;    . change NV_PBUS_FBIO_CFG (from 0x1 to 0x10) for 1/4 clock delay
+			      C ;    . change NV_PBUS_DEBUG_CTRIM_2 (from 0x11110000 to 0x0)
+			      C ;
+			      C ; rev1.03 - 
+			      C ;    . max MCP_LEG_CFG_45_PCICLKO5_TRIM to better line up the PCI clk
+			      C ;           for the LPC card 
+			      C ;    . DVT6 trims (tested with the Cypress zero delay buffer):
+			      C ;           PBUS_DEBUG_CTRIM_2 = 0xFFFF0000
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 7 - 1
+
+
+			      C ;           CR_ROM_NB_BOOT_CTRIM_CPUPLLFB = 0x0
+			      C ;           CR_ROM_NB_BOOT_CTRIM_SPARE3   = 0x9
+			      C ;           change calibration inbound delay values (DQS = 0, DATA = 1)
+			      C ;
+			      C ; rev1.04 - 
+			      C ;    . Add support for MCP C03's different base address
+			      C ;
+			      C ; rev1.05 - 
+			      C ;    . update Micron FBIO_DLY and ADDRESS_DRIVE settings during init and
+			      C ;        in the calibration table.
+			      C ;    . PBUS_DEBUG_CTRIM_2 is now different between Samsung/Micron.
+			      C ;
+			      C ; rev1.06 - 
+			      C ;    . Changed pre-calibration defaults for Samsung memory.
+			      C ;    . FBIO_DLY default was 012121212 is now 009090909
+			      C ;    . CLKDRV/CLKSLW value is now 0FFFFFFFF
+			      C ;
+			      C 
+			      C ;
+ 006C  00000106		      C dd 00000106h        ; bits 31:8 = major rev, 7:0 = minor rev
+			      C 
+			      C ;
+			      C ; SB data for MCPX on the DVT boards (starts at offset 0x70)
+			      C ;
+			      C 
+			      C ; MCP_ROM_BOOT_FREQ_STRAP                 (28*32+3):(28*32+0) /* R--VF */
+			      C ; MCP_ROM_BOOT_FREQ_STRAP_SAFE                     0x0000000f /* R---V */
+			      C ;
+			      C ;dd 00000000h
+ 0070  0000000F		      C dd 0Fh
+			      C 
+			      C ; MCP_ROM_BOOT_PIC_DIS                    (29*32+0):(29*32+0) /* RWIVF */
+			      C ; MCP_ROM_BOOT_PIT_DIS                    (29*32+1):(29*32+1) /* RW-VF */
+			      C ; MCP_ROM_BOOT_DMA_DIS                    (29*32+2):(29*32+2) /* RW-VF */
+			      C ; MCP_ROM_BOOT_P92_DIS                    (29*32+3):(29*32+3) /* RW-VF */
+			      C ; MCP_ROM_BOOT_FERR_DIS                   (29*32+4):(29*32+4) /* RW-VF */
+			      C ; MCP_ROM_BOOT_RTC_NMI_DIS                (29*32+5):(29*32+5) /* RW-VF */
+			      C ; MCP_ROM_BOOT_USB0_DIS                   (29*32+8):(29*32+8) /* RW-VF */
+			      C ; MCP_ROM_BOOT_USB1_DIS                   (29*32+9):(29*32+9) /* RW-VF */
+			      C ; MCP_ROM_BOOT_MAC0_DIS                 (29*32+10):(29*32+10) /* RW-VF */
+			      C ; MCP_ROM_BOOT_MAC1_DIS                 (29*32+11):(29*32+11) /* RW-VF */
+			      C ; MCP_ROM_BOOT_ACI_DIS                  (29*32+12):(29*32+12) /* RW-VF */
+			      C ; MCP_ROM_BOOT_MCI_DIS                  (29*32+13):(29*32+13) /* RW-VF */
+			      C ; MCP_ROM_BOOT_IDE_DIS                  (29*32+14):(29*32+14) /* RW-VF */
+			      C ; MCP_ROM_BOOT_P2P_DIS                  (29*32+15):(29*32+15) /* RW-VF */
+			      C ; MCP_ROM_BOOT_SMB_DIS                  (29*32+16):(29*32+16) /* RW-VF */
+			      C ; MCP_ROM_BOOT_FST_RST                  (29*32+24):(29*32+24) /* R--VF */
+			      C ; MCP_ROM_BOOT_FST_RST_NO                          0x00000000 /* R---V */
+			      C ; MCP_ROM_BOOT_REBOOT                   (29*32+25):(29*32+25) /* RW-VF */
+			      C ; MCP_ROM_BOOT_REBOOT_NO                           0x00000000 /* RW--V */
+			      C ; MCP_ROM_BOOT_LDT_FRQ                  (29*32+26):(29*32+26) /* RW-VF */
+			      C ; MCP_ROM_BOOT_LDT_FRQ_400MHz                      0x00000000 /* RW--V */
+			      C ; MCP_ROM_BOOT_LDT_FRQ_200MHz                      0x00000001 /* RW--V */
+			      C ; MCP_ROM_BOOT_PROC                     (29*32+27):(29*32+27) /* RW-VF */
+			      C ; MCP_ROM_BOOT_PROC_INTEL                          0x00000000 /* RWI-V */
+			      C ; MCP_ROM_BOOT_APU_TYP                  (29*32+28):(29*32+28) /* RW-VF */
+			      C ; MCP_ROM_BOOT_APU_TYP_256V                        0x00000000 /* RW--V */
+			      C ; MCP_ROM_BOOT_IDE_SEC                  (29*32+29):(29*32+29) /* RW-VF */
+			      C ; MCP_ROM_BOOT_IDE_SEC_IDE                         0x00000000 /* RWI-V */
+			      C ; MCP_ROM_BOOT_XBOX_ROM_SPEED           (29*32+30):(29*32+30) /* RWIVF */
+			      C ; MCP_ROM_BOOT_XBOX_ROM_SPEED_SLOW                 0x00000000 /* RWI-V */
+			      C ; MCP_ROM_BOOT_XBOX_ROM_SPEED_FAST                 0x00000001 /* RW--V */
+			      C ;
+			      C IFDEF SYS_RETAIL
+ 0074  40004400		      C dd 40004400h
+			      C ELSE
+			      C ENDIF
+			      C ;
+			      C ; Init table identifier number 
+			      C ;
+			      C IFDEF SYS_DVT4
+			      C ELSE
+			      C IFDEF SYS_QT
+			      C ELSE
+ 0078  00000060		      C dd 000000060h
+			      C ENDIF
+			      C ENDIF
+			      C ;
+			      C ; offset from ROM base to the datatbl
+			      C ;
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 8 - 1
+
+
+			      C ; IMPORTANT: If size of the init table code below changes, this offset must be adjusted
+			      C ;
+ 007C  00000C90		      C dd DATATBL_BASE_OFFSET   
+			      C 
+			      C ;
+			      C ; Force 128 byte alignment MCPX in XBox mode.
+			      C ;
+			      C org 0080h
+			      C 
+			      C ;//////////////////////////////////////////
+			      C ;
+			      C ; NV2A init sequence.
+			      C ;
+			      C ;//////////////////////////////////////////
+			      C 
+			      C IFDEF SYS_RETAIL
+ 0080  F5 00081000	      C nv_command_struct <COMMAND_UNUSED1, 000081000h, 001h>   
+       00000001
+ 0089  80 00000114	      C nv_command_struct <COMMAND_UNUSED2, 0000114h, 0228h>   
+       00000228
+			      C ENDIF
+			      C 
+			      C         
+			      C ;
+			      C ; Setup the IO BAR in MCP.  MCP_LEG_CFG_4 below evaluates to different
+			      C ; values based on MCP rev we are building for. 
+			      C ;
+ 0092  04 80000810	      C nv_command_struct<COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_4, 8001h>  
+       00008001
+			      C 
+			      C ;
+			      C ; Enable the IO space
+			      C ;
+ 009B  04 80000804	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_1, 3h>          
+       00000003
+			      C 
+			      C ;
+			      C ; Disable the TCO timer
+			      C ;
+ 00A4  11 00008049	      C nv_command_struct <COMMAND_OUT_BYTE,      08049h,     8h> 
+       00000008
+			      C 
+			      C ;
+			      C ; Also, the KBDRSTIN# signal should've been pulled low on XBox. It wasn't and
+			      C ; was left floating. As a workaround, will change the mode to be a GPIO.
+			      C ;
+ 00AD  11 000080D9	      C nv_command_struct <COMMAND_OUT_BYTE,      080D9h,     0h>       ; KBDRSTIN# in GPIO mode
+       00000000
+ 00B6  11 00008026	      C nv_command_struct <COMMAND_OUT_BYTE,      08026h,     1h>       ; disable PWRBTN# in PM26
+       00000001
+			      C 
+			      C ;
+			      C ; First, we have to gain access to the integrated NV20. This involves
+			      C ; enabling intergrated graphics and setting up the NB P2P to configure
+			      C ; Bus2.
+			      C ;
+ 00BF  04 8000F04C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_APC_P2P_19, CR_APC_P2P_19_NV20_ENABLE>    ; internal gr
+       00000001		      C aphics enabled
+ 00C8  04 8000F018	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_APC_P2P_6,  CR_APC_P2P_6_SUB_SEC_PRI_BUS> ; setup secon
+       00010100		      C dary bus 1
+			      C 
+			      C ;
+			      C ; Now, config cycles to graphics should work. Setup the memory base/limit
+			      C ; on the P2P and the BAR0 of the integrated graphics, so we can access priv
+			      C ; regs. Enable BUS_MASTER and MEM/IO space accesses for NV20 and P2P.
+			      C ;
+			      C ; Note, because of a limitation in COMMAND_READ_MEM, we can't read from an
+			      C ; address larger than 28bits, so we need to make our register base mapping
+			      C ; under this (0x0D000000), but there's likely kernel code that assumes we're
+			      C ; at 0xFD000000, so we'll reload to this address at the end of the inittbl.
+			      C ;
+ 00D1  04 80000084	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MEMTOP, CR_CPU_MEMTOP_LIMIT_128MB>    ; for proper 
+       07FFFFFF		      C P2P addr decode
+			      C 
+ 00DA  04 8000F020	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_APC_P2P_8,  CR_APC_P2P_8_MLIMIT_MBASE_INIT>
+       0FF00F00
+ 00E3  04 8000F024	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_APC_P2P_9,  CR_APC_P2P_9_PREF_MLIMIT_MBASE>
+       F7F0F000
+ 00EC  04 80010010	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_NV20_PCI_4, NV20_REG_BASE>    ; set register BAR0
+       0F000000
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 9 - 1
+
+
+ 00F5  04 80010014	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_NV20_PCI_5, NV20_FB_BASE>     ; set framebuffer BAR1
+       F0000000
+ 00FE  04 80010004	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_NV20_PCI_1, CR_NV20_PCI_1_BUS_MSTR_MEM_IO>
+       00000007
+ 0107  04 8000F004	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_APC_P2P_1,  CR_APC_P2P_1_BUS_MSTR_MEM_IO>  ; enable spa
+       00000007		      C ces
+			      C 
+			      C ;
+			      C ; Also, setup the PBUS_DEBUG_CTRIM values
+			      C ;
+ 0110  02 0F000000	      C nv_command_struct<COMMAND_READ_MEM, (NV20_REG_BASE + NV_PMC_BOOT_0), DONT_CARE>
+       00000000
+ 0119  06 000000FF	      C nv_command_struct<COMMAND_RMW_RESULT, 0000000FFh, 000000000h>
+       00000000
+ 0122  08 000000A1	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0A1h, (pbus_ctrim_A2-$-4)>    ; (rev >= A2)
+       0000002D
+			      C ;
+ 012B			      C pbus_ctrim_A1:
+ 012B  03 0F0010B0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_0),    007633451h>
+       07633451
+ 0134  03 0F0010CC	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_6),    000000000h>
+       00000000
+ 013D  03 0F0010B8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_2),    0FFFF0000h>
+       FFFF0000
+ 0146  03 0F0010D4	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_7),    000000005h>
+       00000005
+ 014F  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (pbus_ctrim_common-$-4)>
+       00000051
+			      C 
+ 0158			      C pbus_ctrim_A2:
+ 0158  03 0F0010B0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_0),    007633461h>
+       07633461
+ 0161  03 0F0010CC	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_6),    066660000h>
+       66660000
+			      C 
+			      C IFDEF SYS_DVT6
+			      C ;
+			      C ; PBUS_DEBUG_CTRIM_2 is different between Samsung/Micron
+			      C ;
+ 016A  02 0F101000	      C nv_command_struct<COMMAND_READ_MEM, (NV20_REG_BASE + NV_PEXTDEV_BOOT_0), DONT_CARE>
+       00000000
+ 0173  06 000C0000	      C nv_command_struct<COMMAND_RMW_RESULT, 0000C0000h, 000000000h>
+       00000000
+ 017C  08 00000000	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0h, (samsung_ctrim2-$-4)> 
+       00000012
+			      C 
+ 0185			      C micron_ctrim2:
+ 0185  03 0F0010B8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_2),    0EEEE0000h>
+       EEEE0000
+ 018E  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (ctrim_continue-$-4)>
+       00000009
+			      C 
+ 0197			      C samsung_ctrim2:
+ 0197  03 0F0010B8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_2),    0FFFF0000h>
+       FFFF0000
+			      C 
+ 01A0			      C ctrim_continue:
+			      C ELSE
+			      C ENDIF
+ 01A0  03 0F0010D4	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_7),    000000009h>
+       00000009
+			      C 
+ 01A9			      C pbus_ctrim_common:
+ 01A9  03 0F0010B4	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_1),    000000000h>
+       00000000
+ 01B2  03 0F0010BC	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_3),    000005866h>
+       00005866
+ 01BB  03 0F0010C4	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_4),    00351C858h>
+       0351C858
+ 01C4  03 0F0010C8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_5),    030007D67h>
+       30007D67
+ 01CD  03 0F0010D8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_8),    000000000h>
+       00000000
+ 01D6  03 0F0010DC	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_9),    0A0423635h>
+       A0423635
+ 01DF  03 0F0010E8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DEBUG_CTRIM_10),   00C6558C6h>
+       0C6558C6
+			      C 
+			      C ;
+			      C ; Before we do MRS_EXT/EMRS_EXT cycles, make sure we've enabled the external bank
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 10 - 1
+
+
+			      C ;
+ 01E8  03 0F100200	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG0),              003070103h>
+       03070103
+			      C 
+			      C ;
+			      C ; Setup WBC High water mark 
+			      C ; The NV_PFB_WBC_HWM field should always be set no greater than 0x17
+			      C ;
+ 01F1  03 0F100410	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_WBC),               011000016h>
+       11000016
+			      C 
+			      C ;
+			      C ; FB Arbitration settings 
+			      C ;
+ 01FA  03 0F100330	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_ARB_XFER_SZ),       084848888h>
+       84848888
+ 0203  03 0F10032C	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_ARB_TIMEOUT),       0FFFFCFFFh>
+       FFFFCFFF
+ 020C  03 0F100328	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_ARB_PREDIVIDER),    01h>
+       00000001
+ 0215  03 0F100338	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_ARB_DIFF_BANK),     0DFh>
+       000000DF
+			      C 
+			      C 
+			      C ;
+			      C ; Update PEXTDEV_BOOT_0 (if A01)
+			      C ;
+			      C ;    0x80354C01 = turn on the override, disables AGP SBA/FW
+			      C ;    0x803D4C01 = also sets EMRS_MATCHED
+			      C ;    0x803D4C01 = no fast writes
+			      C ;
+ 021E  02 0F000000	      C nv_command_struct<COMMAND_READ_MEM, (NV20_REG_BASE + NV_PMC_BOOT_0), DONT_CARE>
+       00000000
+ 0227  06 000000FF	      C nv_command_struct<COMMAND_RMW_RESULT, 0000000FFh, 000000000h>
+       00000000
+ 0230  08 000000A1	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0A1h, (skip_strap_override-$-4)>    ; (rev >= A2)
+       00000009
+			      C 
+ 0239  03 0F101000	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PEXTDEV_BOOT_0),        0803D4401h>
+       803D4401
+ 0242			      C skip_strap_override:
+			      C 
+			      C ;
+			      C ; Setup the SMBus for talking to the encoder.
+			      C ;
+			      C ; On the DVT boards controller 0 isn't used, so only setup controller 1. Besides
+			      C ; enabling IO's, we'll also convert the pins from GPIOs to SMBus clk/data. This
+			      C ; need to be done early during boot, so there's a pixclk before setting NVCLK.
+			      C ;
+ 0242  04 80000904	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_SMB_CFG_1,     MCP_SMB_CFG_1_IO_SPACE>
+       00000001
+ 024B  04 80000914	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_SMB_CFG_5,     MCP_SMB_CFG_5_IO_BASE>
+       0000C001
+ 0254  04 80000918	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_SMB_CFG_6,     MCP_SMB_CFG_6_IO_BASE>
+       0000C201
+ 025D  11 0000C200	      C nv_command_struct <COMMAND_OUT_BYTE,      SMB_DDC_SPIO_BASE, 70h>    ; converts from GPIO
+       00000070
+			      C 
+			      C IFNDEF FOCUS                                                                          
+			      C ;
+			      C ; Now, make sure the TV encoder is driving a pixclk.
+			      C ;
+ 0266  11 0000C004	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+4, 08Ah>    ; CX871 slave addr
+       0000008A
+			      C 
+			      C ; CX871 offset 0xBA = 0x3F
+ 026F  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 0BAh>
+       000000BA
+ 0278  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 03Fh>    ; turn on slave bit
+       0000003F
+ 0281  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+			      C 
+ 028A  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 0293  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 029C  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 11 - 1
+
+
+			      C ; CX871 offset 0x6C = 0x46
+ 02A5  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 06Ch>
+       0000006C
+ 02AE  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 046h>
+       00000046
+ 02B7  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; write byte kickoff
+       0000000A
+			      C 
+ 02C0  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 02C9  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 02D2  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+			      C ; CX871 offset 0xB8 = 0x0
+ 02DB  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 0B8h>
+       000000B8
+ 02E4  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 000h>    ; autoconfig
+       00000000
+ 02ED  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+			      C 
+ 02F6  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 02FF  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 0308  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+			      C ; CX871 offset 0xCE = 0x19
+ 0311  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 0CEh>
+       000000CE
+ 031A  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 019h>
+       00000019
+ 0323  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+			      C 
+ 032C  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 0335  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 033E  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+			      C ; CX871 offset 0xC6 = 0x9C
+ 0347  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 0C6h>
+       000000C6
+ 0350  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 09Ch>
+       0000009C
+ 0359  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+			      C 
+ 0362  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 036B  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 0374  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+			      C ; CX871 offset 0x32 = 0x08
+ 037D  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 032h>
+       00000032
+ 0386  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 008h>
+       00000008
+ 038F  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+			      C 
+ 0398  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 03A1  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 03AA  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+			      C ; CX871 offset 0xC4 = 0x01
+ 03B3  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 0C4h>
+       000000C4
+ 03BC  11 0000C006	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 001h>    ; enable clk output
+       00000001
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 12 - 1
+
+
+ 03C5  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+			      C 
+ 03CE  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 03D7  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 03E0  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+			      C 
+			      C ENDIF
+			      C 
+			      C 
+			      C IFDEF SYS_RETAIL
+			      C ;
+			      C ; Verify SMC revision
+			      C ;
+ 03E9  11 0000C004	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+4, 020h>     ; SMC slave write addr
+       00000020
+ 03F2  11 0000C008	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 001h>     ; SMC revision register
+       00000001
+ 03FB  11 0000C006	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6, 000h>     ; Clear SMC rev pointer
+       00000000
+ 0404  11 0000C002	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>     ; kickoff
+       0000000A
+ 040D  12 0000C000	      C nv_command_struct<COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE>  ; read back status
+       00000000
+ 0416  08 00000010	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 010h,     -18>      ; spin if not idle
+       FFFFFFEE
+ 041F  11 0000C000	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>       ; clear status
+       00000010
+			      C 
+ 0428  11 0000C004	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+4, 021h>    ; SMC slave read addr
+       00000021
+ 0431  11 0000C008	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 001h>    ; read revision register
+       00000001
+ 043A  11 0000C002	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>    ; kickoff
+       0000000A
+ 0443  12 0000C000	      C nv_command_struct <COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE> ; read back status
+       00000000
+ 044C  08 00000010	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, 010h,     -18>     ; spin if not idle
+       FFFFFFEE
+ 0455  11 0000C000	      C nv_command_struct <COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>      ; clear status
+       00000010
+ 045E  12 0000C006	      C nv_command_struct <COMMAND_IN_BYTE, SMB_CONTROL_BASE+6, DONT_CARE>   ; get the result
+       00000000
+			      C 
+ 0467  08 00000050	      C nv_command_struct <COMMAND_COMPARE_RESULT_JNE, DESIRED_SMC_VER, (SmcIsWrong-$-4)> ; if smc is bad
+       00000009
+ 0470  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (SmcIsOK-$-4)>          ; smc is fine
+       00000009
+			      C 
+ 0479			      C SmcIsWrong:
+			      C ;
+			      C ; SMC is bad, flatline the clocks
+			      C ;
+ 0479  04 8000036C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 001000000h>  
+       01000000
+			      C 
+ 0482			      C SmcIsOK:
+			      C 
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; Set NVCLK (M, N, P may need adjusting if integrated NV20 VCOs are different)
+			      C ;    0x0001ED08 = 200MHz
+			      C ;    0x00011701 = 155MHz    (rev == 0xA01)
+			      C ;    0x00011C01 = 189MHz
+			      C ;    0x00011E01 = 202.5MHz   (rev >= 0xA02)
+			      C ;    0x00011F01 = 209.25MHz  (rev >= 0xA02)
+			      C ;    0x00014502 = 229.5MHz   (rev >= 0xA02 and 1.7V w/ fansink DVT3)
+			      C ;
+			      C ;nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PRAMDAC_NVPLL_COEFF),      00001ED08h>
+			      C ;
+ 0482  02 0F000000	      C nv_command_struct<COMMAND_READ_MEM, (NV20_REG_BASE + NV_PMC_BOOT_0), DONT_CARE>
+       00000000
+ 048B  06 000000FF	      C nv_command_struct<COMMAND_RMW_RESULT, 0000000FFh, 000000000h>
+       00000000
+ 0494  08 000000A1	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0A1h, (nvclk_200-$-4)>    ; (rev >= A2)
+       00000012
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 13 - 1
+
+
+			      C 
+ 049D			      C nvclk_155:
+ 049D  03 0F680500	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PRAMDAC_NVPLL_COEFF),      000011701h>
+       00011701
+ 04A6  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (pll_select-$-4)>
+       00000009
+			      C 
+ 04AF			      C nvclk_200:
+			      C 
+ 04AF  03 0F680500	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PRAMDAC_NVPLL_COEFF),      000011C01h>
+       00011C01
+			      C 
+ 04B8			      C pll_select:
+ 04B8  03 0F68050C	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PRAMDAC_PLL_COEFF_SELECT), 0000A0400h>
+       000A0400
+			      C 
+			      C ;
+			      C ; Disable FBIO/TVD calibration
+			      C ;
+ 04C1  03 0F001220	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_CALEN),  NV_PBUS_FBIO_CALEN_OFF>
+       00000000
+ 04CA  03 0F001228	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_CALSEL), NV_PBUS_FBIO_CALSEL_VALU
+       00000000		      C E>
+ 04D3  03 0F001264	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_TVDIO_CALEN), NV_PBUS_TVDIO_CALEN_OFF>
+       00000000
+			      C 
+			      C ;
+			      C ; Set the ADR_EDGE_HALF bit in FBIO_CFG
+			      C ;
+ 04DC  03 0F001210	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_CFG), 000000010h>
+       00000010
+			      C 
+			      C ;
+			      C ; DRAM configuration
+			      C ;
+			      C ; Determine Samsung vs Micron by checking NV_PEXTDEV_BOOT_0_STRAP_EMRS (19:18)
+			      C ; 0=Micron, 3=Samsung
+			      C ;
+ 04E5  02 0F101000	      C nv_command_struct<COMMAND_READ_MEM, (NV20_REG_BASE + NV_PEXTDEV_BOOT_0), DONT_CARE>
+       00000000
+ 04EE  06 000C0000	      C nv_command_struct<COMMAND_RMW_RESULT, 0000C0000h, 000000000h>
+       00000000
+ 04F7  08 00000000	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0h, (samsung_memory-$-4)> 
+       0000001B
+			      C 
+			      C ;
+			      C ; Configure for Micron
+			      C ;
+ 0500  03 0F001214	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_DLY),    028282828h>
+       28282828
+ 0509  03 0F00122C	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_ADRDRV), 088888888h>
+       88888888
+ 0512  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (memory_pad_config-$-4)>
+       00000012
+			      C 
+ 051B			      C samsung_memory:
+			      C ;
+			      C ; Configure for Samsung
+			      C ;
+ 051B  03 0F001214	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_DLY),    009090909h>
+       09090909
+ 0524  03 0F00122C	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_ADRDRV), 0AAAAAAAAh> 
+       AAAAAAAA
+			      C 
+ 052D			      C memory_pad_config:
+			      C 
+			      C ;
+			      C ; Memory PAD configuration
+			      C ;
+ 052D  03 0F001230	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_CLKDRV), 0FFFFFFFFh>
+       FFFFFFFF
+ 0536  03 0F001234	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_DATDRV), NV_PBUS_FBIO_DATDRV_INIT
+       AAAAAAAA		      C >
+ 053F  03 0F001238	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_DQSDRV), NV_PBUS_FBIO_DQSDRV_INIT
+       AAAAAAAA		      C >
+ 0548  03 0F00123C	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_ADRSLW), NV_PBUS_FBIO_ADRSLW_INIT
+       8B8B8B8B		      C >
+ 0551  03 0F001240	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_CLKSLW), 0FFFFFFFFh>
+       FFFFFFFF
+ 055A  03 0F001244	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_DATSLW), NV_PBUS_FBIO_DATSLW_INIT
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 14 - 1
+
+
+       8B8B8B8B		      C >
+ 0563  03 0F001248	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_DQSSLW), NV_PBUS_FBIO_DQSSLW_INIT
+       8B8B8B8B		      C >
+			      C 
+			      C ;
+			      C ; RAM Initialization (XXX should we be waiting for cmds to complete?)
+			      C ;
+ 056C  03 0F1002D4	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_PRE),      NV_PFB_PRE_CMD_PRECHARGE_1>
+       00000001
+ 0575  03 0F1002C4	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_EMRS),     000100042h>
+       00100042
+ 057E  03 0F1002CC	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_EMRS_EXT), 000100042h>
+       00100042
+ 0587  03 0F1002C0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_MRS),      000000011h>
+       00000011
+ 0590  03 0F1002C8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_MRS_EXT),  000000011h>
+       00000011
+ 0599  03 0F1002C0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_MRS),      000000032h>
+       00000032
+ 05A2  03 0F1002C8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_MRS_EXT),  000000032h>
+       00000032
+ 05AB  03 0F1002C0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_MRS),      NV_PFB_MRS_DLL_RESET>
+       00000132
+ 05B4  03 0F1002C8	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_MRS_EXT),  NV_PFB_MRS_EXT_DLL_RESET>
+       00000132
+ 05BD  03 0F1002D0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_REF),      000000001h>
+       00000001
+ 05C6  03 0F1002D0	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_REF),      000000001h>
+       00000001
+ 05CF  03 0F100210	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_REFCTRL),  NV_PFB_REFCTRL_VALID_1>
+       80000000
+			      C 
+			      C ;
+			      C ; Display PAD configuration
+			      C ;
+ 05D8  03 0F00124C	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_DISPIO_PADCTL), NV_PBUS_DISPIO_PADCTL_
+       AA8BAA8B		      C INIT>
+			      C 
+			      C ;
+			      C ; TVD PAD configuration
+			      C ;
+ 05E1  03 0F001250	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_TVDIO_PADCTL), NV_PBUS_TVDIO_PADCTL_IN
+       0000AA8B		      C IT>
+			      C 
+			      C ;
+			      C ; Change PFB_TIMING2 and PBUS_FBIO_RAM
+			      C ;
+			      C ; NV_PFB_TIMING2 = 0x081202FF
+			      C ;                = 0x081205FF    (increase REFRESH count with M=1, N=9, MEMPDIV=2)
+			      C ;
+ 05EA  03 0F100228	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_TIMING2),   0081205FFh>
+       081205FF
+ 05F3  03 0F001218	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PBUS_FBIO_RAM), 000010000h>
+       00010000
+			      C 
+			      C ;
+			      C ; Tell MCP not to generate INIT# in response to the shutdown cycle 
+			      C ;
+ 05FC  05 80000860	      C nv_command_struct<COMMAND_PCI_CFG_READ, MCP_LEG_CFG_24, DONT_CARE>
+       00000000
+ 0605  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT, 0FFFFFFFFh, 000000400h>
+       00000400
+ 060E  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_24>
+       80000860
+			      C 
+			      C ;
+			      C ; Init ISO/non-ISO bits for the various MCP unit IDs
+			      C ;
+ 0617  04 8000084C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_19, 00000FDDEh>
+       0000FDDE
+			      C 
+			      C ;
+			      C ; Make sure the USB PLL has the correct value (not the POR value).
+			      C ;
+			      C ; nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_39, 0851CAA0Ch>
+ 0620  04 8000089C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_39, 0871CC707h>
+       871CC707
+			      C 
+			      C ;
+			      C ; Set the maximum PCICLK_OUT5 trim (bits 11:8 = 0xF).
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 15 - 1
+
+
+			      C ;
+ 0629  05 800008B4	      C nv_command_struct<COMMAND_PCI_CFG_READ, MCP_LEG_CFG_45, DONT_CARE>
+       00000000
+ 0632  06 FFFFF0FF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFF0FFh, 000000F00h>
+       00000F00
+ 063B  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MCP_LEG_CFG_45>
+       800008B4
+			      C 
+			      C ;
+			      C ; Set cshape/ctrim for clocks in CR_top.
+			      C ;
+ 0644  04 80000340	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_CST_0, 0F0F0C0C0h>    ; A03
+       F0F0C0C0
+ 064D  04 80000344	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_CST_1, 000C00000h>
+       00C00000
+ 0656  04 8000035C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_CST_7, 004070000h>
+       04070000
+			      C 
+			      C ;
+			      C ; These values have been set by the straps, but we'll write them into the
+			      C ; CR_CPU_MPLL_COEFF register, so the values are knowable outside the ROM.
+			      C ;
+			      C ; Currently, we have MEM_PDIV of 3, which is 133MHz and will be left that
+			      C ; way for A01. For A02, we set the MEM_PDIV to 2, which sets a 200MHz mclk.
+			      C ;
+			      C ;    (0x230901: MEM_PDIV = 2, FSB_PDIV = 3; NDIV = 9;  MDIV = 1)
+			      C ;    (0x230A01: MEM_PDIV = 2, FSB_PDIV = 3; NDIV = A;  MDIV = 1)
+			      C ;    (0x231D03: MEM_PDIV = 2, FSB_PDIV = 3; NDIV = 1D; MDIV = 3)
+			      C ;
+			      C ; nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 000230901h>
+			      C ; nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 000230901h>    ; 182MHz
+			      C ; nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 000231D03h>    ; 200MHz
+			      C ; nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 000230A01h>    ; 202MHz
+			      C ;
+ 065F  02 0F000000	      C nv_command_struct<COMMAND_READ_MEM, (NV20_REG_BASE + NV_PMC_BOOT_0), DONT_CARE>
+       00000000
+ 0668  06 000000FF	      C nv_command_struct<COMMAND_RMW_RESULT, 0000000FFh, 000000000h>
+       00000000
+ 0671  08 000000A1	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0A1h, (mclk_200-$-4)>    ; (rev >= A2)
+       00000009
+ 067A  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (mclk_133-$-4)>              ; (rev == A1)
+       00000000
+			      C 
+ 0683			      C mclk_133:
+ 0683			      C mclk_200:
+			      C ;
+			      C ; Set the clocks and override. CR_CPU_MPLL_COEFF must be set once without override
+			      C ; and then again with override. 
+			      C ;
+ 0683  04 8000036C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 000230801h>
+       00230801
+ 068C  04 8000036C	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_CPU_MPLL_COEFF, 001230801h>  
+       01230801
+			      C 
+			      C ;
+			      C ; Delay ~15 nano seconds by performing jmps
+			      C ; 
+ 0695  09 00000000	      C nv_command_struct< COMMAND_JMP, DONT_CARE, (DelayJump1-$-4) >
+       00000000
+ 069E			      C DelayJump1:
+ 069E  09 00000000	      C nv_command_struct< COMMAND_JMP, DONT_CARE, (DelayJump2-$-4) >
+       00000000
+ 06A7			      C DelayJump2:
+			      C 
+			      C ; MEMORY TEST
+			      C ; 
+			      C ; This section does memory detection and test, and then updates
+			      C ; the memory config registers and reports this config (and memory errors) back
+			      C ; to the SMC.
+			      C ;
+			      C ; First, this is how the addressing works, with 12 row bits and an
+			      C ; external bank:
+			      C ;
+			      C ;    E[0:0],R[11:10] | R[9:6] | R[5:2] | R[1:0],B[1:0] | C[7:4] | C[3:2],P[1:0] | C[1:0],00
+			      C ;
+			      C ; We determine a particular DRAMs number of row bits (11 or 12) by toggling
+			      C ; the R11 bit and looking for an alias within the DRAM (row address bit doesn't
+			      C ; exist with the 2Mx32 parts).
+			      C ;
+			      C ; For row detection with the first 4 DRAM partitions (MEM_PART_0 -> MEM_PART_3),
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 16 - 1
+
+
+			      C ; we'll address at 0x2500000 (R11 = 1, ext_bank = 0) and cycle the partition bits.
+			      C ; For the second set of DRAMS (MEM_PART_4 -> MEM_PART_7), we'll address at
+			      C ; 0x6500000 (R11 = 1, ext_bank = 1).
+			      C ;
+			      C ; In addition to row detection, we'll update the SMC controller with the number
+			      C ; of 2Mx32 and 4Mx32 DRAMS and any memory errors we've found. We use the 2 USB
+			      C ; registers as scratchpad (reset to 0 and later overwritten by the kernel).
+			      C ;
+			      C ;    rows = 2^12, cols = 2^8, banks = 2^2, external bank
+			      C ;
+			      C 
+			      C 
+ 06A7  03 0F100200	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG0),  003070103h>
+       03070103
+ 06B0  03 0F100204	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG1),  011448000h>
+       11448000
+			      C 
+			      C ;
+			      C ; Clear the scratchpad registers used in memory test
+			      C ;
+ 06B9  04 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE, 0>
+       00000000
+ 06C2  04 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT, 0>
+       00000000
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 06CB			      C dram0:
+ 06CB  03 00555548	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_0 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 06D4  03 02555548	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_0 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 06DD  02 02555548	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_0 + 002555548h), DONT_CARE>
+       00000000
+ 06E6  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram0_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 06EF  02 00555548	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_0 + 000555548h), DONT_CARE>
+       00000000
+ 06F8  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram0_alt_write-$-4)>
+       0000001B
+			      C 
+ 0701			      C dram0_4mb:
+ 0701  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 070A  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000001h>
+       00000001
+ 0713  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 071C			      C dram0_alt_write:
+ 071C  03 00555548	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_0 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 0725  02 00555548	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_0 + 000555548h), DONT_CARE>
+       00000000
+ 072E  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram0_err-$-4)>
+       00000009
+ 0737  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram1-$-4)>
+       0000001B
+			      C 
+ 0740			      C dram0_err:
+ 0740  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0749  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000001h>
+       00000001
+ 0752  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 075B			      C dram1:
+ 075B  03 00555558	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_1 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 0764  03 02555558	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_1 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 076D  02 02555558	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_1 + 002555548h), DONT_CARE>
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 17 - 1
+
+
+       00000000
+ 0776  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram1_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 077F  02 00555558	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_1 + 000555548h), DONT_CARE>
+       00000000
+ 0788  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram1_alt_write-$-4)>
+       0000001B
+			      C 
+ 0791			      C dram1_4mb:
+ 0791  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 079A  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000002h>
+       00000002
+ 07A3  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 07AC			      C dram1_alt_write:
+ 07AC  03 00555558	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_1 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 07B5  02 00555558	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_1 + 000555548h), DONT_CARE>
+       00000000
+ 07BE  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram1_err-$-4)>
+       00000009
+ 07C7  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram2-$-4)>
+       0000001B
+			      C 
+ 07D0			      C dram1_err:
+ 07D0  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 07D9  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000002h>
+       00000002
+ 07E2  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 07EB			      C dram2:
+ 07EB  03 00555568	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_2 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 07F4  03 02555568	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_2 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 07FD  02 02555568	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_2 + 002555548h), DONT_CARE>
+       00000000
+ 0806  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram2_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 080F  02 00555568	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_2 + 000555548h), DONT_CARE>
+       00000000
+ 0818  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram2_alt_write-$-4)>
+       0000001B
+			      C 
+ 0821			      C dram2_4mb:
+ 0821  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 082A  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000004h>
+       00000004
+ 0833  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 083C			      C dram2_alt_write:
+ 083C  03 00555568	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_2 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 0845  02 00555568	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_2 + 000555548h), DONT_CARE>
+       00000000
+ 084E  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram2_err-$-4)>
+       00000009
+ 0857  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram3-$-4)>
+       0000001B
+			      C 
+ 0860			      C dram2_err:
+ 0860  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0869  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000004h>
+       00000004
+ 0872  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 18 - 1
+
+
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 087B			      C dram3:
+ 087B  03 00555578	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_3 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 0884  03 02555578	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_3 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 088D  02 02555578	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_3 + 002555548h), DONT_CARE>
+       00000000
+ 0896  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram3_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 089F  02 00555578	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_3 + 000555548h), DONT_CARE>
+       00000000
+ 08A8  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram3_alt_write-$-4)>
+       0000001B
+			      C 
+ 08B1			      C dram3_4mb:
+ 08B1  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 08BA  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000008h>
+       00000008
+ 08C3  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 08CC			      C dram3_alt_write:
+ 08CC  03 00555578	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_3 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 08D5  02 00555578	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_3 + 000555548h), DONT_CARE>
+       00000000
+ 08DE  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram3_err-$-4)>
+       00000009
+ 08E7  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram4-$-4)>
+       0000001B
+			      C 
+ 08F0			      C dram3_err:
+ 08F0  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 08F9  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000008h>
+       00000008
+ 0902  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 090B			      C dram4:
+ 090B  03 04555548	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_4 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 0914  03 06555548	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_4 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 091D  02 06555548	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_4 + 002555548h), DONT_CARE>
+       00000000
+ 0926  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram4_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 092F  02 04555548	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_4 + 000555548h), DONT_CARE>
+       00000000
+ 0938  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram4_alt_write-$-4)>
+       0000001B
+			      C 
+ 0941			      C dram4_4mb:
+ 0941  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 094A  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000010h>
+       00000010
+ 0953  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 095C			      C dram4_alt_write:
+ 095C  03 04555548	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_4 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 0965  02 04555548	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_4 + 000555548h), DONT_CARE>
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 19 - 1
+
+
+       00000000
+ 096E  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram4_err-$-4)>
+       00000009
+ 0977  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram5-$-4)>
+       0000001B
+			      C 
+ 0980			      C dram4_err:
+ 0980  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0989  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000010h>
+       00000010
+ 0992  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 099B			      C dram5:
+ 099B  03 04555558	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_5 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 09A4  03 06555558	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_5 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 09AD  02 06555558	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_5 + 002555548h), DONT_CARE>
+       00000000
+ 09B6  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram5_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 09BF  02 04555558	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_5 + 000555548h), DONT_CARE>
+       00000000
+ 09C8  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram5_alt_write-$-4)>
+       0000001B
+			      C 
+ 09D1			      C dram5_4mb:
+ 09D1  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 09DA  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000020h>
+       00000020
+ 09E3  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 09EC			      C dram5_alt_write:
+ 09EC  03 04555558	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_5 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 09F5  02 04555558	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_5 + 000555548h), DONT_CARE>
+       00000000
+ 09FE  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram5_err-$-4)>
+       00000009
+ 0A07  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram6-$-4)>
+       0000001B
+			      C 
+ 0A10			      C dram5_err:
+ 0A10  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0A19  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000020h>
+       00000020
+ 0A22  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 0A2B			      C dram6:
+ 0A2B  03 04555568	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_6 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 0A34  03 06555568	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_6 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 0A3D  02 06555568	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_6 + 002555548h), DONT_CARE>
+       00000000
+ 0A46  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram6_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 0A4F  02 04555568	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_6 + 000555548h), DONT_CARE>
+       00000000
+ 0A58  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram6_alt_write-$-4)>
+       0000001B
+			      C 
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 20 - 1
+
+
+ 0A61			      C dram6_4mb:
+ 0A61  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 0A6A  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000040h>
+       00000040
+ 0A73  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 0A7C			      C dram6_alt_write:
+ 0A7C  03 04555568	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_6 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 0A85  02 04555568	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_6 + 000555548h), DONT_CARE>
+       00000000
+ 0A8E  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram6_err-$-4)>
+       00000009
+ 0A97  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (dram7-$-4)>
+       0000001B
+			      C 
+ 0AA0			      C dram6_err:
+ 0AA0  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0AA9  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000040h>
+       00000040
+ 0AB2  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+			      C ;-------------------------------------------------------------------------------
+ 0ABB			      C dram7:
+ 0ABB  03 04555578	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_7 + 000555548h), MEMTEST_PATTERN1>
+       AAAAAAAA
+ 0AC4  03 06555578	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_7 + 002555548h), MEMTEST_PATTERN2>
+       5A5A5A5A
+			      C 
+			      C ; does the DRAM exist?
+ 0ACD  02 06555578	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_7 + 002555548h), DONT_CARE>
+       00000000
+ 0AD6  08 5A5A5A5A	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN2, (dram7_err-$-4)>
+       00000051
+			      C 
+			      C ; did we alias in the DRAM?
+ 0ADF  02 04555578	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_7 + 000555548h), DONT_CARE>
+       00000000
+ 0AE8  08 AAAAAAAA	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN1, (dram7_alt_write-$-4)>
+       0000001B
+			      C 
+ 0AF1			      C dram7_4mb:
+ 0AF1  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 0AFA  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000080h>
+       00000080
+ 0B03  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_TYPE>
+       8000103C
+			      C 
+ 0B0C			      C dram7_alt_write:
+ 0B0C  03 04555578	      C nv_command_struct<COMMAND_WRITE_MEM, (MEM_PART_7 + 000555548h), MEMTEST_PATTERN3>
+       55555555
+ 0B15  02 04555578	      C nv_command_struct<COMMAND_READ_MEM,  (MEM_PART_7 + 000555548h), DONT_CARE>
+       00000000
+ 0B1E  08 55555555	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, MEMTEST_PATTERN3, (dram7_err-$-4)>
+       00000009
+ 0B27  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (memtest_done-$-4)>
+       0000001B
+			      C 
+ 0B30			      C dram7_err:
+ 0B30  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0B39  06 FFFFFFFF	      C nv_command_struct<COMMAND_RMW_RESULT,   0FFFFFFFFh, 000000080h>
+       00000080
+ 0B42  07 00000004	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_PCI_CFG_WRITE, MEMTEST_RESULT>
+       8000183C
+			      C 
+			      C 
+ 0B4B			      C memtest_done:
+			      C ;
+			      C ; Start by assuming we're using a 4Mx32, 64MB config (no external bank).
+			      C ; We've already set rows = 2^12, so clear the external bank bit.
+			      C ;
+ 0B4B  03 0F100200	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG0),  003070003h>
+       03070003
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 21 - 1
+
+
+ 0B54  04 80000084	      C nv_command_struct<COMMAND_PCI_CFG_WRITE, CR_CPU_MEMTOP, CR_CPU_MEMTOP_LIMIT_64MB>
+       03FFFFFF
+			      C 
+			      C ;
+			      C ; Read out our bitmask of 4Mx32 parts into the SMBus register and update our
+			      C ; memory config, if necessary.
+			      C ; 
+ 0B5D  05 8000103C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_TYPE, DONT_CARE>
+       00000000
+ 0B66  06 000000FF	      C nv_command_struct<COMMAND_RMW_RESULT,   0000000FFh, 000000000h>
+       00000000
+ 0B6F  07 00000011	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6>
+       0000C006
+			      C 
+ 0B78  12 0000C006	      C nv_command_struct<COMMAND_IN_BYTE,  SMB_CONTROL_BASE+6, DONT_CARE>
+       00000000
+ 0B81  08 00000000	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 000000000h, (dram_4M-$-4)>
+       0000001B
+			      C 
+			      C ; Reset back to 11 row bits and add back the external bank bit
+ 0B8A  03 0F100200	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG0),  003070103h>    ; extbank bit
+       03070103
+ 0B93  03 0F100204	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG1),  011338000h>    ; 11 row bits
+       11338000
+ 0B9C  09 00000000	      C nv_command_struct<COMMAND_JMP, DONT_CARE, (mem_report-$-4)>
+       00000024
+			      C 
+ 0BA5			      C dram_4M:
+			      C ; We've got some 4Mx32 parts, check if we're a 128MB config?
+ 0BA5  12 0000C006	      C nv_command_struct<COMMAND_IN_BYTE,  SMB_CONTROL_BASE+6, DONT_CARE>
+       00000000
+ 0BAE  08 000000FF	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 0000000FFh, (mem_report-$-4)>
+       00000012
+			      C 
+			      C ; Add back the external bank bit and update MEMTOP
+ 0BB7  03 0F100200	      C nv_command_struct<COMMAND_WRITE_MEM, (NV20_REG_BASE + NV_PFB_CFG0),  003070103h>    ; extback bit
+       03070103
+ 0BC0  04 80000084	      C nv_command_struct<COMMAND_PCI_CFG_WRITE, CR_CPU_MEMTOP, CR_CPU_MEMTOP_LIMIT_128MB>
+       07FFFFFF
+			      C 
+			      C 
+ 0BC9			      C mem_report:
+			      C 
+			      C ;
+			      C ; Report the results to the SMC
+			      C ;
+ 0BC9  11 0000C004	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+4, 020h>     ; SMC slave addr
+       00000020
+			      C 
+			      C ;
+			      C ; Send Memory Type (already in SMB_CONTROL_BASE+6) to SMC
+			      C ;
+ 0BD2  11 0000C008	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 013h>     ; SMC Register
+       00000013
+ 0BDB  11 0000C002	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>     ; kickoff
+       0000000A
+			      C 
+ 0BE4  12 0000C000	      C nv_command_struct<COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE>  ; read back status
+       00000000
+ 0BED  08 00000010	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 010h,     -18>      ; spin if not idle
+       FFFFFFEE
+ 0BF6  11 0000C000	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>       ; clear status
+       00000010
+			      C 
+			      C ;
+			      C ; Send Memory test results to SMC
+			      C ;
+ 0BFF  05 8000183C	      C nv_command_struct<COMMAND_PCI_CFG_READ, MEMTEST_RESULT, DONT_CARE>
+       00000000
+ 0C08  06 000000FF	      C nv_command_struct<COMMAND_RMW_RESULT,   0000000FFh, 000000000h>
+       00000000
+ 0C11  07 00000011	      C nv_command_struct<COMMAND_USE_RESULT_AS_DATA, COMMAND_OUT_BYTE, SMB_CONTROL_BASE+6>
+       0000C006
+			      C 
+ 0C1A  11 0000C008	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+8, 012h>     ; SMC Register
+       00000012
+ 0C23  11 0000C002	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE+2, 00Ah>     ; kickoff
+       0000000A
+			      C 
+ 0C2C  12 0000C000	      C nv_command_struct<COMMAND_IN_BYTE,  SMB_CONTROL_BASE, DONT_CARE>  ; read back status
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 22 - 1
+
+
+       00000000
+ 0C35  08 00000010	      C nv_command_struct<COMMAND_COMPARE_RESULT_JNE, 010h,     -18>      ; spin if not idle
+       FFFFFFEE
+ 0C3E  11 0000C000	      C nv_command_struct<COMMAND_OUT_BYTE, SMB_CONTROL_BASE, 010h>       ; clear status
+       00000010
+			      C 
+ 0C47			      C mem_report_end:
+			      C 
+			      C 
+			      C ;
+			      C ; Reload the NV20 register base (should be just prior to COMMAND_QUIT)
+			      C ; to what the kernel expects.
+			      C ;
+ 0C47  04 8000F020	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_APC_P2P_8,  CR_APC_P2P_8_MLIMIT_MBASE_KERNEL>
+       FDF0FD00
+ 0C50  04 80010010	      C nv_command_struct <COMMAND_PCI_CFG_WRITE, CR_NV20_PCI_4, NV20_REG_BASE_KERNEL>
+       FD000000
+			      C 
+			      C ; End of table.  First argument is used as the value for the default MTRR register
+			      C ;
+ 0C59  EE 00000806	      C nv_command_struct <COMMAND_QUIT, 0806h, DONT_CARE>
+       00000000
+			      C 
+			      C ;
+			      C ; Drive/Slew Parameter Offset and Data.  Boot loader needs to access this data
+			      C ; 
+			      C 
+			      C org DATATBL_BASE_OFFSET  
+			      C 
+			      C ;DATATBL_DRVSLWPARAM_OFFSET   EQU DATATBL_BASE_OFFSET+0
+			      C 
+			      C ;-----------------------------------------------------------------------------
+			      C 
+ 0C90			      C DrvSlwParamBegin:
+			      C ;
+			      C ; Common calibration data
+			      C ;
+ 0C90  4E20		      C dw    20000    ; MaxMClk (230Mhz)
+			      C ;
+			      C ; Operating condition based on speedometer
+			      C ;     (Count is from VCCQ; CountB is from VCC)
+			      C ;
+			      C 
+			      C ;
+			      C ; 16.6 clock
+			      C ;
+			      C 
+ 0C92  4E		      C db    4Eh      ; SlowCountExt
+ 0C93  3E		      C db    3Eh      ; SlowCountBExt
+			      C 
+ 0C94  56		      C db    56h      ; SlowCountAvg
+ 0C95  43		      C db    43h      ; SlowCountBAvg
+			      C 
+ 0C96  5D		      C db    5Dh      ; TypiCount
+ 0C97  4A		      C db    4Ah      ; TypiCountB
+			      C 
+ 0C98  64		      C db    64h      ; FastCountAvg
+ 0C99  50		      C db    50h      ; FastCountBAvg
+			      C 
+ 0C9A  6A		      C db    6Ah      ; FastCountExt
+ 0C9B  55		      C db    55h      ; FastCountBExt
+			      C 
+			      C ;-----------------------------------------------------------------------------
+			      C ;
+			      C ; Samsung Extreme FAST values 
+			      C ;
+ 0C9C  09		      C db    09h      ; AdrDrvFallFastExt
+ 0C9D  09		      C db    09h      ; AdrDrvRiseFastExt
+ 0C9E  0E		      C db    0Eh      ; AdrSlwFallFastExt
+ 0C9F  08		      C db    08h      ; AdrSlwRiseFastExt
+			      C 
+ 0CA0  0F		      C db    0Fh      ; ClkDrvFallFastExt
+ 0CA1  0F		      C db    0Fh      ; ClkDrvRiseFastExt
+ 0CA2  0F		      C db    0Fh      ; ClkSlwFallFastExt
+ 0CA3  0F		      C db    0Fh      ; ClkSlwRiseFastExt
+			      C 
+ 0CA4  09		      C db    09h      ; DatDrvFallFastExt
+ 0CA5  09		      C db    09h      ; DatDrvRiseFastExt
+ 0CA6  0E		      C db    0Eh      ; DatSlwFallFastExt
+ 0CA7  08		      C db    08h      ; DatSlwRiseFastExt
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 23 - 1
+
+
+			      C 
+ 0CA8  09		      C db    09h      ; DqsDrvFallFastExt
+ 0CA9  09		      C db    09h      ; DqsDrvRiseFastExt
+ 0CAA  0E		      C db    0Eh      ; DqsSlwFallFastExt
+ 0CAB  08		      C db    08h      ; DqsSlwRiseFastExt
+			      C 
+			      C IFDEF SYS_DVT6
+ 0CAC  01		      C db    01h      ; DataInbDelyFastExt
+ 0CAD  00		      C db    00h      ; ClkIcDelyFastExt
+ 0CAE  00		      C db    00h      ; DqsInbDelyFastExt
+			      C ELSE
+			      C ENDIF
+			      C ;
+			      C ; Samsung Average FAST values
+			      C ;
+ 0CAF  09		      C db    09h      ; AdrDrvFallFastAvg
+ 0CB0  09		      C db    09h      ; AdrDrvRiseFastAvg
+ 0CB1  0E		      C db    0Eh      ; AdrSlwFallFastAvg
+ 0CB2  08		      C db    08h      ; AdrSlwRiseFastAvg
+			      C 
+ 0CB3  0F		      C db    0Fh      ; ClkDrvFallFastAvg
+ 0CB4  0F		      C db    0Fh      ; ClkDrvRiseFastAvg
+ 0CB5  0F		      C db    0Fh      ; ClkSlwFallFastAvg
+ 0CB6  0F		      C db    0Fh      ; ClkSlwRiseFastAvg
+			      C 
+ 0CB7  09		      C db    09h      ; DatDrvFallFastAvg
+ 0CB8  09		      C db    09h      ; DatDrvRiseFastAvg
+ 0CB9  0E		      C db    0Eh      ; DatSlwFallFastAvg
+ 0CBA  08		      C db    08h      ; DatSlwRiseFastAvg
+			      C 
+ 0CBB  09		      C db    09h      ; DqsDrvFallFastAvg
+ 0CBC  09		      C db    09h      ; DqsDrvRiseFastAvg
+ 0CBD  0E		      C db    0Eh      ; DqsSlwFallFastAvg
+ 0CBE  08		      C db    08h      ; DqsSlwRiseFastAvg
+			      C 
+			      C IFDEF SYS_DVT6
+ 0CBF  01		      C db    01h      ; DataInbDelyFastAvg
+ 0CC0  01		      C db    01h      ; ClkIcDelyFastAvg
+ 0CC1  00		      C db    00h      ; DqsInbDelyFastAvg 
+			      C ELSE
+			      C ENDIF
+			      C ;
+			      C ; Samsung Typical values
+			      C ;
+ 0CC2  09		      C db    09h      ; AdrDrvFallTypi
+ 0CC3  09		      C db    09h      ; AdrDrvRiseTypi
+ 0CC4  0E		      C db    0Eh      ; AdrSlwFallTypi
+ 0CC5  08		      C db    08h      ; AdrSlwRiseTypi
+			      C 
+ 0CC6  0F		      C db    0Fh      ; ClkDrvFallTypi
+ 0CC7  0F		      C db    0Fh      ; ClkDrvRiseTypi
+ 0CC8  0F		      C db    0Fh      ; ClkSlwFallTypi
+ 0CC9  0F		      C db    0Fh      ; ClkSlwRiseTypi
+			      C 
+ 0CCA  09		      C db    09h      ; DatDrvFallTypi
+ 0CCB  09		      C db    09h      ; DatDrvRiseTypi
+ 0CCC  0E		      C db    0Eh      ; DatSlwFallTypi
+ 0CCD  08		      C db    08h      ; DatSlwRiseTypi
+			      C 
+ 0CCE  09		      C db    09h      ; DqsDrvFallTypi
+ 0CCF  09		      C db    09h      ; DqsDrvRiseTypi
+ 0CD0  0E		      C db    0Eh      ; DqsSlwFallTypi
+ 0CD1  08		      C db    08h      ; DqsSlwRiseTypi
+			      C 
+			      C IFDEF SYS_DVT6
+ 0CD2  01		      C db    01h      ; DataInbDelyTypi
+ 0CD3  02		      C db    02h      ; ClkIcDelyTypi
+ 0CD4  00		      C db    00h      ; DqsInbDelyTypi
+			      C ELSE
+			      C ENDIF
+			      C ;
+			      C ; Samsung Average SLOW values
+			      C ;
+ 0CD5  0A		      C db    0Ah      ; AdrDrvFallSlowAvg
+ 0CD6  0B		      C db    0Bh      ; AdrDrvRiseSlowAvg
+ 0CD7  0E		      C db    0Eh      ; AdrSlwFallSlowAvg
+ 0CD8  08		      C db    08h      ; AdrSlwRiseSlowAvg
+			      C 
+ 0CD9  0F		      C db    0Fh      ; ClkDrvFallSlowAvg
+ 0CDA  0F		      C db    0Fh      ; ClkDrvRiseSlowAvg
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 24 - 1
+
+
+ 0CDB  0F		      C db    0Fh      ; ClkSlwFallSlowAvg
+ 0CDC  0F		      C db    0Fh      ; ClkSlwRiseSlowAvg
+			      C 
+ 0CDD  0A		      C db    0Ah      ; DatDrvFallSlowAvg
+ 0CDE  0B		      C db    0Bh      ; DatDrvRiseSlowAvg
+ 0CDF  0E		      C db    0Eh      ; DatSlwFallSlowAvg
+ 0CE0  08		      C db    08h      ; DatSlwRiseSlowAvg
+			      C 
+ 0CE1  0A		      C db    0Ah      ; DqsDrvFallSlowAvg
+ 0CE2  0B		      C db    0Bh      ; DqsDrvRiseSlowAvg
+ 0CE3  0E		      C db    0Eh      ; DqsSlwFallSlowAvg
+ 0CE4  08		      C db    08h      ; DqsSlwRiseSlowAvg
+			      C 
+			      C IFDEF SYS_DVT6
+ 0CE5  01		      C db    01h      ; DataInbDelySlowAvg
+ 0CE6  02		      C db    02h      ; ClkIcDelySlowAvg
+ 0CE7  00		      C db    00h      ; DqsInbDelySlowAvg
+			      C ELSE
+			      C ENDIF
+			      C ;
+			      C ; Samsung Extreme SLOW values
+			      C ;
+ 0CE8  0B		      C db    0Bh      ; AdrDrvFallSlowExt
+ 0CE9  0E		      C db    0Eh      ; AdrDrvRiseSlowExt
+ 0CEA  0E		      C db    0Eh      ; AdrSlwFallSlowExt
+ 0CEB  08		      C db    08h      ; AdrSlwRiseSlowExt
+			      C 
+ 0CEC  0F		      C db    0Fh      ; ClkDrvFallSlowExt
+ 0CED  0F		      C db    0Fh      ; ClkDrvRiseSlowExt
+ 0CEE  0F		      C db    0Fh      ; ClkSlwFallSlowExt
+ 0CEF  0F		      C db    0Fh      ; ClkSlwRiseSlowExt
+			      C 
+ 0CF0  0B		      C db    0Bh      ; DatDrvFallSlowExt
+ 0CF1  0E		      C db    0Eh      ; DatDrvRiseSlowExt
+ 0CF2  0E		      C db    0Eh      ; DatSlwFallSlowExt
+ 0CF3  08		      C db    08h      ; DatSlwRiseSlowExt
+			      C 
+ 0CF4  0B		      C db    0Bh      ; DqsDrvFallSlowExt
+ 0CF5  0E		      C db    0Eh      ; DqsDrvRiseSlowExt
+ 0CF6  0E		      C db    0Eh      ; DqsSlwFallSlowExt
+ 0CF7  08		      C db    08h      ; DqsSlwRiseSlowExt
+			      C 
+			      C IFDEF SYS_DVT6
+ 0CF8  01		      C db    01h      ; DataInbDelySlowExt
+ 0CF9  03		      C db    03h      ; ClkIcDelySlowExt
+ 0CFA  00		      C db    00h      ; DqsInbDelySlowExt
+			      C ELSE
+			      C ENDIF
+			      C ;-----------------------------------------------------------------------------
+			      C ;
+			      C ; Micron Extreme FAST values
+			      C ;
+ 0CFB  08		      C db    08h      ; AdrDrvFallFastExt
+ 0CFC  08		      C db    08h      ; AdrDrvRiseFastExt
+ 0CFD  0E		      C db    0Eh      ; AdrSlwFallFastExt
+ 0CFE  08		      C db    08h      ; AdrSlwRiseFastExt
+			      C 
+ 0CFF  0F		      C db    0Fh      ; ClkDrvFallFastExt
+ 0D00  0F		      C db    0Fh      ; ClkDrvRiseFastExt
+ 0D01  0F		      C db    0Fh      ; ClkSlwFallFastExt
+ 0D02  0F		      C db    0Fh      ; ClkSlwRiseFastExt
+			      C 
+ 0D03  09		      C db    09h      ; DatDrvFallFastExt
+ 0D04  09		      C db    09h      ; DatDrvRiseFastExt
+ 0D05  0E		      C db    0Eh      ; DatSlwFallFastExt
+ 0D06  08		      C db    08h      ; DatSlwRiseFastExt
+			      C 
+ 0D07  09		      C db    09h      ; DqsDrvFallFastExt
+ 0D08  09		      C db    09h      ; DqsDrvRiseFastExt
+ 0D09  0E		      C db    0Eh      ; DqsSlwFallFastExt
+ 0D0A  08		      C db    08h      ; DqsSlwRiseFastExt
+			      C 
+ 0D0B  00		      C db    00h      ; DataInbDelyFastExt
+ 0D0C  01		      C db    01h      ; ClkIcDelyFastExt
+ 0D0D  01		      C db    01h      ; DqsInbDelyFastExt
+			      C ;
+			      C ; Micron Average FAST values
+			      C ;
+ 0D0E  08		      C db    08h      ; AdrDrvFallFastAvg
+ 0D0F  08		      C db    08h      ; AdrDrvRiseFastAvg
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 25 - 1
+
+
+ 0D10  0E		      C db    0Eh      ; AdrSlwFallFastAvg
+ 0D11  08		      C db    08h      ; AdrSlwRiseFastAvg
+			      C 
+ 0D12  0F		      C db    0Fh      ; ClkDrvFallFastAvg
+ 0D13  0F		      C db    0Fh      ; ClkDrvRiseFastAvg
+ 0D14  0F		      C db    0Fh      ; ClkSlwFallFastAvg
+ 0D15  0F		      C db    0Fh      ; ClkSlwRiseFastAvg
+			      C 
+ 0D16  09		      C db    09h      ; DatDrvFallFastAvg
+ 0D17  09		      C db    09h      ; DatDrvRiseFastAvg
+ 0D18  0E		      C db    0Eh      ; DatSlwFallFastAvg
+ 0D19  08		      C db    08h      ; DatSlwRiseFastAvg
+			      C 
+ 0D1A  09		      C db    09h      ; DqsDrvFallFastAvg
+ 0D1B  09		      C db    09h      ; DqsDrvRiseFastAvg
+ 0D1C  0E		      C db    0Eh      ; DqsSlwFallFastAvg
+ 0D1D  08		      C db    08h      ; DqsSlwRiseFastAvg
+			      C 
+ 0D1E  00		      C db    00h      ; DataInbDelyFastAvg
+ 0D1F  01		      C db    01h      ; ClkIcDelyFastAvg
+ 0D20  01		      C db    01h      ; DqsInbDelyFastAvg 
+			      C ;
+			      C ; Micron Typical values
+			      C ;
+ 0D21  08		      C db    08h      ; AdrDrvFallTypi
+ 0D22  08		      C db    08h      ; AdrDrvRiseTypi
+ 0D23  0E		      C db    0Eh      ; AdrSlwFallTypi
+ 0D24  08		      C db    08h      ; AdrSlwRiseTypi
+			      C 
+ 0D25  0F		      C db    0Fh      ; ClkDrvFallTypi
+ 0D26  0F		      C db    0Fh      ; ClkDrvRiseTypi
+ 0D27  0F		      C db    0Fh      ; ClkSlwFallTypi
+ 0D28  0F		      C db    0Fh      ; ClkSlwRiseTypi
+			      C 
+ 0D29  09		      C db    09h      ; DatDrvFallTypi
+ 0D2A  09		      C db    09h      ; DatDrvRiseTypi
+ 0D2B  0E		      C db    0Eh      ; DatSlwFallTypi
+ 0D2C  08		      C db    08h      ; DatSlwRiseTypi
+			      C 
+ 0D2D  09		      C db    09h      ; DqsDrvFallTypi
+ 0D2E  09		      C db    09h      ; DqsDrvRiseTypi
+ 0D2F  0E		      C db    0Eh      ; DqsSlwFallTypi
+ 0D30  08		      C db    08h      ; DqsSlwRiseTypi
+			      C 
+ 0D31  00		      C db    00h      ; DataInbDelyTypi
+ 0D32  01		      C db    01h      ; ClkIcDelyTypi
+ 0D33  01		      C db    01h      ; DqsInbDelyTypi
+			      C ;
+			      C ; Micron Average SLOW values
+			      C ;
+ 0D34  08		      C db    08h      ; AdrDrvFallSlowAvg
+ 0D35  08		      C db    08h      ; AdrDrvRiseSlowAvg
+ 0D36  0E		      C db    0Eh      ; AdrSlwFallSlowAvg
+ 0D37  08		      C db    08h      ; AdrSlwRiseSlowAvg
+			      C 
+ 0D38  0F		      C db    0Fh      ; ClkDrvFallSlowAvg
+ 0D39  0F		      C db    0Fh      ; ClkDrvRiseSlowAvg
+ 0D3A  0F		      C db    0Fh      ; ClkSlwFallSlowAvg
+ 0D3B  0F		      C db    0Fh      ; ClkSlwRiseSlowAvg
+			      C 
+ 0D3C  0A		      C db    0Ah      ; DatDrvFallSlowAvg
+ 0D3D  0B		      C db    0Bh      ; DatDrvRiseSlowAvg
+ 0D3E  0E		      C db    0Eh      ; DatSlwFallSlowAvg
+ 0D3F  08		      C db    08h      ; DatSlwRiseSlowAvg
+			      C 
+ 0D40  0A		      C db    0Ah      ; DqsDrvFallSlowAvg
+ 0D41  0B		      C db    0Bh      ; DqsDrvRiseSlowAvg
+ 0D42  0E		      C db    0Eh      ; DqsSlwFallSlowAvg
+ 0D43  08		      C db    08h      ; DqsSlwRiseSlowAvg
+			      C 
+ 0D44  00		      C db    00h      ; DataInbDelySlowAvg
+ 0D45  01		      C db    01h      ; ClkIcDelySlowAvg
+ 0D46  01		      C db    01h      ; DqsInbDelySlowAvg
+			      C ;
+			      C ; Micron Extreme SLOW values
+			      C ;
+ 0D47  08		      C db    08h      ; AdrDrvFallSlowExt
+ 0D48  08		      C db    08h      ; AdrDrvRiseSlowExt
+ 0D49  0E		      C db    0Eh      ; AdrSlwFallSlowExt
+ 0D4A  08		      C db    08h      ; AdrSlwRiseSlowExt
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Page 26 - 1
+
+
+			      C 
+ 0D4B  0F		      C db    0Fh      ; ClkDrvFallSlowExt
+ 0D4C  0F		      C db    0Fh      ; ClkDrvRiseSlowExt
+ 0D4D  0F		      C db    0Fh      ; ClkSlwFallSlowExt
+ 0D4E  0F		      C db    0Fh      ; ClkSlwRiseSlowExt
+			      C 
+ 0D4F  0B		      C db    0Bh      ; DatDrvFallSlowExt
+ 0D50  0E		      C db    0Eh      ; DatDrvRiseSlowExt
+ 0D51  0E		      C db    0Eh      ; DatSlwFallSlowExt
+ 0D52  08		      C db    08h      ; DatSlwRiseSlowExt
+			      C 
+ 0D53  0B		      C db    0Bh      ; DqsDrvFallSlowExt
+ 0D54  0E		      C db    0Eh      ; DqsDrvRiseSlowExt
+ 0D55  0E		      C db    0Eh      ; DqsSlwFallSlowExt
+ 0D56  08		      C db    08h      ; DqsSlwRiseSlowExt
+			      C 
+ 0D57  00		      C db    00h      ; DataInbDelySlowExt
+ 0D58  01		      C db    01h      ; ClkIcDelySlowExt
+ 0D59  01		      C db    01h      ; DqsInbDelySlowExt
+			      C 
+ 0D5A			      C DrvSlwParamEnd:
+			      C 
+ 0D5A  43 6F 70 79 72 69      C DB   'Copyright (c) Microsoft Corporation. All rights reserved.'
+       67 68 74 20 28 63
+       29 20 4D 69 63 72
+       6F 73 6F 66 74 20
+       43 6F 72 70 6F 72
+       61 74 69 6F 6E 2E
+       20 41 6C 6C 20 72
+       69 67 68 74 73 20
+       72 65 73 65 72 76
+       65 64 2E
+			      C 
+			      C 
+ 0D93			      C CODE ENDS
+			      C 
+			      C 
+
+				        END
+
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Symbols 27 - 1
+
+
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+nv_command_struct  . . . . . . .	 0009
+  nv_command . . . . . . . . . .	 0000	     Byte
+  nv_address . . . . . . . . . .	 0001	     DWord
+  nv_data  . . . . . . . . . . .	 0005	     DWord
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Symbols 28 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+CODE . . . . . . . . . . . . . .	16 Bit	 0D93	  Para	  Public  'CODE'	
+DGROUP . . . . . . . . . . . . .	GROUP
+_DATA  . . . . . . . . . . . . .	16 Bit	 0000	  Word	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	16 Bit	 0000	  Word	  Public  'CODE'	
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Symbols 29 - 1
+
+
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 0000h	 
+@DataSize  . . . . . . . . . . .	Number	 0001h	 
+@Interface . . . . . . . . . . .	Number	 0000h	 
+@Model . . . . . . . . . . . . .	Number	 0003h	 
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 DGROUP
+@fardata?  . . . . . . . . . . .	Text   	 FAR_BSS
+@fardata . . . . . . . . . . . .	Text   	 FAR_DATA
+@stack . . . . . . . . . . . . .	Text   	 DGROUP
+APERTURE_BASE  . . . . . . . . .	Number	 40000000h   
+COMMAND_COMPARE_RESULT_JNE . . .	Number	 0008h	 
+COMMAND_IN_BYTE  . . . . . . . .	Number	 0012h	 
+COMMAND_JMP  . . . . . . . . . .	Number	 0009h	 
+COMMAND_OUT_BYTE . . . . . . . .	Number	 0011h	 
+COMMAND_PCI_CFG_READ . . . . . .	Number	 0005h	 
+COMMAND_PCI_CFG_WRITE  . . . . .	Number	 0004h	 
+COMMAND_QUIT . . . . . . . . . .	Number	 00EEh	 
+COMMAND_READ_MEM . . . . . . . .	Number	 0002h	 
+COMMAND_RESERVED . . . . . . . .	Number	 0001h	 
+COMMAND_RMW_ACCUM  . . . . . . .	Number	 0010h	 
+COMMAND_RMW_RESULT . . . . . . .	Number	 0006h	 
+COMMAND_UNUSED1  . . . . . . . .	Number	 00F5h	 
+COMMAND_UNUSED2  . . . . . . . .	Number	 0080h	 
+COMMAND_USE_RESULT_AS_DATA . . .	Number	 0007h	 
+COMMAND_WRITE_MEM  . . . . . . .	Number	 0003h	 
+CR_APC_P2P_19_NV20_ENABLE  . . .	Number	 0001h	 
+CR_APC_P2P_19  . . . . . . . . .	Number	 8000F04Ch   
+CR_APC_P2P_1_BUS_MSTR_MEM_IO . .	Number	 0007h	 
+CR_APC_P2P_1 . . . . . . . . . .	Number	 8000F004h   
+CR_APC_P2P_6_SUB_SEC_PRI_BUS . .	Number	 00010100h   
+CR_APC_P2P_6 . . . . . . . . . .	Number	 8000F018h   
+CR_APC_P2P_8_MLIMIT_MBASE_INIT .	Number	 0FF00F00h   
+CR_APC_P2P_8_MLIMIT_MBASE_KERNEL .	Number	 FDF0FD00h   
+CR_APC_P2P_8 . . . . . . . . . .	Number	 8000F020h   
+CR_APC_P2P_9_PREF_MLIMIT_MBASE .	Number	 F7F0F000h   
+CR_APC_P2P_9 . . . . . . . . . .	Number	 8000F024h   
+CR_CPU_CST_0 . . . . . . . . . .	Number	 80000340h   
+CR_CPU_CST_1 . . . . . . . . . .	Number	 80000344h   
+CR_CPU_CST_7 . . . . . . . . . .	Number	 8000035Ch   
+CR_CPU_MEMTOP_LIMIT_128MB  . . .	Number	 07FFFFFFh   
+CR_CPU_MEMTOP_LIMIT_64MB . . . .	Number	 03FFFFFFh   
+CR_CPU_MEMTOP  . . . . . . . . .	Number	 80000084h   
+CR_CPU_MPLL_COEFF  . . . . . . .	Number	 8000036Ch   
+CR_NV20_PCI_1_BUS_MSTR_MEM_IO  .	Number	 0007h	 
+CR_NV20_PCI_1  . . . . . . . . .	Number	 80010004h   
+CR_NV20_PCI_4  . . . . . . . . .	Number	 80010010h   
+CR_NV20_PCI_5  . . . . . . . . .	Number	 80010014h   
+DATATBL_BASE_OFFSET  . . . . . .	Number	 0C90h	 
+DESIRED_SMC_VER  . . . . . . . .	Number	 0050h	 
+DEVKIT . . . . . . . . . . . . .	Text   	 
+DONT_CARE  . . . . . . . . . . .	Number	 0000h	 
+DelayJump1 . . . . . . . . . . .	L Near	 069E	  CODE	
+DelayJump2 . . . . . . . . . . .	L Near	 06A7	  CODE	
+DrvSlwParamBegin . . . . . . . .	L Near	 0C90	  CODE	
+DrvSlwParamEnd . . . . . . . . .	L Near	 0D5A	  CODE	
+MCP_LEG_CFG_19 . . . . . . . . .	Number	 8000084Ch   
+MCP_LEG_CFG_1  . . . . . . . . .	Number	 80000804h   
+MCP_LEG_CFG_24 . . . . . . . . .	Number	 80000860h   
+MCP_LEG_CFG_2  . . . . . . . . .	Number	 80000808h   
+MCP_LEG_CFG_39 . . . . . . . . .	Number	 8000089Ch   
+MCP_LEG_CFG_45 . . . . . . . . .	Number	 800008B4h   
+MCP_LEG_CFG_4  . . . . . . . . .	Number	 80000810h   
+MCP_SMB_CFG_1_IO_SPACE . . . . .	Number	 0001h	 
+MCP_SMB_CFG_1  . . . . . . . . .	Number	 80000904h   
+MCP_SMB_CFG_5_IO_BASE  . . . . .	Number	 C001h	 
+MCP_SMB_CFG_5  . . . . . . . . .	Number	 80000914h   
+MCP_SMB_CFG_6_IO_BASE  . . . . .	Number	 C201h	 
+MCP_SMB_CFG_6  . . . . . . . . .	Number	 80000918h   
+MCP_USBA_CFG_15  . . . . . . . .	Number	 8000103Ch   
+MCP_USBB_CFG_15  . . . . . . . .	Number	 8000183Ch   
+MEMTEST_PATTERN1 . . . . . . . .	Number	 AAAAAAAAh   
+MEMTEST_PATTERN2 . . . . . . . .	Number	 5A5A5A5Ah   
+MEMTEST_PATTERN3 . . . . . . . .	Number	 55555555h   
+MEMTEST_PATTERN4 . . . . . . . .	Number	 CCCCCCCCh   
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Symbols 30 - 1
+
+
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+MEMTEST_RESULT . . . . . . . . .	Number	 8000183Ch   
+MEMTEST_TYPE . . . . . . . . . .	Number	 8000103Ch   
+MEM_PART_0 . . . . . . . . . . .	Number	 0000h	 
+MEM_PART_1 . . . . . . . . . . .	Number	 0010h	 
+MEM_PART_2 . . . . . . . . . . .	Number	 0020h	 
+MEM_PART_3 . . . . . . . . . . .	Number	 0030h	 
+MEM_PART_4 . . . . . . . . . . .	Number	 04000000h   
+MEM_PART_5 . . . . . . . . . . .	Number	 04000010h   
+MEM_PART_6 . . . . . . . . . . .	Number	 04000020h   
+MEM_PART_7 . . . . . . . . . . .	Number	 04000030h   
+NV20_FB_BASE . . . . . . . . . .	Number	 F0000000h   
+NV20_REG_BASE_KERNEL . . . . . .	Number	 FD000000h   
+NV20_REG_BASE  . . . . . . . . .	Number	 0F000000h   
+NV2A_XBOX_ROM_TABLE_PTR  . . . .	Number	 FF000008h   
+NV_PBUS_DEBUG_CTRIM_0  . . . . .	Number	 10B0h	 
+NV_PBUS_DEBUG_CTRIM_10 . . . . .	Number	 10E8h	 
+NV_PBUS_DEBUG_CTRIM_1  . . . . .	Number	 10B4h	 
+NV_PBUS_DEBUG_CTRIM_2  . . . . .	Number	 10B8h	 
+NV_PBUS_DEBUG_CTRIM_3  . . . . .	Number	 10BCh	 
+NV_PBUS_DEBUG_CTRIM_4  . . . . .	Number	 10C4h	 
+NV_PBUS_DEBUG_CTRIM_5  . . . . .	Number	 10C8h	 
+NV_PBUS_DEBUG_CTRIM_6  . . . . .	Number	 10CCh	 
+NV_PBUS_DEBUG_CTRIM_7  . . . . .	Number	 10D4h	 
+NV_PBUS_DEBUG_CTRIM_8  . . . . .	Number	 10D8h	 
+NV_PBUS_DEBUG_CTRIM_9  . . . . .	Number	 10DCh	 
+NV_PBUS_DISPIO_PADCTL_INIT . . .	Number	 AA8BAA8Bh   
+NV_PBUS_DISPIO_PADCTL  . . . . .	Number	 124Ch	 
+NV_PBUS_FBIO_ADRDRV  . . . . . .	Number	 122Ch	 
+NV_PBUS_FBIO_ADRSLW_INIT . . . .	Number	 8B8B8B8Bh   
+NV_PBUS_FBIO_ADRSLW  . . . . . .	Number	 123Ch	 
+NV_PBUS_FBIO_CALEN_OFF . . . . .	Number	 0000h	 
+NV_PBUS_FBIO_CALEN . . . . . . .	Number	 1220h	 
+NV_PBUS_FBIO_CALSEL_VALUE  . . .	Number	 0000h	 
+NV_PBUS_FBIO_CALSEL  . . . . . .	Number	 1228h	 
+NV_PBUS_FBIO_CFG . . . . . . . .	Number	 1210h	 
+NV_PBUS_FBIO_CLKDRV  . . . . . .	Number	 1230h	 
+NV_PBUS_FBIO_CLKSLW  . . . . . .	Number	 1240h	 
+NV_PBUS_FBIO_DATDRV_INIT . . . .	Number	 AAAAAAAAh   
+NV_PBUS_FBIO_DATDRV  . . . . . .	Number	 1234h	 
+NV_PBUS_FBIO_DATSLW_INIT . . . .	Number	 8B8B8B8Bh   
+NV_PBUS_FBIO_DATSLW  . . . . . .	Number	 1244h	 
+NV_PBUS_FBIO_DLY . . . . . . . .	Number	 1214h	 
+NV_PBUS_FBIO_DQSDRV_INIT . . . .	Number	 AAAAAAAAh   
+NV_PBUS_FBIO_DQSDRV  . . . . . .	Number	 1238h	 
+NV_PBUS_FBIO_DQSSLW_INIT . . . .	Number	 8B8B8B8Bh   
+NV_PBUS_FBIO_DQSSLW  . . . . . .	Number	 1248h	 
+NV_PBUS_FBIO_RAM . . . . . . . .	Number	 1218h	 
+NV_PBUS_TVDIO_CALEN_OFF  . . . .	Number	 0000h	 
+NV_PBUS_TVDIO_CALEN  . . . . . .	Number	 1264h	 
+NV_PBUS_TVDIO_PADCTL_INIT  . . .	Number	 AA8Bh	 
+NV_PBUS_TVDIO_PADCTL . . . . . .	Number	 1250h	 
+NV_PEXTDEV_BOOT_0  . . . . . . .	Number	 00101000h   
+NV_PFB_ARB_DIFF_BANK . . . . . .	Number	 00100338h   
+NV_PFB_ARB_PREDIVIDER  . . . . .	Number	 00100328h   
+NV_PFB_ARB_TIMEOUT . . . . . . .	Number	 0010032Ch   
+NV_PFB_ARB_XFER_SZ . . . . . . .	Number	 00100330h   
+NV_PFB_BYPASS_VALUE  . . . . . .	Number	 F1780031h   
+NV_PFB_BYPASS  . . . . . . . . .	Number	 00100424h   
+NV_PFB_CFG0  . . . . . . . . . .	Number	 00100200h   
+NV_PFB_CFG1  . . . . . . . . . .	Number	 00100204h   
+NV_PFB_CPU_RRQ_FWP_LAT_ENABLE  .	Number	 0401h	 
+NV_PFB_CPU_RRQ . . . . . . . . .	Number	 00100420h   
+NV_PFB_EMRS_EXT  . . . . . . . .	Number	 001002CCh   
+NV_PFB_EMRS  . . . . . . . . . .	Number	 001002C4h   
+NV_PFB_MRS_DLL_RESET . . . . . .	Number	 0132h	 
+NV_PFB_MRS_EXT_DLL_RESET . . . .	Number	 0132h	 
+NV_PFB_MRS_EXT . . . . . . . . .	Number	 001002C8h   
+NV_PFB_MRS . . . . . . . . . . .	Number	 001002C0h   
+NV_PFB_PRE_CMD_PRECHARGE_1 . . .	Number	 0001h	 
+NV_PFB_PRE . . . . . . . . . . .	Number	 001002D4h   
+NV_PFB_REFCTRL_VALID_1 . . . . .	Number	 -80000000h   
+NV_PFB_REFCTRL . . . . . . . . .	Number	 00100210h   
+NV_PFB_REF . . . . . . . . . . .	Number	 001002D0h   
+NV_PFB_TIMING2 . . . . . . . . .	Number	 00100228h   
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:46
+..\i386\inittbl.asm					     Symbols 31 - 1
+
+
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+NV_PFB_WBC . . . . . . . . . . .	Number	 00100410h   
+NV_PGRAPH_DEBUG_10_ROP_BLEND . .	Number	 0003h	 
+NV_PGRAPH_DEBUG_10 . . . . . . .	Number	 00400B88h   
+NV_PGRAPH_DEBUG_2_VALUE  . . . .	Number	 002EC3FFh   
+NV_PGRAPH_DEBUG_2  . . . . . . .	Number	 00400880h   
+NV_PMC_BOOT_0  . . . . . . . . .	Number	 0000h	 
+NV_PRAMDAC_NVPLL_COEFF . . . . .	Number	 00680500h   
+NV_PRAMDAC_PLL_COEFF_SELECT  . .	Number	 0068050Ch   
+RETAILXM3  . . . . . . . . . . .	Text   	 1
+SMB_CONTROL_BASE . . . . . . . .	Number	 C000h	 
+SMB_DDC_SPIO_BASE  . . . . . . .	Number	 C200h	 
+SYS_DVT6 . . . . . . . . . . . .	Text   	 1
+SYS_RETAIL . . . . . . . . . . .	Number	 0001h	 
+SmcIsOK  . . . . . . . . . . . .	L Near	 0482	  CODE	
+SmcIsWrong . . . . . . . . . . .	L Near	 0479	  CODE	
+ctrim_continue . . . . . . . . .	L Near	 01A0	  CODE	
+dram0_4mb  . . . . . . . . . . .	L Near	 0701	  CODE	
+dram0_alt_write  . . . . . . . .	L Near	 071C	  CODE	
+dram0_err  . . . . . . . . . . .	L Near	 0740	  CODE	
+dram0  . . . . . . . . . . . . .	L Near	 06CB	  CODE	
+dram1_4mb  . . . . . . . . . . .	L Near	 0791	  CODE	
+dram1_alt_write  . . . . . . . .	L Near	 07AC	  CODE	
+dram1_err  . . . . . . . . . . .	L Near	 07D0	  CODE	
+dram1  . . . . . . . . . . . . .	L Near	 075B	  CODE	
+dram2_4mb  . . . . . . . . . . .	L Near	 0821	  CODE	
+dram2_alt_write  . . . . . . . .	L Near	 083C	  CODE	
+dram2_err  . . . . . . . . . . .	L Near	 0860	  CODE	
+dram2  . . . . . . . . . . . . .	L Near	 07EB	  CODE	
+dram3_4mb  . . . . . . . . . . .	L Near	 08B1	  CODE	
+dram3_alt_write  . . . . . . . .	L Near	 08CC	  CODE	
+dram3_err  . . . . . . . . . . .	L Near	 08F0	  CODE	
+dram3  . . . . . . . . . . . . .	L Near	 087B	  CODE	
+dram4_4mb  . . . . . . . . . . .	L Near	 0941	  CODE	
+dram4_alt_write  . . . . . . . .	L Near	 095C	  CODE	
+dram4_err  . . . . . . . . . . .	L Near	 0980	  CODE	
+dram4  . . . . . . . . . . . . .	L Near	 090B	  CODE	
+dram5_4mb  . . . . . . . . . . .	L Near	 09D1	  CODE	
+dram5_alt_write  . . . . . . . .	L Near	 09EC	  CODE	
+dram5_err  . . . . . . . . . . .	L Near	 0A10	  CODE	
+dram5  . . . . . . . . . . . . .	L Near	 099B	  CODE	
+dram6_4mb  . . . . . . . . . . .	L Near	 0A61	  CODE	
+dram6_alt_write  . . . . . . . .	L Near	 0A7C	  CODE	
+dram6_err  . . . . . . . . . . .	L Near	 0AA0	  CODE	
+dram6  . . . . . . . . . . . . .	L Near	 0A2B	  CODE	
+dram7_4mb  . . . . . . . . . . .	L Near	 0AF1	  CODE	
+dram7_alt_write  . . . . . . . .	L Near	 0B0C	  CODE	
+dram7_err  . . . . . . . . . . .	L Near	 0B30	  CODE	
+dram7  . . . . . . . . . . . . .	L Near	 0ABB	  CODE	
+dram_4M  . . . . . . . . . . . .	L Near	 0BA5	  CODE	
+mclk_133 . . . . . . . . . . . .	L Near	 0683	  CODE	
+mclk_200 . . . . . . . . . . . .	L Near	 0683	  CODE	
+mem_report_end . . . . . . . . .	L Near	 0C47	  CODE	
+mem_report . . . . . . . . . . .	L Near	 0BC9	  CODE	
+memory_pad_config  . . . . . . .	L Near	 052D	  CODE	
+memtest_done . . . . . . . . . .	L Near	 0B4B	  CODE	
+micron_ctrim2  . . . . . . . . .	L Near	 0185	  CODE	
+nvclk_155  . . . . . . . . . . .	L Near	 049D	  CODE	
+nvclk_200  . . . . . . . . . . .	L Near	 04AF	  CODE	
+pbus_ctrim_A1  . . . . . . . . .	L Near	 012B	  CODE	
+pbus_ctrim_A2  . . . . . . . . .	L Near	 0158	  CODE	
+pbus_ctrim_common  . . . . . . .	L Near	 01A9	  CODE	
+pll_select . . . . . . . . . . .	L Near	 04B8	  CODE	
+samsung_ctrim2 . . . . . . . . .	L Near	 0197	  CODE	
+samsung_memory . . . . . . . . .	L Near	 051B	  CODE	
+skip_strap_override  . . . . . .	L Near	 0242	  CODE	
+
+	   0 Warnings
+	   0 Errors

@@ -1,0 +1,100 @@
+// RegionKeyboard.odl : type library source for ActiveX Control project.
+
+// This file will be processed by the Make Type Library (mktyplib) tool to
+// produce the type library (RegionKeyboard.tlb) that will become a resource in
+// RegionKeyboard.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(36CD3184-EE61-11D0-876A-00AA00C08146), version(1.0),
+  helpfile("RegionKeyboard.hlp"),
+  helpstring("RegionKeyboard ActiveX Control module"),
+  control ]
+library REGIONKEYBOARDLib
+{
+	importlib(STDOLE_TLB);
+	importlib(STDTYPE_TLB);
+
+	//  Primary dispatch interface for CRegionKeyboardCtrl
+
+	[ uuid(36CD3185-EE61-11D0-876A-00AA00C08146),
+	  helpstring("Dispatch interface for RegionKeyboard Control"), hidden ]
+	dispinterface _DRegionKeyboard
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CRegionKeyboardCtrl)
+			//}}AFX_ODL_PROP
+
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CRegionKeyboardCtrl)
+			[id(1)] void InitializeKeyBoard(IUnknown* RegionMap);
+			[id(2)] void SetCurrentRegion(short NewCurRegion);
+			[id(3)] void MidiEvent(short nMidiNote, short nNoteFlag);
+			[id(4)] void SetRootNote(short nNote);
+			[id(5)] short InsertNewRegion(short nStartnote, short nEndNote, short nStartVelocity, short nEndVelocity);
+			[id(6)] short InsertRegion(short nLayer, short nStartNote, short nEndNote, short nStartVelocity, short nEndVelocity);
+			[id(7)] boolean SetRange(short nStartNote, short nEndNote, short nStartVelocity, short nEndVelocity);
+			[id(8)] void DeleteRegion(short nLayer, short nStartNote);
+			[id(9)] void DeleteAllRegions();
+			[id(10)] void ReleaseMouseCapture();
+			[id(11)] void TurnOffMidiNotes();
+			[id(12)] short SetCurrentLayer(short nLayer);
+			[id(13)] short SetFirstVisibleLayer(short nLayer);
+			[id(14)] short ScrollLayers(short nSBCode);
+			[id(15)] short GetNumberOfLayers();
+			[id(16)] short GetFirstVisibleLayer();
+			[id(17)] short AddNewLayer();
+			[id(18)] short DeleteActiveLayer();
+			[id(19)] void SetAuditionMode(boolean bAuditionMode);
+			[id(20)] void EnableRegion(short nLayer, short nStartNote, boolean bEnable);
+			[id(21)] void SetNumberOfLayers(short nLayers);
+			[id(22)] void SetWaveName(BSTR* bstrWaveName);
+			//}}AFX_ODL_METHOD
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	//  Event dispatch interface for CRegionKeyboardCtrl
+
+	[ uuid(36CD3186-EE61-11D0-876A-00AA00C08146),
+	  helpstring("Event interface for RegionKeyboard Control") ]
+	dispinterface _DRegionKeyboardEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+			// NOTE - ClassWizard will maintain event information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_EVENT(CRegionKeyboardCtrl)
+			[id(1)] void RegionSelectedChanged(short RegionIndex);
+			[id(2)] void NewRegion(long lower, long upper);
+			[id(3)] void RangeChanged(long lower, long upper);
+			[id(4)] void NotePlayed(long nNote, boolean bType);
+			[id(5)] void RegionMoved(short nOldLayer, short nOldStartNote, short nMovedLayer, short nMovedStartNote, short nMovedEndNote);
+			[id(6)] void RegionDeleted(short nLayer, short nStartNote);
+			[id(7)] void ActiveLayerChanged(short nLayer);
+			[id(8)] void CopyRegion(short nSourceLayer, short nSourceStartNote, short nCopyLayer, short nCopyStartNote);
+			[id(9)] void ScrollLayers(boolean bUp);
+			//}}AFX_ODL_EVENT
+	};
+
+	//  Class information for CRegionKeyboardCtrl
+
+	[ uuid(36CD3187-EE61-11D0-876A-00AA00C08146),
+	  helpstring("RegionKeyboard Control"), control ]
+	coclass RegionKeyboard
+	{
+		[default] dispinterface _DRegionKeyboard;
+		[default, source] dispinterface _DRegionKeyboardEvents;
+	};
+
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

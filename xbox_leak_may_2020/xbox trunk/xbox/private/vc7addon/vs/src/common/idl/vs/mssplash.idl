@@ -1,0 +1,34 @@
+/****************************************************************************
+ *  mssplash.idl
+ *  Copyright (c) 1999, Microsoft Corporation, All Rights Reserved
+ *  Information Contained Herein Is Proprietary and Confidential.
+ *  
+ *  This file is purely the internal Microsoft version of the splash screen
+ *  interfaces.  By implementing IVsMicrosoftInstalledProduct, the bitmaps
+ *  for the Microsoft products will show up before all the other bitmaps.
+ *  
+ *  Also, the PID for the about box will be taken from the place in the 
+ *  registry that setup puts it at instead of requiring each product to
+ *  figure out how to get to it.  So just E_NOTIMPL the ProductID method
+ *  and implement the ProductRegistryName method in order to have the right 
+ *  thing happen with your PID.
+ ****************************************************************************/
+import "oaidl.idl";
+import "ocidl.idl";
+import "vssplash.idl";
+
+[
+uuid(591E80E4-5F44-11d3-8BDC-00C04F8EC28C),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsMicrosoftInstalledProduct : IVsInstalledProduct
+{
+  //The ProductRegistryName is the name of the subkey under Registration where 
+  //we'll find the PID if it was a standalone product install (otherwise we'll use the 
+  //Visual Studio PID).  So for example, 
+  //HKLM\Software\Microsoft\VisualStudio\7.0\Registration\VisualBasic\ProductID
+  //is the location of the PID for Visual Basic.  In you were implementing this
+  //interface for VB, you would return VisualBasic as the ProductRegistryName.
+  [propget] HRESULT ProductRegistryName(BSTR *pbstrRegName);
+}

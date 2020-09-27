@@ -1,0 +1,125 @@
+; ActiveWire(TM) USB Device Information File
+;
+; Copyright (C) 1999, ActiveWire, Inc. - All Rights reserved
+;
+; File: ActiveWireUSB.INF
+; Date: Apr. 22nd, 1999 (rev.00) first release 
+; Date: Jun. 30th, 1999 (rev.01) modified sent from Anthony Hundt <avhundt@hotmail.com>
+; Date: Oct.  1st, 1999 (rev.02) added Windows-2000 support
+; Date: Oct.  4th, 1999 (rev.03) fixed the bug so that now it works both Win98 and Win2000
+;
+
+
+[Version]
+Signature="$Windows NT$"
+Provider=%ActiveWire%
+Class=USB
+
+[Manufacturer]
+%ActiveWire%=ActiveWire
+
+[PreCopySection]
+HKR,,NoSetupUI,,1
+
+[DestinationDirs]
+AWUSB.CopyList.Dll = 11
+AWUSB.CopyList.Sys = 11
+AWUSB.CopyList.Sys.NTx86 = 12
+
+[ActiveWire]
+%AWUSB.init% =  AWUSBINIT,      USB\VID_0854&PID_0100
+%AWUSB% =       AWUSB,          USB\VID_0854&PID_0101
+%AWUSB.user% =  AWUSB,          USB\VID_0854&PID_0102
+
+
+;
+; begin Windows 98 section
+;
+[SourceDisksNames]
+1 = "ActiveWire USB Windows 98 Driver",,,
+
+[SourceDisksFiles]
+awusbini.sys = 1
+awusb.sys = 1
+awusb.dll = 1
+awusbvb.dll = 1
+
+[AWUSBINIT]
+AddReg = AWUSBINIT.AddReg
+CopyFiles = AWUSB.CopyList.Dll, AWUSB.CopyList.Sys
+
+[AWUSBINIT.AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,awusbini.sys
+
+[AWUSB]
+AddReg =	AWUSB.AddReg
+CopyFiles =	AWUSB.CopyList.Dll, AWUSB.CopyList.Sys
+
+[AWUSB.AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,awusb.sys
+;
+; end Windows 98 section
+;
+
+;
+; begin Windows 2000 section
+;
+[SourceDisksNames.x86]
+1 = "ActiveWire USB Windows 2000 Driver",,,
+
+[SourceDisksFiles.x86]
+awusbini.sys = 1
+awusb.sys = 1
+awusb.dll = 1
+awusbvb.dll = 1
+
+[AWUSBINIT.NTx86]
+CopyFiles = AWUSB.CopyList.Dll, AWUSB.CopyList.Sys.NTx86
+
+[AWUSBINIT.NTx86.services]
+AddService = AWUsbInit,2,AWUSBINIT.Service
+
+[AWUSBINIT.Service]
+ServiceType = 1
+StartType = 3
+ErrorControl = 0
+ServiceBinary = %12%\awusbini.sys
+LoadOrderGroup = Port
+
+[AWUSB.NTx86]
+CopyFiles = AWUSB.CopyList.Dll, AWUSB.CopyList.Sys.NTx86
+
+[AWUSB.NTx86.services]
+AddService = AWUsb,2,AWUSB.Service
+
+[AWUSB.Service]
+ServiceType = 1
+StartType = 3
+ErrorControl = 0
+ServiceBinary = %12%\awusb.sys
+LoadOrderGroup = Port
+;
+; end Windows 2000 section
+;
+
+[AWUSB.CopyList.Dll]
+awusb.dll,awusb.dll,,4
+awusbvb.dll,awusbvb.dll,,4
+
+[AWUSB.CopyList.Sys]
+awusbini.sys,awusbini.sys,,4
+awusb.sys,awusb.sys,,4
+
+[AWUSB.CopyList.Sys.NTx86]
+awusbini.sys,awusbini.sys,,4
+awusb.sys,awusb.sys,,4
+
+
+[Strings]
+ActiveWire =	"ActiveWire, Inc."
+AWUSB.init =	"ActiveWire USB (ready to download firmware)"
+AWUSB =		"ActiveWire USB (firmware loaded)"
+AWUSB.user =	"ActiveWire USB (user mode)"
+

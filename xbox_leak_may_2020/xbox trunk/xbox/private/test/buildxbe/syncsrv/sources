@@ -1,0 +1,53 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Revision History:
+
+!ENDIF
+
+
+
+TARGETNAME=syncsrv
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=\
+    modules.c \
+    main.c
+
+XE_FLAGS=/TESTID:0xA7049955 /INITFLAGS:3 /TESTNAME:"Netsync Server" \
+
+TARGETLIBS=\
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\*\xmem.lib \
+    $(BASEDIR)\private\test\lib\*\xnetref$(D).lib \
+    $(BASEDIR)\private\test\lib\*\netsync.lib \
+    $(BASEDIR)\private\test\lib\*\syncsrv.lib \
+    $(LIBRARY_PATH)\xnet$(S)$(D).lib          \
+    $(NETSYNCMODULES)
+
+TESTLIBS=$(BASEDIR)\private\test\lib\*
+
+NETSYNCMODULES=\
+    $(TESTLIBS)\xnetbvt_xbox.lib     \
+    $(TESTLIBS)\xnetapi_xbox.lib     \
+    $(TESTLIBS)\xnetstress_xbox.lib  \
+    $(TESTLIBS)\xboxkeys_xbox.lib \

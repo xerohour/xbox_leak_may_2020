@@ -1,0 +1,31 @@
+TARGETNAME=USBXBDriver
+TARGETTYPE=LIBRARY
+
+TARGETPATH=..\inclib
+
+BROWSER_INFO=1
+synchronize_drain=1
+
+TARGETLIBS= $(BASEDIR)\public\sdk\lib\*\usbpnp.lib\
+            $(BASEDIR)\public\ddk\lib\*\usbd.lib\
+            $(BASEDIR)\private\test\lib\*\tsc.lib
+
+INCLUDES= $(BASEDIR)\private\ntos\dd\usb\inc;\
+        $(BASEDIR)\private\ntos\inc;\
+        $(BASEDIR)\private\test\inc;\
+		$(DDK_INC_PATH)
+
+
+USER_C_FLAGS=/FAcs
+MSC_WARNING_LEVEL=/W3
+
+DLLDEF=$(O)\usbxbdriver.def
+USER_C_FLAGS=/FAcs
+
+SOURCES=usbxbdriver.rc\
+	usbxbdriver.cpp\
+    Iusbxbdriver.cpp
+    
+
+USE_MAPSYM  = 1
+  

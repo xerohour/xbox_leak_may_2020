@@ -1,0 +1,36 @@
+TARGETNAME=TestLaunch
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+TITLEID    = 0xffffabcd
+PROJNAME = TestLaunch
+BROWSER_INFO=1
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+
+
+USE_LIBCMT=1
+ 
+
+INCLUDES=\
+	$(SDKDIR); \
+	$(BASEDIR)\private\test\inc;\
+    $(BASEDIR)\private\ntos\inc;\
+	$(PRIVATE_INC_PATH);\
+	$(BASEDIR)\private\test\inc\cpx;\
+	$(SDK_INC_PATH);\
+	$(TEST_INCLUDE);\
+    $(INCLUDES)
+
+
+SOURCES=\
+    TestLaunch.cpp 
+
+LINKLIBS=\
+	$(BASEDIR)\private\test\lib\*\xbtestframe.lib \
+	$(XDK_LIB_PATH)\d3d8$(D).lib                \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib				\
+    $(XDK_LIB_PATH)\dsound$(D).lib              \
+    $(XDK_LIB_PATH)\xgraphics$(D).lib			\
+

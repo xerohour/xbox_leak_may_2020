@@ -1,0 +1,17 @@
+;------------------------------------------------------------------------------
+; Use lookup table to choose depth values to display.
+;
+; Copyright (C) 2001 Microsoft Corporation
+; All rights reserved.
+;------------------------------------------------------------------------------
+xps.1.1
+
+; override with SetPixelShaderConstant
+def c0, 1.f, 1.f, 1.f, 1.f	; blend
+
+tex t0			; depth buffer source texture
+texreg2ar t1, t0	; lookup-table texture to choose what range of depth to use
+
+mov r0, t1.a
+
+xfc r0, 1-zero, zero, zero, zero, zero, c0.a

@@ -1,0 +1,31 @@
+
+TARGETNAME=uuid
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+TARGETTYPE=LIBRARY
+
+SYNCHRONIZE_DRAIN=1
+
+# prevent system headers from being included.  They are not needed just to
+# process a bunch of DEFINE_GUIDs anyhow.  Excluding them generates a much
+# smaller library too.
+#
+C_DEFINES=$(C_DEFINES) /D_MIDL_USE_GUIDDEF_\
+    /D__RPCNDR_H__ /D__RPC_H__ /DRPC_NO_WINDOWS_H /DCOM_NO_WINDOWS_H\
+    /DGUID_DEFS_ONLY
+
+SOURCES=
+
+#    ..\ie\uuid\$(O)\ieuuid.lib \
+#    ..\shell\uuid\$(O)\shuuid.lib \
+#    ..\net\config\uuid\$(O)\uuidnc.lib \
+#    ..\ias\uuid\$(O)\uuidias.lib \
+#    $(SDK_LIB_PATH)\oledb.lib \
+#    $(SDK_LIB_PATH)\osptk.lib
+
+
+OBJLIBFILES=\
+    ..\types\uuid\$(O)\uuidnt.lib \
+    $(SDK_LIB_PATH)\svcguid.lib
+
+NTTARGETFILES=\
+    $(XDK_LIB_PATH)\uuid.lib

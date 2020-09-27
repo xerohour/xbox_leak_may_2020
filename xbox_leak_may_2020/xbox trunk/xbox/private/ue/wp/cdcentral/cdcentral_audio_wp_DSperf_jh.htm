@@ -1,0 +1,73 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>DirectSound Performance</H2>
+<P><I>- John Harding</I></P>
+
+<BR>
+
+<P>Game developers often put a lot of time and effort into optimizing their graphics processing. However, a lot of that effort can be wasted by not maximizing audio performance. The Xbox&#8482; video game system from Microsoft has great audio hardware, but not everything is free.  Some operations require a fair amount of CPU calculation, and others require expensive synchronization between the CPU and audio hardware.  With that in mind, the following guidelines should be followed whenever possible.</P>
+
+<P><B>Always Use DS3D_DEFERRED</B></P>
+<P>When changing 3-D settings, Microsoft&#174 DirectSound&#174 must perform some calculations on the CPU. If you use DS3D_DEFERRED when calling <B>SetPosition</B>() on both your sources and listener, and then call <B>CommitDeferredSettings</B>(), DirectSound can avoid performing redundant calculations. It's also important to be aware that changing the listener position requires calculations for every active 3-D buffer/stream, so if you're repositioning the listener, you may as well reposition all 3-D sounds as well.</P>
+
+<P><B>Don't Release Playing Buffers</B></P>
+<P>DirectSound has to wait for the voice to shut off before it can release associated resources, incurring a delay of up to 0.667 ms per buffer . Unless you need to reuse the buffer immediately, stop the buffer and then wait for the voice to shut off before calling <B>Release</B>(). You can check the status of the buffer by calling <B>GetStatus</B>().  This applies to <B>SetBufferData</B>() as well.</P>
+
+<P><B>Call SetCurrentPosition(0) Before Restarting Stopped Buffers</B></P>
+<P>When you call <B>Stop</B>() on a DirectSound buffer, it's really more of a "pause" operation than a "stop"-DirectSound caches the current position and will restart playback at that position when you next call <B>Play</B>(). Unfortunately, this extra work incurs extra overhead (potentially up to 0.667 ms per buffer); unless you really need to pause and resume playback, call <B>SetCurrentPosition</B>(0) before restarting a buffer by calling <B>Play</B>().
+
+<P><B>Submix 3-D Sounds That Are Close Together</B></P>
+<P>You can submix several 2-D sounds together into one 3-D buffer to reduce the CPU workload associated with 3-D positioning. For example, you might have a helicopter using two rotor sounds, an engine sound, and a machine gun sound. Rather than position all four buffers independently, they can be submixed into one 3-D buffer and positioned as a group. Source sounds can still make use of the filter block, LFO, envelopes, and DSP effects before being mixed together . </P>
+
+<P><B>Minimize Parameter Changes</B></P>
+<P>Although audio features such as 3-D positioning, attack envelopes, filters, and reverb are implemented in hardware, there is still CPU overhead associated with changing their configurations. To make DirectSound APIs as lightweight as possible, DirectSound functions don't check for redundant parameter changes; you should do this in your game code to avoid making redundant calls.</P>
+
+<P><B>Don't Decode WMA in Your Main Game Thread</B></P>
+<P>Decoding WMA compressed audio can use a substantial amount of CPU time, and it may block on I/O requests. To avoid dropping video frames in your game, decode WMA files in a separate thread. This can be accomplished with either an asynchronous decoder (see the AsyncXMO sample in the XDK), which creates a new thread for each decoder instance, or by using a synchronous decoder on a separate thread that you create (see the WMAStream and WMAInMemory decoder samples in the XDK). If possible, even the call to <B>WMACreateDecoder</B>() / <B>WMACreateDecoderEx</B>() should be made on a separate thread, because a non-trivial amount of I/O is done when creating the decoder.</P>
+
+<P><B>Tune Your WMA Decoding</B></P>
+<P>Even when decoding WMA on a separate thread, you may still end up with spikes in CPU usage from the decoder. With variable bit rate WMA files, the time it takes to decode an audio packet can vary dramatically. If the WMA decoder is not instructed to yield periodically (through the dwYield parameter to <B>WMACreateDecoder</B>() / <B>WMACreateDecoderEx</B>(), an entire thread quantum of 20 ms may be spent decoding WMA before control is returned to your main game thread. You should experiment to determine the appropriate value for your game.</P>
+
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;An audio frame consists of 32 samples. Since the voice processor converts all sounds to 48,000 samples per second internally, and audio frame is 0.667 milliseconds. That is why any time DirectSound is forced to wait for the end of an audio frame, it could result in a stall of up to 0.667 milliseconds.</P>
+  
+<P style="font-size:12"><SUP>2</SUP>&nbsp;To use DSP effects with submixing, you'll need to create a buffer using DSBCAPS_FXIN rather than DSBCAPS_MIXIN. See the FXMultiPass sample in the XDK for details about how to do this.</P>
+
+
+
+
+<BR>
+
+
+
+
+
+</td>
+
+
+</TD>
+
+
+
+	

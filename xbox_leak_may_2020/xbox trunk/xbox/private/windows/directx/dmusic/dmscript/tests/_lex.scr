@@ -1,0 +1,37 @@
+<script language=LimitedVBScript directmusicversion=8.0.0.0>
+
+sub foo
+	x = 25 - 13 + 57 mod 409 \ -5 * -2^3
+	Trace "Expect ""19"""
+	Trace x
+	x = 19
+
+	t = True
+	f = False	
+
+	if 19 <= x and 19 >= x then
+		Trace "1 OK"
+	end if
+
+	if 19 < x and 19 > x then
+		Trace "Fail"
+	else
+		Trace "2 OK"
+	end if
+
+	if 19 = x and 20 <> x then
+		Trace "3 OK"
+	end if
+
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	set seg2 = seg
+
+	if not seg is Nothing then
+		Trace "Fail"
+	elseif False or seg is seg2 then
+		Trace "4 OK"
+	end if
+
+	PlaySegment seg
+end sub

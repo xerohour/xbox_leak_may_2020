@@ -1,0 +1,45 @@
+MATERIAL PLUGIN SKELETON
+Revision 1.0 for 3D Studio MAX Release 3.0
+
+Harry Denholm, Developer Consulting Group, Discreet 1999.
+Visit us at HTTP://support.ktx.com/~200
+
+
+
+
+Description:
+____________________________________________________________________________________
+
+This material has just one submtl, and will multiply the shaded result from that
+submtl by the simple param as its result. 
+
+The material itself does no shading - rather, it passes the calls to the submtl and
+lets it do it instead. It then takes the shaded result and multiplies by its single
+float parameter.
+
+Supports ParamBlock2 : YES
+____________________________________________________________________________________
+
+
+
+
+Using this project:
+____________________________________________________________________________________
+
+General Customizations:
+
+[] ClassID - change the ID stored in the main header file
+[] String Table - change and add to the table to modify the name and variables of the project
+[] Dialog Resources - if applicable, change UI to suit your needs
+[] Version Resource - change to reflect your name, plugin name and company
+
+
+Specific Customizations:
+
+[] MtlShade.cpp - all the shading parameters are in here - change the algorithm in 
+	Shade(...) to change the appearance of the material.
+
+[] Material.cpp - when adding UI components and new submtls/subtexs, be sure to change
+	the reference counts, the amount of subanims and submtls to match.
+	Paramblock2 does most of the work with regard to the UI implimentations,
+	so don't forget to use it when adding to the UI.

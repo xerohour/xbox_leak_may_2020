@@ -1,0 +1,46 @@
+//  **********************************************************************
+//  *                                                                    *
+//  *   Expr Evaluator Declarations                                      *
+//  *                                                                    *
+//  **********************************************************************
+
+extern	PEXF	pEXF;
+
+#define EEFreeStr			(*pEXF->pEEFreeStr)
+#define EEGetError			(*pEXF->pEEGetError)
+#define EEParse 			(*pEXF->pEEParse)
+#define EEBindTM			(*pEXF->pEEBindTM)
+#define EEvaluateTM 		(*pEXF->pEEvaluateTM)
+#define EEGetExprFromTM 	(*pEXF->pEEGetExprFromTM)
+#define EEGetValueFromTM	(*pEXF->pEEGetValueFromTM)
+#define EEGetNameFromTM 	(*pEXF->pEEGetNameFromTM)
+#define EEGetTypeFromTM 	(*pEXF->pEEGetTypeFromTM)
+#define EEFormatCXTFromPCXT	(*pEXF->pEEFormatCXTFromPCXT)
+#define EEFreeTM			(*pEXF->pEEFreeTM)
+#define EEParseBP			(*pEXF->pEEParseBP)
+#define EEFreeTML			(*pEXF->pEEFreeTML)
+#define EEInfoFromTM		(*pEXF->pEEInfoFromTM)
+#define EEFreeTI			(*pEXF->pEEFreeTI)
+#define EEGetCXTLFromTM 	(*pEXF->pEEGetCXTLFromTM)
+#define EEFreeCXTL			(*pEXF->pEEFreeCXTL)
+#define EEAssignTMToTM		(*pEXF->pEEAssignTMToTM)
+#define EEIsExpandable		(*pEXF->pEEIsExpandable)
+#define EEAreTypesEqual 	(*pEXF->pEEAreTypesEqual)
+#define EEcChildrenTM		(*pEXF->pEEcChildrenTM)
+#define EEGetChildTM		(*pEXF->pEEGetChildTM)
+#define EEDereferenceTM 	(*pEXF->pEEDereferenceTM)
+#define EEcParamTM			(*pEXF->pEEcParamTM)
+#define EEGetParmTM 		(*pEXF->pEEGetParmTM)
+#define EEGetTMFromHSYM 	(*pEXF->pEEGetTMFromHSYM)
+#define EEFormatAddress 	(*pEXF->pEEFormatAddress)
+#define EEGetHSYMList		(*pEXF->pEEGetHSYMList)
+#define EEFreeHSYMList		(*pEXF->pEEFreeHSYMList)
+#define EEGetAccessFromTM  (*pEXF->pEEGetAccessFromTM)
+#define EEGetExtendedTypeInfo (*pEXF->pEEGetExtendedTypeInfo)
+#define EEEnableAutoClassCast (*pEXF->pEEEnableAutoClassCast)
+#define EEcSynthChildTM  (*pEXF->pEEcSynthChildTM)
+#define EEInvalidateCache	(*pEXF->pEEInvalidateCache)
+#define EEGetBCIA			(*pEXF->pEEGetBCIA)
+#define EEFreeBCIA			(*pEXF->pEEFreeBCIA)
+#define EESetTarget			(*pEXF->pEESetTarget)
+#define EEUnload			(*pEXF->pEEUnload)

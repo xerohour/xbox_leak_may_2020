@@ -1,0 +1,196 @@
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdstypex.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdSetupTypeEx         */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdSetupTypeEx                                              */
+ /*                                                                        */
+ /*   Descrip:  This dialog will allow user to choose the correct type     */
+ /*             of the installation.                                       */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdSetupTypeEx(szTitle, szMsg, szReserved, svSetupType, nStyle)
+          STRING  szDlg, szTemp, szDescrip, szDisplayName, szType;
+          NUMBER  nId, nTemp, nSubCommand, nResult;
+          HWND    hwndDlg, hwndListBox;
+          BOOL    bDone;
+          LIST    listSetupType, listDisplayName;
+        begin
+
+
+           szDlg     = SD_DLG_SETUPTYPEEX;
+           nSdDialog = SD_NDLG_SETUPTYPEEX;
+
+           // record data produced by this dialog
+           if (MODE=SILENTMODE) then
+              SdMakeName( szAppKey, szDlg, szTitle, nSdSetupTypeEx );
+              SilentReadData( szAppKey, "Result", DATA_STRING, svSetupType, nId );
+              ComponentSetupTypeSet( MEDIA, svSetupType );
+              return 0;
+           endif;
+
+           listSetupType = ListCreate( STRINGLIST );
+           if (listSetupType = LIST_NULL ) then
+              SdError( -1, "SdSetupTypeEx" );
+              return -1;
+           endif;
+
+           listDisplayName = ListCreate( STRINGLIST );
+           if (listDisplayName = LIST_NULL ) then
+              SdError( -1, "SdSetupTypeEx" );
+              return -1;
+           endif;
+
+           // enumerate the setup types
+           ComponentSetupTypeEnum( MEDIA, listSetupType );
+
+           // Get setuptype display name
+           nResult = ListGetFirstString(listSetupType, szType);
+           while (nResult = 0)
+              SdDisplayNameFromSetupType( szDisplayName, szType );
+              ListAddString(listDisplayName, szDisplayName, AFTER);
+              nResult = ListGetNextString(listSetupType, szType);
+           endwhile;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_SETUPTYPEEX ) = DLG_ERR) then
+              return -1;
+           endif;
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_STA_MSG, szMsg );
+                   endif;
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   CtrlSetList( szDlg, SD_LISTBOX, listDisplayName );
+
+                   if (svSetupType != "") then
+                      SdDisplayNameFromSetupType( szDisplayName, svSetupType );
+                      CtrlSetCurSel( szDlg, SD_LISTBOX, szDisplayName );
+                   endif;
+
+                   if (CtrlGetCurSel(szDlg, SD_LISTBOX, szDisplayName) = 0) then
+                      SdSetupTypeFromDisplayName( szTemp, szDisplayName, listSetupType, listDisplayName );
+                      ComponentSetupTypeGetData(MEDIA, szTemp, SETUPTYPE_INFO_DESCRIPTION, nTemp, szDescrip);
+                      CtrlSetText( szDlg, SD_STA_MSG1, szDescrip );
+                   endif;
+
+              case DLG_ERR:
+                   SdError( -1, "SdSetupTypeEx" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              case BACK:
+                   nId   = BACK;
+                   CtrlGetCurSel( szDlg, SD_LISTBOX, szDisplayName );
+                   SdSetupTypeFromDisplayName( svSetupType, szDisplayName, listSetupType, listDisplayName );
+                   ComponentSetupTypeSet( MEDIA, svSetupType );
+                   bDone = TRUE;
+
+              case SD_PBUT_CONTINUE:
+                   nId   = 0;
+                   CtrlGetCurSel( szDlg, SD_LISTBOX, szDisplayName );
+                   SdSetupTypeFromDisplayName( svSetupType, szDisplayName, listSetupType, listDisplayName );
+                   ComponentSetupTypeSet( MEDIA, svSetupType );
+                   bDone = TRUE;
+
+              case SD_LISTBOX:
+                   nSubCommand = CtrlGetSubCommand(szDlg);
+                   if (nSubCommand = LISTBOX_SELECT) then
+                      if (CtrlGetCurSel(szDlg, SD_LISTBOX, szDisplayName) = 0) then
+                         SdSetupTypeFromDisplayName( szTemp, szDisplayName, listSetupType, listDisplayName );
+                         ComponentSetupTypeGetData(MEDIA, szTemp, SETUPTYPE_INFO_DESCRIPTION, nTemp, szDescrip);
+                         CtrlSetText( szDlg, SD_STA_MSG1, szDescrip );
+                      endif;
+                   endif;
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                   elseif ( nId >= 101 && nId <= 199 ) then
+                      bDone = TRUE;
+                   endif;
+
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdSetupTypeEx );
+           SilentWriteData( szAppKey, "Result", DATA_STRING, svSetupType, 0 );
+           return nId;
+
+        end;
+
+
+function SdSetupTypeFromDisplayName( szSetupType, szDisplayName, listSetupType, listDisplayName )
+        NUMBER nIndex, nResult;
+        STRING szName;
+begin
+        nIndex      = 0;
+        szSetupType = "";
+
+        nResult = ListGetFirstString( listDisplayName, szName );
+        while (nResult = 0)
+           if (szDisplayName = szName) then
+              ListSetIndex(listSetupType, nIndex);
+              ListCurrentString(listSetupType, szSetupType );
+              return;
+           endif;
+           nIndex++;
+           nResult = ListGetNextString( listDisplayName, szName );
+        endwhile;
+end;
+
+function SdDisplayNameFromSetupType( szDisplayName, szSetupType )
+        NUMBER nTemp;
+begin
+        ComponentSetupTypeGetData(MEDIA, szSetupType, SETUPTYPE_INFO_DISPLAYNAME, nTemp, szDisplayName);
+        if (szDisplayName = "") then
+           szDisplayName = szSetupType;
+        endif;
+end;
+
+
+

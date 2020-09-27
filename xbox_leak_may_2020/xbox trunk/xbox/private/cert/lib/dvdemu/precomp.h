@@ -1,0 +1,11 @@
+#include <windows.h>
+#include <randm.h>
+#include <xsum.h>
+#include <filestm.h>
+#include <tape.h>
+#include <dx2ml.h>
+#include <xbefile.h>
+#include <stdio.h>
+#include <malloc.h>
+#include <xboxverp.h>
+#include <cklibver.h>

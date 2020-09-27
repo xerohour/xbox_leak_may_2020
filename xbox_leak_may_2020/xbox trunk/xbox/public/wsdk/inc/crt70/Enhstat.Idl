@@ -1,0 +1,72 @@
+#include <olectl.h>
+// EnhStat.idl : IDL source for Enhancment Control Status Object
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (EnhStat.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#pragma midl_echo("#define d_NOCONTROL		0x0L")
+#pragma midl_echo("#define d_CONSTRUCTING       0x1L")
+#pragma midl_echo("#define d_INITIALIZING       0x2L")
+#pragma midl_echo("#define d_CONNECTING         0x3L")
+#pragma midl_echo("#define d_READY              0x4L")
+#pragma midl_echo("#define d_READY_CONNECTED    0x5L")
+#pragma midl_echo("#define d_HANDLING_EVENT     0x6L")
+#pragma midl_echo("#define d_DESTRUCTING	0x7L")
+
+/////////////////////////////////////////////////////////////////////////////
+// Interface Definitions
+
+    ////////////////////////////////
+    // Enhancement Status Interface
+    [
+	object, dual, oleautomation,
+	uuid(F743144C-9105-11d1-AE74-00C04FBBDEBC),
+	helpstring("Enhancement Status"),
+	pointer_default(unique)
+    ]
+    interface IEnhancementStatus : IDispatch
+    {
+	[propput, id(1)] HRESULT Status([in] long lStatus);
+	[propget, id(1)] HRESULT Status([out, retval] long* plStatus);
+    };
+
+    /////////////////////////////////////
+    // Enhancement Status Event Interface
+    [
+	object, dual, oleautomation,
+	uuid(F743144D-9105-11d1-AE74-00C04FBBDEBC),
+	helpstring("Enhancement Status Events"),
+	pointer_default(unique)
+    ]
+    interface IEnhancementStatusEvents : IDispatch
+    {
+	[id(1)] HRESULT StatusChanged(long lStatus);
+    };
+
+/////////////////////////////////////////////////////////////////////////////
+// Type Library Definiton
+[
+    uuid(F743144E-9105-11d1-AE74-00C04FBBDEBC),
+    version(1.0),
+    helpstring("Enhancment Control Status 1.0 Type Library")
+]
+library BPCEnhStatusLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+
+    // Enhancement Status Control
+    [
+	uuid(F743144F-9105-11d1-AE74-00C04FBBDEBC),
+	helpstring("Enhancment Status Control")
+    ]
+    coclass EnhStat
+    {
+	[default] interface IEnhancementStatus;
+	[default, source] interface IEnhancementStatusEvents;
+    };
+};

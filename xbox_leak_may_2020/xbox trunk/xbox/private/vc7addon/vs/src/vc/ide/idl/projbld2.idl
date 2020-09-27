@@ -1,0 +1,114 @@
+// projbld.idl : IDL source for projbld.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (projbld.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#include "prjids.h"
+
+import "vcpbobjects.idl";
+
+// supports automation object VCBuild
+[
+	object,
+	uuid(9F367026-33C6-11D3-8D52-00C04F8ECDB7),
+	dual,
+	pointer_default(unique)
+]
+interface IVCBuildOptionsPage : IDispatch
+{
+	[propget, id(PROJENGID_BuildLogging), helpstringcontext(PROJENGID_BuildLogging)] HRESULT BuildLogging([out,retval] VARIANT_BOOL *pbLog);
+	[propput, id(PROJENGID_BuildLogging), helpstringcontext(PROJENGID_BuildLogging)] HRESULT BuildLogging([in] VARIANT_BOOL bLog);
+	[propget, id(PROJENGID_BuildTiming), helpstringcontext(PROJENGID_BuildTiming)] HRESULT BuildTiming([out,retval] VARIANT_BOOL *pbTime);
+	[propput, id(PROJENGID_BuildTiming), helpstringcontext(PROJENGID_BuildTiming)] HRESULT BuildTiming([in] VARIANT_BOOL bTime);
+	[propget, id(PROJENGID_CPPExtensions), helpstringcontext(PROJENGID_CPPExtensions)] HRESULT CPPExtensions([out,retval] BSTR *pbstrExtensions);
+	[propput, id(PROJENGID_CPPExtensions), helpstringcontext(PROJENGID_CPPExtensions)] HRESULT CPPExtensions([in] BSTR bstrExtensions);
+};
+
+// supports the .Properties VS automation stuff for a project configuration object
+[
+	object,
+	uuid(24DAA1C6-298A-4320-BC4B-C36B3F259E40),
+	dual,
+	helpstring("Visual C++ Project Configuration Properties"),
+	pointer_default(unique)
+]
+interface VCProjectConfigurationProperties : IDispatch
+{
+	[propget, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([out, retval] BSTR *Val);
+	[propput, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([in] BSTR newVal);
+	[propget, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([out, retval] BSTR *Val);
+	[propput, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([in] BSTR newVal);
+	[propget, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([out, retval] ConfigurationTypes* ConfigType);		// configuration type: application, DLL, etc.
+	[propput, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([in] ConfigurationTypes ConfigType);
+	[propget, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([out, retval] VARIANT_BOOL* Bsc);	// build .bsc file
+	[propput, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([in] VARIANT_BOOL Bsc);
+	[propget, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([out, retval] useOfMfc* useMfc);	// how are we using MFC?
+	[propput, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([in] useOfMfc useMfc);
+	[propget, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([out, retval] useOfATL* useATL);	// how are we using ATL?
+	[propput, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([in] useOfATL useATL);
+	[propget, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([out, retval] VARIANT_BOOL* UseCRT);	// does the user want to link with the static or dynamic CRT?
+	[propput, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([in] VARIANT_BOOL UseCRT);
+	[propget, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([out, retval] charSet* optSetting);	// character set to use: Unicode, MBCS, default
+	[propput, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([in] charSet optSetting);
+	[propget, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([out, retval] VARIANT_BOOL* Managed);	// is this a managed C++ project?
+	[propput, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([in] VARIANT_BOOL Managed);
+	[propget, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([out, retval] BSTR* Ext);	// wildcard extension list to delete on clean/rebuild from within the intermediate directory
+	[propput, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([in] BSTR Ext);
+	[propget, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([out, retval] VARIANT_BOOL* Optimize);	// perform whole program optimization on build; more or less requires optimization turned on to be effective
+	[propput, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([in] VARIANT_BOOL Optimize);
+	[propget, id(VCDSID_Command), helpstringcontext(VCDSID_Command)] HRESULT Command([out, retval] BSTR *Val);
+	[propput, id(VCDSID_Command), helpstringcontext(VCDSID_Command)] HRESULT Command([in] BSTR newVal);
+	[propget, id(VCDSID_WorkingDirectory), helpstringcontext(VCDSID_WorkingDirectory)] HRESULT WorkingDirectory([out, retval] BSTR *Val);
+	[propput, id(VCDSID_WorkingDirectory), helpstringcontext(VCDSID_WorkingDirectory)] HRESULT WorkingDirectory([in] BSTR newVal);
+	[propget, id(VCDSID_CommandArguments), helpstringcontext(VCDSID_CommandArguments)] HRESULT CommandArguments([out, retval] BSTR *Val);
+	[propput, id(VCDSID_CommandArguments), helpstringcontext(VCDSID_CommandArguments)] HRESULT CommandArguments([in] BSTR newVal);
+	[propget, id(VCDSID_Attach), helpstringcontext(VCDSID_Attach)] HRESULT Attach([out, retval] VARIANT_BOOL *Val);
+	[propput, id(VCDSID_Attach), helpstringcontext(VCDSID_Attach)] HRESULT Attach([in] VARIANT_BOOL newVal);
+	[propget, id(VCDSID_Remote), helpstringcontext(VCDSID_Remote)] HRESULT Remote([out, retval] RemoteDebuggerType *Val);
+	[propput, id(VCDSID_Remote), helpstringcontext(VCDSID_Remote)] HRESULT Remote([in] RemoteDebuggerType newVal);
+	[propget, id(VCDSID_RemoteMachine), helpstringcontext(VCDSID_RemoteMachine)] HRESULT RemoteMachine([out, retval] BSTR *Val);
+	[propput, id(VCDSID_RemoteMachine), helpstringcontext(VCDSID_RemoteMachine)] HRESULT RemoteMachine([in] BSTR newVal);
+	[propget, id(VCDSID_DebuggerType), helpstringcontext(VCDSID_DebuggerType)] HRESULT DebuggerType([out, retval] TypeOfDebugger *Val);
+	[propput, id(VCDSID_DebuggerType), helpstringcontext(VCDSID_DebuggerType)] HRESULT DebuggerType([in] TypeOfDebugger newVal);
+	[propget, id(VCDSID_RemoteCommand), helpstringcontext(VCDSID_RemoteCommand)] HRESULT RemoteCommand([out, retval] BSTR *Val);
+	[propput, id(VCDSID_RemoteCommand), helpstringcontext(VCDSID_RemoteCommand)] HRESULT RemoteCommand([in] BSTR newVal);
+	[propget, id(VCDSID_HttpUrl), helpstringcontext(VCDSID_HttpUrl)] HRESULT HttpUrl([out, retval] BSTR *Val);
+	[propput, id(VCDSID_HttpUrl), helpstringcontext(VCDSID_HttpUrl)] HRESULT HttpUrl([in] BSTR newVal);
+	[propget, id(VCDSID_PDBPath), helpstringcontext(VCDSID_PDBPath)] HRESULT PDBPath([out, retval] BSTR *Val);
+	[propput, id(VCDSID_PDBPath), helpstringcontext(VCDSID_PDBPath)] HRESULT PDBPath([in] BSTR NewVal);
+	[propget, id(VCDSID_SQLDebugging), helpstringcontext(VCDSID_SQLDebugging)] HRESULT SQLDebugging([out, retval] VARIANT_BOOL *Val);
+	[propput, id(VCDSID_SQLDebugging), helpstringcontext(VCDSID_SQLDebugging)] HRESULT SQLDebugging([in] VARIANT_BOOL newVal);
+};
+
+// supports the .Properties VS automation stuff for a file configuration object
+[
+	object,
+	uuid(24DAA1C7-298A-4320-BC4B-C36B3F259E40),
+	dual,
+	helpstring("Visual C++ Project Configuration Properties"),
+	pointer_default(unique)
+]
+interface VCFileConfigurationProperties : IDispatch
+{
+	[propget, id(VCFCFGID_ExcludedFromBuild), helpstringcontext(VCFCFGID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] VARIANT_BOOL* ExcludedFromBuild);
+	[propput, id(VCFCFGID_ExcludedFromBuild), helpstringcontext(VCFCFGID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] VARIANT_BOOL ExcludedFromBuild);
+};
+
+[
+	uuid(F1C25856-3097-11D2-A5C5-00C04F7968B4),
+	version(1.0),
+	helpstring("Microsoft Development Environment VC++ Project System Shell 7.0 Type Library"),
+	helpstringdll("VCProject.dll")
+]
+library VCProjectLibrary
+{
+	importlib("stdole2.tlb");
+
+	interface VCProjectConfigurationProperties;
+	interface VCFileConfigurationProperties;	
+	interface IVCBuildOptionsPage;
+}

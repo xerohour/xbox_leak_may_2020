@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Hawk.Free</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Free</H1>
+    <DIV CLASS=BLOCK>
+    Returns the storage memory back to the heap.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("void Free(void)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>none</I><BR>
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>Because some scripting language (such as JScript) use garbage collection to release unreferenced objects, it is quite possible to have multiple MU objects in memory just waiting around for the garbage collection to free them. To avoid extraneous memory utilization, the Free() method returns this memory immediately back to the heap.
+    <P>Use this method when you no longer need the object and want to release its resources.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var mu = WScript.CreateObject(\"USBSimulator.MU\");\n\nmu.LoadMU(\"myMU.dat\");\nmu.Free(); // We are done with it");</SCRIPT>
+    </DIV>
+
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

@@ -1,0 +1,47 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=setup
+MINORCOMP=uninstall
+
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+TARGETNAME=xbuninst2
+
+UMTYPE=windows
+UMENTRY=winmain
+
+NOT_UNICODE=1
+USE_LIBC=1
+
+INCLUDES=..\common
+
+!if "$(NTDEBUG)" != ""
+MSC_OPTIMIZATION=/Odi
+!endif
+
+SOURCES= \
+        uninstall.cpp \
+        uninstall.rc
+
+
+TARGETLIBS= \
+        ..\common\$(O)\common.lib \
+        $(WSDK_LIB_PATH)\comctl32.lib \
+        $(WSDK_LIB_PATH)\shlwapi.lib \
+        $(WSDK_LIB_PATH)\version.lib
+        

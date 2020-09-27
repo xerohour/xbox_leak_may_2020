@@ -1,0 +1,26 @@
+HKCR
+{
+	USBSimulator.Hawk.1 = s 'Hawk Class'
+	{
+		CLSID = s '{C8EF9C2A-51A5-46EF-B28A-17EE536C8BA9}'
+	}
+	USBSimulator.Hawk = s 'Hawk Class'
+	{
+		CLSID = s '{C8EF9C2A-51A5-46EF-B28A-17EE536C8BA9}'
+		CurVer = s 'USBSimulator.Hawk.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {C8EF9C2A-51A5-46EF-B28A-17EE536C8BA9} = s 'Hawk Class'
+		{
+			ProgID = s 'USBSimulator.Hawk.1'
+			VersionIndependentProgID = s 'USBSimulator.Hawk'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{FA33F7A9-3CDF-4ADF-BBC8-1718F17D391F}'
+		}
+	}
+}

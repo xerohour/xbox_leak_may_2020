@@ -1,0 +1,30 @@
+TARGETNAME=reenum
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+LINKER_FLAGS=/MAP
+
+XE_FLAGS=/TESTNAME:"Xbox Input Device Reenumeration Stress"
+
+INCLUDES=\
+	$(BASEDIR)\public\sdk\inc;\
+	$(BASEDIR)\private\inc;\
+	$(BASEDIR)\private\ntos\inc;\
+	$(BASEDIR)\private\ntos\dd\usb\inc;\
+	$(BASEDIR)\private\ntos\dd\usb\usbd;\
+	$(BASEDIR)\private\ntos\dd\usb\xid;\
+	$(BASEDIR)\private\ntos\dd\usb\usbhub;\
+	$(BASEDIR)\private\ntos\dd\usb\ohcd;\
+	$(BASEDIR)\private\ntos\dd\usb\usbtest;\
+	$(DDK_INC_PATH)
+
+SOURCES= \
+    bitfont.cpp\
+    devices.cpp\
+    draw.cpp\
+    main.cpp
+
+LINKLIBS=\
+	$(SDK_LIB_PATH)\d3d8$(D).lib\
+	$(SDK_LIB_PATH)\xgraphics$(D).lib\
+	$(SDK_LIB_PATH)\usbtest.lib

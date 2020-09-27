@@ -1,0 +1,203 @@
+
+cpp_quote("// Open Mode Flags")
+cpp_quote("#define MDSP_READ                               0x00000001")
+cpp_quote("#define MDSP_WRITE                              0x00000002")
+
+cpp_quote("// Seek Flags")
+cpp_quote("#define MDSP_SEEK_BOF                           0x00000001")
+cpp_quote("#define MDSP_SEEK_CUR                           0x00000002")
+cpp_quote("#define MDSP_SEEK_EOF                           0x00000004")
+
+
+interface IMDSPDevice;
+interface IMDSPStorage;
+interface IMDSPObjectInfo;
+interface IMDSPStorageGlobals;
+interface IMDSPEnumDevice;
+interface IMDSPEnumStorage;
+
+// IMDServiceProvider
+[
+	object,
+	uuid(1DCB3A10-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDServiceProvider : IUnknown
+{
+    HRESULT GetDeviceCount([out] DWORD *pdwCount);
+	HRESULT EnumDevices([out] IMDSPEnumDevice **ppEnumDevice);
+};
+
+// IMDSPEnumDevice
+[
+	object,
+	uuid(1DCB3A11-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPEnumDevice : IUnknown
+{
+	HRESULT Next([in]ULONG celt,
+	             [out, size_is(celt), length_is(*pceltFetched)] IMDSPDevice **ppDevice,
+				 [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt, [out] ULONG *pceltFetched);
+	HRESULT Reset();
+	HRESULT Clone([out] IMDSPEnumDevice **ppEnumDevice);
+};
+
+// IMDSPDevice
+[
+	object,
+	uuid(1DCB3A12-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPDevice : IUnknown
+{
+	HRESULT GetName([out,string,size_is(nMaxChars)] LPWSTR pwszName,
+	                [in] UINT nMaxChars);
+    HRESULT GetManufacturer([out,string,size_is(nMaxChars)] LPWSTR pwszName,
+                            [in] UINT nMaxChars);
+    HRESULT GetVersion([out] DWORD *pdwVersion);
+    HRESULT GetType([out] DWORD *pdwType);
+    HRESULT GetSerialNumber([out] PWMDMID pSerialNumber,
+							[in, out] BYTE abMac[WMDM_MAC_LENGTH]); 
+    HRESULT GetPowerSource([out] DWORD *pdwPowerSource,
+                           [out] DWORD *pdwPercentRemaining);
+    HRESULT GetStatus([out] DWORD *pdwStatus);
+    HRESULT GetDeviceIcon([out] ULONG *hIcon);
+	HRESULT EnumStorage([out] IMDSPEnumStorage **ppEnumStorage);
+    HRESULT GetFormatSupport([out, size_is( , *pnFormatCount)] _WAVEFORMATEX **pFormatEx,
+                             [out] UINT *pnFormatCount,
+                             [out, size_is( , *pnMimeTypeCount)] LPWSTR **pppwszMimeType,
+                             [out] UINT *pnMimeTypeCount);
+    HRESULT SendOpaqueCommand([in,out] OPAQUECOMMAND *pCommand);
+};
+
+// IMDSPDeviceControl
+[
+	object,
+	uuid(1DCB3A14-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPDeviceControl : IUnknown
+{
+    HRESULT GetDCStatus([out] DWORD *pdwStatus);
+    HRESULT GetCapabilities([out] DWORD *pdwCapabilitiesMask);
+    HRESULT Play();
+    HRESULT Record([in] _WAVEFORMATEX *pFormat);
+    HRESULT Pause();
+    HRESULT Resume();
+    HRESULT Stop();
+    HRESULT Seek([in] UINT fuMode, [in] int nOffset);
+};
+
+// IMDSPEnumStorage
+[
+	object,
+	uuid(1DCB3A15-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPEnumStorage : IUnknown
+{
+	HRESULT Next([in]ULONG celt,
+	             [out, size_is(celt), length_is(*pceltFetched)] IMDSPStorage **ppStorage,
+				 [out] ULONG *pceltFetched);
+	HRESULT Skip([in] ULONG celt, [out] ULONG *pceltFetched);
+	HRESULT Reset();
+	HRESULT Clone([out] IMDSPEnumStorage **ppEnumStorage);
+};
+
+// IMDSPStorage
+[
+	object,
+	uuid(1DCB3A16-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPStorage : IUnknown
+{
+    HRESULT SetAttributes([in] DWORD dwAttributes, 
+						  [in] _WAVEFORMATEX *pFormat);
+    HRESULT GetStorageGlobals([out]IMDSPStorageGlobals **ppStorageGlobals);
+    HRESULT GetAttributes([out] DWORD *pdwAttributes,
+                          [out] _WAVEFORMATEX *pFormat);
+    HRESULT GetName([out,string, size_is(nMaxChars)] LPWSTR pwszName,
+                    [in] UINT nMaxChars);
+    HRESULT GetDate([out] PWMDMDATETIME pDateTimeUTC);
+    HRESULT GetSize([out] DWORD *pdwSizeLow,
+                    [out] DWORD *pdwSizeHigh);
+    HRESULT GetRights([out, size_is(,*pnRightsCount)] PWMDMRIGHTS *ppRights,
+                      [out] UINT *pnRightsCount,
+					  [in, out] BYTE abMac[WMDM_MAC_LENGTH]);
+    HRESULT CreateStorage([in] DWORD dwAttributes,
+                          [in, unique] _WAVEFORMATEX *pFormat,
+                          [in] LPWSTR pwszName,
+                          [out] IMDSPStorage **ppNewStorage);
+	HRESULT EnumStorage([out] IMDSPEnumStorage **ppEnumStorage);
+    HRESULT SendOpaqueCommand([in,out] OPAQUECOMMAND *pCommand);
+};
+
+// IMDSPStorageGlobals
+[
+	object,
+	uuid(1DCB3A17-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPStorageGlobals : IUnknown
+{
+    HRESULT GetCapabilities([out] DWORD *pdwCapabilities);
+    HRESULT GetSerialNumber([out] PWMDMID pSerialNum,
+							[in, out] BYTE abMac[WMDM_MAC_LENGTH]);
+    HRESULT GetTotalSize([out] DWORD *pdwTotalSizeLow,
+                        [out] DWORD *pdwTotalSizeHigh);
+    HRESULT GetTotalFree([out] DWORD *pdwFreeLow,
+                         [out] DWORD *pdwFreeHigh);
+    HRESULT GetTotalBad([out] DWORD *pdwBadLow,
+                        [out] DWORD *pdwBadHigh);
+    HRESULT GetStatus([out] DWORD *pdwStatus);
+    HRESULT Initialize([in] UINT fuMode,
+                       [in] IWMDMProgress *pProgress);
+    HRESULT GetDevice([out] IMDSPDevice **ppDevice);
+    HRESULT GetRootStorage([out] IMDSPStorage **ppRoot);
+};
+
+// IMDSPObjectInfo
+[
+	object,
+	uuid(1DCB3A19-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPObjectInfo : IUnknown
+{
+    HRESULT GetPlayLength([out] DWORD *pdwLength);
+    HRESULT SetPlayLength([in] DWORD dwLength);
+    HRESULT GetPlayOffset([out] DWORD *pdwOffset);
+    HRESULT SetPlayOffset([in] DWORD dwOffset);
+    HRESULT GetTotalLength([out] DWORD *pdwLength);
+    HRESULT GetLastPlayPosition([out] DWORD *pdwLastPos);
+    HRESULT GetLongestPlayPosition([out] DWORD *pdwLongestPos);
+};
+
+// IMDSPObject
+[
+	object,
+	uuid(1DCB3A18-33ED-11d3-8470-00C04F79DBC0),
+	pointer_default(unique)
+]
+interface IMDSPObject : IUnknown
+{
+    HRESULT Open([in] UINT fuMode);
+    HRESULT Read([out,size_is(*pdwSize)] BYTE *pData,
+                 [in,out] DWORD *pdwSize,
+				 [in, out] BYTE abMac[WMDM_MAC_LENGTH]);
+    HRESULT Write([in, size_is(*pdwSize)] BYTE *pData,
+                  [in,out] DWORD *pdwSize,
+				  [in, out] BYTE abMac[WMDM_MAC_LENGTH]);
+    HRESULT Delete([in] UINT fuMode, [in] IWMDMProgress *pProgress);
+    HRESULT Seek([in] UINT fuFlags,
+                 [in] DWORD dwOffset);
+    HRESULT Rename([in] LPWSTR pwszNewName, [in] IWMDMProgress *pProgress);
+    HRESULT Move([in] UINT fuMode,
+                 [in] IWMDMProgress *pProgress,
+                 [in] IMDSPStorage *pTarget);
+    HRESULT Close();
+};
+

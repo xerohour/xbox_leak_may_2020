@@ -1,0 +1,23 @@
+TARGETNAME=audanalyze
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+UMENTRY=main
+
+NTDEBUGTYPE=both
+
+SOURCES=audanalyze.rc\
+    audanalyze.cpp \
+    detours.cpp\
+    disasm.cpp \
+    helpers.cpp
+
+INCLUDES=$(BASEDIR)\public\wsdk\inc;                \
+         ..\..\..\dmusic\shared;                    \
+
+
+LINKLIBS= \
+    $(WSDK_LIB_PATH)\kernel32.lib \
+    $(WSDK_LIB_PATH)\advapi32.lib \
+    $(WSDK_LIB_PATH)\ole32.lib \
+    $(WSDK_LIB_PATH)\user32.lib

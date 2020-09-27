@@ -1,0 +1,1856 @@
+!MESSAGE Loading Kernel dependencies
+
+RMINCS = $(INCDIR)\nvrm.h        $(INCDIR)\nv4\nv4_ref.h $(INCDIR)\nv10\nv10_ref.h  \
+         $(INCDIR)\nv_ref.h      $(INCDIR)\state.h       $(INCDIR)\class.h       \
+         $(INCDIR)\dma.h         $(INCDIR)\fifo.h        $(INCDIR)\fb.h          \
+         $(INCDIR)\dac.h         $(INCNV)\os.h           $(INCDIR)\tmr.h         \
+         $(INCDIR)\vga.h         $(INCDIR)\arb_fifo.h    $(INCDIR)\cursor.h 	 \
+         $(INCDIR)\dmapush.h     $(INCDIR)\event.h       $(INCDIR)\fifo.h	 \
+         $(INCDIR)\mc.h          $(INCDIR)\modular.h     $(INCDIR)\mp.h 	 \
+         $(INCDIR)\smp.h         $(INCDIR)\control.h     \
+         $(INCDIR)\tv.h          $(INCDIR)\vblank.h      $(INCDIR)\all_incs.h	 \
+         $(INCDIR)\heap.h        $(INCDIR)\btree.h 	 	 $(INCNV)\nvhw.h         \
+         $(INCDIR)\i2c.h         $(NVSDKDIR)\inc\nvos.h  $(INCDIR)\chipfunc.h	 \
+         $(INCDIR)\gr.h		     $(INCDIR)\nv4\nv4_gr.h  $(INCDIR)\nv10\nv10_gr.h \
+         $(INCDIR)\edid.h        $(VESADIR)\vesadata.h	 \
+         $(INCDIR)\devinit.h     $(INCDIR)\nvromdat.h	 $(INCDIR)\nvhal.h \
+         $(INCDIR)\nv4\nv4_hal.h $(INCDIR)\nv10\nv10_hal.h $(INCDIR)\vid.h
+
+#
+# SOURCE line for DEBUG Kernel nmsym
+#
+KERNSRCDIRS =	\
+	..\$(FBDIR);..\$(FBDIR)\nv4;..\$(FBDIR)\nv10;..\$(DMADIR);..\$(CLASSDIR);..\$(BTREEDIR);..\$(STATEDIR); \
+	/SOURCE:..\$(GRDIR);..\$(GRDIR)\nv4;..\$(GRDIR)\nv10;..\$(MCDIR);..\$(MCDIR)\nv4;..\$(MCDIR)\nv10; \
+	/SOURCE:..\$(MPDIR);..\$(MPDIR)\nv4;..\$(MPDIR)\nv10;..\$(DACDIR);..\$(DACDIR)\nv4;..\$(DACDIR)\nv10; \
+	/SOURCE:..\$(MODDIR);..\$(MODDIR)\nv4;..\$(MODDIR)\nv10;..\$(FIFODIR);..\$(FIFODIR)\nv4;..\$(FIFODIR)\nv10; \
+	/SOURCE:..\$(VBLANKDIR);..\$(TMRDIR);..\$(HEAPDIR);..\$(DEVINITDIR);..\$(DEVINITDIR)\nv4; \
+    /SOURCE:..\$(HALDIR);..\$(VIDEODIR);..\$(VIDEODIR)\nv4;..\$(VIDEODIR)\nv10
+
+#
+# Kernel Resource Manager Objects.
+#
+KERNOBJS_NV4 =	\
+	$(OBJDIR_NV4)\fbnv04.obj      $(OBJDIR_NV4)\dacnv04.obj     $(OBJDIR_NV4)\fifonv04.obj \
+    $(OBJDIR_NV4)\grnv04.obj      $(OBJDIR_NV4)\grcxnv04.obj    $(OBJDIR_NV4)\halnv04.obj \
+	$(OBJDIR_NV4)\mcnv04.obj      \
+	$(OBJDIR_NV4)\c047nv04.obj    $(OBJDIR_NV4)\c04Dnv04.obj    $(OBJDIR_NV4)\c04Env04.obj \
+	$(OBJDIR_NV4)\c04Fnv04.obj    \
+    $(OBJDIR_NV4)\c63nv04.obj     $(OBJDIR_NV4)\c64nv04.obj     $(OBJDIR_NV4)\c65nv04.obj \
+	$(OBJDIR_NV4)\mpnv04.obj      $(OBJDIR_NV4)\mpitnv04.obj \
+    $(OBJDIR_NV4)\dmanv04.obj     $(OBJDIR_NV4)\vidnv04.obj
+
+KERNOBJS_NV10 =	\
+	$(OBJDIR_NV10)\fbnv10.obj     $(OBJDIR_NV10)\dacnv10.obj    $(OBJDIR_NV10)\fifonv10.obj \
+	$(OBJDIR_NV10)\grnv10.obj     $(OBJDIR_NV10)\grcxnv10.obj   $(OBJDIR_NV10)\halnv10.obj \
+	$(OBJDIR_NV10)\mcnv10.obj     \
+    $(OBJDIR_NV10)\c047nv10.obj   \
+	$(OBJDIR_NV10)\c04Dnv10.obj   $(OBJDIR_NV10)\c04Env10.obj 	$(OBJDIR_NV10)\c04Fnv10.obj \
+    $(OBJDIR_NV10)\c07Anv10.obj   \
+    $(OBJDIR_NV10)\c63nv10.obj     $(OBJDIR_NV10)\c64nv10.obj     $(OBJDIR_NV10)\c65nv10.obj \
+	$(OBJDIR_NV10)\mpnv10.obj     $(OBJDIR_NV10)\mpitnv10.obj \
+    $(OBJDIR_NV10)\dmanv10.obj    $(OBJDIR_NV10)\vidnv10.obj
+
+KERNOBJS =	\
+	$(OBJDIR)\classobj.obj  $(OBJDIR)\classdel.obj  $(OBJDIR)\class.obj \
+	$(OBJDIR)\control.obj   $(OBJDIR)\i2c.obj       $(OBJDIR)\edid.obj  \
+	$(OBJDIR)\dacinit.obj   $(OBJDIR)\dacstate.obj  $(OBJDIR)\dac.obj \
+    $(OBJDIR)\dacmode.obj   $(OBJDIR)\dactv.obj     $(OBJDIR)\dacfp.obj \
+    $(OBJDIR)\vesadata.obj \
+	$(OBJDIR)\notify.obj    $(OBJDIR)\dmastate.obj  $(OBJDIR)\dma.obj \
+	$(OBJDIR)\event.obj \
+	$(OBJDIR)\fbinit.obj    $(OBJDIR)\fbstate.obj   $(OBJDIR)\fb.obj        \
+	$(OBJDIR)\fifoinit.obj  $(OBJDIR)\fifostat.obj  $(OBJDIR)\fifo.obj      \
+	$(OBJDIR)\fifoobj.obj	\
+	$(OBJDIR)\mc.obj        $(OBJDIR)\mcstate.obj   \
+	$(OBJDIR)\tmrstate.obj  $(OBJDIR)\time.obj      $(OBJDIR)\tmrinit.obj   \
+	$(OBJDIR)\grstate.obj   $(OBJDIR)\gr.obj        \
+	$(OBJDIR)\grobj.obj     $(OBJDIR)\grval.obj     $(OBJDIR)\grmethd.obj   \
+    $(OBJDIR)\haleng.obj    $(OBJDIR)\halinit.obj   $(OBJDIR)\halrm.obj  \
+    $(OBJDIR)\halwrap.obj \
+	$(OBJDIR)\mpobj.obj     $(OBJDIR)\mpstate.obj \
+	$(OBJDIR)\state.obj     $(OBJDIR)\btree.obj     $(OBJDIR)\vblank.obj    \
+	$(OBJDIR)\heap.obj \
+    $(OBJDIR)\video.obj     $(OBJDIR)\videoobj.obj \
+	$(OBJDIR)\class050.obj	$(OBJDIR)\class051.obj \
+    $(OBJDIR)\class012.obj  $(OBJDIR)\class017.obj  $(OBJDIR)\class018.obj  \
+    $(OBJDIR)\class019.obj  $(OBJDIR)\class01C.obj  $(OBJDIR)\class01D.obj  \
+    $(OBJDIR)\class01E.obj  $(OBJDIR)\class01F.obj  $(OBJDIR)\class021.obj  \
+    $(OBJDIR)\class030.obj  \
+    $(OBJDIR)\class036.obj  $(OBJDIR)\class037.obj  $(OBJDIR)\class038.obj  \
+    $(OBJDIR)\class039.obj  $(OBJDIR)\class042.obj  $(OBJDIR)\class043.obj  \
+    $(OBJDIR)\class044.obj  $(OBJDIR)\class046.obj  $(OBJDIR)\class047.obj  \
+    $(OBJDIR)\class048.obj  \
+    $(OBJDIR)\class049.obj  $(OBJDIR)\class04A.obj  $(OBJDIR)\class04B.obj  \
+    $(OBJDIR)\class052.obj  \
+    $(OBJDIR)\class053.obj  $(OBJDIR)\class054.obj  $(OBJDIR)\class055.obj  \
+    $(OBJDIR)\class056.obj  \
+    $(OBJDIR)\class057.obj  $(OBJDIR)\class058.obj  $(OBJDIR)\class059.obj  \
+    $(OBJDIR)\class05A.obj  $(OBJDIR)\class05B.obj  $(OBJDIR)\class05C.obj  \
+    $(OBJDIR)\class05D.obj  $(OBJDIR)\class05E.obj  $(OBJDIR)\class05F.obj  \
+    $(OBJDIR)\class060.obj  $(OBJDIR)\class061.obj  $(OBJDIR)\class063.obj  \
+    $(OBJDIR)\class064.obj  $(OBJDIR)\class065.obj  $(OBJDIR)\class066.obj  \
+    $(OBJDIR)\class067.obj  \
+    $(OBJDIR)\class072.obj  $(OBJDIR)\class076.obj  $(OBJDIR)\class077.obj	\
+    $(OBJDIR)\class07A.obj  $(OBJDIR)\class07B.obj  $(OBJDIR)\class07C.obj  \
+    $(OBJDIR)\class062.obj  $(OBJDIR)\class088.obj  $(OBJDIR)\class089.obj	\
+    $(OBJDIR)\class08A.obj  \
+    $(OBJDIR)\class093.obj  $(OBJDIR)\class094.obj  $(OBJDIR)\class095.obj	\
+    $(OBJDIR)\class096.obj  $(OBJDIR)\class09F.obj  \
+    $(OBJDIR)\class63.obj   $(OBJDIR)\class64.obj   $(OBJDIR)\class65.obj \
+    $(OBJDIR)\classcmn.obj	\
+    $(OBJDIR)\devinit.obj	$(OBJDIR)\nv04mem.obj	$(OBJDIR)\nv05mem.obj	\
+    $(OBJDIR)\nv10mem.obj   $(OBJDIR)\nv10mtbl.obj
+
+#
+# RM Kernel files.
+#
+
+#
+# State files.
+#
+
+$(OBJDIR)\state.obj : $(STATEDIR)\state.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(STATEDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(STATEDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# Object Oriented files.
+#
+
+$(OBJDIR)\classdel.obj : $(CLASSDIR)\classdel.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(CLASSDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(CLASSDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\classobj.obj : $(CLASSDIR)\classobj.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(CLASSDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(CLASSDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class.obj : $(CLASSDIR)\class.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(CLASSDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(CLASSDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\control.obj : $(CLASSDIR)\control.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(CLASSDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(CLASSDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# DMA Engine files.
+#
+
+$(OBJDIR)\dma.obj : $(DMADIR)\dma.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DMADIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DMADIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\notify.obj : $(DMADIR)\notify.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DMADIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DMADIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dmastate.obj : $(DMADIR)\dmastate.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DMADIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DMADIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\event.obj : $(DMADIR)\event.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DMADIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DMADIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\dmanv04.obj : $(DMADIR)\nv4\dmanv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(DMADIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(DMADIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\dmanv10.obj : $(DMADIR)\nv10\dmanv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(DMADIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(DMADIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+#
+# Framebuffer files.
+#
+
+$(OBJDIR)\fb.obj : $(FBDIR)\fb.c $(INCDIR)\nvrm.h $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FBDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FBDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\fbstate.obj : $(FBDIR)\fbstate.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FBDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FBDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\fbinit.obj : $(FBDIR)\fbinit.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FBDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FBDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\fbnv04.obj : $(FBDIR)\nv4\fbnv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(FBDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(FBDIR)\nv4\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\fbnv10.obj : $(FBDIR)\nv10\fbnv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(FBDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(FBDIR)\nv10\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+#
+# FIFO Engine files.
+#
+
+$(OBJDIR)\fifo.obj : $(FIFODIR)\fifo.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FIFODIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FIFODIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\fifoobj.obj : $(FIFODIR)\fifoobj.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FIFODIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FIFODIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\fifostat.obj : $(FIFODIR)\fifostat.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FIFODIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FIFODIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\fifoinit.obj : $(FIFODIR)\fifoinit.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(FIFODIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(FIFODIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\fifonv04.obj : $(FIFODIR)\nv4\fifonv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(FIFODIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(FIFODIR)\nv4\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\fifonv10.obj : $(FIFODIR)\nv10\fifonv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(FIFODIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(FIFODIR)\nv10\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+#
+# Graphics Engine files.
+#
+
+$(OBJDIR)\gr.obj : $(GRDIR)\gr.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(GRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(GRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\grobj.obj : $(GRDIR)\grobj.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(GRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(GRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\grval.obj : $(GRDIR)\grval.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(GRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(GRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\grmethd.obj : $(GRDIR)\grmethd.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(GRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(GRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\grcxnv04.obj : $(GRDIR)\nv4\grcxnv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(GRDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(GRDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\grcxnv10.obj : $(GRDIR)\nv10\grcxnv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(GRDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(GRDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\grnv04.obj : $(GRDIR)\nv4\grnv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(GRDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(GRDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\grnv10.obj : $(GRDIR)\nv10\grnv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(GRDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(GRDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\grstate.obj : $(GRDIR)\grstate.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(GRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(GRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# Heap file
+#
+$(OBJDIR)\heap.obj: $(HEAPDIR)\heap.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(HEAPDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD) -i=..\common\inc
+	$(CCVXD) $(LGROUP) $(HEAPDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+       
+#
+# DAC files.
+#
+
+$(OBJDIR_NV4)\dacnv04.obj : $(DACDIR)\nv4\dacnv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(DACDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(DACDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\dacnv10.obj : $(DACDIR)\nv10\dacnv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(DACDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(DACDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dac.obj : $(DACDIR)\dac.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dacstate.obj : $(DACDIR)\dacstate.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dacinit.obj : $(DACDIR)\dacinit.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\i2c.obj : $(DACDIR)\i2c.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\edid.obj : $(DACDIR)\edid.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dacmode.obj : $(DACDIR)\dacmode.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dactv.obj : $(DACDIR)\dactv.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\dacfp.obj : $(DACDIR)\dacfp.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DACDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DACDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+#
+# VESA files.
+#
+
+$(OBJDIR)\vesadata.obj : $(VESADIR)\vesadata.c $(VESADIR)\vesadata.h
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(VESADIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(VESADIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+#
+# Master Control files.
+#
+
+$(OBJDIR)\mc.obj : $(MCDIR)\mc.c $(RMINCS) $(INCVERDIR)\nvver.h
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MCDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MCDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\mcstate.obj : $(MCDIR)\mcstate.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MCDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MCDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\mcnv04.obj : $(MCDIR)\nv4\mcnv04.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MCDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MCDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\mcnv10.obj : $(MCDIR)\nv10\mcnv10.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MCDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MCDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+#
+# Timer Device files.
+#
+
+$(OBJDIR)\time.obj : $(TMRDIR)\time.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(TMRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(TMRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\tmrstate.obj : $(TMRDIR)\tmrstate.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(TMRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(TMRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\tmrinit.obj : $(TMRDIR)\tmrinit.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(TMRDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(TMRDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# BTREE files.
+#
+
+$(OBJDIR)\btree.obj : $(BTREEDIR)\btree.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(BTREEDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(BTREEDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# VBLANK files.
+#
+
+$(OBJDIR)\vblank.obj : $(VBLANKDIR)\vblank.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(VBLANKDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(VBLANKDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# MODULAR Class files.
+#
+
+$(OBJDIR_NV4)\c63nv04.obj : $(MODDIR)\nv4\c63nv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c63nv10.obj : $(MODDIR)\nv10\c63nv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\c64nv04.obj : $(MODDIR)\nv4\c64nv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c64nv10.obj : $(MODDIR)\nv10\c64nv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\c65nv04.obj : $(MODDIR)\nv4\c65nv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c65nv10.obj : $(MODDIR)\nv10\c65nv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class012.obj : $(MODDIR)\class012.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class017.obj : $(MODDIR)\class017.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class018.obj : $(MODDIR)\class018.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class019.obj : $(MODDIR)\class019.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class01C.obj : $(MODDIR)\class01C.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class01D.obj : $(MODDIR)\class01D.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class01E.obj : $(MODDIR)\class01E.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class01F.obj : $(MODDIR)\class01F.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class021.obj : $(MODDIR)\class021.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class030.obj : $(MODDIR)\class030.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class036.obj : $(MODDIR)\class036.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class037.obj : $(MODDIR)\class037.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class038.obj : $(MODDIR)\class038.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class039.obj : $(MODDIR)\class039.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class042.obj : $(MODDIR)\class042.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class043.obj : $(MODDIR)\class043.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class044.obj : $(MODDIR)\class044.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class046.obj : $(MODDIR)\class046.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class047.obj : $(MODDIR)\class047.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\c047nv04.obj : $(MODDIR)\nv4\c047nv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c047nv10.obj : $(MODDIR)\nv10\c047nv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class048.obj : $(MODDIR)\class048.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class049.obj : $(MODDIR)\class049.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class04A.obj : $(MODDIR)\class04A.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class04B.obj : $(MODDIR)\class04B.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\c04Dnv04.obj : $(MODDIR)\nv4\c04Dnv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c04Dnv10.obj : $(MODDIR)\nv10\c04Dnv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\c04Env04.obj : $(MODDIR)\nv4\c04Env04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c04Env10.obj : $(MODDIR)\nv10\c04Env10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\c04Fnv04.obj : $(MODDIR)\nv4\c04Fnv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MODDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c04Fnv10.obj : $(MODDIR)\nv10\c04Fnv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class050.obj : $(MODDIR)\class050.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class051.obj : $(MODDIR)\class051.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class052.obj : $(MODDIR)\class052.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class053.obj : $(MODDIR)\class053.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class054.obj : $(MODDIR)\class054.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class055.obj : $(MODDIR)\class055.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class056.obj : $(MODDIR)\class056.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class057.obj : $(MODDIR)\class057.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class058.obj : $(MODDIR)\class058.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class059.obj : $(MODDIR)\class059.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class05A.obj : $(MODDIR)\class05A.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class05B.obj : $(MODDIR)\class05B.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class05C.obj : $(MODDIR)\class05C.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class05D.obj : $(MODDIR)\class05D.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class05E.obj : $(MODDIR)\class05E.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class05F.obj : $(MODDIR)\class05F.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class060.obj : $(MODDIR)\class060.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class061.obj : $(MODDIR)\class061.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class063.obj : $(MODDIR)\class063.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class064.obj : $(MODDIR)\class064.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class065.obj : $(MODDIR)\class065.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class066.obj : $(MODDIR)\class066.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class067.obj : $(MODDIR)\class067.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class072.obj : $(MODDIR)\class072.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class076.obj : $(MODDIR)\class076.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class077.obj : $(MODDIR)\class077.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class07A.obj : $(MODDIR)\class07A.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\c07Anv10.obj : $(MODDIR)\nv10\c07Anv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MODDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MODDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class07B.obj : $(MODDIR)\class07B.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class07C.obj : $(MODDIR)\class07C.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class062.obj : $(MODDIR)\class062.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class088.obj : $(MODDIR)\class088.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class089.obj : $(MODDIR)\class089.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class08A.obj : $(MODDIR)\class08A.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class093.obj : $(MODDIR)\class093.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class094.obj : $(MODDIR)\class094.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class095.obj : $(MODDIR)\class095.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class096.obj : $(MODDIR)\class096.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class09F.obj : $(MODDIR)\class09F.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class63.obj : $(MODDIR)\class63.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class64.obj : $(MODDIR)\class64.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\class65.obj : $(MODDIR)\class65.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\classcmn.obj : $(MODDIR)\classcmn.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MODDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MODDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# MEDIA PORT files.
+#
+$(OBJDIR_NV4)\mpnv04.obj : $(MPDIR)\nv4\mpnv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MPDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MPDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\mpnv10.obj : $(MPDIR)\nv10\mpnv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MPDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MPDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV4)\mpitnv04.obj : $(MPDIR)\nv4\mpitnv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(MPDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(MPDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\mpitnv10.obj : $(MPDIR)\nv10\mpitnv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(MPDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(MPDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\mpobj.obj : $(MPDIR)\mpobj.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MPDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MPDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\mpstate.obj : $(MPDIR)\mpstate.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(MPDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(MPDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# Video engine files
+#
+$(OBJDIR_NV4)\vidnv04.obj : $(VIDEODIR)\nv4\vidnv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(VIDEODIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(VIDEODIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\vidnv10.obj : $(VIDEODIR)\nv10\vidnv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(VIDEODIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(VIDEODIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\video.obj : $(VIDEODIR)\video.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(VIDEODIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(VIDEODIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\videoobj.obj : $(VIDEODIR)\videoobj.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(VIDEODIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(VIDEODIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+#
+# Device Initialize (POST) files
+#
+$(OBJDIR)\devinit.obj: $(DEVINITDIR)\devinit.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DEVINITDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DEVINITDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+       
+$(OBJDIR)\nv04mem.obj: $(DEVINITDIR)\nv4\nv04mem.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DEVINITDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DEVINITDIR)\nv4\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+       
+$(OBJDIR)\nv05mem.obj: $(DEVINITDIR)\nv4\nv05mem.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DEVINITDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DEVINITDIR)\nv4\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+       
+$(OBJDIR)\nv10mem.obj: $(DEVINITDIR)\nv4\nv10mem.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DEVINITDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DEVINITDIR)\nv4\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+       
+$(OBJDIR)\nv10mtbl.obj: $(DEVINITDIR)\nv4\nv10mtbl.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(DEVINITDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(DEVINITDIR)\nv4\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+       
+#
+# HAL files
+#
+$(OBJDIR_NV4)\halnv04.obj : $(HALDIR)\nv4\halnv04.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV4) $(HALDIR)\nv4\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV4)
+	$(CCVXD) $(LGROUP) $(HALDIR)\nv4\$(@B).c
+	$(LST_NV4)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV4)\$(@B).obj
+!ENDIF
+
+$(OBJDIR_NV10)\halnv10.obj : $(HALDIR)\nv10\halnv10.c $(RM_INCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT_NV10) $(HALDIR)\nv10\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD_NV10)
+	$(CCVXD) $(LGROUP) $(HALDIR)\nv10\$(@B).c
+	$(LST_NV10)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR_NV10)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\haleng.obj : $(HALDIR)\haleng.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(HALDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(HALDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\halinit.obj : $(HALDIR)\halinit.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(HALDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(HALDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\halrm.obj : $(HALDIR)\halrm.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(HALDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(HALDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+
+$(OBJDIR)\halwrap.obj: $(HALDIR)\halwrap.c $(RMINCS)
+!IFNDEF WIN31
+        $(CCVXD) $(CFLAGSVXD_OPT) $(HALDIR)\$(@B).c
+        $(LST)
+!ELSE
+	SET WCC386=$(CFLAGSVXD)
+	$(CCVXD) $(LGROUP) $(HALDIR)\$(@B).c
+	$(LST)
+	$(LIB) $(LIB32DIR)\nvrm.lib -+$(OBJDIR)\$(@B).obj
+!ENDIF
+

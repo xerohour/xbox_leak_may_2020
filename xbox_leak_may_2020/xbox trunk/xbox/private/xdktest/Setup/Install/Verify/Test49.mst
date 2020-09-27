@@ -1,0 +1,67 @@
+'$include 'install.inc'
+
+
+Scenario "Verify Uninstall after Clean Full Setup removes all registry entries"
+	Dim FileArray$(0,3), RegArray$(0,3)
+	Dim item%, pass%
+	Dim xdkpath$
+
+	pass = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Install a Full Setup
+	'
+	Install(BuildNumber, false, false)
+	'
+	' Now, uninstall kit
+	'
+	Uninstall
+	'
+	' Make sure we're uninstalled
+	'
+	if IsInstalled then
+		FAIL "Uninstall failed"
+	end if
+	'
+	' Get File Contents
+	'
+	VerifyFile(4, FileArray, RegArray)
+	'
+	' If upper bound > 0 then there were registry keys returned
+	'
+	if ubound(RegArray, 1) <> 0 then
+		pass = false
+		LOG #10, "FAIL: The following "+trim$(str$(ubound(RegArray, 1)))+" registry items still exist after uninstall"
+		for item = lbound(RegArray, 1) to ubound(RegArray, 1)-1
+			LOG #10, "   "+RegArray(item, 0)
+		next item
+	end if
+	'
+	' If failed, the flag error
+	'
+	if NOT pass then
+		FAIL "Some registry entries were not uninstalled properly"
+	end if
+
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

@@ -1,0 +1,533 @@
+//+--------------------------------------------------------------------------
+//
+//  Microsoft Site Server v3.00
+//  Copyright (C) 1997-1999 Microsoft Corporation.  All rights reserved.
+//
+//  File:       NLAdmin.idl
+//
+//  Contents:   Site Server Search Administration Components interfaces.
+//
+//  Interfaces: ISearchAdmin
+//              IBuildServer
+//              ISearchServer
+//              IBuildCatalogs
+//              IBuildCatalog
+//              ISearchCatalogs
+//              ISearchCatalog
+//
+//---------------------------------------------------------------------------
+
+// This file will be processed by the MIDL tool to
+// produce the type library (NLAdmin.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Import interface definitions exposed here
+
+import "gthradminsdk.idl";
+import "schemaedit.idl";
+import "idxadminsdk.idl";
+import "catprops.idl";
+
+
+//+--------------------------------------------------------------------------
+//
+// ISearchAdmin
+// 
+// A host has Site Server Search services for catalog building and catalog
+// searching.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e355-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Site Server Search Admin Interface"), 
+        pointer_default(unique)
+    ]
+    interface ISearchAdmin : IDispatch
+    {
+        [propget, helpstring("Get the host being administered")]
+        HRESULT HostName([out, retval] BSTR *pbstrName);
+
+        [propput, helpstring("Set the host to administer")]
+        HRESULT HostName([in] BSTR bstrName);
+
+        [propget, helpstring("The IBuildServer of the host")]
+        HRESULT BuildServer([out, retval] VARIANT *pvarBuildServer);
+
+        [propget, helpstring("The ISearchServer of the host")]
+        HRESULT SearchServer([out, retval] VARIANT *pvarSearchServer);
+    };
+
+
+//+--------------------------------------------------------------------------
+//
+// IBuildServer
+//
+// Host component that manages build catalog projects.  Settings affect all
+// build catalog projects on this host.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e356-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Site Server Search Host Catalog Builder Interface"), 
+        pointer_default(unique)
+    ]
+    interface IBuildServer : IDispatch
+    {
+        [propget, helpstring("Get the user agent string")]
+        HRESULT UserAgent([out, retval] BSTR *pVal);
+
+        [propput, helpstring("Set the user agent string")]
+        HRESULT UserAgent([in] BSTR newVal);
+
+        [propget,  helpstring("Get the email address string")]
+        HRESULT EmailAddress([out, retval] BSTR *pVal);
+
+        [propput, helpstring("Set the email address string")]
+        HRESULT EmailAddress([in] BSTR newVal);
+
+        [propget, helpstring("Get the temporary files location.  NULL means using system temp")]
+        HRESULT TempPath([out, retval] BSTR *pVal);
+
+        [propput, helpstring("Set the temporary files location. NULL means use the system temp")]
+        HRESULT TempPath([in] BSTR newVal);
+
+        [propget, helpstring("Get the performance level. 1 (Background) trough 5 (Dedicated)")]
+        HRESULT PerformanceLevel([out, retval] LONG *pVal);
+
+        [propput, helpstring("Set the performance level. 1 (Background) trough 5 (Dedicated)")]
+        HRESULT PerformanceLevel([in] LONG newVal);
+
+        [propget, helpstring("Get the default file system location for newly created build catalog projects")]
+        HRESULT DefaultCatalogsLocation([out, retval] BSTR *pVal);
+
+        [propput, helpstring("Not Implemented. Set the default file system location for newly created build catalog projects")]
+        HRESULT DefaultCatalogsLocation([in] BSTR newVal);
+
+        [propget, helpstring("Get the timeout value for waiting for a connection")]
+        HRESULT ConnectTimeout([out, retval] LONG *pVal);
+
+        [propput, helpstring("Set the timeout value for waiting for a connection")]
+        HRESULT ConnectTimeout([in] LONG newVal);
+         
+        [propget, helpstring("Get the timeout value for waiting for data")]
+        HRESULT DataTimeout([out, retval] LONG *pVal);
+
+        [propput, helpstring("Set the timeout value for waiting for data")]
+        HRESULT DataTimeout([in] LONG newVal);
+
+        [propget, helpstring("Set the default account name (domain\user)")]
+        HRESULT DefaultAccountName([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Set the default plugin account name (domain\user)")]
+        HRESULT DefaultPluginAccountName([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Returns the ISearchAdmin of this catalog builder")]
+        HRESULT SearchAdmin([out, retval] VARIANT *pvarSearchAdmin);
+
+        [propget, helpstring("Returns the collection of build catalog projects. Returns IBuildCatalogs")]
+        HRESULT BuildCatalogs([out, retval] VARIANT *pvarBuildCatalogs);
+
+        [propget, helpstring("Returns collection of sites with timing restrictions")]
+        HRESULT Sites([out, retval] VARIANT *pvarServers);
+
+        [propget, helpstring("Returns the current proxy configuration setting")]
+        HRESULT ProxyUsageSetting([out, retval] LONG *pVal);
+        
+        [propget, helpstring("Returns the proxy address")]
+        HRESULT ProxyAddress([out, retval] BSTR *pbstrAddress);
+
+        [propget, helpstring("Returns the proxy port number")]
+        HRESULT ProxyPortNumber([out, retval] LONG *pnPort);
+
+        [propget, helpstring("Returns whether or not the proxy will be bypassed on local addresses")]
+        HRESULT ProxyBypassForLocalAddresses([out, retval] LONG *pVal);
+
+        [propget, helpstring("Returns the list of addresses for which the proxy will be bypassed")]
+         HRESULT ProxyBypassAddressesList([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Get the location of the build server logs")]
+        HRESULT DefaultLogsLocation([out, retval] BSTR *pVal);
+        
+        [propput, helpstring("Set the location of the build server logs")]
+        HRESULT DefaultLogsLocation([in] BSTR newVal);
+
+        [helpstring("Create a copy of this component, possibly for a different thread")]
+        HRESULT Clone([out, retval] VARIANT * pvarBuildServer);
+
+        [helpstring("Set the default account information (domain\user)")]
+        HRESULT SetDefaultAccount([in] BSTR bstrAccountName, [in] BSTR bstrPassword);
+
+        [helpstring("Set the default plugin account information (domain\user)")]
+        HRESULT SetDefaultPluginAccount([in] BSTR bstrAccountName, [in] BSTR bstrPassword);
+
+        [helpstring("Export a build catalog project configuration")]
+        HRESULT ExportCatalog([in] BSTR bstrCatalogName, [in] BSTR bstrFilePath);
+
+        [helpstring("Import a build catlaog project from an exported file")]
+        HRESULT ImportCatalog([in] BSTR bstrCatalogName, [in] BSTR bstrFilePath);
+
+        [helpstring("Set the proxy settings")]
+        HRESULT SetProxySettings([in] LONG nUsageSetting, [in] BSTR bstrAddress, [in] LONG nPort, [in] LONG nBypassForLocalAddresses, [in] BSTR bstrBypassAddressesList);
+        
+        [helpstring("Load a previously saved build server configuration")]
+        HRESULT LoadConfiguration([in] BSTR bstrFilePath);
+        
+        [helpstring("Save the build server configuration to a file")]
+        HRESULT SaveConfiguration([in] BSTR bstrFilePath);
+    };
+    
+
+//+--------------------------------------------------------------------------
+//
+// IBuildCatalogs
+//
+// Collection interface for enumerating build catalog projects.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e360-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Enumeration for Site Server Search build catalog projects"), 
+        pointer_default(unique)
+    ]
+    interface IBuildCatalogs : IDispatch
+    {
+        [propget, helpstring("Returns number of items in collection")] 
+        HRESULT Count([out, retval] long* pCount);
+
+        [propget, id(DISPID_VALUE), helpstring("Given an build catalog name, returns an item in the collection")]
+        HRESULT Item([in] BSTR bstrName, [out, retval] VARIANT* pvarCatalog);
+
+        [propget, restricted, id(DISPID_NEWENUM), helpstring("Returns an enumerator for the collection")]
+        HRESULT _NewEnum([out, retval] IUnknown** pNewEnum);
+
+        [helpstring("Adds a new build catalog to the Site Server Search system.")]
+        HRESULT Add([in] BSTR bstrName, [in] BSTR bstrPath, [out, retval] VARIANT * pvarCatalog );
+
+        [helpstring("Removes a build catalog from the Site Server Search system.")]
+        HRESULT Remove([in] BSTR bstrName);
+    };
+
+
+//+--------------------------------------------------------------------------
+//
+// IBuildCatalog
+//
+// Build catalog project for crawling and indexing.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e354-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Site Server Search build catalog project interface"), 
+        pointer_default(unique)
+    ]
+    interface IBuildCatalog : IDispatch
+    {
+        [propget, helpstring("Get the build catalog project name")]
+        HRESULT Name([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Get the log successful access property")]
+        HRESULT LogSuccess([out, retval] VARIANT_BOOL *pVal);
+
+        [propput, helpstring("Set the log successful access property")]
+        HRESULT LogSuccess([in] VARIANT_BOOL newVal);
+
+        [propget, helpstring("Get the log excluded items property")]
+        HRESULT LogExcluded([out, retval] VARIANT_BOOL *pVal);
+
+        [propput, helpstring("Set the log excluded items property")]
+        HRESULT LogExcluded([in] VARIANT_BOOL newVal);
+
+        [propget, helpstring("Returns the IBuildServer for the host of this build catalog project")]
+        HRESULT BuildServer([out, retval] VARIANT *pvarBuildServer);
+
+        [propget, helpstring("Returns the IStartPages collection")]
+        HRESULT StartPages([out, retval] VARIANT *pvarStartPages);
+
+        [propget, helpstring("Returns the ISiteRestrictions collection")]
+        HRESULT Sites([out, retval] VARIANT *pvarSites);
+
+        [propget, helpstring("Returns the IExtensions collection")]
+        HRESULT Extensions([out, retval] VARIANT *pvarExtensions);
+
+        [propget, helpstring("Returns the IMappings collection")]
+        HRESULT Mappings([out, retval] VARIANT *pvarMappings);
+
+        [propget, helpstring("Returns the IProtocols collection")]
+        HRESULT Protocols([out, retval] VARIANT *pvarProtocols);
+
+        [propget, helpstring("Get the build catalog project status as a string")]
+        HRESULT Status([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Get the build catalog project numeric status code. See Gather and Indexer for values")]
+        HRESULT StatusCode([out, retval] LONG *pVal);
+
+        [propget, helpstring("Returns VARIANT of SAFEARRAY (of VARIANT) of BSTR for current documents being crawled")]
+        HRESULT CurrentPages([out, retval] VARIANT *pVal);
+
+        [propget, helpstring("True when the build catalog project is in progress (crawling, building, propagating).")]
+        HRESULT IsBuilding([out, retval] VARIANT_BOOL *pVal);
+
+        [propget, helpstring("Returns the ICatalogSearchServerList collection")]
+        HRESULT SearchServers([out, retval] VARIANT *pSearchServers);
+
+        [propget, helpstring("Get whether page names with wildcards should be crawled")]
+        HRESULT FollowComplexUrls([out, retval] VARIANT_BOOL *pVal);
+
+        [propput, helpstring("Set whether page names with wildcards should be crawled")]
+        HRESULT FollowComplexUrls([in] VARIANT_BOOL newVal);
+
+        [propget, helpstring("Get the type of project")]
+        HRESULT ProjectType([out, retval] LONG *pVal);
+
+        [propput, helpstring("Set the type of project")]
+        HRESULT ProjectType([in] LONG newVal);
+
+        [propget, helpstring("Get the source of the notication project")]
+        HRESULT NotificationSource([out, retval] BSTR *pVal);
+
+        [propput, helpstring("Set the source of the notification project")]
+        HRESULT NotificationSource([in] BSTR newVal);
+
+        [propget, helpstring("Returns the ICatalogProperties for the current build")]
+        HRESULT CurrentBuildProperties([out, retval] VARIANT *pvarCatalogProperties);
+
+        [propget, helpstring("Returns the ICatalogProperties for the previous build")]
+        HRESULT PreviousBuildProperties([out, retval] VARIANT *pvarCatalogProperties);
+
+        [propget, helpstring("Returns the IGatherLogs interface")]
+        HRESULT Logs([out, retval] VARIANT *pGatherLogs);
+        
+        [propget, helpstring("Get whether automatic propagation limit is enabled")]
+        HRESULT AutoPropLimitEnabled([out, retval] VARIANT_BOOL *pVal);
+        
+        [propput, helpstring("Set whether automatic propagation limit is enabled")]
+        HRESULT AutoPropLimitEnabled([in] VARIANT_BOOL newVal);
+
+        [propget, helpstring("Get the automaitic propagation limit")]
+        HRESULT AutoPropLimit([out, retval] LONG *pVal);
+
+        [propput, helpstring("Set the automaitic propagation limit")]
+        HRESULT AutoPropLimit([in] LONG newVal);
+
+        [propget, helpstring("Get if the catalog local file should be used as the schema")]
+        HRESULT IsLocalFileSchema([out, retval] VARIANT_BOOL *pVal);
+
+        [propput, helpstring("Set if the catalog local file should be used as the schema")] 
+        HRESULT IsLocalFileSchema([in] VARIANT_BOOL newVal);
+
+        [propget, helpstring("Returns the ISearchSchema interface")]
+        HRESULT Schema([out, retval] VARIANT *pSearchSchema);
+
+        [helpstring("Create a copy of this component, possibly for a different thread")]
+        HRESULT Clone([out, retval] VARIANT * pvarBuildCatalog);
+
+        [helpstring("Start an incremental build")]
+        HRESULT StartIncrementalBuild();
+
+        [helpstring("Start a build")]
+        HRESULT StartBuild();
+
+        [helpstring("Stop a build")]
+        HRESULT StopBuild();
+
+        [helpstring("Pause a build")]
+        HRESULT PauseBuild();
+
+        [helpstring("Resume a paused build")]
+        HRESULT ResumeBuild();
+
+        [helpstring("Force propagation of this build catalog project")]
+        HRESULT ForceProp();
+
+        [helpstring("Abord a forced propagation of this build catalog project")]
+        HRESULT AbortProp();
+    };
+
+
+//+--------------------------------------------------------------------------
+//
+// ISearchServer
+//
+// Host component that manages search catalogs.  Settings affect all
+// search catalogs on this host.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e357-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Site Server Search Host Search Server Interface"), 
+        pointer_default(unique)
+    ]
+    interface ISearchServer : IDispatch
+    {
+        [propget, helpstring("Returns the host for this search server")]
+        HRESULT SearchAdmin([out, retval] VARIANT *pvarSearchAdmin);
+
+        [propget, helpstring("Returns the collection of catalogs on this search server")]
+        HRESULT SearchCatalogs([out, retval] VARIANT *pvarSearchCatalogs);
+
+        [propget, helpstring("Get the performance level. 1 (Background) trough 5 (Dedicated)")]
+        HRESULT PerformanceLevel([out, retval] LONG *pVal);
+
+        [propput, helpstring("Set the performance level. 1 (Background) trough 5 (Dedicated)")]
+        HRESULT PerformanceLevel([in] LONG newVal);
+
+        [propget, helpstring("Get the location of the search catalogs on this search server")]
+        HRESULT CatalogsLocation([out, retval] BSTR *pVal);
+
+        [propput, helpstring("Set the location of the search catalogs on this search server")]
+        HRESULT CatalogsLocation([in] BSTR newVal);
+
+        [propget, helpstring("Get the default search catalog for the search server")]
+        HRESULT DefaultCatalog([out, retval] BSTR *pbstrSearchCatalogName);
+
+        [propput, helpstring("Set the default search catalog for the search server")]
+        HRESULT DefaultCatalog([in] BSTR bstrSearchCatalogName);
+
+        [helpstring("Create a copy of this component, possibly for a different thread")]
+        HRESULT Clone([out, retval] VARIANT * pvarSearchServer);
+
+    };
+    
+
+//+--------------------------------------------------------------------------
+//
+// ISearchCatalogs
+//
+// Collection interface for enumerating search catalogs.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e361-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Enumeration for Site Server Search search catalogs"), 
+        pointer_default(unique)
+    ]
+    interface ISearchCatalogs : IDispatch
+    {
+        [propget, helpstring("Returns number of items in collection")] 
+        HRESULT Count([out, retval] long* pCount);
+
+        [propget, id(DISPID_VALUE), helpstring("Given an search catalog name, returns an item in the collection")]
+        HRESULT Item([in] BSTR bstrName, [out, retval] VARIANT* pvarSearchCatalog);
+
+        [propget, restricted, id(DISPID_NEWENUM), helpstring("Returns an enumerator for the collection")]
+        HRESULT _NewEnum([out, retval] IUnknown** pNewEnum);
+
+        [helpstring("Adds an search catalog to the search server")]
+        HRESULT Add([in] BSTR bstrName, [out, retval] VARIANT* pvarSearchCatalog);
+
+        [helpstring("Removes a search catalog from the search server")]
+        HRESULT Remove([in] BSTR bstrName);
+    };
+
+
+//+--------------------------------------------------------------------------
+//
+// ISearchCatalog
+//
+// Search catalog for searching.
+//
+//---------------------------------------------------------------------------
+
+    [
+        object,
+        uuid(0b63e35e-9ccc-11d0-bcdb-00805fccce04), 
+        dual,
+        helpstring("Site Server Search search catalog interface"), 
+        pointer_default(unique)
+    ]
+    interface ISearchCatalog : IDispatch
+    {
+        [propget, helpstring("Returns the name of the search catalog")]
+        HRESULT Name([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Returns the host name of the build server for the search catalog")]
+        HRESULT BuildServerName([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Returns the search server (ISearchServer) for the search catalog")]
+        HRESULT SearchServer([out, retval] VARIANT *pvarSearchServer);
+
+        [propget, helpstring("Returns the status as a string")]
+        HRESULT Status([out, retval] BSTR *pVal);
+
+        [propget, helpstring("Get the timeout value for queries")]
+        HRESULT QueryTimeout([out, retval] DWORD *pVal);
+
+        [propput, helpstring("Set the timeout value for queries")]
+        HRESULT QueryTimeout([in] DWORD newVal);
+
+        [propget, helpstring("Get the maximium result rows for queries")]
+        HRESULT MaxResultRows([out, retval] DWORD *pVal);
+
+        [propput, helpstring("Set the maximum result rows for queries")]
+        HRESULT MaxResultRows([in] DWORD newVal);
+
+        [propget, helpstring("Returns the ICatalogProperties for the search catalog")]
+        HRESULT Properties([out, retval] VARIANT *pvarCatalogProperties);
+
+        [helpstring("Create a copy of this component, possibly for a different thread")]
+        HRESULT Clone([out, retval] VARIANT * pvarSearchCatalog);
+
+        [helpstring("Enable the search catalog")]
+        HRESULT Enable();
+
+        [helpstring("Disable the search catalog")]
+        HRESULT Disable();
+
+        [helpstring("Update the search catalog")]
+        HRESULT Update();
+    };
+
+//+--------------------------------------------------------------------------
+//
+// NLADMINLib
+//
+// Site Server Search Administration Components.
+//
+//---------------------------------------------------------------------------
+
+[
+    uuid(0b63e358-9ccc-11d0-bcdb-00805fccce04), 
+    version(1.0), 
+    helpstring("Site Server Search Admistration 1.0 Type Library")
+]
+library NLADMINLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+
+    interface IBuildServer;
+    interface IBuildCatalogs;
+    interface IBuildCatalog;
+    interface ISearchServer;
+    interface ISearchCatalogs;
+    interface ISearchCatalog;
+
+    [
+        uuid(0b63e35b-9ccc-11d0-bcdb-00805fccce04), 
+        helpstring("SearchAdmin Class")
+    ]
+    coclass SearchAdmin
+    {
+        [default] interface ISearchAdmin;
+    };
+};

@@ -1,0 +1,156 @@
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!include $(BASEDIR)\private\vc6addon\ide\sources.inc
+
+MAJORCOMP=pkg
+MINORCOMP=bld
+
+TARGETNAME=devbld$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=pkg
+TARGETPATHLIB=$(IDE_ROOT)\lib
+LINKER_FLAGS=$(LINKER_FLAGS) /map
+
+!if "$(_VCBUILD)"=="1"
+MISCFILES=$(TARGETPATHLIB)\$(TARGET_DIRECTORY)\$(TARGETNAME).lib
+!endif
+
+#
+# Subsequent targets depend on msvcbld
+#
+# SYNCHRONIZE_BLOCK=1
+#
+
+COFFBASE = devbld
+DLLDEF=$O\vproj.def
+DLLENTRY=_DllMainCRTStartup
+
+CMDFILE=vproj
+RCFILE=vproj
+
+CONDITIONAL_INCLUDES=vproj.rcs
+INCLUDES=$(O);..;$(IDE_ROOT)\pkgs\include;$(IDE_INCLUDES)
+
+C_DEFINES=$(C_DEFINES) /D_BLD_INTERNAL /D_VRES /D_VPROJ
+
+!if "$(BTLOG)" == "1"
+C_DEFINES = $(C_DEFINES) /D_BTLOG
+!endif
+
+USE_MFC=1
+USE_ATL=1
+USE_IOSTREAM=1
+
+UMTYPE=windows
+
+SOURCES=    \
+    autocfg.cpp     \
+    autocfgs.cpp    \
+    autoprj.cpp     \
+    optnbsc.cpp       \
+    optncplr.cpp      \
+    optnlib.cpp       \
+    optnlink.cpp      \
+    optnmtl.cpp       \
+    optnrc.cpp        \
+    toolbsc.cpp       \
+    toolcplr.cpp      \
+    toollib.cpp       \
+    toollink.cpp      \
+    toolmtl.cpp       \
+    toolrc.cpp        \
+    batchdlg.cpp    \
+    blddlg.cpp      \
+    bldiface.cpp    \
+    bldnode.cpp     \
+    bldrcvtr.cpp    \
+    bldrfile.cpp    \
+    bldslob.cpp     \
+    configs.cpp     \
+    cursor.cpp      \
+    depgraph.cpp    \
+    dirsdlg.cpp     \
+	dirmgr.cpp		\
+    dllgrid.cpp     \
+    engine.cpp      \
+    exevw.cpp       \
+    exttarg.cpp     \
+    grview.cpp      \
+	htmlfile.cpp	\
+	javadbg.cpp		\
+    layout.cpp      \
+    macmgr.cpp      \
+    makread.cpp     \
+    miscdlg.cpp     \
+    mrdepend.cpp     \
+    newgrp.cpp      \
+    optndlg.cpp     \
+    optnui.cpp      \
+    pfilereg.cpp    \
+    prjconfg.cpp    \
+    prjdlg.cpp      \
+    prjoptn.cpp     \
+	progdlg.cpp     \
+    projcntr.cpp    \
+    projcomp.cpp    \
+    projdep.cpp     \
+    project.cpp     \
+    projitem.cpp    \
+    projpage.cpp    \
+    projtool.cpp    \
+    scanner.cpp     \
+    schmztl.cpp     \
+	tabpage.cpp		\
+    targctrl.cpp    \
+    targdlg.cpp     \
+    targitem.cpp    \
+    toolsdlg.cpp    \
+    updepdlg.cpp    \
+    vproj.cpp       \
+    vwslob.cpp      \
+	profdlg.cpp		\
+	memstat.cpp		\
+    $(RCFILE).rc
+
+NTTARGETFILES=
+
+TARGETLIBS=   \
+    $(IDE_ROOT)\lib\*\devshl$(D).lib           \
+	$(SDK_LIB_PATH)\uuid.lib		\
+    $(MISC_LIB_PATH)\mspdb.lib \
+    $(SDK_LIB_PATH)\ole32.lib       \
+    $(SDK_LIB_PATH)\oleaut32.lib    \
+    $(SDK_LIB_PATH)\kernel32.lib    \
+    $(SDK_LIB_PATH)\gdi32.lib       \
+    $(SDK_LIB_PATH)\user32.lib      \
+    $(SDK_LIB_PATH)\shell32.lib     \
+    $(SDK_LIB_PATH)\advapi32.lib    \
+    $(SDK_LIB_PATH)\comdlg32.lib    \
+    $(SDK_LIB_PATH)\version.lib		\
+	$(IDE_ROOT)\lib\*\image$(D).lib
+	
+	
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_PCH=stdafx.pch
+PRECOMPILED_OBJ=stdafx.obj
+PRECOMPILED_CXX=1
+!IF 0
+MSC_WARNING_LEVEL=/W4
+!ENDIF

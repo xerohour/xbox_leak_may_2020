@@ -1,0 +1,162 @@
+// AUO.idl : IDL source for AUO.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (AUO.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+cpp_quote("DEFINE_GUID(IID_IAuoConfig, 0x4b928606,0xb685,0x11d0,0xbb,0xd7,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+cpp_quote("DEFINE_GUID(IID_IUserObjects, 0x77BD6B36,0xB1B5,0x11D0,0xBB,0xD6,0x00,0xC0,0x4F,0xB6,0x15,0xE5);")
+cpp_quote("DEFINE_GUID(IID_ISchemaObjects, 0x4ca434b4,0xb684,0x11d0,0xbb,0xd7,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+cpp_quote("DEFINE_GUID(LIBID_AUOLib, 0x77BD6B27,0xB1B5,0x11D0,0xBB,0xD6,0x00,0xC0,0x4F,0xB6,0x15,0xE5);")
+cpp_quote("DEFINE_GUID(CLSID_UserObjects, 0x77BD6B37,0xB1B5,0x11D0,0xBB,0xD6,0x00,0xC0,0x4F,0xB6,0x15,0xE5);")
+cpp_quote("DEFINE_GUID(CLSID_SchemaObjects, 0xc642753e,0xb74b,0x11d0,0xbb,0xd7,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+cpp_quote("DEFINE_GUID(CLSID_AuoConfig, 0x0b9ae1d6,0xb696,0x11d0,0xbb,0xd7,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+
+#define PROPERTY_RW(type, name, prid)                 \
+        [propget, id(prid)]                           \
+        HRESULT name([out, retval] type * pRetVal);   \
+                                                      \
+        [propput, id(prid)]                           \
+        HRESULT name([in] type NewVal)
+
+	[
+		object,
+		uuid(4b928606-b685-11d0-bbd7-00c04fb615e5),
+		dual,
+		helpstring("IAuoConfig Interface"),
+		pointer_default(unique)
+	]
+	interface IAuoConfig : IDispatch
+	{
+    	//
+        // GetInfo will load the object with config information from the given 
+        // u2 virtual server (lVirtServId).
+        //
+        // if lVirtServId does not exists, getinfo will succeed and allow  you to create
+        // the virtual server.
+        //
+    	HRESULT GetInfo(LONG lVirtServId);
+    	//
+        // SetInfo will commit all of the changes you have made
+        //
+    	HRESULT SetInfo();
+        //
+        // SetEntry will set all of the information for a given entry (bszName).
+        // set bszName to NULL for the root entry.
+        //
+        HRESULT SetEntry([in]BSTR bszName,
+                         [in]BSTR bszADsPathPrefix,
+                         [in]BSTR bszSchema,
+                         [in]BSTR bszClass,
+                         [in]LONG lSuffix,
+                         [in]BSTR bszDepObject,
+                         [in]BSTR bszDepProp,
+                         [in]BSTR bszBindAsName,
+                         [in]BSTR bszBindAsPassword);
+
+        //
+        // GetEntry will get all of the information for a given entry (bszName).
+        // set bszName to NULL for the root entry.
+        //
+        HRESULT GetEntry([in]BSTR bszName,
+                         [in,out]VARIANT *pbszADsPathPrefix,
+                         [in,out]VARIANT *pbszSchema,
+                         [in,out]VARIANT *pbszClass,
+                         [in,out]VARIANT *plSuffix,
+                         [in,out]VARIANT *pbszDepObject,
+                         [in,out]VARIANT *pbszDepProp,
+                         [in,out]VARIANT *pbszBindAsName,
+                         [in,out]VARIANT *pbszBindAsPassword);
+
+        //
+        // RemoveEntry will remove the given entry (bszName).
+        //
+        HRESULT RemoveEntry([in]BSTR bszName);
+        //
+        // GetEntries will return two safearray(bstr) structures.  pNames is 
+        // an array of the names, and pProviders is an array of the ads providers
+        // for each entry.
+        //
+        HRESULT GetEntries([in,out]VARIANT *pNames, [in,out]VARIANT *pProviders);
+
+	// DeleteInstance will remove all entries for the U2 virtual server
+	HRESULT DeleteInstance();
+
+	};
+	[
+		object,
+		uuid(77BD6B36-B1B5-11D0-BBD6-00C04FB615E5),
+		dual,
+		helpstring("IUserObjects Interface"),
+		pointer_default(unique)
+	]
+	interface IUserObjects : IDispatch
+	{
+		[id(1)] HRESULT OnStartPage(IUnknown *pContext);
+		[id(2)] HRESULT OnEndPage();
+		[id(3)] HRESULT Init(BSTR bszHost, BSTR bszUserName);
+		[id(4)] HRESULT SetUserName(BSTR bszUserName);
+		[id(5)] HRESULT BindAs(BSTR bszAlias, BSTR bszUserName, BSTR bszPassword);
+		[id(DISPID_VALUE)] HRESULT GetObjectEx([in]BSTR bszEntryName, [out,retval] IDispatch **ppEntry);
+	};
+	[
+		object,
+		uuid(4ca434b4-b684-11d0-bbd7-00c04fb615e5),
+		dual,
+		helpstring("ISchemaObjects Interface"),
+		pointer_default(unique)
+	]
+	interface ISchemaObjects : IDispatch
+	{
+		[id(1)] HRESULT OnStartPage(IUnknown *pContext);
+		[id(2)] HRESULT OnEndPage();
+
+	    	[id(3)] HRESULT Init([in] BSTR bszHostName);
+    		[id(4)] HRESULT GetRelativeName([in] IUnknown *pUnk, [out, retval] BSTR *pbszName);
+		[id(5)] HRESULT GetEntrySchemaPath([in] BSTR bszEntryName, [out, retval] BSTR *pbszSchemaPath);
+	    	[id(6)] HRESULT InitEx([in] BSTR bszHostName, [in] VARIANT_BOOL fPromptCredentials);
+		[id(7)] HRESULT BindAs(BSTR bszAlias, BSTR bszUserName, BSTR bszPassword);
+    };
+	
+[
+	uuid(77BD6B27-B1B5-11D0-BBD6-00C04FB615E5),
+	version(1.0),
+	helpstring("AUO 1.0 Type Library")
+]
+library AUOLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(77BD6B37-B1B5-11D0-BBD6-00C04FB615E5),
+		helpstring("UserObjects Class")
+	]
+	coclass UserObjects
+	{
+		[default] interface IUserObjects;
+	};
+
+	[
+		uuid(c642753e-b74b-11d0-bbd7-00c04fb615e5),
+		helpstring("SchemaObjects Class")
+	]
+	coclass SchemaObjects
+	{
+		[default] interface ISchemaObjects;
+	};
+
+	[
+		uuid(0b9ae1d6-b696-11d0-bbd7-00c04fb615e5),
+		helpstring("AuoConfig Class")
+	]
+	coclass AuoConfig
+	{
+		[default] interface IAuoConfig;
+	};
+	
+};
+

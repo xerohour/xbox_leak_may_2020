@@ -1,0 +1,159 @@
+ 
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdsfmods.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdShowFileMods        */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdShowFileMods                                             */
+ /*                                                                        */
+ /*   Descrip:  This dialog will let user to choose how modify system file.*/
+ /*                                                                        */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdShowFileMods( szTitle, szMsg, szTargetFile, szAltFile, listChanges, nvSelection )
+          STRING  szDlg, szLine, szSrcDir, szTargetDir, szTemp;
+          STRING  szTargetBatchName, szDlgBatchName, szName;
+          NUMBER  nId, bDone, nCheckMessage, nFile, nListCheck, nTemp;
+          HWND    hwndDlg;
+        begin
+
+           szDlg     = SD_DLG_SHOWFILEMODS;
+           nSdDialog = SD_NDLG_SHOWFILEMODS;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdShowFileMods );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "nSelection", DATA_NUMBER, szTemp, nvSelection );
+            endif;
+
+            return nId;
+          endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_SHOWFILEMODS ) = DLG_ERR) then
+              return -1;
+           endif;
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+                   if( szMsg != "" ) then
+                       SdSetStatic(szDlg, SD_STA_MSG, szMsg);
+                   endif;
+
+                   CtrlSetMLEText( szDlg, SD_LIST_BATCH, listChanges );
+
+                   CtrlGetText(szDlg, SD_RBUT_CHANGE, szDlgBatchName);
+                   Sprintf(szTargetBatchName, szDlgBatchName, szTargetFile);
+                   CtrlSetText(szDlg, SD_RBUT_CHANGE, szTargetBatchName);
+
+                   CtrlGetText(szDlg, SD_RBUT_SAVE, szDlgBatchName);
+                   if(szAltFile != "") then
+                       Sprintf(szTargetBatchName, szDlgBatchName, szAltFile);
+                       CtrlSetText(szDlg, SD_RBUT_SAVE, szTargetBatchName);
+                   else
+                       ParsePath(szName, szTargetFile, FILENAME_ONLY);
+                       Sprintf(szTargetBatchName, szDlgBatchName, szName+".BAK");
+                       CtrlSetText(szDlg, SD_RBUT_SAVE, szTargetBatchName);
+                   endif;
+
+                   if ( nvSelection = 101 ) then
+                       CtrlSetState( szDlg, SD_RBUT_CHANGE, BUTTON_CHECKED );
+                   elseif ( nvSelection = 102 ) then
+                       CtrlSetState( szDlg, SD_RBUT_SAVE, BUTTON_CHECKED );
+                   elseif ( nvSelection = 103 ) then
+                       CtrlSetState( szDlg, SD_RBUT_NOCHANGE, BUTTON_CHECKED );
+                   else
+                       nvSelection = 101;
+                       CtrlSetState( szDlg, SD_RBUT_CHANGE, BUTTON_CHECKED );
+                   endif;
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                  endif;
+
+              case SD_RBUT_CHANGE:
+                   nCheckMessage = CtrlGetState( szDlg, SD_RBUT_CHANGE );
+                   if (nCheckMessage = BUTTON_CHECKED) then
+                       nvSelection   =  101;
+                   endif;
+
+              case SD_RBUT_SAVE:
+                   nCheckMessage = CtrlGetState( szDlg, SD_RBUT_SAVE );
+                   if (nCheckMessage = BUTTON_CHECKED) then
+                       nvSelection   =  102;
+                   endif;
+
+              case SD_RBUT_NOCHANGE:
+                   nCheckMessage = CtrlGetState( szDlg, SD_RBUT_NOCHANGE );
+                   if (nCheckMessage = BUTTON_CHECKED) then
+                       nvSelection   =  103;
+                   endif;
+
+              case SD_PBUT_OK:
+                   nId   = OK;
+                   bDone = TRUE;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdShowFileMods" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdShowFileMods );
+           SilentWriteData( szAppKey, "nSelection", DATA_NUMBER, szTemp, nvSelection );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+

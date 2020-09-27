@@ -1,0 +1,172 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdcdadv.rul                                               */
+ /*   Purpose : This file contains the code for the SdComponentDialogAdv  */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdComponentDialogAdv                                       */
+ /*                                                                        */
+ /*   Descrip:  This dialog will let user choose different parts of the    */
+ /*             software to install based on the name and disk space.      */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdComponentDialogAdv(szTitle, szMsg, svDir, szComponents)
+          STRING  szDlg, szReqSpace, szTemp;
+          STRING  svComponent, szFreeSpace, svDirLoc;
+          HWND    hwndDlg, hwndListBox, hwndStatic;
+          NUMBER  nId, nTemp, nComponentView;
+          NUMBER  nReqSpace, nReturn, nvSize;
+          BOOL    bDone, bChange;
+        begin
+
+
+           szDlg     = SD_DLG_COMPONENTDIALOGADV;
+           nSdDialog = SD_NDLG_COMPONENTDIALOGADV;
+           svDirLoc = svDir;
+
+           // record data produced by this dialog
+           if (MODE=SILENTMODE) then
+             SdMakeName( szAppKey, szDlg, szTitle, nSdComponentDialogAdv );
+             SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+             if ((nId != BACK) && (nId != CANCEL)) then
+                SilentReadData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+                SilentReadData( szAppKey, "szDir", DATA_STRING, svDir, nTemp );
+             endif;
+
+             return nId;
+           endif;
+
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_COMPONENTDIALOGADV ) = DLG_ERR) then
+             return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_STA_MSG, szMsg );
+                   endif;
+
+                   CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_NORMAL, szSdProduct );
+
+                   if (szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   nComponentView = SdCreateComponentView( hwndDlg, SD_LISTBOX, szComponents, svDirLoc );
+                   if (!nComponentView) then
+                       SdError( -1, "SdComponentDialogAdv" );
+                       nId = -1;
+                       bDone = TRUE;
+                   endif;
+
+                   ComponentViewRefresh( nComponentView, 0 );
+
+                   hwndListBox = GetDlgItem( hwndDlg, SD_LISTBOX );
+                   SetFocus( hwndListBox );
+
+
+              case SD_PBUT_CHANGEDIR:
+                   nTemp = MODE;
+                   MODE  = NORMALMODE;
+                   SelectDir( "", "", svDirLoc, TRUE );
+                   CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+                   ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_TARGETLOCATION, 0,  svDirLoc );
+                   ComponentViewRefresh( nComponentView, 0 );
+                   MODE = nTemp;
+
+              case SD_PBUT_DISKSPACE:
+                   CtrlGetText( szDlg, SD_SPACEAVI, szFreeSpace );
+                   CtrlGetText( szDlg, SD_SPACEREQ, szReqSpace );
+                   SdDiskSpace( svDirLoc, szFreeSpace, szReqSpace, bChange );
+
+                   if( bChange = TRUE ) then
+                      CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+                      hwndStatic = GetDlgItem( hwndDlg, SD_SPACEAVI );
+                      if (hwndStatic) then
+                            SetWindowText( hwndStatic, szFreeSpace );
+                            ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_TARGETLOCATION, 0,  svDirLoc );
+                      endif;
+                      ComponentViewRefresh( nComponentView, 0 );
+                   endif;
+
+              case SD_PBUT_OK:
+                   if( StrCompare(svDirLoc,"") && !SdComponentDlgCheckSpace( szComponents, szDlg, svDirLoc ) ) then
+                      MessageBox( szSdStr_NotEnoughSpace, WARNING );
+                   else
+                      svDir = svDirLoc;
+
+                      nId   = OK;
+                      bDone = TRUE;
+
+                   endif;
+
+                   svDir = svDirLoc;
+                   nId   = OK;
+                   bDone = TRUE;
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdComponentDialogAdv" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                  endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+           ComponentViewDestroy( nComponentView );
+
+           SdUnInit();
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdComponentDialogAdv );
+           SilentWriteData( szAppKey, "szDir", DATA_STRING, svDir, nTemp );
+           SilentWriteData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+

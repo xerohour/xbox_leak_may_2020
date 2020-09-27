@@ -1,0 +1,63 @@
+xps.1.1
+
+;------------------------------------------------------------------------------
+#define CP_AMBIENT  0
+#define CP_DIFFUSE  1
+#define CP_SPECULAR 2
+#define CP_NORMAL   3
+;------------------------------------------------------------------------------
+   
+;------------------------------------------------------------------------------
+; t0 = light vector
+; t1 = halfway vector
+;------------------------------------------------------------------------------
+
+def c[CP_NORMAL], 0.f,0.f,1.f,1.f
+
+tex t0
+tex t1
+
+dp3 r0,t0_bx2,c[CP_NORMAL]
+dp3 r1,t1_bx2,c[CP_NORMAL]
+mad r0,r0_sat,c[CP_DIFFUSE],c[CP_AMBIENT]
+
+mul r1,r1_sat,r1_sat
+mul r1,r1,r1
+mul r1,r1,c[CP_SPECULAR]
+add r0,r1_sat,r0_sat
+mov r0,r0_sat
+
+
+
+
+
+
+	
+
+				 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+  

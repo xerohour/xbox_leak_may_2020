@@ -1,0 +1,19 @@
+TARGETNAME=kbdtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+LINKER_FLAGS=/MAP
+
+SOURCES= \
+    bitfont.cpp\
+    devices.cpp\
+    draw.cpp\
+    main.cpp
+
+
+LINKLIBS=\
+!if $(FREEBUILD)
+    $(SDK_LIB_PATH)\d3d8.lib \
+!else
+    $(SDK_LIB_PATH)\d3d8d.lib \
+!endif

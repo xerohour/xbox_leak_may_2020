@@ -1,0 +1,58 @@
+'$include 'install.inc'
+
+
+scenario "Verify SDK Updater Setup directories"
+	Dim FileArray$(0,3), RegArray$(0,3)
+	Dim item%, pass%
+	Dim xdkpath$
+
+	pass = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Default install
+	'
+	Install(BuildNumber, true, false)
+	'
+	' Get File Contents
+	'
+	VerifyFile(3, FileArray, RegArray)
+	'
+	' If upper bound > 0 then there were files returned
+	'
+	if ubound(FileArray, 1) <> 0 then
+		for item = lbound(FileArray, 1) to ubound(FileArray, 1)-1
+			if instr(lcase(right(FileArray(item, 0), 4)), ".") = 0 then
+				LOG #10, "FAIL: The directory '"+FileArray(item, 0)+"' is missing from the installation"
+				pass = false
+			end if
+		next item
+	end if
+	'
+	' If failed, the flag error
+	'
+	if NOT pass then
+		FAIL "Some directories were not installed properly"
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

@@ -1,0 +1,34 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+
+USE_MSVCRT=1
+
+TARGETNAME=xcrypt
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+INCLUDES=$(BASEDIR)\private\inc\crypto
+         
+SOURCES= \
+        key.cpp \
+        xctool.cpp \
+        xcmain.cpp \
+        property.cpp \
+        list.cpp \
+        enc.cpp \
+        xcrypt.rc
+
+
+LINKLIBS=$(LIBRARY_PATH)\user32.lib
+              
+TARGETLIBS= $(BASEDIR)\private\lib\*\rsa32.lib \
+            $(BASEDIR)\public\sdk\lib\*\randlib.lib \
+            $(BASEDIR)\private\lib\*\xcrypt.lib
+
+UMTYPE=console

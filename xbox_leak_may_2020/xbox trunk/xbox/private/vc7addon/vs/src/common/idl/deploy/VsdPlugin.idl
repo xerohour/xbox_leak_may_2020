@@ -1,0 +1,117 @@
+// VsdPlugin.idl : IDL source for 
+//
+
+/* Forward declarations */
+interface IVsdPlugInClient;
+interface IVsdPlugInType;
+interface IVsdPlugInSite;
+interface IVsdEditorSite;
+interface IVsdDeployment;
+interface IVsdDeployableType;
+interface IVsdCollectionSubset;
+interface IVsdDeployableBuildFireEvent;
+interface IVsdDeployableValidateFireEvent;
+
+/* Forward declarations */
+interface IVsdManagedCollection;
+interface IVsdCollectionSubset;
+interface IVsdSubsetFilter;
+
+/* DISPIDs */
+typedef
+[
+	uuid(54565905-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdPlugInSite")
+]
+enum DISPIDs_IVsdPlugInSite
+{
+	[helpstring("DISPID_IVsdPlugInSite_Items")] DISPID_IVsdPlugInSite_Items = 0,
+	[helpstring("DISPID_IVsdPlugInSite_BuildFireEvent")] DISPID_IVsdPlugInSite_BuildFireEvent = 1,
+	[helpstring("DISPID_IVsdPlugInSite_ValidateFireEvent")] DISPID_IVsdPlugInSite_ValidateFireEvent = 2,
+} DISPIDs_IVsdPlugInSite;
+
+typedef
+[
+	uuid(51498DA0-E70D-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdPlugInClient")
+]
+enum DISPIDs_IVsdPlugInClient
+{
+	[helpstring("DISPID_IVsdPlugInClient_Close")] DISPID_IVsdPlugInClient_Close = 1,
+	[helpstring("DISPID_IVsdPlugInClient_SetPlugInSite")] DISPID_IVsdPlugInClient_SetPlugInSite = 2,
+	[helpstring("DISPID_IVsdPlugInClient_PlugInSite")] DISPID_IVsdPlugInClient_PlugInSite = 3,
+	[helpstring("DISPID_IVsdPlugInClient_Dependencies")] DISPID_IVsdPlugInClient_Dependencies = 4,
+	[helpstring("DISPID_IVsdPlugInClient_Type")] DISPID_IVsdPlugInClient_Type = 5
+} DISPIDs_IVsdPlugInClient;
+
+typedef
+[
+	uuid(589FCCC1-E7BE-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdPlugInType")
+]
+enum DISPIDs_IVsdPlugInType
+{
+	[helpstring("DISPID_IVsdPlugInType_Name")] DISPID_IVsdPlugInType_Name = 1,
+	[helpstring("DISPID_IVsdPlugInType_DisplayName")] DISPID_IVsdPlugInType_DisplayName = 2,
+	[helpstring("DISPID_IVsdPlugInType_LargeIcon")] DISPID_IVsdPlugInType_LargeIcon = 3,
+	[helpstring("DISPID_IVsdPlugInType_SmallIcon")] DISPID_IVsdPlugInType_SmallIcon = 4,
+	[helpstring("DISPID_IVsdPlugInType_HelpFile")] DISPID_IVsdPlugInType_HelpFile = 5,
+	[helpstring("DISPID_IVsdPlugInType_HelpID")] DISPID_IVsdPlugInType_HelpID = 6
+} DISPIDs_IVsdPlugInType;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Plugin interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+object,
+uuid(54565910-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdPlugInSite : IDispatch
+{
+	[propget, id(DISPID_IVsdPlugInSite_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdPlugInSite_BuildFireEvent), helpstring("property BuildFireEvent")] HRESULT BuildFireEvent([out, retval] IVsdDeployableBuildFireEvent **pVal);
+	[propget, id(DISPID_IVsdPlugInSite_ValidateFireEvent), helpstring("property ValidateFireEvent")] HRESULT ValidateFireEvent([out, retval] IVsdDeployableValidateFireEvent **pVal);
+}
+
+[
+	object,
+	uuid(523427A0-E231-11d2-B409-00105A190680),
+	dual,
+	helpstring("IVsdPlugInClient Interface"),
+	pointer_default(unique)
+]
+interface IVsdPlugInClient : IDispatch
+{
+	[id(DISPID_IVsdPlugInClient_Close), helpstring("method Close")] HRESULT Close();
+	[id(DISPID_IVsdPlugInClient_SetPlugInSite), helpstring("method SetPlugInSite")] HRESULT SetPlugInSite(IVsdPlugInSite *Site);
+	[propget, id(DISPID_IVsdPlugInClient_PlugInSite), helpstring("property PlugInSite")] HRESULT PlugInSite([out, retval] IVsdPlugInSite * *pVal);
+	[propget, id(DISPID_IVsdPlugInClient_Type), helpstring("property Type")] HRESULT Type([out, retval] IVsdPlugInType **pVal);
+	[propget, id(DISPID_IVsdPlugInClient_Dependencies), helpstring("property Dependencies")] HRESULT Dependencies([out, retval] VARIANT *pVal);
+};
+
+[
+	object,
+	uuid(589FCCC0-E7BE-11d2-B40C-00105A190680),
+	dual,
+	helpstring("IVsdPlugInType Interface"),
+	pointer_default(unique)
+]
+interface IVsdPlugInType : IDispatch
+{
+		[propget, id(DISPID_IVsdPlugInType_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propget, id(DISPID_IVsdPlugInType_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+#ifdef _WIN64
+		[propget, id(DISPID_IVsdPlugInType_LargeIcon), helpstring("property LargeIcon")] HRESULT LargeIcon([out, retval] INT_PTR *pVal);
+		[propget, id(DISPID_IVsdPlugInType_SmallIcon), helpstring("property SmallIcon")] HRESULT SmallIcon([out, retval] INT_PTR *pVal);
+#else
+		[propget, id(DISPID_IVsdPlugInType_LargeIcon), helpstring("property LargeIcon")] HRESULT LargeIcon([out, retval] long *pVal);
+		[propget, id(DISPID_IVsdPlugInType_SmallIcon), helpstring("property SmallIcon")] HRESULT SmallIcon([out, retval] long *pVal);
+#endif
+		[propget, id(DISPID_IVsdPlugInType_HelpFile), helpstring("property HelpFile")] HRESULT HelpFile([out, retval] BSTR *pVal);
+		[propget, id(DISPID_IVsdPlugInType_HelpID), helpstring("property HelpID")] HRESULT HelpID([out, retval] long *pVal);
+}
+

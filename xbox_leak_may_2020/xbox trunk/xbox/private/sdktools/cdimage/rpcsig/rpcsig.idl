@@ -1,0 +1,25 @@
+
+#include "rpcsigx.h"    // for HASH_SIZE constant
+
+[ uuid(9437a860-cae9-11cf-99b3-00004c7527da), version(2.0) ]
+interface RpcSignatureServerInterface
+{
+
+boolean
+RpcSignatureServerAuthenticate(
+    [in]         handle_t        BindingHandle,
+    [in, string] unsigned char * LoggingText
+    );
+
+boolean
+RpcSignatureServerGenSignature(
+    [in]                        handle_t        BindingHandle,
+    [in,  string]               unsigned char * LoggingText,
+    [in,  size_is( HASH_SIZE )] unsigned char * DataHashValue,
+    [out]                       unsigned long * SignatureId,
+    [out, size_is( SIGN_SIZE )] unsigned char * Signature
+    );
+
+}
+
+

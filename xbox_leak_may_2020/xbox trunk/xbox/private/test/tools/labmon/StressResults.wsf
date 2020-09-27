@@ -1,0 +1,252 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    StressResults.wsf
+
+Abstract:
+
+    Looks in the database for "problem identified" boxes.
+    Sends email.
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+    If triage.exe hangs then the entire monitoring process will hang as well.
+
+    triage states:
+        0   no problem
+        1   problem identified
+        2   notified (email sent)
+
+    Current State
+
+        0   "Crashed";
+        1   "Not Responding";
+        2   "Idle";
+        3   "Running";
+
+    at 6:00am /every:m,t,w,th,f C:\WINNT\system32\cscript.exe d:\LabMon\StressResults.wsf
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+var debugAlias = "";
+var debug = false;
+
+function InList(list, item)
+    {
+    for(var i=0; i<list.length; i++)
+        {
+        if(list[i] == ""+item) return true;
+        }
+    return false;
+    }
+
+function NameValue(n, v)
+    {
+    this.name = ""+n;
+    this.value = parseInt(v);
+    }
+
+function SortStringedArrayFunct(a, b)
+    {
+    if(a.value < b.value) return 1;
+    if(a.value == b.value) return 0;
+    return -1;
+    }
+
+function SortStringedArray(array)
+    {
+    var tempArray = new Array;
+    for(i in array)
+        {
+        tempArray[tempArray.length] = new NameValue(i, array[i]);
+        }
+
+    return tempArray.sort(SortStringedArrayFunct);
+    }
+
+main();
+
+function main()
+    {
+    var records = WScript.CreateObject("ADODB.Recordset");
+    var nugget = "<SPAN STYLE='display:none'>"+Math.random()+"</SPAN>";
+
+    var states = new Array;
+    states[0] = "Crashed";
+    states[1] = "Not Responding";
+    states[2] = "Idle";
+    states[3] = "Running";
+    var counts = new Array(0, 0, 0, 0, 0);
+    var uptime = new Array(0, 0, 0, 0, 0);
+    var currentBuild;
+    var currentState;
+    var slackers = new Array;
+    var nonslackers = new Array;
+    var nodebugger = new Array;
+    var crashTypes = new Array;
+    var row = 0;
+
+    // open the set of boxes with a found problems
+    records.Open("SELECT * FROM BoxList ORDER BY [Current SW Version] DESC, [Current State], [Owner]", driver, 0, 1);
+    currentBuild = (""+records("Current SW Version")).substr(0, 4);
+
+    while(!records.EOF)
+        {
+        if((""+records("Current SW Version")).substr(0, 4) != currentBuild)
+            {
+            if(RTrim(records("Owner")) != "null")
+                {
+                // who didnt run stress
+                if(!InList(slackers, RTrim(records("Owner")))) slackers[slackers.length] = RTrim(records("Owner"));
+                }
+            }
+        else
+            {
+            currentState = parseInt(records("Current State"));
+            ++counts[currentState];
+            ++counts[4]; // total count
+
+            // uptime
+            var d = new Date(records("Last Ping") - records("Last Reboot"));
+            if(d.getTime() >= 0) uptime[currentState] += d.getTime();
+
+            // who ran stress
+            if(!InList(nonslackers, RTrim(records("Owner")))) nonslackers[nonslackers.length] = RTrim(records("Owner"));
+
+            // problem summary
+            if(currentState == 0) // Crashed
+                {
+                var stack = RTrim(records("Triage Notes"));
+                if(crashTypes[stack] == undefined || crashTypes[stack] == null)
+                    crashTypes[stack] = 0;
+                crashTypes[stack] = crashTypes[stack] + 1;
+                }
+            else if(currentState == 1) // Not Responding
+                {
+                // bad debugger connection
+                if(!InList(nodebugger, RTrim(records("Owner")))) nodebugger[nodebugger.length] = RTrim(records("Owner"));
+                }
+            }
+        records.MoveNext();
+        }
+    records.Close();
+
+    slackers = slackers.sort();
+    nonslackers = nonslackers.sort();
+    nodebugger = nodebugger.sort();
+    crashTypes = SortStringedArray(crashTypes);
+
+    var emailbody = "";
+    emailbody += "<HTML>\r\n<HEAD>\r\n";
+    emailbody += "    <TITLE>XBOX Stress Results: "+currentBuild+"</TITLE>\r\n";
+    emailbody += "    <LINK REL='stylesheet' TYPE='text/css' HREF='http://xboxlab/lab/include/lab.css'>\r\n";
+    emailbody += "</HEAD>\r\n\r\n<BODY RIGHTMARGIN=0 LEFTMARGIN=0><CENTER><H3>XBOX "+nugget+"Stress "+nugget+"Results: "+currentBuild+"</H3><P>\r\n";
+    emailbody += "For "+nugget+"more "+nugget+"information "+nugget+"on "+nugget+"these "+nugget+"systems "+nugget+"please "+nugget+"visit "+nugget+"this "+nugget+"site: <A HREF='http://xboxlab/lab/default.asp'>XBOX "+nugget+"Lab</A><P>\r\n";
+    emailbody += "Only " + counts[4] + " machines "+nugget+"ran "+nugget+"stress "+nugget+"on the "+nugget+"latest "+nugget+"build<P><P>\r\n\r\n";
+
+    emailbody += "\r\n<!-- Summary -->\r\n";
+    emailbody += "<TABLE WIDTH=100% CELLPADDING=0 CELLSPACING=0 STYLE='border-top:1px solid #7CB021'><TD><H3>Summary</H3></TD><TD STYLE='text-align:right'></TD></TABLE>\r\n";
+    emailbody += "<BLOCKQUOTE ID=BLOCKSUM><TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0  STYLE='table-layout:fixed'>\r\n";
+    emailbody += "<TR><TD WIDTH=15><IMG SRC='http://xboxlab/lab/images/circle.gif'></TD>\r\n";
+    emailbody += "<TH WIDTH=130 CLASS=ROWHEAD>State</TH>\r\n";
+    emailbody += "<TH WIDTH=120 CLASS=ROWHEAD COLSPAN=2>Count</TH>\r\n";
+    emailbody += "<TH WIDTH=120 CLASS=ROWHEAD COLSPAN=2>Uptime (hr)</TH>\r\n";
+    emailbody += "<TD WIDTH=15 STYLE='margin-left:0;padding-left: 0; margin-right:0;padding-right: 0;'><IMG SRC='http://xboxlab/lab/images/circle2.gif'></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+states[3]+"</TD><TD ALIGN=RIGHT>"+counts[3]+"</TD><TD ALIGN=RIGHT> ("+Format2Places(100*counts[3]/counts[4])+"%)</TD><TD ALIGN=RIGHT>"+Format2Places(uptime[3]/1000/3600/counts[3])+"</TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+states[0]+"</TD><TD ALIGN=RIGHT>"+counts[0]+"</TD><TD ALIGN=RIGHT> ("+Format2Places(100*counts[0]/counts[4])+"%)</TD><TD ALIGN=RIGHT>"+Format2Places(uptime[0]/1000/3600/counts[0])+"</TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+states[1]+"</TD><TD ALIGN=RIGHT>"+counts[1]+"</TD><TD ALIGN=RIGHT> ("+Format2Places(100*counts[1]/counts[4])+"%)</TD><TD ALIGN=RIGHT></TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+states[2]+"</TD><TD ALIGN=RIGHT>"+counts[2]+"</TD><TD ALIGN=RIGHT> ("+Format2Places(100*counts[2]/counts[4])+"%)</TD><TD ALIGN=RIGHT></TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD><B>Total</B></TD><TD ALIGN=RIGHT><B>"+counts[4]+"</B></TD><TD ALIGN=RIGHT> </TD><TD></TD><TD></TD></TR>\r\n";
+    emailbody += "</TABLE></BLOCKQUOTE><P>\r\n";
+
+    emailbody += "\r\n<!-- List the Non-Slackers -->\r\n";
+    emailbody += "<TABLE WIDTH=100% CELLPADDING=0 CELLSPACING=0 STYLE='border-top:1px solid #7CB021'><TD><H3>Who "+nugget+"Ran "+nugget+"Stress</H3></TD><TD STYLE='text-align:right'></TD></TABLE>\r\n";
+    emailbody += "<BLOCKQUOTE ID=BLOCKSLACK><TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0  STYLE='table-layout:fixed'>\r\n";
+    emailbody += "<TR><TD WIDTH=15><IMG SRC='http://xboxlab/lab/images/circle.gif'></TD>\r\n";
+    emailbody += "<TH WIDTH=370 CLASS=ROWHEAD>People "+nugget+"who "+nugget+"ran "+nugget+"stress "+nugget+"on the "+nugget+"latest "+nugget+"build</TH>\r\n";
+    emailbody += "<TD WIDTH=15 STYLE='margin-left:0;padding-left: 0; margin-right:0;padding-right: 0;'><IMG SRC='http://xboxlab/lab/images/circle2.gif'></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+nonslackers.join("; ")+"</TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD ALIGN=CENTER><A HREF='mailto:"+nonslackers.join("; ")+"'>Email</A></TD><TD></TD></TR>\r\n";
+    emailbody += "</TABLE>\r\n";
+    emailbody += "</TABLE></BLOCKQUOTE><P>\r\n";
+
+    emailbody += "\r\n<!-- List the bad debuggers -->\r\n";
+    emailbody += "<TABLE WIDTH=100% CELLPADDING=0 CELLSPACING=0 STYLE='border-top:1px solid #7CB021'><TD><H3>Who "+nugget+"Needs to "+nugget+"Fix "+nugget+"Their "+nugget+"Debugger</H3></TD><TD STYLE='text-align:right'></TD></TABLE>\r\n";
+    emailbody += "<BLOCKQUOTE ID=BLOCKDEBUGER><TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0  STYLE='table-layout:fixed'>\r\n";
+    emailbody += "<TR><TD WIDTH=15><IMG SRC='http://xboxlab/lab/images/circle.gif'></TD>\r\n";
+    emailbody += "<TH WIDTH=370 CLASS=ROWHEAD>People "+nugget+"who's "+nugget+"debuggers "+nugget+"are not "+nugget+"Triagable</TH>\r\n";
+    emailbody += "<TD WIDTH=15 STYLE='margin-left:0;padding-left: 0; margin-right:0;padding-right: 0;'><IMG SRC='http://xboxlab/lab/images/circle2.gif'></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+nodebugger.join("; ")+"</TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD ALIGN=CENTER><A HREF='mailto:"+nodebugger.join("; ")+"'>Email</A></TD><TD></TD></TR>\r\n";
+    emailbody += "</TABLE>\r\n";
+    emailbody += "</TABLE></BLOCKQUOTE><P>\r\n";
+
+    emailbody += "\r\n<!-- List the Slackers -->\r\n";
+    emailbody += "<TABLE WIDTH=100% CELLPADDING=0 CELLSPACING=0 STYLE='border-top:1px solid #7CB021'><TD><H3>Who "+nugget+"Needed to "+nugget+"Run "+nugget+"Stress</H3></TD><TD STYLE='text-align:right'></TD></TABLE>\r\n";
+    emailbody += "<BLOCKQUOTE ID=BLOCKSLACK><TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0  STYLE='table-layout:fixed'>\r\n";
+    emailbody += "<TR><TD WIDTH=15><IMG SRC='http://xboxlab/lab/images/circle.gif'></TD>\r\n";
+    emailbody += "<TH WIDTH=370 CLASS=ROWHEAD>People "+nugget+"with "+nugget+"boxes "+nugget+"who didn't "+nugget+"run "+nugget+"stress</TH>\r\n";
+    emailbody += "<TD WIDTH=15 STYLE='margin-left:0;padding-left: 0; margin-right:0;padding-right: 0;'><IMG SRC='http://xboxlab/lab/images/circle2.gif'></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD>"+slackers.join("; ")+"</TD><TD></TD></TR>\r\n";
+    emailbody += "<TR><TD></TD><TD ALIGN=CENTER><A HREF='mailto:"+slackers.join("; ")+"'>Email</A></TD><TD></TD></TR>\r\n";
+    emailbody += "</TABLE>\r\n";
+    emailbody += "</TABLE></BLOCKQUOTE><P>\r\n";
+
+    emailbody += "\r\n<!-- Show number of boxes that hit each type of problem -->\r\n";
+    emailbody += "<TABLE WIDTH=100% CELLPADDING=0 CELLSPACING=0 STYLE='border-top:1px solid #7CB021'><TD><H3>Problem "+nugget+"Summary</H3></TD><TD STYLE='text-align:right'></TD></TABLE>\r\n";
+    emailbody += "<BLOCKQUOTE ID=BLOCKPROBLEMS><TABLE CELLPADDING=3 CELLSPACING=0 BORDER=0  STYLE='table-layout:fixed'>\r\n";
+    emailbody += "<TR><TD WIDTH=15><IMG SRC='http://xboxlab/lab/images/circle.gif'></TD>\r\n";
+    emailbody += "<TH WIDTH=40 CLASS=ROWHEAD>Count</TH>\r\n";
+    emailbody += "<TH WIDTH=330 CLASS=ROWHEAD>Stack</TH>\r\n";
+    emailbody += "<TD WIDTH=15 STYLE='margin-left:0;padding-left: 0; margin-right:0;padding-right: 0;'><IMG SRC='http://xboxlab/lab/images/circle2.gif'></TD></TR>\r\n";
+    for(types in crashTypes)
+        {
+        var count = crashTypes[types].value;
+        emailbody += "<TR><TD></TD><TD CLASS=ROW" + row + " VALIGN=TOP >"+count+"</TD><TD CLASS=ROW" + row + " VALIGN=TOP STYLE='font:normal 6pt Courier; line-break:strict;white-space:nowrap'>"+crashTypes[types].name.replace(/\r\n/g,"<BR>")+"</TD><TD></TD></TR>\r\n";
+        row == 0 ? row = 1 : row = 0;
+        }
+    emailbody += "</TABLE></BLOCKQUOTE><P>\r\n";
+
+    emailbody += "</TABLE>\r\n\r\n<P><H3>Microsoft Confidential</H3><P><SPAN STYLE='font:normal 10pt Arial'>This "+nugget+"mail "+nugget+"was "+nugget+"sent "+nugget+"from "+nugget+"an "+nugget+"unmonitored "+nugget+"alias, "+nugget+"please "+nugget+"do not "+nugget+"reply</SPAN>\r\n";
+    emailbody += "</BODY></HTML>";
+
+    var subject = "XBOX";
+    for(i=0; i<parseInt(Math.random()*4); i++)
+        subject += " ";
+    subject += " Stress";
+    for(i=0; i<parseInt(Math.random()*4); i++)
+        subject += " ";
+    subject += " Results: "+currentBuild;
+
+    if(debug == true) SendMail("jpoley", subject, emailbody, "Stress Results");
+    else SendMail("xstress; xboxos; xontest", subject, emailbody, "Stress Results");
+    }
+
+function Format2Places(number)
+    {
+    var val = Math.round(100*number)/100;
+    if(isNaN(val)) return 0;
+    return val;
+    }
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>
+

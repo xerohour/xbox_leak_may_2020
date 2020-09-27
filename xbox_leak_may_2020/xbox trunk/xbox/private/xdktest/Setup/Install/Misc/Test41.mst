@@ -1,0 +1,56 @@
+'$include 'install.inc'
+
+
+scenario "Verify Full installs on top of February 2001 Release"
+	Dim tempBuild$, setupPath$
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Install December release (3223_Feb01)
+	'
+if false then
+	setupPath = ""
+	while setupPath = ""
+		setupPath = Inputbox("Enter Network Path to old setup.exe", "Setup testing of network install", DefaultInstallSourceRoot+"\"+tempBuild+"\sdk\setup.exe")
+		if not exists(setupPath) then
+			Msgbox("Path is invalid! Please re-enter")
+			setupPath = ""
+		end if
+	wend
+else
+	setupPath = "\\xdk\XDKTest\XDK_Builds\3223_Feb01\sdk\setup.exe"
+end if
+
+	Install("3223", false, false, , setupPath)
+	'
+	' Install the latest updater on top
+	'
+	Install(BuildNumber, false, false)
+	'
+	' Clean up if successful
+	'
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if not ValidateFilesOnUninstall then
+			FAIL "Files were not removed on uninstall"
+		end if
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

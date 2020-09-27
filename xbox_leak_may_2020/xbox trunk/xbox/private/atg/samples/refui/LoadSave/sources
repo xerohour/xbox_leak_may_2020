@@ -1,0 +1,26 @@
+TARGETNAME = LoadSave
+PROJNAME   = LoadSave
+SOURCES    = LoadSave.cpp \
+             Text.cpp
+TITLEID    = 0xffff0501
+
+NTTARGETFILE0 = $(O)\LoadSave.dsp $(O)\Font.xpr $(O)\Font12.xpr $(O)\Font16.xpr $(O)\Font9.xpr $(O)\Gamepad.xpr $(O)\LoadSaveResource.xpr $(O)\Xboxdings_24.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000 /DEFAULTSAVEIMAGE:save.xbx
+
+USE_STL             = 1
+USE_NATIVE_EH       = 1
+TARGETPATH          = obj
+TARGETTYPE          = PROGRAM
+UMTYPE              = xboxapp
+MSC_WARNING_LEVEL   = /W4
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib
+
+USE_LIBCMT=1

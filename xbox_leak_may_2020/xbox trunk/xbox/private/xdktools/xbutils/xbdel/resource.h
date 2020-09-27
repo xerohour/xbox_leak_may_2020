@@ -1,0 +1,3 @@
+#define IDS_DELDIR 1000
+#define IDS_DELRO 1001
+#define IDS_CANNOTDELETE  1002

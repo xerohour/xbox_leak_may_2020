@@ -1,0 +1,285 @@
+// VsdCollection.idl : IDL source for 
+//
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Forward declarations */
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+interface IVsdSubsetFilter;
+interface IVsdCollectionSubset;
+interface IVsdCollection;
+interface IVsdCollectionManager;
+interface IVsdManagedCollection;
+interface IVsdManagedCollectionFireEvent;
+interface IVsdManagedObject;
+interface IVsdGetNewEnum;
+interface IVsdDeployable;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/* DISPIDs */
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef
+[
+	uuid(774D9CE0-E6E8-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdSubsetFilter")
+]
+enum DISPIDs_IEmIVsdSubsetFilter
+{
+	[helpstring("DISPID_IVsdSubsetFilter_Matches")] DISPID_IVsdSubsetFilter_Matches = 0
+} DISPIDs_IEmIVsdSubsetFilter;
+
+typedef
+[
+	uuid(2CFEFC30-E6EB-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdCollectionSubset")
+]
+enum DISPIDs_IVsdCollectionSubset
+{
+	[helpstring("DISPID_IVsdCollectionSubset_Item")] DISPID_IVsdCollectionSubset_Item = 0,
+	[helpstring("DISPID_IVsdCollectionSubset_KeyOfObject")] DISPID_IVsdCollectionSubset_KeyOfObject = 3,
+	[helpstring("DISPID_IVsdCollectionSubset_Subset")] DISPID_IVsdCollectionSubset_Subset = 4,
+	[helpstring("DISPID_IVsdCollectionSubset_Count")] DISPID_IVsdCollectionSubset_Count = 8,
+	[helpstring("DISPID_IVsdCollectionSubset_Keys")] DISPID_IVsdCollectionSubset_Keys = 10,
+	[helpstring("DISPID_IVsdCollectionSubset__NewEnum")] DISPID_IVsdCollectionSubset__NewEnum = -4
+} DISPIDs_IVsdCollectionSubset;
+
+typedef
+[
+	uuid(2CFEFC31-E6EB-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdCollection")
+]
+enum DISPIDs_IVsdCollection
+{
+	[helpstring("DISPID_IVsdCollection_Item")] DISPID_IVsdCollection_Item = 0,
+	[helpstring("DISPID_IVsdCollection_Add")] DISPID_IVsdCollection_Add = 1,
+	[helpstring("DISPID_IVsdCollection_Remove")] DISPID_IVsdCollection_Remove = 2,
+	[helpstring("DISPID_IVsdCollection_KeyOfObject")] DISPID_IVsdCollection_KeyOfObject = 3,
+	[helpstring("DISPID_IVsdCollection_Subset")] DISPID_IVsdCollection_Subset = 4,
+	[helpstring("DISPID_IVsdCollection_RemoveObject")] DISPID_IVsdCollection_RemoveObject = 5,
+	[helpstring("DISPID_IVsdCollection_Count")] DISPID_IVsdCollection_Count = 8,
+	[helpstring("DISPID_IVsdCollection_Keys")] DISPID_IVsdCollection_Keys = 10,
+	[helpstring("DISPID_IVsdCollection__NewEnum")] DISPID_IVsdCollection__NewEnum = -4
+} DISPIDs_IVsdCollection;
+
+typedef
+[
+	uuid(2CFEFC32-E6EB-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdManagedCollection")
+]
+enum DISPIDs_IVsdManagedCollection
+{
+	[helpstring("DISPID_IVsdManagedCollection_Item")] DISPID_IVsdManagedCollection_Item = 0,
+	[helpstring("DISPID_IVsdManagedCollection_Add")] DISPID_IVsdManagedCollection_Add = 1,
+	[helpstring("DISPID_IVsdManagedCollection_Remove")] DISPID_IVsdManagedCollection_Remove = 2,
+	[helpstring("DISPID_IVsdManagedCollection_KeyOfObject")] DISPID_IVsdManagedCollection_KeyOfObject = 3,
+	[helpstring("DISPID_IVsdManagedCollection_Subset")] DISPID_IVsdManagedCollection_Subset = 4,
+	[helpstring("DISPID_IVsdManagedCollection_RemoveObject")] DISPID_IVsdManagedCollection_RemoveObject = 5,
+	[helpstring("DISPID_IVsdManagedCollection_SetCollectionManager")] DISPID_IVsdManagedCollection_SetCollectionManager = 6,
+	[helpstring("DISPID_IVsdManagedCollection_SetOwner")] DISPID_IVsdManagedCollection_SetOwner = 7,
+	[helpstring("DISPID_IVsdManagedCollection_Count")] DISPID_IVsdManagedCollection_Count = 8,
+	[helpstring("DISPID_IVsdManagedCollection_Owner")] DISPID_IVsdManagedCollection_Owner = 9,
+	[helpstring("DISPID_IVsdManagedCollection_AddWithKey")] DISPID_IVsdManagedCollection_AddWithKey = 10,
+	[helpstring("DISPID_IVsdManagedCollection_Keys")] DISPID_IVsdManagedCollection_Keys = 11,
+	[helpstring("DISPID_IVsdManagedCollection_Close")] DISPID_IVsdManagedCollection_Close = 12,
+	[helpstring("DISPID_IVsdManagedCollection_CollectionManager")] DISPID_IVsdManagedCollection_CollectionManager = 13,
+	[helpstring("DISPID_IVsdManagedCollection_Events")] DISPID_IVsdManagedCollection_Events = 14,
+	[helpstring("DISPID_IVsdManagedCollection__NewEnum")] DISPID_IVsdManagedCollection__NewEnum = -4,
+} DISPIDs_IVsdManagedCollection;
+
+typedef
+[
+	uuid(2CFEFC34-E6EB-11d2-B40C-00105A190680),
+	helpstring("DISPIDs_IVsdCollectionManager")
+]
+enum DISPIDs_IVsdCollectionManager
+{
+	[helpstring("DISPID_IVsdCollectionManager_AddObject")] DISPID_IVsdCollectionManager_AddObject = 0,
+	[helpstring("DISPID_IVsdCollectionManager_RemoveObject")] DISPID_IVsdCollectionManager_RemoveObject = 1,
+	[helpstring("DISPID_IVsdCollectionManager_GetKeyofObject")] DISPID_IVsdCollectionManager_GetKeyofObject = 2,
+} DISPIDs_IVsdCollectionManager;
+
+typedef
+[
+	uuid(BA2DB4C0-FDCB-11d2-B410-00105A190680),
+	helpstring("DISPIDs_IVsdManagedCollection")
+]
+enum DISPIDs_IVsdManagedObject
+{
+	[helpstring("DISPID_IVsdManagedObject_SetCollection")] DISPID_IVsdManagedObject_SetCollection = 0,
+	[helpstring("DISPID_IVsdManagedObject_GetCollection")] DISPID_IVsdManagedObject_GetCollection = 1,
+	[helpstring("DISPID_IVsdManagedObject_ClearCollection")] DISPID_IVsdManagedObject_ClearCollection = 2
+} DISPIDs_IVsdManagedObject;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Client side collection Interfaces 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(917AD1E0-DD7B-11d2-B408-00105A190680),
+	dual,
+	helpstring("IVsdSubsetFilter Interface"),
+	pointer_default(unique)
+]
+interface IVsdSubsetFilter : IDispatch
+{
+	[id(DISPID_IVsdSubsetFilter_Matches), helpstring("method Matches")] HRESULT Matches([in]IDispatch *Object, [out, retval] VARIANT_BOOL *retval);
+};
+
+[
+	object,
+	uuid(6318A1B0-E16B-11d2-B408-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdCollectionManager Interface"),
+	pointer_default(unique)
+]
+interface IVsdCollectionManager : IDispatch
+{
+	[id(DISPID_IVsdCollectionManager_AddObject), helpstring("method AddObject")] HRESULT AddObject([in]BSTR Key,[in] IDispatch *Object);
+	[id(DISPID_IVsdCollectionManager_RemoveObject), helpstring("method RemoveObject")] HRESULT RemoveObject([in]IDispatch *Object);
+	[id(DISPID_IVsdCollectionManager_GetKeyofObject), helpstring("method GetKeyofObject")] HRESULT GetKeyofObject([in]IDispatch *Object, [out, retval] BSTR *retval);
+};
+
+[
+	object,
+	uuid(81919D40-F83A-11d2-B40E-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdManagedObject Interface"),
+	pointer_default(unique)
+]
+interface IVsdManagedObject : IDispatch
+{
+	[id(DISPID_IVsdManagedObject_SetCollection), helpstring("method SetCollection")] HRESULT SetCollection([in]IVsdManagedCollection *Collection,[in]BSTR Key);
+	[id(DISPID_IVsdManagedObject_GetCollection), helpstring("method GetCollection")] HRESULT GetCollection([in, out]IVsdManagedCollection **Collection,[in, out]BSTR *Key);
+	[id(DISPID_IVsdManagedObject_ClearCollection), helpstring("method ClearCollection")] HRESULT ClearCollection();
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Collection Interfaces 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(0974E3A0-DD7A-11d2-B408-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdCollectionSubset Interface"),
+	pointer_default(unique)
+]
+interface IVsdCollectionSubset : IDispatch
+{
+	[id(DISPID_IVsdCollectionSubset_Item), helpstring("method Item")] HRESULT Item([in]BSTR Key, [out,retval] IDispatch **retval);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(DISPID_IVsdCollectionSubset_Subset), helpstring("method Subset")] HRESULT Subset([in, optional]IVsdSubsetFilter *Filter, [out, retval] IVsdCollectionSubset **retval );
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[id(DISPID_IVsdCollectionSubset_KeyOfObject), helpstring("method KeyOfObject")] HRESULT KeyOfObject([in]IDispatch *Object, [out,retval]BSTR *retval );
+	[propget, id(DISPID_IVsdCollectionSubset_Count), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+midl_pragma warning( disable: 2039 ) 
+	[propget, id(DISPID_IVsdCollectionSubset_Keys), helpstring("property Keys"), hidden] HRESULT Keys([out, retval] IVsdGetNewEnum **KeyEnum);
+	[propget, id(DISPID_IVsdCollectionSubset__NewEnum), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IEnumVARIANT **NewEnum);
+midl_pragma warning( enable: 2039 ) 
+};
+
+[
+	object,
+	uuid(BB3678A8-D666-11D2-B404-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdCollection Interface"),
+	pointer_default(unique)
+]
+interface IVsdCollection : IDispatch
+{
+	[id(DISPID_IVsdCollection_Add), helpstring("method Add")] HRESULT Add([in]BSTR Key, [in]IDispatch *Object,[out,retval] IDispatch **retval);
+	[id(DISPID_IVsdCollection_Item), helpstring("method Item")] HRESULT Item([in]BSTR Key, [out,retval] IDispatch **retval);
+	[id(DISPID_IVsdCollection_KeyOfObject), helpstring("method KeyOfObject")] HRESULT KeyOfObject([in]IDispatch *Object, [out,retval]BSTR *retval );
+	[id(DISPID_IVsdCollection_Remove), helpstring("method Remove")] HRESULT Remove([in]BSTR Key);
+	[id(DISPID_IVsdCollection_RemoveObject), helpstring("method RemoveObject")] HRESULT RemoveObject([in]IDispatch *Object);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(DISPID_IVsdCollection_Subset), helpstring("method Subset")] HRESULT Subset([in, optional]IVsdSubsetFilter *Filter, [out, retval] IVsdCollectionSubset **retval );
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[propget, id(DISPID_IVsdCollection_Count), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+midl_pragma warning( disable: 2039 ) 
+	[propget, id(DISPID_IVsdCollection_Keys), helpstring("property Keys"), hidden] HRESULT Keys([out, retval] IVsdGetNewEnum **NewEnum);
+	[propget, id(DISPID_IVsdCollection__NewEnum), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IEnumVARIANT **NewEnum);
+midl_pragma warning( enable: 2039 ) 
+};
+
+[
+	object,
+	uuid(CE9A6070-E15C-11d2-B408-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdManagedCollection Interface"),
+	pointer_default(unique)
+]
+interface IVsdManagedCollection : IDispatch
+{
+	[propget, id(DISPID_IVsdManagedCollection_Count), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+midl_pragma warning( disable: 2039 ) 
+	[propget, id(DISPID_IVsdManagedCollection_Keys), helpstring("property Keys"), hidden] HRESULT Keys([out, retval] IVsdGetNewEnum **KeyEnum);
+	[propget, id(DISPID_IVsdManagedCollection__NewEnum), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IEnumVARIANT **NewEnum);
+midl_pragma warning( enable: 2039 ) 
+	[propget, id(DISPID_IVsdManagedCollection_Owner), helpstring("property Owner")] HRESULT Owner([out, retval] IDispatch * *pVal);
+	[propget, id(DISPID_IVsdManagedCollection_CollectionManager), helpstring("property CollectionManager")] HRESULT CollectionManager([out, retval] IVsdCollectionManager **pVal);
+	[propget, id(DISPID_IVsdManagedCollection_Events), helpstring("property Events")] HRESULT Events([out, retval] IVsdManagedCollectionFireEvent **ppVal);
+	[id(DISPID_IVsdManagedCollection_Add), helpstring("method Add")] HRESULT Add([in]IDispatch *Object,[out,retval] IDispatch **retval);
+	[id(DISPID_IVsdManagedCollection_Item), helpstring("method Item")] HRESULT Item([in]BSTR Key, [out,retval] IDispatch **retval);
+	[id(DISPID_IVsdManagedCollection_KeyOfObject), helpstring("method KeyOfObject")] HRESULT KeyOfObject([in]IDispatch *Object, [out,retval]BSTR *retval );
+	[id(DISPID_IVsdManagedCollection_Remove), helpstring("method Remove")] HRESULT Remove([in]BSTR Key);
+	[id(DISPID_IVsdManagedCollection_RemoveObject), helpstring("method RemoveObject")] HRESULT RemoveObject([in]IDispatch *Object);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(DISPID_IVsdManagedCollection_Subset), helpstring("method Subset")] HRESULT Subset([in]IVsdSubsetFilter *Filter,[in,optional]VARIANT_BOOL Managed,[out, retval] IVsdCollectionSubset **retval );
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[id(DISPID_IVsdManagedCollection_SetCollectionManager), helpstring("method SetCollectionManager")] HRESULT SetCollectionManager([in]IVsdCollectionManager *CollectionManager );
+	[id(DISPID_IVsdManagedCollection_SetOwner), helpstring("method SetOwner")] HRESULT SetOwner(IDispatch *Owner);
+	[id(DISPID_IVsdManagedCollection_AddWithKey), helpstring("method AddWithKey")] HRESULT AddWithKey([in]BSTR Key,[in]IDispatch *Object,[out,retval] IDispatch **retval);
+	[id(DISPID_IVsdManagedCollection_Close), helpstring("method Close")] HRESULT Close();
+};
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Event Interfaces 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(0D045C30-F6A1-11D2-B40E-00105A190680),
+	oleautomation,
+	helpstring("_IVsdManagedCollectionEvent Interface"),
+	pointer_default(unique)
+]
+interface IVsdManagedCollectionEvent : IDispatch
+{
+	[id(1)] HRESULT OnAddObject([in]BSTR Key, [in]IDispatch *EventObject,[in,out]VARIANT_BOOL *Reserved);
+	[id(2)] HRESULT OnModifyObject([in]BSTR Key, [in]IDispatch *EventObject, [in]DISPID ID,[in,out]VARIANT_BOOL *Continue);
+	[id(3)] HRESULT OnRemoveObject([in]BSTR Key, [in]IDispatch *EventObject,[in,out]VARIANT_BOOL *Reserved);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//  Fire Event Interfaces
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(2CFEFC36-E6EB-11d2-B40C-00105A190680),
+	dual,
+	helpstring("IVsdManagedCollectionFireEvent Interface"),
+	pointer_default(unique)
+]
+interface IVsdManagedCollectionFireEvent : IUnknown
+{
+	[id(1), helpstring("method FireOnModifyObject")] HRESULT FireOnModifyObject([in]BSTR Key,[in]IDispatch *EventObject,[in]DISPID ID, [in]VARIANT_BOOL Rollback,[out,retval]VARIANT_BOOL *Continue);
+};

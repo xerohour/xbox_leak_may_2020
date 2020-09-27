@@ -1,0 +1,823 @@
+<html>
+
+<head>
+<title>ActiveWire USBSoftware Reference</title>
+<meta name="GENERATOR" content="Microsoft FrontPage 3.0">
+</head>
+
+<body>
+
+<h2 align="center">ActiveWire USB<br>
+Software Reference</h2>
+
+<h3 align="center">Ver. 0.91<br>
+May 24th, 1999</h3>
+
+<p align="center">&nbsp;</p>
+
+<p align="center">&nbsp;</p>
+
+<hr width="80%" size="1">
+
+<blockquote>
+  <p>&nbsp; <a name="Index">Index</a></p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <ol>
+      <li><a href="#Introduction">Introduction</a></li>
+      <li><a href="#Software Overview">Software Overview</a></li>
+      <li><a href="#Application Interface">Application Interface</a><ol>
+          <li><a href="#DLL functions">DLL functions</a></li>
+          <li><a href="#OCX methods">OCX methods</a></li>
+        </ol>
+      </li>
+      <li><a href="#USB Protocol">USB Protocol</a></li>
+      <li><a href="#ActiveBus">ActiveBus</a></li>
+      <li><a href="#Frequentry Asked Questions">Frequently Asked Questions</a></li>
+      <li><a href="#Revision History">Revision History</a></li>
+    </ol>
+  </blockquote>
+</blockquote>
+
+<p><br>
+<br>
+</p>
+
+<hr width="80%" size="1">
+
+<ol>
+  <li><p align="left"><a name="Introduction">Introduction</a></p>
+    <p align="left">Thank you purchasing ActiveWire USB board.</p>
+    <p align="left">This manual describes ActiveWire software for the ActiveWire USB board.<br>
+    Every information you need to install and use your ActiveWire USB software is here in this
+    manual.<br>
+    Please refer to the <a href="AwUsb_HwRef.htm">ActiveWire USB Hardware Reference</a> for
+    any information about ActiveWire USB board.<br>
+    <br>
+    <br>
+    </p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li>Software<a name="Software Overview"> Overview</a><p align="center"><img
+    src="AwUsb_SwRef_Fig1.jpg" alt="AwUsb_SwRef_Fig1.jpg (48925 bytes)" border="1" WIDTH="800"
+    HEIGHT="600"><br>
+    <strong><big>Fig.1&nbsp; Software Structure</big></strong><br>
+    </p>
+    <ol>
+      <li>User Application <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User application can be an Windows executable
+        (.EXE) compiled from source code written in programming language, such as C, C++, Basic,
+        Pascal, etc...&nbsp;&nbsp; Use API Library (.DLL) for the interface to the ActiveWire
+        board.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; User application can also be made with HTML and
+        Script language.&nbsp;&nbsp; Use ActiveX Control (.OCX) for ActiveWire
+        interface.&nbsp;&nbsp; <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A HTML file with script can be browsed with
+        your Internet browser and display customizable graphical interface to the board.<br>
+        <br>
+      </li>
+      <li>ActiveX Control (.OCX)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ActiveX Control provides ActiveWire interface
+        to the Internet browser.script language in HTML.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Every functions in DLL are also implemented in
+        OCX, so functions callable from .EXE can also called from HTML.<br>
+        <br>
+        <br>
+        &nbsp;&nbsp;&nbsp; <u>Note:</u> Microsoft Internet Explorer 4.0 and above is currently
+        supported with ActiveX interface.<br>
+        <br>
+      </li>
+      <li>API Library<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; API Library provides ActiveWire interface to
+        the application.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It implements 3 basic functions for I/O port of
+        the ActiveWire USB board, OutPort, InPort, and EnablePort.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It also implements low level USB interfaces for
+        more precise control of the ActiveWire USB board.<br>
+        <br>
+      </li>
+      <li>WDM Driver<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The driver (.SYS) provides the most fundamental
+        interface to the Windows kernel.<br>
+        <br>
+      </li>
+      <li>Firmware Loader<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Firmware loader loads firmware to the
+        ActiveWire USB board when it is plugged in to the USB port.<br>
+        <br>
+        <br>
+        <br>
+      </li>
+    </ol>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><a name="Application Interface">Application Interface</a><br>
+    <br>
+    This section describes functions of each ActiveWire API.<br>
+    <ol>
+      <li><big><a name="DLL functions">DLL functions</a></big><br>
+        <br>
+        Please refer to DLL section of the reference manual of the programming language for how to
+        use DLL in your source code.&nbsp;&nbsp; To get started, please refer to <a
+        href="Aw_TechNote.htm">ActiveWire Tech.Note</a> for notes on DLL.<br>
+        Function declaration begins with <em>__AWUSB_DLL</em>, which is a macro defined as <em>__declspec(dllimport)</em>
+        in header file, in <u>AwusbAPI.h</u>.<br>
+        <br>
+        Each functions returns <em>DWORD</em> (unsigned long) Error code defined in <u>AwusbAPI.h</u>.<br>
+        If the function call is successful, the return code is <em>AWUSB_OK</em>, or integer value
+        0.<br>
+        <br>
+        <br>
+        <ol>
+          <li>High level Application interface<br>
+            <br>
+            <ol>
+              <li><strong><em>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbOutPort (BYTE *data, DWORD count);</em></strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Outputs <em>count</em> bytes to the port.&nbsp;
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>*data</em> must point to at least <em>count</em>
+                bytes size buffer.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Odd number bytes go to lower 8bits of the port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Even number bytes go to higher 8bits of the
+                port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If <em>count</em> is &gt;2, the data will be
+                output o the port consecutively.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the bit is enabled as output, writing 1
+                makes the corresponding header pin to high level, writing 0 makes the pin to ground level.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the bit is not enabled (set to input),
+                writing 0 or 1 does not make changes in level of the pin immediately, but it will take
+                effect when the bit is enabled.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default upon power up is all 0.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+              </li>
+              <li><strong><em>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbInPort (BYTE *data, DWORD count);</em></strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Inputs <em>count</em> bytes from the port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>*data</em> must point to at least <em>count</em>
+                bytes size buffer.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data read indicates logical level of the port
+                at the time. <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Odd number bytes are read from lower 8bits of
+                the port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Even number bytes are read from higher 8bits of
+                the port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If <em>count</em> is &gt;2, the port will be
+                read consecutively.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the bit indicates 1, it means the level of
+                the corresponding header pin is logical high level.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If the bit indicates 0, it means the level of
+                the pin is logical low.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <u>NOTE: Application
+                must always read <font color="#FF0000">Even number</font> of bytes.&nbsp; <br>
+                </u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <u><em>count</em> &nbsp; must&nbsp; be&nbsp; divisible&nbsp; by&nbsp; 2.</u><br>
+                <br>
+              </li>
+              <li><strong><em>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbEnablePort (BYTE *data, DWORD count);</em></strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Enables <u>Output</u> of the port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>*data</em> must point to at least <em>count</em>
+                bytes size buffer.<br>
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;Odd number bytes enable to lower 8bits of the
+                port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Even number bytes enable to higher 8bits of the
+                port.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Writing 1 sets the corresponding bit of the
+                port to output.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Writing 0 sets the corresponding bit of the
+                port to input.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default is all input.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+                <br>
+                <br>
+              </li>
+            </ol>
+          </li>
+          <li>Low level USB interface<br>
+            <br>
+            <ol start="4">
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbOpen (DWORD devnum);</strong></em><br>
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;Opens the USB device with the device number
+                specified by <em>devnum</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Device number is integer number assigned by the
+                operating system.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The first board plugged in becomes 0, the
+                second becomes 1, the third becomes 2, ... and so on.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To open the first board, call this function
+                with <em>devnum</em> = 0.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following Open operation to the same device
+                number will fail.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong> <u>One thread can open one device at a
+                time.</u></strong><br>
+                If your application needs to open 2 or more devices, create threads, load DLL in each
+                thread, then open device with different <em>devnum</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Close device when finished using the device by
+                calling <em>AwusbClose ()</em> function described below.<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbClose ();</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Close the USB device previously opened by <em>AwusbOpen()</em>
+                operation.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Closing the device makes the device available
+                for openning by any other thread.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbSetInterface (DWORD intfc, DWORD altset);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Sets USB interface of device to Interface <em>intfc</em>,
+                Alternate setting <em>altset</em>.<br>
+                Interface <em>intfc</em> and Alternate setting <em>altset</em> must be implemented by the
+                device<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; See following section&nbsp; <a
+                href="#USB Protocol">4. USB Protocol</a> for more detail.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default upon powered up is Interface 0 and
+                Alternate setting 0.<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbRead (DWORD pipenum, BYTE *buf, DWORD count);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reads <em>count</em> bytes of data from the USB
+                pipe specified by <em>pipenum</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>*buf</em> must point to at least count
+                bytes size buffer.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The pipe must be IN pipe.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reading from OUT pipe will cause unexpected
+                results.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Depending on <em>pipenum</em> implemented by
+                each device, there may be restriction in arguments, such as <em>count</em> must be even
+                number.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; See following section&nbsp; <a
+                href="#USB Protocol">4. USB Protocol</a> for more detail<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbWrite (DWORD pipenum, BYTE *buf, DWORD count);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Writes <em>count</em> bytes of data to the USB
+                pipe specified by <em>pipenum</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>*buf</em> must point to at least count
+                bytes size buffer.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The pipe must be OUT pipe.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Writing to IN pipe will cause unexpected
+                results.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Depending on <em>pipenum</em> implemented by
+                each device, there may be restriction in arguments.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; See following section&nbsp; <a
+                href="#USB Protocol">4. USB Protocol</a> for more detail<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+              </li>
+              <li><strong><em>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbCancelIo (DWORD pipenum);</em></strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This function is currently not implemented.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It will return error if called.<br>
+                <br>
+              </li>
+              <li><strong><em>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbGetPipeInfo (AWUSB_PIPEINFO *pipeinfo);</em></strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gets Pipe information from the opened device
+                and stores in an <em>AWUSB_PIPEINFO</em> structure pointed by <em>*pipeinfo</em>.<br>
+                <em>AWUSB_PIPEINFO</em> structure is defined as below in <u>AwusbAPI.h</u>.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                #define AWUSB_MAX_NUMPIPE&nbsp;&nbsp;&nbsp; 32<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </small><br>
+                <small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                typedef struct _AWUSB_PIPEINFO_T<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                { &nbsp;&nbsp;&nbsp; <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; numpipe;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; type[AWUSB_MAX_NUMPIPE];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; endpoint[AWUSB_MAX_NUMPIPE];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; dir[AWUSB_MAX_NUMPIPE];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                WORD &nbsp;&nbsp;&nbsp; size[AWUSB_MAX_NUMPIPE];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                } &nbsp;&nbsp; AWUSB_PIPEINFO;<br>
+                </small></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following describes each member of the
+                structure.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BYTE
+                &nbsp;&nbsp;&nbsp; numpipe;</small></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Number of pipes implemented in this interface.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>numpipe</em>
+                elements of following arrays are valid.<br>
+                <br>
+                <small>&nbsp; <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BYTE
+                &nbsp;&nbsp;&nbsp; type[AWUSB_MAX_NUMPIPE];</small><br>
+                </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Type of each pipe.&nbsp;&nbsp; BYTE (unsigned char) should be interpreted as follows.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                0 : Control endpoint<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                1 : Isochronous endpoint<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                2 : Bulk endpoint<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                3 : Interrupt endpoint<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BYTE
+                &nbsp;&nbsp;&nbsp; endpoint[AWUSB_MAX_NUMPIPE];</small><br>
+                </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Endpoint address of the pipe<small>.</small><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Number between 0 and 15<small>.<br>
+                </small><br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BYTE
+                &nbsp;&nbsp;&nbsp; dir[AWUSB_MAX_NUMPIPE];</small><br>
+                </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Direction of the pipe.&nbsp; <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                0 : OUT endpoint<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                1 : IN endpoint.<small><br>
+                </small><br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WORD
+                &nbsp;&nbsp;&nbsp; size[AWUSB_MAX_NUMPIPE];</small><br>
+                </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Maximum USB packet size of the pipe.<big><br>
+                </big>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Number between 0-1024<small> </small>when endpoint type is Isochronous.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Number between 0-64<small> </small>when endpoint type is other than Isochronous.<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbResetPipe (DWORD pipenum);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reset the pipe specified by <em>pipenum</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The device must be opened prior to this
+                operation.<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbDownload (AWUSB_INTELHEX hexrec);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Download ActiveWire USB Firmware stored in an <em>AWUSB_INTELHEX</em>
+                structure, <em>hexrec</em> in to the opened device.<br>
+                <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AWUSB_INTELHEX</em> structure is defined as
+                below in <u>AwusbAPI.h</u>.<br>
+                <br>
+                <small><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                typedef struct _AWUSB_INTELHEX_T<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; count;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                WORD &nbsp;&nbsp;&nbsp; addr;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; type;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; data[256];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; crc;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                } &nbsp;&nbsp;&nbsp; AWUSB_INTELHEX;<br>
+                </em></small><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Each member corresponds to each field of Intel
+                Hex file format.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; See <a href="Aw_TechNote.htm">ActiveWire
+                TechNote</a> for more detail about Intel Hex file format<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following describes each member of the
+                structure.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; count;</small></em><br>
+                <big>&nbsp;&nbsp; </big>&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp; number of bytes to download to ActiveWire USB Internal RAM.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Must be less than 256.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                WORD &nbsp;&nbsp;&nbsp; addr;<br>
+                </small></em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Start address where data will be written to.&nbsp; <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Address must be between hex 0000 and hex 1B19.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; type;<br>
+                </small></em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <em>type == 1</em> indicates that there is no more data to download.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If <em>type == 1</em>,
+                Data in <em><small>data[256]</small></em> will be ignored.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; data[256];<br>
+                </small></em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Data to be written to ActiveWire USB Internal RAM.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                BYTE &nbsp;&nbsp;&nbsp; crc;<br>
+                </small></em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                check sum<br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbReadIntelHexLine (char *buf, AWUSB_INTELHEX *hexrec);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read one line from character string in Intel
+                Hex format, and stores data to an <em>AWUSB_INTELHEX</em> structure pointed by&nbsp; <em>*hexrec</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to an example code below.<br>
+                <br>
+                <small><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                DWORD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ret;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                FILE
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                *fp;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                char
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                buf[1024];<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                AWUSB_INTELHEX &nbsp;&nbsp;&nbsp; hexrec;<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                fp = fopen (filename, &quot;rt&quot;);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                if (! fp)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                return (AWUSB_ERROR_FILEOPEN);<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                while (!feof (fp))<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                fgets (buf, 1024, fp);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // read one line<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                ret = AwusbReadIntelHexLine (buf, &amp;hexrec);&nbsp;&nbsp;&nbsp; // break down ASCII
+                characters and store in struct<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                if (ret != AWUSB_OK)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                return (ret);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                if (hexrec.type == 0x01)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                break;<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                ret = AwusbDownload (hexrec);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                if (ret != AWUSB_OK)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                return (ret);<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                }<br>
+                </em></small><br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                Awusb8051Reset (BOOL hold);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resets the ActiveWire USB microcontroller.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if <em>hold == TRUE</em>, the reset will be
+                held active until next call of this function with <em>hold == FALSE</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Holding the microcontroller reset will cause
+                the ActiveWire USB board to be deactivated.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; During microcontroller is reset, there would be
+                only one pipe, Control endpoint, is accessible through USB.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if <em>hold == FALSE</em>, the reset will be
+                asserted momentarily, then the microcontroller starts running from cold boot.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When microcontroller started running, host
+                negotiates with the device on USB bus, then operating system recognizes the device is
+                ready.<br>
+                <br>
+                <br>
+              </li>
+              <li><em><strong>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; DWORD&nbsp;&nbsp;&nbsp;
+                AwusbDownloadIntelHexFile (char *filename);</strong></em><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Download ActiveWire USB Firmware file specified
+                by <em>*filename</em>.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The firmware file, <em>*filename</em>, must be
+                in Intel Hex file format.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="Aw_TechNote.htm">ActiveWire
+                TechNote</a> for more detail about Intel Hex file format<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This function is implemented by using above <em>AwusbDownload()</em>,
+                <em>AwusbReadIntelHexLine()</em> and<em> Awusb8051Reset()</em> functions in proper
+                sequence.<br>
+                <br>
+                <br>
+                <br>
+              </li>
+            </ol>
+          </li>
+          <li>Error handling<br>
+            <br>
+            <ol start="16">
+              <li><strong><em>&nbsp;&nbsp;&nbsp; __AWUSB_DLL&nbsp;&nbsp;&nbsp; char *&nbsp;&nbsp;&nbsp;
+                AwusbErrorMessage (DWORD errcode);</em></strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Converts ActiveWire defined error code to a
+                human readable character string.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to an example code below.<br>
+                <br>
+                <em><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                DWORD &nbsp;&nbsp;&nbsp; devnum = 0;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                DWORD &nbsp;&nbsp;&nbsp; ret;<br>
+                &nbsp;&nbsp;&nbsp; <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                ret = AwusbOpen
+                (devnum);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Open USB
+                device<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                if (ret != AWUSB_OK)
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                // if error<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                printf (&quot;%s\n&quot;,&nbsp; AwusbErrorMessage (ret));
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // get error message<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                else<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                printf (&quot;Device #%ld : Open successfully.\n&quot;, devnum);</small><br>
+                <small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                ...<br>
+                </small></em><br>
+                <p align="center"><small><a href="#Index">Back to Index</a><br>
+                </small></p>
+                <hr width="80%" size="1">
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+    <p><br>
+    3. <a name="Application Interface">Application Interface</a> <em>(Cont'd)</em><ol
+    start="2">
+      <li><big><a name="OCX methods">OCX methods</a><br>
+        </big><br>
+        ActiveWire USB ActiveX Control (.OCX) has been implemented based on DLL API specification.<br>
+        All functionalities in DLL API is available in OCX.<p>Following is a summary of difference
+        between DLL and OCX.<ol>
+          <li>OCX methods returns NULL string upon success, Error message string if any.</li>
+          <li>OutPort/InPort/EnablePort will access data 2 bytes at a time.</li>
+          <li>3 additional methods,&nbsp; OutPortBlock/InPortBlock/EnablePortBlock are implemented in
+            OCX to support multi-words transfer.</li>
+        </ol>
+        <p>&nbsp;<ol>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR OutPort (long dat);<br>
+            </em></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the similar
+            functionality of corresponding DLL functions, except that this takes only 1 long argument,
+            and lower 16bits of the arguments will be output to the I/O pins.&nbsp; <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Please note that these is no <em>count</em>
+            argument to indicate number of bytes to transfer as oppose to the corresponding DLL
+            function.<br>
+            Returns human readable error message as a string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>long InPort ();<br>
+            </em></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the similar
+            functionality of corresponding DLL functions, except that there is no arguments, and
+            returns long data with current logical state of I/O pins in lower 16bits.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Please note that these is no argument at all as
+            oppose to the corresponding DLL function.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns negative number when error
+            occurred.&nbsp; Pass that returned negative number to ErrorMessgae() method to retrieve
+            human readable error message.<br>
+            <strong><em><br>
+            </em></strong></li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR EnablePort (long dir);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the similar functionality of
+            corresponding DLL functions, except that this takes only 1 long argument, and lower 16bits
+            of the arguments to enable output of the I/O pins.&nbsp;&nbsp; 1 in corresponding bits
+            enables output, 0 makes it input.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Please note that these is no <em>count</em>
+            argument to indicate number of bytes to transfer as oppose to the corresponding DLL
+            function.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR Open (long devnum);</em></strong></li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR Close ();</em></strong></li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR SetInterface (long intrfc, long altset);<br>
+            </em></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; These provide the same
+            functionality of corresponding DLL functions.&nbsp; <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="#DLL functions">DLL functions</a>
+            section above.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR Read (long pipenum, long count);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read <em>count</em> bytes of data from USB pipe
+            specified by pipenum, then returns pointer to formatted character string.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; An example of string returned by the method
+            looks like below.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <em>ff ff 01 02</em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (2 digits hex value
+            separated by a space)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR Write (long pipenum, LPCTSTR data, long count);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read hex values from character string <em>data</em>,
+            then send <em>count</em> bytes of data to the USB pipe specified by<em> pipenum</em>. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If data string is too short and less than <em>count</em>
+            bytes could be read from data string, it will send repeated data.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following example will send 8bytes of data, ff,
+            ff 00, 00, ff, ff, 00, and 00.<br>
+            <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            data = &quot;ff ff 00 00&quot;;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            Write (1, data, 4);<br>
+            </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR CancelIo (long pipenum)</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; These provide the same functionality of
+            corresponding DLL functions.&nbsp; <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="#DLL functions">DLL functions</a>
+            section above.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR GetPipeInfo ();</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Pipe information available for the
+            interface in formated character string.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR ResetPipe (long pipenum);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the same functionality of
+            corresponding DLL function.&nbsp; <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="#DLL functions">DLL functions</a>
+            section above.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR Download (LPCTSTR filename);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the same functionality of <em>AwusbDownloadIntelHexFile()</em>
+            function in DLL API. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="#DLL functions">DLL functions</a>
+            section above.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR Reset8051 (long hold);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the same functionality of
+            corresponding DLL function.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="#DLL functions">DLL functions</a>
+            section above.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR ErrorMessage (long error_code);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Provides the same functionality of
+            corresponding DLL function.&nbsp; <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Refer to <a href="#DLL functions">DLL functions</a>
+            section above.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Since each method returns already formated
+            error message when any error happened, this methods will not used in HTML script.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR OutPortBlock (LPCTSTR buf, long count);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read hex values from character string <em>buf</em>,
+            then send <em>count</em> bytes of data to the ActiveWire I/O port.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If data string is too short and less than <em>count</em>
+            bytes could be read from data string, it will send repeated data.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following example will toggle all 16bits of I/O
+            port up, down up and down.<br>
+            <em>&nbsp;&nbsp; </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <em>data = &quot;ff ff 00 00&quot;;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            OutPortBlock (data, 8);<br>
+            </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR InPortBlock (long count);<br>
+            </em></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read <em>count</em> bytes of data
+            from ActiveWire I/O port, then returns pointer to formatted character string.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; An example of string returned by the method
+            looks like below.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <em>ff ff 01 02</em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (2 digits hex value
+            separated by a space)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <strong><em><br>
+            </em></strong></li>
+          <li>&nbsp;&nbsp;&nbsp; <strong><em>BSTR EnablePortBlock (LPCTSTR buf, long count);</em></strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read hex values from character string <em>buf</em>,
+            then send <em>count</em> bytes of data to the ActiveWire I/O port enable register.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If data string is too short and less than <em>count</em>
+            bytes could be read from data string, it will send repeated data.<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following example will enable all 16bits of
+            output port twice momentarily, then put them back to input mode.<br>
+            <em>&nbsp;&nbsp; </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <em>data = &quot;ff ff 00 00&quot;;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            EnablePortBlock (data, 4);<br>
+            </em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns human readable error message as a
+            string when an error occurred. <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Returns Null string when successful.<br>
+            <br>
+          </li>
+        </ol>
+      </li>
+    </ol>
+    <p><br>
+    <br>
+    <br>
+    </p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><a name="USB Protocol">USB Protocol</a><br>
+    <br>
+    ... to be published soon...<br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li>A<a name="ActiveBus">ctiveBus</a><br>
+    <br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Detail of ActiveBus
+    will be published in a separate document.<br>
+    <br>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><a name="Frequentry Asked Questions">Frequently Asked Questions</a><br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><a name="Revision History">Revision History</a><br>
+    <br>
+    &nbsp;&nbsp;&nbsp; ver. 0.9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; First release&nbsp;
+    May 17th, 1999<br>
+    <br>
+    &nbsp;&nbsp;&nbsp; ver. 0.91&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fixed InPort() OCX method
+    mulfunction problem.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Changed
+    InPort() OCX method argument and return value.<br>
+    <br>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+  </li>
+</ol>
+</body>
+</html>

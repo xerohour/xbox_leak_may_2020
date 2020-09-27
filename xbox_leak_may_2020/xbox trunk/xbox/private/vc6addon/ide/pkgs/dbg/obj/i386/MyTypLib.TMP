@@ -1,0 +1,1162 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[ uuid(34C63000-AE64-11cf-AB59-00AA00C091A1), 
+  
+  
+  
+  
+  
+  
+  
+  helpstring("Visual C++ Debugger"),
+
+  helpstringdll("DevTLDcD.dll"),
+
+
+
+  version(6.0)
+] 
+
+library DSDebugger
+{
+	importlib("stdole2.tlb");
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef
+[helpstringcontext(10064)] enum
+{
+  
+
+	[helpstringcontext(10065)] dsNoDebugee,
+	[helpstringcontext(10066)] dsBreak,
+	[helpstringcontext(10067)] dsRunning,
+}	DsExecutionState;
+
+typedef
+[helpstringcontext(10068)] enum
+{
+	[helpstringcontext(10059)] dsLocation,
+	[helpstringcontext(10060)] dsLocationWithTrueExpression,
+	[helpstringcontext(10069)] dsLocationWithChangedExpression,
+	[helpstringcontext(10061)] dsTrueExpression,
+	[helpstringcontext(10062)] dsChangedExpression,
+	[helpstringcontext(10063)] dsMessage,
+}	DsBreakpointType;
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+	
+
+	[ uuid(34C6301A-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, dual, hidden, helpstringcontext(10013)
+	]
+	interface IDebuggerEvents : IDispatch
+	{
+		[id(1), helpstringcontext(10014)] 
+		HRESULT BreakpointHit([in] IDispatch *pBreakpoint);
+	};
+
+	
+
+	[ uuid(34C6301B-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispDebuggerEvents
+	{
+		interface IDebuggerEvents;
+	};
+
+	
+
+	[ uuid(34C63001-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, hidden, dual, helpstringcontext(10015)
+	]
+	interface IDebugger : IDispatch
+	{
+	
+		[propget, id(1), helpstringcontext(10016)] 
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+		[propget, id(2), helpstringcontext(10017)] 
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+		[propget, id(3), helpstringcontext(10018)] 
+			HRESULT Breakpoints([out, retval] IDispatch** ppDispatch);
+		[propget, id(4), helpstringcontext(10019)] 
+			HRESULT DefaultRadix([out, retval] long* pLong);
+		[propput, id(4), helpstringcontext(10019)] 
+			HRESULT DefaultRadix([in] long l);
+		[propget, id(5), helpstringcontext(10020)] 
+			HRESULT ProcessState([out, retval] DsExecutionState* pState);
+		[propget, id(6), helpstringcontext(10021)] 
+			HRESULT JustInTimeDebugging([out, retval] boolean* pBoolean);
+		[propput, id(6), helpstringcontext(10021)] 
+			HRESULT JustInTimeDebugging([in] boolean bool);
+		[propget, id(7), helpstringcontext(10022)] 
+			HRESULT RemoteProcedureCallDebugging([out, retval] boolean* pBoolean);
+		[propput, id(7), helpstringcontext(10022)] 
+			HRESULT RemoteProcedureCallDebugging([in] boolean bool);
+
+	
+
+		[id(9), helpstringcontext(10023)] HRESULT Go(void);
+		[id(10), helpstringcontext(10024)] HRESULT StepInto(void);
+		[id(11), helpstringcontext(10025)] HRESULT StepOver(void);
+		[id(12), helpstringcontext(10026)] HRESULT StepOut(void);
+		[id(13), helpstringcontext(10027)] HRESULT Restart(void);
+		[id(14), helpstringcontext(10028)] HRESULT Stop(void);
+		[id(15), helpstringcontext(10029)] HRESULT Break(void);
+		[id(16), helpstringcontext(10030)] 
+			HRESULT Evaluate([in] BSTR expr, [out, retval] BSTR *pBSTR);
+		[id(17), helpstringcontext(10032)] 
+			HRESULT ShowNextStatement(void);
+		[id(18), helpstringcontext(10033)] HRESULT RunToCursor(void);
+		[id(19), helpstringcontext(10034)] HRESULT SetNextStatement([in, optional] VARIANT Selection);
+	};
+
+	
+	
+	[ uuid(34C63002-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispDebugger
+	{
+		properties:
+			
+			
+			
+			[id(1)] IDispatch* Application;
+			[id(2)] IDispatch* Parent;
+			[id(3)] IDispatch* Breakpoints;
+			[id(4)] long DefaultRadix;
+			[id(5)] DsExecutionState State;
+			[id(6)] boolean JustInTimeDebugging;
+			[id(7)] boolean RemoteProcedureCallDebugging;
+			
+			
+		methods:
+			
+			
+			
+			[id(9)] void Go();
+			[id(10)] void StepInto();
+			[id(11)] void StepOver();
+			[id(12)] void StepOut();
+			[id(13)] void Restart();
+			[id(14)] void Stop();
+			[id(15)] void Break();
+			[id(16)] BSTR Evaluate([in] BSTR Expression);
+			[id(17)] void ShowNextStatement();
+			[id(18)] void RunToCursor();
+			[id(19)] void SetNextStatement([in, optional] VARIANT Selection);
+			
+
+	};
+
+	
+
+	[ uuid(34C63003-AE64-11cf-AB59-00AA00C091A1), helpstringcontext(10015) ]
+	coclass Debugger
+	{
+		
+		dispinterface IDispDebugger;
+		[default] interface IDebugger;
+
+		
+		[source, default] dispinterface IDispDebuggerEvents;
+		[source] interface IDebuggerEvents;
+	};
+
+
+	
+
+	[ uuid(34C63004-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, hidden, dual, helpstringcontext(10035)
+	]
+	interface IBreakpoint : IDispatch
+	{
+	
+		[propget, id(1), helpstringcontext(10036)] 
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+		[propget, id(2), helpstringcontext(10037)] 
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+		[propget, id(3), helpstringcontext(10038)] 
+			HRESULT Enabled([out, retval] boolean* pBool);
+		[propput, id(3), helpstringcontext(10038)] 
+			HRESULT Enabled([in] boolean bool);
+		[propget, id(4), helpstringcontext(10039)] 
+			HRESULT Location([out, retval] BSTR *pBSTR);
+		[propget, id(5), helpstringcontext(10040)] 
+			HRESULT File([out, retval] BSTR *pBSTR);
+		[propget, id(6), helpstringcontext(10041)] 
+			HRESULT Function([out, retval] BSTR *pBSTR);
+		[propget, id(7), helpstringcontext(10042)] 
+			HRESULT Executable([out, retval] BSTR *pBSTR);
+		[propget, id(8), helpstringcontext(10043)] 
+			HRESULT Condition([out, retval] BSTR *pBSTR);
+		[propput, id(8), helpstringcontext(10043)] 
+			HRESULT Condition([in] BSTR bstr);
+		[propget, id(9), helpstringcontext(10044)] 
+			HRESULT Elements([out, retval] long *pLong);
+		[propget, id(10), helpstringcontext(10045)] 
+			HRESULT PassCount([out, retval] long *pLong);
+		[propget, id(11), helpstringcontext(10046)] 
+			HRESULT Message([out, retval] long *pLong);
+		[propget, id(12), helpstringcontext(10047)] 
+			HRESULT WindowProcedure([out, retval] BSTR *pBSTR);
+		[propget, id(13), helpstringcontext(10048)] 
+			HRESULT Type([out, retval] long *pLong);
+
+	
+		[id(15), helpstringcontext(10049)] 
+			HRESULT Remove(void);
+	};
+
+	
+	
+	[ uuid(34C63005-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispBreakpoint
+	{
+		properties:
+			
+			
+			
+			[id(1)] IDispatch* Application;
+			[id(2)] IDispatch* Parent;
+			[id(3)] boolean Enabled;
+			[id(4)] BSTR Location;
+			[id(5)] BSTR File;
+			[id(6)] BSTR Function;
+			[id(7)] BSTR Executable;
+			[id(8)] BSTR Condition;
+			[id(9)] long Elements;
+			[id(10)] long PassCount;
+			[id(11)] long Message;
+			[id(12)] BSTR WindowProcedure;
+			[id(13)] long Type;
+			
+			
+		methods:
+			
+			
+			
+			[id(15)] void Remove();
+			
+
+	};
+
+	
+
+	[ uuid(34C63006-AE64-11cf-AB59-00AA00C091A1), helpstringcontext(10035) ]
+	coclass Breakpoint
+	{
+		dispinterface IDispBreakpoint;
+		[default] interface IBreakpoint;
+	};
+
+
+	
+
+	[ uuid(34C63007-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, hidden, dual, helpstringcontext(10050)
+	]
+	interface IBreakpoints : IDispatch
+	{
+		
+		[propget, id(1), helpstringcontext(10051)]
+			HRESULT Count([out, retval] long* Count);
+		[propget, id(2), helpstringcontext(10052)]
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+		[propget, id(3), helpstringcontext(10053)]
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+
+		[id(-4), hidden, propget, restricted]	
+			HRESULT _NewEnum([out, retval] IUnknown** _NewEnum);
+
+		
+		[id(0), helpstringcontext(10054)]
+			HRESULT Item([in] VARIANT index, [out, retval] IDispatch** Item);
+		[id(5), helpstringcontext(10055)]
+			HRESULT RemoveAllBreakpoints(void);
+		[id(6), helpstringcontext(10056)]
+			HRESULT RemoveBreakpointAtLine([in,optional] VARIANT sel, [out, retval] boolean* bool);
+		[id(7), helpstringcontext(10057)]
+			HRESULT AddBreakpointAtLine([in,optional] VARIANT sel, [out, retval] IDispatch** Item);
+
+	};
+
+	
+	
+	[ uuid(34C63008-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispBreakpoints
+	{
+		properties:
+			
+			
+			
+			[id(1), readonly] long Count;
+			[id(2), readonly] IDispatch* Application;
+			[id(3), readonly] IDispatch* Parent;
+			
+				[id(-4), hidden, readonly] IUnknown* _NewEnum;
+		
+		methods:
+			
+			
+			
+			[id(0)] IDispatch* Item(VARIANT index);
+			[id(5)] void RemoveAllBreakpoints();
+			[id(6)] boolean RemoveBreakpointAtLine(VARIANT Selection);
+			[id(7)] IDispatch* AddBreakpointAtLine(VARIANT Selection);
+			
+};
+
+	
+
+	[ uuid(34C63009-AE64-11cf-AB59-00AA00C091A1), helpstringcontext(10050) ]
+	coclass Breakpoints
+	{
+		dispinterface IDispBreakpoints;
+		[default] interface IBreakpoints;
+	};
+
+
+	
+
+	
+
+};

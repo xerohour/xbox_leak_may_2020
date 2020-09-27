@@ -1,0 +1,58 @@
+typedef struct {
+	WORD type;
+	BOOL fFound;
+	BOOL fTried;
+    LPV  lpPath;
+	LPV  lpArgs;
+    WORD hModule;
+} MODPATH;
+
+XOSD PASCAL LoadEm ( MODPATH FAR *, BOOL );
+XOSD PASCAL LoadTl ( MODPATH FAR * );
+void PASCAL InitCallBack ( void );
+XOSD PASCAL LOADDS CallBack ( DBC, HPID, HTID, LPARAM, LPARAM );
+void FreeDbgLinkedLists(void);
+DWORD LOADDS PASCAL LDSLLChlleDestroyLl( HLLI );
+HLLE  LOADDS PASCAL LDSLLHlleCreate( HLLI );
+void  LOADDS PASCAL LDSLLAddHlleToLl( HLLI, HLLE );
+void  LOADDS PASCAL LDSLLInsertHlleInLl( HLLI, HLLE, DWORD );
+BOOL  LOADDS PASCAL LDSLLFDeleteHlleFromLl( HLLI, HLLE );
+HLLE  LOADDS PASCAL LDSLLHlleFindNext( HLLI, HLLE );
+HLLE  LOADDS PASCAL LDSLLHlleFindLpv( HLLI, HLLE, LPV, DWORD );
+DWORD LOADDS PASCAL LDSLLChlleInLl( HLLI );
+LPV   LOADDS PASCAL LDSLLLpvFromHlle( HLLE );
+
+#ifdef OSDEBUG4
+HLLI
+OSDAPI
+LDSLLHlliInit(
+    DWORD,
+    LLF,
+    LPFNKILLNODE,
+    LPFNFCMPNODE
+    );
+
+int
+OSDAPI
+OSDAssert(
+    char FAR *lszMsg,
+    char FAR *lszFile,
+    DWORD iln
+    );
+
+#else
+HLLI  LOADDS PASCAL LDSLLHlliInit( UINT, LLF, LPFNKILLNODE, LPFNFCMPNODE );
+int LOADDS PASCAL OSDAssert(char FAR *lszMsg, char FAR *lszFile, unsigned iln);
+#endif
+
+// function to free all linked lists which were created by
+// debugger DLLs (which is equivalent to all linked lists
+// which were created by LDSLLHlliInit).
+void FreeDbgLinkedLists(void);
+
+int PASCAL TDCompare ( LPTHD, unsigned long FAR *, LONG );
+static int PASCAL PDCompare ( LPV, unsigned long FAR *, LONG );
+
+BOOL SYLoadDlls ( void );
+BOOL SYFindDlls ( MODPATH FAR * );
+XOSD SYLoadLogic ( MODPATH FAR * );

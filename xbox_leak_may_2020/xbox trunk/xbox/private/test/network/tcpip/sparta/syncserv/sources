@@ -1,0 +1,33 @@
+#these two lines are only for debugging purposes
+MSC_OPTIMIZATION=/Odi
+USER_C_FLAGS=$(USER_C_FLAGS) /GX
+
+C_DEFINES= $(C_DEFINES) -DWIN32 -DNT -DDBG
+#C_DEFINES= $(C_DEFINES) -DUNICODE -D_UNICODE
+
+# add all your test names in the UMAPPL list to be compiled with this one make file
+
+UMAPPL=syncserv
+
+UMTYPE=console
+UMLIBS= $(_NTDRIVE)\$(_NTROOT)\private\test\lib\*\netsync_nt.lib
+        
+
+INCLUDES= \
+        $(INCLUDES);                              \
+        $(_NTDRIVE)\$(_NTROOT)\private\test\inc;  \
+
+
+SOURCES=                                          \
+     	syncserv.rc                               \
+        syncserv.cpp
+
+TARGETNAME=syncserv
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+USE_CRTDLL=1
+
+USE_NATIVE_EH=1
+USE_RTTI=1
+

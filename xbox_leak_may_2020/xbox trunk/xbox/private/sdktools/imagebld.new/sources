@@ -1,0 +1,55 @@
+!IF 0
+
+Copyright (c) 1989  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    Steve Wood (stevewo) 12-Apr-1990
+
+NOTE:   Commented description of this file is in \nt\bak\bin\sources.tpl
+
+!ENDIF
+
+TARGETNAME=imagebld
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+USE_MSVCRT=1
+
+UMTYPE=console
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+INCLUDES=$(BASEDIR)\private\ntos\gdfx
+
+TARGETLIBS=$(LIBRARY_PATH)\user32.lib \
+           $(BASEDIR)\private\lib\*\cklibver.lib \
+           $(BASEDIR)\private\lib\*\rsa32.lib \
+           $(BASEDIR)\private\lib\*\xcrypt.lib
+
+SOURCES=cmdline.cpp   \
+        dumpxbe.cpp   \
+        imagebld.cpp  \
+        imagebld.rc   \
+        keydata.cpp   \
+        memory.cpp    \
+        pemodule.cpp  \
+        stringrc.cpp
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=imgbldp.h
+PRECOMPILED_PCH=imgbldp.pch
+PRECOMPILED_OBJ=imgbldp.obj
+

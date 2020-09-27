@@ -1,0 +1,19 @@
+!include ..\sources.inc
+
+!if $(FREEBUILD)
+TARGETNAME=dplay8
+!else
+TARGETNAME=dplay8d
+!endif
+
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+TARGETTYPE=LIBRARY
+
+OBJLIBFILES=\
+    ..\..\common\dplay8\$O\common.lib \
+    ..\..\dnaddress\$O\dpnaddr.lib \
+    ..\..\protocol\dplay8\$O\protocol.lib \
+    ..\..\sp\wsock\$O\dpnwsock.lib
+
+NTTARGETFILES=\
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib

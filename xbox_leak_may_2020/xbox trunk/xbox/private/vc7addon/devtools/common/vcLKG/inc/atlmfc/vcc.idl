@@ -1,0 +1,156 @@
+//NONSHIP
+
+#include <olectl.h>
+// ATLSourceEdit.idl : IDL source for SourceEdit.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (SourceEdit.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(8569669a-191e-11d2-b702-00805f858b7f),
+		dual,
+		helpstring("IATLSourceEditDocument Interface"),
+		pointer_default(unique)
+	]
+	interface IATLSourceEditDocument : IDispatch
+	{
+		[id(1), helpstring("method write")] HRESULT write(BSTR bstrText);
+		[id(2), helpstring("method getFileName")] HRESULT getFileName([out, retval] BSTR *bstrFileName);
+		[id(3), helpstring("method cut")] HRESULT cut();
+		[id(4), helpstring("method copy")] HRESULT copy();
+		[id(5), helpstring("method paste")] HRESULT paste();
+		[id(6), helpstring("method clear")] HRESULT clear();
+		[id(7), helpstring("method selectAll")] HRESULT selectAll();
+		[id(8), helpstring("method gotoLine")] HRESULT gotoLine(long lLine);
+		[id(9), helpstring("method bookmark")] HRESULT bookmark();
+		[id(10), helpstring("method nextBookmark")] HRESULT nextBookmark();
+		[id(11), helpstring("method prevBookmark")] HRESULT prevBookmark();
+		[id(12), helpstring("method removeAllBookmarks")] HRESULT removeAllBookmarks();
+		[id(13), helpstring("method select")] HRESULT select(long lBegin, long lEnd);
+		[id(14), helpstring("method selectLines")] HRESULT selectLines(long lFirstLine, long lLastLine);
+		[id(15), helpstring("method undo")] HRESULT undo();
+		[id(16), helpstring("method redo")] HRESULT redo();
+		[id(17), helpstring("method setAggregate")] HRESULT setAggregate(VARIANT_BOOL bAggregate);
+		[id(18), helpstring("method getAggregate")] HRESULT getAggregate([out, retval] VARIANT_BOOL *pbAggregate);
+		[id(19), helpstring("method enableUndo")] HRESULT enableUndo(VARIANT_BOOL bEnable);
+		[id(20), helpstring("method save")] HRESULT save([optional] BSTR bstrFileName);
+		[id(21), helpstring("method find")] HRESULT find(BSTR bstrText);
+		[id(22), helpstring("method getLine")] HRESULT getLine([out, retval] long *plLine);
+		[id(23), helpstring("method getColumn")] HRESULT getColumn([out, retval] long *plColumn);
+		[id(24), helpstring("method nextChar")] HRESULT nextChar([defaultvalue(1)] long numReps);
+		[id(25), helpstring("method prevChar")] HRESULT prevChar([defaultvalue(1)] long numReps);
+		[id(26), helpstring("method nextLine")] HRESULT nextLine([defaultvalue(1)] long numReps);
+		[id(27), helpstring("method prevLine")] HRESULT prevLine([defaultvalue(1)] long numReps);
+		[id(28), helpstring("method lineBegin")] HRESULT lineBegin();
+		[id(29), helpstring("method lineEnd")] HRESULT lineEnd();
+		[id(30), helpstring("method getLineText")] HRESULT getLineText([out, retval] BSTR *pbstrText);
+		[id(31), helpstring("method deleteChar")] HRESULT deleteChar([defaultvalue(1)] long numReps);
+		[id(32), helpstring("method getSelBegin")] HRESULT getSelBegin([out, retval] long *plSelBegin);
+		[id(33), helpstring("method getSelEnd")] HRESULT getSelEnd([out, retval] long *plSelEnd);
+		[id(34), helpstring("method getLineFromIndex")] HRESULT getLineFromIndex(long lIndex, [out, retval] long *plLine);
+		[id(35), helpstring("method getColFromIndex")] HRESULT getColFromIndex(long lIndex, [out, retval] long *plCol);
+		[id(36), helpstring("method getRangeText")] HRESULT getRangeText(long lBegin, long lEnd, [out, retval] BSTR *pbstrText);
+		[id(37), helpstring("method getLength")] HRESULT getLength([out, retval] long *plLength);
+		[id(38), helpstring("method isDirty")] HRESULT isDirty([out, retval] VARIANT_BOOL *pbDirty);
+		[id(39), helpstring("method setDirty")] HRESULT setDirty(VARIANT_BOOL bDirty);
+	};
+
+	[
+		object,
+		uuid(43DDE336-1818-11D2-B702-00805F858B7F),
+		dual,
+		helpstring("IATLSourceEditCtrl Interface"),
+		pointer_default(unique)
+	]
+	interface IATLSourceEditCtrl : IDispatch
+	{
+		[id(1), helpstring("method splitVert")] HRESULT splitVert();
+		[id(2), helpstring("method splitHorz")] HRESULT splitHorz();
+		[id(3), helpstring("method nextWindow")] HRESULT nextWindow();
+		[id(4), helpstring("method prevWindow")] HRESULT prevWindow();
+		[id(5), helpstring("method closeWindow")] HRESULT closeWindow();
+		[id(6), helpstring("method nextFile")] HRESULT nextFile();
+		[id(7), helpstring("method prevFile")] HRESULT prevFile();
+		[id(8), helpstring("method closeFile")] HRESULT closeFile();
+		[id(9), helpstring("method newDocument")] HRESULT newDocument();
+		[id(10), helpstring("method openFile")] HRESULT openFile([optional] BSTR bstrFilename);
+		[id(11), helpstring("method getDocument")] HRESULT getDocument([out, retval] IDispatch **ppdispDoc);
+	};
+
+	[
+		object,
+		uuid(A144CF60-B137-11d1-AB87-004005352C49),
+		dual,
+		helpstring("IATLConPropertyBrowser Interface"),
+		pointer_default(unique)
+	]
+	interface IATLPropertyBrowser : IDispatch
+	{
+		[propput, helpstring("Set the interface to browse")]
+		HRESULT Dispatch([in]IDispatch* pDispatch);
+		[propget, helpstring("Get the interface being browsed")]
+		HRESULT Dispatch([out,retval]IDispatch** ppDispatch);
+		[propget, id(1), helpstring("Enable/Disable the property description")] HRESULT ShowDescription([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(1), helpstring("Is property description enabled")] HRESULT ShowDescription([in] VARIANT_BOOL newVal);
+	};
+
+[
+	uuid(43DDE327-1818-11D2-B702-00805F858B7F),
+	version(1.0),
+	helpstring("VCCTRLS 1.0 Type Library")
+]
+library VCCTRLSLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[ 
+		uuid(f604a596-1936-11d2-b702-00805f858b7f),
+		helpstring("Event interface for ATLSourceEditCtrl")
+	]
+    dispinterface _ATLSourceEditCtrlEvents
+	{
+		properties:
+		methods:
+		[id(1)] void onkeydown([in] IDispatch *pDoc, [in] long charCode, [in] long keyState);
+		[id(2)] void onkeyup([in] IDispatch *pDoc, [in] long charCode, [in] long keyState);
+		[id(3)] void onchar([in] IDispatch *pDoc, [in] long charCode, [in] long keyState);
+		[id(4)] void onmousedown([in] IDispatch *pDoc, [in] long button, [in] long x, [in] long y, [in] long keyState);
+		[id(5)] void onmouseup([in] IDispatch *pDoc, [in] long button, [in] long x, [in] long y, [in] long keyState);
+		[id(6)] void onmousedblclk([in] IDispatch *pDoc, [in] long button, [in] long x, [in] long y, [in] long keyState);
+		[id(7)] void onmousemove([in] IDispatch *pDoc, [in] long button, [in] long x, [in] long y, [in] long keyState);
+	};
+
+	[
+		uuid(43DDE337-1818-11D2-B702-00805F858B7F),
+		helpstring("ATLSourceEditCtrl Class")
+	]
+	coclass ATLSourceEditCtrl
+	{
+		[default] interface IATLSourceEditCtrl;
+		[default, source] interface _ATLSourceEditCtrlEvents;
+	};
+
+	[
+		uuid(2cb0deea-1926-11d2-b702-00805f858b7f),
+		helpstring("ATLSourceEditDocument Class")
+	]
+	coclass ATLSourceEditDocument
+	{
+		[default] interface IATLSourceEditDocument;
+	};
+
+	[
+		uuid(561955ec-49fe-11d2-aa7f-00c04f990180),
+		helpstring("ATLPropertyBrowser Class")
+	]
+	coclass ATLPropertyBrowser
+	{
+		[default] interface IATLPropertyBrowser;
+	};
+};

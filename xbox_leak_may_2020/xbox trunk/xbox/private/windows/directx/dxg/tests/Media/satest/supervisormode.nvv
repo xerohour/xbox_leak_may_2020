@@ -1,0 +1,33 @@
+xvs.1.1
+; test of extended constant register syntax
+
+; With address register
+
+mov a0.x,v0
+
+mov r1, c[a0.x]
+mov r1, c[a0.x+95]
+mov r1, c[a0.x+0]
+
+mov r1, c[a0.x-0]
+mov r1, c[a0.x-1]
+mov r1, c[a0.x-96]
+
+// Macros might generate this syntax
+
+mov r1, c[a0.x+-0]
+mov r1, c[a0.x+-1]
+mov r1, c[a0.x+-96]
+
+; Normal constant registers
+
+mov r1, c[95]
+mov r1, c[0]
+mov r1, c[-0]
+mov r1, c[-1]
+mov r1, c[-96]
+
+; Make validator happy
+
+mov oPos,r1
+

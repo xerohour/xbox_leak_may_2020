@@ -1,0 +1,792 @@
+
+ /*===========================================================================*/
+ /*                                                                           */
+ /*           (c) InstallShield Software Corporation (1996-1997)              */
+ /*            (c)  InstallShield Corporation  (1990-1996)                    */
+ /*                       Schaumburg, Illinois 60173                          */
+ /*                          All Rights Reserved                              */
+ /*                           InstallShield (R)                               */
+ /*                                                                           */
+ /*  FILE:   WINSUB.RUL                                                       */
+ /*                                                                           */
+ /*  PURPOSE:                                                                 */
+ /*      This script interfaces to several Windows APIs.                      */
+ /*      For example, WinSubIsWindow (hWnd) interfaces to Windows             */
+ /*          IsWindow API. Please refer to IsWindow API in Windows            */
+ /*          Programmer's Manual for the detailed description.                */
+ /*                                                                           */
+ /*   RESOURCE: NONE                                                          */
+ /*                                                                           */
+ /*   RELATED FILES: WINSUB.H                                                 */
+ /*                                                                           */
+ /*   MAIN FUNCTION CALLS:                                                    */
+ /*     _WinSubGetModuleHandle ( szModule );                                  */
+ /*       Retrieves the handle of the specified module.                       */
+ /*                                                                           */
+ /*     _WinSubShowCursor     ( nShow );                                      */         
+ /*       This function shows or hides the cursor.                            */
+ /*                                                                           */
+ /*    _WinSubShowWindow     ( hWnd, nShow );                                 */
+ /*       This function sets the given window's visibility state.             */
+ /*                                                                           */
+ /*    _WinSubFocusControl   ( hWnd, nBtnId );                                */
+ /*       This function sets the input focus to the given child window.       */
+ /*       all subsequent keyboard input is directed to this child window.     */
+ /*       The child window, if any, that previously had the input focus       */
+ /*       loses it.                                                           */
+ /*                                                                           */
+ /*    _WinSubFocusWindow    ( hWnd );                                        */
+ /*       This function sets the input focus to the given  window.            */
+ /*       all subsequent keyboard input is directed to this window.  The      */
+ /*       window, if any, that previously had the input focus loses it.       */
+ /*                                                                           */
+ /*    _WinSubEnableControl  ( hWnd, nBtnID, nEnable );                       */
+ /*       This function enables or disables mouse and keyboard input to       */
+ /*       the given window or control.  When input is disabled, the window    */
+ /*       ignores input such as mouse clicks and key presses.  When input     */
+ /*       is enabled, the window processes all input.                         */
+ /*                                                                           */
+ /*    _WinSubGetChildWindow ( hWnd, nBtnID );                                */
+ /*       This function retrieves the handle of a control that is in the      */
+ /*       given dialog box                                                    */
+ /*                                                                           */
+ /*    _WinSubEnableWindow   ( HWND, INT );                                   */
+ /*       This function enables or disables mouse and keyboard input to       */
+ /*       the given window or control.  When input is disabled, the window    */
+ /*       ignores input such as mouse clicks and key presses.  When input     */
+ /*       is enabled, the window processes all input.                         */
+ /*                                                                           */
+ /*    _WinSubSetWindowTitle ( hWnd, szText );                                */
+ /*       This function sets the given window's title to the specified text.  */
+ /*                                                                           */
+ /*    _WinSubCenterWindow   ( hWnd );                                        */
+ /*       This function changes the position and dimensions to be the center  */
+ /*       of the screen.                                                      */
+ /*                                                                           */
+ /*    _WinSubIsWindow       ( hWnd );                                        */
+ /*       This function determines whether the given window handle is valid.  */
+ /*                                                                           */
+ /*    _WinSubGetWindowRect  ( hWnd, nOX, nOY, nSX, nSY );                    */
+ /*       This function retrieves the dimensions of the bounding rectangle    */
+ /*       of a given window.                                                  */
+ /*                                                                           */
+ /*    _WinSubGetClientRect ( hWnd, nOX, nOY, nSX, nSY )                      */
+ /*       This function retrieves the client coordinates of a window's client */
+ /*       area.                                                               */
+ /*                                                                           */
+ /*    _WinSubSetWindowPos ( hWnd, nNX, nNY, nSX, nSY, sFlags )               */
+ /*       This function changes the size, position, and Z-order of child,     */
+ /*       pop-up, and top-level windows.                                      */
+ /*                                                                           */
+ /*    _WinSubMoveWindow ( hWnd, nNX, nNY, nSX, nSY, sFlags )                 */
+ /*       This function changes the position and dimensions of a window.      */
+ /*                                                                           */
+ /*    _WinSubPostMessage ( hWnd, nCmd, sParam1, lParam2 )                    */
+ /*       This function posts a message in a window's message queue and       */
+ /*       then returns without waiting for the corresponding window to        */
+ /*       process the message.                                                */
+ /*                                                                           */
+ /*                                                                           */
+ /*===========================================================================*/
+
+//-----------------------------------------------------------------------------
+// PARAMETERS
+//      szModules specifies module name to be tested.
+//
+// DESCRIPTION
+//      The routine returns 0 if module is not found, otherwise return -1.
+//
+// PURPOSE
+//      Retrieves the handle of the specified module.
+//-----------------------------------------------------------------------------
+
+function _WinSubGetModuleHandle ( szModule )
+HWND  hInst;
+STRING svResult;
+NUMBER nvResult;
+begin
+     // Retrieve module handle
+     hInst = GetModuleHandle (szModule);
+
+    if( hInst < 0 ) then
+        _WinSubErrDLLFunc ( "GetModuleHandle" );
+        return -1;
+    endif;
+
+
+    // Determine Operating System type, and accordingly, return the
+    // result
+
+    if( !GetSystemInfo( OS, nvResult, svResult ) ) then
+        if( ( nvResult = IS_WINDOWS95 ) || ( nvResult = IS_WINDOWSNT ) ) then
+            if( hInst > 0 ) then
+                return 1;
+            else
+                return 0;
+            endif;
+        else
+            hInst = hInst & 0x0000FFFF;
+            if( hInst > 0) then
+                return 1;
+            else
+                return 0;
+            endif;
+        endif;
+    endif;
+
+    return -1;
+
+end;
+
+//-----------------------------------------------------------------------------
+// PARAMETER:
+//      nShow specifies whether the display count to be increased
+//            or decreased. The display count is increased if nShow is
+//            nonzero. Otherwise, it is decreased. The cusor is displayed
+//            only if the display count is greater than or equal to zero.
+// PURPOSE
+//      This function shows or hides the cursor.
+//
+//-----------------------------------------------------------------------------
+function _WinSubShowCursor ( nShow )
+NUMBER  nRet;
+
+begin
+        // Check if the given window handle is valid?
+        nRet = ShowCursor ( nShow );
+
+       if( nRet = -1 ) then
+       else
+           // Need to mark out the higher 2 bytes
+           nRet = nRet & 0x0000FFFF;
+           if( nRet != 0 ) then
+               nRet = 1;
+           endif;
+       endif;
+
+        return nRet;
+end;
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd  specifies the window
+//      nShow specifies how the window is to be shown which
+//            supports all SWP_* flags under Windows.
+// PURPOSE
+//     This function sets the given window's visibility state.
+//
+//-----------------------------------------------------------------------------
+function _WinSubShowWindow ( hWnd, nShow )
+
+NUMBER  nRet;
+
+begin
+        // Check if the given window handle is valid?
+        nRet = ShowWindow ( hWnd, nShow );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "ShowWindow" );
+           nRet = -1;
+
+        else
+
+           // Need to mark out the higher 2 bytes
+           nRet = nRet & 0x0000FFFF;
+           if ( nRet != 0 ) then
+              nRet = 1;
+           endif;
+
+        endif;
+
+        return nRet;
+end;
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd   specifies the window or the dialogbox.
+//      nBtnId specifies the identifier of the control.
+// PURPOSE
+//             This function sets the input focus to the given child window.
+//             all subsequent keyboard input is directed to this child window.
+//             The child window, if any, that previously had the input focus
+//             loses it.
+//
+//-----------------------------------------------------------------------------
+function _WinSubFocusControl ( hWnd, nBtnID )
+
+INT     hCtrl;
+INT     nRet;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Retrieve child window handle
+        hCtrl = _WinSubGetChildWindow ( hWnd, nBtnID );
+        if ( hCtrl <= 0 ) then
+           return -1;
+        endif;
+
+        // Enable/disable the window
+        nRet = _WinSubFocusWindow ( hCtrl );
+
+        return nRet;
+end;
+
+//-----------------------------------------------------------------------------
+// PARAMETER:
+//      hWnd specifies the window
+// PURPOSE
+//             This function sets the input focus to the given  window.
+//             all subsequent keyboard input is directed to this window.  The
+//             window, if any, that previously had the input focus loses it.
+//
+//-----------------------------------------------------------------------------
+function _WinSubFocusWindow ( hWnd )
+
+INT     nRet;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Check if the given window handle is valid?
+        nRet = SetFocus ( hWnd );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "SetFocus" );
+           nRet = -1;
+
+        else
+
+           // Need to mark out the higher 2 bytes
+           nRet = nRet & 0x0000FFFF;
+           if ( nRet != 0 ) then
+              nRet = 1;
+           endif;
+
+        endif;
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd    specifies the window or the dialogbox.
+//      nBtnID  specifies the identifier of the control.
+//      nEnable specifies to enable or to disable the control.
+// PURPOSE
+//             This function enables or disables mouse and keyboard input to
+//             the given window or control.  When input is disabled, the window
+//             ignores input such as mouse clicks and key presses.  When input
+//             is enabled, the window processes all input.
+//
+//-----------------------------------------------------------------------------
+function _WinSubEnableControl ( hWnd, nBtnID, nEnable )
+
+INT     hCtrl;
+INT     nRet;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Retrieve child window handle
+        hCtrl = _WinSubGetChildWindow ( hWnd, nBtnID );
+        if ( hCtrl <= 0 ) then
+           return -1;
+        endif;
+
+        // Enable/disable the window
+        nRet = _WinSubEnableWindow ( hCtrl, nEnable );
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd   specifies the window or the dialogbox.
+//      nBtnID specifies the identifier of the child window.
+// PURPOSE
+//             This function retrieves the handle of a control that is in the
+//             given dialog box.
+//
+//-----------------------------------------------------------------------------
+function _WinSubGetChildWindow ( hWnd, nBtnID )
+
+INT     hCtrl;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Check if the given window handle is valid?
+        hCtrl = GetDlgItem ( hWnd, nBtnID );
+        if ( hCtrl = -1 ) then
+
+           _WinSubErrDLLFunc ( "GetDlgItem" );
+           hCtrl = -1;
+
+        else
+
+           // Need to mark out the higher 2 bytes
+           hCtrl = hCtrl & 0x0000FFFF;
+
+        endif;
+
+        return hCtrl;
+
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd   specifies the window.
+//      nBtnID specifies to enable or to disable the window.
+// PURPOSE
+//             This function enables or disables mouse and keyboard input to
+//             the given window or control.  When input is disabled, the window
+//             ignores input such as mouse clicks and key presses.  When input
+//             is enabled, the window processes all input.
+//
+//-----------------------------------------------------------------------------
+function _WinSubEnableWindow ( hWnd, nEnable )
+
+SHORT   sFlag;
+INT     nRet;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Setup flag
+        if ( nEnable = 0 ) then
+           sFlag = 0;
+        else
+           sFlag = 1;
+        endif;
+
+
+        // Check if the given window handle is valid?
+        nRet = EnableWindow ( hWnd, sFlag );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "Enable" );
+           nRet = -1;
+
+        else
+
+           // Need to mark out the higher 2 bytes
+           nRet = nRet & 0x0000FFFF;
+           if ( nRet != 0 ) then
+              nRet = 1;
+           endif;
+
+        endif;
+
+        return nRet;
+
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd   specifies the window.
+//      szText specifies the new caption text.
+// PURPOSE
+//      This function sets the given window's title to the specified text.
+//
+//-----------------------------------------------------------------------------
+function _WinSubSetWindowTitle ( hWnd, szText )
+
+INT             nRet;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+
+        // Set window title
+        nRet = _WinSubSetWindowText ( hWnd, szText );
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETER:
+//      hWnd is the window or the dialogbox to be centered.
+// PURPOSE
+//      This function changes the position and dimensions to be the center
+//      of the screen.
+//
+//-----------------------------------------------------------------------------
+function _WinSubCenterWindow ( hWnd )
+
+INT             nRet;
+INT             nOX, nOY, nSX, nSY;
+INT             nNX, nNY;
+SHORT           sFlags;
+
+begin
+
+// ## remove this line when hide/show dialogbox are supported
+        // return 0;
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Retrieve window rect
+        _WinSubGetWindowRect ( hWnd, nOX, nOY, nSX, nSY );
+
+        // Retrieve screen extent
+        GetExtents ( nNX, nNY );
+
+        // Calculate new orig
+        nSX = nSX - nOX + 1;
+        nSY = nSY - nOY + 1;
+        nNX = ( nNX - nSX ) / 2;
+        nNY = ( nNY - nSY ) / 2;
+
+        // Move the window
+        sFlags = 1;
+        nRet   = _WinSubMoveWindow ( hWnd, nNX, nNY, nSX, nSY, sFlags );
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd   specifies the window.
+//      szText specifies the new caption text.
+// PURPOSE
+//
+//-----------------------------------------------------------------------------
+function _WinSubSetWindowText ( hWnd, szText )
+
+INT     nRet;
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Check if the given window handle is valid?
+        nRet = SetWindowText ( hWnd, szText );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "SetWindowText" );
+           nRet = -1;
+
+        else
+
+           nRet = 0 ;
+
+        endif;
+
+        return nRet;
+
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETER:
+//      hWnd is the window or the dialogbox to be centered.
+// PURPOSE
+//        This function determines whether the given window handle is valid.
+//
+//-----------------------------------------------------------------------------
+function _WinSubIsWindow ( hWnd )
+
+INT     nRet;
+
+begin
+
+        // Check if the given window handle is valid?
+        nRet = IsWindow ( hWnd );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "IsWindow" );
+           nRet = -1;
+
+        else
+
+           // Need to mark out the higher 2 bytes
+           nRet = nRet & 0x0000FFFF;
+           if ( nRet != 0 ) then
+              nRet = 1;
+           endif;
+
+        endif;
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      (INPUT)
+//      hWnd specifies the window.
+//      (OUTPUT)
+//      nOX receives the X-coord. of the upper-left corner.
+//      nOY receives the Y-coord. of the upper-left corner.
+//      nSX receives the X-coord. of the lower-right corner.
+//      nSY receives the Y-coord. of the lower-right corner.
+// PURPOSE
+//       This function retrieves the dimensions of the bounding rectangle
+//       of a given window.
+//
+//-----------------------------------------------------------------------------
+function _WinSubGetWindowRect ( hWnd, nOX, nOY, nSX, nSY )
+
+NUMBER          nRet;
+POINTER         pRect;
+WINRECTSTRUCT   rect;
+STRING          szTemp [MAX_WINSUB_TMPSTRING_LENGTH];
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Retrieve the address of the structure
+        pRect = AddressStruct ( rect );
+
+        // Retrieve window rect
+        nRet = GetWindowRect ( hWnd, pRect );
+        if ( nRet = -1 ) then
+
+           // Can not locate the function?
+           _WinSubErrDLLFunc ( "GetWindowRect" );
+           nRet = -1;
+
+        else
+
+           // Separate each field of the rect structure
+           StructGet ( rect, "WINRECTSTRUCT", "origX", nOX, szTemp );
+           StructGet ( rect, "WINRECTSTRUCT", "origY", nOY, szTemp );
+           StructGet ( rect, "WINRECTSTRUCT", "relX" , nSX, szTemp );
+           StructGet ( rect, "WINRECTSTRUCT", "relY" , nSY, szTemp );
+           nRet = 0;
+
+        endif;
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      (INPUT)
+//      hWnd specifies the window.
+//      (OUTPUT)
+//      nOX receives 0.
+//      nOY receives 0.
+//      nSX receives the width of the window.
+//      nSY receives the height of the window.
+// PURPOSE
+//       This function retrieves the client coordinates of a window's client
+//       area.
+//
+//-----------------------------------------------------------------------------
+function _WinSubGetClientRect ( hWnd, nOX, nOY, nSX, nSY )
+
+NUMBER          nRet;
+POINTER         pRect;
+WINRECTSTRUCT   rect;
+STRING          szTemp [MAX_WINSUB_TMPSTRING_LENGTH];
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Retrieve the address of the structure
+        pRect = AddressStruct ( rect );
+
+        // Retrieve window rect
+        nRet = GetClientRect ( hWnd, pRect );
+        if ( nRet = -1 ) then
+
+           // Can not locate the function?
+           _WinSubErrDLLFunc ( "GetClientRect" );
+           nRet = -1;
+
+        else
+
+           // Separate each field of the rect structure
+           StructGet ( rect, "WINRECTSTRUCT", "origX", nOX, szTemp );
+           StructGet ( rect, "WINRECTSTRUCT", "origY", nOY, szTemp );
+           StructGet ( rect, "WINRECTSTRUCT", "relX" , nSX, szTemp );
+           StructGet ( rect, "WINRECTSTRUCT", "relY" , nSY, szTemp );
+           nRet = 0;
+
+        endif;
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd specifies the window.
+//      nNX specifies X-coord. of the new upper-left corner.
+//      nNY specifies Y-coord. of the new upper-left corner.
+//      nSX specifies the width of the window.
+//      nSY specifies the height of the window.
+//      sFlags supports all SWP_* available in SetWindowPos API.
+// PURPOSE
+//     This function changes the size, position, and Z-order of child,
+//     pop-up, and top-level windows.
+//
+//-----------------------------------------------------------------------------
+function        _WinSubSetWindowPos ( hWnd, nNX, nNY, nSX, nSY, sFlags )
+
+NUMBER          nRet;
+
+begin
+
+        // Check window handle
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+
+        // Move window
+        nRet = SetWindowPos ( hWnd, 0, nNX, nNY, nSX, nSY, sFlags );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "SetWindowPos" );
+           nRet = -1;
+
+        else
+
+           nRet = 0;
+
+        endif;
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd specifies the window.
+//      nNX specifies X-coord. of the new upper-left corner.
+//      nNY specifies Y-coord. of the new upper-left corner.
+//      nSX specifies the width of the window.
+//      nSY specifies the height of the window.
+//      sFlags specifies whether to redraw the window.
+// PURPOSE
+//      This function changes the position and dimensions of a window.
+//
+//-----------------------------------------------------------------------------
+function        _WinSubMoveWindow ( hWnd, nNX, nNY, nSX, nSY, sFlags )
+
+NUMBER          nRet;
+
+begin
+
+#ifdef CHECKWINDOW=1
+        if ( _WinSubIsWindow ( hWnd ) <= 0 ) then
+           return -1;
+        endif;
+#endif
+
+        // Move window
+        nRet = MoveWindow ( hWnd, nNX, nNY, nSX, nSY, sFlags );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "MoveWindow" );
+           nRet = -1;
+
+        else
+
+           nRet = 0;
+
+        endif;
+
+        return nRet;
+end;
+
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      hWnd specifies the window.
+//      nCmd specifies the type of message posted.
+//      sParam1 specifies additional message information.
+//      lParam2 specifies additional message information.
+// PURPOSE
+//      This function posts a message in a window's message queue and
+//      then returns without waiting for the corresponding window to process
+//      the message.
+//
+//-----------------------------------------------------------------------------
+function   _WinSubPostMessage ( hWnd, nCmd, sParam1, lParam2 )
+
+NUMBER          nRet;
+
+begin
+
+        // Move window
+        nRet = PostMessage ( hWnd, nCmd, sParam1, lParam2 );
+        if ( nRet = -1 ) then
+
+           _WinSubErrDLLFunc ( "PostMessage" );
+           nRet = -1;
+
+        else
+
+           nRet = 0;
+
+        endif;
+
+        return nRet;
+end;
+
+//-----------------------------------------------------------------------------
+// PARAMETERS:
+//      szDLLFuncName specifies the DLL function name which returns -1.
+// PURPOSE
+//
+//-----------------------------------------------------------------------------
+function        _WinSubErrDLLFunc ( szDLLFuncName )
+
+STRING          szMsg [MAX_WINSUB_MSGSTRING_LENGTH];
+
+begin
+
+        szMsg = "InstallShield can not call DLL function: " + szDLLFuncName;
+        MessageBox ( szMsg, SEVERE );
+
+end;
+
+
+

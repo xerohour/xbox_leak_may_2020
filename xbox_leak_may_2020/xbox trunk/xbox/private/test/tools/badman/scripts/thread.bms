@@ -1,0 +1,174 @@
+/*++
+
+Copyright (c) 2000  Microsoft Corporation
+
+Module Name:
+
+    thread.bms
+
+Abstract:
+
+    Script file for badman test engine. This script contains list of
+    various thread APIs exported from XAPI
+
+Author:
+
+    Sakphong Chanbai (schanbai) 01-Apr-2000
+
+Environment:
+
+    XBox
+
+Revision History:
+
+--*/
+
+module : xapi
+
+HANDLE CreateThread( LPSECURITY_ATTRIBUTES lpsa,
+                     DWORD cbStack,
+                     LPTHREAD_START_ROUTINE lpStartAddr,
+                     LPVOID lpvThreadParm,
+                     DWORD fdwCreate,
+                     LPDWORD lpIDThread ) = 0
+
+    lpsa:
+        Good: LPSECURITY_ATTRIBUTES_NULL
+        Omit:
+
+    cbStack:
+        Good: DWORD_ZERO
+        Bad:
+
+    lpStartAddr:
+        Good: LPTHREAD_START_ROUTINE_VALID_THREAD_ADDRESS
+        Bad:
+
+    lpvThreadParm:
+        Good: LPVOID_NULL
+        Bad:
+
+    fdwCreate:
+        Good: DWORD_NORMAL_THREAD_FLAGS
+              DWORD_CREATE_SUSPENDED
+        Bad:
+
+    lpIDThread:
+        Good: LPDWORD_DWORD_SIZED_BLOCK
+              LPDWORD_NULL
+        Bad:  LPDWORD_RANDOM_POINTER
+              LPDWORD_MINUS_ONE
+
+BOOL GetExitCodeThread( HANDLE hThread, LPDWORD lpExitCode ) = 0
+
+    hThread:
+        Good: HANDLE_THREAD
+              HANDLE_CURRENT_THREAD
+              HANDLE_SUSPENDED_THREAD
+        Bad:  HANDLE_NULL
+              HANDLE_RANDOM
+              HANDLE_NAMED_EVENT
+
+    lpExitCode:
+        Good: LPDWORD_DWORD_SIZED_BLOCK
+              LPDWORD_BUFFER
+        Bad:  LPDWORD_NULL
+              LPDWORD_RANDOM_POINTER
+              LPDWORD_MINUS_ONE
+
+BOOL GetThreadContext( HANDLE hThread, LPCONTEXT lpContext ) = 0
+
+    hThread:
+        Good: HANDLE_THREAD
+              HANDLE_CURRENT_THREAD
+        Omit:
+
+    lpContext:
+        Good: LPCONTEXT_VALID_STRUCTURE
+        Omit: LPCONTEXT_BLOCK_TOO_SMALL
+
+BOOL SetThreadContext( HANDLE hThread, LPCONTEXT lpContext ) = 0
+
+    hThread:
+        Good: HANDLE_THREAD
+              HANDLE_CURRENT_THREAD
+        Omit: HANDLE_SUSPENDED_THREAD
+
+    lpContext:
+        Good: LPCONTEXT_VALID_STRUCTURE
+        Omit:
+
+int GetThreadPriority( HANDLE hThread ) = 2147483647
+
+    hThread:
+        Good: HANDLE_THREAD
+              HANDLE_CURRENT_THREAD
+        Omit:
+
+BOOL SetThreadPriority( HANDLE hThread, int iPriority ) = 0
+
+    hThread:
+        Good: HANDLE_THREAD
+        Omit: HANDLE_CURRENT_THREAD
+
+    iPriority:
+        Good: int_THREAD_PRIORITY_LOWEST
+              int_THREAD_PRIORITY_BELOW_NORMAL
+              int_THREAD_PRIORITY_NORMAL
+              int_THREAD_PRIORITY_ABOVE_NORMAL
+              int_THREAD_PRIORITY_HIGHEST
+        Bad:  int_BAD_THREAD_PRIORITY
+
+DWORD SuspendThread( HANDLE hThread ) = -1
+
+    hThread:
+        Good: HANDLE_THREAD
+        Omit: HANDLE_CURRENT_THREAD
+              HANDLE_SUSPENDED_THREAD
+
+DWORD ResumeThread( HANDLE hThread ) = -1
+
+    hThread:
+        Good: HANDLE_SUSPENDED_THREAD
+        Omit: HANDLE_CURRENT_THREAD
+              HANDLE_THREAD
+
+BOOL TerminateThread( HANDLE hThread, DWORD dwExitCode ) = 0
+
+    hThread:
+        Good: HANDLE_THREAD
+              HANDLE_SUSPENDED_THREAD
+        Omit: HANDLE_CURRENT_THREAD
+
+    dwExitCode:
+        Good: DWORD_ZERO
+        Bad:
+
+/*
+
+REVIEW: xLog relies on TLS, we don't want to mess with it.
+        However, we have solution if we really need to do this.
+
+LPVOID TlsGetValue( DWORD dwTlsIndex ) = 0
+
+    dwTlsIndex:
+        Good: DWORD_VALID_TLS_SLOT
+        Omit:
+
+BOOL TlsFree( DWORD dwTlsIndex ) = 0
+
+    dwTlsIndex:
+        Good: DWORD_VALID_TLS_SLOT
+        Omit:
+
+BOOL TlsSetValue( DWORD dwTlsIndex, LPVOID lpTlsValue ) = 0
+
+    dwTlsIndex:
+        Good: DWORD_VALID_TLS_SLOT
+        Omit:
+
+    lpTlsValue:
+        Good: LPVOID_NULL
+        Bad:
+
+*/

@@ -1,0 +1,53 @@
+///////////////////////////////////////////////////////////
+//
+//
+// services.idl :	IDL source describes the help services component.
+//					This component provides the help services.
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (help.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Import the help system interfaces
+import "helpsys.idl" ;
+
+// Import the help initialization interface
+import "helpinit.idl" ;
+
+// Import the help utilities interface
+import "helputil.idl" ;
+
+
+///////////////////////////////////////////////////////
+//
+// HelpServices Type Library definition.
+//
+[
+	uuid(854d7ac6-bc3d-11d0-b421-00a0c90f9dc4),
+	version(1.0),
+	helpstring("Help System Services 1.0 Type Library")
+]
+library VsHelpServices
+{
+
+	importlib("stdole2.tlb");
+	///////////////////////////////////////////////////////
+	//
+	// HelpServices Component
+	//
+	[
+		//uuid(854d7ac5-bc3d-11d0-b421-00a0c90f9dc4),
+    uuid(A6073E27-5BEA-11d3-B897-00C04F79F802),
+		helpstring("HelpServices Class")
+	]
+	coclass VsHelpServices
+	{
+		[default] interface IVsHelpSystem;
+		interface IVsHelpInit ;
+		interface IVsHelpUtilities;
+	};
+} ;
+

@@ -1,0 +1,78 @@
+// coloader.idl : IDL source for coloader.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (coloader.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+[
+	object,
+	uuid(79B1DAE1-D1B1-11D2-9930-00C04F68FDAF),
+	dual,
+	helpstring("IVsLoader Interface"),
+	pointer_default(unique)
+]
+interface IVsLoader : IDispatch
+{
+	[id(1), helpstring("method Load")] 
+	HRESULT Load(
+		[in]BSTR strModule, 
+		[in]REFCLSID rclsid, 
+		[in]LPUNKNOWN pUnkOuter, 
+		[in]DWORD dwClsContext, 
+		[out]IUnknown** ppunk
+		);
+};
+
+[
+	uuid(79B1DAD0-D1B1-11D2-9930-00C04F68FDAF),
+	version(1.0),
+	helpstring("coloader 1.0 Type Library")
+]
+library COLOADERLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		uuid(79B1DAE2-D1B1-11D2-9930-00C04F68FDAF),
+		helpstring("VsFreeLoader Class")
+	]
+	coclass VsFreeLoader
+	{
+		[default] interface IVsLoader;
+	};
+
+//////
+
+	[
+		uuid(79B1DAE4-D1B1-11D2-9930-00C04F68FDAF),
+		helpstring("VsBothLoader Class")
+	]
+	coclass VsBothLoader
+	{
+		[default] interface IVsLoader;
+	};
+
+//////
+
+	[
+		uuid(79B1DAE6-D1B1-11D2-9930-00C04F68FDAF),
+		helpstring("VsApartmentLoader Class")
+	]
+	coclass VsApartmentLoader
+	{
+		[default] interface IVsLoader;
+	};
+
+//////
+
+	[
+		uuid(392ffaad-3ed8-4d49-8796-8b3ba1d455b4),
+		helpstring("VsDefaultLoader Class")
+	]
+	coclass VsDefaultLoader
+	{
+		[default] interface IVsLoader;
+	};
+};

@@ -1,0 +1,39 @@
+!include ..\..\..\dsound.inc
+
+TARGETNAME = wma_decs_NODRM$(D)
+
+C_DEFINES=$(C_DEFINES) -DXBOX
+C_DEFINES=$(C_DEFINES) -DWMAAPI_NO_DRM -DWMAAPI_NO_DRM_STREAM -DENABLE_ALL_ENCOPT -DBUILD_INT_FLOAT -DENABLE_LPC
+C_DEFINES=$(C_DEFINES) -D_Embedded_x86
+
+INCLUDES=\
+    $(INCLUDES);\
+    ..\include;\
+    ..\asfparse_s;\
+    ..\common;\
+    ..\x86;
+
+
+SOURCES=main.c\
+        autoprofile.c\
+        dectables.c\
+        fft.c\
+        float.c\
+        lowrate_common.c\
+        lpc.c\
+        msaudio.c\
+        x86.c\
+        wavfileio.c\
+        wmaos.c\
+        entropydec.c\
+        equalizer.c\
+        huffdec.c\
+        msaudiodec.c\
+        strmdec_wma.c\
+        wmadecS_api.c\
+        wmadec_api.c\
+        wmaudio.c\
+        wmaudio_parse.c
+        
+
+    

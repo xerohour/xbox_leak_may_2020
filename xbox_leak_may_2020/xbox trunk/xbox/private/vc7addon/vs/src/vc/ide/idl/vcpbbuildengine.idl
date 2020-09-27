@@ -1,0 +1,408 @@
+// This file will be processed by the MIDL tool to
+// produce the type library (vcpbobjects.tlb) and marshalling code.
+
+// all interfaces in this IDL file are for internal use by the build engine
+
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "VCPBObjects.idl";
+
+// interfaces in this header
+interface IVCBuildEngine;
+interface IVCBuildActionList;
+interface IVCBuildAction;
+interface IVCCommandLine;
+interface IVCCommandLineList;
+interface IVCGenericConfiguration;
+interface IVCBuildOutput;
+interface IVCBuildThread;
+interface IVCBuildStringCollection;
+interface IVCBuildOutputItems;
+interface IVCBuildOutputItem;
+
+// interfaces needed by this header
+interface IVCToolImpl;
+interface IVCPropertyContainer;
+interface IVCBuildErrorContext;
+interface IVCBuildableItem;
+
+// enums needed for building
+
+typedef enum actReturnStatus	// action return status
+{
+	ACT_Error		= 0x0,		// error during action
+	ACT_Canceled	= 0x1,		// canceled action
+	ACT_Complete	= 0x2		// completed action
+} actReturnStatus;
+
+typedef enum bldAttributes		// attributes of a build
+{
+	AOB_Default			= 0x0,	// default build
+	AOB_IgnoreErrors	= 0x1,	// 'ignore errors' build, eg. batched builds
+	AOB_Forced			= 0x2	// 'forced' build, eg. compile a single item
+} bldAttributes;
+
+typedef enum bldActionTypes		// action type
+{
+	TOB_Build			= 0x0,		// action must build output
+	TOB_ReBuild			= 0x1,		// action must re-build output
+	TOB_Clean			= 0x2,		// action must clean output
+	TOB_Link			= 0x3,		// only link
+	TOB_PreBuildEvent	= 0x4,		// only pre-build event
+	TOB_PreLinkEvent	= 0x5,		// only pre-link event
+	TOB_PostBuildEvent	= 0x6,		// only post-build event
+	TOB_Deploy			= 0x7,		// only deploy event
+	TOB_XboxImage		= 0x8,		// only Xbox image event
+	TOB_XboxDeploy		= 0x9,		// only Xbox deploy event
+	TOB_Compile			= 0xa		// only compile
+} bldActionTypes;
+
+typedef enum FlagsChangedAction		// flags on the build
+{
+	fcaNeverQueried, 
+	fcaRebuild, 
+	fcaIgnore
+} FlagsChangedAction;
+
+typedef enum BuildResults
+{
+	BuildComplete,
+	BuildCanceled,
+	BuildError,
+	NoBuild,
+} BuildResults;
+
+typedef enum BuildType
+{
+	Compile,
+	NormalBuild,
+	BatchBuild,
+	Link,
+	BuildEvent,
+} BuildType;
+
+typedef enum commandLineOptionStyle
+{
+	cmdLineForBuild,
+	cmdLineForRefresh,
+	cmdLineForDisplay
+} commandLineOptionStyle;
+// our compile file, etc., options belong inside the range mentioned below from vsshell.idl
+// const DWORD VS_BUILDABLEPROJECTCFGOPTS_PRIVATE = 0xFFFF0000;    // flags private to a particular implementation
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_LOCAL	= 0x00010000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_COMPILE	= 0x00020000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_LINK		= 0x00040000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_PREBLD	= 0x00080000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_PRELINK	= 0x00100000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_POSTBLD	= 0x00200000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_DEPLOY	= 0x00400000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_XBOXIMAGE = 0x00800000;
+const DWORD VC_BUILDABLEPROJECTCFGOPTS_XBOXDEPLOY = 0x01000000;
+
+cpp_quote("// generation of output files")
+cpp_quote("#define AOGO_Primary	0x1							// only those considered primary")
+cpp_quote("#define AOGO_Other		0x2							// other output files")
+cpp_quote("#define AOGO_All		AOGO_Primary | AOGO_Other	// all output files")
+cpp_quote("#define AOGO_Default	AOGO_All					// default is top generate all output files")
+
+// tool deferred enumeration?
+cpp_quote("#define DAB_DEFINED_IN_IDL  // suppress this in projtool.h")
+typedef enum DAB		// Deferred Action Behavior
+{
+	dabNotDeferred,		// Normal behavior -- build if out-of-date
+	dabDeferred,		// Defer -- build only if target doesn't exist
+	dabNeverBuild		// Never build -- regardless of existence or timestamps
+} DAB;
+
+typedef enum enumDependencyState	// dependency state info
+{
+	depEmpty,	// empty deps
+	depNone		// forced to have no deps
+} enumDependencyState;
+
+import "vcpberrcontext.idl";	// IVCBuildErrorContext
+
+[
+	object,
+	local,
+	uuid(A8F14291-1E96-11D3-B96D-00C04F685D26),
+	helpstring("IVCBuildActionList Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildActionList : IUnknown
+{
+	HRESULT Next([out] IVCBuildAction** ppAction, [out] void** ppPosCookie);
+	[propget] HRESULT Count([out, retval] long *pVal);
+	HRESULT Find([in] IVCToolImpl* pTool, [out] IVCBuildAction** ppAction);
+	HRESULT FindByName([in] BSTR bstrToolName, [out] IVCBuildAction** ppAction);
+	HRESULT Add([in] IVCBuildAction* pAction);
+	HRESULT Reset([out] void** ppPosCookie);
+	HRESULT RemoveAtPosition([in] void* pPosCookie);
+	HRESULT FreeOutputFiles();
+	[propget] HRESULT Project([out, retval] VCProject** ppProject);
+	[propget] HRESULT LastAction([out, retval] IVCBuildAction** ppAction);
+	[propget] HRESULT ProjectConfigurationDependencies([out, retval] IVCBuildStringCollection** ppDependencies);	// dependencies of this action; i.e., libs, etc.
+	[propget] HRESULT ProjectConfigurationBuildOutputs([out, retval] IVCBuildStringCollection** ppOutputs);		// outputs of this action; i.e., foo.exe, foo.pdb, etc.
+	HRESULT RefreshOutputs([in] long nPropID, [in] IVCBuildErrorContext* pEC);
+	HRESULT HandlePossibleCommandLineOptionsChange([in] IVCBuildErrorContext* pEC);
+};
+
+[
+	object,
+	local,
+	uuid(A8F14294-1E96-11D3-B96D-00C04F685D26),
+	helpstring("IVCBuildAction Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildAction : IUnknown
+{
+	HRESULT MatchesOldTool([in] IVCToolImpl* pTool, [out] BOOL* pbMatches);
+	[propget] HRESULT VCToolImpl([out, retval] IVCToolImpl** pVal);
+	HRESULT RefreshOutputs([in] long nPropID, [in] IVCBuildErrorContext* pEC);
+	HRESULT HandlePossibleCommandLineOptionsChange([in] IVCBuildErrorContext* pEC);
+	[propget] HRESULT Project([out, retval] VCProject** ppProject);
+	[propget] HRESULT FileConfiguration([out, retval] VCFileConfiguration** ppFileCfg);
+	[propget] HRESULT ProjectConfiguration([out, retval] VCConfiguration** ppProjCfg);
+	HRESULT GetOutput([in] IVCBuildErrorContext* pEC, [out, retval] void** ppFileRegSet);
+	[propget] HRESULT Registry([out, retval] void** ppFileRegistry);
+	[propget] HRESULT ItemFilePath([out, retval] BSTR* pbstrFilePath);
+	[propget] HRESULT Item([out, retval] IVCBuildableItem** ppItem);
+	[propget] HRESULT PropertyContainer([out, retval] IVCPropertyContainer** ppPropContainer);
+	[propget, hidden] HRESULT ThisPointer([out, retval] void** ppThis);
+	HRESULT InitSets();
+	HRESULT LateBind([in] IVCBuildErrorContext* pEC);
+	HRESULT AddOutputFromID([in] long nPathId, [in] IVCBuildErrorContext* pEC, [in] BSTR bstrDefExtension, 
+		[in] BSTR bstrDirBase, [in] BSTR bstrDefFilename, [in] long nEnablePropId, [in] VARIANT_BOOL fWithAction,
+		[in] IVCToolImpl* pTool);
+	HRESULT AddOutputInSubDirectory([in] BSTR bstrSubDirectory, [in] IVCBuildErrorContext* pEC, [in] BSTR bstrDefExtension, 
+		[in] BSTR bstrDirBase, [in] BSTR bstrDefFilename, [in] long nEnablePropId, [in] VARIANT_BOOL fWithAction,
+		[in] long nErrPropID, [in] IVCToolImpl* pTool);
+    HRESULT AddOutputFromDirectory([in] BSTR bstrDirBase, [in] IVCBuildErrorContext* pEC, [in] long nEnablePropId, 
+		[in] BSTR bstrExt, [in] long nErrPropID, [in] IVCToolImpl* pTool);
+	HRESULT AddOutputFromPath([in] BSTR bstrPath, [in] IVCBuildErrorContext* pEC, [in] VARIANT_BOOL fWithAction, 
+		[in] VARIANT_BOOL fAllowFilter, [in] long nErrPropID, [in] IVCToolImpl* pTool);
+	HRESULT AddOutputFromFileName([in] BSTR bstrFileName, [in] IVCBuildErrorContext* pEC, [in] BSTR bstrDefExtension, 
+		[in] BSTR bstrDirBase, [in] VARIANT_BOOL fWithAction, [in] long nErrPropID, [in] IVCToolImpl* pTool);
+	[propget] HRESULT SourceDependencies([out, retval] void** ppFileRegSet);
+	[propget] HRESULT ScannedDependencies([out, retval] void** ppFileRegSet);
+	HRESULT AddSourceDependencyFromString([in] BSTR bstrDep, [in] IVCBuildErrorContext* pEC);
+	HRESULT AddSourceDependencyFromFrh([in] void* pFileRegHandle, [in] IVCBuildErrorContext* pEC);
+	HRESULT RemoveSourceDependencyForFrh([in] void* pFileRegHandle, [in] IVCBuildErrorContext* pEC);
+	HRESULT ClearSourceDependencies([in] IVCBuildErrorContext* pEC);
+	HRESULT AddScannedDependencyFromFrh([in] void* pFileRegHandle, [in] IVCBuildErrorContext* pEC);
+	HRESULT AddScannedDependencyFromString([in] BSTR bstrDep, [in] IVCBuildErrorContext* pEC);
+	HRESULT AddScannedDependencyOfType([in] int type, [in] BSTR bstrFile, [in] int line, [in] BOOL fScan, 
+		[in] IVCBuildErrorContext* pEC);
+	HRESULT ClearScannedDependencies([in] IVCBuildErrorContext* pEC);
+	HRESULT SetDependencyState([in] enumDependencyState depState);
+	HRESULT MarkMissingDependencies([in] BOOL bHaveMissing);
+	HRESULT ScanToolDependencies([in] IVCToolImpl* pTool, [in] IVCBuildErrorContext* pEC, [in] VARIANT_BOOL bWriteOutput);
+	HRESULT GetRelativePathsToInputs([in] BOOL bFilterOutSpecial, [in] BOOL bUseMultiLine, [in] IVCBuildErrorContext* pEC, [out] BSTR *pVal);
+	HRESULT UpdateDependencyInformationTimeStamp();
+	[propget] HRESULT Dependencies([out, retval] IVCBuildStringCollection** ppDependencies);	// dependencies of this action; i.e., libs, headers, etc.
+	[propget] HRESULT BuildOutputs([out, retval] IVCBuildStringCollection** ppOutputs);		// outputs of this action; i.e., foo.exe, foo.pdb, foo.obj, etc.
+	[propget] HRESULT IsTargetAction([out, retval] VARIANT_BOOL* pbIsTargetAction);
+	HRESULT GetFileNameForFileRegHandle([in] void* pRegHandle, [out] BSTR* pbstrFileName);
+	HRESULT GetFileRegHandleForFileName([in] BSTR bstrFileName, [out] void** ppRegHandle);
+	HRESULT ReleaseRegHandle([in] void* pRegHandle);
+	HRESULT GetDeploymentDependencies([in, out] IVCBuildStringCollection** ppDeployDeps);
+};
+	
+[
+	object,
+	uuid(497AAA18-2DA9-11D3-B96F-00C04F685D26),
+	helpstring("IVCBuildThread Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildThread : IUnknown
+{
+	HRESULT InitializeForBuild([in] IVCGenericConfiguration* pGenCfg, [in] VCConfiguration* pProjCfg, 
+		[in] ULONG celtFiles, [in, size_is(celtFiles)] VCFile* pFiles[], [in] bldActionTypes bldType, 
+		[in] BOOL bRecurse, [in] BOOL bProvideBanner, [in] IVCBuildEngine* pBuildEngine, 
+		[in] IVCBuildErrorContext* pErrorContext);
+	HRESULT StartThread();
+	HRESULT ExitThread();
+	HRESULT Wait();
+};
+
+[
+	object,
+	uuid(497AAA1C-2DA9-11D3-B96F-00C04F685D26),
+	helpstring("IVCGenericConfiguration Interface"),
+	pointer_default(unique)
+]
+interface IVCGenericConfiguration : IUnknown
+{
+	HRESULT InformBuildBegin();
+	HRESULT InformBuildEnd([in] BOOL fOk);
+	HRESULT StartAutomationBuild([in] bldActionTypes bldType);
+	HRESULT StartFileBuild([in] ULONG celt, [in, size_is(celt)] VCFile* pFile[]);
+	HRESULT SupportsBuildType([in] bldActionTypes buildType, [out] VARIANT_BOOL* pbSupports, [out] VARIANT_BOOL* pbAvailable);	// supports a particular build type; like link or a given build event
+	[propget] HRESULT NoBuildIsInProgress([out, retval, optional] BOOL* pbNoneInProgress);
+};
+
+[
+	object,
+	uuid(497AAA1F-2DA9-11D3-B96F-00C04F685D26),
+	helpstring("IVCBuildOutput Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildOutput : IUnknown
+{
+	HRESULT AddString([in] BSTR bstrString, [in] BOOL bAddCRLF);
+	HRESULT EnsureVisible();
+	HRESULT Clear();
+	HRESULT Activate();
+	HRESULT FlushToTaskList(); 
+	HRESULT Create();
+	HRESULT Close();
+	HRESULT CloseWithCount([out] int *pCount);
+	HRESULT CloseAll();		// close down ALL output windows, regardless of thread...
+	[propget] HRESULT OutputWindowPane([out, retval] IUnknown** pOutWindowPane);
+	HRESULT OutputTaskItemString([in] LPCOLESTR pszOutputString, [in] LONG /*VSTASKPRIORITY*/ nPriority, [in] LONG /*VSTASKCATEGORY*/ nCategory, [in] LPCOLESTR pszSubcategory, [in] long /*VSTASKBITMAP*/ nBitmap, [in] LPCOLESTR pszFilename, [in] ULONG nLineNum, [in] LPCOLESTR pszTaskItemText);
+	HRESULT SameWindowPane([in] IUnknown* pWindowPane);
+};
+
+[
+	object,
+	uuid(51245D42-348B-11D3-B975-00C04F685D26),
+	dual,
+	helpstring("IVCBuildStringCollection Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildStringCollection : IUnknown
+{
+	HRESULT Next([out] BSTR* pbstrElem);
+	[propget] HRESULT Count([out, retval] long *pVal);
+	HRESULT Reset();
+	HRESULT Add([in] BSTR bstrVal);
+	HRESULT AddAtLocation([in] long nLocation, [in] BSTR bstrVal);	// add the element at the specified index; 1-based
+	HRESULT Remove([in] long nLocation);	// remove the element at the specified index; 1-based
+	HRESULT Clear();	// remove all elements
+	HRESULT RemoveDuplicates(VARIANT_BOOL bIsPaths, VARIANT_BOOL bIsCaseSensitive);	// remove any duplicates
+};
+
+[
+	object,
+	uuid(A1ECFBAF-5CE0-11d3-B987-00C04F685D26),
+	dual,
+	helpstring("IVCBuildOutputItems Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildOutputItems : IUnknown
+{
+	[propget] HRESULT Count([out, retval] long* pcOutputs);
+	HRESULT Reset();
+	HRESULT Next([out] IVCBuildOutputItem** ppOutput);
+};
+
+[
+	object,
+	uuid(8A31A36D-5EFB-11d3-B987-00C04F685D26),
+	dual,
+	helpstring("IVCBuildOutputItem Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildOutputItem : IUnknown
+{
+    [propget] HRESULT FullPathName([out, retval] BSTR *pbstrFullPathName);
+};
+
+[
+	object,
+	uuid(B7A725A3-A298-4001-9DD3-CB9958AE5331),
+	nonextensible,
+	dual,
+	helpstring("IVCVendorToolFactory Interface"),
+	pointer_default(unique)
+]
+interface IVCVendorToolFactory : IUnknown
+{
+	HRESULT SetProjectEngine([in] IDispatch* pProjectEngine);
+	HRESULT CloseSession(void);
+	[propget] HRESULT RequiredPropertyRange([out, retval] long* pVal);
+	HRESULT SetStartID([in] long nStartID);
+	HRESULT GetBuildOnlyPropertyRange([out] long* pnStartID, [out] long* pnEndID);
+	HRESULT SupportsPlatform([in] BSTR bstrPlatformName, [out, retval] VARIANT_BOOL* pbSupports);
+};
+
+[
+	object,
+	dual,
+	uuid(189BB9AD-29C5-11D3-B96F-00C04F685D26),
+	helpstring("IVCCommandLine Interface"),
+	pointer_default(unique)
+]
+interface IVCCommandLine : IDispatch
+{
+	[propget] HRESULT Description([out, retval] BSTR *pVal);
+	[propput] HRESULT Description([in] BSTR newVal);
+	[propget] HRESULT CommandLineContents([out, retval] BSTR *pVal);
+	[propput] HRESULT CommandLineContents([in] BSTR newVal);
+	[propget] HRESULT NumberOfProcessors([out, retval] long* pnProcessors);
+	[propput] HRESULT NumberOfProcessors([in] long nProcessors);
+};
+	
+[
+	object,
+	dual,
+	uuid(189BB9B0-29C5-11D3-B96F-00C04F685D26),
+	helpstring("IVCCommandLineList Interface"),
+	pointer_default(unique)
+]
+interface IVCCommandLineList : IDispatch
+{
+	HRESULT Next([out] IVCCommandLine** ppCmdLine);
+	[propget] HRESULT Count([out, retval] long *pVal);
+	HRESULT Reset();
+	HRESULT Add([in] IVCCommandLine* pCmdLine, [in] BOOL bAddFront);
+	HRESULT AddList([in] IVCCommandLineList* pCmdLineList, [in] BOOL bAddFront);
+	HRESULT RemoveAll();
+	[propget] HRESULT UseConsoleCodePageForSpawner([out, retval] VARIANT_BOOL* pbConsoleCP);
+	[propput] HRESULT UseConsoleCodePageForSpawner([in] VARIANT_BOOL bConsoleCP);
+};
+
+[
+	object,
+	uuid(A8F1428E-1E96-11D3-B96D-00C04F685D26),
+	dual,
+	helpstring("IVCBuildEngine Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildEngine : IDispatch
+{
+	[propget, id(BLDENGID_SpawnerActive), helpstringcontext(BLDENGID_SpawnerActive)] HRESULT SpawnerActive([out, retval] VARIANT_BOOL* pbSpawnerActive);
+	[propget, id(BLDENGID_CanSpawnBuild), helpstringcontext(BLDENGID_CanSpawnBuild)] HRESULT CanSpawnBuild([out, retval] VARIANT_BOOL* pbCanSpawn);
+	[propget, id(BLDENGID_UserStoppedBuild), helpstringcontext(BLDENGID_UserStoppedBuild)] HRESULT UserStoppedBuild([out, retval] VARIANT_BOOL *pVal);
+	[propget, id(BLDENGID_HaveLogging), helpstringcontext(BLDENGID_HaveLogging)] HRESULT HaveLogging([out, retval] VARIANT_BOOL *pVal);
+	[id(BLDENGID_LogTrace), helpstringcontext(BLDENGID_LogTrace)] HRESULT LogTrace([in] int fFlags, [in] BSTR bstrMessage);
+	[propget, id(BLDENGID_CurrentLogSection), helpstringcontext(BLDENGID_CurrentLogSection)] HRESULT CurrentLogSection([out, retval] eLogSectionTypes* peSection);
+	[propput, id(BLDENGID_CurrentLogSection), helpstringcontext(BLDENGID_CurrentLogSection)] HRESULT CurrentLogSection([in] eLogSectionTypes eSection);
+	[id(BLDENGID_FormCommandLine), helpstringcontext(BLDENGID_FormCommandLine)] HRESULT FormCommandLine([in] BSTR bstrToolExeName, [in] BSTR bstrCmdLineIn, [in] IVCBuildErrorContext* pEC, [in] BOOL fRspFileOK, [in] BOOL fLogCommand, [out] BSTR* pbstrCmdLineOut);
+	[id(BLDENGID_FormBatchFile), helpstringcontext(BLDENGID_FormBatchFile)] HRESULT FormBatchFile([in] BSTR bstrCmdLineIn, [in] IVCBuildErrorContext* pEC, [out] BSTR* pbstrCmdLineOut);
+	[id(BLDENGID_FormTempFile), helpstringcontext(BLDENGID_FormTempFile)] HRESULT FormTempFile([in] BSTR bstrCmdLineIn, [in] BSTR bstrCommentLine, [out] BSTR* pbstrCmdLineOut);
+	[id(BLDENGID_FormXMLCommand), helpstringcontext(BLDENGID_FormXMLCommand)] HRESULT FormXMLCommand([in] BSTR bstrCmdLineIn, [in] BSTR bstrExe, [in] BSTR bstrExtraArgs, [out] BSTR* pbstrCmdLineOut);
+	[id(BLDENGID_ExecuteCommandLines), helpstringcontext(BLDENGID_ExecuteCommandLines)] HRESULT ExecuteCommandLines([in] IVCCommandLineList* pCmds, [in] BSTR bstrDir, [in] VARIANT_BOOL fCheckForComSpec, [in] VARIANT_BOOL fIgnoreErrors, [in] IVCBuildErrorContext* pEC, [out] CMD* pCmdRet);
+	[id(BLDENGID_AddMissingEnvVar), helpstringcontext(BLDENGID_AddMissingEnvVar)] HRESULT AddMissingEnvironmentVariable([in] BSTR bstrMissingVar);
+	[id(BLDENGID_ClearPending), helpstringcontext(BLDENGID_ClearPending)] HRESULT ClearPendingEnvironmentVariableWarnings();
+	[id(BLDENGID_AddToOutputDirs), helpstringcontext(BLDENGID_AddToOutputDirs)] HRESULT AddToOutputDirectoryList([in] BSTR bstrDir);
+	[id(BLDENGID_StopBuild), helpstringcontext(BLDENGID_StopBuild)] HRESULT StopBuild();
+	[propget, id(BLDENGID_ReuseLogFile), helpstringcontext(BLDENGID_ReuseLogFile)] HRESULT ReuseLogFile([out, retval] VARIANT_BOOL* pbReuse);
+	[propput, id(BLDENGID_ReuseLogFile), helpstringcontext(BLDENGID_ReuseLogFile)] HRESULT ReuseLogFile([in] VARIANT_BOOL bReuse);
+};
+
+[
+	uuid(1C7E1635-1D63-449e-A278-5BC8898874C6),
+	version(1.0),
+	pointer_default(unique),
+	oleautomation	// <=== this lets us marshal this interface
+]
+interface IVCMarshallableEventHandler : IUnknown
+{
+	HRESULT FireProjectBuildFinished([in] IDispatch *pCfg, [in] long errors, [in] long warnings, [in] VARIANT_BOOL bCancelled);
+};
+
+#include "vcpbprivobjects.idl"
+

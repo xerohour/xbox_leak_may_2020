@@ -1,0 +1,139 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+<BR>
+<BR>
+</td><td>
+
+<H2>Shedding Some Light on Shadows</H2>
+
+
+<P><I>By Dave McCoy, Graphics Techniques Consultant, Xbox Content and Design Team</I></P>
+
+<H3>Introduction</H3>
+<P>Shadows not only add visual fidelity to a scene but also can be important cues in providing three-dimensional information critical to gameplay. The brain has a lifetime of experience interpreting three-dimensional spaces based on shadows, and their correct use can be key for the player in resolving spatial ambiguities in two-dimensional representations of three-dimensional spaces.</P>
+
+<P>Creation of highly accurate shadows for complex scenes can be very expensive computationally. Though the Xbox&#8482; video game console from Microsoft contains plenty of 3-D computational horsepower and specific graphics features helpful in shadow generation, efficiency is still vital. Time spent creating shadows in each frame leaves less time for other cool effects. </P>
+<P>Fortunately, even if shadows contain significant levels of inaccuracy, the brain "wants" to see accurate shadows and will cut you a lot of slack if all shadows in the scene avoid behaving in patently non-shadow ways and are consistent with other visual cues for lighting and spatial relationships.</P>
+<P>In choosing the most effective method of shadow generation for your game, you must factor the performance costs of the various techniques along with the lighting conditions, the nature of the geometry that will cast and that will receive shadows, and the aesthetic you are after.</P>
+<P>While several of the techniques outlined in this paper are quite similar to those used for light maps, the methods discussed below are concerned with dynamic shadows, in which either the light is changing position or the object casting the shadow or receiving the shadow changes in shape, orientation, or position.</P>
+
+<H3>General Concepts</H3>
+<P>Other than lower-resolution per-object, per-polygon, or per-vertex methods, only a handful of techniques are commonly used to generate shadows. Special conditions that may exist in particular games allow for variations that can make these basic methods faster or higher fidelity, but the same basic approaches lie at the root of their function. </P>
+<P>We can divide shadow-casting methods into two broad categories: those that use geometry and those that use bitmaps. As a general rule, if the objects casting the shadows are many or complex, bitmap methods will be faster. Bitmap shadows can be soft-edged, while it takes quite a bit of processing and effort to produce projected soft-edged polygon shadows. Polygonal shadows, however are often more flexible in dealing with diverse lighting conditions, particularly if volumetric shadows are required. Additionally, they don't require huge bitmaps if very large, sharp shadows must be cast.</P>
+<P>A number of the polygon-based methods of shadow casting use the Xbox stencil buffer. This buffer is like a mask channel in Photoshop. When the stencil buffer is used, shadow shapes are not drawn directly on the screen but defined in the stencil buffer. The stencil buffer is then used as a mask to determine what areas on the displayed image should be darkened to simulate shadows. This approach can prevent shadows from changing density when multiple shadowing objects overlap.</P>
+<P>The stencil buffer can also be used to limit shadow drawing. Many shadow generation methods create an undesirable effect not in generating shadows but in stopping them from being generated where they are not wanted. For example, objects in a room can cast shadows right through the walls to appear incorrectly in an adjacent hallway. Some shadow rendering techniques cause shadows cast onto the front of an object facing the light to appear on the back of the object. Avoiding these problems generally requires partitioning of the scene through various techniques.</P>
+<H3>Pre-Calculated Shadows</H3>
+<P>Until recently, pre-calculated shadows have been the only type of shadow used in many games. Some examples include static light maps and per-vertex radiosity solutions. Although only limited dynamic shadows can be created using pre-calculated shadow techniques, these methods can be mixed with some of the more expensive projective techniques (discussed later) to improve performance.</P>
+<H4>Pre-Generated Shadow Bitmaps &#8211; Fast but Limited</H4>
+<P>The pre-generated shadow bitmap method has been in games forever. Sometimes it's still the best choice, if the object casting the shadow is not articulated and tends to cast shadows only along a single axis (most commonly down onto the ground). It has the advantage of being able to show highly detailed shadows on complex surfaces. It also has the advantage of being dirt cheap in terms of computational cost. </P>
+<P>The shadow is simply a painted or pre-rendered bitmap that is projected with the appropriate transformations and mapped onto objects that receive the shadow using methods identical to those used for light maps. Unless color variations are desired, generally an 8-bit gray scale map is used. </P>
+<P>Soft edges in the shadow bitmap can help enhance the appearance of the shadow and help mask inaccuracies inherent in this method. They also allow lower resolution bitmaps to be used without introducing a blocky appearance. Sometimes it is actually better if the shadow bitmap contains a few minor anomalies when compared to a completely accurate shadow because these anomalies can help throw the brain off the trail of how the shadow is being created.</P>
+<P>Soft shadows can also help when multiple pre-generated shadow bitmaps are created to represent shadows cast from various angles of incoming light. The most accurate shadow bitmap can be selected based on light angle and then cross-faded to another selection as the lighting angle changes. The use of soft shadows would make the cross-fade transitions between shadow bitmaps less obvious.</P>
+<P>Stretching and translating the projected shadow bitmap and decreasing the intensity of modulation across the shadow can produce very convincing effects when an object changes position relative to the shadow casting "light." Consider a car in a tunnel. As the car approaches a distant light on the tunnel roof, the shadow starts out barely visible on the road and significantly offset and stretched relative to the car. As the object gets closer to the light, the shadow intensifies and more closely conforms to the position and size of the car.</P>
+<IMG src="/content/img/shadows_fig1.gif"> &nbsp;&#43;&nbsp;<IMG src="/content/img/shadows_fig1a.gif">&nbsp;&#43;&nbsp;<IMG src="/content/img/shadows_fig1b.gif">&nbsp;&#61;&nbsp;<IMG src="/content/img/shadows_fig1c.gif"><BR><BR>
+<P>Being quite inexpensive, multiple shadow bitmaps can be used simultaneously to represent different views of an object from different light sources.</P>
+<P>Pre-generated bitmaps can also be useful for quickly casting complex shadows on moving objects. One example might be the shadow of a grove of trees, which could cast a very complex shadow of the tree canopy on any object that moves underneath them. In another example, a rotating ceiling fan might cast a moving shadow on the furniture and characters that are in a room by the shadow projection being transformed each frame.</P>
+<P>It is important to leave at least a one pixel non-shadowed border on shadow bitmaps. If this border is not provided, the shadow will continue stretching across any surfaces that receive the shadow, rather than stopping at the bitmap edge because of the way the shadows are projected. </P>
+<P>The Xbox can use volume textures, which may also be useful for shadow generation. Volume textures are projected onto surfaces and should not be confused with voxel objects. Developers are encouraged to experiment with volume textures if contemplating the use of pre-rendered shadows.</P>
+<P>Because the Xbox allows images to be readily streamed off DVD into textures, pre-rendered sequences could also be used for shadows. </P>
+<H4>Pre-Generated Planar Shadow Geometry &#8211; Even Faster and Even More Limited</H4>
+<P>Just as pre-generated bitmaps can be used, pre-constructed polygonal shapes can serve as the basis for shadows. Shadows generated this way can be used to darken areas of the image directly, or they can modify the stencil buffer, which can then be used to adjust the appropriate parts of the image. </P>
+<P>This kind of shadow works well only when projected onto planar surfaces because the geometry generating the shadow is typically flat. Generally, the polygonal shadow is drawn at the ground plane, and a bias value is used to avoid z-buffer errors.</P>
+<P>While the planar nature of this simple shadow type can be limiting, this method is potentially even cheaper than the pre-generated bitmap shadows because no projection or multi-texturing is involved with this kind of shadow.</P>
+<P>If the shadow is being used to darken the scene image directly, its edges can be softened with per-vertex transparency built into the outer vertices. Unfortunately, texture and transparency modulation are not available to the stencil buffer, so soft edges are not available if the stencil buffer is used to define the shadow shapes.</P>
+<P>Just as multiple bitmaps can be used to crudely represent changes in light angle, multiple morph targets can be used to represent shadow shape changes based on light angle. The shadow geometry can morph between the targets to represent the shadow from various views.</P>
+<P>Similar to pre-generated bitmap shadows, the polygonal shadow shape can be offset, distorted, and its intensity varied to simulate the effects of position changes relative to the shadow casting light.</P>
+<H3>Projected Shadows</H3>
+<P>The projected shadow techniques have become more popular in games recently as available graphic horsepower has increased. They are integrated into the scene using techniques basically identical to the pre-calculated approaches mentioned above, but because they are created using the casting object's three-dimensional data and the position of the light, they are more accurate and much more flexible.</P>
+<H4>Planar Projected Shadow Geometry &#8211; More Flexible and Accurate, but Limited to Shadows on Planes</H4>
+<P>The process of projecting a three dimensional shape onto a plane to create a shadow is fairly straightforward. The shadow is basically a flattened out and appropriately distorted version of the object's geometry based on its shape and the location of the plane and the light source. The restrictions on object type and lighting position are eliminated. Complex articulated objects and arbitrarily located light sources are not a problem for this approach.</P>
+<IMG src="/content/img/shadows_fig2a.gif"> &nbsp&nbsp;<IMG src="/content/img/shadows_fig2b.gif"><BR><BR> 
+<P>As is the case with pre-generated shadow geometry, shadows can be rendered directly in the scene or by using the stencil buffer. Using the stencil buffer avoids shadows varying in opacity based on overlapping segments and should probably be used if the object contains significant concavities (the most common example of such a shape would be a human being). </P>
+<P>If the stencil buffer is not used in generating the shadow, a soft edge can be created, though the performance penalty this incurs may warrant consideration of bitmap-based approaches if soft edges are mandatory.</P>
+<P>While planar shadows are usually cast only on the floor or ground, shadows can also be cast up walls and other planar surfaces by creating multiple planar shadows from the same object. If sufficient, this method can be significantly less expensive than the shadow volume method mentioned below.</P>
+<P>To improve efficiency, shadows should probably be generated with a simple LOD of the object. Even major discrepancies between the actual shape and the shadow shape are rarely noticed.</P>
+<H4>Projected Shadow Bitmaps &#8211; Not Volumetric, but Good Fidelity and Flexible</H4>
+<P>Often referred to as projected texture shadowing, the projected shadow bitmap technique creates a shadow by generating an image of the casting object's geometry from the light's point of view and then projecting this shadow "texture" onto objects that receive the shadow. This technique works quite well for complex casting and receiving objects. Many of the techniques discussed for pre-generated bitmap shadows are also applicable to projected shadow bitmaps.</P>
+<IMG src="/content/img/shadows_fig3a.gif"> &nbsp;&#43;&nbsp;<IMG src="/content/img/shadows_fig3b.gif">&nbsp;&#61;&nbsp;<IMG src="/content/img/shadows_fig3c.gif"><BR><BR> 
+<P>The resolution of the bitmap used to generate a shadow is significant to the shadow's quality. The size of the shadow, not the object, and the distance of the shadow from the camera should be used in determining an appropriate size for the bitmap to avoid a pixilated appearance. Smaller bitmaps that are scaled up will be softened by interpolation; however, objectionable aliasing artifacts may be present.</P>
+<P>If necessary to improve the appearance of the shadow, bitmaps can be softened additionally by drawing them multiple times with a slight offset to a separate bitmap, which then serves as the final shadow bitmap.</P>
+<IMG src="/content/img/shadows_fig4.gif"><BR><BR>
+<P>As shown in the diagram below, volumetric and self shadowing effects can be simulated by breaking objects into multiple parts, rendering each part from the light point of view, and applying the resulting images to objects farther from the casting light. Which segments are closer to and farther from the light can be determined by BSP or centerpoint sorting. It may be necessary to reduce casting objects with a small border of non-casting polygons to avoid shadowing at shared boundaries. </P>
+<IMG src="/content/img/shadows_fig5a.gif"> &nbsp&nbsp;<IMG src="/content/img/shadows_fig5b.gif">&nbsp;&nbsp;<IMG src="/content/img/shadows_fig5c.gif"><BR><BR><IMG src="/content/img/shadows_fig5d.gif"><BR><BR>
+<P>Just as with projected planar geometry shadows, a simple LOD version should generally be used in creating the shadow bitmaps.</P>
+<H3>Volumetric Shadows</H3>
+<P>Volumetric shadow generation methods create true three-dimensional shadows. This does not mean that the results from these methods will always be superior to the methods discussed above. However, the Xbox contains the graphics performance to make volumetric shadows readily usable in games, and they should be considered when they would produce significant results that are not achievable with the techniques discussed above.</P>
+<H4>Polygonal Shadow Volumes &#8211; Hi-Fi Volumetric Shadows for Simpler Shadow Casters</H4>
+<P>The polygonal shadow volume technique uses the stencil buffer and polygonal shapes to create shadows using shadow volumes. Shadow volumes can be used to create great looking self-shadowing objects, but because the technique generates a lot of polygons, it is better if the casting objects are not too complex. While calculating the shadow volume from an object based on its position and the position of a light source is fairly straightforward, it increases the polygon count fourfold. </P>
+<P>This polygon factor needs to be considered only for the objects casting the shadow. The complexity of objects that have the shadows cast on them is not a significant factor.</P>
+<P>When an object blocks the flow of light, a shadow volume is created in the object's wake. Anything that moves into this shadow volume becomes shadowed because of the absence of light within the volume. These shadow volumes can often be seen in real-life in foggy or smoky environments when a direct light source is present.</P>
+<IMG src="/content/img/shadows_fig6.gif"><BR><BR>
+<P>If the shadow volume were simply drawn as highly transparent black polygons, what would be seen is not a shadow cast on any object penetrating the volume, but the volume itself. Fortunately the stencil buffer and z-buffer can be used to keep the volume invisible but cast shadows on objects that penetrate it. A complete discussion of this technique is available at the NVIDIA Developer Support Web site. The Xbox Developers Kit also provides a sample of this technique in use.</P>
+<P>Because the shadows are created using geometry and the stencil buffer, shadows will be razor sharp unless multiple shadow volumes are overlapped or other techniques are used to simulate more complex lighting. Generally this does not yield very satisfactory results, considering the computational cost.</P>
+<IMG src="/content/img/shadows_fig7.gif"> <BR><BR>
+<P>While procedurally generated polygonal shadow volumes can produce very solid results with reasonable efficiencies, under some circumstances, the most expensive aspect of this technique (the number of polygons in the shadow volume) can be greatly reduced.  </P>
+<P>Most of the polygons in a procedurally generated shadow volume are not needed to calculate the volume. The time spent processing these polygons is essentially wasted. Only silhouette edges are relevant. Unfortunately, these edges can take significant time to identify. </P>
+<P>Fortunately, when an object and a light source do not change relative position or orientation, shadow volumes for that object remain unchanged. If shadows generated with shadow volumes do not need to change significantly during the game based on changing light position or object orientation, consider identifying the silhouette edges of objects for the particular lighting condition in advance and using only these to generate shadow volumes. Even minor changes in light position or object orientation may continue to yield satisfactory shadow volumes from the shape.</P>
+<P>Possible uses in games for objects with pre-calculated shadow volumes would be a sports stadium or bleachers casting shadows on a field and players, or buildings casting onto racecars and a complex track. Adventure games and shooters could use this method for shadows cast by buildings onto characters and other objects. Anywhere that simpler fixed objects and fixed light sources cast shadows on fairly complex, arbitrarily shaped objects is a good bet for this method. </P>
+<H4>Shadow Maps &#8211; Complex Object Volumetric Shadows, with Limits</H4>
+<P>Just as with projected shadow bitmaps, depth-based shadow maps are generated by creating an image from the light's point of view. In the case of shadow maps, the z-buffer from the light's point of view is also used to create the shadow. If the scene's geometry is rendered from the light's point of view, the z-buffer represents how far light was able to travel from the source before it was stopped by some object. When the scene is rendered from the camera viewpoint, the distance of each pixel from the light is compared to the value in the light viewpoint z-buffer. If the pixel is farther from the light than the distance recorded in the z-buffer, light did not reach that pixel and it should be rendered as in shadow. If volumetric shadowing is desired, this technique works well with complex objects that would be difficult to represent using geometric shadow volumes. This method can be used to vary the intensity or color of the shadow for additional effects because the distance from the light is known in order to execute this method.</P>
+<P>A variation of the z-buffer depth approach involves setting unique ID numbers on a per-object basis and drawing the objects in the light point of view by filling pixels with these ID numbers. When the camera point-of-view image is drawn, rather than comparing distance, the ID at that pixel is checked to see if the object is visible to the light. If not, that pixel lies in shadow. A unique ID is required for each object that can cast or receive a shadow from another object. Because the ID of each object being drawn is known, this information can be used to modify its reaction to light and shadow. </P>
+<P>The most significant limitations of all shadow maps are on the type and position of the light and the field of view it illuminates. If the light is directional, with a narrow field of view, and is distant from all objects casting and receiving shadows, the technique works quite well. However the rendering from the light point of view that provides the z-buffer for comparison purposes has to include all parts of the scene that receive shadows. If a point light inside the scene is the principal light source, the light point-of-view rendering must take in all 360 degrees. Multiple renderings can be conducted; however, the seams where these renderings meet can introduce errors.</P>
+<P>Resolution of the shadow maps can also be an issue. If the area shadowed is large compared to the detail level of objects within it, say a football field and detailed player models, a very high-resolution map would be required to avoid significant errors.</P>
+<P>Limitations in the precision of the z-buffer and aliasing errors between the camera and light point-of-view images can create errors in accurately determining if pixels should be in or out of shadow. These errors appear similar to z-buffer conflicts observed when overlapping polygons are displayed at almost identical distances from the camera. This problem can usually be overcome by introducing a bias value in the distance compare.</P>
+<P>To gain the self-shadowing ability of shadow maps and overcome some of the problems, sometimes shadow maps can be integrated with projected shadow bitmaps to provide shadowing for an entire scene. The geometry for each object that is to cast a shadow is rendered from the light point of view, and the object image and z-buffer data are stored. The z-buffer data can then be used to determine shadowing on each object, while additional shadows can be generated on other objects using projected bitmaps from the light point of view images. Obviously this method requires that multiple shadow maps be created, and it can consume a significant amount of time.</P>
+<H3>Conclusions</H3>
+<P>It is not necessary to use only one method to cast shadows in a game. Often, optimum performance can be gained by using different techniques for different objects and changing lighting and environment conditions. Generally all the bitmap approaches can be easily mixed as long as bitmap resolution and sharpness are kept fairly consistent. Volumetric and planar geometry shadows can also be mixed readily when useful.</P>
+<P>Here's a quick list to consider in determining what shadow generation techniques to use:
+<UL>
+<LI>How can shadows best help the player correctly interpret spatial relationships?</LI>
+<LI>In what way will shadows most improve visual fidelity?</LI>
+<LI>Are shadows principally cast on planar surfaces?</LI>
+<LI>Are soft-edged shadows required?</LI>
+<LI>Are there significant numbers of static objects that will cast shadows?</LI>
+<LI>Are all shadows cast from a single light source?</LI>
+<LI>Do shadow-casting lights move?</LI>
+<LI>How close do shadow-casting lights get to objects?</LI>
+<LI>How complex are the objects casting the shadows?</LI>
+<LI>Are objects that cast shadows articulated, or do they otherwise change shape?</LI>
+<LI>Are objects highly detailed compared to how far apart they appear in one image?</LI>
+<LI>How close will the camera get to the shadows?</LI>
+<LI>How much graphic memory do I have available for bitmap storage for shadows?</LI>
+<LI>Is graphics generation likely to be fill-rate limited or geometry limited?</LI>
+</UL></P>
+<P>High quality shadows can greatly enhance the visual appearance of your game and reduce player difficulties in interpreting dimensional spaces to improve gameplay. This level of graphic performance for good shadow generation has not been available to console developers until the latest generation of hardware (Xbox, PS2, Gamecube). Therefore, its presence will help games stand out from the previous generation of titles. Outstanding shadow creation is currently rare enough that its presence can be used as a distinguishing graphic feature from current generation competition. Like previous innovative graphic features, great shadows will very quickly become a requirement to remain visually competitive.</P>
+<P>As always, please contact <a href="mailto:content@xbox.com">content@xbox.com</a> with any questions or suggested revisions or extensions to this paper.</P>
+<P></P>
+
+<BR>
+
+<BR>
+
+<SMALL>Monday, February 12, 2001</SMALL>
+
+
+
+</td>
+
+
+
+
+
+	

@@ -1,0 +1,419 @@
+//==================================================================================
+// Includes
+//==================================================================================
+#define INITGUID
+#include "xauthtest.h"
+
+using namespace XAuthTestNamespace;
+
+namespace XAuthTestNamespace {
+
+//==================================================================================
+// Globals
+//==================================================================================
+static CRITICAL_SECTION g_csSerializeAccess;
+static HANDLE g_hLog = INVALID_HANDLE_VALUE;
+HANDLE g_hHeap = NULL;
+
+//==================================================================================
+// XAuthTestDllMain
+//----------------------------------------------------------------------------------
+//
+// Description: DLL entry
+//
+// Arguments:
+//	HINSTANCE	hInstance		Handle to module
+//	DWORD		dwReason		Indicates the reason for calling the function
+//	LPVOID		lpContext		reserved
+// Returns:
+//	TRUE on success
+//==================================================================================
+BOOL WINAPI XAuthTestDllMain(IN HINSTANCE hInstance, IN DWORD     dwReason, IN LPVOID    lpContext)
+{
+	WSADATA WSAData;
+
+	// We'll initialize/delete the global critical section here
+	switch(dwReason)
+	{
+	case DLL_PROCESS_ATTACH:
+		XNetAddRef();
+		WSAStartup(MAKEWORD(2, 2), &WSAData);
+		InitializeCriticalSection(&g_csSerializeAccess);
+		g_hHeap = HeapCreate(0,0,0);
+		break;
+	case DLL_PROCESS_DETACH:
+		WSACleanup();
+		XNetRelease();
+		DeleteCriticalSection(&g_csSerializeAccess);
+		HeapDestroy(g_hHeap);
+		g_hHeap = NULL;
+		break;
+	default:
+		break;
+	}
+
+    return TRUE;
+}
+
+//------------ tests start below ---------------------------------------------------
+
+VOID WINAPI xauthtest_XOnlineHasMachineAccount()
+{
+	//make sure no accounts are present
+    XOnlineSetupTempAccounts( FALSE, 0 );
+	//test if HasMachineAccount() returns false
+	if( XOnlineHasMachineAccount() == FALSE )
+		XDBGTRC("Online", "XOnlineHasMachineAccount() FC#1 ok" );
+	else
+		XDBGERR("Online", "XOnlineHasMachineAccount() FC#1 fail" );
+
+	//make sure accounts are present
+	XOnlineSetupTempAccounts( TRUE, XONLINE_MAX_STORED_ONLINE_USERS );
+	//test if HasMachineAccount() returns true
+	if( XOnlineHasMachineAccount() == TRUE )
+		XDBGTRC("Online", "XOnlineHasMachineAccount() SC#1 ok");
+	else
+		XDBGERR("Online", "XOnlineHasMachineAccount() SC#1 fail" );
+
+	return;
+}
+
+VOID WINAPI xauthtest_XOnlineGetUsers()
+{
+	HRESULT hr;
+	XONLINE_USER users[XONLINE_MAX_STORED_ONLINE_USERS];
+	DWORD numUsers;
+
+	//make sure accounts are not present
+	XOnlineSetupTempAccounts( FALSE, 0 );
+
+	//failure case #1; call with an unmounted MMU
+	//  at this point there is no way to get accounts onto the MMU
+	
+	//failure case #2; no online users
+	hr = XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, &users[0], &numUsers );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineGetUsers() FC#2 ok");
+	else
+		XDBGERR("Xonline", "XOnlineGetUsers() FC#2 fail");
+
+	//for remaining cases accounts must exist
+	XOnlineSetupTempAccounts( TRUE, 8 );
+	
+	//failure case #3; call with NULL pUsers;
+	hr = XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, NULL, &numUsers );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineGetUsers() FC#3 ok");
+	else
+		XDBGERR("Xonline", "XOnlineGetUsers() FC#3 fail");
+
+	//failure case #4; call with invalid chDrive
+	hr = XOnlineGetUsers( 'b', &users[0], &numUsers );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineGetUsers() FC#4 ok" );
+	else
+		XDBGERR("Xonline", "XOnlineGetUsers() FC#4 fail");
+
+	//failure case #5; call with NULL pcUsers
+	hr = XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, &users[0], NULL );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineGetUsers() FC#5 ok");
+	else
+		XDBGERR("Xonline", "XOnlineGetUsers() FC#5 fail");
+
+	//success case #1; call with mounted MMU and user accounts
+	//  at this point there is no way to get accounts onto the MMU
+
+	//success case #2; call with local hd and user accounts
+	hr = XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, &users[0], &numUsers );
+	if( FAILED(hr) )
+		XDBGERR("Xonline", "XOnlineGetUsers() SC#2 fail");
+	else
+		XDBGTRC("Xonline", "XOnlineGetUsers() SC#2 ok");
+
+	return;
+}
+
+VOID WINAPI xauthtest_XOnlinePINStartInput()
+{
+	XINPUT_STATE inputState;
+	XPININPUTHANDLE hr;
+	
+	//failure case #1; call with NULL pInputState
+	hr = XOnlinePINStartInput( NULL );
+	if( hr == NULL )
+		XDBGTRC("Xonline", "XOnlinePINStartInput FC#1 ok");
+	else
+		XDBGERR("Xonline", "XOnlinePINStartInput FC#1 fail");
+
+	//success case #1; call with a valid pInputState
+	//
+	//set XINPUT_STATE values
+	inputState.dwPacketNumber = 1;
+	inputState.Gamepad.wButtons = 0;
+	inputState.Gamepad.bAnalogButtons[0] = 0;
+	inputState.Gamepad.bAnalogButtons[1] = 0;
+	inputState.Gamepad.bAnalogButtons[2] = 0;
+	inputState.Gamepad.bAnalogButtons[3] = 0;
+	inputState.Gamepad.bAnalogButtons[4] = 0;
+	inputState.Gamepad.bAnalogButtons[5] = 0;
+	inputState.Gamepad.bAnalogButtons[6] = 0;
+	inputState.Gamepad.bAnalogButtons[7] = 0;
+	inputState.Gamepad.sThumbLX = 0;
+	inputState.Gamepad.sThumbLY = 0;
+	inputState.Gamepad.sThumbRX = 0;
+	inputState.Gamepad.sThumbRY = 0;
+
+	hr = XOnlinePINStartInput( &inputState );
+	if( hr != NULL )
+		XDBGTRC("Xonline", "XOnlinePINStartInput SC#1 ok");
+	else
+		XDBGERR("Xonline", "XOnlinePINStartInput SC#1 fail");
+
+	return;
+}
+
+
+VOID WINAPI xauthtest_XOnlinePINDecodeInput()
+{
+	HRESULT hr;
+	XINPUT_STATE inputState;
+	BYTE pinByte;
+	XPININPUTHANDLE pinHandle;
+
+	//set initial XINPUT_STATE
+	inputState.dwPacketNumber = 10;
+	inputState.Gamepad.wButtons = 0;
+	inputState.Gamepad.bAnalogButtons[0] = 0;
+	inputState.Gamepad.bAnalogButtons[1] = 0;
+	inputState.Gamepad.bAnalogButtons[2] = 0;
+	inputState.Gamepad.bAnalogButtons[3] = 0;
+	inputState.Gamepad.bAnalogButtons[4] = 0;
+	inputState.Gamepad.bAnalogButtons[5] = 0;
+	inputState.Gamepad.bAnalogButtons[6] = 0;
+	inputState.Gamepad.bAnalogButtons[7] = 0;
+	inputState.Gamepad.sThumbLX = 0;
+	inputState.Gamepad.sThumbLY = 0;
+	inputState.Gamepad.sThumbRX = 0;
+	inputState.Gamepad.sThumbRY = 0;
+
+	//get pin handle needed for further decoding
+	pinHandle = XOnlinePINStartInput( &inputState );
+	if( pinHandle != NULL )
+	{
+		//failure case #1; call with NULL handle
+		hr = XOnlinePINDecodeInput( NULL, &inputState, &pinByte );
+		if( FAILED(hr) )
+			XDBGTRC("Xonline", "XOnlinePINDecodeInput FC#1 ok");
+		else
+			XDBGERR("Xonline", "XOnlinePINDecodeInput FC#1 fail");
+
+		//failure case #2; call with NULL pPINByte
+		//
+		//advance dwPacketNumber
+		inputState.dwPacketNumber = 15;
+		hr = XOnlinePINDecodeInput( pinHandle, &inputState, NULL );
+		if( FAILED(hr) )
+			XDBGTRC("Xonline", "XOnlinePINDecodeInput FC#2 ok");
+		else
+			XDBGERR("Xonline", "XOnlinePINDecodeInput FC#2 fail");
+
+		//failure case #3; call with NULL pInputState
+		hr = XOnlinePINDecodeInput( pinHandle, NULL, &pinByte );
+		if( FAILED(hr) )
+			XDBGTRC("Xonline", "XOnlinePINDecodeInput FC#3 ok");
+		else
+			XDBGERR("Xonline", "XOnlinePINDecodeInput FC#3 fail");
+
+		//failure case #4, no longer applies as the game code checks PIN values
+		//failure case #5, TBC
+
+		//success case #1; call with valid arguments
+		//change the input state for decoding to work
+		inputState.dwPacketNumber = 20;
+		inputState.Gamepad.bAnalogButtons[5] = 0;
+		hr = XOnlinePINDecodeInput( pinHandle, &inputState, &pinByte );
+		if( FAILED(hr) )
+			XDBGERR("Xonline", "XOnlinePINDecodeInput SC#1 fail");
+		else
+			XDBGTRC("Xonline", "XOnlinePINDecodeInput SC#1 ok");
+
+		//close to pinhandle to conserve resources
+		XOnlinePINEndInput( pinHandle );
+	}
+	else
+		XDBGERR("Xonline", "XOnlinePINDecodeInput couldn't start test, XOnlinePINStartInput failed");
+
+	return;
+}
+
+VOID WINAPI xauthtest_XOnlinePINEndInput()
+{
+	HRESULT	hr;
+	XINPUT_STATE inputState;
+	BYTE pinByte;
+	XPININPUTHANDLE pinHandle;
+
+	//set initial XINPUT_STATE
+	inputState.dwPacketNumber = 10;
+	inputState.Gamepad.wButtons = 0;
+	inputState.Gamepad.bAnalogButtons[0] = 0;
+	inputState.Gamepad.bAnalogButtons[1] = 0;
+	inputState.Gamepad.bAnalogButtons[2] = 0;
+	inputState.Gamepad.bAnalogButtons[3] = 0;
+	inputState.Gamepad.bAnalogButtons[4] = 0;
+	inputState.Gamepad.bAnalogButtons[5] = 0;
+	inputState.Gamepad.bAnalogButtons[6] = 0;
+	inputState.Gamepad.bAnalogButtons[7] = 0;
+	inputState.Gamepad.sThumbLX = 0;
+	inputState.Gamepad.sThumbLY = 0;
+	inputState.Gamepad.sThumbRX = 0;
+	inputState.Gamepad.sThumbRY = 0;
+
+	//get pin handle needed for testing closing
+	pinHandle = XOnlinePINStartInput( &inputState );
+
+	//failure case #1; call with NULL handle
+	hr = XOnlinePINEndInput( NULL );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlinePINEndInput FC#1 ok");
+	else
+		XDBGERR("Xonline", "XOnlinePINEndInput FC#1 fail");
+
+	//success case #1; call with a valid handle
+	hr = XOnlinePINEndInput( pinHandle );
+	if( FAILED(hr) )
+		XDBGERR("Xonline", "XOnlinePINEndInput SC#1 fail");
+	else
+		XDBGTRC("Xonline", "XOnlinePINEndInput SC#1 ok");
+
+	return;
+}
+
+VOID WINAPI xauthtest_XOnlineLogon()
+{
+	HRESULT hr;
+    XONLINE_SERVICE service;
+	XONLINE_USER users[XONLINE_MAX_STORED_ONLINE_USERS];
+	DWORD numUsers;
+	XONLINETASK_HANDLE Handle = NULL;
+	DWORD cServices;
+
+	//make sure there are temporary accounts
+	XOnlineSetupTempAccounts( TRUE, 8 );
+	//obtain these accounts
+	XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, &users[0], &numUsers );
+	//setup services requested
+	RtlZeroMemory( &service, sizeof(service) );
+	strcpy( service.serviceName, "boydm-xs" );
+	cServices = 1;
+
+	//failure case #1; call with NULL pUsers pointer
+	hr = XOnlineLogon( NULL, &service, cServices, NULL, &Handle );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineLogon FC#1 ok");
+	else
+		XDBGERR("Xonline", "XOnlineLogon FC#1 fail");
+
+	//failure case #2; call with NULL pServices
+	hr = XOnlineLogon( users, NULL, cServices, NULL, &Handle );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineLogon FC#2 ok");
+	else
+		XDBGERR("Xonline", "XOnlineLogon FC#2 fail");
+
+	//failure case #3; call with 0 count of services
+	hr = XOnlineLogon( users, &service, 0, NULL, &Handle );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineLogon FC#3 ok");
+	else
+		XDBGERR("Xonline", "XOnlineLogon FC#3 fail");
+
+	//failure case #4; call when there is an update
+	//at this time I cannot force a required update
+
+	//failure case #5; not loger applies, Logon is not thread safe
+
+	//failure cases #6, #7, #8, #9 will be implemented later
+
+	//failure case #10; duplicate accounts
+	memcpy( &users[1], &users[0], sizeof(XONLINE_USER) );
+	hr = XOnlineLogon( users, &service, cServices, NULL, &Handle );
+	if( FAILED(hr) )
+		XDBGTRC("Xonline", "XOnlineLogon FC#10 ok");
+	else
+		XDBGERR("Xonline", "XOnlineLogon FC#10 fail");
+
+	//success case #1; call with valid arguments
+	// recreate accounts array
+	XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, &users[0], &numUsers );
+	hr = XOnlineLogon( users, &service, cServices, NULL, &Handle );
+	if( FAILED(hr) )
+		XDBGERR("Xonline", "XOnlineLogon SC#1 fail");
+	else
+		XDBGTRC("Xonline", "XOnlineLogon SC#1 ok");
+
+	//success case #2; call with valid argument and maximum num of users
+	XOnlineSetupTempAccounts( TRUE, XONLINE_MAX_STORED_ONLINE_USERS );
+	XOnlineGetUsers( XONLINE_LOCAL_HARD_DRIVE, &users[0], &numUsers );
+	hr = XOnlineLogon( users, &service, cServices, NULL, &Handle );
+	if( FAILED(hr) )
+		XDBGERR("Xonline", "XOnlineLogon SC#2 fail");
+	else
+		XDBGTRC("Xonline", "XOnlineLogon SC#3 ok");
+
+	return;
+}
+
+//==================================================================================
+// XAuthTestStartTest
+//----------------------------------------------------------------------------------
+//
+// Description: Test entry point
+//
+// Arguments:
+//	HANDLE		hLog			Handle to logging subsystem
+// Returns:
+//	none
+//==================================================================================
+VOID WINAPI XAuthTestStartTest(IN HANDLE  hLog)
+{
+	xauthtest_XOnlineHasMachineAccount();
+	xauthtest_XOnlineGetUsers();
+	xauthtest_XOnlinePINStartInput();
+	xauthtest_XOnlinePINDecodeInput();
+	xauthtest_XOnlinePINEndInput();
+	xauthtest_XOnlineLogon();
+	return;
+}
+
+//==================================================================================
+// XAuthTestEndTest
+//----------------------------------------------------------------------------------
+//
+// Description: Test exit point
+//
+// Arguments:
+//	none
+// Returns:
+//	none
+//==================================================================================
+VOID WINAPI XAuthTestEndTest()
+{
+
+}
+
+} // namespace XAuthTestNamespace
+
+// Define harness stuff
+#pragma data_seg( EXPORT_SECTION_NAME )
+DECLARE_EXPORT_DIRECTORY( XAuthTest )
+#pragma data_seg()
+
+// Define export table for harness
+BEGIN_EXPORT_TABLE( XAuthTest )
+    EXPORT_TABLE_ENTRY( "StartTest", XAuthTestStartTest )
+    EXPORT_TABLE_ENTRY( "EndTest", XAuthTestEndTest )
+    EXPORT_TABLE_ENTRY( "DllMain", XAuthTestDllMain )
+END_EXPORT_TABLE( XAuthTest )
+

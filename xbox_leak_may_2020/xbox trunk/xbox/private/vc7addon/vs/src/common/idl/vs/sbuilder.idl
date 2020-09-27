@@ -1,0 +1,107 @@
+// sbuilder.idl
+// This contains the interfaces which are used to invoke the COM+ StyleBuilder
+// from a COM 2 client.
+//
+// 1/5/99: Created: NikhilKo
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (sbuilder.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+///////////////////////////////////////////////////////////////////////////////
+// IStyleBuilder
+
+[
+    uuid(925C40C5-A4F7-11d2-9A96-00C04F79EFC3),
+    dual, object, version(1.0),
+    helpstring("IStyleBuilder Interface")
+]
+interface IStyleBuilder : IDispatch
+{
+    [id(100)] HRESULT InvokeBuilder(
+                [in]         LONG_PTR      hwndParent,
+                [in]         DWORD         dwFlags,
+                [in]         DWORD         dwPages,
+                [in]         BSTR          bstrCaption,
+                [in]         BSTR          bstrBaseURL,
+                [in,out]     VARIANT*      pvarStyle,
+                [out,retval] VARIANT_BOOL* pfResult);
+    [id(101)] HRESULT CloseBuilder();
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// IStyleBuilderFactory
+
+[
+    uuid(925C40C7-A4F7-11d2-9A96-00C04F79EFC3),
+    version(1.0),
+    helpstring("IStyleBuilderFactory Interface")
+]
+interface IStyleBuilderFactory : IUnknown
+{
+    HRESULT CreateStyleBuilder([out,retval] IStyleBuilder** ppBuilder);
+};
+
+cpp_quote("#define SID_SStyleBuilderFactory IID_IStyleBuilderFactory")
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Type Library
+
+[
+	uuid(925C40C4-A4F7-11d2-9A96-00C04F79EFC3),
+	version(1.0),
+	helpstring("StyleBuilder Type Library")
+]
+library StyleBuilderLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+
+    ///////////////////////////////////////////////////////////////////////////
+    // StyleBuilderFlags Enum
+
+    typedef enum StyleBuilderFlags
+    {
+        // Following three are mutually exclusive
+        sbfDefaultCaption = 0x0001,         // use 'StyleBuilder' as caption
+        sbfContextCaption = 0x0002,         // use 'StyleBuilder - <bstrCaption>' as caption
+        sbfCustomCaption = 0x0003,          // use '<bstrCaption>' as caption
+    } StyleBuilderFlags;
+
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // StyleBuilderStdPage Enum
+
+    typedef enum StyleBuilderStdPage
+    {
+        sbpFont = 0x0001,
+        sbpBackground = 0x0002,
+        sbpText = 0x0004,
+        sbpPosition = 0x0008,
+        sbpLayout = 0x0010,
+        sbpEdges = 0x0020,
+        sbpLists = 0x0040,
+        sbpOther = 0x0080,
+        
+        sbpAllStdPages = 0x00FFFFFF
+    } StyleBuilderStdPage;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // StyleBuilder Class
+
+    [
+        uuid(925C40C6-A4F7-11d2-9A96-00C04F79EFC3),
+        helpstring("StyleBuilder Class")
+    ]
+    coclass StyleBuilder
+    {
+        [default] interface IStyleBuilder;
+    }
+};

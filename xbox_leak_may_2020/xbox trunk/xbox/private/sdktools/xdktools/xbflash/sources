@@ -1,0 +1,42 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built
+
+!ENDIF
+
+TARGETNAME=xbflash
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=console
+UMENTRY=main
+
+USE_MSVCRT=1
+NOT_UNICODE=1
+
+SOURCES=xbflash.rc \
+        xbflash.cpp \
+
+INCLUDES=$(WSDK_INC_PATH)
+
+TARGETLIBS=$(SDK_LIB_PATH)\xboxdbg.lib
+
+PRECOMPILED_INCLUDE=xbflashp.h
+PRECOMPILED_CXX=1
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+!IF "$(FREEBUILD)" == "0"
+MSC_OPTIMIZATION=/Od
+!ENDIF

@@ -1,0 +1,194 @@
+#
+# The MAJORCOMP and MINORCOMP variables are defined
+# so that $(MAJORCOMP)$(MINORCOMP)filename can be used in
+# cross compiling to provide unique filenames in a flat namespace.
+#
+
+MAJORCOMP=windows
+MINORCOMP=media
+
+#
+# The TARGETNAME variable is defined by the developer.  It is the name of
+# the target (component) that is being built by this makefile.  It
+# should NOT include any path or file extension information.
+#
+
+TARGETNAME=voxlib
+
+
+#
+# The TARGETPATH and TARGETTYPE variables are defined by the developer.
+# The first specifies where the target is to be build.  The second specifies
+# the type of target (either PROGRAM, DYNLINK, LIBRARY, DRIVER, etc
+# UMAPPL_NOLIB is used when you're only building user-mode
+# apps and don't need to build a library.
+#
+
+TARGETPATH=obj
+TARGETTYPE=LIBRARY
+
+#
+# The TARGETLIBS specifies additional libraries to link with you target
+# image.  Each library path specification should contain an asterisk (*)
+# where the machine specific subdirectory name should go.
+#
+
+TARGETLIBS=
+
+
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=..\inc
+
+
+#
+# The SOURCES variable is defined by the developer.  It is a list of all the
+# source files for this component.  Each source file should be on a separate
+# line using the line continuation character.  This will minimize merge
+# conflicts if two developers adding source files to the same component.
+#
+
+SOURCES = as2lspe.c \
+AskToEnv.c \
+AsToCs.c \
+AutoCor.c \
+BandExpd.c \
+BitPackC.c \
+CalcCost.c \
+calcLPC.c \
+cBufUtil.c \
+CentCorr.c \
+CodeGain.c \
+CodePv.c \
+Coder.c \
+CompPow.c \
+Compress.c \
+CorrCost.c \
+corrfunc.c \
+CorrPDA.c \
+CsToEnv.c \
+DecodeRT.c \
+DecPlsSC.c \
+DecSC.c \
+DecVcFry.c \
+DeMltplx.c \
+dft.c \
+DotProd.c \
+EncodeRT.c \
+EncSC.c \
+enhance.c \
+EnvToAs.c \
+EstOnset.c \
+ExPhase.c \
+FadeIO.c \
+FadeSC.c \
+fft_cent.c \
+FHTkrnl.c \
+FindMax.c \
+GetnHarm.c \
+hamming.c \
+HarmSynF.c \
+HFRegen.c \
+HWin.c \
+Jitter.c \
+K2ASK.c \
+KaiWin.c \
+KLPitch.c \
+KsToAs.c \
+L2Scale.c \
+LDPDA.c \
+Lineintp.c \
+Log2.c \
+LPC.c \
+lpcSynth.c \
+lsp2ase.c \
+LspMSVQ.c \
+MagSq.c \
+MidFrame.c \
+MidPitch.c \
+MSVqPred.c \
+NormWin.c \
+NspIIR.c \
+nurand.c \
+OlAdd.c \
+OutBuf.c \
+OutBufSC.c \
+OverAdd.c \
+P5FFT.c \
+Pack12.c \
+PackSC.c \
+param.c \
+PeakPick.c \
+PolyIntp.c \
+PostFilt.c \
+PreProc.c \
+PtchCand.c \
+QEnrgy12.c \
+QP0SC3.c \
+QPitch12.c \
+QPvVR12.c \
+QTable12.c \
+quadPeak.c \
+Quan12.c \
+rate.c \
+RealFFT.c \
+Refine.c \
+RefineC0.c \
+RSMSVq.c \
+ScaleVec.c \
+Seevoc.c \
+SelePeak.c \
+SetAmps.c \
+Setup.c \
+SpCBM.c \
+SpecInt.c \
+SQ.c \
+SqLawPks.c \
+STFTfaze.c \
+STFTpks.c \
+SubFmSyn.c \
+SumSyn.c \
+SVqPhase.c \
+Sws.c \
+SWSynth.c \
+SymWinSp.c \
+SynSpec.c \
+trackPth.c \
+trig.c \
+trigSC.c \
+UVPhase.c \
+VAD2.c \
+vciPlsSC.c \
+vciPVR12.c \
+vciSC3.c \
+vciSC6.c \
+vciVR12.c \
+vector.c \
+vem2.c \
+vem2Prm.c \
+vemFrm12.c \
+VoicDeci.c \
+Voicing.c \
+VoicLD.c \
+VoxDurb.c \
+VoxQR.c \
+VoxRound.c \
+VQ2.c \
+VqResi.c \
+warp.c \
+Window.c
+
+
+#
+# Next specify options for the compiler.
+#
+
+C_DEFINES= $(C_DEFINES) /D_LIB /D_MBCS /DWIN32 /D_MT
+
+USER_C_FLAGS=-nologo -W3 -Gm -GX -YX
+
+

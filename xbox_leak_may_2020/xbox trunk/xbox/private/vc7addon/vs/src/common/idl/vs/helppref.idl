@@ -1,0 +1,58 @@
+/////////////////////////////////////////////////////////////////////////////
+//
+//
+// helppref.idl : IDL source for the IVsHelpPreferencesPage Interface
+//
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (help.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// IVsHelpPreferencesPage
+//
+[
+	uuid(854d7acc-bc3d-11d0-b421-00a0c90f9dc4),
+	helpstring("IVsHelpPreferencesPage Interface"),
+	pointer_default(unique)
+]
+interface IVsHelpPreferencesPage : IUnknown
+{
+	//
+	//	Initalizes this interface.
+	//
+	HRESULT Init([in] HWND hDlg, [in] int idLanguageCombo, [in] int idCollectionCombo);
+
+	//
+	//	Fill Combo Boxes.
+	//
+	HRESULT FillCombos();
+
+	//
+	//	The Language combo box has gotten a SelEndOk message.
+	//
+	HRESULT SelectLanguage();
+
+	//
+	//	The Collection combo box has gotten a SelEndOk message.
+	//
+	HRESULT SelectCollection();
+
+	//
+	//	Commit the changes make in the dialog.
+	//
+	HRESULT Commit();
+
+	/*
+		// See the init interface for more information.
+		If you would just like to replace "Developer Collections" with another key. Pass an 
+		0x00000001 (VHS_INIT_PartialPath) for the flags parameter. 
+	*/
+	HRESULT SetCollectionRegistryRoot([in] LONG_PTR hKeyStart, [in] LPCOLESTR pszRegistryRoot, [in] long flags) ;
+
+};
+

@@ -1,0 +1,147 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+typedef enum _DBOBJ_TYPE
+{
+  DBOBJ_TYPE_TABLE,
+  DBOBJ_TYPE_STORED_PROCEDURE
+
+} DBOBJ_TYPE;
+
+/*
+ * Definition for the IDBCodeGenerator interface.  Each of the code generators supported by 
+ * this package component supports this interface.
+ */
+
+[
+	object,
+	uuid(CE593DD4-DE4D-11D2-92FC-00C04FB98664),
+	dual,
+	helpstring("IDBCodeGenerator Interface"),
+	pointer_default(unique)
+]
+interface IDBCodeGenerator : IDispatch
+{
+	[id(1), helpstring("method SetDataSourceFromDSN")] 
+		HRESULT SetDataSourceFromDSN([in] BSTR bstrDSN);
+
+	[id(2), helpstring("method DataObjectContainsSupportedData")] 
+		HRESULT DataObjectContainsSupportedData(
+		    [in] IDataObject *pIDataObject);
+
+	[id(3), helpstring("method GetClass")] 
+		HRESULT GetClass(
+			[in] DBOBJ_TYPE dwType, 
+			[in] BSTR bstrClassName,
+			[in] BSTR bstrObjectName, 
+			[in] BSTR bstrSchema, 
+			[in, optional, defaultvalue(-1)] VARIANT_BOOL bAttributed,
+			[out, retval] BSTR *pbstrClassText);
+
+	[id(4), helpstring("method GetClassFromDSRef")] 
+		HRESULT GetClassFromDSRef(
+		    [in] IDataObject *pIDataObject,
+			[out, retval] BSTR *pbstrClassText);
+
+	[id(5), helpstring("method GetInlineCommand")] 
+		HRESULT GetInlineCommand(
+			[in] DBOBJ_TYPE dwType, 
+			[in] BOOL fNamed,
+			[in] BSTR bstrCmdName,
+			[in] BOOL fAddDBSource,
+			[in] BSTR bstrSourceName,
+			[in] BSTR bstrObjectName, 
+			[in] BSTR bstrSchema,
+			[in] SAFEARRAY(VARIANT) psaDesiredColumns, 
+			[out, retval] BSTR *pbstrCmdText);
+			
+	[id(6), helpstring("method GetInlineCommandFromDSRef")] 
+		HRESULT GetInlineCommandFromDSRef(
+		    [in] IDataObject *pIDataObject,
+			[out, retval] BSTR *pbstrCmdText);
+			
+	[id(7), helpstring("method InsertDSRefDataIntoClassView")] 
+		HRESULT InsertDSRefDataIntoClassView(
+		    [in] IDataObject *pIDataObject);					
+
+	[id(8), helpstring("method SelectDataSource")] 
+		HRESULT SelectDataSource([out]BSTR *pbstrConnectString, [out]BSTR *pbstrTableName, [out]BSTR *pbstrTableSchema, [out]VARIANT_BOOL *pfStoredProcedure, [out] BSTR *pbstrClassName);
+
+	//[id(9), helpstring("method SelectODBCDatabase")] 
+	//	HRESULT SelectODBCDatabase([out]BSTR *pbstrConnectString, [out]BSTR *pbstrTableName, [out]BSTR *pbstrTableSchema, [out]VARIANT_BOOL *pfStoredProcedure, [out] BSTR *pbstrClassName);
+	[id(9), helpstring("method SelectODBCDatabase")] 
+		HRESULT SelectODBCDatabase([out]BSTR *pbstrConnectString, [out]VARIANT *pbstrTableNames, [out]VARIANT *pbstrTableSchemas, [out]VARIANT *pfViews, [out] BSTR *pbstrClassName);
+
+	[id(10), helpstring("method SetODBCDatabase")] 
+		HRESULT SetODBCDatabase([in] BSTR bstrDSN);
+
+	//[id(11), helpstring("method GetODBCClass")]
+	//	HRESULT GetODBCClass(
+	//		[in] DBOBJ_TYPE dwType,
+	//		[in] BSTR bstrClassName,
+	//		[in] BSTR bstrObjectName,
+	//		[in] BSTR bstrSchema,
+	//		[out] BSTR *pbstrClassDeclText,
+	//		[out] BSTR *pbstrClassImplText,
+	//		[in] BOOL fSnapshot,
+	//		[in] BOOL fBindAllColumns );
+	[id(11), helpstring("method GetODBCClass")]
+		HRESULT GetODBCClass(
+			[in] BSTR bstrClassName,
+			[in] VARIANT bstrObjectNames,
+			[in] VARIANT bstrSchemaNames,
+			[in] VARIANT fViews,
+			[out] BSTR *pbstrClassDeclText,
+			[out] BSTR *pbstrClassImplText,
+			[in] BOOL fSnapshot,
+			[in] BOOL fBindAllColumns );
+
+	[id(12), helpstring("method GetConnectionString")] 
+		HRESULT GetConnectionString([out]BSTR *pbstrConnectString, [in]VARIANT_BOOL fUseOLEDB);
+
+	[propget] HRESULT Insert([out,retval]BOOL *pfInsert);
+	[propput] HRESULT Insert([in] BOOL fInsert);
+
+	[propget] HRESULT Delete([out,retval]BOOL *pfDelete);
+	[propput] HRESULT Delete([in] BOOL fDelete);
+
+	[propget] HRESULT Update([out,retval]BOOL *pfUpdate);
+	[propput] HRESULT Update([in] BOOL fUpdate);
+
+	[propget] HRESULT Command([out,retval]BOOL *pfCommand);
+	[propput] HRESULT Command([in] BOOL fCommand);
+};
+
+[
+    uuid(76b2c9a8-e181-11d2-92fc-00c04fb98664),
+    version(1.0)
+]
+library DBServicesLib
+{
+    importlib("stdole.tlb");
+	import "vsshell.idl";
+	[
+		uuid(da2110fe-dcad-11d2-92fb-00c04fb98664)
+	]
+	coclass DBServicesPackage
+	{
+		interface IVsPackage;
+		interface IServiceProvider;
+	};
+
+	/*
+	* Pointers to the following code generator objects can be obtained by
+	* calling IServiceProvider::QueryService.  The service ID you use is the
+	* CLSID specified below (example: CLSID_ATL_ConsumerAttributesCG)
+	*/
+
+	[
+		uuid(be9eb0a2-e162-11d2-92fc-00c04fb98664)
+	]
+	coclass ATL_ConsumerAttributesCG
+	{
+		interface IDBCodeGenerator;
+	};
+};
+
+

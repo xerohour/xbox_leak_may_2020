@@ -1,0 +1,30 @@
+TARGETNAME=dspscreen$(D)
+TARGETTYPE=LIBRARY
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+SYNCHRONIZE_DRAIN=1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od /FAcs
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+		$(PRIVATE_INC_PATH); \
+    $(BASEDIR)\private\test\multimedia\inc
+
+SOURCES= 			 \
+    ..\dspscreen.cpp 
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTNAME:"DSP Screen Test"
+
+TARGETLIBS=\
+           $(SDK_LIB_PATH)\dsound$(D).lib 
+

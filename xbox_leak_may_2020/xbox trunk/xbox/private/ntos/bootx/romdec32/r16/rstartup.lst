@@ -1,0 +1,749 @@
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:44
+..\i386\rstartup.asm					     Page 1 - 1
+
+
+				;++
+				;
+				; Copyright (c) 1989-2000  Microsoft Corporation
+				;
+				; Module Name:
+				;
+				;    rstartup.asm
+				;
+				; Abstract:
+				;
+				;    The module implements code to put the processor in protected mode.  This code executes
+				;    at processor reset vector
+				;
+				; Environment:
+				;
+				;    16-bit Real Mode
+				;
+				;--
+
+				; ==========================================================================
+
+				        .586p
+
+				        .xlist
+				        .list
+				        INCLUDE chipset.inc
+			      C ;++
+			      C ;
+			      C ; Copyright (c) Microsoft Corporation
+			      C ;
+			      C ; Module Name:
+			      C ;
+			      C ;    chipset.inc
+			      C ;
+			      C ; Abstract:
+			      C ;
+			      C ;    This file contains defines that control which chipset romdec and
+			      C ;    init table are built for
+			      C ;
+			      C ;--
+			      C 
+			      C IFNDEF RETAILXM3
+			      C ;
+			      C ; We want MCP_XMODE2 unless retail XM3 is being built
+			      C ;
+ = 0001			      C MCP_XMODE2 = 1
+			      C 
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; Define the following, when building for MCP Rev B01 in XMODE3
+			      C ; Otherwise, this should undefined
+			      C ;
+			      C ;MCP_REV_B01 = 1
+			      C 
+			      C 
+			      C IFDEF SYS_QT
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; If we are building retail, set the local retail define
+			      C ;
+			      C IFDEF RETAILXM3
+			      C ENDIF
+			      C 
+			      C 
+
+
+ 0000				_TEXT   SEGMENT  PARA USE16 PUBLIC 'CODE' 
+				        ASSUME  CS:_TEXT, DS:_TEXT, SS:_TEXT, ES:NOTHING
+
+
+				        PUBLIC  Startup16
+
+				;
+				; NOTE: Following ORG is hardcoded.  Changing any code below requires changing the ORG value
+				; so that the processor init always lines up at FFF0. To calculate this value, subtract the value of
+				; CodeSoFar label in the .lst file from FFF0 
+				;
+
+				IFDEF MCP_REV_B01
+				ELSE    
+				        ORG     0FFB8h
+				ENDIF   
+
+
+ FFB8				Startup16:
+
+				;
+				; Load the processor's global descriptor table by executing a 32-bit lgdt
+				;
+
+ FFB8  66			        db      066h
+ FFB9  2E: 0F 01 16 FFF4 R	        lgdt    cs:[RomDecGDTFWORD]
+				        
+				IFNDEF MCP_REV_B01
+				;
+				; Load the processor's interrupt descriptor table by executing a 32-bit lidt
+				; We point it to the same structure as the gdt to force the idt limit to be
+				; very small thus limiting the processor's capability to execute interrupt
+				; and fault handlers
+				;
+
+ FFBF  66			        db      066h
+ FFC0  2E: 0F 01 1E FFF4 R	        lidt    cs:[RomDecGDTFWORD]
+
+				ENDIF
+
+				;
+				; Enable the processor's protected mode support 
+				;
+
+ FFC6  0F 20 C0			        mov     eax, cr0
+ FFC9  0C 01			        or      al, CR0_PE
+ FFCB  0F 22 C0			        mov     cr0, eax
+
+				;
+				; Execute a 16:32 jump to the 32-bit part of romdec which is 512 bytes from 
+				; top of the address space
+				;
+
+ FFCE  66 EA			        db      066h, 0EAh
+ FFD0  FFFFFE00			        dd      0FFFFFE00h
+ FFD4  0008			        dw      KGDT_R0_CODE
+				   
+
+				;
+				; NOTE: The linear address of this table is hardcoded in RomDecGDTFWORD below.  Changing the
+				; the size of this table requires updating the address
+				;
+				        ALIGN   4
+ FFD8				RomDecGDT LABEL DWORD
+ FFD8  00000000			        dd      0                       ; KGDT_NULL
+ FFDC  00000000			        dd      0
+ FFE0  0000FFFF			        dd      00000FFFFh              ; KGDT_R0_CODE
+ FFE4  00CF9B00			        dd      000CF9B00h
+ FFE8  0000FFFF			        dd      00000FFFFh              ; KGDT_R0_DATA
+ FFEC  00CF9300			        dd      000CF9300h
+ FFF0				RomDecGDTEnd LABEL DWORD
+
+
+				;
+				; Processor will start executing code here which must be at FFFF_FFF0
+				;
+
+ FFF0				ProcessorInit:
+				       
+ = 0038				        CodeSoFar = (ProcessorInit - Startup16)
+
+				;
+				; Jump to the start of 16-bit code
+				;
+ FFF0  EB C6			        jmp     Startup16                    
+
+				;
+				; FWORD to initialize the processor's descriptor tables.
+				;
+
+				        ALIGN   4
+ FFF4				RomDecGDTFWORD LABEL FWORD
+ FFF4  0018			        dw      OFFSET RomDecGDTEnd - OFFSET RomDecGDT    
+
+ FFF6  FFFFFFD8			        dd      0FFFFFFD8h
+
+				;
+				; The 32-bit part of the RomDec jumps to this code located FFFF FFFA.  This code finishes the PCI
+				; cycle that was started by the 32-bit code to turn of the Southbridge ROM.  Turning off SB ROM causes
+				; the next instruction being executed fetched from main ROM.  This code causes the next instruction 
+				; to fall outside of the the address space causing an unhandled exception to occur so
+				; we don't execute any code from main ROM
+				;
+				; The processor will be in Protected Mode while executing this code.  This code must always ORG to FFFA.
+				;
+ FFFA				ShutdownEnd:
+ FFFA  80 C2 04			        add     dl, 04h
+ FFFD  B0 02			        mov     al, 2
+ FFFF  EE			        out     dx, al
+
+ 00010000			_TEXT ENDS
+
+
+				; ==========================================================================
+
+				        END Startup16
+
+
+
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:44
+..\i386\rstartup.asm					     Symbols 2 - 1
+
+
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+_TEXT  . . . . . . . . . . . . .	16 Bit	 00010000 Para	  Public  'CODE'	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+APC_INDEX_MISMATCH . . . . . . .	Number	 0001h	 
+APC_LEVEL  . . . . . . . . . . .	Number	 0001h	 
+ATTEMPTED_FPU_USE_FROM_DPC . . .	Number	 00F0h	 
+ATTEMPTED_SWITCH_FROM_DPC  . . .	Number	 00B8h	 
+ApApcListEntry . . . . . . . . .	Number	 0008h	 
+ApApcMode  . . . . . . . . . . .	Number	 0002h	 
+ApInserted . . . . . . . . . . .	Number	 0003h	 
+ApKernelRoutine  . . . . . . . .	Number	 0010h	 
+ApNormalContext  . . . . . . . .	Number	 001Ch	 
+ApNormalRoutine  . . . . . . . .	Number	 0018h	 
+ApRundownRoutine . . . . . . . .	Number	 0014h	 
+ApSystemArgument1  . . . . . . .	Number	 0020h	 
+ApSystemArgument2  . . . . . . .	Number	 0024h	 
+ApThread . . . . . . . . . . . .	Number	 0004h	 
+ApType . . . . . . . . . . . . .	Number	 0000h	 
+ApcObjectLength  . . . . . . . .	Number	 0028h	 
+ApcRecordLength  . . . . . . . .	Number	 0010h	 
+ArNormalContext  . . . . . . . .	Number	 0004h	 
+ArNormalRoutine  . . . . . . . .	Number	 0000h	 
+ArSystemArgument1  . . . . . . .	Number	 0008h	 
+ArSystemArgument2  . . . . . . .	Number	 000Ch	 
+AsApcListHead  . . . . . . . . .	Number	 0000h	 
+AsApcQueueable . . . . . . . . .	Number	 0017h	 
+AsKernelApcInProgress  . . . . .	Number	 0014h	 
+AsKernelApcPending . . . . . . .	Number	 0015h	 
+AsProcess  . . . . . . . . . . .	Number	 0010h	 
+AsUserApcPending . . . . . . . .	Number	 0016h	 
+BASE_PRIORITY_THRESHOLD  . . . .	Number	 0008h	 
+BLDR_BOOT_ORIGIN . . . . . . . .	Number	 00090000h   
+BLDR_RELOCATED_ORIGIN  . . . . .	Number	 00400000h   
+BLDR_VALID_KERNEL_LARGE_PTE_BITS .	Number	 00E3h	 
+BLDR_VALID_KERNEL_LARGE_PTE_UC_BITS 	Number	 00FBh	 
+BLDR_VALID_KERNEL_PTE_BITS . . .	Number	 0063h	 
+BOOT_CODE_ORIGIN . . . . . . . .	Number	 FE00h	 
+BREAKPOINT_BREAK . . . . . . . .	Number	 0000h	 
+CLOCK_LEVEL  . . . . . . . . . .	Number	 001Ch	 
+CLOCK_QUANTUM_DECREMENT  . . . .	Number	 0003h	 
+CLOCK_ROLLOVER_COUNT . . . . . .	Number	 0465h	 
+CLOCK_TIME_INCREMENT . . . . . .	Number	 2710h	 
+CONTEXT_CONTROL  . . . . . . . .	Number	 00010001h   
+CONTEXT_DEBUG_REGISTERS  . . . .	Number	 00010010h   
+CONTEXT_FLOATING_POINT . . . . .	Number	 00010008h   
+CONTEXT_FULL . . . . . . . . . .	Number	 00010007h   
+CONTEXT_INTEGER  . . . . . . . .	Number	 00010002h   
+CONTEXT_SEGMENTS . . . . . . . .	Number	 00010004h   
+CR0_AM . . . . . . . . . . . . .	Number	 00040000h   
+CR0_CD . . . . . . . . . . . . .	Number	 40000000h   
+CR0_EM . . . . . . . . . . . . .	Number	 0004h	 
+CR0_ET . . . . . . . . . . . . .	Number	 0010h	 
+CR0_MP . . . . . . . . . . . . .	Number	 0002h	 
+CR0_NE . . . . . . . . . . . . .	Number	 0020h	 
+CR0_NW . . . . . . . . . . . . .	Number	 20000000h   
+CR0_PE . . . . . . . . . . . . .	Number	 0001h	 
+CR0_PG . . . . . . . . . . . . .	Number	 -80000000h   
+CR0_TS . . . . . . . . . . . . .	Number	 0008h	 
+CR0_WP . . . . . . . . . . . . .	Number	 00010000h   
+CR4_DE . . . . . . . . . . . . .	Number	 0008h	 
+CR4_FXSR . . . . . . . . . . . .	Number	 0200h	 
+CR4_MCE  . . . . . . . . . . . .	Number	 0040h	 
+CR4_PAE  . . . . . . . . . . . .	Number	 0020h	 
+CR4_PGE  . . . . . . . . . . . .	Number	 0080h	 
+CR4_PSE  . . . . . . . . . . . .	Number	 0010h	 
+CR4_PVI  . . . . . . . . . . . .	Number	 0002h	 
+CR4_TSD  . . . . . . . . . . . .	Number	 0004h	 
+CR4_VME  . . . . . . . . . . . .	Number	 0001h	 
+CR4_XMMEXCPT . . . . . . . . . .	Number	 0400h	 
+CidUniqueProcess . . . . . . . .	Number	 0000h	 
+CidUniqueThread  . . . . . . . .	Number	 0004h	 
+CodeSoFar  . . . . . . . . . . .	Number	 0038h	 
+ContextFrameLength . . . . . . .	Number	 0240h	 
+CsContextFlags . . . . . . . . .	Number	 0000h	 
+CsEax  . . . . . . . . . . . . .	Number	 021Ch	 
+CsEbp  . . . . . . . . . . . . .	Number	 0220h	 
+CsEbx  . . . . . . . . . . . . .	Number	 0210h	 
+CsEcx  . . . . . . . . . . . . .	Number	 0218h	 
+CsEdi  . . . . . . . . . . . . .	Number	 0208h	 
+CsEdx  . . . . . . . . . . . . .	Number	 0214h	 
+CsEflags . . . . . . . . . . . .	Number	 022Ch	 
+CsEip  . . . . . . . . . . . . .	Number	 0224h	 
+CsEsi  . . . . . . . . . . . . .	Number	 020Ch	 
+CsEsp  . . . . . . . . . . . . .	Number	 0230h	 
+CsFloatSave  . . . . . . . . . .	Number	 0004h	 
+CsLockCount  . . . . . . . . . .	Number	 0010h	 
+CsOwningThread . . . . . . . . .	Number	 0018h	 
+CsRecursionCount . . . . . . . .	Number	 0014h	 
+CsSegCs  . . . . . . . . . . . .	Number	 0228h	 
+CsSegSs  . . . . . . . . . . . .	Number	 0234h	 
+DATA_BUS_ERROR . . . . . . . . .	Number	 002Eh	 
+DATA_COHERENCY_EXCEPTION . . . .	Number	 0055h	 
+DBG_STATUS_CONTROL_C . . . . . .	Number	 0001h	 
+DISPATCH_LENGTH  . . . . . . . .	Number	 0058h	 
+DISPATCH_LEVEL . . . . . . . . .	Number	 0002h	 
+DOUBLE_FAULT_STACK_SIZE  . . . .	Number	 1000h	 
+DR6_LEGAL  . . . . . . . . . . .	Number	 E00Fh	 
+DR7_ACTIVE . . . . . . . . . . .	Number	 0055h	 
+DR7_LEGAL  . . . . . . . . . . .	Number	 FFFF0155h   
+DeDeviceListEntry  . . . . . . .	Number	 0000h	 
+DeInserted . . . . . . . . . . .	Number	 000Ch	 
+DeSortKey  . . . . . . . . . . .	Number	 0008h	 
+DeviceQueueEntryLength . . . . .	Number	 0010h	 
+DeviceQueueObjectLength  . . . .	Number	 000Ch	 
+DpDeferredContext  . . . . . . .	Number	 0010h	 
+DpDeferredRoutine  . . . . . . .	Number	 000Ch	 
+DpDpcListEntry . . . . . . . . .	Number	 0004h	 
+DpInserted . . . . . . . . . . .	Number	 0002h	 
+DpSystemArgument1  . . . . . . .	Number	 0014h	 
+DpSystemArgument2  . . . . . . .	Number	 0018h	 
+DpType . . . . . . . . . . . . .	Number	 0000h	 
+DpcObjectLength  . . . . . . . .	Number	 001Ch	 
+DvBusy . . . . . . . . . . . . .	Number	 0003h	 
+DvDeviceListHead . . . . . . . .	Number	 0004h	 
+DvSize . . . . . . . . . . . . .	Number	 0002h	 
+DvType . . . . . . . . . . . . .	Number	 0000h	 
+EFLAGS_ALIGN_CHECK . . . . . . .	Number	 00040000h   
+EFLAGS_INTERRUPT_MASK  . . . . .	Number	 0200h	 
+EFLAGS_USER_SANITIZE . . . . . .	Number	 003E0DD7h   
+EFLAGS_V86_MASK  . . . . . . . .	Number	 00020000h   
+EFLAGS_VIF . . . . . . . . . . .	Number	 00080000h   
+EFLAGS_VIP . . . . . . . . . . .	Number	 00100000h   
+EFLAG_SELECT . . . . . . . . . .	Number	 C000h	 
+EVENT_INCREMENT  . . . . . . . .	Number	 0001h	 
+EXCEPTION_CHAIN_END  . . . . . .	Number	 FFFFFFFFh   
+EXCEPTION_COLLIDED_UNWIND  . . .	Number	 0040h	 
+EXCEPTION_CONTINUE_EXECUTION . .	Number	 FFFFFFFFh   
+EXCEPTION_CONTINUE_SEARCH  . . .	Number	 0000h	 
+EXCEPTION_EXECUTE_HANDLER  . . .	Number	 0001h	 
+EXCEPTION_EXIT_UNWIND  . . . . .	Number	 0004h	 
+EXCEPTION_NESTED_CALL  . . . . .	Number	 0010h	 
+EXCEPTION_NONCONTINUABLE . . . .	Number	 0001h	 
+EXCEPTION_STACK_INVALID  . . . .	Number	 0008h	 
+EXCEPTION_TARGET_UNWIND  . . . .	Number	 0020h	 
+EXCEPTION_UNWINDING  . . . . . .	Number	 0002h	 
+EXCEPTION_UNWIND . . . . . . . .	Number	 0066h	 
+ErExceptionAddress . . . . . . .	Number	 000Ch	 
+ErExceptionCode  . . . . . . . .	Number	 0000h	 
+ErExceptionFlags . . . . . . . .	Number	 0004h	 
+ErExceptionInformation . . . . .	Number	 0014h	 
+ErExceptionRecord  . . . . . . .	Number	 0008h	 
+ErNumberParameters . . . . . . .	Number	 0010h	 
+ErrHandler . . . . . . . . . . .	Number	 0004h	 
+ErrNext  . . . . . . . . . . . .	Number	 0000h	 
+ErwLockCount . . . . . . . . . .	Number	 0000h	 
+ErwReaderSemaphore . . . . . . .	Number	 0020h	 
+ErwReadersEntryCount . . . . . .	Number	 000Ch	 
+ErwReadersWaitingCount . . . . .	Number	 0008h	 
+ErwWriterEvent . . . . . . . . .	Number	 0010h	 
+ErwWritersWaitingCount . . . . .	Number	 0004h	 
+EtEthreadLength  . . . . . . . .	Number	 0140h	 
+EtUniqueThread . . . . . . . . .	Number	 012Ch	 
+EvSignalState  . . . . . . . . .	Number	 0004h	 
+EvSize . . . . . . . . . . . . .	Number	 0002h	 
+EvType . . . . . . . . . . . . .	Number	 0000h	 
+EvWaitListHead . . . . . . . . .	Number	 0008h	 
+EventObjectLength  . . . . . . .	Number	 0010h	 
+ExceptionCollidedUnwind  . . . .	Number	 0003h	 
+ExceptionContinueExecution . . .	Number	 0000h	 
+ExceptionContinueSearch  . . . .	Number	 0001h	 
+ExceptionNestedException . . . .	Number	 0002h	 
+ExceptionRecordLength  . . . . .	Number	 0050h	 
+ExtendedThreadObjectLength . . .	Number	 0140h	 
+FRAME_EDITED . . . . . . . . . .	Number	 FFF8h	 
+FoLockCount  . . . . . . . . . .	Number	 0024h	 
+FoLock . . . . . . . . . . . . .	Number	 0028h	 
+FpCr0NpxState  . . . . . . . . .	Number	 0200h	 
+FxControlWord  . . . . . . . . .	Number	 0000h	 
+FxDataOffset . . . . . . . . . .	Number	 0010h	 
+FxDataSelector . . . . . . . . .	Number	 0014h	 
+FxErrorOffset  . . . . . . . . .	Number	 0008h	 
+FxErrorSelector  . . . . . . . .	Number	 000Ch	 
+FxMXCsr  . . . . . . . . . . . .	Number	 0018h	 
+FxStatusWord . . . . . . . . . .	Number	 0002h	 
+HAL1_INITIALIZATION_FAILED . . .	Number	 0061h	 
+HIGH_LEVEL . . . . . . . . . . .	Number	 001Fh	 
+INITIAL_STALL_COUNT  . . . . . .	Number	 0064h	 
+INSTRUCTION_BUS_ERROR  . . . . .	Number	 002Fh	 
+INSTRUCTION_COHERENCY_EXCEPTION 	Number	 0056h	 
+INTERRUPT_EXCEPTION_NOT_HANDLED 	Number	 003Dh	 
+INTERRUPT_UNWIND_ATTEMPTED . . .	Number	 003Ch	 
+INVALID_AFFINITY_SET . . . . . .	Number	 0003h	 
+INVALID_DATA_ACCESS_TRAP . . . .	Number	 0004h	 
+IPI_LEVEL  . . . . . . . . . . .	Number	 001Dh	 
+IRQL_GT_ZERO_AT_SYSTEM_SERVICE .	Number	 004Ah	 
+IRQL_NOT_GREATER_OR_EQUAL  . . .	Number	 0009h	 
+IRQL_NOT_LESS_OR_EQUAL . . . . .	Number	 000Ah	 
+InBusInterruptLevel  . . . . . .	Number	 0008h	 
+InConnected  . . . . . . . . . .	Number	 0010h	 
+InDispatchCode . . . . . . . . .	Number	 0018h	 
+InIrql . . . . . . . . . . . . .	Number	 000Ch	 
+InLatched  . . . . . . . . . . .	Number	 0001h	 
+InLevelSensitive . . . . . . . .	Number	 0000h	 
+InMode . . . . . . . . . . . . .	Number	 0012h	 
+InServiceContext . . . . . . . .	Number	 0004h	 
+InServiceRoutine . . . . . . . .	Number	 0000h	 
+InShareVector  . . . . . . . . .	Number	 0011h	 
+Initialized  . . . . . . . . . .	Number	 0000h	 
+InterruptObjectLength  . . . . .	Number	 0070h	 
+KERNEL_STACK_SIZE  . . . . . . .	Number	 3000h	 
+KGDT_DF_TSS  . . . . . . . . . .	Number	 0028h	 
+KGDT_NMI_TSS . . . . . . . . . .	Number	 0030h	 
+KGDT_R0_CODE . . . . . . . . . .	Number	 0008h	 
+KGDT_R0_DATA . . . . . . . . . .	Number	 0010h	 
+KGDT_R0_PCR  . . . . . . . . . .	Number	 0020h	 
+KGDT_TSS . . . . . . . . . . . .	Number	 0018h	 
+KMODE_EXCEPTION_NOT_HANDLED  . .	Number	 001Eh	 
+KTRAP_FRAME_ALIGN  . . . . . . .	Number	 0004h	 
+KTRAP_FRAME_LENGTH . . . . . . .	Number	 0050h	 
+KgdtBaseHi . . . . . . . . . . .	Number	 0007h	 
+KgdtBaseLow  . . . . . . . . . .	Number	 0002h	 
+KgdtBaseMid  . . . . . . . . . .	Number	 0004h	 
+KgdtEntryLength  . . . . . . . .	Number	 0008h	 
+KgdtFlags1 . . . . . . . . . . .	Number	 0005h	 
+KgdtLimitHi  . . . . . . . . . .	Number	 0006h	 
+KgdtLimitLow . . . . . . . . . .	Number	 0000h	 
+KidtAccess . . . . . . . . . . .	Number	 0004h	 
+KidtEntryLength  . . . . . . . .	Number	 0008h	 
+KidtExtendedOffset . . . . . . .	Number	 0006h	 
+KidtOffset . . . . . . . . . . .	Number	 0000h	 
+KidtSelector . . . . . . . . . .	Number	 0002h	 
+LOW_REALTIME_PRIORITY  . . . . .	Number	 0010h	 
+LiHighPart . . . . . . . . . . .	Number	 0004h	 
+LiLowPart  . . . . . . . . . . .	Number	 0000h	 
+LsBlink  . . . . . . . . . . . .	Number	 0004h	 
+LsFlink  . . . . . . . . . . . .	Number	 0000h	 
+MAXIMUM_IDTVECTOR  . . . . . . .	Number	 00FFh	 
+MAXIMUM_PRIMARY_VECTOR . . . . .	Number	 00FFh	 
+MAXIMUM_PROCESSORS . . . . . . .	Number	 0020h	 
+MCP_XMODE2 . . . . . . . . . . .	Number	 0001h	 
+MUTEX_ALREADY_OWNED  . . . . . .	Number	 00BFh	 
+MudbProcessor  . . . . . . . . .	Number	 000Ch	 
+MudbStructureLength  . . . . . .	Number	 0800h	 
+MudbUpdateData . . . . . . . . .	Number	 0030h	 
+MzXdataSectionHeader . . . . . .	Number	 80010028h   
+NMI_HARDWARE_FAILURE . . . . . .	Number	 0080h	 
+NORMAL_DISPATCH_LENGTH . . . . .	Number	 0058h	 
+NO_USER_MODE_CONTEXT . . . . . .	Number	 000Eh	 
+NPX_FRAME_LENGTH . . . . . . . .	Number	 0210h	 
+NPX_STATE_LOADED . . . . . . . .	Number	 0000h	 
+NPX_STATE_NOT_LOADED . . . . . .	Number	 000Ah	 
+PAGE_DIRECTORY_PHYSICAL_ADDRESS 	Number	 F000h	 
+PAGE_FAULT_WITH_INTERRUPTS_OFF .	Number	 0049h	 
+PAGE_SIZE  . . . . . . . . . . .	Number	 1000h	 
+PANIC_STACK_SWITCH . . . . . . .	Number	 002Bh	 
+PASSIVE_LEVEL  . . . . . . . . .	Number	 0000h	 
+PCRB . . . . . . . . . . . . . .	Text   	 byte ptr [_KiPCR]
+PCR  . . . . . . . . . . . . . .	Text   	 dword ptr [_KiPCR]
+POWER_LEVEL  . . . . . . . . . .	Number	 001Eh	 
+PRIMARY_VECTOR_BASE  . . . . . .	Number	 0030h	 
+PROFILE_LEVEL  . . . . . . . . .	Number	 001Ah	 
+PbContextSwitches  . . . . . . .	Number	 0020h	 
+PbCurrentThread  . . . . . . . .	Number	 0000h	 
+PbDebugDoubleFault . . . . . . .	Number	 0258h	 
+PbDebugDpcTime . . . . . . . . .	Number	 001Ch	 
+PbDebugHaltThread  . . . . . . .	Number	 0254h	 
+PbDebugMonitorData . . . . . . .	Number	 0250h	 
+PbDpcInterruptRequested  . . . .	Number	 0024h	 
+PbDpcListHead  . . . . . . . . .	Number	 0028h	 
+PbDpcRoutineActive . . . . . . .	Number	 0030h	 
+PbDpcStack . . . . . . . . . . .	Number	 0034h	 
+PbDpcTime  . . . . . . . . . . .	Number	 0014h	 
+PbIdleThread . . . . . . . . . .	Number	 0008h	 
+PbInterruptCount . . . . . . . .	Number	 0010h	 
+PbInterruptTime  . . . . . . . .	Number	 0018h	 
+PbNextThread . . . . . . . . . .	Number	 0004h	 
+PbNpxSaveArea  . . . . . . . . .	Number	 003Ch	 
+PbNpxThread  . . . . . . . . . .	Number	 000Ch	 
+PbQuantumEnd . . . . . . . . . .	Number	 0038h	 
+PcExceptionList  . . . . . . . .	Number	 0000h	 
+PcIrql . . . . . . . . . . . . .	Number	 0024h	 
+PcPrcbData . . . . . . . . . . .	Number	 0028h	 
+PcPrcb . . . . . . . . . . . . .	Number	 0020h	 
+PcSelfPcr  . . . . . . . . . . .	Number	 001Ch	 
+PcStackBase  . . . . . . . . . .	Number	 0004h	 
+PcStackLimit . . . . . . . . . .	Number	 0008h	 
+PcTeb  . . . . . . . . . . . . .	Number	 0018h	 
+PrBasePriority . . . . . . . . .	Number	 0018h	 
+PrReadyListHead  . . . . . . . .	Number	 0000h	 
+PrSignalState  . . . . . . . . .	Number	 0004h	 
+PrSize . . . . . . . . . . . . .	Number	 0002h	 
+PrStackCount . . . . . . . . . .	Number	 0010h	 
+PrThreadListHead . . . . . . . .	Number	 0008h	 
+PrThreadQuantum  . . . . . . . .	Number	 0014h	 
+PrType . . . . . . . . . . . . .	Number	 0000h	 
+ProcessObjectLength  . . . . . .	Number	 0020h	 
+ProcessorBlockLength . . . . . .	Number	 0260h	 
+ProcessorControlRegisterLength .	Number	 0284h	 
+ProcessorInit  . . . . . . . . .	L Near	 FFF0	  _TEXT	
+PsContextFrame . . . . . . . . .	Number	 0000h	 
+PsNT5ContextFrame  . . . . . . .	Number	 0000h	 
+PsNT5SpecialRegisters  . . . . .	Number	 02CCh	 
+PsSpecialRegisters . . . . . . .	Number	 0238h	 
+QuCurrentCount . . . . . . . . .	Number	 0018h	 
+QuEntryListHead  . . . . . . . .	Number	 0010h	 
+QuMaximumCount . . . . . . . . .	Number	 001Ch	 
+QuSignalState  . . . . . . . . .	Number	 0004h	 
+QuSize . . . . . . . . . . . . .	Number	 0002h	 
+QuThreadListHead . . . . . . . .	Number	 0020h	 
+QuType . . . . . . . . . . . . .	Number	 0000h	 
+QueueObjectLength  . . . . . . .	Number	 0028h	 
+ROMDEC_BUFFERSIZE  . . . . . . .	Number	 6000h	 
+ROMDEC_HASH  . . . . . . . . . .	Number	 0058h	 
+ROMDEC_INIT_TABLE  . . . . . . .	Number	 FF000080h   
+ROMDEC_INPUTBUFFER . . . . . . .	Number	 -6200h	  
+ROMDEC_KEYSIZE . . . . . . . . .	Number	 0010h	 
+ROMDEC_KEYSTRUCT . . . . . . . .	Number	 0008F000h   
+ROMDEC_N . . . . . . . . . . . .	Number	 0064h	 
+ROMDEC_OUTPUTBUFFER  . . . . . .	Number	 00090000h   
+ROMDEC_STACK . . . . . . . . . .	Number	 0008F000h   
+ROMDEC_STARTADDRESS  . . . . . .	Number	 FFFFFE00h   
+ROMLDR_BOOTPARAMSIZE . . . . . .	Number	 001Ch	 
+ROMLDR_SIGNATURE . . . . . . . .	Number	 7854794Ah   
+ROMLDR_SIZE  . . . . . . . . . .	Number	 6000h	 
+ROMPRELDR_SIZE . . . . . . . . .	Number	 2A00h	 
+ROM_SHADOW_PHYSICAL_ADDRESS  . .	Number	 07F00000h   
+ROM_SHADOW_SIZE  . . . . . . . .	Number	 00100000h   
+ROUND_TRIP_DECREMENT_COUNT . . .	Number	 0010h	 
+Ready  . . . . . . . . . . . . .	Number	 0001h	 
+RomDecGDTEnd . . . . . . . . . .	DWord	 FFF0	  _TEXT	
+RomDecGDTFWORD . . . . . . . . .	FWord	 FFF4	  _TEXT	
+RomDecGDT  . . . . . . . . . . .	DWord	 FFD8	  _TEXT	
+Running  . . . . . . . . . . . .	Number	 0002h	 
+SCI_LEVEL  . . . . . . . . . . .	Number	 001Bh	 
+SMBUS_LEVEL  . . . . . . . . . .	Number	 000Fh	 
+SPIN_LOCK_INIT_FAILURE . . . . .	Number	 0081h	 
+STATUS_ACCESS_VIOLATION  . . . .	Number	 C0000005h   
+STATUS_ALERTED . . . . . . . . .	Number	 0101h	 
+STATUS_ARRAY_BOUNDS_EXCEEDED . .	Number	 C000008Ch   
+STATUS_BAD_COMPRESSION_BUFFER  .	Number	 C0000242h   
+STATUS_BREAKPOINT  . . . . . . .	Number	 80000003h   
+STATUS_DATATYPE_MISALIGNMENT . .	Number	 80000002h   
+STATUS_DEVICE_PROTOCOL_ERROR . .	Number	 C0000186h   
+STATUS_FLOAT_DENORMAL_OPERAND  .	Number	 C000008Dh   
+STATUS_FLOAT_DIVIDE_BY_ZERO  . .	Number	 C000008Eh   
+STATUS_FLOAT_INEXACT_RESULT  . .	Number	 C000008Fh   
+STATUS_FLOAT_INVALID_OPERATION .	Number	 C0000090h   
+STATUS_FLOAT_MULTIPLE_FAULTS . .	Number	 C00002B4h   
+STATUS_FLOAT_MULTIPLE_TRAPS  . .	Number	 C00002B5h   
+STATUS_FLOAT_OVERFLOW  . . . . .	Number	 C0000091h   
+STATUS_FLOAT_STACK_CHECK . . . .	Number	 C0000092h   
+STATUS_FLOAT_UNDERFLOW . . . . .	Number	 C0000093h   
+STATUS_GUARD_PAGE_VIOLATION  . .	Number	 80000001h   
+STATUS_ILLEGAL_FLOAT_CONTEXT . .	Number	 C000014Ah   
+STATUS_ILLEGAL_INSTRUCTION . . .	Number	 C000001Dh   
+STATUS_INSTRUCTION_MISALIGNMENT 	Number	 C00000AAh   
+STATUS_INTEGER_DIVIDE_BY_ZERO  .	Number	 C0000094h   
+STATUS_INTEGER_OVERFLOW  . . . .	Number	 C0000095h   
+STATUS_INVALID_HANDLE  . . . . .	Number	 C0000008h   
+STATUS_INVALID_LOCK_SEQUENCE . .	Number	 C000001Eh   
+STATUS_INVALID_OWNER . . . . . .	Number	 C000005Ah   
+STATUS_INVALID_PARAMETER_1 . . .	Number	 C00000EFh   
+STATUS_INVALID_PARAMETER . . . .	Number	 C000000Dh   
+STATUS_INVALID_SYSTEM_SERVICE  .	Number	 C000001Ch   
+STATUS_IN_PAGE_ERROR . . . . . .	Number	 C0000006h   
+STATUS_IO_DEVICE_ERROR . . . . .	Number	 C0000185h   
+STATUS_IO_TIMEOUT  . . . . . . .	Number	 C00000B5h   
+STATUS_KERNEL_APC  . . . . . . .	Number	 0100h	 
+STATUS_LONGJUMP  . . . . . . . .	Number	 80000026h   
+STATUS_NO_CALLBACK_ACTIVE  . . .	Number	 C0000258h   
+STATUS_NO_EVENT_PAIR . . . . . .	Number	 C000014Eh   
+STATUS_NO_MEMORY . . . . . . . .	Number	 C0000017h   
+STATUS_PRIVILEGED_INSTRUCTION  .	Number	 C0000096h   
+STATUS_SINGLE_STEP . . . . . . .	Number	 80000004h   
+STATUS_STACK_OVERFLOW  . . . . .	Number	 C00000FDh   
+STATUS_SUCCESS . . . . . . . . .	Number	 0000h	 
+STATUS_THREAD_IS_TERMINATING . .	Number	 C000004Bh   
+STATUS_TIMEOUT . . . . . . . . .	Number	 0102h	 
+STATUS_UNWIND  . . . . . . . . .	Number	 C0000027h   
+STATUS_WAKE_SYSTEM_DEBUGGER  . .	Number	 80000007h   
+SYNCH_LEVEL  . . . . . . . . . .	Number	 001Ch	 
+SYSTEM_EXIT_OWNED_MUTEX  . . . .	Number	 0039h	 
+SYSTEM_SERVICE_EXCEPTION . . . .	Number	 003Bh	 
+SYSTEM_UNWIND_PREVIOUS_USER  . .	Number	 003Ah	 
+ShutdownEnd  . . . . . . . . . .	L Near	 FFFA	  _TEXT	
+SizeofPointer  . . . . . . . . .	Number	 0004h	 
+SrCr0  . . . . . . . . . . . . .	Number	 0000h	 
+SrCr2  . . . . . . . . . . . . .	Number	 0004h	 
+SrCr3  . . . . . . . . . . . . .	Number	 0008h	 
+SrCr4  . . . . . . . . . . . . .	Number	 000Ch	 
+SrGdtr . . . . . . . . . . . . .	Number	 002Ah	 
+SrIdtr . . . . . . . . . . . . .	Number	 0032h	 
+SrKernelDr0  . . . . . . . . . .	Number	 0010h	 
+SrKernelDr1  . . . . . . . . . .	Number	 0014h	 
+SrKernelDr2  . . . . . . . . . .	Number	 0018h	 
+SrKernelDr3  . . . . . . . . . .	Number	 001Ch	 
+SrKernelDr6  . . . . . . . . . .	Number	 0020h	 
+SrKernelDr7  . . . . . . . . . .	Number	 0024h	 
+SrLdtr . . . . . . . . . . . . .	Number	 003Ah	 
+SrNT5Cr0 . . . . . . . . . . . .	Number	 0000h	 
+SrNT5Cr2 . . . . . . . . . . . .	Number	 0004h	 
+SrNT5Cr3 . . . . . . . . . . . .	Number	 0008h	 
+SrNT5Cr4 . . . . . . . . . . . .	Number	 000Ch	 
+SrNT5Gdtr  . . . . . . . . . . .	Number	 002Ah	 
+SrNT5Idtr  . . . . . . . . . . .	Number	 0032h	 
+SrNT5KernelDr0 . . . . . . . . .	Number	 0010h	 
+SrNT5KernelDr1 . . . . . . . . .	Number	 0014h	 
+SrNT5KernelDr2 . . . . . . . . .	Number	 0018h	 
+SrNT5KernelDr3 . . . . . . . . .	Number	 001Ch	 
+SrNT5KernelDr6 . . . . . . . . .	Number	 0020h	 
+SrNT5KernelDr7 . . . . . . . . .	Number	 0024h	 
+SrNT5Ldtr  . . . . . . . . . . .	Number	 003Ah	 
+SrNT5Tr  . . . . . . . . . . . .	Number	 0038h	 
+SrTr . . . . . . . . . . . . . .	Number	 0038h	 
+StHigh1Time  . . . . . . . . . .	Number	 0004h	 
+StHigh2Time  . . . . . . . . . .	Number	 0008h	 
+StLowTime  . . . . . . . . . . .	Number	 0000h	 
+Standby  . . . . . . . . . . . .	Number	 0003h	 
+Startup16  . . . . . . . . . . .	L Near	 FFB8	  _TEXT	Public
+StrBuffer  . . . . . . . . . . .	Number	 0004h	 
+StrLength  . . . . . . . . . . .	Number	 0000h	 
+StrMaximumLength . . . . . . . .	Number	 0002h	 
+THHasTerminated  . . . . . . . .	Number	 0077h	 
+THREAD_NOT_MUTEX_OWNER . . . . .	Number	 0011h	 
+THREAD_QUANTUM . . . . . . . . .	Number	 003Ch	 
+TIMER_TABLE_SIZE . . . . . . . .	Number	 0020h	 
+TRAP_CAUSE_UNKNOWN . . . . . . .	Number	 0012h	 
+TeFiberData  . . . . . . . . . .	Number	 0010h	 
+TeStackBase  . . . . . . . . . .	Number	 0004h	 
+TeStackLimit . . . . . . . . . .	Number	 0008h	 
+Terminated . . . . . . . . . . .	Number	 0004h	 
+TfDay  . . . . . . . . . . . . .	Number	 0004h	 
+TfHour . . . . . . . . . . . . .	Number	 0006h	 
+TfMilliseconds . . . . . . . . .	Number	 000Ch	 
+TfMinute . . . . . . . . . . . .	Number	 0008h	 
+TfMonth  . . . . . . . . . . . .	Number	 0002h	 
+TfSecond . . . . . . . . . . . .	Number	 000Ah	 
+TfWeekday  . . . . . . . . . . .	Number	 000Eh	 
+TfYear . . . . . . . . . . . . .	Number	 0000h	 
+ThAlertable  . . . . . . . . . .	Number	 002Fh	 
+ThAlerted  . . . . . . . . . . .	Number	 002Dh	 
+ThApcState . . . . . . . . . . .	Number	 0034h	 
+ThBasePriority . . . . . . . . .	Number	 0070h	 
+ThContextSwitches  . . . . . . .	Number	 004Ch	 
+ThDecrementCount . . . . . . . .	Number	 0071h	 
+ThDisableBoost . . . . . . . . .	Number	 0073h	 
+ThKernelApcDisable . . . . . . .	Number	 0068h	 
+ThKernelStack  . . . . . . . . .	Number	 0024h	 
+ThKernelTime . . . . . . . . . .	Number	 0018h	 
+ThMutantListHead . . . . . . . .	Number	 0010h	 
+ThNpxIrql  . . . . . . . . . . .	Number	 0074h	 
+ThNpxState . . . . . . . . . . .	Number	 0030h	 
+ThPreempted  . . . . . . . . . .	Number	 0076h	 
+ThPriorityDecrement  . . . . . .	Number	 0072h	 
+ThPriority . . . . . . . . . . .	Number	 0032h	 
+ThQuantum  . . . . . . . . . . .	Number	 006Ch	 
+ThQueueListEntry . . . . . . . .	Number	 007Ch	 
+ThQueue  . . . . . . . . . . . .	Number	 0078h	 
+ThSaturation . . . . . . . . . .	Number	 0031h	 
+ThSignalState  . . . . . . . . .	Number	 0004h	 
+ThSize . . . . . . . . . . . . .	Number	 0002h	 
+ThStackBase  . . . . . . . . . .	Number	 001Ch	 
+ThStackLimit . . . . . . . . . .	Number	 0020h	 
+ThState  . . . . . . . . . . . .	Number	 002Ch	 
+ThSuspendApc . . . . . . . . . .	Number	 00C8h	 
+ThSuspendCount . . . . . . . . .	Number	 0075h	 
+ThSuspendSemaphore . . . . . . .	Number	 00F0h	 
+ThThreadListEntry  . . . . . . .	Number	 0104h	 
+ThTimerWaitBlock . . . . . . . .	Number	 00B0h	 
+ThTimer  . . . . . . . . . . . .	Number	 0088h	 
+ThTlsData  . . . . . . . . . . .	Number	 0028h	 
+ThType . . . . . . . . . . . . .	Number	 0000h	 
+ThWaitBlockList  . . . . . . . .	Number	 0058h	 
+ThWaitIrql . . . . . . . . . . .	Number	 0054h	 
+ThWaitListEntry  . . . . . . . .	Number	 005Ch	 
+ThWaitMode . . . . . . . . . . .	Number	 0055h	 
+ThWaitNext . . . . . . . . . . .	Number	 0056h	 
+ThWaitReason . . . . . . . . . .	Number	 0057h	 
+ThWaitStatus . . . . . . . . . .	Number	 0050h	 
+ThWaitTime . . . . . . . . . . .	Number	 0064h	 
+ThreadObjectLength . . . . . . .	Number	 0110h	 
+TiDpc  . . . . . . . . . . . . .	Number	 0020h	 
+TiDueTime  . . . . . . . . . . .	Number	 0010h	 
+TiInserted . . . . . . . . . . .	Number	 0003h	 
+TiPeriod . . . . . . . . . . . .	Number	 0024h	 
+TiSignalState  . . . . . . . . .	Number	 0004h	 
+TiSize . . . . . . . . . . . . .	Number	 0002h	 
+TiTimerListEntry . . . . . . . .	Number	 0018h	 
+TiType . . . . . . . . . . . . .	Number	 0000h	 
+TimerObjectLength  . . . . . . .	Number	 0028h	 
+TmHighTime . . . . . . . . . . .	Number	 0004h	 
+TmLowTime  . . . . . . . . . . .	Number	 0000h	 
+TsDbgArgMark . . . . . . . . . .	Number	 0008h	 
+TsDbgArgPointer  . . . . . . . .	Number	 000Ch	 
+TsDbgEbp . . . . . . . . . . . .	Number	 0000h	 
+TsDbgEip . . . . . . . . . . . .	Number	 0004h	 
+TsEax  . . . . . . . . . . . . .	Number	 0020h	 
+TsEbp  . . . . . . . . . . . . .	Number	 0034h	 
+TsEbx  . . . . . . . . . . . . .	Number	 0030h	 
+TsEcx  . . . . . . . . . . . . .	Number	 001Ch	 
+TsEdi  . . . . . . . . . . . . .	Number	 0028h	 
+TsEdx  . . . . . . . . . . . . .	Number	 0018h	 
+TsEflags . . . . . . . . . . . .	Number	 0044h	 
+TsEip  . . . . . . . . . . . . .	Number	 003Ch	 
+TsErrCode  . . . . . . . . . . .	Number	 0038h	 
+TsEsi  . . . . . . . . . . . . .	Number	 002Ch	 
+TsExceptionList  . . . . . . . .	Number	 0024h	 
+TsHardwareEsp  . . . . . . . . .	Number	 0048h	 
+TsHardwareSegSs  . . . . . . . .	Number	 004Ch	 
+TsSegCs  . . . . . . . . . . . .	Number	 0040h	 
+TsTempEsp  . . . . . . . . . . .	Number	 0014h	 
+TsTempSegCs  . . . . . . . . . .	Number	 0010h	 
+TssCR3 . . . . . . . . . . . . .	Number	 001Ch	 
+TssCs  . . . . . . . . . . . . .	Number	 004Ch	 
+TssDs  . . . . . . . . . . . . .	Number	 0054h	 
+TssEFlags  . . . . . . . . . . .	Number	 0024h	 
+TssEip . . . . . . . . . . . . .	Number	 0020h	 
+TssEsp0  . . . . . . . . . . . .	Number	 0004h	 
+TssEsp . . . . . . . . . . . . .	Number	 0038h	 
+TssEs  . . . . . . . . . . . . .	Number	 0048h	 
+TssFs  . . . . . . . . . . . . .	Number	 0058h	 
+TssGs  . . . . . . . . . . . . .	Number	 005Ch	 
+TssIoMapBase . . . . . . . . . .	Number	 0066h	 
+TssIoMaps  . . . . . . . . . . .	Number	 0068h	 
+TssLength  . . . . . . . . . . .	Number	 20ACh	 
+TssSs0 . . . . . . . . . . . . .	Number	 0008h	 
+TssSs  . . . . . . . . . . . . .	Number	 0050h	 
+UNEXPECTED_KERNEL_MODE_TRAP  . .	Number	 007Fh	 
+WAIT_QUANTUM_DECREMENT . . . . .	Number	 000Ah	 
+WaitAll  . . . . . . . . . . . .	Number	 0000h	 
+WaitAny  . . . . . . . . . . . .	Number	 0001h	 
+Waiting  . . . . . . . . . . . .	Number	 0005h	 
+WbNextWaitBlock  . . . . . . . .	Number	 0010h	 
+WbObject . . . . . . . . . . . .	Number	 000Ch	 
+WbThread . . . . . . . . . . . .	Number	 0008h	 
+WbWaitKey  . . . . . . . . . . .	Number	 0014h	 
+WbWaitListEntry  . . . . . . . .	Number	 0000h	 
+WbWaitType . . . . . . . . . . .	Number	 0016h	 
+WrEventPair  . . . . . . . . . .	Number	 000Eh	 
+WrExecutive  . . . . . . . . . .	Number	 0000h	 
+XDISK_UNPARTITIONED_SECTORS  . .	Number	 0400h	 
+XPCICFG_GPU_MEMORY_REGISTER_BASE_0 .	Number	 FD000000h   
+XPCICFG_GPU_MEMORY_REGISTER_LENGTH_0 .	Number	 01000000h   
+XPCICFG_LPCBRIDGE_IO_REGISTER_BASE_0 .	Number	 8000h	 
+XPCICFG_LPCBRIDGE_IO_REGISTER_LENGTH_0 . Number	  0100h	  
+XPCICFG_SMBUS_IO_REGISTER_BASE_1 .	Number	 C000h	 
+XPCICFG_SMBUS_IO_REGISTER_LENGTH_1 .	Number	 0010h	 
+XdshPointerToRawData . . . . . .	Number	 0008h	 
+XdshSizeOfInitializedData  . . .	Number	 0004h	 
+XdshSizeOfUninitializedData  . .	Number	 0000h	 
+XdshVirtualAddress . . . . . . .	Number	 000Ch	 
+
+	   0 Warnings
+	   0 Errors

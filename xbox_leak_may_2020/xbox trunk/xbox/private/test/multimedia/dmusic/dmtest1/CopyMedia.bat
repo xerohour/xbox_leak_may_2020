@@ -1,0 +1,1 @@
+REM COPYMEDIA.BAT now does nothing; DMTEST1 uses medialoader.

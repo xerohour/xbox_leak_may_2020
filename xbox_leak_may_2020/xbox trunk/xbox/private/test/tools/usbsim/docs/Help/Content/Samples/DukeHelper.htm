@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>USBSimulator.Duke Helper Functions</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<SCRIPT>
+RepeatButton = "function RepeatButton(dev, count, button)\n" +
+    "    {\n" +
+    "    for(var i=0; i < count; i++) dev.Button(button);\n" +
+    "    }\n\n" +
+    "RepeatButton(duke, 3, \"DPADN\");\n" +
+    "RepeatButton(duke, 2, \"DPADE\");\n" +
+    "duke.Button(\"A\");"
+
+DukeButton = "function DukeButton(dev, count, digital, analog1, analog2, analog3, analog4, analog5, analog6, analog7, analog8, thumbLX, thumbLY, thumbRX, thumbRY)\n" +
+    "    {\n" +
+    "    for(var i=0; i < count; i++)\n" +
+    "        {\n" +
+    "        dev.SetButtonState(digital, analog1, analog2, analog3, analog4, analog5, analog6, analog7, analog8, thumbLX, thumbLY, thumbRX, thumbRY);\n" +
+    "        WScript.Sleep(dev.buttonDownDelay);\n" +
+    "        dev.SetButtonState(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\n" +
+    "        WScript.Sleep(dev.buttonUpDelay);\n" +
+    "        }\n" +
+    "    }\n\n" +
+    "DukeButton(duke, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -32000, 0, 0);\n" +
+    "DukeButton(duke, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, +32000, 0, 0);"
+
+</SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>USBSimulator.Duke Helper Functions</H1>
+    <DIV CLASS=BLOCK>
+    </DIV><P>
+
+<DIV CLASS=BLOCKHEADER>RepeatButton</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode(RepeatButton);</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>DukeButton</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode(DukeButton);</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="../USBSimulator.Duke/contents.htm">USBSimulator.Duke</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

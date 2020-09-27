@@ -1,0 +1,12 @@
+#include <windows.h>
+#include <wincrypt.h>
+#include <xsum.h>
+#include <crypt.h>
+#include <flcrypt.h>
+#include <ncipher.h>
+#include <propbag.h>
+#include <xbefile.h>
+#include <stdio.h>
+#include <time.h>
+#include <malloc.h>
+#include <conio.h>

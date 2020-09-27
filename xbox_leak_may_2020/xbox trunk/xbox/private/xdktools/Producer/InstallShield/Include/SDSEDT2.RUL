@@ -1,0 +1,141 @@
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdsedt2.rul                                               */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdShowDlgEdit2        */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdShowDlgEdit2                                             */
+ /*                                                                        */
+ /*   Descrip:  This dialog will allow user two edit field for             */
+ /*             confirmation purpose.                                      */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdShowDlgEdit2(szTitle, szMsg, szField1, szField2, svEdit1, svEdit2 )
+          STRING  szDlg, szTemp;
+          NUMBER  nId, nMessage, nTemp;
+          HWND    hwndDlg;
+          BOOL    bDone;
+        begin
+
+           szDlg     = SD_DLG_SHOWDLGEDIT2;
+           nSdDialog = SD_NDLG_SHOWDLGEDIT2;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdShowDlgEdit2 );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "szEdit1", DATA_STRING, svEdit1, nTemp );
+               SilentReadData( szAppKey, "szEdit2", DATA_STRING, svEdit2, nTemp );
+            endif;
+
+            return nId;
+          endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_SHOWDLGEDIT2 ) = DLG_ERR) then
+              return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+                   if( szMsg != "" ) then
+                       SdSetStatic(szDlg, SD_STA_MSG1, szMsg);
+                   endif;
+
+                   if (szField1 != "") then
+                       SdSetStatic(szDlg, SD_STA_FIELD1, szField1 );
+                   endif;
+
+                   if (szField2 != "") then
+                       SdSetStatic(szDlg, SD_STA_FIELD2, szField2 );
+                   endif;
+
+                   CtrlSetText(szDlg, SD_EDIT1, svEdit1);
+                   CtrlSetText(szDlg, SD_EDIT2, svEdit2);
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+              case SD_EDIT1:
+                   nMessage = CtrlGetSubCommand(szDlg);
+
+                   if(nMessage = EDITBOX_CHANGE) then
+                       CtrlGetText(szDlg, SD_EDIT1, svEdit1);
+                   endif;
+
+              case SD_EDIT2:
+                   nMessage = CtrlGetSubCommand(szDlg);
+
+                   if(nMessage = EDITBOX_CHANGE) then
+                       CtrlGetText(szDlg, SD_EDIT2, svEdit2);
+                   endif;
+
+              case SD_PBUT_OK:
+                   nId   = OK;
+                   bDone = TRUE;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdShowEdit2" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit();
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdShowDlgEdit2 );
+           SilentWriteData( szAppKey, "szEdit1", DATA_STRING, svEdit1, 0 );
+           SilentWriteData( szAppKey, "szEdit2", DATA_STRING, svEdit2, 0 );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+

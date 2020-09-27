@@ -1,0 +1,65 @@
+// CDFGen.idl : IDL source for CDFGen.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (CDFGen.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(578FA761-FD5D-11D0-BC62-00C04FC9B58C),
+		dual,
+		helpstring("ICDFGenerator Interface"),
+		pointer_default(unique)
+	]
+	interface ICDFGenerator : IDispatch
+	{
+		//Standard Server Side Component Methods
+		[id(1), helpstring("method OnStartPage")] HRESULT OnStartPage([in] IUnknown* piUnk);
+		[id(2), helpstring("method OnEndPage")]   HRESULT OnEndPage();
+		// custom methods
+		[id(3), helpstring("method Run")]         HRESULT Run([in] VARIANT vtCDFGenHelper);
+	};
+	[
+		object,
+		uuid(578FA763-FD5D-11D0-BC62-00C04FC9B58C),
+		dual,
+		helpstring("ICDFGenHelper Interface"),
+		pointer_default(unique)
+	]
+	interface ICDFGenHelper : IDispatch
+	{
+		[id(1), helpstring("method GetSelectionListPropName")] HRESULT GetSelectionListPropName([out] VARIANT* pvtSelectionListPropName, [out] VARIANT* pvtSelectionStylePropName);
+		[id(2), helpstring("method GetCDFString")]             HRESULT GetCDFString([in] const VARIANT vtSelectionList, [in] const VARIANT_BOOL fExclusionList, [out] VARIANT* pvtUTF8, [out, retval] BSTR* pbstrCDFString);
+		[id(3), helpstring("method Load")]                     HRESULT Load([in] BSTR bstrProject);
+		[propget, id(4), helpstring("property Project")]       HRESULT Project([out, retval] VARIANT* pvtProject);
+	};
+[
+	uuid(578FA754-FD5D-11D0-BC62-00C04FC9B58C),
+	version(1.0),
+	helpstring("CDFGen 1.0 Type Library")
+]
+library CDFGENLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(578FA762-FD5D-11D0-BC62-00C04FC9B58C),
+		helpstring("CDFGenerator Class")
+	]
+	coclass CDFGenerator
+	{
+		[default] interface ICDFGenerator;
+	};
+	[
+		uuid(578FA764-FD5D-11D0-BC62-00C04FC9B58C),
+		helpstring("CDFGenHelper Class")
+	]
+	coclass CDFGenHelper
+	{
+		[default] interface ICDFGenHelper;
+	};
+};

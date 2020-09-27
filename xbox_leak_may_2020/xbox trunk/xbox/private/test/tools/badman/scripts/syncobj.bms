@@ -1,0 +1,259 @@
+/*++
+
+Copyright (c) 2000  Microsoft Corporation
+
+Module Name:
+
+    syncobj.bms
+
+Abstract:
+
+    Script file for badman test engine. This script contains list of
+    synchronization APIs exported from XAPI
+
+Author:
+
+    Sakphong Chanbai (schanbai) 11-Apr-2000
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+--*/
+
+module : xapi
+
+BOOL CancelWaitableTimer( HANDLE hTimer ) = 0
+
+    hTimer:
+        Good: HANDLE_NAMED_WAITABLE_TIMER
+              HANDLE_UNNAMED_WAITABLE_TIMER
+        Omit:
+
+HANDLE CreateEventW( LPSECURITY_ATTRIBUTES lpsa,
+                     BOOL bManualReset,
+                     BOOL bInitialState,
+                     LPWSTR lpName ) = 0
+
+    lpsa:
+        Good: LPSECURITY_ATTRIBUTES_NULL
+        Omit:
+
+    bManualReset:
+        Good: BOOL_TRUE
+              BOOL_FALSE
+        Bad:
+
+    bInitialState:
+        Good: BOOL_TRUE
+              BOOL_FALSE
+        Bad:
+
+    lpName:
+        Good: LPWSTR_NULL
+              LPWSTR_EMPTY
+              LPWSTR_FILE_NAME
+        Bad:  LPWSTR_RANDOM
+              LPWSTR_MINUS_ONE
+              LPWSTR_INVALID
+
+HANDLE CreateIoCompletionPort( HANDLE FileHandle,
+                               HANDLE ExistingCompletionPort,
+                               DWORD CompletionKey,
+                               DWORD NumberOfConcurrentThreads ) = 0
+
+HANDLE CreateMutexW( LPSECURITY_ATTRIBUTES lpsa,
+                     BOOL bInitialOwner,
+                     LPWSTR lpName ) = 0
+
+    lpsa:
+        Good: LPSECURITY_ATTRIBUTES_NULL
+        Omit:
+
+    bInitialOwner:
+        Good: BOOL_TRUE
+              BOOL_FALSE
+        Bad:
+
+    lpName:
+        Good: LPWSTR_NULL
+        Bad:  LPWSTR_RANDOM
+              LPWSTR_MINUS_ONE
+              LPWSTR_INVALID
+
+HANDLE CreateSemaphoreW( LPSECURITY_ATTRIBUTES lpsa,
+                         LONG lInitialCount,
+                         LONG lMaximumCount,
+                         LPWSTR lpName ) = 0
+
+    lpsa:
+        Good: LPSECURITY_ATTRIBUTES_NULL
+        Omit:
+
+    lInitialCount:
+        Good:
+        Omit:
+
+    lMaximumCount:
+        Good:
+        Omit:
+
+    lpName:
+        Good: LPWSTR_NULL
+        Bad:  LPWSTR_RANDOM
+              LPWSTR_MINUS_ONE
+              LPWSTR_INVALID
+
+HANDLE CreateWaitableTimerW( LPSECURITY_ATTRIBUTES lpsa,
+                             BOOL bManualReset,
+                             LPWSTR lpTimerName ) = 0
+
+    lpsa:
+        Good: LPSECURITY_ATTRIBUTES_NULL
+        Omit:
+
+    bManualReset:
+        Good: BOOL_TRUE
+              BOOL_FALSE
+        Bad:
+
+    lpTimerName:
+        Good: LPWSTR_NULL
+        Bad:  LPWSTR_RANDOM
+              LPWSTR_MINUS_ONE
+              LPWSTR_INVALID
+
+VOID DeleteCriticalSection( LPCRITICAL_SECTION lpCriticalSection )
+
+    lpCriticalSection:
+        Good: LPCRITICAL_SECTION_INITIALIZED
+        Omit:
+
+VOID EnterCriticalSection( LPCRITICAL_SECTION lpCriticalSection )
+
+    lpCriticalSection:
+        Good: LPCRITICAL_SECTION_INITIALIZED
+        Omit: LPCRITICAL_SECTION_UNINITIALIZED
+
+BOOL GetOverlappedResult( HANDLE hFile,
+                          LPOVERLAPPED lpOverlapped,
+                          LPDWORD lpBytesTransferred,
+                          BOOL bWait ) = 0
+
+    hFile:
+        Good: HANDLE_NORMAL_FILE
+              HANDLE_READONLY_FILE
+        Bad:  HANDLE_NULL
+              HANDLE_RANDOM
+              HANDLE_THREAD
+              HANDLE_SUSPENDED_THREAD
+              HANDLE_NAMED_EVENT
+
+    lpOverlapped:
+        Good: LPOVERLAPPED_VALID
+              LPOVERLAPPED_COMPLETION_ROUTINE_VALID
+        Omit:
+
+    lpBytesTransferred:
+        Good: LPDWORD_BUFFER
+        Bad:  LPDWORD_NULL
+              LPDWORD_MINUS_ONE
+              LPDWORD_RANDOM_POINTER
+
+    bWait:
+        Good: BOOL_TRUE
+              BOOL_FALSE
+        Bad:
+
+BOOL GetQueuedCompletionStatus( HANDLE CompletionPort,
+                                LPDWORD lpBytesTransferred,
+                                LPDWORD lpCompletionKey,
+                                LPOVERLAPPED lpOverlapped,
+                                DWORD dwMilliseconds ) = 0
+
+VOID InitializeCriticalSection( LPCRITICAL_SECTION lpCriticalSection )
+
+    lpCriticalSection:
+        Good: LPCRITICAL_SECTION_UNINITIALIZED
+        Omit:
+
+VOID LeaveCriticalSection( LPCRITICAL_SECTION lpCriticalSection )
+
+    lpCriticalSection:
+        Good: LPCRITICAL_SECTION_INITIALIZED
+        Omit:
+
+HANDLE OpenEventW( DWORD dwDesiredAccess,
+                   BOOL bInheritHandle,
+                   LPWSTR lpName ) = 0
+
+HANDLE OpenMutexW( DWORD dwDesiredAccess,
+                   BOOL bInheritHandle,
+                   LPWSTR lpName ) = 0
+
+HANDLE OpenSemaphoreW( DWORD dwDesiredAccess,
+                       BOOL bInheritHandle,
+                       LPWSTR lpName ) = 0
+
+HANDLE OpenWaitableTimerW( DWORD dwDesiredAccess,
+                           BOOL bInheritHandle,
+                           LPWSTR lpTimerName ) = 0
+
+BOOL PostQueuedCompletionStatus( HANDLE CompletionPort,
+                                 DWORD dwNumberOfBytesTransferred,
+                                 DWORD dwCompletionKey,
+                                 LPOVERLAPPED lpOverlapped ) = 0
+
+BOOL PulseEvent( HANDLE hEvent ) = 0
+
+DWORD QueueUserAPC( PAPCFUNC pfnAPC,
+                    HANDLE hThread,
+                    DWORD dwData ) = 0
+
+BOOL ReleaseMutex( HANDLE hMutex ) = 0
+
+BOOL ReleaseSemaphore( HANDLE hSemaphore,
+                       LONG lReleaseCount,
+                       LPLONG lpPreviousCount ) = 0
+
+BOOL ResetEvent( HANDLE hEvent ) = 0
+
+BOOL SetEvent( HANDLE hEvent ) = 0
+
+BOOL SetWaitableTimer( HANDLE hTimer,
+                       PLARGE_INTEGER lpDueTime,
+                       LONG lPeriod,
+                       PTIMERAPCROUTINE pfnCompletionRoutine,
+                       LPVOID lpArgToCompletionRoutine,
+                       BOOL fResume ) = 0
+
+DWORD SignalObjectAndWait( HANDLE hObjectToSignal,
+                           HANDLE hObjectToWaitOn,
+                           DWORD dwMilliseconds,
+                           BOOL bAlertable ) = 0
+
+BOOL TryEnterCriticalSection( LPCRITICAL_SECTION lpCriticalSection ) = 0
+
+    lpCriticalSection:
+        Good: LPCRITICAL_SECTION_INITIALIZED
+        Omit: LPCRITICAL_SECTION_UNINITIALIZED
+
+DWORD WaitForMultipleObjects( DWORD nCount,
+                              HANDLE *lpHandles,
+                              BOOL bWaitAll,
+                              DWORD dwMilliseconds ) = 0
+
+DWORD WaitForMultipleObjectsEx( DWORD nCount,
+                                CONST HANDLE *lpHandles,
+                                BOOL bWaitAll,
+                                DWORD dwMilliseconds,
+                                BOOL bAlertable ) = 0
+
+DWORD WaitForSingleObject( HANDLE hHandle,
+                           DWORD dwMilliseconds ) = 0
+
+DWORD WaitForSingleObjectEx( HANDLE hHandle,
+                             DWORD dwMilliseconds,
+                             BOOL bAlertable ) = 0

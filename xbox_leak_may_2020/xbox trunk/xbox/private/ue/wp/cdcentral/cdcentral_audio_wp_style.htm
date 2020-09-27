@@ -1,0 +1,202 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Style-Based Playback:<BR>
+An Introduction to DirectMusic Style Files
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant<br>
+Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>By now, you've hopefully had an opportunity to explore variations and track-based variability in Microsoft&#174; DirectMusic&#174; content.<sup><font size:"9">1</font></sup>  Pattern tracks and wave tracks provide an easy way to add variability to linearly authored content. But when your game design calls for a more interactive score, consider using DirectMusic styles. Style files (.stp/.sty)<sup><font size:"9">2</font></sup> allow content creators enormous flexibility in how their music is played back, as well as providing another tool for abstracting the DirectMusic playback process from the developer.</p>
+
+<H3>Styles and Segments</H3>
+
+<P>Remember that a segment is the basic unit of playback in DirectMusic, the dynamic equivalent to a traditional linear wave or MIDI file. A segment generally contains one or more tracks that instruct how it should be played. Some of the tracks contain information that will actually "make noise"&#8212;that is, wave data (wave tracks) or physical note data (sequence or pattern tracks). Other track types modify the performance or provide information that is by itself non-audible, for instance, tempo tracks, time signature tracks, and chord tracks.
+<p>Style-based playback generally uses two tracks within a segment: the <i>style track</i>, where you request a specific style file (generally one per segment), and the <i>groove track</i>, where you or the developer provide information as to what "kind" of pattern you want played at any one time.<sup><font size:"9">3</font></sup> </p>
+<p>One way to think of a style file is as a collection of different pattern tracks (each track may have one or more parts on different MIDI channels), any one ("pattern") of which can be dynamically chosen via the groove track and played by the segment at a time. When the pattern is finished, the segment goes back to the style to request another pattern to play, which may or may not be the same one that was previously chosen. Even if the same pattern is chosen and played multiple times, you can author it so that it sounds subtly or significantly different on each playback via variations and lower level variability.</p>
+
+<H3>Using Styles for Interactive Audio Solutions</h3>
+<p>Before we jump in with any more terminology, let's spend a few minutes talking about some of the general ways that styles can be used. First, much of the behavior that is available from styles can be accomplished by using combinations of segments with pattern tracks and scripting, and by involving your developer. That said, styles generally provide a more simplified solution to several key problems associated with non-linear dynamic music composition:</p>
+<ol>
+<li>For smooth transitions from one musical intensity level to another.<br><BR>
+<i>Example: Background score as your character wanders through the game environment. Based on factors such as health or number of enemies, the musical score can respond with differences in instrumentation, orchestration, or musical information.</i><br><BR>
+At its most basic level, the developer only needs to modify a global parameter to change the musical intensity (which pattern is being played).</li>
+<br><br>
+<li>For smooth transitions between several pieces of music.<br><BR>
+<i>Example: You have one piece of music that plays in one scene and another piece in a second scene. When changing from one scene to the other, your developer requests an "end" pattern for the first, followed by an "introduction" pattern for the second.</i><br> <BR>
+This sort of behavior could also be created with separate segments, though with styles, your developer simply calls for the appropriate pattern type rather than needing to know the name of a specific segment. This gives the added potential for easily authored variability in transitions&#8212;your developer requests an ending pattern, and if there are multiple options, one will be chosen based on various aspects of the current performance (or, failing that, at random).</li>
+<br><br>
+<li>For MIDI data size optimization and ease of composing repeated content.<br><BR>
+<i>Example: You're creating some dance music for a scene. Rather than copying and pasting the same drumbeat for hundreds of measures, you author patterns (each one or more bars long) corresponding to the various possible intensity levels.</i><br><BR>
+Granted, MIDI-style data is generally trivial in size next to a Downloadable Sounds (DLS) collection or a streamed wave file. However, the sheer amount of controller and note data that is static might make the savings worthwhile, particularly for "dance music"-style scores. There's also some added editing ease: if you decide to make a change, you don't need to replicate it for every instance in which you were using that pattern track part.</li>
+<br><br>
+<li>For musical information that will be subject to dynamic chord changes.<br><BR>
+<i>Example: You want to repeat a pattern (long or short) fairly often. One way to keep it fresh is to play it over different chords, or over different chord progressions.</i><BR><BR>
+Styles provide a fairly easy way to author content that is going to respond dynamically to chord changes. This technique will be covered in more detail in a separate white paper.<br></li>
+</ol>
+
+<p>Let's briefly discuss some of the limitations of styles. Remember that it's perfectly acceptable to mix and match style-based playback with other content if you find you need features only found elsewhere.</p>
+<ol>
+<li><b>DLS playback only.</b> Patterns in a style do not support wave tracks, so streaming playback of wave data (for example, in a wave track) is not available. You also can't use Microsoft&#174; Windows Media&trade; Audio (WMA) compression in DLS collections, though adaptive differential pulse code modulation (ADPCM) is still available.</li>
+<br><br>
+<li><b>Lack of segment functionality within styles.</b> Patterns in a style have a single track type: pattern tracks.<sup><font size:"9">4</font></sup> This means that many DirectMusic behaviors are available only at the segment level. For instance, if you want tempo to change during a pattern's playback, or if you want tempo changes based on which pattern is chosen, these changes will have to be authored into the segment that this style is played by, added to your script routines, or communicated to the developer for implementation. Similarly, information contained in other track types, such as markers, script tracks, and lyrics, will need to be authored into the segments that reference these styles.</li>
+<br><br>
+<li><b>Separate file to keep track of.</b> It's both a strength and a potential obstacle that styles store the patterns that a segment will choose from. It can help consolidate potential "branching" music, but now you have to remember to include the style with your delivered run-time files. The easiest way is to embed the style file within the segment. Then when the segment is runtime saved, the style is automatically saved inside of it. Otherwise, the style file must be runtime saved and delivered separately.<BR><BR>
+<IMG src="/content/img/style_fig1.gif" WIDTH="187" HEIGHT="95" ALT="" BORDER="0"><br><br>
+<b>Illustration</b>&nbsp;&nbsp;<i>The easiest way to make sure a style is delivered to your developer is to embed it in the segment that uses it (right-click a segment, and click</i> <b>New</b><i>, then click</i> <b>Container</b><i>).</i>
+</li>
+</ol>
+
+<H3>The Components of a Style</h3>
+<p>Styles can be composed of three different kinds of content: bands, motifs, and patterns. However, for the vast majority of usage, one or more patterns and a single band are all that are necessary.<sup><font size:"9">5</font></sup>  When you create a new style, you'll see something like this in the project tree.</p>
+<IMG src="/content/img/style_fig2.gif" WIDTH="137" HEIGHT="114" ALT="" BORDER="0"><BR><BR>
+<b>Illustration</b>&nbsp;&nbsp; <i>A newly created style, with one pattern and a band</i><br><br>
+
+<p>First, you can double-click the band to open a <b>Band Editor</b> window. The functionality is identical to a band placed in a band track in a segment.<sup><font size:"9">6</font></sup>  Once we've set up our patch assignments, let's look at the default pattern. By double-clicking on the pattern in the project tree, you can open the <b>Pattern Editor</b>, which should look very similar to a <b>Segment Designer</b> window.</p>
+<IMG src="/content/img/style_fig3.gif" WIDTH="556" HEIGHT="192" ALT="" BORDER="0"><BR><BR>
+<b>Illustration</b>&nbsp;&nbsp; <i>A</i> <b>Pattern Editor</b> <i>window</i><br><br>
+<p>We're going to pass over the <b>Chords for Composition</b> track for this paper, because it comes into play only if you're using chords in your segment. The second track is identical to a pattern track in a segment. Right now, this pattern has a single part on performance channel 1. We can maximize the part by double-clicking the part, or by clicking the maximize icon at the right end of the track. We can change the part's performance channel via its property page, or just add notes to one or more variations in the same manner as we would for a pattern track in a segment.<sup><font size:"9">7</font></sup>  We can add additional parts by right-clicking and clicking <b>Add Pattern Part(s)&#8230;</b> (or by using the keyboard shortcut CTRL+SHIFT+INSERT).</p>
+
+<h3>Using Groove Levels</h3>
+<p>We've now created our first pattern. If we stuck a groove track and style track in our segment, we could play it all we wanted, potentially varying other aspects of the performance over time&#8212;the chord, instrumentation, or tempo, for example&#8212;via the various track types a segment can use. But the most applicable use of styles is to be able to pick between multiple patterns during playback, preferably without having the developer deal with too much implementation. So at this point, let's introduce the concept of <i>groove levels</i>. Groove levels are how how you instruct the performance as to the kind of pattern (or the specific pattern) that you want.</p>
+<p>If we open up the property page for a pattern (right-click the pattern in the project tree and click <b>Properties</b>), we see, among other things, the two text boxes that determine a pattern's groove range (low and high):</p>
+<IMG src="/content/img/style_fig4.gif" WIDTH="398" HEIGHT="236" ALT="" BORDER="0"><BR><BR>
+<b>Illustration</b>&nbsp;&nbsp; <i>The property page for a pattern. All of these settings help determine which pattern to choose to play when.</i><br><br>
+<p>You can set the <b>Low:</b> and <b>Hi:</b> values to any number between 1 and 100. This groove range is what a segment is going to look at first when trying to figure out which pattern to play.</p>
+<p>To demonstrate how this works, let's set up an example. We'll use a pretty common scenario: the developer is going to set an intensity level<sup><font size:"9">8</font></sup>  based on game state, and we want to play a pattern appropriate for that intensity. To keep it simple, we'll say that the lowest intensity corresponds to groove levels 1 through 10, moderate intensity corresponds to groove levels 11 through 20, and high intensity is groove levels 21 through 30.</p>
+<p>Assuming we want different kinds of music for each intensity level, our first step would be to author at least three different patterns. It's fairly common to have the higher-intensity content just add new parts (think "tracks") to the existing content from lower intensity patterns, so let's do that.</p>
+<p>We start with the pattern we authored above, which had one part in it. We'll set the pattern's groove range to be 1 through 10 in the property page. Now let's create our second pattern. Since the part on pchannel 1 is going to be identical, we could either copy the pattern (select it in the project tree, CTRL+C, CTRL+V) or use <i>part linking</i>. Linking two parts together makes them both reference a single copy of the musical information. If you want, they can be on different performance channels (that is, played by different instruments). They can also be in the same or different patterns. Editing the part in one place will affect every other pattern that contains that part. As mentioned before, part linking could significantly lower the size of your style file.</p>
+<p>To link a newly created part to an existing part, you have two options:</p>
+
+<ol>
+<li>From the <b>Add New Part Display</b> dialog that appears when you click <b>Add Pattern Part(s)&#8230;</b> on the shortcut menu, select the performance channel that you want and then click <b>Link To Existing Part&#8230;.</b><br>
+<br><IMG src="/content/img/style_fig5.gif" WIDTH="272" HEIGHT="172" ALT="" BORDER="0"><BR><BR>
+Then, from the dialog that appears, select the existing part to which you want to link this new part and click <b>OK.</b></li> 
+<br><br>
+<IMG src="/content/img/style_fig6.gif" WIDTH="285" HEIGHT="179" ALT="" BORDER="0"><BR><BR>
+<li>There's a shortcut for doing this for an entire pattern (linking each part in a new pattern to the corresponding part in another pattern), which is what our scenario was shooting for. Right-click the Patterns folder in the project tree and click <b>New Pattern&#8230;.</b></li>
+<br><BR>
+<IMG src="/content/img/style_fig7.gif" WIDTH="359" HEIGHT="283" ALT="" BORDER="0"><BR><BR>
+By clicking the lower button and then selecting the pattern that we wanted to link to, we create a new pattern, which has each of its parts linked to the corresponding part from the existing pattern. If we open this new pattern, we'll notice that the part has an "L" in its title bar, which indicates it is linked to another pattern:<BR><BR>
+<IMG src="/content/img/style_fig8.gif" WIDTH="481" HEIGHT="28" ALT="" BORDER="0">
+</ol>
+
+<p>By the way, if you later decide that you want to break the link between two parts (effectively creating two independent copies of the note data), you can right-click a part and click <b>Unlink Part Reference</b>. The "L" will be removed from the part, and editing it will not impact other parts.</p>
+<p>Getting back to our scenario, we had one pattern already with one part. Using method 2 from above, we'll create our second pattern. We'll then add a second part to it (for instance, a bass line to go with the drums from the first pattern). This part isn't linked to any other parts (yet), so we'd click <b>Create New Part</b> from the <b>Add New Part Display</b> dialog, and then add some notes to the part. Lastly, we'll set the groove range on this second part to be 11 through 20.</p>
+<p>We then repeat the process once again, creating a new pattern with all of its parts linked to the second pattern we created, adding a third (unlinked) part to it, and setting its groove range to be 21 through 30.</p>
+<p>If you want to see how all of your patterns stack up, you can open the <b>Style Designer</b> window to get a view of all of their properties at once. Just double-click the style node in the project tree. Our style now looks like this:</p>
+
+<IMG src="/content/img/style_fig9.gif" WIDTH="575" HEIGHT="118" ALT="" BORDER="0"><BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;  <i>The</i> <b>Style Designer</b> <i>window. The top frame lists our three patterns. Notice the groove ranges that we've set for each.</i>
+
+<h3>Using a Style in a Segment</h3>
+
+<p>Now that we've got a style with a few patterns, let's try them out in a segment. We first create a segment with a style track and a groove track. Then we drag the style from the project tree into the style track. Note that two other pieces of information are added to the segment automatically:</p>
+<ol>
+<li>A copy of the band from the style is automatically created in a band track. This can be a little confusing&#8212;this style is indeed a copy and in no way "linked" to the band in the style. If you later go back and edit the band in the style, you'll want to copy that band back into the segments that use the style, so that when you play the segment, the proper instrument assignments are used. Similarly, if you edit the band in the segment, that information doesn't make it back to the style. You may want to copy the band back into the style (and delete the band that the style previously contained).</li>
+<br><br>
+<li>The style's tempo is copied into the segment's tempo track. We didn't cover this before, but you could have altered the style's tempo via the style property page or from the <b>Style Designer</b> window. Again, this information is not linked; altering the tempo here will not update the style file's tempo. (This might not be desired, at any rate.)</li>
+</ol>   
+<p>Next we'll put some groove changes into our segment. This is just going to be so that we can hear the patterns in context; in a running game, we'll generally just set the groove level once at the beginning of the segment and then dynamically add groove changes via Microsoft&#174; DirectX&#174; Audio scripting or some coding on the part of our developer.</p>
+<p>Click into the groove track and add a few changes (by pressing the INSERT key, and then selecting the groove level that you want in the property page that appears).
+<BR><BR>
+<IMG src="/content/img/style_fig10.gif" WIDTH="398" HEIGHT="236" ALT="" BORDER="0"><BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;  <i>The property page for a groove change within a groove track</i>
+<br>
+<br> 
+<IMG src="/content/img/style_fig11.gif" WIDTH="576" HEIGHT="205" ALT="" BORDER="0"><BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;  <i>Groove changes over time in a groove track</i></p>
+<p>If we play the segment created above, the first two bars will request a pattern from Style1 at groove level 10. Looking through our list above, only pattern 1's range includes groove level 10, so we'll always get pattern 1 played on the first two bars. Similarly, we'd get pattern 3 for bar 3, and pattern 4 for bar 4 and beyond.</p>
+<p>This demonstrates perhaps the most basic use of styles. You create a segment with a single groove level setting. Then, one of these two methods is used to alter the groove level:</p>
+<ol>
+<li>The developer dynamically drops in additional groove changes based on game state. One challenge here is that if the segment loops back to the beginning, the developer would have to intercept and remove the existing groove level that you set (otherwise his settings would be temporarily lost on the loop).</li>
+<br><br>
+<li>The developer or the scripter dynamically adjusts the Master Groove Level. This is an offset applied to all groove levels present in the segment. For instance, if the Master Groove Level was &#8211;10, our segment above would try to find patterns with groove levels 1 (the level can't drop below 1), then 20, then 10.</li>
+</ol>
+
+<h3>Pick a Pattern, Any Pattern</h3>
+
+<p>We could start getting fancier with this pretty quickly. For instance, you could have several patterns in a style with overlapping or identical groove ranges. When a segment's groove track requested a groove within the overlapped region, either pattern might be chosen. However, there's a little more to how the DirectMusic performance chooses which pattern to play than just groove level. The following list highlights some other aspects that DirectMusic takes into account when choosing which pattern to play. They are presented in descending order of priority. At each step a comparison is made between remaining patterns that match the parameters thus far. If, after going through all of these, several patterns are still "tied," one is chosen at random:</p>
+<ol>
+<li><b>Pattern Length.</b> Given two patterns that both match the groove level requested, the engine will attempt to pick the one that best fits within the segment. This generally translates into the <U>longest</U> pattern (the argument being that it will probably be musically stronger than looping the shorter pattern). The exceptions are toward the end of the segment (if the longest pattern would take us beyond the end of the segment) and if another groove change is coming up. In these cases, the longest pattern that wouldn't cross these barriers is chosen.</li>
+<br><br>
+<li><b>Chord Rhythm.</b> Another option we saw on the pattern property page. Again, this generally comes into account only when you're using chord changes in your content. Based on how frequently chords are changing, one pattern can be chosen over another. A more complete discussion is saved for white papers focusing on how chords interact with patterns.</li>
+<br><br>
+<li><b>Destination Groove Level.</b> You might have several patterns that are appropriate for a specific groove level. But what if one of them works better than the other when we're going to be dropping to a lower groove level from here? Or we're coming up on a transition to another piece of music that's at a completely different groove level? Here is where the destination groove level can be used. When choosing which pattern to play, the DirectMusic performance will actually look ahead to what the groove level is going to be playing when this pattern finishes before choosing a pattern. As a quick example, let's say we have two 1-bar patterns, both assigned to groove range 1 to 50, one with destination groove level 1 through 50, and the other with destination groove level 25 through 100, and the following segment is played:<BR><BR>
+<IMG src="/content/img/style_fig12.gif" WIDTH="579" HEIGHT="207" ALT="" BORDER="0"><BR><BR>
+<p>In bars 1 and 2, either pattern might be chosen randomly, as the "destination" groove level is still 25 (which falls in both patterns' destination ranges). But in bar 3, the performance would notice that we're coming up on a groove level change to 75 and that, while this fits our second pattern, it doesn't fit the first one. So the second pattern would always be played in the third measure. In measure four and beyond, the performance would choose another pattern (which fit groove level 75). If the two patterns described in the example were the only ones in the style, one of them would be chosen randomly.</p>
+</li>
+</ol> 
+<p>If this isn't enough flexibility for you, you can also take some control over how a pattern is chosen when all other parameters are identical. To do this, look at the property page for a groove change within a groove track. The <B>Repeat Pattern</B> drop-down menu allows you to choose how random patterns are chosen based on the previous random choices (for example, keep picking the same one, sequential, or shuffle).</p>
+
+<h3>The Sound of Silence</h3>
+<p>What if we want to have silence at some points in our segment? We have a few choices. The easiest would probably be to create a pattern, probably at the lowest groove level, that had no content. Then, when the groove level drops, the music will be removed. If there are just certain times within the segment that you want silence, you could instead create a second, empty style and drop it into the style track at the appropriate time. Now the performance would look to this segment for content to play and, finding none, would play silently.</p>
+
+<h3>Changing Up Your Patterns</h3>
+
+<p>You might have noticed that groove tracks in DirectMusic Producer allow you to insert groove changes only on bar boundaries. Furthermore, dropping in groove changes programmatically may, in some cases, only switch patterns when the currently playing one finishes. For some kinds of music this is appropriate, but sometimes you want a quicker changeover. You have several options, based on how you want the change to occur.</p>
+<ol>
+<li>If you want the new pattern to start from its beginning, tell your developer or scripter to just transition back to this segment after they make the groove change, using the boundary that you choose (for example at the next beat, next marker, or next measure). </li>
+<br><br>
+<li>If you want the newly selected pattern to start from the same relative position as the existing pattern, tell your developer or scripter to transition back to this segment aligning to segment at the next boundary that you choose (for example, immediately, at the next beat, or at the next marker.)<sup><font size:"9">9</font></sup>  This transition will cause the segment to continue playing from its current position, but the currently playing pattern will be replaced with the new pattern from the same position. For instance, if you were on bar 2 beat 3 of your low-intensity pattern, you could now jump straight to bar 2 beat 3 of your high-intensity pattern and keep playing from there. Of course, in this case, authoring your patterns to all be the same length would probably help.</li>
+</ol>
+
+<h3>Wrap Up: Embellishments</h3>
+<p>To finish things off for this introduction to styles, let's briefly discuss embellishments. As an example, when your character wipes out a bad guy, you want to keep the same groove level, but you want a musical flourish that's appropriate to that groove level. Here's where embellishments can come in handy. You designate a pattern to be a specific embellishment, and then it is only chosen when the developer or scripter specifically says to play it. If multiple patterns match a specific embellishment at a specific groove level, all of the above parameters are used to try to choose the best one.</p>
+<p>Perhaps the most common use for embellishments are as introductions and endings. Again, this behavior could be replicated using separate segment files. But with the introductory and ending patterns for a style embedded within the style itself, your scripter or developer can just tell the DirectMusic performance to start a new piece of music&#8212;after playing the ending pattern from the currently playing segment's style and the introductory pattern from the new segment's style, for instance.</p>
+<p>You can also call for an embellishment directly in your segment's groove track if you wish. Notice that the left tab of the groove change property page lists the various embellishment types, so you can choose the one you wish to use. As usual, if no patterns are found for that embellishment, a pattern will be chosen at random.</p>
+
+<i>For more information about DirectMusic Producer, MIDI and DLS editing, DirectX Audio scripting, and other DirectMusic concepts, please consult the DirectMusic Producer FAQ, DirectMusic Producer Terminology white paper, the DirectMusic Producer help document, or other white papers on this site, or send an e-mail message to</i> <a href="mailto:content@xbox.com">content@xbox.com.</a>
+
+<BR><BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;For an introduction to variations, see the white paper "<A HREF= "/BPProgInfo.asp?Page=content/cdcentral_audio_wp_variations1.htm">Variations: Adding Basic Variability to Audio Content in DirectMusic Producer</a>."</p>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;.stp is the design-time extension for style files; .sty is the run-time extension. For more information about design-time and run-time files, see "<A HREF= "/BPProgInfo.asp?Page=content/cdcentral_audio_wp_contentdelivery.htm">Delivering the Goods: File Management Tricks and Tips</a>."</p> 
+<P style="font-size:12"><SUP>3</SUP>&nbsp;The groove track is actually optional, though omitting it would often limit you to playing style patterns at one specific groove level. If no groove level is included, the default groove level of 62 is used if no prior segments had a groove level, or the preceding groove level will continue to be used.</p>
+<P style="font-size:12"><SUP>4</SUP>&nbsp;They actually contain a second track type called 'chords for composition', which dictates what chords the pattern was originally composed to play over. This is discussed in a subsequent white paper.</p>
+<P style="font-size:12"><SUP>5</SUP>&nbsp;Styles can contain multiple bands, as well as <i>motifs</i>, which are specialized secondary segments (meant to play layered on top of another segment, the primary segment). However, using motifs requires quite a bit of input and effort on the part of the developer, and thus they are not covered here. All of the functionality of motifs and multiple bands are available via segments.</p>
+<P style="font-size:12"><SUP>6</SUP>&nbsp;For more information about the <b>Band Editor</b>, see the topic <b>Using a DLS Instrument in a Band</b> in the white paper "<A HREF= "/BPProgInfo.asp?Page=content/cdcentral_audio_wp_gettingstarted.htm">Getting Started with DirectMusic Producer: MIDI and DLS Collections</a>."</p>
+<P style="font-size:12"><SUP>7</SUP>&nbsp;For more information about variations, see the white paper entitled "<A HREF= "/BPProgInfo.asp?Page=content/cdcentral_audio_wp_variations1.htm">Variations: Adding Basic Variability to Audio Content in DirectMusic Producer</a>." For shortcuts for MIDI note entry, see "<A HREF= "/BPProgInfo.asp?Page=content/cdcentral_audio_wp_dmp_shortcuts.htm">Keyboard Shortcuts for DirectMusic Producer</a>."</p>
+<P style="font-size:12"><SUP>8</SUP>&nbsp;Just to distinguish, the term <i>groove level</i> is a specific DirectMusic term. I'm using the term <i>intensity level</i> to talk about the general concepts a composer and developer might establish to determine how the music should behave. They might be values equivalent to groove level, or they might be more generic, like "low," "medium," and "high." How the intensity levels map to specific groove levels or ranges is up to your specific title. While it's often convenient to think of higher groove levels as higher intensities, remember that you can use groove levels any way that you wish.</p>
+<P style="font-size:12"><SUP>9</SUP>&nbsp;In developer language, you would be retriggering the current segment with DMUS_SEGF_NOINVALIDATE | DMUS_SEGF_SEGMENTEND | DMUS_SEGF_ALIGN | DMUS_SEGF_VALID_START_* (last parameter depends on the boundary where you want the switchover to occur, and would be left out if you were using markers).</p>
+<BR><BR>
+<SMALL>Thursday, May 3, 2001</SMALL>
+
+
+<BR>
+
+
+
+
+</td>
+
+
+</TD>
+
+
+
+	

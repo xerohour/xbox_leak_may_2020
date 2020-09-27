@@ -1,0 +1,22 @@
+TARGETNAME=signcode
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+
+INCLUDES=$(BASEDIR)\private\cert\lib
+
+LINKLIBS=\
+    $(WSDK_LIB_PATH)\advapi32.lib \
+    $(BASEDIR)\private\lib\*\certutil.lib \
+    $(BASEDIR)\private\lib\*\cklibver.lib \
+    $(BASEDIR)\private\lib\*\xcrypt.lib \
+    $(BASEDIR)\private\lib\*\rsa32.lib
+
+SOURCES= \
+    signcode.cpp \
+    signcode.rc
+
+USE_MSVCRT=1
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_CXX=1

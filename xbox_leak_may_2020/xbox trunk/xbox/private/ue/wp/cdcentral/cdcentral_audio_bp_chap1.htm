@@ -1,0 +1,255 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+</td>
+
+
+<TD><BR><BR>	
+
+<H1>Best Practices for Xbox Audio Design:<BR>Chapter 1 - Xbox Audio 
+Libraries</H1></DIV>
+<P><I>By Scott Selfon, Audio Content Consultant, Xbox Content and Design 
+Team</I></P>
+<P style="FONT-SIZE: 14px">Microsoft Confidential</P>
+<H2>Introduction</H2>
+<P>This document discusses the audio-related interfaces supported by the  
+Xbox™ video game console from Microsoft in Xbox System Software v1.0. Xbox implements a 
+platform-specific version of the Microsoft® DirectX® 8.0 libraries. If there is 
+an interface from the greater DirectX library that you would like to see that is 
+omitted, please contact us at <a href="mailto:content@xbox.com">content@xbox.com</a>.
+Our primary goal is to keep these libraries as lean as possible while supporting the
+features requested by developers that maximize the audio flexibility and power of Xbox.</P>
+<P style="MARGIN-LEFT: 30px"><B><I>Note</I></B>&nbsp;&nbsp;&nbsp;This document 
+is not a complete specification of the Microsoft® DirectSound® and Microsoft® 
+DirectMusic® libraries for Xbox. For more detailed information and a list of
+interfaces, please consult the Xbox Development Kit documentation.</P>
+<H2>DirectSound for Xbox</H2>
+<P>The Xbox Media Communications Processor (MCP) is a powerful hardware synthesis
+engine that has advanced audio synthesis and processing capabilities. The goal is to
+allow an application to use DirectSound and control every aspect of the Xbox MCP at a
+low level.</P>
+<P>To expose capabilities of the Xbox MCP that are above and beyond that of DirectSound
+on Microsoft® Windows®, several interfaces specific to Xbox are added to the version of
+DirectSound used on Xbox. In addition, some changes are made to existing Windows
+DirectSound libraries to more accurately represent the audio capabilities of Xbox.</P>
+<P>In addition to standard DirectSound functionality, processing of data streams 
+is accomplished by using Xbox Media Objects. Audio Xbox Media Objects that are 
+natively supported by Xbox System Software are included in the Xbox Media 
+Objects section of this document. More generic Xbox Media Objects programming 
+libraries (that is, for constructing your own Xbox Media Objects) are not 
+covered in this document.</P>
+<H3>Comparisons with DirectSound on the Windows Platform</H3>
+<P>Developers familiar with DirectSound on Windows should feel quite comfortable 
+with DirectSound as implemented on Xbox. However, there are several significant 
+differences between versions:</P>
+<UL>
+  <LI><B>QueryInterface</B> is no longer used with DirectSound. <BR><BR>
+  <UL>
+    <LI>Methods on the <B>IDirectSound3Dbuffer</B> interface have been moved to 
+    the <B>IDirectSoundBuffer</B> interface; 3-D buffer methods on buffers that 
+    have not been created with the DSBCAPS_CTRL3D flag set will return E_FAIL. <BR><BR>
+    <LI>Methods on the <B>IDirectSound3Dlistener</B> interface have been moved 
+    to the <B>IDirectSound</B> interface. </LI><BR><BR></UL>
+  <LI>Most of the <B>GetXxx</B> methods have been removed (for example, 
+  <B>IDirectSoundBuffer::GetVolume</B>). <BR><BR>
+  <LI><B>DirectSoundCapture</B> interface is not supported. <BR><BR>
+  <LI>New <B>IDirectSoundStream</B> interface for audio streaming. <BR><BR>
+  <LI>Several methods to expose the capabilities of the audio hardware have been 
+  added to <B>IDirectSoundBuffer8</B>. <BR><BR>
+  <LI>There is no primary buffer. </LI></UL>
+
+<H3>Unsupported DirectSound APIs</H3>
+<P>The following APIs that are present in DirectX 8.0 are not supported on the 
+implementation of DirectSound on Xbox:</P>
+<UL>
+  <LI><B>IDirectSound8</B> 
+  <UL>
+    <LI><B>IDirectSound8::Compact</B> 
+    <LI><B>IDirectSound8::Initialize</B> 
+    <LI><B>IDirectSound8::VerifyCertification</B> </LI></UL><BR>
+  <LI><B>IDirectSoundBuffer8</B> 
+  <UL>
+    <LI><B>IDirectSoundBuffer8::AcquireResources</B> 
+    <LI><B>IDirectSoundBuffer8::GetFormat</B> 
+    <LI><B>IDirectSoundBuffer8::GetFrequency</B> 
+    <LI><B>IDirectSoundBuffer8::GetObjectInPath</B>
+	<LI><B>IDirectSoundBuffer8::GetPan</B> 
+    <LI><B>IDirectSoundBuffer8::GetVolume</B> 
+    <LI><B>IDirectSoundBuffer8::Initialize</B> 
+    <LI><B>IDirectSoundBuffer8::SetFx</B> 
+ </LI></UL><BR>
+  <LI><B>IDirectSound3DBuffer8</B> 
+  <UL>
+    <LI><B>IDirectSound3DBuffer8::GetAllParameters</B> 
+    <LI><B>IDirectSound3DBuffer8::GetConeAngles </B>
+    <LI><B>IDirectSound3DBuffer8::GetConeOrientation</B> 
+    <LI><B>IDirectSound3DBuffer8::GetConeOutsideVolume</B> 
+    <LI><B>IDirectSound3DBuffer8::GetMaxDistance</B> 
+    <LI><B>IDirectSound3DBuffer8::GetMinDistance</B> 
+    <LI><B>IDirectSound3DBuffer8::GetMode</B> 
+    <LI><B>IDirectSound3DBuffer8::GetVelocity</B> 
+    <LI><B>IDirectSound3DBuffer8::GetPosition</B> </LI></UL><BR>
+  <LI><B>IDirectSound3DListener8</B> 
+  <UL>
+    <LI><B>IDirectSound3DListener8::GetAllParameters</B> 
+    <LI><B>IDirectSound3DListener8::GetDistanceFactor</B> 
+    <LI><B>IDirectSound3DListener8::GetDopplerFactor</B> 
+    <LI><B>IDirectSound3DListener8::GetOrientation</B> 
+    <LI><B>IDirectSound3DListener8::GetRolloffFactor</B> 
+    <LI><B>IDirectSound3DListener8::GetVelocity</B> 
+    <LI><B>IDirectSound3DListener8::GetPosition</B> </LI></UL></LI></UL>
+<P style="MARGIN-LEFT: 15px"><I><B>Note</B></I>&nbsp;&nbsp;&nbsp;Since all 
+<B>IDirectSound3DBuffer8</B> and <B>IDirectSound3Dlistener8</B> methods have been either moved 
+(to <B>IDirectSoundBuffer8</B> or <B>IDirectSound8</B> respectively) or deleted, the 
+<B>IDirectSound3DBuffer</B> and <B>IDirectSound3Dlistener</B> interfaces have been 
+removed.</P>
+<P>The following interfaces, and all their respective methods are not supported 
+on Xbox:</P>
+<UL>
+  <LI><B>IDirectSoundCapture8</B><BR><BR>
+  <LI><B>IDirectSoundCaptureBuffer8</B> <BR><BR>
+  <LI><B>IKsPropertySet</B> <BR><BR>
+  <LI><B>DirectSoundCaptureCreate8</B> <BR><BR>
+  <LI><B>DirectSoundCaptureEnumerate8</B> <BR><BR>
+  <LI><B>DirectSoundEnumerate8</B> <BR><BR>
+  <LI><B>GetDeviceID</B> <BR><BR>
+  <LI><B>DirectSoundFullDuplex8</B> <BR><BR>
+  <LI><B>IDirectSoundFXChorus8</B> <BR><BR>
+  <LI><B>IDirectSoundFXCompressor8</B> <BR><BR>
+  <LI><B>IDirectSoundFXDistortion8</B> <BR><BR>
+  <LI><B>IDirectSoundFXEcho8</B> <BR><BR>
+  <LI><B>IDirectSoundFXFlanger8</B> <BR><BR>
+  <LI><B>IDirectSoundFXGargle8</B> <BR><BR>
+  <LI><B>IDirectSoundFXI3DL2Reverb8</B> <BR><BR>
+  <LI><B>IDirectSoundFXParamEQ8</B> <BR><BR>
+  <LI><B>IDirectSoundFXWavesReverb8</B> </LI></UL>
+<H2>Xbox Media Objects</H2>
+<P>Xbox Media Objects are a standard interface for media transforms on Xbox. The 
+format of generic Xbox Media Objects will not be addressed in this document. 
+Xbox Media Object is the format used for items such as data compression or 
+decompression, signal processing (for example, software filtering), or the 
+general handling of streaming data (for example, the <B>DirectSoundStream</B> 
+interface).</P>
+<P>The following table lists specific audio Xbox Media Objects as supported by 
+Xbox System Software. Each of the described Xbox Media Objects is available for 
+use in Xbox titles.</P>
+<H3>Supported Xbox Media Objects</H3>
+<TABLE 
+style="BORDER-RIGHT: medium none; BORDER-TOP: medium none; MARGIN-LEFT: 0.2in; BORDER-LEFT: medium none; BORDER-BOTTOM: medium none; BORDER-COLLAPSE: collapse" 
+cellSpacing=0 cellPadding=0 border=1>
+  <TBODY>
+  <TR>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: windowtext 0.5pt solid; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: windowtext 0.5pt solid; WIDTH: 2in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=198>
+      <P class=MsoNormal><B>Function</B></P></TD>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: windowtext 0.5pt solid; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: medium none; WIDTH: 3.95in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=379>
+      <P class=MsoNormal><B>Description</B></P></TD></TR>
+  <TR>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: windowtext 0.5pt solid; WIDTH: 2in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=198>
+      <P class=MsoNormal><B>ADPCMCreateEncoder</B></P></TD>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: medium none; WIDTH: 3.95in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=379>
+      <P class=MsoNormal>Encode linear PCM data into ADPCM format.</P></TD></TR>
+  <TR>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: windowtext 0.5pt solid; WIDTH: 2in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=198>
+      <P class=MsoNormal><B>WMACreateDecoder</B>/<Br><B>WMACreateDecoderEx</B></P></TD>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: medium none; WIDTH: 3.95in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=379>
+      <P class=MsoNormal>Create a Microsoft&#174; Windows Media&#8482; Audio (WMA) decoder Xbox Media Object (<B>WMACreateDecoderEx</B> provides access to information embedded in the WMA file).</P></TD></TR>
+  <TR>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: windowtext 0.5pt solid; WIDTH: 2in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=198>
+      <P class=MsoNormal><B>WMACreateInMemoryDecoder</B>/<br><B>WMACreateInMemoryDecoderEx</B></P></TD>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: medium none; WIDTH: 3.95in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=379>
+      <P class=MsoNormal>Create a WMA in memory decoder Xbox Media Object, generally used when you implement your own file streamer.</P></TD></TR>
+  <TR>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: windowtext 0.5pt solid; WIDTH: 2in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=198>
+      <P class=MsoNormal><B>XWaveFileCreateMediaObject</B></P></TD>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: medium none; WIDTH: 3.95in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=379>
+      <P class=MsoNormal>Obtain a streaming interface from a .wav file on 
+      disk.</P></TD></TR>
+  <TR>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: windowtext 0.5pt solid; WIDTH: 2in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=198>
+      <P class=MsoNormal><B>IDirectSoundStream</B></P></TD>
+    <TD 
+    style="BORDER-RIGHT: windowtext 0.5pt solid; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; PADDING-LEFT: 5.4pt; PADDING-BOTTOM: 0in; BORDER-LEFT: medium none; WIDTH: 3.95in; PADDING-TOP: 0in; BORDER-BOTTOM: windowtext 0.5pt solid" 
+    vAlign=top width=379>
+      <P class=MsoNormal>DirectSound interface for 
+streaming</P></TD></TR></TBODY></TABLE><BR>
+Note that ADPCM decode is accomplished in hardware onboard the Xbox MCP, so no Xbox Media Object is necessary.
+<BR>
+
+<H2>DirectMusic Libraries for Xbox</H2>
+<P>DirectMusic is the high-level library for interactive music and sound 
+effects. As a more abstracted interface than DirectSound, the DirectMusic 
+interfaces exposed are very close to the interfaces in the Windows version of 
+DirectX 8.0. Again, we have focused on making the feature set lean, functional, 
+and fully geared to game audio development for Xbox. If there is a DirectMusic 
+library that you would like to see that has been omitted from Xbox System Software v1.0, please contact 
+<A href="mailto:content@xbox.com">content@xbox.com</A> and let us know.</P>
+<H3>Comparisons with DirectMusic on the Windows Platform</H3>
+<P>Content creators familiar with DirectMusic on Windows should feel quite 
+comfortable with DirectMusic as implemented on Xbox. As discussed in 
+detail in <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap4.htm" title="Chapter 4 &#8211; DirectMusic Producer Introductory Guide for Xbox">Chapter 4 of the Audio Best Practices Guide</a>, content is authored on a Windows 2000 machine running 
+DirectMusic Producer for Xbox and DirectX 8.0. However, there are several significant 
+differences to address:</P>
+<UL>
+  <LI>Many of the interfaces and methods have been removed; specifically, those 
+  that didn't focus on game audio programming (designed for applications such as MIDI
+  sequencers, audio waveform editors, and so on). <BR><BR>
+  <LI>DirectX Media Objects for effects processing are not supported; effects 
+  processing is performed on the Xbox MCP itself and not directly supported via content for Xbox System Software v1.0. <BR><BR>
+  <LI>Some track types are not implemented (covered in <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap2.htm">Chapter 2 of the Audio Best Pratices Guide</a>). <BR><BR>
+  <LI><B>CoCreateInstance</B> is not supported. An alternative function, 
+  <B>DirectMusicCreateInstance</B>, is used instead. </LI><BR><BR>
+  <LI>You have the option to remove threading. In this case, titles should call <B>DirectMusicDoWork</B> every frame.</LI><BR><BR>
+  <LI>You must initialize DirectMusic before using it by calling <b>DirectMusicInitialize</b> (uses default settings),
+  <b>DirectMusicInitializeEx</b> (allows you to specify your own heaps and/or object factories), or
+  <b>DirectMusicInitializeFixedSizeHeaps</b> (allows you to specify fixed size heaps for DirectMusic to use).
+</UL>
+<H3>DirectMusic Behavior for Xbox System Software v1.0</H3>
+<P>The following DirectX 8 features are not supported for Xbox System Software v1.0 (August) but will be added in a future Xbox System Software release:</p>
+<UL>
+<LI>Effects control using parameter control tracks (effects can be managed via code by developer)<BR><BR>
+<li>WMA compression of waves in wave tracks<BR><BR>
+<li>Arbitrary audiopaths (only standard audiopaths will be supported; effects can be authored by the developer)<BR><BR>
+<li>5.1 audiopaths (content can still be manually panned to six-channel output)</li>
+</ul>
+<P>Attempting to play content using these features may result in an error.</p>
+
+<BR><BR><BR><SMALL>Monday, August 27, 2001</SMALL>
+</BODY></HTML>

@@ -1,0 +1,190 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+<BR>
+<BR>
+
+</td><td>
+<H2>Working the Metal:
+Audiopath Configurations and the
+Xbox Media Communications Processor 
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<BR>
+<UL>
+<P><B><I>Note</I></B>&nbsp;&nbsp;&nbsp;Custom audiopath configurations (.aud/.aup) as described below are not supported for Xbox System Software version 1.0. We hope to add support for such files (and embedded audiopath configurations) in a future release. For version 1.0, if you wish to use audiopaths, your developer can create audiopaths from standard audiopath configurations. If you wish to use effects with Microsoft&#174; DirectMusic&#174;, they can be accessed by routing a DirectMusic audiopath to a specified Microsoft&#174; DirectSound&#174; buffer. Your developer can create effect paths and chains via Global Processor DSP programs using the XGPImage tool.</P>
+<P>For more detailed information and implementation assistance, please contact content@xbox.com.</P>
+</UL>
+<BR>
+<h3>Introduction</h3>
+<P>So you've been hearing all of this talk about the Xbox Media Communications Processor, which houses the Xbox audio hardware on the Xbox&#8482; video game console from Microsoft. You, as the content creator, can directly affect the audio hardware using audiopath configurations to instantiate effects, manipulate their parameters in real time, and dictate audio signal routing. This document will describe the process of authoring audiopath configuration files within DirectMusic Producer and the process of manipulating effect parameters in real time with parameter control tracks.</P>
+
+<h3>Terms and Terms and Terms, oh my!</H3>
+<P>Before we get started, let's define and clarify a few closely related terms that are often confused.</P>
+<DL>
+<DT>audiopath configuration file (.aup/.aud)<small><sup>1</sup></small>  </DT>
+<DD>file authored in DirectMusic Producer that dictates effects and general audio signal routing, edited in Audiopath Designer. This file is a template for how the audio should be processed. The presence of this file alone does not mean the audio hardware is in use; that occurs only by instantiating an audiopath from this file. This is analogous to the difference between a DLS collection and such a collection's instruments actually being downloaded into memory for triggering.</DD>
+<DT>standard audiopath configuration </DT>
+<DD>any one of several predefined audiopath configurations that can be used as templates in DirectMusic Producer for creating new audiopath configurations or that can be called upon programmatically as an audiopath. The current options include Standard Stereo, Standard Stereo &amp; Reverb, Standard Mono, and Standard 3D (Dry).</DD>
+<DT>embedded audiopath configuration</DT>
+<DD>an audiopath configuration that is stored within another file, most commonly a segment (.sgp/.sgt).</DD>
+<DT>audiopath </DT>
+<DD>an actively running instance of an audiopath configuration. You could create two or more active audiopaths from an audiopath configuration.</DD>
+<DT>default audiopath </DT>
+<DD>an active audiopath that all content will play on if the content (or developer) does not specify otherwise.</DD>
+</DL>
+<H3>How It All Works in DirectMusic Producer: Audiopath Configuration Files</H3>
+<P>Let's create a new audiopath configuration file from scratch. Once we have one, we'll add some effects and play a segment on an audiopath created from it.</P>
+<OL>
+<LI>Open a project and create a new audiopath configuration. (Press CTRL+N, click <B>Audiopath</B> on the list, and click <B>OK</B>). We immediately get the following dialog:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig1.gif" border="0"></LI><BR><BR>
+<LI>You can create a new audiopath configuration based on any other audiopath configuration that is currently in the project or on any of the default audiopath configurations. Let's create one from scratch. To start, choose the top option button for <B><U>C</U>reate an empty audiopath</B>, and click <B>OK</B>.<BR><BR>
+The <B>Audiopath Designer</B> window opens, and we're again prompted with a dialog:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig2.gif" border="0"><BR><BR>
+You can use this dialog box to define any number of pchannels to be used by this audiopath configuration. Note that the pchannels used by an audiopath are independent from all other active audiopaths. You can think of them as virtual MIDI channels. If a segment on audiopath #1 asks for a flute on pchannel 1 and another segment playing on audiopath #2 asks for a French horn on pchannel 1, there's no problem; the two are independent from each other. By contrast, two segments playing on the same audiopath that request different instruments on the same pchannel will conflict.<BR><BR>
+Make sure that an audiopath configuration exposes all of the pchannels its content intends to play on; otherwise, content on those channels will be silent.<BR><BR>
+Let's start with 32 voices. Click <B>Add Next 16 >></B> twice, which adds pchannels 1 through 32 to the list at the right of the dialog, then click <B>OK</B>.
+</LI><BR><BR>
+<LI>We can now edit our audiopath configuration.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig3.gif" border="0"><BR><BR>
+You'll notice all 32 voices we asked for have been added to a Mix Group. Each mix group can define its own list of effects, and can, in some conditions, also send to other mix groups-we'll get to that in a second. Bus and Buffer will also come into play in a few steps, but we'll leave them be for now.<BR><BR>
+Notice the Effect Palette, which lists the effects that are supported. Note that for the time being, the list is composed of Microsoft&#174; DirectX&#174; Media Objects (software effects) that are on your Windows 2000 development machine. Xbox will understand these effects when requested and draw from its own list of equivalent hardware effects,<small><sup>2</sup></small> but note that they may not sound identical. Xbox may also have several effects not found on this list, which for now must be created and controlled by the developer.<BR><BR>
+So let's add an effect to these channels&#8212;say, chorus. To add one or more effects, drag them from the Effect Palette into the Effects List for the appropriate Mix Group. Effects are applied to the audio signal from left to right. So for the below illustration, we'll have chorus and then distortion applied to pchannels 1 through 32:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig4.gif" border="0"><BR><BR>
+Note that the effects in the actual list are called Chorus1 and Distortion1. You can create multiple instances of an effect (for example, Chorus2, Chorus3) in an audiopath; you are limited only by the size of the Xbox Media Communication Processor's Global Processor, the digital signal processor (DSP) that contains running audio effect "programs."<small><sup>3</sup></small></LI>
+</OL>
+<H3>Auditioning Our Audiopath Configuration via DirectMusic Producer's Default Audiopath</H3>
+<P>So how do we hear this audiopath configuration in action? One of the easier ways is to make it the default audiopath. Remember, any content that doesn't define its own audiopath to play on will play on the default audiopath. Producer allows you to choose any user-created or standard audiopath configuration to be the default audiopath. This default choice is defined in a dropdown in the <B>Transport Options</B> toolbar:</P>
+<IMG src="/content/img/audiopathconfig_fig5.gif" border="0"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>Choosing the default audiopath</I></P>
+<P>An actively running audiopath is then created from the chosen configuration, and any content that doesn't say otherwise will be played on that audiopath. Try switching to our new audiopath configuration, and then play a segment.<small><sup>4</sup></small> Note that this dropdown is an audition setting, so it is used only by DirectMusic Producer. You will need to communicate to your developer (or scripter) which audiopath configuration you would like used as the default audiopath at run time.</P>
+<H3>Modifying an Effect's Initial Parameter Settings</H3>
+<P>Now let's modify some of the parameters of the effects we added to our audiopath configuration. Because it's currently "active" (we made it the default audiopath), we can actually hear any parameter changes in real time, so long as a segment is playing while we make the edits. Note that in this step, we're changing the effect's initial parameters, so we're setting up the mix of effects as it will be heard when segments or waves first start playing on it. We'll get to real-time parameter modification (where the content itself changes effect settings during playback) in a moment.</P>
+<OL>
+<LI>Go back to the Audiopath Designer if you've switched windows.</LI><BR><BR>
+<LI>Select one of our effects and open its property page (right click, then click <B>Properties</B> in the shortcut menu, or just click and press the F11 shortcut).<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig6.gif" border="0"><BR><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>The property page for an effect instance</I><BR><BR>
+<P class=note><B><I>Note</I></B>&nbsp;&nbsp;&nbsp;In this property page, you can change the instance name, or open the actual effects property page from the Edit Effect Properties button.<small><sup>5</sup></small></LI><BR><BR>
+<LI>Clicking the <B><U>E</U>dit Effect Properties</B> button gets you a list of actual effect parameters that you can edit. If content is currently playing on this audiopath, you can hear changes to these parameters applied in real time. Note that things can get a little tricky here&#8212;unlike most of the other property pages in DirectMusic Producer, these effect property pages do not allow click to edit other aspects of your content while leaving them open. You must hit <B>OK</B> or <B>Cancel</B> to dismiss the page, which returns you to a mode where you can make edits or use the playback transport in DirectMusic Producer. So if you want to hear content while modifying these parameters, you should start playing it before opening the parameter property page, and make sure it's sufficiently long (or looped) that you'll have enough time to hear the effects applied before the segment ends.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig7.gif" border="0"><BR><BR>
+</LI>
+</OL>
+<H3>Modifying an Effect's Parameters in Content: Parameter Control Tracks </H3>
+<P>Okay, now we know how to edit the initial parameters of an effect. But what if we want them to change over time&#8212;and as defined by a specific segment? Here is where parameter control tracks come into play. This track type is used to make smooth (or instantaneous) parameter changes on a currently active effect. You'll notice that the interface in DirectMusic Producer is very similar to how you create MIDI controller changes.</P>
+<OL>
+<LI>Open a new or existing segment.</LI><BR><BR>
+<LI>For a new segment, you'll be prompted for track types. Choose <B>Parameter Control Track</B>. For an existing segment, right click, then click <B>Add Track(s)&#8230;</B> on the shortcut menu that appears (CTRL+INSERT shortcut) and choose <B>Parameter Control Track</B>. Either way, you now have an empty parameter control track that looks like this:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig8.gif" border="0"><BR><BR></LI>
+<LI>While the mouse is positioned over the track, right click, then click <B>Add New Parameter&#8230;</B> on the shortcut menu. The <B>Add Parameter</B> dialog appears.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig9.gif" border="0"><BR><BR></LI>
+<LI>For Xbox, choose the DMOs option button.<small><sup>6</sup></small> The <B>Stage</B> field allows us to choose whether we want to modify effects from the segment's embedded audiopath or from the performance's default audiopath. For now, we want to work with the default audiopath, so click <B>from the Performance's active audiopath</B>.</LI><BR><BR>
+<LI>The <B>Object</B> drop-down list now displays all of the effects in our audiopath. Let's again work with the chorus. Once you choose it, you can pick the parameter you want this particular track to modify. Notice that these are the same parameters that we saw back in step 3 on the chorus effect's property page. Let's choose <B>Frequency</B>.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig10.gif" border="0"><BR><BR></LI>
+<LI>When we click <B>OK</B>, you'll notice our empty parameter control track has changed in view:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig11.gif" border="0"><BR><BR>
+You can repeat steps 3 through 5 for each parameter that you want to use. Double clicking on the track (or clicking the maximize icon  <IMG src="/content/img/audiopathconfig_fig12.gif" border="0"> towards the right edge of the track) will expand it and display every parameter we've added.</LI><BR><BR>
+<LI>Now we can insert changes to parameter settings that occur over time, just like MIDI controller curves. Let's alter the frequency and hear the results.</LI><BR><BR>
+<OL TYPE="a">
+<LI>Click into the maximized track, so that it has focus.</LI><BR><BR>
+<LI>Right click, then on the shortcut menu, click <B>Draw Curve</B>, or just press the INSERT key shortcut.</LI><BR><BR>
+<LI>Drag out a box for the curve you want in the track. You can grab the handles to resize a curve you've already created.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig13.gif" border="0"><BR><BR></LI>
+<LI>For more accuracy in editing specific values, you can open the property page for this curve by pressing F11. You can also change the parameters of the curve (shape, duration, and so on) from this property page.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig14.gif" border="0"><BR><BR></LI>
+</OL></LI>
+<LI>Play it back. If our property change was obvious, such as a frequency shift in the chorus effect, you'll hear the effect change over time per the instructions.</LI>
+</OL>
+<H3>Getting Fancier: Send Effects</H3>
+<P>What we've learned so far is great for "global"-style effects, like reverb and chorus. But what about instances in which you want your guitar to have some distortion, your brass section to have some parametric equalization, and the whole mix to get flanged? You're probably going to want to start using send effects. Send effects effectively split the audio stream between continuing on the current path and getting routed to another mix-in buffer (a mix group with no pchannels, so no sources of its own). Let's set up the scenario above to get a handle on what you can do with send effects.</P>
+<P>The scenario: Trumpets, trombones, tubas, and horns are playing on pchannels 11 through 14 of our segment. Our guitar is on pchannel 18. The rest of the instruments are on pchannels 15 through 17 and 19 through 21. We want all of the brass to have parametric EQ, we want the guitar to be distorted, and then a mix of the two should be flanged. The other instruments should just play dry.</P>
+<OL>
+<LI>Create a new audiopath configuration file.</LI><BR><BR>
+<LI>Create three different mix groups based on our groups of instruments:</LI><BR><BR>
+<OL TYPE="a">
+<LI>Add pchannels 11 through 14 (our brass section) to a mix group.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig15.gif" border="0"><BR><BR></LI>
+<LI>Once you click <B>OK</B>, right click anywhere in the mix group column and click <B>Insert Mix Group</B> in the shortcut menu (or just press the INSERT key).<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig16.gif" border="0"><BR><BR></LI>
+<LI>Add pchannel 18 (our guitar) to this mix group.</LI><BR><BR>
+<LI>Repeat steps b and c once more, adding pchannels 15 through 17 and 19 through 21 (the rest of our instruments) to this third mix group. The Audiopath Designer window should now look like this:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig17.gif" border="0"><BR><BR></LI>
+</OL>
+<LI>Now drag the appropriate effects into the Effects List column for the instruments that will use them: ParamEq for the mix group playing pchannels 11 thorugh 14 and Distortion for the mix group playing pchannel 18.</LI><BR><BR>
+<LI>Now we want the brass and guitar to get mixed together and apply chorus. So first, we create a mix group with no pchannels, which indicates it will be receiving audio from other mix groups instead of having external inputs. To do this, just click <B>OK</B> at the <B>Add/Remove PChannels</B> dialog for the new mix group. (If developers ask what this does, tell them this mix group is a mix-in buffer.) Add the chorus effect to this Mix Group's Effects List.</LI><BR><BR>
+<LI>Now right click in the Effects List for the horns (but to the right of our existing "ParamEq1" effect), and click <B>Insert Send</B> in the shortcut menu.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig18.gif" border="0"><BR><BR></LI>
+<LI>Our brass instruments are now getting routed to Mix Group3 (after the parametric equalization is applied to them). If you have multiple mix-in buffers (mix groups with no pchannels), you can choose which to send to from the property page for this send effect.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig19.gif" border="0"><BR><BR>
+You'll also notice the <B><U>E</U>dit Effect Properties</B> button brings up the sole property for a send effect, which is the volume of the send, in hundredths of a decibel. Full volume is 0; &#8211;9600 is effective silence. (Note that this particular property cannot be altered in real time via a parameter control track.)<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig20.gif" border="0"><BR><BR></LI>
+<LI>Repeat step 6 for the guitar. The audiopath configuration should now look something like this:  <BR><BR>
+<IMG src="/content/img/audiopathconfig_fig21.gif" border="0"><BR><BR></LI>
+<LI>One last step&#8212;remember that send effects effectively split the audio. So we've now got two copies of the brass and guitar coming out of this audiopath: the chorused mix along with the pre-chorused individual mix groups. We probably just want the chorused result, or we'll be hearing both wet and dry versions of the same data simultaneously.<small><sup>7</sup></small> This diagram shows us how the audio currently looks for the brass and guitar:<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig22.gif" border="0"><BR><BR>
+So for this last step, we want to take the mix groups for the guitar and brass and set their output volumes to silence (&#8211;96 dB).<BR><BR>
+<OL TYPE="a">
+<LI>Open up the actual buffer's properties (by right clicking in the Bus or Buffers columns and choosing <B>Properties</B>) for our brass section.
+<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig23.gif" border="0"><BR><BR></LI>
+<LI>Set the buffer <B>Volume</B> to &#8211;9600 (effectively silence).<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig24.gif" border="0"><BR><BR></LI>
+<LI>Repeat steps a and b for the guitar part.</LI>
+</OL></LI>
+</OL>
+<P>And that's it&#8212;we've now got two different audio streams getting routed into a single chorus effect.</P>
+<H3>Advanced Topics: 3-D Buffers, Embedded Audiopaths, and More</H3>
+<P>As the sound designer, you can also specify whether a particular mix group should be playing to a 2-D (panned left or right) or 3-D (positioned in real time in 3-D acoustic space). From the property page we just saw, you can click the <B>Pan</B> option button to make a buffer (mix group) 2-D, or the <B>Enable 3D Control</B> option button to make the buffer 3-D. You can then click the <B>3D Position</B> button to set initial position, velocity (for sounds that "orbit" around the listener), and so on. For more details about each of these 3-D parameters, values, and so forth, consult the <B>3-D Sound</B> topic of the Xbox Development Kit's DirectX Audio documentation (Xbox Reference\DirectX Libraries for Xbox\DirectX Audio\Using DirectX Audio\3-D Sound).</P>
+<P>We've spent most of this document talking about creating audiopath configurations separate from the segments you intend to play them on. In some cases, it may be more convenient to deliver the audiopath configuration embedded within the segment. To do this, just right click a segment and, in the shortcut menu, click <B>New</B>, then click <B>Audiopath</B>.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig25.gif" border="0"><BR><BR></P>
+<P>You can also drag (or CTRL+drag to copy) an existing audiopath configuration file into a segment. From the segment's property page, you can control whether the segment creates a new instance of the audiopath every time it plays in DirectMusic Producer. The developer can also make use of this flag by playing content with DMUS_SEGF_DEFAULT.<BR><BR>
+<IMG src="/content/img/audiopathconfig_fig26.gif" border="0"><BR><BR></P>
+<P>Keep an eye out for a follow-up paper on times that this option might be more or less desirable.</P>
+<P>One last thing to note: Send effects can also go to mix groups on other active audiopaths. For instance, you might have one global reverb and a bunch of audiopaths that various content plays on. You can set up these audiopaths such that, at the end of their effects list, they send their final mixes to the global reverb. </P>
+<P>And that pretty much wraps up the major features of audiopaths and audiopath configuration files. Don't forget to runtime save your files for delivery to the developer! (For more information on this, see the "Delivering the Goods: File Management Tricks and Tips" white paper on this site.) </P><BR>
+<P>For more information about audiopaths, embedded audiopaths, 3-D positional support on Xbox, and effects use in general, please consult chapter 3 of the Audio Best Practices document, the xds.xbox.com DirectMusic FAQ, or the DirectMusic Producer help document, or send e-mail to <a href="mailto:content@xbox.com">content@xbox.com</a></P>
+
+
+<hr width="200" align="left">
+<small>
+<sup>1</sup>&nbsp;.aup is the design-time extension for audiopath configurations, which include Producer-specific information, such as the editor window's location. .aud is the run-time extension for audiopath configurations, which are optimized for final content delivery.<BR>
+<sup>2</sup>&nbsp;The exception is the FileOutput effect, which is a special Producer-only effect that allows you to capture the audio output from a performance (at any point in the audiopath&#8212;dry, using software effects, submixes, and so on) into one or more wave files. For more information, see the topic <B>FileOutput in an Audiopath</B> in the DirectMusic Producer Help file. <BR>
+<sup>3</sup>&nbsp;Note that the CPU overhead for these effects in software, which may become substantial on your Windows 2000 development PC, will be nonexistent for Xbox, because the effects are processed in hardware. For more information about the Xbox MCP or the Global Processor, read chapter 3 of the Audio Best Practices document, available at the Audio Designer's Corner, which is part of the Content and Design Central Web site at http://xds.xbox.com.<BR>
+<sup>4</sup>&nbsp;Note that DLS instrument and wave auditioning via the wave editor play through a dry stereo audiopath at all times, to allow for accurate editing even when your default audiopath has other effects. To hear them played on the current default audiopath, place the wave in a wave track in a segment, or play the DLS collection instrument from a sequence track, pattern track, or pattern part (in a style).<BR>
+<sup>5</sup>&nbsp;The <B>Always Process in Software</B> check box does not apply to Xbox development, because all of these effects are in hardware.<BR>
+<sup>6</sup>&nbsp;Tools are not supported on Xbox at launch, so parameter control tracks are used exclusively for effect parameter control for the time being. And just to reemphasize, DirectX Media Objects (DirectX 8 software effects) are not supported on Xbox, but Xbox understands these effects and parameters and will use the hardware equivalents (and associated remappings of altered parameters).<BR>
+<sup>7</sup>&nbsp;Unlike board-style effects, most of the supported Xbox effects are closer to "insert"-style effects. That is, they have some kind of wet-dry mix parameter to control how much of the effect is used versus how much dry signal is passed through. Of course, you can opt to keep the mix at 100 percent (purely wet) and skip step 8, but this means you now have to control the wet and dry volumes independently.<BR><BR><BR>
+
+<SMALL>Tuesday, February 20, 2001</SMALL>
+
+
+
+</td>
+
+
+
+
+
+	

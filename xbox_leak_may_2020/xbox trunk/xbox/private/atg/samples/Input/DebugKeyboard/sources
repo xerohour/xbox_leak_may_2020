@@ -1,0 +1,27 @@
+TARGETNAME = DebugKeyboard
+PROJNAME   = DebugKeyboard
+TITLEID    = 0xffff05ae
+SOURCES    = dummy.cpp
+
+NTTARGETFILE0 = $(O)\DebugKeyboard.dsp $(O)\Font.xpr $(O)\Gamepad.xpr $(O)\Gamepad.xpr $(O)\SystemFont.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+!IF !defined(NODEVKIT)
+             $(XDK_LIB_PATH)\xkbd$(D).lib \
+             $(XDK_LIB_PATH)\xbdm.lib \
+!ENDIF
+
+
+USE_LIBCMT=1

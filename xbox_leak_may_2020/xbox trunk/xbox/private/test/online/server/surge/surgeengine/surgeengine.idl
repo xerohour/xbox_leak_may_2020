@@ -1,0 +1,100 @@
+// SurgeEngine.idl : IDL source for SurgeEngine.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (SurgeEngine.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(12310FEB-2279-11D3-944E-00C04F7986A3),
+		dual,
+		helpstring("ISurgeEngine Interface"),
+		pointer_default(unique)
+	]
+	interface ISurgeEngine : IDispatch
+	{
+		[id(1), helpstring("method About")] HRESULT About();
+		[propget, id(2), helpstring("property tcpPort")] HRESULT tcpPort([out, retval] short *pVal);
+		[propput, id(2), helpstring("property tcpPort")] HRESULT tcpPort([in] short newVal);
+		[propget, id(3), helpstring("property sslProtocol")] HRESULT sslProtocol([out, retval] long *pVal);
+		[propput, id(3), helpstring("property sslProtocol")] HRESULT sslProtocol([in] long newVal);
+		[propget, id(4), helpstring("property useHead")] HRESULT useHead([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(4), helpstring("property useHead")] HRESULT useHead([in] VARIANT_BOOL newVal);
+		[propget, id(5), helpstring("property followRedirects")] HRESULT followRedirects([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(5), helpstring("property followRedirects")] HRESULT followRedirects([in] VARIANT_BOOL newVal);
+		[propget, id(6), helpstring("property messageWindow")] HRESULT messageWindow([out, retval] long *pVal);
+		[propput, id(6), helpstring("property messageWindow")] HRESULT messageWindow([in] long newVal);
+		[propget, id(7), helpstring("property loggingFlags")] HRESULT loggingFlags([out, retval] long *pVal);
+		[propput, id(7), helpstring("property loggingFlags")] HRESULT loggingFlags([in] long newVal);
+		[propget, id(8), helpstring("property cookieString")] HRESULT cookieString([out, retval] BSTR *pVal);
+		[propput, id(8), helpstring("property cookieString")] HRESULT cookieString([in] BSTR newVal);
+		[propget, id(9), helpstring("property Cookies")] HRESULT Cookies([in] BSTR name, [in, optional] BSTR domain, [out, retval] BSTR *pVal);
+		[propput, id(9), helpstring("property Cookies")] HRESULT Cookies([in] BSTR name, [in, optional] BSTR domain, [in] BSTR newVal);
+		[propget, id(10), helpstring("property randomSeed")] HRESULT randomSeed([out, retval] long *pVal);
+		[propput, id(10), helpstring("property randomSeed")] HRESULT randomSeed([in] long newVal);
+		[propget, id(11), helpstring("property useServerBlacklist")] HRESULT useServerBlacklist([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(11), helpstring("property useServerBlacklist")] HRESULT useServerBlacklist([in] VARIANT_BOOL newVal);
+		[propget, id(12), helpstring("property httpStatus")] HRESULT httpStatus([out, retval] short *pVal);
+		[propput, id(13), helpstring("property usersFile")] HRESULT usersFile([in] BSTR newVal);
+		[propput, id(14), helpstring("property browser")] HRESULT browser([in] BSTR newVal);
+		[propget, id(15), helpstring("property cookiesSet")] HRESULT cookiesSet([out, retval] short *pVal);
+		[propget, id(16), helpstring("property getFullPage")] HRESULT getFullPage([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(16), helpstring("property getFullPage")] HRESULT getFullPage([in] VARIANT_BOOL newVal);
+		[propget, id(17), helpstring("property cookieRules")] HRESULT cookieRules([out, retval] long *pVal);
+		[propput, id(17), helpstring("property cookieRules")] HRESULT cookieRules([in] long newVal);
+		[propget, id(18), helpstring("property numRedirects")] HRESULT numRedirects([out, retval] short *pVal);
+		[propput, id(18), helpstring("property numRedirects")] HRESULT numRedirects([in] short newVal);
+		[id(50), helpstring("method GET")] HRESULT GET([in] BSTR url);
+		[id(51), helpstring("method POST")] HRESULT POST([in] BSTR url, [in] BSTR data);
+		[id(52), helpstring("method GetUser")] HRESULT GetUser([in] VARIANT_BOOL sequential, [out] BSTR *username, [out] BSTR *domain, [out] BSTR *password);
+		[id(53), helpstring("method AddHeader")] HRESULT AddHeader(BSTR header, BSTR value);
+		[id(54), helpstring("method MD5Hash")] HRESULT MD5Hash([in] BSTR input, [out, retval] BSTR *hash);
+		[id(55), helpstring("method DigestHash")] HRESULT DigestHash([in] BSTR algo, [in] BSTR user, [in] BSTR realm, [in] BSTR password, [in] BSTR nonce, [in] BSTR noncecount, [in] BSTR cnonce, [in] BSTR qop, [in] BSTR method, [in] BSTR uri, [in] BSTR entity, [out, retval] BSTR *hash);
+		[id(56), helpstring("method URLEncode")] HRESULT URLEncode([in] BSTR url, [out, retval] BSTR *encoded);
+		[id(57), helpstring("method POSTEncode")] HRESULT POSTEncode([in] BSTR post, [out, retval] BSTR *encoded);
+		[id(58), helpstring("method GetBody")] HRESULT GetBody([out, retval] BSTR *body);
+		[id(59), helpstring("method GetHeader")] HRESULT GetHeader([out, retval] BSTR *header);
+		[id(60), helpstring("method Log")] HRESULT Log([in] long dwData, [in] BSTR message);
+		[id(61), helpstring("method GenerateRandom")] HRESULT GenerateRandom([in] short maxLength, [in] short contents, [out, retval] BSTR *random);
+		[id(62), helpstring("method GetResults")] HRESULT GetResults([out, retval] BSTR *output);
+		[id(63), helpstring("method ResetResults")] HRESULT ResetResults();
+		[id(64), helpstring("method SetReceiveTimeout")] HRESULT SetReceiveTimeout([in] short sec, [in] short msec);
+		[id(65), helpstring("method StartTimer")] HRESULT StartTimer([in] BSTR name);
+		[id(66), helpstring("method StopTimer")] HRESULT StopTimer([in] BSTR name, [out, retval] long *ms);
+		[id(67), helpstring("method GetTimerAvg")] HRESULT GetTimerAvg([in] BSTR name, [out, retval] long *ms);
+		[id(68), helpstring("method GetLastError")] HRESULT GetLastError([out, retval] long *pError);
+		[id(69), helpstring("method GetResultsFor")] HRESULT GetResultsFor([in] BSTR key, [out, retval] BSTR *output);
+		[id(70), helpstring("method GetCTime")] HRESULT GetCTime([out, retval] long *pVal);
+		[id(71), helpstring("method DNSLookup")] HRESULT DNSLookup([in] BSTR address, [out, retval] BSTR *pVal);
+		[id(72), helpstring("method URLDecode")] HRESULT URLDecode([in] BSTR url, [out, retval] BSTR *decoded);
+		[id(73), helpstring("method GetTimer")] HRESULT GetTimer([in] BSTR name, [out, retval] long *ms);
+		[id(74), helpstring("method GetTimerCount")] HRESULT GetTimerCount([in] BSTR name, [out, retval] long *ms);
+		[id(75), helpstring("method GetTimerMax")] HRESULT GetTimerMax([in] BSTR name, [out, retval] long *ms);
+		[id(76), helpstring("method GetTimerMin")] HRESULT GetTimerMin([in] BSTR name, [out, retval] long *ms);
+		[id(77), helpstring("method GetResultsLine")] HRESULT GetResultsLine([out, retval] BSTR *output);
+		[id(78), helpstring("method GetResultsHeader")] HRESULT GetResultsHeader([out, retval] BSTR *output);
+		[id(79), helpstring("method GetStats")] HRESULT GetStats([in] BSTR strStatName, [out, retval] long *pVal);
+		[id(80), helpstring("method Reset")] HRESULT Reset();
+	};
+
+[
+	uuid(12310FCF-2279-11D3-944E-00C04F7986A3),
+	version(1.0),
+	helpstring("SurgeEngine 1.0 Type Library")
+]
+library SURGEENGINELib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(12310FEC-2279-11D3-944E-00C04F7986A3),
+		helpstring("SurgeEngine Class")
+	]
+	coclass SurgeEngine
+	{
+		[default] interface ISurgeEngine;
+	};
+};

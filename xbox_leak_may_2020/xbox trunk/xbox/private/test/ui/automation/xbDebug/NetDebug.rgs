@@ -1,0 +1,26 @@
+HKCR
+{
+	xbDebug.NetDebug.1 = s 'NetDebug Class'
+	{
+		CLSID = s '{B11C43CA-5735-43FD-98AF-52875CC56EA7}'
+	}
+	xbDebug.NetDebug = s 'NetDebug Class'
+	{
+		CLSID = s '{B11C43CA-5735-43FD-98AF-52875CC56EA7}'
+		CurVer = s 'xbDebug.NetDebug.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B11C43CA-5735-43FD-98AF-52875CC56EA7} = s 'NetDebug Class'
+		{
+			ProgID = s 'xbDebug.NetDebug.1'
+			VersionIndependentProgID = s 'xbDebug.NetDebug'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{2EF1DC7D-B7B4-4B86-92BE-935720E325BB}'
+		}
+	}
+}

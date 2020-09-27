@@ -1,0 +1,27 @@
+TARGETNAME=BoxID
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_STL = 1
+USE_NATIVE_EH = 1
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+XE_FLAGS=$(XE_FLAGS) "/TESTNAME:Xbox Identification Utility" /TESTID:0xFFEDFEED
+
+INCLUDES =          $(SDK_INC_PATH);                                   \
+                    $(DDK_INC_PATH);                                   \
+                    $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\ntos\inc;                       \
+                    $(BASEDIR)\private\online\tools\ui\inc
+  
+TARGETLIBS =        $(SDK_LIB_PATH)\userinterface$(D).lib              \
+                    $(LIBRARY_PATH)\xonline$(D).lib                    \
+                    $(LIBRARY_PATH)\d3d8$(D).lib 
+                    
+                                          
+SOURCES= 			                                       \
+	main.cpp						       \
+        boxinfo.cpp

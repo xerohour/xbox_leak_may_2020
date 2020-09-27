@@ -1,0 +1,29 @@
+TARGETNAME = VoiceChat
+PROJNAME   = VoiceChat
+SOURCES    = Voice.cpp \
+             VoiceChat.cpp
+TITLEID    = 0xffff010E
+
+NTTARGETFILE0 = $(O)\VoiceChat.dsp $(O)\Font.xpr $(O)\Gamepad.xpr $(O)\Resource.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+USE_STL             = 1
+USE_NATIVE_EH       = 1
+TARGETPATH          = obj
+TARGETTYPE          = PROGRAM
+UMTYPE              = xboxapp
+
+USER_C_FLAGS=/Gz
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\xapilib$(D).lib \
+             $(XDK_LIB_PATH)\dsound$(D).lib \
+             $(XDK_LIB_PATH)\xnet$(D).lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+    	     $(XDK_LIB_PATH)\xvoice$(D).lib

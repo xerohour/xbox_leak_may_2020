@@ -1,0 +1,49 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=setup
+MINORCOMP=xdkcust
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=windows
+DLLENTRY = _DllMainCRTStartup
+NOT_UNICODE=1
+USE_LIBC=1
+
+TARGETNAME=xdkcustom
+
+!if "$(NTDEBUG)" != ""
+MSC_OPTIMIZATION=/Odi
+!endif
+
+INCLUDES=..\common
+
+DLLDEF=xdkcustom.def
+
+SOURCES= \
+        custom.cpp\
+        custom.rc
+
+TARGETLIBS= \
+        ..\common\$(O)\common.lib\
+        $(WSDK_LIB_PATH)\uuid.lib\
+        $(WSDK_LIB_PATH)\kernel32.lib\
+        $(WSDK_LIB_PATH)\user32.lib\
+        $(WSDK_LIB_PATH)\advapi32.lib\
+        $(WSDK_LIB_PATH)\shell32.lib\
+        $(WSDK_LIB_PATH)\version.lib\
+        $(WSDK_LIB_PATH)\shlwapi.lib

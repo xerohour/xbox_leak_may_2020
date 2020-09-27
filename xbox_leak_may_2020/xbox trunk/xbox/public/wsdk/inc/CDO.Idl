@@ -1,0 +1,707 @@
+// ----------------------------------------------------------------------------
+// cdo.idl : IDL source for cdo.dll
+//
+// This file will be processed by the MIDL tool to
+// produce the type library (cdo.tlb) and marshalling code.
+//
+// Copyright (C) 1998 Microsoft Corporation
+// ----------------------------------------------------------------------------
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// ----------------------------------------------------------------------------
+//	CDO UUIDs
+// ----------------------------------------------------------------------------
+
+#define CdoUuidIMessage				33D47B91-8B95-11D1-82DB-00C04FB1625D
+#define CdoUuidIBodyPart			33D47B92-8B95-11D1-82DB-00C04FB1625D
+#define CdoUuidIConfig				33D47B93-8B95-11D1-82DB-00C04FB1625D
+#define CdoUuidIBodyParts			33D47B95-8B95-11D1-82DB-00C04FB1625D
+#define CdoUuidIAppointment			33D47B96-8B95-11D1-82DB-00C04FB1625D
+#define CdoUuidISMTPOnArrival		861E0DD0-AEE7-11d1-956C-00C04FC2D670
+#define CdoUuidINNTPOnPost			850BB4D4-AEF5-11d1-956C-00C04FC2D670
+#define CdoUuidINNTPOnPostFinal		850BB4D5-AEF5-11d1-956C-00C04FC2D670
+#define CdoUuidITask				DF754834-B450-11D1-B272-00C04FB6B6EA
+#define CdoUuidIDropDirectory       515A6DB9-B262-11d1-956F-00C04FC2D670
+#define CdoUuidIMessages			51624D52-B26D-11d1-956F-00C04FC2D670
+#define CdoUuidIRequest				FEB7B9AA-B7B3-11D1-B273-00C04FB6B6EA
+#define CdoUuidIRecurrenceRule   	1F5A6D3E-BF6F-11D1-94BD-00C04FC31D1A
+#define CdoUuidIException        	1F5A6D40-BF6F-11D1-94BD-00C04FC31D1A
+#define CdoUuidIRecurrenceRules		5F6AA985-CF33-11D1-94BD-00C04FC31D1A
+#define CdoUuidIExceptions			5F6AA987-CF33-11D1-94BD-00C04FC31D1A
+#define CdoUuidIIntegers			AD32EFC1-CE48-11D1-94BD-00C04FC31D1A
+#define CdoUuidIIntegerPairs		3C4C9E3D-CF13-11D1-94BD-00C04FC31D1A
+#define CdoUuidIMailbox				1F5A7000-BF6F-11D1-94BD-00C04FC31D1A
+#define CdoUuidIFolders				1F5A7002-BF6F-11D1-94BD-00C04FC31D1A
+#define CdoUuidIFolder				1F5A7004-BF6F-11D1-94BD-00C04FC31D1A
+
+// ----------------------------------------------------------------------------
+//	Interface, Property, and Method Macros
+// ----------------------------------------------------------------------------
+
+#define DISPINTERFACE(IntName,szHelpString) \
+	[ \
+		object, \
+		uuid(CdoUuid##IntName), \
+		dual, \
+		helpstring(szHelpString), \
+		pointer_default(unique) \
+	] \
+	interface IntName : IDispatch
+
+#define DISPINTERFACE2(IntName,IntName2,szHelpString) \
+	[ \
+		object, \
+		uuid(CdoUuid##IntName), \
+		dual, \
+		helpstring(szHelpString), \
+		pointer_default(unique) \
+	] \
+	interface IntName : IntName2
+	
+#define RWPROP(PropName,szHelpString,T,dispid) \
+	[ \
+		id( dispid ), \
+        propget, \
+		helpstring( szHelpString ), \
+	] HRESULT PropName ([out,retval] T* p##PropName); \
+	[ \
+		id( dispid ), \
+        propput, \
+		helpstring( szHelpString ), \
+	] HRESULT PropName ([in] T var##PropName)
+
+#define ROPROP(PropName,szHelpString,T,dispid) \
+	[ \
+		id( dispid ), \
+        propget, \
+		helpstring( szHelpString ), \
+		readonly \
+	] HRESULT PropName ([out,retval] T* var##PropName)
+
+#define METHOD(MethName,szHelpString,dispid) \
+	[ \
+		id( dispid ), \
+		helpstring ( szHelpString ) \
+	] HRESULT MethName
+
+#define METHODRESTRICTED(MethName,szHelpString,dispid) \
+	[ \
+		id( dispid ), \
+		restricted, \
+		helpstring ( szHelpString ) \
+	] HRESULT MethName
+
+// ----------------------------------------------------------------------------
+interface IMessage;
+interface IMessages;
+interface IBodyPart;
+interface IConfig;
+interface IBodyParts;
+// ----------------------------------------------------------------------------
+
+
+typedef enum CdoDataSource
+{
+	CdoDataSourceEmpty,
+	CdoDataSourceStream,
+	CdoDataSourceBodyPart
+} CdoDataSource;
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//
+// Some of the following interfaces will be available in wstgado.idl later.
+// In the meantime they are defined here.
+//
+
+	typedef [
+		public,
+		uuid(57998DEB-B39C-11d1-9F61-0000F875B2C7)
+		]
+	enum StatePropertyEnum {
+		adStatePropClosed				= 1,
+		adStatePropOpen					= 2,
+		adStatePropExecuting			= 4
+	} StatePropertyEnum;
+
+	typedef [
+		public,
+		uuid(FF468F8B-BADA-11d1-9F62-0000F875B2C7)
+		]
+	enum StreamTypeEnum {
+		adTypeBinary		= 1,
+		adTypeAnsi			= 2,
+		adTypeUnicode		= 3,
+		adTypeUTF8			= 4,
+		adTypeUTF7			=5
+	} StreamTypeEnum;
+
+	typedef [
+		public,
+		uuid(D7C7BA51-BADB-11d1-9F62-0000F875B2C7)
+		]
+	enum LineSeperatorEnum {
+		adLF		= 10,
+		adCR		= 13,
+		adCRLF		= -1
+	} LineSeperatorEnum;
+
+
+	
+	[
+		object,
+		uuid(D5C7917D-B941-11D1-9F62-0000F875B2C7),
+		dual,
+		helpstring("IADOStream Interface"),
+		pointer_default(unique)
+	]
+	interface IADOStream : IDispatch
+	{
+		[
+			propget,
+			id(0),
+		]
+		HRESULT Size( [out, retval] long *pSize );
+		[
+			propget,
+			id(1),
+		]
+		HRESULT EndOfStream( [out, retval] BOOL *pEOS );
+		[
+			propget,
+			id(2),
+		]
+		HRESULT Position( [out, retval] long *pPos );
+		[
+			propput,
+			id(2),
+		]
+		HRESULT Position( [in] long cPos );
+		[
+			propget,
+			id(3),
+		]
+		HRESULT Type( [out, retval] StreamTypeEnum *pType );
+		[
+			propput,
+			id(3),
+		]
+		HRESULT Type( [in] StreamTypeEnum iType );
+		[
+			propget,
+			id(4),
+		]
+		HRESULT LineSeperator( [out, retval] LineSeperatorEnum *pLS );
+		[
+			propput,
+			id(4),
+		]
+		HRESULT LineSeperator( [in] LineSeperatorEnum iLS );
+		[
+			propget,
+			id(5),
+		]
+		HRESULT State( [out, retval] StatePropertyEnum *pState );
+
+		[id(6), helpstring("method Read")] 
+		HRESULT Read(
+					[in, defaultvalue(-1)]long cChar, 
+					[out, retval]VARIANT *pVar
+				);
+		[id(7), helpstring("method ReadLine")] 
+		HRESULT ReadLine(
+					[out, retval]BSTR *pbstr
+				);
+		[id(8), helpstring("method ReadAll")] 
+		HRESULT ReadAll(
+					[out, retval]VARIANT *pVar
+				);
+		[id(9), helpstring("method Skip")] 
+		HRESULT Skip(
+					[in]long cChar 
+				);
+		[id(10), helpstring("method SkipLine")] 
+		HRESULT SkipLine(
+					void
+				);
+		[id(11), helpstring("method Write")] 
+		HRESULT Write(
+					[in]VARIANT var
+				);
+		[id(12), helpstring("method WriteStream")] 
+		HRESULT WriteStream(
+					[in]VARIANT var
+				);
+		[id(13), helpstring("method WriteLine")] 
+		HRESULT WriteLine(
+					[in]BSTR bstr
+				);
+		[id(14), helpstring("method SetEOS")] 
+		HRESULT SetEOS(
+					void
+				);
+		[id(15), helpstring("method CopyTo")] 
+		HRESULT CopyTo(
+					[in]IADOStream *pStmDst, 
+					[in, optional, defaultvalue(-1)]long cChar
+				);
+	}
+
+	
+	// IResField
+	[
+		object,
+		uuid(fc23e808-9766-11d1-aafd-00c04fc31d63),
+		dual,
+		helpstring("IResField Interface"),
+		pointer_default(unique)
+	]	
+	interface IResField : IDispatch
+	{
+
+		// Properties
+		[
+			propget,
+			id(0),
+		]
+		HRESULT Value( [out, retval] VARIANT *pvarValue );
+
+		[
+			propput,
+			id(0)
+		]
+		HRESULT Value( [in] VARIANT varValue );
+
+		[
+			propget,
+			id(1),
+		]
+		HRESULT Name( [out, retval] BSTR *pbstr );		
+
+	}
+	
+	// IResFields
+	[
+		object,
+		uuid(06cb3f3c-969e-11d1-aafc-00c04fc31d63),
+		dual,
+		helpstring("IResFields Interface"),
+		pointer_default(unique)
+	]	
+	interface IResFields : IDispatch
+	{
+
+		[
+			propget, 
+			id(0)
+		]
+		HRESULT Item(
+					[in] VARIANT varIndex,
+					[out, retval] IResField **ppirfld 
+				);
+
+		[
+			propget,
+			id(1),
+		]
+		HRESULT Count(
+					[out, retval] long *pcrfld
+				);
+
+		[
+			id(2)
+		]
+		HRESULT Delete( [in] BSTR pbstrName );
+	
+		
+		[
+			propget,
+			restricted,
+			id(DISPID_NEWENUM)
+		]
+		HRESULT _NewEnum( [out, retval] IUnknown** ppUnkRet);	
+
+	}
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+DISPINTERFACE2( IMessage, IBodyPart, "IMessage Interface" )
+{
+	RWPROP(BCC, "property BCC", BSTR, 101);
+	RWPROP(CC, "property CC", BSTR, 103);
+	RWPROP(FollowUpTo, "property FollowUpTo", BSTR, 105);
+	RWPROP(From, "property From", BSTR, 106);
+	RWPROP(Keywords, "property Keywords", BSTR, 107);
+	RWPROP(MimeFormatted, "property MimeFormatted", VARIANT_BOOL, 110);
+	RWPROP(Newsgroups, "property Newsgroups", BSTR, 111);
+	RWPROP(Organization, "property Organization", BSTR, 112);
+	ROPROP(TimeReceived, "property TimeReceived", DATE, 114);
+	RWPROP(ReplyTo, "property ReplyTo", BSTR, 115);
+	RWPROP(RequestDeliveryReceipt, "property RequestDeliveryReceipt", VARIANT_BOOL, 116);
+	ROPROP(TimeSent, "property TimeSent", DATE, 119);
+	RWPROP(Subject, "property Subject", BSTR, 120);
+	RWPROP(To, "property To", BSTR, 121);
+	RWPROP(TextBody, "property TextBody", BSTR, 123);
+	RWPROP(HTMLBody, "property HTMLBody", BSTR, 124);
+	ROPROP(Attachments, "property Attachments", IBodyParts *, 125);
+	RWPROP(Sender, "property Sender", BSTR, 126);
+	RWPROP(Configuration, "property Configuration", IConfig *,127);
+	RWPROP(AutoGenerateTextBody, "property MessageFormat", VARIANT_BOOL, 128);
+	ROPROP(EnvelopeFields, "property Envelope Fields", IResFields *, 129);
+
+	METHOD(AddRelatedAttachment, "method AddRelatedAttachment", 150)(
+				[in] 			BSTR bstrURL, 
+				[in] 			BSTR bstrContentID,
+				[out,retval]	IBodyPart **ppBody);
+				
+	METHOD(AddAttachment, "method AddAttachment", 151)(
+				[in] 			BSTR bstrURL,
+				[out,retval]	IBodyPart **ppBody);
+			
+	METHOD(CreateMHTMLBody, "method CreateMHTMLBody", 152)(
+				[in] 					BSTR bstrURL, 
+				[in, defaultvalue(0)]	long Flags);
+				
+	METHOD(Forward, "method Forward", 153)(
+				[out,retval] 	IMessage **ppMsg);
+
+	METHOD(GetTextBodyPart, "method GetTextBodyPart", 154)(
+				[out,retval]	IBodyPart **ppBody);
+								
+	METHOD(GetHTMLBodyPart, "method GetHTMLBodyPart", 155)(
+				[out,retval]	IBodyPart **ppBody);
+								
+	METHOD(GetStream, "method GetStream", 158)(
+				[out,retval] 	IADOStream **ppStm);
+
+	METHOD(SetStream, "method SetStream", 159)(
+				[in] 	IADOStream *pStm);
+
+	METHOD(Post, "method Post", 160)();
+	
+	METHOD(PostReply, "method PostReply", 161)(
+				[out,retval] 	IMessage **ppMsg);
+				
+	METHOD(Reply, "method Reply", 162)(
+				[out,retval] 	IMessage **ppMsg);
+				
+	METHOD(ReplyAll, "method ReplyAll", 163)(
+				[out,retval] IMessage **ppMsg);
+				
+	METHOD(Send, "method Send", 164)();
+
+};
+
+
+
+
+DISPINTERFACE( IBodyPart, "IBodyPart Interface" )
+{
+	ROPROP(BodyParts, "property BodyParts", IBodyParts *, 200);
+	RWPROP(ContentTransferEncoding, "property ContentTransferEncoding", BSTR, 201);
+	RWPROP(ContentMediaType, "property ContentType", BSTR, 202);
+	ROPROP(Fields, "property Fields", IResFields *, 203);
+	RWPROP(Charset, "property Charset", BSTR, 204);
+	ROPROP(FileName, "property FileName", BSTR, 205);
+
+	ROPROP(DataSourceType, "property DataSourceType", CdoDataSource, 207);
+	ROPROP(DataSourceURL, "property DataSourceURL", BSTR, 208);
+	
+
+
+	METHOD(AddBodyPart, "method AddBodyPart", 250)(
+				[in, defaultvalue(0)]	long iIndex,
+				[out, retval]			IBodyPart **ppPart);
+
+	METHOD(GetEncodedContentStream, "method GetEncodedContentStream", 251)(
+				[out,retval] 	IADOStream **ppStm);
+
+	METHOD(GetDecodedContentStream, "method GetDecodedContentStream", 252)(
+				[out,retval] 	IADOStream **ppStm);
+
+	METHOD(SetEncodedContentStream, "method SetEncodedContentStream", 253)(
+				[in] 			IADOStream *pStm);
+
+	METHOD(SetDecodedContentStream, "method SetDecodedContentStream", 254)(
+				[in] 			IADOStream *pStm);
+
+	METHOD(Save, "method Save", 255)();
+
+	METHOD(BindToDataSource, "method BindToDataSource", 256)(
+				[in]		IUnknown *pObj,
+				[in]		CdoDataSource source);
+
+	METHOD(SaveToDataSource, "method SaveToDataSource", 257)(
+				[in]		IUnknown *pObj,
+				[in]		CdoDataSource source);
+
+	METHOD(BindToURL, "method BindToURL", 258)(
+				[in]		BSTR bstrURL);
+
+	METHOD(SaveToFile, "method SaveToFile", 259)(
+				[in]		BSTR bstrURL);
+};
+
+
+DISPINTERFACE2( IConfig, IResFields, "IConfig Interface" )
+{
+};
+
+DISPINTERFACE(IMessages, "IMessage collection")
+{
+	[ 
+		id( 0 ), 
+        propget, 
+		helpstring( "Property Item"), 
+		readonly 
+	] HRESULT Item (long iIndex, 
+				[out, retval] 	IMessage **ppMessage);	
+
+	ROPROP(Count, "property Count", long, 1);	
+
+	METHOD(Delete, "method Delete", 2)(
+				[in] 			long iIndex);
+	
+	METHOD(DeleteAll, "method DeleteAll", 3)();
+				
+	[propget, restricted, id(DISPID_NEWENUM)]						
+	HRESULT _NewEnum(
+				[out, retval] 	IUnknown** retval);
+};
+
+DISPINTERFACE( IDropDirectory, "IDropDirectory Interface" )
+{
+	[ 
+		id( 200 ), 
+        propget, 
+		helpstring( "property Messages" ), 
+		readonly 
+	] 
+	HRESULT Messages ([in, optional] BSTR bstrDirName, 
+					  [out,retval] IMessages** Msgs);
+};
+
+
+
+DISPINTERFACE(IBodyParts, "IBodyParts collection")
+{
+	ROPROP(Count, "property Count", long, 1);	
+
+	[ 
+		id( 0 ), 
+        propget, 
+		helpstring( "Property Item"), 
+		readonly 
+	]
+	HRESULT Item (
+				[in] 			long iIndex, 
+				[out, retval] 	IBodyPart **ppBody);	
+
+	[propget, restricted, id(DISPID_NEWENUM)]						
+	HRESULT _NewEnum(
+				[out, retval] 	IUnknown** retval);
+
+	METHOD(Delete, "method Delete", 2)(
+				[in]			long iIndex);
+
+	METHOD(DeleteAll, "method DeleteAll", 3)();
+};
+
+	
+// ----------------------------------------------------------------------------
+[
+	uuid(33D47B6D-8B95-11D1-82DB-00C04FB1625D),
+	version(1.0),
+	helpstring("Microsoft CDO 2.0 Library")
+]
+library CDO
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	interface IBodyParts;
+	interface IMessages;
+
+
+	typedef enum MHTMLFlags
+	{
+		SuppressNone	= 0,
+		SuppressSrc		= 256,
+		SuppressCode	= 512,
+		SuppressAll		= 768
+	} MHTMLFlags;
+
+	[	dllname("cdosys.dll")	]
+	module EncodingType
+	{
+		const BSTR UsAscii			= L"us-ascii";
+		const BSTR Enc7bit			= L"7bit";
+		const BSTR QuotedPrintable	= L"quoted-printable";
+		const BSTR Base64			= L"base64";
+		const BSTR Enc8bit			= L"8bit";
+		const BSTR Binary			= L"binary";
+		const BSTR Uuencode			= L"UUENCODE";
+	};
+
+	[	dllname("cdosys.dll")	]
+	module ContentMediaType
+	{
+		const BSTR TextPlain		= L"text/plain";
+		const BSTR TextHtml			= L"text/html";
+		const BSTR MultipartAlt		= L"multipart/alternative";
+		const BSTR MultipartRelated	= L"multipart/related";
+		const BSTR MultipartMixed	= L"multipart/mixed";
+		const BSTR Message			= L"message/rfc822";
+		const BSTR MultipartDigest	= L"multipart/digest";
+		const BSTR MessagePartial	= L"message/partial";
+		const BSTR MessageExternal	= L"message/external-body";
+		const BSTR ImageGif			= L"image/gif";
+		const BSTR ImageJpeg		= L"image/jpeg";
+	};
+
+	[	dllname("cdosys.dll")	]
+	module ConfigProperties
+	{
+		const BSTR NNTPServer					= L"NNTPServer";
+		const BSTR NNTPServerPickupDirectory	= L"NNTPServerPickupDirectory";
+		const BSTR NNTPServerPort				= L"NNTPServerPort";
+		const BSTR NNTPUserDisplayName			= L"NNTPUserDisplayName";
+		const BSTR NNTPUserEmailAddress			= L"NNTPUserEmailAddress";
+		const BSTR NNTPUserReplyEmailAddress	= L"NNTPUserReplyEmailAddress";
+		const BSTR SMTPServer					= L"SMTPServer";
+		const BSTR SMTPServerPickupDirectory	= L"SMTPServerPickupDirectory";
+		const BSTR SMTPServerPort				= L"SMTPServerPort";
+		const BSTR SMTPUserDisplayName			= L"SMTPUserDisplayName";
+		const BSTR SMTPUserEmailAddress			= L"SMTPUserEmailAddress";
+		const BSTR SMTPUserReplyEmailAddress	= L"SMTPUserReplyEmailAddress";
+	};
+
+	[	dllname("cdosys.dll")	]
+	module Namespace
+	{
+		const BSTR Messaging	= L"http://www.iana.org/standards/rfc822/";
+		const BSTR Mime			= L"http://www.iana.org/standards/mime/";
+	};
+
+	[	dllname("cdosys.dll")	]
+	module MimeProperties
+	{
+		const BSTR ContentBase				= L"http://www.iana.org/standards/mime/Content-Base";
+		const BSTR ContentDescription		= L"http://www.iana.org/standards/mime/Content-Description";
+		const BSTR ContentDisposition		= L"http://www.iana.org/standards/mime/Content-Disposition";
+		const BSTR ContentId				= L"http://www.iana.org/standards/mime/Content-ID";
+		const BSTR ContentLanguage			= L"http://www.iana.org/standards/mime/Content-Language";
+		const BSTR ContentMediaType			= L"http://www.iana.org/standards/mime/Content-Media-Type";
+		const BSTR ContentTransferEncoding	= L"http://www.iana.org/standards/mime/Content-Transfer-Encoding";
+		const BSTR ContentType				= L"http://www.iana.org/standards/mime/Content-Type";
+	};
+
+	
+	[	dllname("cdosys.dll")	]
+	module MessageProperties
+	{
+		const BSTR Comments							= L"http://www.iana.org/standards/rfc822/Comments";
+		const BSTR Approved							= L"http://www.iana.org/standards/rfc822/Approved";
+		const BSTR BodyStructure					= L"http://www.iana.org/standards/rfc822/BodyStructure";
+		const BSTR BCC								= L"http://www.iana.org/standards/rfc822/Bcc";
+		const BSTR CC								= L"http://www.iana.org/standards/rfc822/CC";
+		const BSTR Date								= L"http://www.iana.org/standards/rfc822/Date";
+		const BSTR DateReceived						= L"http://www.iana.org/standards/rfc822/DateReceived";
+		const BSTR DispositionNotificationOption	= L"http://www.iana.org/standards/rfc822/Disposition-Notification-Option";
+		const BSTR DispositionNotificationTo		= L"http://www.iana.org/standards/rfc822/Disposition-Notification-To";
+		const BSTR Distribution						= L"http://www.iana.org/standards/rfc822/Distribution";
+		const BSTR Expires							= L"http://www.iana.org/standards/rfc822/Expires";
+		const BSTR FollowupTo						= L"http://www.iana.org/standards/rfc822/Followup-To";
+		const BSTR From								= L"http://www.iana.org/standards/rfc822/From";
+		const BSTR HasAttachment					= L"http://www.iana.org/standards/rfc822/HasAttachment";
+		const BSTR HTMLDescription					= L"http://www.iana.org/standards/rfc822/HTMLDescription";
+		const BSTR Importance						= L"http://www.iana.org/standards/rfc822/Importance";
+		const BSTR InReplyTo						= L"http://www.iana.org/standards/rfc822/In-Reply-To";
+		const BSTR Keywords							= L"http://www.iana.org/standards/rfc822/Keywords";
+		const BSTR Lines							= L"http://www.iana.org/standards/rfc822/Lines";
+		const BSTR MessageId						= L"http://www.iana.org/standards/rfc822/Message-ID";
+		const BSTR MimeVersion						= L"http://www.iana.org/standards/rfc822/MIME-Version";
+		const BSTR Newsgroups						= L"http://www.iana.org/standards/rfc822/Newsgroups";
+		const BSTR NNTPPostingHost					= L"http://www.iana.org/standards/rfc822/NNTP-Posting-Host";
+		const BSTR NNTPPostingUser					= L"http://www.iana.org/standards/rfc822/NNTP-Posting-User";
+		const BSTR Path								= L"http://www.iana.org/standards/rfc822/Path";
+		const BSTR Priority							= L"http://www.iana.org/standards/rfc822/Priority";
+		const BSTR References						= L"http://www.iana.org/standards/rfc822/References";
+		const BSTR RelayVersion						= L"http://www.iana.org/standards/rfc822/Relay-Version";
+		const BSTR ReplyTo							= L"http://www.iana.org/standards/rfc822/Reply-To";
+		const BSTR ReturnPath						= L"http://www.iana.org/standards/rfc822/Return-Path";
+		const BSTR Sender							= L"http://www.iana.org/standards/rfc822/Sender";
+		const BSTR Sensitivity						= L"http://www.iana.org/standards/rfc822/Sensitivity";
+		const BSTR Subject							= L"http://www.iana.org/standards/rfc822/Subject";
+		const BSTR Submitted						= L"http://www.iana.org/standards/rfc822/Submitted";
+		const BSTR Summary							= L"http://www.iana.org/standards/rfc822/Summary";
+		const BSTR TextDescription					= L"http://www.iana.org/standards/rfc822/TextDescription";
+		const BSTR To								= L"http://www.iana.org/standards/rfc822/To";
+		const BSTR XMailer							= L"http://www.iana.org/standards/rfc822/X-Mailer";
+		const BSTR Xref								= L"http://www.iana.org/standards/rfc822/Xref";
+	};
+
+
+	DISPINTERFACE( ISMTPOnArrival, "ISMTPOnArrival Interface" )
+	{
+		METHOD(OnArrival, "method OnArrival", 256)(
+				[in] IMessage *pIMsg);
+
+	};
+
+	DISPINTERFACE( INNTPOnPost, "INNTPOnPost Interface" )
+	{
+		METHOD(OnPost, "method OnPost", 256)(
+				[in] IMessage *pIMsg);
+
+	};
+
+	DISPINTERFACE( INNTPOnPostFinal, "INNTPOnPostFinal Interface" )
+	{
+		METHOD(OnPostFinal, "method OnPostFinal", 256)(
+				[in] IMessage *pIMsg);
+
+	};
+
+
+	[
+		uuid(33D47B70-8B95-11D1-82DB-00C04FB1625D),
+		helpstring("Message Class")
+	]
+	coclass Message
+	{
+		[default] interface IMessage;
+		interface IBodyPart;
+	};
+	[
+		uuid(33D47B72-8B95-11D1-82DB-00C04FB1625D),
+		helpstring("Config Class")
+	]
+	coclass Config
+	{
+		[default] interface IConfig;
+	};
+	[
+		uuid(33D47B73-8B95-11D1-82DB-00C04FB1625D),
+		helpstring("Stream Class")
+	]
+	coclass Stream
+	{
+		[default] interface IADOStream;
+	};
+
+	[
+		uuid(65F5F799-B2C5-11d1-956F-00C04FC2D670),	
+		helpstring("DropDirectory class")
+	]
+
+	coclass DropDirectory
+	{
+		[default] interface IDropDirectory;
+	};
+};

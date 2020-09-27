@@ -1,0 +1,111 @@
+#
+# MAKE.rules
+#
+# Builds a particular project in a subdirectory in a particular way
+# Knows how to make things of the following form:
+#
+#       project.task
+#
+# where project = the name of a subdirectory containing
+#                 a project and a makefile specific to that project
+#       task    = (projectclean | projectmake)
+#
+# Objects are expected to be pre-defined
+#
+# Copyright (c) 1998, NVIDIA Corporation.  All rights reserved.
+#
+
+.SUFFIXES: . .obj .c .res .rc .lib .dll .make
+
+#--------------------------------------------------------------------
+#                       I N F E R E N C E S
+#--------------------------------------------------------------------
+
+..__nvpemake:
+        @echo.
+        @echo Building nvpe library...
+        @cd $(DIR_DRIVERS)\common\VPE
+        @$(MAKE) $(<B).$(EXT_LIB) PROJECT=$(<B) $(MFLAGS) /$(MAKEFLAGS)
+        @cd $(MAKEDIR)
+
+..__make:
+        @echo.
+        @echo Building $(<B) library...
+        @cd $(<B)
+        @$(MAKE) $(<B).$(EXT_LIB) PROJECT=$(<B) $(MFLAGS) /$(MAKEFLAGS)
+        @cd $(MAKEDIR)
+
+..__clean:
+        @echo.
+        @echo Cleaning $(<B)...
+        @cd $(<B)
+        @$(MAKE) ___clean PROJECT=$(<B) $(MFLAGS)
+        @cd $(MAKEDIR)
+
+{$(DIR_SRC)}.c{$(DIR_OBJ)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(DIR_SRC)}.asm{$(DIR_OBJ)}.obj:
+        @$(ASM) @<<
+$(AFLAGS) -Fo$@ $<
+<<
+
+{$(DIR_SRC)}.cpp{$(DIR_OBJ)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+
+#--------------------------------------------------------------------
+#                         T A R G E T S
+#--------------------------------------------------------------------
+
+$(PROJECT).$(EXT_LIB): displayinfo dir_obj dir_lib dir_lst $(OBJS)
+        $(LIBEXE) @<<
+$(LIBFLAGS) -out:$(DIR_LIB)\$(PROJECT).$(EXT_LIB) $(OBJS)
+<<
+
+$(FILE_RES):
+        @$(RC) $(RCFLAGS) -Fo$(FILE_RES) $(FILE_RC)
+
+___clean: dir_obj dir_lst dir_lib
+        @if exist $(DIR_INTERM_BIN)\*.res $(RM) $(DIR_INTERM_BIN)\*.res
+        @if exist $(DIR_INTERM_BIN)\*.pdb $(RM) $(DIR_INTERM_BIN)\*.pdb
+        @if exist $(DIR_INTERM_BIN)\*.sym $(RM) $(DIR_INTERM_BIN)\*.sym
+        @if exist $(DIR_INTERM_BIN)\*.nms $(RM) $(DIR_INTERM_BIN)\*.nms
+        @if exist $(DIR_OBJ)\*.obj $(RM) $(DIR_OBJ)\*.obj
+        @if exist $(DIR_OBJ)\*.pch $(RM) $(DIR_OBJ)\*.pch
+        @if exist $(DIR_LST)\*.cod $(RM) $(DIR_LST)\*.cod
+
+
+#--------------------------------------------------------------------
+#                   H E L P F U L   S T U F F
+#--------------------------------------------------------------------
+
+# directory creation
+
+dir_bin:
+        @if not exist "$(DIR_INTERM_BIN)" mkdir "$(DIR_INTERM_BIN)"
+        @if not exist "$(DIR_BIN)" mkdir "$(DIR_BIN)"
+
+dir_obj:
+        @if not exist "$(DIR_OBJ)" mkdir "$(DIR_OBJ)"
+
+dir_lib:
+        @if not exist "$(DIR_LIB)" mkdir "$(DIR_LIB)"
+
+dir_lst:
+        @if not exist "$(DIR_LST)" mkdir "$(DIR_LST)"
+
+# display build information
+
+displayinfo:
+        @echo.
+        @echo NV Class : $(NVCLASS)
+        @echo Target OS : $(TARGET_OS)
+        @echo Binary Type : $(DEBUG)
+        @echo Compiler Flags : $(CFLAGS)
+        @echo Assembler Flags : $(AFLAGS)
+        @echo.

@@ -1,0 +1,1028 @@
+// This is a part of the Active Template Library.
+// Copyright (C) 1996-2001 Microsoft Corporation
+// All rights reserved.
+//
+// This source code is only intended as a supplement to the
+// Active Template Library Reference and related
+// electronic documentation provided with the library.
+// See these sources for detailed information regarding the
+// Active Template Library product.
+
+// BMIO.idl : IDL source for BMIO.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (BMIO.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+cpp_quote( "#include <ddraw.h>" )
+
+cpp_quote( "#if 0" )
+typedef void BITMAPINFO;
+typedef struct _DDSURFACEDESC2 DDSURFACEDESC2;
+typedef DWORD RGBQUAD;
+cpp_quote( "#endif" )
+
+interface IBitmapSource;
+
+typedef struct _BMFORMAT
+{
+	ULONG nSize;
+	GUID guidColorSpace;  // The color space represented by the format (RGB, YUV, GrayScale)
+} BMFORMAT, *PBMFORMAT;
+typedef const BMFORMAT* PCBMFORMAT;
+
+typedef struct _BMFORMAT_RGB
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+	ULONG nBPP;
+	ULONGLONG dwRBitMask;
+	ULONGLONG dwGBitMask;
+	ULONGLONG dwBBitMask;
+} BMFORMAT_RGB, *PBMFORMAT_RGB;
+typedef const BMFORMAT_RGB* PCBMFORMAT_RGB;
+
+typedef struct _BMFORMAT_RGBA
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+	USHORT nBPP;
+	WORD wFlags;
+	ULONGLONG dwRBitMask;
+	ULONGLONG dwGBitMask;
+	ULONGLONG dwBBitMask;
+	ULONGLONG dwABitMask;
+} BMFORMAT_RGBA, *PBMFORMAT_RGBA;
+typedef const BMFORMAT_RGBA* PCBMFORMAT_RGBA;
+
+typedef struct _BMFORMAT_IRGB
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+	ULONG nBPP;
+} BMFORMAT_IRGB, *PBMFORMAT_IRGB;
+typedef const BMFORMAT_IRGB* PCBMFORMAT_IRGB;
+
+typedef struct _IRGBPALETTEUSAGE
+{
+	ULONG iFirstAvailableColor;
+	ULONG nAvailableColors;
+	ULONG iFirstWritableColor;
+	ULONG nWritableColors;
+} IRGBPALETTEUSAGE;
+
+typedef struct _BMFORMAT_GRAYSCALE
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+	USHORT nBPP;
+	WORD wBitMask;
+} BMFORMAT_GRAYSCALE, *PBMFORMAT_GRAYSCALE;
+typedef const BMFORMAT_GRAYSCALE* PCBMFORMAT_GRAYSCALE;
+
+typedef struct _BMFORMAT_GRAYALPHA
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+	USHORT nBPP;
+	DWORD dwGBitMask;
+	DWORD dwABitMask;
+} BMFORMAT_GRAYALPHA, *PBMFORMAT_GRAYALPHA;
+typedef const BMFORMAT_GRAYALPHA* PCBMFORMAT_GRAYALPHA;
+
+typedef struct _BMFORMAT_YUV
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+	ULONG nBPP;
+	DWORD dwYBitMask;
+	DWORD dwUBitMask;
+	DWORD dwVBitMask;
+} BMFORMAT_YUV, *PBMFORMAT_YUV;
+typedef const BMFORMAT_YUV* PCBMFORMAT_YUV;
+
+typedef struct _BMFORMAT_DXT1
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+} BMFORMAT_DXT1, *PBMFORMAT_DXT1;
+typedef const BMFORMAT_DXT1* PCBMFORMAT_DXT1;
+
+typedef struct _BMFORMAT_DXT2
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+} BMFORMAT_DXT2, *PBMFORMAT_DXT2;
+typedef const BMFORMAT_DXT2* PCBMFORMAT_DXT2;
+
+typedef struct _BMFORMAT_DXT3
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+} BMFORMAT_DXT3, *PBMFORMAT_DXT3;
+typedef const BMFORMAT_DXT3* PCBMFORMAT_DXT3;
+
+typedef struct _BMFORMAT_DXT4
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+} BMFORMAT_DXT4, *PBMFORMAT_DXT4;
+typedef const BMFORMAT_DXT4* PCBMFORMAT_DXT4;
+
+typedef struct _BMFORMAT_DXT5
+{
+	ULONG nSize;
+	GUID guidColorSpace;
+} BMFORMAT_DXT5, *PBMFORMAT_DXT5;
+typedef const BMFORMAT_DXT5* PCBMFORMAT_DXT5;
+
+typedef struct _COLORSPACEINFO
+{
+	GUID guidColorSpace;
+	CLSID clsidConverter;
+	DWORD dwFourCC;
+	DWORD dwFlags;
+	LPCOLESTR pszDescription;
+} COLORSPACEINFO, *PCOLORSPACEINFO;
+typedef const COLORSPACEINFO* PCCOLORSPACEINFO;
+
+[
+	local,
+	uuid( 3721E998-D851-11d1-8EC1-00C04FB68D60 ),
+	helpstring( "IIRGBTarget Interface" ),
+	pointer_default( unique )
+]
+interface IIRGBTarget : IUnknown
+{
+	HRESULT GetPalette( [in] ULONG iFirstColor, [in] ULONG nColors, 
+		[out] RGBQUAD* prgbColors );
+	HRESULT GetPaletteUsage( [out] ULONG* piFirstAvailableColor, [out] ULONG* pnAvailableColors, 
+		[out] ULONG* piFirstWritableColor, [out] ULONG* pnWritableColors, int );
+	HRESULT SetPalette( [in] ULONG iFirstColor, [in] ULONG nColors, 
+		[in] const RGBQUAD* prgbColors );
+	HRESULT SetPaletteUsage( [in] ULONG iFirstColor, [in] ULONG nColors );
+	HRESULT SetTransparentColor( [in] LONG iTransparentColor );
+};
+
+typedef struct _BMTHINTS
+{
+	ULONG nSize;
+	DWORD dwFlags;
+	ULONG nBlockXAlign;
+	ULONG nBlockYAlign;
+	ULONG nPasses;
+} BMTHINTS, *PBMTHINTS;
+typedef const BMTHINTS* PCBMTHINTS;
+
+[
+	local,
+	uuid( D85EBB1F-7337-11D1-8E73-00C04FB68D60 ),
+	helpstring( "IBitmapTarget Interface" ),
+	pointer_default( unique )
+]
+interface IBitmapTarget : IUnknown
+{
+	HRESULT ChooseInputFormat( [in] PCBMFORMAT pSuggestedFormat, 
+		[out] PBMFORMAT* ppFormat );
+	HRESULT Finish();
+	HRESULT GetInputColorSpaces( [out] CAUUID* pColorSpaces );
+	HRESULT GetSurface( [in] LONG nWidth, [in] LONG nHeight, 
+		[in] PCBMTHINTS pHints, [out] void** ppBits, [out] LONG* pnPitch );
+	HRESULT OnBitsComplete();
+	HRESULT OnProgress( [in] const void* pBits, [in] LONG nPitch, 
+		[in] LPCRECT prcBounds, [in] BOOL bComplete );
+	HRESULT SetBackgroundColor( [in] const void* pColor );
+	HRESULT SetInputFormat( [in] PCBMFORMAT pFormat );
+};
+
+[
+	local,
+	uuid( 304f4b52-70bc-11d2-8f06-00c04fb68d60 ),
+	helpstring( "IAnimatedBitmapTarget Interface" ),
+	pointer_default( unique )
+]
+interface IAnimatedBitmapTarget : IUnknown
+{
+	HRESULT AddFrames( [in] ULONG nFrames );
+	HRESULT BeginFrame( [in] ULONG iFrame, [in] PCBMTHINTS pHints, 
+		[out] void** ppBits, [out] LONG* pnPitch );
+	HRESULT ChooseInputFormat( [in] PCBMFORMAT pSuggestedFormat,
+		[out] PBMFORMAT* ppFormat );
+	HRESULT EndFrame();
+	HRESULT Finish();
+	HRESULT GetInputColorSpaces( [out] CAUUID* pColorSpaces );
+	HRESULT OnProgress( [in] const void* pBits, [in] LONG nPitch, 
+		[in] LPCRECT prcBounds, [in] BOOL bComplete );
+	HRESULT SetImageSize( [in] LONG nWidth, [in] LONG nHeight );
+	HRESULT SetInputFormat( [in] PCBMFORMAT pFormat );
+};
+
+interface IBMGraphManager;
+interface IBitmapNotify;
+
+[
+	local,
+	uuid( D85EBB22-7337-11D1-8E73-00C04FB68D60 ),
+	helpstring( "IBitmapSource Interface" ),
+	pointer_default( unique )
+]
+interface IBitmapSource : IUnknown
+{
+	HRESULT GetOutputFormat( [out, retval] PBMFORMAT* ppFormat );
+	HRESULT GetTarget( [out, retval] IBitmapTarget** ppTarget );
+	HRESULT JoinGraph( [in] IBMGraphManager* pGraph, 
+		[in] IBitmapNotify* pNotify );
+	HRESULT SetTarget( [in] IBitmapTarget* pTarget );
+};
+
+[
+	local,
+	uuid( D85EBB20-7337-11D1-8E73-00C04FB68D60 ),
+	helpstring( "IBitmapFormatConverter Interface" ),
+	pointer_default( unique )
+]
+interface IBitmapFormatConverter : IUnknown
+{
+	HRESULT SetOutputFormat( [in] PCBMFORMAT pFormat );
+};
+
+[
+	local,
+	uuid( 9A8307E4-C9B3-11d1-8EBB-00C04FB68D60 ),
+	helpstring( "IColorSpaceConverter Interface" ),
+	pointer_default( unique )
+]
+interface IColorSpaceConverter : IUnknown
+{
+	HRESULT SetOutputColorSpace( [in] REFGUID guidColorSpace );
+};
+
+[
+	local,
+	uuid( B69C56E1-7588-11D1-8E73-00C04FB68D60 ),
+	helpstring( "IBitmapImport Interface" ),
+	pointer_default( unique )
+]
+interface IBitmapImport : IUnknown
+{
+	HRESULT Import( [in] ISequentialStream* pStream );
+};
+
+[
+	local,
+	uuid( 244FB8EA-23C6-11D1-8E31-00C04FB68D60 ),
+	helpstring( "IBitmapExport Interface" ),
+	pointer_default( unique )
+]
+interface IBitmapExport : IUnknown
+{
+	HRESULT SetDestination( [in] ISequentialStream* pStream );
+};
+
+[
+	object,
+	uuid( 43AFD2E6-2493-11d1-8E32-00C04FB68D60 ),
+	helpstring( "IPNGExport Interface"),
+	pointer_default( unique )
+]
+interface IPNGExport : IUnknown
+{
+	[propget] HRESULT BitsPerChannel( [out, retval] long* pnBitsPerChannel );
+	[propput] HRESULT BitsPerChannel( [in] long nBitsPerChannel );
+	[propget] HRESULT ColorSpace( [out, retval] long* peColorSpace );
+	[propput] HRESULT ColorSpace( [in] long eColorSpace );
+	[propget] HRESULT CompressionLevel( 
+		[out, retval] long* pnCompressionLevel );
+	[propput] HRESULT CompressionLevel( [in] long nCompressionLevel );
+	[propget] HRESULT Interlacing( [out, retval] long* peInterlacing );
+	[propput] HRESULT Interlacing( [in] long eInterlacing );
+};
+
+[
+	object,
+	uuid( 2D86768A-2643-11d1-8E33-00C04FB68D60 ),
+	helpstring( "IJPEGExport Interface"),
+	pointer_default( unique )
+]
+interface IJPEGExport : IUnknown
+{
+	[propget] HRESULT GrayScale( [out, retval] VARIANT_BOOL* pbGrayScale );
+	[propput] HRESULT GrayScale( [in] VARIANT_BOOL bGrayScale );
+	[propget] HRESULT Quality( [out, retval] long* pnQuality );
+	[propput] HRESULT Quality( [in] long nQuality );
+	[propget] HRESULT Progressive( 
+		[out, retval] VARIANT_BOOL* pbProgressive );
+	[propput] HRESULT Progressive( [in] VARIANT_BOOL bProgressive );
+};
+
+[
+	object,
+	uuid( 30d5522c-a4e9-11d2-8f10-00c04fb68d60 ),
+	helpstring( "IGIFExport Interface" ),
+	pointer_default( unique )
+]
+interface IGIFExport : IUnknown
+{
+	[propget] HRESULT Interlace( [out, retval] BOOL* pbInterlace );
+	[propput] HRESULT Interlace( [in] BOOL bInterlace );
+};
+
+[
+	object,
+	uuid( 53B727A2-36BC-11D1-8E43-00C04FB68D60 ),
+	helpstring( "IBMPExport Interface" ),
+	pointer_default( unique )
+]
+interface IBMPExport : IUnknown
+{
+	[propget] HRESULT BottomUp( 
+		[out, retval] BOOL* pbBottomUp );
+	[propput] HRESULT BottomUp( BOOL bBottomUp );
+};
+
+typedef struct _BMIMPORTERSNIFFDATA
+{
+	ULONG nBytes;
+	ULONG iOffset;
+	const BYTE* pbMask;
+	const BYTE* pbData;
+} BMIMPORTERSNIFFDATA, *PBMIMPORTERSNIFFDATA, BMSNIFFDATA, *PBMSNIFFDATA;
+typedef const BMIMPORTERSNIFFDATA* PCBMIMPORTERSNIFFDATA;
+typedef const BMSNIFFDATA* PCBMSNIFFDATA;
+
+typedef struct _BMFILETYPEINFO
+{
+	GUID guid;
+	ULONG nMIMETypes;
+	const LPCOLESTR* ppszMIMETypes;
+	ULONG nExtensions;
+	const LPCOLESTR* ppszExtensions;
+	LPCOLESTR pszDescription;
+	ULONG nSniffData;
+	const PCBMSNIFFDATA* ppSniffData;
+} BMFILETYPEINFO, *PBMFILETYPEINFO;
+typedef const BMFILETYPEINFO* PCBMFILETYPEINFO;
+
+typedef struct _BMIMPORTERINFO
+{
+	CLSID clsid;
+	ULONG nMIMETypes;
+	const LPCOLESTR* ppszMIMETypes;
+	ULONG nExtensions;
+	const LPCOLESTR* ppszExtensions;
+	LPCOLESTR pszDescription;
+	ULONG nSniffData;
+	const PCBMIMPORTERSNIFFDATA* ppSniffData;
+} BMIMPORTERINFO, *PBMIMPORTERINFO;
+typedef const BMIMPORTERINFO* PCBMIMPORTERINFO;
+
+typedef struct _BMEXPORTERINFO
+{
+	CLSID clsid;
+	LPCOLESTR pszMIMEType;
+	LPCOLESTR pszDefaultExtension;
+	LPCOLESTR pszDescription;
+	LPCOLESTR pszFilterString;
+} BMEXPORTERINFO, *PBMEXPORTERINFO;
+typedef const BMEXPORTERINFO* PCBMEXPORTERINFO;
+
+interface IBMExporterInfo;
+
+[
+	object,
+	local,
+	uuid( 83C41A78-BD3A-11d1-8EB2-00C04FB68D60 ),
+	helpstring( "IEnumBMExporterInfo Interface" ),
+	pointer_default( unique )
+]
+interface IEnumBMExporterInfo : IUnknown
+{
+	HRESULT Next( [in] ULONG nElements, [out] IBMExporterInfo** ppElements,
+		[out] ULONG* pnFetched );
+	HRESULT Skip( [in] ULONG nElements );
+	HRESULT Reset();
+	HRESULT Clone( [out] IEnumBMExporterInfo** ppEnum );
+};
+
+interface IBMImporterInfo;
+
+[
+	object,
+	local,
+	uuid( 5C7F0A68-D699-11d1-8EC1-00C04FB68D60 ),
+	helpstring( "IEnumBMImporterInfo Interface" ),
+	pointer_default( unique )
+]
+interface IEnumBMImporterInfo : IUnknown
+{
+	HRESULT Next( [in] ULONG nElements, [out] IBMImporterInfo** ppElements,
+		[out] ULONG* pnFetched );
+	HRESULT Skip( [in] ULONG nElements );
+	HRESULT Reset();
+	HRESULT Clone( [out] IEnumBMImporterInfo** ppEnum );
+};
+
+[
+	object,
+	uuid( EBACCCA7-0574-11D2-8EE4-00C04FB68D60 ),
+	helpstring( "IBMFileTypeInfo Interface" ),
+	pointer_default( unique )
+]
+interface IBMFileTypeInfo : IUnknown
+{
+	HRESULT GetDefaultExtension( [out, retval] LPOLESTR* ppszExtension );
+	HRESULT GetDefaultMIMEType( [out, retval] LPOLESTR* ppszMIMEType );
+	HRESULT GetDescription( [in] LCID lcid, [out, retval] LPOLESTR* ppszDescription );
+	HRESULT GetExporterClassID( [out, retval] CLSID* pclsid );
+	HRESULT GetExtension( [in] ULONG iExtension, [out, retval] LPOLESTR* ppszExtension );
+	HRESULT GetGUID( [out, retval] GUID* pguid );
+	HRESULT GetImporterClassID( [out, retval] CLSID* pclsid );
+	HRESULT GetMIMEType( [in] ULONG iMIMEType, [out, retval] LPOLESTR* ppszMIMEType );
+	HRESULT GetNumExtensions( [out, retval] ULONG* pnExtensions );
+	HRESULT GetNumMIMETypes( [out, retval] ULONG* pnMIMETypes );
+};
+
+[
+	object,
+	local,
+	uuid( EBACCCA8-0574-11D2-8EE4-00C04FB68D60 ),
+	helpstring( "IEnumBMFileTypeInfo Interface" ),
+	pointer_default( unique )
+]
+interface IEnumBMFileTypeInfo : IUnknown
+{
+	HRESULT Next( [in] ULONG nElements, [out] IBMFileTypeInfo** ppElements,
+		[out] ULONG* pnFetched );
+	HRESULT Skip( [in] ULONG nElements );
+	HRESULT Reset();
+	HRESULT Clone( [out] IEnumBMFileTypeInfo** ppEnum );
+};
+
+[
+	object,
+	uuid( 20C58D30-7024-11D1-8E73-00C04FB68D60 ),
+	helpstring( "IBMExporterInfo Interface" ),
+	pointer_default( unique )
+]
+interface IBMExporterInfo : IUnknown
+{
+	HRESULT GetClassID( [out, retval] CLSID* pclsid );
+	HRESULT GetDescription( [in] LCID lcid, [out, retval] LPOLESTR* ppszDescription );
+	HRESULT GetDefaultExtension( [out, retval] LPOLESTR* ppszExtension );
+	HRESULT GetFilterString( [in] LCID lcid, [out, retval] LPOLESTR* ppszFilterString );
+	HRESULT GetMIMEType( [out, retval] LPOLESTR* ppszMIMEType );
+};
+
+[
+	object,
+	uuid( 9A76B128-D68E-11d1-8EC1-00C04FB68D60 ),
+	helpstring( "IBMImporterInfo Interface" ),
+	pointer_default( unique )
+]
+interface IBMImporterInfo : IUnknown
+{
+	HRESULT GetClassID( [out, retval] CLSID* pclsid );
+	HRESULT GetDescription( [in] LCID lcid, [out, retval] LPOLESTR* ppszDescription );
+	HRESULT GetExtension( [in] ULONG iExtension, [out, retval] LPOLESTR* ppszExtension );
+	HRESULT GetMIMEType( [in] ULONG iMIMEType, [out, retval] LPOLESTR* ppszMIMEType );
+	HRESULT GetNumExtensions( [out, retval] ULONG* pnExtensions );
+	HRESULT GetNumMIMETypes( [out, retval] ULONG* pnMIMETypes );
+};
+
+typedef enum _BMDITHERMODE
+{
+	BMDITHER_NONE = 0,  // Default
+	BMDITHER_ERRORDIFFUSION = 1
+} BMDITHERMODE;
+
+[
+	local,
+	object,
+	uuid( B69C56DD-7588-11D1-8E73-00C04FB68D60 ),
+	helpstring( "IDitherer Interface" ),
+	pointer_default( unique )
+]
+interface IDitherer : IUnknown
+{
+	HRESULT SetDitherMode( [in] BMDITHERMODE eMode );
+};
+
+[
+	local,
+	object,
+	uuid( 591BBC11-968D-11D1-8E87-00C04FB68D60 ),
+	helpstring( "IColorQuantizer Interface" ),
+	pointer_default( unique )
+]
+interface IColorQuantizer : IUnknown
+{
+	HRESULT GetMaxPaletteEntries( [out, retval] ULONG* pnEntries );
+	HRESULT SetCustomPalette( [in] const PALETTEENTRY* ppePalette, 
+		[in] LONG iFirstEntry, [in] LONG nEntries );
+	HRESULT SetPaletteGenerationMode( [in] LONG ePaletteMode );
+};
+
+typedef enum _BMALPHAADDMODE
+{
+	BMALPHAADD_OPAQUE = 0,  // Default
+	BMALPHAADD_CONSTANT = 1
+} BMALPHAADDMODE;
+
+[
+	local,
+	object,
+	uuid( 3B01E55B-F65E-11D1-8EE0-00C04FB68D60 ),
+	helpstring( "IAlphaAdd Interface" ),
+	pointer_default( unique )
+]
+interface IAlphaAdd : IUnknown
+{
+	HRESULT SetAlphaAddMode( [in] BMALPHAADDMODE eMode );
+	HRESULT SetConstantAlpha( [in] BYTE bAlpha );
+};
+
+typedef enum _BMALPHAREMOVEMODE
+{
+	BMALPHAREMOVE_DROP = 0,  // Default
+	BMALPHAREMOVE_BLEND = 1
+} BMALPHAREMOVEMODE;
+
+[
+	local,
+	object,
+	uuid( 4038C2CF-F110-11D1-8EDD-00C04FB68D60 ),
+	helpstring( "IAlphaRemove Interface" ),
+	pointer_default( unique )
+]
+interface IAlphaRemove : IUnknown
+{
+	HRESULT SetAlphaRemoveMode( [in] BMALPHAREMOVEMODE eMode );
+	HRESULT SetBlendColor( [in] RGBQUAD rgbColor );
+};
+
+[
+	local,
+	uuid( B6E7DA76-E074-11D1-8ECA-00C04FB68D60 ),
+	helpstring( "IBitmapNotify Interface" ),
+	pointer_default( unique )
+]
+interface IBitmapNotify : IUnknown
+{
+	HRESULT OnNewColorSpaceConverter( [in] IColorSpaceConverter* pConverter, [in] DWORD dwFlags );
+	HRESULT OnNewFormatConverter( [in] IBitmapFormatConverter* pConverter );
+};
+
+[
+	local,
+	uuid( 3B01E55C-F65E-11D1-8EE0-00C04FB68D60 ),
+	helpstring( "IStdBitmapNotify Interface" ),
+	pointer_default( unique )
+]
+interface IStdBitmapNotify : IUnknown
+{
+	HRESULT SetAlphaAddConstantAlpha( [in] BYTE bAlpha );
+	HRESULT SetAlphaAddMode( [in] BMALPHAADDMODE eMode );
+	HRESULT SetAlphaRemoveBlendColor( [in] RGBQUAD rgbColor );
+	HRESULT SetAlphaRemoveMode( [in] BMALPHAREMOVEMODE eMode );
+	HRESULT SetDitherMode( [in] BMDITHERMODE eMode );
+};
+
+typedef enum _BMCOLORSPACECONVERTERQUALITY
+{
+	BMCSCQ_PERFECT = 0,  // No data loss, e.g. GS->RGB, RGB->RGBA
+	BMCSCQ_HIGH = 1,  // Minor data loss, e.g. RGB->YUV, RGBA->RGB
+	BMCSCQ_MEDIUM = 2,  // Significant data loss, e.g. RGB->IRGB
+	BMCSCQ_LOW = 3,  // Major data loss, e.g. RGB->GS
+} BMCOLORSPACECONVERTERQUALITY;
+
+[
+	local,	
+	uuid( A1CD76BF-AFC6-11D1-8EAE-00C04FB68D60 ),
+	helpstring( "IBMGraphManager Interface" ),
+	pointer_default( unique )
+]
+interface IBMGraphManager : IUnknown
+{
+	HRESULT Connect( [in] IBitmapSource* pSource, [in] PCBMFORMAT pSourceFormat,
+		[in] IBitmapTarget* pTarget, [in] PCBMFORMAT pTargetFormat,
+		[in] IBitmapNotify* pNotify );
+	HRESULT CreateExporter( [in] REFGUID guidFileType, 
+		[out, retval] IBitmapExport** ppExporter );
+	HRESULT CreateImporter( [in] LPCOLESTR pszMIMEType, 
+		[in] LPCOLESTR pszExtension, [in] ISequentialStream* pStream, 
+		[out] IBitmapImport** ppImporter, [out] ISequentialStream** ppStream );
+	HRESULT EnumFileTypes( [out, retval] IEnumBMFileTypeInfo** ppEnum );
+	HRESULT FlushCache( [in] DWORD dwFlags );
+};
+
+[
+	local,	
+	uuid( 27ECF887-B791-11D1-8EB0-00C04FB68D60 ),
+	helpstring( "IDIBTarget Interface" ),
+	pointer_default( unique )
+]
+interface IDIBTarget : IUnknown
+{
+	HRESULT GetDIB( [out, retval] void** phBitmap );
+	HRESULT GetTransparentColor( [out, retval] LONG* piTransparentColor );
+	HRESULT HasAlphaChannel();
+	HRESULT SetCustomPalette( [in] ULONG iFirstColor, [in] ULONG nColors, 
+		[in] const RGBQUAD* ppeColors );
+	HRESULT SetCustomPaletteUsage( [in] DWORD dwFormat, 
+		[in] const IRGBPALETTEUSAGE* pUsage );
+	HRESULT ReleaseDIB();
+	HRESULT SetSupportedFormats( [in] DWORD dwFormats );
+};
+
+interface IDirectDraw7;
+interface IDirectDrawSurface7;
+
+[
+	local,
+	uuid( 8B8A10C2-D848-11d1-8EC1-00C04FB68D60 ),
+	helpstring( "IDDSurfaceTarget Interface" ),
+	pointer_default( unique )
+]
+interface IDDSurfaceTarget : IUnknown
+{
+	HRESULT GetSurface( [out, retval] IDirectDrawSurface7** ppSurface );
+	HRESULT SetDirectDraw( [in] IDirectDraw7* pDirectDraw, [in] const DDSURFACEDESC2* pDesc );
+	HRESULT SetSurface( [in] IDirectDrawSurface7* pSurface );
+};
+
+[
+	local,
+	uuid( 81B3E6EF-CE76-11D1-8EBE-00C04FB68D60 ),
+	helpstring( "IDIBSource Interface" ),
+	pointer_default( unique )
+]
+interface IDIBSource : IUnknown
+{
+	HRESULT Go( [in] const BITMAPINFO* pInfo, [in] DWORD dwFlags, [in] const void* pBits );
+};
+
+[
+	object,
+	uuid( EE725DB7-F4AB-11D1-8EDF-00C04FB68D60 ),
+	helpstring( "IBMPImport Interface" ),
+	pointer_default( unique )
+]
+interface IBMPImport : IUnknown
+{
+};
+
+[
+	uuid( 244FB8DC-23C6-11D1-8E31-00C04FB68D60 ),
+	version( 1.0 ),
+	helpstring( "BMExport 1.0 Type Library" )
+]
+library BMExportLib
+{
+	importlib( "stdole32.tlb" );
+	importlib( "stdole2.tlb" );
+
+	interface IBMExporterInfo;
+	interface IBMImporterInfo;
+	interface IBitmapImport;
+	interface IJPEGImport;
+	interface IBitmapExport;
+	interface IPNGExport;
+	interface IJPEGExport;
+
+	const WORD RGBA_PREMULT = 0x01;
+
+	const DWORD CSCONV_ALPHAADD = 0x00000001;
+	const DWORD CSCONV_ALPHAREMOVE = 0x00000002;
+	const DWORD CSCONV_DITHER = 0x00000004;
+
+	const DWORD BMGFLUSH_IMPORTERS = 0x01;
+	const DWORD BMGFLUSH_EXPORTERS = 0x02;
+	const DWORD BMGFLUSH_CONVERTERS = 0x04;
+	const DWORD BMGFLUSH_ALL = BMGFLUSH_IMPORTERS|BMGFLUSH_EXPORTERS|BMGFLUSH_CONVERTERS;
+
+	const DWORD BMTHINT_TOPDOWN = 0x01;
+	const DWORD BMTHINT_BOTTOMUP = 0x02;
+	const DWORD BMTHINT_FULLWIDTH = 0x04;
+	const DWORD BMTHINT_ENTIRESURFACE = 0x08|BMTHINT_FULLWIDTH|BMTHINT_TOPDOWN|
+		BMTHINT_BOTTOMUP;
+	const DWORD BMTHINT_DIRECTACCESS = 0x10;
+	const DWORD BMTHINT_BLOCKXALIGN = 0x20;
+	const DWORD BMTHINT_BLOCKYALIGN = 0x40;
+	const DWORD BMTHINT_PASSES = 0x80;
+
+	const DWORD DIBTARGET_1BPP = 0x01;
+	const DWORD DIBTARGET_2BPP = 0x02;
+	const DWORD DIBTARGET_4BPP = 0x04;
+	const DWORD DIBTARGET_8BPP = 0x08;
+	const DWORD DIBTARGET_16BPP = 0x10;
+	const DWORD DIBTARGET_24BPP = 0x20;
+	const DWORD DIBTARGET_32BPP = 0x40;
+	const DWORD DIBTARGET_32BPP_ALPHA = 0x80;
+	const DWORD DIBTARGET_GS1 = 0x00010000;
+	const DWORD DIBTARGET_GS2 = 0x00020000;
+	const DWORD DIBTARGET_GS4 = 0x00040000;
+	const DWORD DIBTARGET_GS8 = 0x00080000;
+	const DWORD DIBTARGET_ANYGS = DIBTARGET_GS1|DIBTARGET_GS2|DIBTARGET_GS4|DIBTARGET_GS8;
+	const DWORD DIBTARGET_ANYINDEXED = DIBTARGET_1BPP|DIBTARGET_2BPP|DIBTARGET_4BPP|DIBTARGET_8BPP;
+	const DWORD DIBTARGET_ANYRGB = DIBTARGET_16BPP|DIBTARGET_24BPP|DIBTARGET_32BPP;
+	const DWORD DIBTARGET_ANY = DIBTARGET_ANYRGB|DIBTARGET_ANYINDEXED|DIBTARGET_32BPP_ALPHA;
+
+	const DWORD DIBSOURCE_ALPHA = 0x01;
+
+	typedef enum _PNGCOLORSPACE
+	{
+		PNG_COLORSPACE_AUTO = 0,  // Default
+		PNG_COLORSPACE_RGB = 1,
+		PNG_COLORSPACE_RGBA = 2,
+		PNG_COLORSPACE_GRAYSCALE = 3,
+		PNG_COLORSPACE_GRAYSCALEA = 4,
+		PNG_COLORSPACE_INDEXED = 5
+	} PNGCOLORSPACE;
+
+	typedef enum _PNG_COMPRESSIONLEVEL
+	{
+		PNG_COMPRESSION_NORMAL = 0,  // Default
+		PNG_COMPRESSION_FASTEST = 1,
+		PNG_COMPRESSION_SMALLEST = 2
+	} PNGCOMPRESSIONLEVEL;
+
+	typedef enum _PNG_INTERLACING
+	{
+		PNG_INTERLACING_NONE = 0,  // Default
+		PNG_INTERLACING_ADAM7 = 1
+	} PNG_INTERLACING;
+
+	const DWORD COLORSPACEINFO_HASALPHA = 0x01;
+
+	typedef enum _BMPALGENMODE
+	{
+		BMPALGEN_HALFTONE = 0,  // Default
+		BMPALGEN_CUSTOM = 1,
+		BMPALGEN_OPTIMAL = 2
+	} BMPALGENMODE;
+
+	[
+		uuid( EBCB6E58-24AD-11d1-8E32-00C04FB68D60 ),
+		helpstring( "PNGPage Class" )
+	]
+	coclass PNGPage
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid( 244FB8EB-23C6-11D1-8E31-00C04FB68D60 ),
+		helpstring( "PNGExport Class" )
+	]
+	coclass PNGExport
+	{
+		[default] interface IBitmapExport;
+		interface IBitmapTarget;
+	};
+
+	[
+		uuid( 63DD5C2A-288D-11d1-8E33-00C04FB68D60 ),
+		helpstring( "JPEGPage Class" )
+	]
+	coclass JPEGPage
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid( 3CD872DC-2643-11d1-8E33-00C04FB68D60 ),
+		helpstring( "JPEGExport Class" )
+	]
+	coclass JPEGExport
+	{
+		[default] interface IBitmapExport;
+		interface IBitmapTarget;
+		interface IJPEGExport;
+	};
+
+	[
+		uuid( 32D4F06D-1DDB-11D2-8EED-00C04FB68D60 ),
+		helpstring( "GIFImport Class" )
+	]
+	coclass GIFImport
+	{
+		[default] interface IBitmapImport;
+		interface IBitmapSource;
+	};
+
+	[
+		uuid( 4ef1e486-a4ea-11d2-8f10-00c04fb68d60 ),
+		helpstring( "GIFExport Class" )
+	]
+	coclass GIFExport
+	{
+		[default] interface IBitmapExport;
+		interface IBitmapTarget;
+		interface IGIFExport;
+	};
+
+	[
+		uuid( 53B727A3-36BC-11D1-8E43-00C04FB68D60 ),
+		helpstring( "BMPExport Class" )
+	]
+	coclass BMPExport
+	{
+		[default] interface IBitmapExport;
+		interface IBitmapTarget;
+		interface IBMPExport;
+	};
+
+	[
+		uuid( B69C56DE-7588-11D1-8E73-00C04FB68D60 ),
+		helpstring( "Ditherer Class" )
+	]
+	coclass Ditherer
+	{
+		[default] interface IDitherer;
+		interface IBitmapFormatConverter;
+		interface IBitmapSource;
+		interface IBitmapTarget;
+	};
+
+	[
+		uuid( B69C56E0-7588-11D1-8E73-00C04FB68D60 ),
+		helpstring( "JPEGImport Class" )
+	]
+	coclass JPEGImport
+	{
+		[default] interface IBitmapImport;
+		interface IBitmapSource;
+	};
+
+	[
+		uuid( D25EB70E-7810-11D1-8E75-00C04FB68D60 ),
+		helpstring( "PNGImport Class" )
+	]
+	coclass PNGImport
+	{
+		[default] interface IBitmapImport;
+		interface IBitmapSource;
+	};
+
+	[
+		uuid( A1CD76C0-AFC6-11D1-8EAE-00C04FB68D60 ),
+		helpstring("BMGraphManager Class")
+	]
+	coclass BMGraphManager
+	{
+		[default] interface IBMGraphManager;
+	};
+
+	[
+		uuid( A1CD76C2-AFC6-11D1-8EAE-00C04FB68D60 ),
+		helpstring( "GSToRGB Class" )
+	]
+	coclass GSToRGB
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IBitmapFormatConverter;
+	};
+
+	[
+		uuid(07CEAF1C-B483-11D1-8EB0-00C04FB68D60),
+		helpstring( "GSConverter Class" )
+	]
+	coclass GSConverter
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IBitmapFormatConverter;
+	};
+
+	[
+		uuid( 27ECF886-B791-11D1-8EB0-00C04FB68D60 ),
+		helpstring( "RGBConverter Class" )
+	]
+	coclass RGBConverter
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IBitmapFormatConverter;
+	};
+   
+	[
+		uuid( 27ECF888-B791-11D1-8EB0-00C04FB68D60 ),
+		helpstring( "DIBTarget Class" )
+	]
+	coclass DIBTarget
+	{
+		[default] interface IDIBTarget;
+		interface IBitmapTarget;
+	};
+
+	[
+		uuid( CC0C1224-91E0-11D1-8E86-00C04FB68D60 ),
+		helpstring( "DDSurfaceTarget Class" )
+	]
+	coclass DDSurfaceTarget
+	{
+		[default] interface IBitmapTarget;
+	};
+
+	[
+		uuid( 988CEECE-B93F-11D1-8EB0-00C04FB68D60 ),
+		helpstring( "IRGBToRGB Class" )
+	]
+	coclass IRGBToRGB
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+	};
+
+	[
+		uuid( 929FC2B2-BA06-11D1-8EB0-00C04FB68D60 ),
+		helpstring( "RGBToGS Class" )
+	]
+	coclass RGBToGS
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+	};
+
+	[
+		uuid( 885878C2-C455-11D1-8EB7-00C04FB68D60 ),
+		helpstring( "RGBAToRGB Class" )
+	]
+	coclass RGBAToRGB
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+	};
+
+	[
+		uuid( B2DDD5A3-C572-11D1-8EBB-00C04FB68D60 ),
+		helpstring( "RGBToRGBA Class" )
+	]
+	coclass RGBToRGBA
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IAlphaAdd;
+	};
+
+	[
+		uuid( 79d1842e-6f14-11d2-8f06-00c04fb68d60 ),
+		helpstring( "DXT1ToRGBA Class" )
+	]
+	coclass DXT1ToRGBA
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IColorSpaceConverter;
+	};
+
+	[
+		uuid( B2DDD5A6-C572-11D1-8EBB-00C04FB68D60 ),
+		helpstring( "IRGBConverter Class" )
+	]
+	coclass IRGBConverter
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IBitmapFormatConverter;
+	};
+	[
+		uuid(81B3E6F0-CE76-11D1-8EBE-00C04FB68D60),
+		helpstring("DIBSource Class")
+	]
+	coclass DIBSource
+	{
+		[default] interface IDIBSource;
+	};
+	[
+		uuid(B6E7DA78-E074-11D1-8ECA-00C04FB68D60),
+		helpstring("StdBitmapNotify Class")
+	]
+	coclass StdBitmapNotify
+	{
+		[default] interface IBitmapNotify;
+		interface IStdBitmapNotify;
+	};
+	[
+		uuid(EE725DB8-F4AB-11D1-8EDF-00C04FB68D60),
+		helpstring("BMPImport Class")
+	]
+	coclass BMPImport
+	{
+		[default] interface IBMPImport;
+	};
+	[
+		uuid( BB69F264-6F1A-11D2-8F06-00C04FB68D60 ),
+		helpstring( "DXT2ToRGBA Class" )
+	]
+	coclass DXT2ToRGBA
+	{
+		[default] interface IBitmapSource;
+		interface IBitmapTarget;
+		interface IColorSpaceConverter;
+	};
+};

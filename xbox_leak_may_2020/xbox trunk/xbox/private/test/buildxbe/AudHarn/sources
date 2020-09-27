@@ -1,0 +1,88 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+TARGETNAME=AUDHARN
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+LINK_DSSTDFX=1
+
+USE_LIBCMT=1
+USE_STL = 1
+
+UMENTRY=mainCRTStartup
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=..\main.cpp \
+        ..\modules.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0xA7049955 /INITFLAGS:3 /TESTNAME:"Audio Test Harness"
+
+TARGETLIBS=$(TESTLIBS)\harnesslib.lib \
+           $(TESTLIBS)\xtestlib.lib \
+           $(TESTLIBS)\xlog.lib \
+           $(TESTLIBS)\xnetrefi$(D).lib \
+           $(TESTLIBS)\xmem.lib \
+           $(SDK_LIB_PATH)\xnet$(D).lib \
+           $(SDK_LIB_PATH)\waveldr$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+           $(SDK_LIB_PATH)\waveldr$(D).lib \
+           $(SDK_LIB_PATH)\dmusic$(D).lib \
+           $(TESTLIBS)\dxconio.lib \
+           $(TESTLIBS)\MediaLoader.lib \
+           $(TESTMODULES) \
+           $(SDK_LIB_PATH)\xgraphics$(D).lib \
+           $(SDK_LIB_PATH)\d3d8$(D).lib \
+           $(SDK_LIB_PATH)\d3dx8$(D).lib \
+           $(BASEDIR)\private\lib\*\xapilibp$(D).lib
+
+LINKLIBS=$(LINKLIBS) \
+	$(LIBRARY_PATH)\xnet$(D).lib \
+	$(LIBRARY_PATH)\xbdm.lib
+
+TESTMODULES= \
+            $(TESTLIBS)\DirectSoundCreate.lib \
+            $(TESTLIBS)\DirectSoundCreateBuffer.lib \
+            $(TESTLIBS)\DirectSoundCreateStream.lib \
+            $(TESTLIBS)\dmtest1.lib \
+            $(TESTLIBS)\dmth8.lib \
+            $(TESTLIBS)\dsapi.lib \
+            $(TESTLIBS)\dsbvt.lib \
+            $(TESTLIBS)\dsreg.lib \
+            $(TESTLIBS)\dsutil.lib \
+            $(TESTLIBS)\ds3D.lib \
+            $(TESTLIBS)\ds3DStrs.lib \
+            $(TESTLIBS)\mixer.lib \
+            $(TESTLIBS)\dsoundtest.lib \
+            $(TESTLIBS)\waveout$(D).lib \
+            $(TESTLIBS)\wmaBvt.lib \
+            $(TESTLIBS)\wmaReg.lib \
+            $(TESTLIBS)\xmoBVT.lib \
+            $(TESTLIBS)\xmoReg.lib \
+
+
+

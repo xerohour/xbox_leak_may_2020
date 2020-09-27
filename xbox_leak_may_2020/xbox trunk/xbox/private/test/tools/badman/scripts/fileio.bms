@@ -1,0 +1,836 @@
+/*++
+
+Copyright (c) 2000  Microsoft Corporation
+
+Module Name:
+
+    fileio.bms
+
+Abstract:
+
+    Script file for badman test engine. This script contains list of
+    file system APIs exported from XAPI
+
+Author:
+
+    Sakphong Chanbai (schanbai) 07-Mar-2000
+
+Environment:
+
+    XBox
+
+Revision History:
+
+--*/
+
+module : xapi
+
+HANDLE CreateFileW( LPWSTR lpFileName,
+                    DWORD  dwAccess,
+                    DWORD  dwShare,
+                    LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                    DWORD  dwCreationDisposition,
+                    DWORD  dwFlagsAndAttributes,
+                    HANDLE hTemplateFile ) = -1
+
+    lpFileName:
+      Good: LPWSTR_FILENAME_VALID
+       Bad: LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+    dwAccess:
+      Good: DWORD_GENERIC_READ_AND_WRITE
+       Bad: DWORD_GENERIC_INVALID_VALUE
+
+    dwShare:
+      Good: DWORD_FILE_SHARE_READ_AND_WRITE
+            DWORD_FILE_SHARE_READ_WRITE_DELETE
+       Bad: DWORD_FILE_SHARE_INVALID_VALUE
+
+    lpSecurityAttributes:
+      Good: LPSECURITY_ATTRIBUTES_NULL
+       Bad: LPSECURITY_ATTRIBUTES_INVALID_LENGTH
+            LPSECURITY_ATTRIBUTES_INVALID_SECURITY_DESCRIPTOR
+
+    dwCreationDisposition:
+      Good: DWORD_DISPOSITION_CREATE_FILE_ALWAYS
+       Bad: DWORD_DISPOSITION_INVALID_VALUE
+
+    dwFlagsAndAttributes:
+      Good: DWORD_FILE_FLAGS_NORMAL
+       Bad: DWORD_FILE_FLAGS_INVALID_VALUE
+
+    hTemplateFile:
+      Good: HANDLE_NULL
+      Omit:
+
+BOOL WriteFile( HANDLE       hFile,
+                LPVOID       lpBuffer,
+                DWORD        nBytes,
+                LPDWORD      lpNBytesWritten,
+                LPOVERLAPPED lpOverlapped ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+      Omit:
+
+    lpBuffer:
+      Good: LPVOID_READWRITE_VALID_BUFFER
+       Bad: LPVOID_NULL
+
+    nBytes:
+      Good: DWORD_READWRITE_VALID_BUFFER_SIZE
+       Bad: DWORD_READWRITE_INVALID_BUFFER_SIZE
+
+    lpNBytesWritten:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpOverlapped:
+      Good: LPOVERLAPPED_NULL
+            LPOVERLAPPED_VALID
+       Bad:
+
+    Depend:
+
+      hFile:
+        Good: HANDLE_NORMAL_ASYNC_FILE
+        Omit:
+
+      lpOverlapped:
+        Good: LPOVERLAPPED_VALID
+        Bad: LPOVERLAPPED_NULL
+
+    EndDepend:
+
+BOOL ReadFile( HANDLE       hFile,
+               LPVOID       lpBuffer,
+               DWORD        nBytes,
+               LPDWORD      lpNBytesRead,
+               LPOVERLAPPED lpOverlapped ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_READONLY_FILE
+      Omit:
+
+    lpBuffer:
+      Good: LPVOID_READWRITE_VALID_BUFFER
+       Bad: LPVOID_NULL
+
+    nBytes:
+      Good: DWORD_READWRITE_VALID_BUFFER_SIZE
+       Bad: DWORD_READWRITE_INVALID_BUFFER_SIZE
+
+    lpNBytesRead:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpOverlapped:
+      Good: LPOVERLAPPED_NULL
+            LPOVERLAPPED_VALID
+       Bad:
+
+    Depend:
+      hFile:
+        Good: HANDLE_NORMAL_ASYNC_FILE
+              HANDLE_READONLY_ASYNC_FILE
+        Omit:
+
+      lpOverlapped:
+        Good: LPOVERLAPPED_VALID
+        Bad:  LPOVERLAPPED_NULL
+
+    EndDepend:
+
+BOOL ReadFileEx( HANDLE hFile,
+                 LPVOID lpBuffer,
+                 DWORD  nBytes,
+                 LPOVERLAPPED lpOverlapped,
+                 LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+    lpBuffer:
+      Good: LPVOID_READWRITE_VALID_BUFFER
+       Bad: LPVOID_NULL
+
+    nBytes:
+      Good: DWORD_READWRITE_VALID_BUFFER_SIZE
+       Bad: DWORD_READWRITE_INVALID_BUFFER_SIZE
+
+    lpOverlapped:
+      Good: LPOVERLAPPED_VALID
+            LPOVERLAPPED_NULL
+       Bad:
+
+    lpCompletionRoutine:
+      Good: LPOVERLAPPED_COMPLETION_ROUTINE_VALID
+       Bad: LPOVERLAPPED_COMPLETION_ROUTINE_NULL
+
+BOOL WriteFileEx( HANDLE hFile,
+                  LPVOID lpBuffer,
+                  DWORD  nBytes,
+                  LPOVERLAPPED lpOverlapped,
+                  LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_ASYNC_FILE
+      Omit:
+
+    lpBuffer:
+      Good: LPVOID_READWRITE_VALID_BUFFER
+       Bad: LPVOID_NULL
+
+    nBytes:
+      Good: DWORD_READWRITE_VALID_BUFFER_SIZE
+       Bad: DWORD_READWRITE_INVALID_BUFFER_SIZE
+
+    lpOverlapped:
+      Good: LPOVERLAPPED_VALID
+            LPOVERLAPPED_NULL
+       Bad:
+
+    lpCompletionRoutine:
+      Good: LPOVERLAPPED_COMPLETION_ROUTINE_VALID
+      Bad:  LPOVERLAPPED_COMPLETION_ROUTINE_NULL
+
+BOOL CopyFileW( LPWSTR lpExistingFileName,
+                LPWSTR lpNewFileName,
+                BOOL  bFailIfExists ) = 0
+
+    lpExistingFileName:
+      Good: LPWSTR_SRC_FILE_EXISTS
+       Bad: LPWSTR_SRC_FILE_NOT_EXISTS
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+    lpNewFileName:
+      Good: LPWSTR_DEST_FILE_NOT_EXISTS
+       Bad: LPWSTR_DEST_FILE_EXISTS
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+            /* WARNING: BOOL_FALSE is not really bad, but something must be put here to make badman happy. */
+    bFailIfExists:
+      Good: BOOL_TRUE
+       Bad: BOOL_FALSE
+
+    endcase:
+
+    lpNewFileName:
+      Good: LPWSTR_DEST_FILE_EXISTS
+       Bad: LPWSTR_FILENAME_INVALID1 
+            LPWSTR_NULL
+
+    bFailIfExists:
+      Good: BOOL_TRUE
+       Bad: BOOL_FALSE
+
+BOOL MoveFileW( LPWSTR lpExistingFileName,
+                LPWSTR lpNewFileName ) = 0
+
+    lpExistingFileName:
+      Good: LPWSTR_SRC_FILE_EXISTS
+       Bad: LPWSTR_SRC_FILE_NOT_EXISTS
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+    lpNewFileName:
+      Good: LPWSTR_DEST_FILE_NOT_EXISTS
+       Bad: LPWSTR_DEST_FILE_EXISTS
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+BOOL DeleteFileW( LPWSTR lpFileName ) = 0
+
+    lpFileName:
+      Good: LPWSTR_SRC_FILE_EXISTS
+       Bad: LPWSTR_SRC_FILE_NOT_EXISTS
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+BOOL FindClose( HANDLE hFindFile ) = 0
+
+    hFindFile:
+      Good: HANDLE_FINDFILE
+      Bad:  HANDLE_NULL
+
+HANDLE FindFirstFileW( LPWSTR lpFileName,
+                       LPWIN32_FIND_DATAW lpFindFileData ) = -1
+
+    lpFileName:
+      Good: LPWSTR_FILENAME_VALID
+       Bad: LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+    lpFindFileData:
+      Good: LPWIN32_FIND_DATAW_VALID
+       Bad: LPWIN32_FIND_DATAW_NULL
+
+BOOL FindNextFileW( HANDLE hFindFile,
+                    LPWIN32_FIND_DATAW lpFindFileData ) = 0
+
+     hFindFile:
+       Good: HANDLE_FINDFILE
+       Bad:  HANDLE_NULL
+
+     lpFindFileData:
+       Good: LPWIN32_FIND_DATAW_VALID
+        Bad: LPWIN32_FIND_DATAW_NULL
+
+BOOL GetFileTime( HANDLE     hFile,
+                  LPFILETIME lpCreationTime,
+                  LPFILETIME lpLastAccessTime,
+                  LPFILETIME lpLastWriteTime ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_READONLY_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+    lpCreationTime:
+      Good: LPFILETIME_VALID_ADDRESS
+       Bad: LPFILETIME_NULL
+
+    lpLastAccessTime:
+      Good: LPFILETIME_VALID_ADDRESS
+       Bad: LPFILETIME_NULL
+
+    lpLastWriteTime:
+      Good: LPFILETIME_VALID_ADDRESS
+       Bad: LPFILETIME_NULL
+
+
+BOOL SetFileTime( HANDLE hFile,
+                  LPFILETIME lpCreationTime,
+                  LPFILETIME lpLastAccessTime,
+                  LPFILETIME lpLastWriteTime ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+      Omit:
+
+    lpCreationTime:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+    lpLastAccessTime:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+    lpLastWriteTime:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+
+BOOL SystemTimeToFileTime( LPSYSTEMTIME lpSystemTime,
+                           LPFILETIME   lpFileTime ) = 0
+
+    lpSystemTime:
+      Good: LPSYSTEMTIME_VALID_DATA
+       Bad: LPSYSTEMTIME_NULL
+            LPSYSTEMTIME_INVALID_DATA
+
+    lpFileTime:
+      Good: LPFILETIME_VALID_ADDRESS
+       Bad: LPFILETIME_NULL
+
+
+BOOL FileTimeToSystemTime( LPFILETIME lpFileTime,
+                           LPSYSTEMTIME lpSystemTime ) = 0
+
+    lpFileTime:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+    lpSystemTime:
+      Good: LPSYSTEMTIME_VALID_ADDRESS
+       Bad: LPSYSTEMTIME_NULL
+
+
+LONG CompareFileTime( LPFILETIME lpFileTime1,
+                      LPFILETIME lpFileTime2 ) = 0
+
+    lpFileTime1:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+    lpFileTime2:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+
+BOOL FileTimeToDosDateTime( LPFILETIME lpFileTime,
+                            LPWORD     lpFatDate,
+                            LPWORD     lpFatTime ) = 0
+
+    lpFileTime:
+      Good: LPFILETIME_VALID_DATA
+       Bad: LPFILETIME_NULL
+
+    lpFatDate:
+      Good: LPWORD_VALID_ADDRESS
+       Bad: LPWORD_NULL
+
+    lpFatTime:
+      Good: LPWORD_VALID_ADDRESS
+       Bad: LPWORD_NULL
+
+
+BOOL DosDateTimeToFileTime( WORD       wFatDate,
+                            WORD       wFatTime,
+                            LPFILETIME lpFileTime ) = 0
+
+    wFatDate:
+      Good: WORD_VALID_DOS_TIME
+       Bad: WORD_INVALID_DOS_TIME
+
+    wFatTime:
+      Good: WORD_VALID_DOS_TIME
+       Bad: WORD_INVALID_DOS_TIME
+
+    lpFileTime:
+      Good: LPFILETIME_VALID_ADDRESS
+       Bad: LPFILETIME_NULL
+
+DWORD GetFileType( HANDLE hFile ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_READONLY_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+DWORD GetFileSize( HANDLE  hFile,
+                   LPDWORD lpFileSizeHigh ) = -1
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_READONLY_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+    lpFileSizeHigh:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL     /* WARNING: This is not really bad, and there is
+                                         no such a thing as a bad value here
+                                         (except of course a random pointer
+                                          value, which doesn't prove much
+                                          except that memory can be
+                                          overwritten).  It must be here to
+                                          make badman happy. */
+
+DWORD GetLogicalDriveStringsW( DWORD  nBufferLength,
+                               LPWSTR lpBuffer ) = 0
+
+     nBufferLength:
+       Good: DWORD_LOGICAL_DRIVE_STRING_BUFFER_LENGTH
+        Bad: DWORD_ZERO      /* WARNING: probably not bad */
+             DWORD_MAX
+
+     lpBuffer:
+       Good: LPWSTR_LOGICAL_DRIVE_STRING_BUFFER
+        Bad: LPWSTR_NULL
+
+DWORD GetTempPathW( DWORD nBufferLength, LPWSTR lpBuffer ) = 0
+
+     nBufferLength:
+       Good: DWORD_VALID_PATH_BUFFER_LENGTH
+        Bad:
+
+     lpBuffer:
+       Good: LPWSTR_VALID_PATH_BUFFER
+        Bad: LPWSTR_NULL
+
+UINT GetTempFileNameW( LPWSTR lpPathName,
+                       LPWSTR lpPrefixString,
+                       UINT   uUnique,
+                       LPWSTR lpTempFileName ) = 0
+
+    lpPathName:
+      Good: LPWSTR_DIRNAME_VALID
+       Bad: LPWSTR_DIRNAME_INVALID1
+            LPWSTR_DIRNAME_INVALID2
+            LPWSTR_DIRNAME_INVALID3
+            LPWSTR_DIRNAME_INVALID4
+            LPWSTR_NULL
+
+    lpPrefixString:
+      Good: LPWSTR_PREFIX_VALID
+       Bad: LPWSTR_PREFIX_TOO_LONG
+            LPWSTR_NULL
+
+    uUnique:
+      Good: UINT_UNIQUE_VALID
+       Bad: UINT_UNIQUE_INVALID
+
+    lpTempFileName:
+      Good: LPWSTR_VALID_PATH_BUFFER
+       Bad: LPWSTR_NULL
+
+UINT GetWindowsDirectoryW( LPWSTR lpBuffer,
+                           UINT   uSize ) = 0
+
+    lpBuffer:
+      Good: LPWSTR_VALID_PATH_BUFFER
+       Bad: LPWSTR_NULL
+
+    uSize:
+      Good: UINT_VALID_PATH_BUFFER_LENGTH
+       Bad: UINT_MAXIMUM            /* WARNING: probably not bad, no such thing as bad parm here. */
+            UINT_ZERO                        
+
+DWORD GetCurrentDirectoryW( DWORD  nBufferLength,
+                            LPWSTR lpBuffer ) = 0
+
+    nBufferLength:
+      Good: DWORD_VALID_PATH_BUFFER_LENGTH
+       Bad: DWORD_MAX               /* WARNING: probably not bad. */
+            DWORD_ZERO
+
+    lpBuffer:
+      Good: LPWSTR_VALID_PATH_BUFFER
+       Bad: LPWSTR_NULL
+
+BOOL GetDiskFreeSpaceW( LPWSTR  lpRootPathName,
+                        LPDWORD lpSectorsPerCluster,
+                        LPDWORD lpBytesPerSector,
+                        LPDWORD lpNumberOfFreeClusters,
+                        LPDWORD lpTotalNumberOfClusters ) = 0
+
+    lpRootPathName:
+      Good: LPWSTR_VALID_ROOT_PATHNAME
+            LPWSTR_NULL             /* will use default drive */
+       Bad: LPWSTR_INVALID_ROOT_PATHNAME
+
+    lpSectorsPerCluster:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpBytesPerSector:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpNumberOfFreeClusters:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpTotalNumberOfClusters:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+/* BOOL GetDiskFreeSpaceExW( LPWSTR lpDirectoryName,
+                          PULARGE_INTEGER lpFreeBytesAvailable,
+                          PULARGE_INTEGER lpTotalNumberOfBytes,
+                          PULARGE_INTEGER lpTotalNumberOfFreeBytes ) = 0 */
+
+DWORD GetFullPathNameW( LPWSTR  lpFileName,
+                        DWORD   nBufferLength,
+                        LPWSTR  lpBuffer,
+                        LPWSTR *lplpFilePart ) = 0
+
+    lpFileName:
+      Good: LPWSTR_FILENAME_VALID
+       Bad: LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+    nBufferLength:
+      Good: DWORD_VALID_PATH_BUFFER_LENGTH
+       Bad: DWORD_MAX                /* probably not bad parms */
+            DWORD_ZERO
+
+    lpBuffer:
+      Good: LPWSTR_VALID_PATH_BUFFER
+       Bad: LPWSTR_NULL
+
+    lplpFilePart:
+      Good: P_LPWSTR_VALID_ADDRESS
+       Bad: P_LPWSTR_NULL
+
+DWORD GetFileAttributesW( LPWSTR lpFileName ) = -1
+
+    lpFileName:
+      Good: LPWSTR_SRC_FILE_EXISTS
+       Bad: LPWSTR_SRC_FILE_NOT_EXISTS
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+BOOL GetVolumeInformationW( LPWSTR  lpRootPathName,
+                            LPWSTR  lpVolumeNameBuffer,
+                            DWORD   nVolumeNameSize,
+                            LPDWORD lpVolumeSerialNumber,
+                            LPDWORD lpMaximumComponentLength,
+                            LPDWORD lpFileSystemFlags,
+                            LPWSTR  lpFileSystemNameBuffer,
+                            DWORD   nFileSystemNameSize ) = 0
+
+    lpRootPathName:
+      Good: LPWSTR_DIRNAME_VALID
+       Bad: LPWSTR_PATH_NOT_EXISTS
+            LPWSTR_DIRNAME_INVALID1
+            LPWSTR_DIRNAME_INVALID2
+            LPWSTR_DIRNAME_INVALID3
+            LPWSTR_DIRNAME_INVALID4
+            LPWSTR_NULL
+
+    lpVolumeNameBuffer:
+      Good: LPWSTR_VOLUME_NAME_BUFFER
+       Bad: LPWSTR_NULL
+
+    nVolumeNameSize:
+      Good: DWORD_VOLUME_NAME_BUFFER_LENGTH
+       Bad: DWORD_MAX                     /* probably not bad */
+            DWORD_ZERO
+
+    lpVolumeSerialNumber:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpMaximumComponentLength:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpFileSystemFlags:
+      Good: LPDWORD_VALID_ADDRESS
+       Bad: LPDWORD_NULL
+
+    lpFileSystemNameBuffer:
+      Good: LPWSTR_FILE_SYSTEM_NAME_BUFFER
+       Bad: LPWSTR_NULL
+
+    nVolumeNameSize:
+      Good: DWORD_FILE_SYSTEM_NAME_BUFFER_LENGTH
+       Bad: DWORD_MAX                     /* probably not bad */
+            DWORD_ZERO
+
+BOOL SetEndOfFile( HANDLE hFile ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+DWORD SetFilePointer( HANDLE hFile,
+                      LONG   lDistanceToMove,
+                      LPLONG lpDistanceToMoveHigh,
+                      DWORD  dwMoveMethod ) = -1
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_READONLY_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+    lDistanceToMove:
+      Good: LONG_ONE_K
+       Bad: LONG_MINUS_ONE
+
+    lpDistanceToMoveHigh:
+      Good: LPLONG_NULL             /* not much coverage here */
+       Bad: LPLONG_NULL
+
+    dwMoveMethod:
+      Good: DWORD_MOVE_METHOD_FILE_BEGIN
+       Bad: DWORD_MOVE_METHOD_INVALID_VALUE
+
+BOOL SetCurrentDirectoryW( LPWSTR lpPathName ) = 0
+
+    lpPathName:
+      Good: LPWSTR_PATH_EXISTS
+       Bad: LPWSTR_PATH_NOT_EXISTS
+            LPWSTR_DIRNAME_INVALID1
+            LPWSTR_DIRNAME_INVALID2
+            LPWSTR_DIRNAME_INVALID3
+            LPWSTR_DIRNAME_INVALID4
+            LPWSTR_NULL
+
+BOOL SetFileAttributesW( LPWSTR lpFileName,
+                         DWORD  dwFileAttributes ) = 0
+
+    lpFileName:
+      Good: LPWSTR_FILE_EXISTS
+       Bad: LPWSTR_FILE_NOT_EXISTS
+            LPWSTR_FILE_READONLY
+            LPWSTR_NULL
+
+    dwFileAttributes:
+      Good: DWORD_NORMAL_FILE_ATTRIBUTES
+       Bad: DWORD_INVALID_FILE_ATTRIBUTES
+
+BOOL FlushFileBuffers( HANDLE hFile ) = 0
+
+    hFile:
+      Good: HANDLE_NORMAL_FILE
+            HANDLE_NORMAL_ASYNC_FILE
+            HANDLE_READONLY_FILE
+            HANDLE_READONLY_ASYNC_FILE
+      Omit:
+
+BOOL CreateDirectoryW( LPWSTR lpPathName,
+                       LPSECURITY_ATTRIBUTES lpSecurityAttributes ) = 0
+
+    lpPathName:
+      Good: LPWSTR_DIRNAME_VALID
+       Bad: LPWSTR_DIRNAME_INVALID1
+            LPWSTR_DIRNAME_INVALID2
+            LPWSTR_DIRNAME_INVALID3
+            LPWSTR_DIRNAME_INVALID4
+            LPWSTR_NULL
+
+    lpSecurityAttributes:
+      Good: LPSECURITY_ATTRIBUTES_NULL
+       Bad: LPSECURITY_ATTRIBUTES_INVALID_LENGTH
+            LPSECURITY_ATTRIBUTES_INVALID_SECURITY_DESCRIPTOR
+
+BOOL RemoveDirectoryW( LPWSTR lpPathName ) = 0
+
+    lpPathName:
+      Good: LPWSTR_PATH_EXISTS
+       Bad: LPWSTR_PATH_NOT_EXISTS
+            LPWSTR_DIRNAME_INVALID1
+            LPWSTR_DIRNAME_INVALID2
+            LPWSTR_DIRNAME_INVALID3
+            LPWSTR_DIRNAME_INVALID4
+            LPWSTR_NULL
+
+DWORD SearchPathW( LPWSTR  lpPath,
+                   LPWSTR  lpFileName,
+                   LPWSTR  lpExtension,
+                   DWORD   nBufferLength,
+                   LPWSTR  lpBuffer,
+                   LPWSTR *lplpFilePart ) = 0
+
+    lpPath:
+      Good: LPWSTR_NULL_STRING
+       Bad: LPWSTR_SEARCH_PATH_ILL_FORMED
+            LPWSTR_DIRNAME_INVALID1
+            LPWSTR_DIRNAME_INVALID2
+            LPWSTR_DIRNAME_INVALID3
+            LPWSTR_DIRNAME_INVALID4
+            LPWSTR_NULL
+
+    lpFileName:
+      Good: LPWSTR_FILE_IN_CURR_DIR_NO_EXT
+       Bad: LPWSTR_FILE_NOT_EXISTS
+            LPWSTR_FILE_NOT_EXISTS_ON_PATH
+            LPWSTR_FILENAME_INVALID1
+            LPWSTR_FILENAME_INVALID2
+            LPWSTR_FILENAME_INVALID3
+            LPWSTR_FILENAME_INVALID4
+            LPWSTR_FILENAME_INVALID5
+            LPWSTR_FILENAME_INVALID6
+            LPWSTR_FILENAME_INVALID7
+            LPWSTR_FILENAME_INVALID8
+            LPWSTR_FILENAME_INVALID9
+            LPWSTR_NULL
+
+    lpExtension:
+      Good: LPWSTR_EXT_FILE_IN_CURR_DIR
+       Bad: LPWSTR_EXT_ILL_FORMED
+            LPWSTR_NULL
+
+    nBufferLength:
+      Good: DWORD_VALID_PATH_BUFFER_LENGTH
+       Bad: DWORD_MAX                /* probably not bad parms */
+            DWORD_ZERO
+
+    lpBuffer:
+      Good: LPWSTR_VALID_PATH_BUFFER
+       Bad: LPWSTR_NULL
+
+    lplpFilePart:
+      Good: P_LPWSTR_VALID_ADDRESS
+       Bad: P_LPWSTR_NULL
+
+BOOL CancelIo( HANDLE hFile ) = 0
+
+  hFile:
+    Good: HANDLE_NORMAL_FILE
+          HANDLE_NORMAL_ASYNC_FILE
+          HANDLE_READONLY_FILE
+          HANDLE_READONLY_ASYNC_FILE
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_NAMED_EVENT

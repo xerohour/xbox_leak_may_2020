@@ -1,0 +1,201 @@
+import "vsshell.idl";
+
+[
+	uuid(5327DC78-B0D3-11d2-9A38-00C04F72EE4F),
+	version(1.0)
+]
+library servexp2
+{
+	[
+		object,
+		uuid(7494682C-37A0-11d2-A273-00C04F8EF4FF)
+	]
+	interface IVsServerExplorer : IUnknown
+	{
+		HRESULT SetHierarchyWindow([in] IVsUIHierarchyWindow *pHierWin);
+		HRESULT Init();
+		HRESULT Show();
+		HRESULT Close();
+		HRESULT GetRootService([in] REFGUID guid, [out, retval] IUnknown** serviceObject);
+	};
+
+	[object, uuid(3F3FE8B0-54F5-11d3-B985-00C04F685DA5)]
+	interface IServersService : IUnknown
+	{
+			// WARNING: Any of these function may throw ArgumentException or IndexOutOfRangeException.
+			//
+	        // To determine number of servers being added to servers node.
+			// Return Value: Number of existing server.  Duplicate servers allowed.
+			// int GetServerCount(int serverCount);
+        	HRESULT GetServerCount([out, retval] int *serverCount);
+
+	        // To get the name of server at a particular index.
+			// Return Value: The name of server.
+        	// string GetServerName(int serverIndex);
+        	HRESULT GetServerName([in] int serverIndex, [out, retval] BSTR *bstrServerName);
+
+			//  To get the index of a server that matches a given server name.
+			// Return Value: Index of a server that matches the name.  -1 if not found.
+	        // int GetServerIndex(string serverName);
+			HRESULT GetServerIndex([in] BSTR bstrServerName, [out, retval] int *serverIndex);
+
+	        // To add a server under Servers node.
+			// Return Value: Index of newly added server.
+        	// int AddServer(string serverName);
+        	HRESULT AddServer([in] BSTR bstrServerName, [out, retval] int *serverIndex);
+
+	        // To remove a server under Servers node.
+        	// void RemoveServer(int serverIndex);
+        	HRESULT RemoveServer([in] int serverIndex);
+
+
+			// Find the first connection that match a given server name.
+			// Return Value:
+			//      -1 if couldn't find index.
+			//      Index of server found (index is base 0).
+			//
+	        // public int FindServer(int firstIndex, string serverName);
+			// HRESULT FindServer([in] int firstIndex, [in] BSTR bstrServerName, [out, retval] int* serverIndex);
+        
+	        // WARNING: If serveral servers have the same name, then the first
+        	//          server that matches the name will be deleted.
+	        // bool RemoveServerByName(string serverName);
+	        // HRESULT RemoveServerByName([in] BSTR bstrServerName, [out, retval] BOOL *success);
+
+        	// IServerService GetServerService(int serverIndex);
+	        // IServerService GetServerService(string serverName);
+	};
+
+	[object, uuid(3F3FE8B1-54F5-11d3-B985-00C04F685DA5)]
+	interface IDataConnectionsService : IUnknown
+	{
+			// WARNING: Any of these function may throw exception such as ArgumentException
+			//			or IndexOutOfRangeException.
+			
+	        // To determine number of data connections in data connections node.
+			// Return Value: Number of existing connections.
+        	// int GetConnectionCount();
+        	HRESULT GetConnectionCount([out] int *dataConnectionCount);
+
+	        // To get the name of data connection at a particular index.
+			// Return Value: Connection Name that describes the connection.
+        	// string GetConnectionName(int ConnectionIndex);
+        	HRESULT GetConnectionName([in] int ConnectionIndex, [out, retval] BSTR *bstrConnectionName);
+
+	        // To get the index of a data connection name that matches the given connection name.
+		    // WARNING: The index changes dynamically. Adding a new data connection appends to the
+			//          end of the list, but refresh sorts the list, so all index may change.
+			// int GetConnectionIndex(string ConnectionName);
+			// Return Value: -1 if no connection found.  Valid index if found.
+			HRESULT GetConnectionIndex([in] BSTR ConnectionName, [out, retval] int *ConnectionIndex);
+
+	        // To change a data connection name.
+        	// void SetConnectionName(int ConnectionIndex, string newConnectionName);
+        	HRESULT SetConnectionName([in] int ConnectionIndex, [in] BSTR bstrConnectionName);
+
+			// To get the connection string at a particular index.
+			// Return Value: Connection string used to connect to database.
+        	// string GetConnectionString(int ConnectionIndex);
+        	HRESULT GetConnectionString([in] int ConnectionIndex, [out, retval] BSTR *bstrConnectString);
+
+	        // To add a server under Servers node.
+			// Return Value: Index of the server added.  -1 if failed.
+        	// int AddConnection(string ConnectionName, string connectString);
+        	HRESULT AddConnection([in] BSTR bstrConnectionName, [in] BSTR bstrConnectString, [out, retval] int *connectionIndex);
+
+	        // To add a server under Servers node.
+        	// int PromptAndAddConnection();
+			// Return Value: Index of new connection if successful; -1 if user cancelled or failed.
+        	HRESULT PromptAndAddConnection([out] int *newConnectionIndex);
+
+			// Connect to database if not already attached, and return the hierarchy.
+			// Return Value: VsHierarchy embeded inside the data connection.
+	        // Note: GUID of IVsHierarchy is "7D960B01-7AF8-11D0-8E5E-00A0C911005A".
+	        // IVsHierarchy GetConnectionHierarchy([in, nativetype(NativeTypeEnum.I4)] int ConnectionIndex);
+			HRESULT GetConnectionHierarchy([in] int ConnectionIndex, [out, retval] IVsHierarchy **vsHierarchy);
+
+			// If Server Explorer is visible, then this method changes the currently selected node to
+			// a specific data connection.
+			// void SelectConnection(int ConnectionIndex);
+			HRESULT SelectConnection([in] int ConnectionIndex);
+
+	        // To add a data connection.
+        	// WARNING: After deleting a data connection, the index of all nodes 
+	        //          below deleted node decrements by 1.
+        	// void RemoveConnection(int ConnectionIndex);
+        	HRESULT RemoveConnection([in] int ConnectionIndex);
+
+			// Find the first connection that match a given connect string.
+			// Return Value:
+			//      -1 if couldn't find index.
+			//      Index of connection found (index is base 0).
+			//
+			// public int FindConnectionByConnectString(int firstIndex, string connectionString);
+			HRESULT FindConnectionByConnectString([in] int firstIndex, [in] BSTR bstrConnectionString, [out, retval] int* connectionIndex);
+
+			// Find the first connection that match a given connection name.
+			// Return Value:
+			//      -1 if couldn't find index.
+			//      Index of connection found (index is base 0).
+			// public int FindConnectionByConnectionName(int firstIndex, string connectionName);
+			// HRESULT FindConnectionByConnectionName([in] int firstIndex, [in] BSTR bstrConnectionName, [out, retval] int* connectionIndex);
+
+
+            // <summary>
+            //     To determine whether the given document prefix belongs to this connection.
+            //     If so, it connects to the database (obtain nested hierarchy).
+            // </summary>
+            // <param name='bstrMkDocument'>
+            //    Document Prefix to compare with this connection's document prefix.
+            // </param>
+            // <returns>
+            //     S_OK if mkDocumentPrefix belongs to this connection and
+            //          successfully loaded the hierarchy.
+            //     S_FALSE otherwise.
+            // </returns>
+            // int LoadHierarchyFromMkDocumentPrefix([In, MarshalAs(UnmanagedType.BStr)] string bstrMkDocument);
+            //
+            HRESULT LoadHierarchyFromMkDocumentPrefix([in] BSTR bstrMkDocument, [out, retval] int* statusCode);
+
+
+	        // WARNING: If serveral data connections have the same name, then the first
+        	//          node that matches the name will be deleted.
+	        // void RemoveConnectionByName(string ConnectionName);
+	        // HRESULT RemoveConnectionByName([in] BSTR bstrConnectionName);
+
+	        // IConnectionService GetConnectionService(int ConnectionIndex);
+        	// IConnectionService GetConnectionService(string ConnectionName);
+	};
+
+
+    // ISEHierarchySerializable interface is used by Server Explorer to serialize
+    // and deserialize nested hierarchy data to/from disk.
+    //
+    // If a nested hierarchy node wants to take advantage of Server Explorer's default
+    // nested hierarchy serialize/deserialize implementation, the wrapper node should
+    // QueryInterface(ISEHierarchySerializable) from the nested hierarchy or serivce.
+    // Then call NestedHierarchy.GetHierarchySerializationData() when saving to disk,
+    // NestedHierarchy.GetHierarchyFromData() when loading from disk.
+    //
+	[object, uuid(A22B83E0-7B7D-4cdc-98D5-23C1309E4FD0)]
+	interface ISEHierarchySerializable : IUnknown
+    {
+        // When serializing hierarchy data to disk, Server Explorer calls 
+        // SaveHierarchyData() to obtain a HGlobal that contains all data to be 
+        // serialized to disk.
+        //
+        // Note: HGlobal must be a pointer pointing to a memory block.
+        //       Hierarchy is responsible for allocating the memory block.
+        //       After calling this method, Server Explorer free the memory block.
+        HRESULT SaveHierarchyData([in] IUnknown *pHierarchy, [out] int *pHGlobal);
+
+        // When de-serializing hierarchy from disk, Server Explorer calls
+        // LoadHierarchyData() to obtain a hierarchy.
+        //
+        // Note: Server Explorer allocates the HGlobal memory and pass in the pointer.
+        //       Server Explorer does NOT free the memory block.
+        //       Nestd Hierarchy is responsible to free the memory.
+        //       Otherwise, memory leak may occur.
+        HRESULT LoadHierarchyData([in] int *hGlobal, [out] IUnknown **ppHierarchy);
+    };
+};

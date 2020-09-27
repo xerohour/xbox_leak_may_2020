@@ -1,0 +1,1 @@
+This directory includes all the Max files for Network settings and troubleshooting feature

@@ -1,0 +1,763 @@
+#define __SHELL_ODL__			// So we know not to mark shared objects as hidden
+
+#include "hsres.h"
+
+[
+  uuid(B3CF8E20-19B6-11cf-8E4D-00AA004254C4), 
+  // DevStudio 96 bug 21113 caused this easy fix which hard-codes the typelib
+  //  name in the typelibrary, rather than allowing it to be localized.
+  //  Otherwise, the first time type libraries are registered, the ugly library
+  //  name (e.g., DSSharedObjects) is used as the display name in oleview and
+  //  the VB object browsers instead of the pretty long name (e.g.,
+  //  Visual Studio 97 Shared Objects).
+  //helpstringcontext(IDS_HS_SHELL_TYPELIBRARY),
+  helpstring("Visual C++ Shared Objects"),
+  version(6.0),
+#ifdef _DEBUG
+  helpstringdll("DevTLDcD.dll")
+#else
+  helpstringdll("DevTLDc.dll")
+#endif
+] 
+library DSSharedObjects
+{
+	importlib("stdole2.tlb");
+//	importlib("olepro32.dll");
+
+	// include enum's for various properties and methods
+#include "ids.h"
+
+#include "resource.h"
+
+// We don't include appdefs.h.  Instead we include the internal version
+//  "appdefs.odh" which contains the helpstringcontext attributes.
+#include "odh\appdefs.odh"
+
+#include "odh\shell.odh" // common base dual interfaces
+
+// project types for AddProject:
+[ dllname(DEVSHL_DLL) ]	module DsProjectTypes
+	{
+		const LPSTR dsApplication	= "Application";
+		const LPSTR dsDLL			= "DLL";
+		const LPSTR dsConsoleApp	= "Console Application";
+		const LPSTR dsStaticLib		= "Static Library";
+		const LPSTR dsUtility		= "Utility";
+		const LPSTR dsMakefile		= "Makefile";
+		const LPSTR dsFortran1		= "QuickWin Application";
+		const LPSTR dsFortran2		= "Standard Graphics Application";
+	}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	IApplication
+//
+//
+	//  Primary dispatch interface for CApplication
+	[ uuid(EC1D73A1-8CC4-11cf-9BE9-00A0C90A632C),
+	  helpstringcontext(IDS_HS_APPLICATION),
+	  oleautomation,
+	  hidden,
+	  dual
+	]
+	interface IApplication: IDispatch
+	{
+	// properties			
+		[id(1), propget, helpstringcontext(IDS_HS_APPLICATION_HEIGHT)] 
+		HRESULT Height([out, retval] long* Height);
+
+		[id(1), propput, helpstringcontext(IDS_HS_APPLICATION_HEIGHT)] 
+		HRESULT Height([in] long Height);
+
+
+		[id(2), propget, helpstringcontext(IDS_HS_APPLICATION_WIDTH)] 
+		HRESULT Width([out, retval] long* Width);
+
+		[id(2), propput, helpstringcontext(IDS_HS_APPLICATION_WIDTH)] 
+		HRESULT Width([in] long Width);
+
+
+		[id(3), propget, helpstringcontext(IDS_HS_APPLICATION_TOP)] 
+		HRESULT Top([out, retval] long* Top);
+
+		[id(3), propput, helpstringcontext(IDS_HS_APPLICATION_TOP)] 
+		HRESULT Top([in] long Top);
+
+
+		[id(4), propget, helpstringcontext(IDS_HS_APPLICATION_LEFT)] 
+		HRESULT Left([out, retval] long* Left);
+
+		[id(4), propput, helpstringcontext(IDS_HS_APPLICATION_LEFT)] 
+		HRESULT Left([in] long Left);
+
+
+		[id(0), propget, helpstringcontext(IDS_HS_APPLICATION_NAME)] 
+		HRESULT Name([out, retval] BSTR* Name);
+
+
+		[id(18), propget, helpstringcontext(IDS_HS_APPLICATION_TEXTEDITOR)]
+		HRESULT TextEditor([out, retval] IDispatch** texteditor);
+
+		[id(7), propget, helpstringcontext(IDS_HS_APPLICATION_VERSION)] 
+		HRESULT Version([out, retval] BSTR* Version);
+
+		[id(8), propget, helpstringcontext(IDS_HS_APPLICATION_PATH)] 
+		HRESULT Path([out, retval] BSTR* Path);
+
+
+		[id(9), propget, helpstringcontext(IDS_HS_APPLICATION_CURRENTDIRECTORY)] 
+		HRESULT CurrentDirectory([out, retval] BSTR* CurrentDirectory);
+
+		[id(9), propput, helpstringcontext(IDS_HS_APPLICATION_CURRENTDIRECTORY)] 
+		HRESULT CurrentDirectory([in] BSTR CurrentDirectory);
+
+
+		[id(10), propget, helpstringcontext(IDS_HS_APPLICATION_FULLNAME)] 
+		HRESULT FullName([out, retval] BSTR* FullName);
+
+		[id(11), propget, helpstringcontext(IDS_HS_SHARED_APPLICATION)] 
+		HRESULT Application([out, retval] IDispatch** Application);
+
+		[id(12), propget, helpstringcontext(IDS_HS_SHARED_PARENT)] 
+		HRESULT Parent([out, retval] IDispatch** Parent);
+
+		[id(13), propget, helpstringcontext(IDS_HS_APPLICATION_ACTIVEDOCUMENT)] 
+		HRESULT ActiveDocument([out, retval] IDispatch** ActiveDocument);
+
+		[id(14), propget, helpstringcontext(IDS_HS_APPLICATION_WINDOWS)] 
+		HRESULT Windows([out, retval] IDispatch** Windows);
+
+		[id(15), propget, helpstringcontext(IDS_HS_APPLICATION_DOCUMENTS)] 
+		HRESULT Documents([out, retval] IDispatch** Documents);
+
+		[id(16), propget, helpstringcontext(IDS_HS_APPLICATION_ACTIVEWINDOW)] 
+		HRESULT ActiveWindow([out, retval] IDispatch** ActiveWindow);
+
+
+		[id(17), propget, helpstringcontext(IDS_HS_APPLICATION_WINDOWSTATE)] 
+		HRESULT WindowState([out, retval] DsWindowState* windowstate);
+
+		[id(17), propput, helpstringcontext(IDS_HS_APPLICATION_WINDOWSTATE)]
+		HRESULT WindowState([in] DsWindowState windowstate);
+
+		
+		[id(6), propget, helpstringcontext(IDS_HS_APPLICATION_DEBUGGER)]
+		HRESULT Debugger([out, retval] IDispatch** ppDebugger);
+
+		[id(19), propget, helpstringcontext(IDS_HS_APPLICATION_PROJECTS)]
+		HRESULT Projects([out, retval] IDispatch** Projects) ;
+
+
+		[id(20), propget, helpstringcontext(IDS_HS_APPLICATION_DEFAULTCONFIGURATIONS)]
+		HRESULT ActiveConfiguration([out, retval] IDispatch** ActiveConfiguration);
+
+		[id(20), propput, helpstringcontext(IDS_HS_APPLICATION_DEFAULTCONFIGURATIONS)]
+		HRESULT ActiveConfiguration([in] IDispatch* ActiveConfiguration);
+
+
+
+		[id(29), propget, helpstringcontext(IDS_HS_APPLICATION_VISIBLE)]
+		HRESULT Visible([out, retval] boolean* Visible);
+
+		[id(29), propput, helpstringcontext(IDS_HS_APPLICATION_VISIBLE)]
+		HRESULT Visible([in] boolean Visible);
+
+
+		[id(30), propget, helpstringcontext(IDS_HS_APPLICATION_ACTIVEPROJECT)]
+		HRESULT ActiveProject([out, retval] IDispatch** ActiveProject);
+
+		[id(30), propput, helpstringcontext(IDS_HS_APPLICATION_ACTIVEPROJECT)]
+		HRESULT ActiveProject([in] IDispatch* ActiveProject);
+
+		[propput, id(0x00020003), helpstringcontext(IDS_HS_APPLICATION_ACTIVE)] 
+		HRESULT Active([in] boolean bActive);
+
+		[propget, id(0x00020003), helpstringcontext(IDS_HS_APPLICATION_ACTIVE)] 
+		HRESULT Active([out, retval] boolean *pbActive);
+
+
+		//methods
+		[id(21), helpstringcontext(IDS_HS_APPLICATION_GETPACKAGEEXTENSION)] 
+		HRESULT GetPackageExtension([in] BSTR szExtensionName, [out, retval] IDispatch** pExt);
+
+		[id(22), helpstringcontext(IDS_HS_APPLICATION_QUIT)] 
+		HRESULT Quit();
+
+		[id(23), helpstringcontext(IDS_HS_APPLICATION_PRINTTOOUTPUTWINDOW)] 
+		HRESULT PrintToOutputWindow([in] BSTR Message);
+
+		[id(24), helpstringcontext(IDS_HS_APPLICATION_EXECUTECOMMAND)]
+		HRESULT ExecuteCommand([in] BSTR szCommandName);
+
+		[id(25), helpstringcontext(IDS_HS_APPLICATION_ADDCOMMANDBARBUTTON)] 
+		HRESULT AddCommandBarButton([in] long nButtonType, [in] BSTR szCmdName, [in] long dwCookie);
+
+		[id(26), helpstringcontext(IDS_HS_APPLICATION_ADDKEYBINDING)] 
+		HRESULT AddKeyBinding([in] BSTR szKey, [in] BSTR szCommandName, [in] BSTR szEditor);
+
+		[id(27), helpstringcontext(IDS_HS_APPLICATION_BUILD)]
+		HRESULT Build([optional, in] Variant Configuration);
+
+		[id(28), helpstringcontext(IDS_HS_APPLICATION_REBUILDALL)]
+		HRESULT RebuildAll([optional, in] VARIANT configuration);
+
+		[id(31), helpstringcontext(IDS_HS_APPLICATION_EXECUTE)]
+		HRESULT ExecuteConfiguration([optional, in] VARIANT Reserved);
+		
+ 		
+		[id(0x00020001), helpstringcontext(IDS_HS_APPLICATION_SETADDININFO)] 
+						HRESULT SetAddInInfo(	[in] long nInstanceHandle, 
+												[in] IDispatch* pCmdDispatch, 
+												[in] long nIDBitmapResourceMedium,
+												[in] long nIDBitmapResourceLarge, 
+												[in] long dwCookie);
+		
+		[id(0x00020002), helpstringcontext(IDS_HS_APPLICATION_ADDCOMMAND)] 
+							HRESULT AddCommand(	[in] BSTR szCmdName, 
+												[in] BSTR szMethodName, 
+												[in] long nBitmapOffset,
+												[in] long dwCookie,
+												[out, retval] boolean* pbResult);
+
+		[id(0x00020004), helpstringcontext(IDS_HS_APPLICATION_ENABLEMODELESS)]
+		HRESULT EnableModeless([in] boolean bEnable);
+		
+		[id(32), helpstringcontext(IDS_HS_APPLICATION_CLEAN)]
+		HRESULT Clean([optional, in] VARIANT configuration);
+
+		[id(33), propget, helpstringcontext(IDS_HS_APPLICATION_ERRORS)] 
+		HRESULT Errors([out, retval] long *Errors);
+
+		[id(34), propget, helpstringcontext(IDS_HS_APPLICATION_WARNINGS)] 
+		HRESULT Warnings([out, retval] long *Warnings);
+
+		[id(35), helpstringcontext(IDS_HS_APPLICATION_ADDPROJECT)]
+		HRESULT AddProject([in] BSTR szName, [in] BSTR szPath, [in] BSTR szType, [in] VARIANT bAddDefaultFolders);
+
+  };
+	
+//
+//	IDispApplication
+//
+//
+
+	[ uuid(9FD2DF20-190D-11CF-8E4D-00AA004254C4), hidden ]
+	dispinterface IDispApplication
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//
+			// WARNING!!!!!!
+			//
+			// These IDs got all out of sync, because BSTR Name was skipped over
+			//  in the ID ordering.  It has id 5 AND id 0, though we need not put id 5
+			//  in the typelib.  The IDs are determined solely by the order each
+			//  member appears in the MFC dispatch list in autoapp.cpp.  Please be
+			//  careful when using ClassWizard and then modifying the generated
+			//  code afterwards
+			//
+			//{{AFX_ODL_PROP(CApplication)
+			[id(1)] long Height;
+			[id(2)] long Width;
+			[id(3)] long Top;
+			[id(4)] long Left;
+			[id(18), readonly] IDispatch* TextEditor;
+			[id(7), readonly] BSTR Version;
+			[id(8), readonly] BSTR Path;
+			[id(9)] BSTR CurrentDirectory;
+			[id(10), readonly] BSTR FullName;
+			[id(11), readonly] IDispatch* Application;
+			[id(12), readonly] IDispatch* Parent;
+			[id(13), readonly] IDispatch* ActiveDocument;
+			[id(14), readonly] IDispatch* Windows;
+			[id(15), readonly] IDispatch* Documents;
+			[id(16), readonly] IDispatch* ActiveWindow;
+			[id(17)] long WindowState; // Don't make this DsWindows b/c clswiz doesn't like it.
+			[id(6), readonly] IDispatch* Debugger;
+			[id(19), readonly] IDispatch* Projects;
+			[id(20)] IDispatch* ActiveConfiguration;
+			[id(29)] boolean Visible;
+			[id(30)] IDispatch* ActiveProject;
+			[id(33), readonly] long Errors;
+			[id(34), readonly] long Warnings;
+			//}}AFX_ODL_PROP
+			[id(0), readonly] BSTR Name;
+
+			[id(0x00020003)] boolean Active;
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CApplication)
+			[id(21)] IDispatch* GetPackageExtension(BSTR szExtensionName);
+			[id(22)] void Quit();
+			[id(23)] void PrintToOutputWindow(BSTR Message);
+			[id(24)] void ExecuteCommand(BSTR szCommandName);
+			[id(25)] void AddCommandBarButton(long nButtonType, BSTR szCmdName, long dwCookie);
+			[id(26)] void AddKeyBinding(BSTR szKey, BSTR szCommandName, BSTR szEditor);
+			[id(27)] void Build([optional] Variant Configuration);
+			[id(28)] void RebuildAll([optional] VARIANT configuration);
+			[id(31)] void ExecuteConfiguration([optional, in] VARIANT Reserved);
+			[id(32)] void Clean([optional] Variant Configuration);
+			[id(35)] void AddProject(BSTR szName, BSTR szPath, BSTR szType, VARIANT bAddDefaultFolders);
+			//}}AFX_ODL_METHOD
+			[id(0x00020001)] void SetAddInInfo(long nInstanceHandle, IDispatch* pCmdDispatch, long nIDBitmapResourceMedium, long nIDBitmapResourceLarge, long dwCookie);
+			[id(0x00020002)] boolean AddCommand(BSTR szCmdName, BSTR szMethodName, long nBitmapOffset, long dwCookie);
+			[id(0x00020004)] void EnableModeless(boolean bEnable);
+	};
+
+	[ uuid (8EA3F900-4A9F-11cf-8E4E-00AA004254C4), 
+	  helpstringcontext(IDS_HS_APPLICATION_EVENTS),
+	  oleautomation, hidden,
+	  dual]
+	interface IApplicationEvents : IDispatch
+	{
+		[id(1), helpstringcontext(IDS_HS_APPLICATION_EVENTS_BEFOREBUILDSTART)]
+		HRESULT BeforeBuildStart();
+
+		[id(2), helpstringcontext(IDS_HS_APPLICATION_EVENTS_BUILDFINISH)]
+		HRESULT	BuildFinish([in] long nNumErrors, [in] long nNumWarnings);
+
+		[id(3), helpstringcontext(IDS_HS_APPLICATION_EVENTS_BEFOREAPPLICATIONSHUTDOWN)] 
+		HRESULT BeforeApplicationShutDown();
+
+		[id(4), helpstringcontext(IDS_HS_APPLICATION_EVENTS_DOCUMENTOPEN)]
+		HRESULT DocumentOpen([in] IDispatch* theDocument);
+
+		[id(5), helpstringcontext(IDS_HS_APPLICATION_EVENTS_BEFOREDOCUMENTCLOSE)]
+		HRESULT BeforeDocumentClose([in] IDispatch* theDocument);
+
+		[id(6), helpstringcontext(IDS_HS_APPLICATION_EVENTS_DOCUMENTSAVE)]
+		HRESULT DocumentSave([in] IDispatch* theDocument);
+
+		[id(7), helpstringcontext(IDS_HS_APPLICATION_EVENTS_NEWDOCUMENT)]
+		HRESULT NewDocument([in] IDispatch* theDocument);
+
+		[id(8), helpstringcontext(IDS_HS_APPLICATION_EVENTS_WINDOWACTIVATE)] 
+		HRESULT WindowActivate([in] IDispatch* theWindow);
+
+		[id(9), helpstringcontext(IDS_HS_APPLICATION_EVENTS_WINDOWDEACTIVATE)] 
+		HRESULT WindowDeactivate([in] IDispatch* theWindow);
+
+		[id(10), helpstringcontext(IDS_HS_APPLICATION_EVENTS_WORKSPACEOPEN)] 
+		HRESULT WorkspaceOpen();
+
+		[id(11), helpstringcontext(IDS_HS_APPLICATION_EVENTS_WORKSPACECLOSE)] 
+		HRESULT WorkspaceClose();
+
+		[id(12), helpstringcontext(IDS_HS_APPLICATION_EVENTS_NEWWORKSPACE)] 
+		HRESULT NewWorkspace();
+
+	};
+
+ 	[ uuid(AE166B02-A9A0-11cf-AD07-00A0C9034965), hidden ]
+ 	dispinterface IDispApplicationEvents
+ 	{
+ 		interface IApplicationEvents;
+ 	}
+
+
+
+	//  Class information for CApplication
+
+    [ // The uuid for the class we expose.  Same as registry
+      // entry for MSDEV.APPLICATION
+
+#ifdef _DEBUG
+	uuid(E8BEA480-DDE4-11cf-9C4A-00A0C90A632C),
+#else
+	  uuid(FB7FDAE2-89B8-11cf-9BE8-00A0C90A632C),  
+#endif
+      helpstringcontext(IDS_HS_APPLICATION),
+	  appobject
+    ]  
+    coclass Application
+    {
+		dispinterface IDispApplication;
+		[default] interface IApplication;
+		[source] interface IApplicationEvents;
+		[default, source] dispinterface IDispApplicationEvents;
+    };
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	IDocuments
+//
+//
+
+	// Dual interface for coclass Documents
+
+	[ uuid(FB7FDAE3-89B8-11cf-9BE8-00A0C90A632C),
+	  helpstringcontext(IDS_HS_DOCUMENTS),
+	  oleautomation, hidden,
+	  dual
+	]
+	interface IDocuments : IDispatch
+	{
+		// properties
+		[propget, id(1), helpstringcontext(IDS_HS_DOCUMENTS_COUNT)]	
+		HRESULT Count([out, retval] long* Count);
+
+		[propget, id(2), helpstringcontext(IDS_HS_SHARED_APPLICATION)]	
+		HRESULT Application([out, retval] IDispatch** ppApplication);
+
+		[propget, id(3), helpstringcontext(IDS_HS_SHARED_PARENT)]	
+		HRESULT Parent([out, retval] IDispatch ** ppParent);
+
+		[id(-4), hidden, propget, restricted]
+		HRESULT _NewEnum([out, retval] IUnknown** _NewEnum);
+
+		// methods
+		[id(0), helpstringcontext(IDS_HS_DOCUMENTS_ITEM)]
+		HRESULT Item([in] VARIANT index, [out, retval] IDispatch** Item);
+
+		[id(5), helpstringcontext(IDS_HS_DOCUMENTS_SAVEALL)]
+		HRESULT SaveAll([in, optional] VARIANT vtBoolPrompt, [out, retval] DsSaveStatus* pSaved);
+
+		[id(6), helpstringcontext(IDS_HS_DOCUMENTS_CLOSEALL)]
+		HRESULT CloseAll([in, optional] VARIANT vtSaveChanges,  [out, retval] DsSaveStatus* pSaved);
+
+		[id(7), helpstringcontext(IDS_HS_DOCUMENTS_ADD)]
+		HRESULT Add([in] BSTR docType, [in, optional] VARIANT vtReserved, [out, retval] IDispatch ** ppDocument);
+
+		[id(8), helpstringcontext(IDS_HS_DOCUMENTS_OPEN)]
+		HRESULT Open([in] BSTR filename, [in, optional] VARIANT vtDocType, 
+					[in, optional] VARIANT vtBoolReadOnly, [out, retval] IDispatch ** ppDocument);
+	};
+//
+//
+//	IDispDocuments
+//
+//
+	[ uuid(E9EB1AE1-89A8-11CF-9BE8-00A0C90A632C), hidden ]
+	dispinterface IDispDocuments
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoDocuments)
+			[id(1), readonly] long Count;
+			[id(2), readonly] IDispatch* Application;
+			[id(3), readonly] IDispatch* Parent;
+			//}}AFX_ODL_PROP
+			[id(-4), hidden, readonly] IUnknown* _NewEnum;
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoDocuments)
+			[id(5)] long SaveAll([optional] VARIANT boolPrompt);
+			[id(6)] long CloseAll([optional] VARIANT boolSaveChanges);
+			[id(7)] IDispatch* Add(BSTR docType, [optional] VARIANT vtReserved);
+			[id(8)] IDispatch* Open(BSTR filename, [optional] VARIANT doctype, [optional] VARIANT readonly);
+			//}}AFX_ODL_METHOD
+			[id(0)] IDispatch* Item(VARIANT index);
+
+			// NOTE: SaveAll and CloseAll actually return DsSaveState
+
+	};
+
+	//  Class information for CAutoDocuments
+
+	[ uuid(E9EB1AE2-89A8-11CF-9BE8-00A0C90A632C) ]
+	coclass Documents
+	{
+		dispinterface IDispDocuments;
+		[default] interface IDocuments ;
+
+	};
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	IAutoWindows
+//
+//
+	// Dual interface for coclass CAutoWindows
+
+	[ uuid(3928F551-96E6-11cf-9C00-00A0C90A632C),
+	  helpstringcontext(IDS_HS_WINDOWS),
+	  oleautomation, hidden,
+	  dual
+	]
+	interface IWindows : IDispatch
+	{
+		// properties
+		[propget, id(1), helpstringcontext(IDS_HS_WINDOWS_COUNT)]
+		HRESULT Count([out, retval] long* Count);
+
+		[propget, id(2), helpstringcontext(IDS_HS_SHARED_APPLICATION)]	
+		HRESULT Application([out, retval] IDispatch** ppApplication);
+
+		[propget, id(3), helpstringcontext(IDS_HS_SHARED_PARENT)]
+		HRESULT Parent([out, retval] IDispatch ** ppParent);
+
+		[id(-4), hidden, propget, restricted]
+		HRESULT _NewEnum([out, retval] IUnknown** _NewEnum);
+
+		// methods
+		[id(0), helpstringcontext(IDS_HS_WINDOWS_ITEM)]
+		HRESULT Item([in] VARIANT index,	[out, retval] IDispatch** Item);
+
+		[id(5), helpstringcontext(IDS_HS_WINDOWS_ARRANGE)]	
+		HRESULT Arrange([in] VARIANT vtArrangeStyle) ;
+
+		[id(6), helpstringcontext(IDS_HS_WINDOWS_CLOSEALL)]
+		HRESULT CloseAll([in, optional] VARIANT vtSaveChanges,  [out, retval] DsSaveStatus* pSaved);
+	};
+
+//
+//
+//	IDispWindows
+//
+//
+	
+	[ uuid(5774D191-96E1-11CF-9C00-00A0C90A632C), hidden ]
+	dispinterface IDispWindows
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoWindows)
+			[id(1), readonly] long Count;
+			[id(2), readonly] IDispatch* Application;
+			[id(3), readonly] IDispatch* Parent;
+			//}}AFX_ODL_PROP
+			[id(-4), hidden, readonly] IUnknown* _NewEnum;
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoWindows)
+			[id(0)] IDispatch* Item(VARIANT index);
+			[id(5)] long CloseAll([optional] VARIANT vtSaveChanges);			
+			//}}AFX_ODL_METHOD
+
+			// NOTE CloseAll actually returns DsSaveState.
+			// This was not in the spec --- [id(5)] IDispatch* Add(BSTR* docType);
+
+	};
+
+	//  Class information for CAutoWindows
+
+	[ uuid(5774D192-96E1-11CF-9C00-00A0C90A632C) ]
+	coclass Windows
+	{
+		dispinterface IDispWindows;
+		[default] interface IWindows ;
+	};
+
+	/////////////////////////////////////////////////////////////////////////////
+	// PROJECTS COLLECTION
+
+
+	// Dual interface for CAutoProjects
+	
+	[ uuid(13BF7741-A7E8-11cf-AD07-00A0C9034965),
+	  helpstringcontext(IDS_HS_PROJECTS),
+	  oleautomation, hidden,
+	  dual
+	]
+	interface IProjects : IDispatch
+	{
+	// properties
+			[id(1), propget, helpstringcontext(IDS_HS_SHARED_APPLICATION)]
+			HRESULT Application([out, retval] IDispatch** Application);
+
+			[id(2), propget, helpstringcontext(IDS_HS_PROJECTS_COUNT)]
+			HRESULT Count([out, retval] long* Count);
+
+			[id(4), propget, helpstringcontext(IDS_HS_SHARED_PARENT)]
+			HRESULT Parent([out, retval] IDispatch** Parent);
+
+			[id(-4), hidden, propget]
+			HRESULT _NewEnum([out, retval] IUnknown** _NewEnum);
+	
+	// methods
+			[id(0), helpstringcontext(IDS_HS_PROJECTS_ITEM)]
+			HRESULT Item([in] VARIANT Index, [out, retval] IGenericProject** Item);
+	};
+
+	//  Primary dispatch interface for CAutoProjects
+	
+	[ uuid(DFAC7C40-A810-11CF-AD07-00A0C9034965), hidden ]
+	dispinterface IDispProjects
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoProjects)
+			[id(1), readonly] IDispatch* Application;
+			[id(2), readonly] long Count;
+			[id(4), readonly] IDispatch* Parent;
+			//}}AFX_ODL_PROP
+			[id(-4), hidden, readonly] IUnknown* _NewEnum;
+
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoProjects)
+			[id(0)] IDispatch* Item(VARIANT Index);
+			//}}AFX_ODL_METHOD
+
+	};
+
+
+	//  Class information for CAutoProjects
+
+	[ uuid(DFAC7C41-A810-11CF-AD07-00A0C9034965) ]
+	coclass Projects
+	{
+		[default] interface IProjects;
+		dispinterface IDispProjects;
+	};
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	IDispDocument
+//
+//
+
+	//  Primary dispatch interface for CAutoDocumentDefault
+	
+	[ uuid(E1870221-933A-11CF-9BF9-00A0C90A632C), hidden ]
+	dispinterface IDispGenericDocument
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoDocumentDefault)
+			[id(0), readonly] BSTR Name;
+			[id(1), readonly] BSTR FullName;
+			[id(2), readonly] IDispatch* Application;
+			[id(3), readonly] IDispatch* Parent;
+			[id(4), readonly] BSTR Path;
+			[id(5)] boolean Saved;
+			[id(6)] IDispatch* ActiveWindow;
+			[id(7)] boolean ReadOnly;
+			[id(8)] BSTR Type;
+			[id(9)] IDispatch* Windows;
+			//}}AFX_ODL_PROP
+			[id(10)] boolean Active;
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoDocumentDefault)
+			[id(11)] IDispatch* NewWindow();
+			[id(12)] long Save([optional] VARIANT filename, [optional] VARIANT longSaveChanges);
+			[id(13)] boolean Undo();
+			[id(14)] boolean Redo();
+			[id(15)] boolean PrintOut();
+			[id(16)] long Close([optional] VARIANT longSaveChanges);
+			//}}AFX_ODL_METHOD
+
+			// NOTE: both Save and Close return DsSaveStatus
+	};
+
+	//  Class information for CAutoDocumentDefault
+
+	[ uuid(E1870222-933A-11CF-9BF9-00A0C90A632C) ]
+	coclass Document
+	{
+		dispinterface IDispGenericDocument;
+		[default] interface IGenericDocument;
+	};
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	IDispWindow
+//
+//
+
+	//  Primary dispatch interface for CAutoWindowDefault
+	
+	[ uuid(E1870223-933A-11CF-9BF9-00A0C90A632C), hidden ]
+	dispinterface IDispGenericWindow
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoWindowDefault)
+			[id(1), readonly] BSTR Caption;
+			[id(2), readonly] BSTR Type;
+			[id(3)] boolean Active;
+			[id(4)] long Left;
+			[id(5)] long Top;
+			[id(6)] long Height;
+			[id(7)] long Width;
+			[id(8), readonly] long Index;
+			[id(9), readonly] IDispatch* Next;
+			[id(10), readonly] IDispatch* Previous;
+			[id(0), readonly] BSTR _Caption;
+			[id(11)] DsWindowState WindowState;
+			//}}AFX_ODL_PROP
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoWindowDefault)
+			[id(16)] long Close([optional] VARIANT boolSaveChanges);
+			//}}AFX_ODL_METHOD
+
+			// NOTE: Close actually returns DsSaveState
+	};
+
+	//  Class information for CAutoWindowDefault
+
+	[ uuid(E1870224-933A-11CF-9BF9-00A0C90A632C) ]
+	coclass Window
+	{
+		dispinterface IDispGenericWindow;
+		[default] interface IGenericWindow;
+	};
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	IDispGenericProject
+//
+//
+
+	//  Primary dispatch interface for CAutoWindowDefault
+	
+	[ uuid(520BEC60-31E8-11d0-B17F-00A0C91BC8ED), hidden ]
+	dispinterface IDispGenericProject
+	{
+		properties:
+			[id(0), readonly] BSTR Name;
+			[id(1), readonly] BSTR FullName;
+			[id(2), readonly] IDispatch* Application;
+			[id(3), readonly] IDispatch* Parent;
+			[id(4), readonly] BSTR Type;
+
+		methods:
+	};
+
+	[ uuid(520BEC61-31E8-11d0-B17F-00A0C91BC8ED) ]
+	coclass Project
+	{
+		dispinterface IDispGenericProject;
+		[default] interface IGenericProject;
+	};
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+//	Add-In interface
+//
+//
+
+	// Primary interface for Add-Ins to implement.  This is placed
+	//  here so that VB5 can use the "implements" keyword to create
+	//  stubs of the methods automatically for the Add-In writer
+	[ uuid (C0002F81-AE2E-11cf-AD07-00A0C9034965), oleautomation, hidden ]
+	interface IDSAddIn : IUnknown
+	{
+		HRESULT OnConnection ([in] IApplication* pApp, [in] boolean bFirstTime,
+								[in] long dwCookie, [out, retval] boolean* OnConnection);
+		HRESULT OnDisconnection ([in] boolean bLastTime);
+	}
+
+	//{{AFX_APPEND_ODL}}
+};

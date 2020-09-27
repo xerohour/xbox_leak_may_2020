@@ -1,0 +1,26 @@
+HKCR
+{
+	USBSimulator.Debugger.1 = s 'Debugger Class'
+	{
+		CLSID = s '{1C1F39C9-DCB4-4227-8001-5286D579191A}'
+	}
+	USBSimulator.Debugger = s 'Debugger Class'
+	{
+		CLSID = s '{1C1F39C9-DCB4-4227-8001-5286D579191A}'
+		CurVer = s 'USBSimulator.Debugger.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1C1F39C9-DCB4-4227-8001-5286D579191A} = s 'Debugger Class'
+		{
+			ProgID = s 'USBSimulator.Debugger.1'
+			VersionIndependentProgID = s 'USBSimulator.Debugger'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{FA33F7A9-3CDF-4ADF-BBC8-1718F17D391F}'
+		}
+	}
+}

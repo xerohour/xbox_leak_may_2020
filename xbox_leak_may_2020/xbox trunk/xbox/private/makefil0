@@ -1,0 +1,44 @@
+#
+# If BUILDMSG is not defined, the define it as the empty string to make
+# the conditionals easier to write.
+#
+
+!INCLUDE $(NTMAKEENV)\makefile.plt
+
+all:                        \
+!if exist (ntos\makefil0)
+        ntosstuff           \
+!endif
+        echobldmsg
+
+echobldmsg:
+!IF "$(BUILDMSG)" != ""
+        @ech ; $(BUILDMSG) ;
+!ENDIF
+
+clean: cleansrc all
+
+cleansrc:
+!if exist (ntos\makefil0)
+    cd genx\nls
+    build -OZ
+    nmake -l clean BUILDMSG=
+    cd ..\ntos\nls
+    build -OZ
+    nmake -l clean BUILDMSG=
+    cd ..\..\..\ntos
+    nmake -lf makefil0 cleaninc BUILDMSG=
+    cd $(MAKEDIR)
+!endif
+
+ntosstuff:
+    cd genx\nls
+    build -OZ
+    nmake -l BUILDMSG=
+    cd ..\ntos\nls
+    build -OZ
+    nmake -l BUILDMSG=
+    cd ..\..\..\ntos
+    nmake -lf makefil0 BUILDMSG=
+    cd $(MAKEDIR)
+

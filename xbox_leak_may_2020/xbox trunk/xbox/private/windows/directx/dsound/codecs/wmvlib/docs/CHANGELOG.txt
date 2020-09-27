@@ -1,0 +1,121 @@
+============================== autoprofile.c
+
+remove
+	#define WIN32_LEAN_AND_MEAN
+
+change
+    #include "../include/AutoProfile.h"
+to
+    #include "AutoProfile.h"
+
+============================== include\macros.h
+
+change
+	#include "..\x86\macros.h"
+to
+	#include "x86macros.h"
+
+============================== x86.c
+
+change
+	#include "../common/macros.h"
+to
+	#include "macros.h"
+
+remove
+	#include "macros.h"
+
+change
+	#include "opcodes.h"
+to
+	#include "x86opcodes.h"
+
+============================== cpudetect.c
+
+change
+	#include "../type/basic.hpp"
+to
+	#include "basic.hpp"
+
+============================== userdll.c
+
+change
+	#if !defined(_MT)
+to
+	#if defined(ENCODEER) && !defined(_MT)
+
+============================== wmf.c
+
+in function WMCInitnParseHeader, change
+    if( WMCDec_Succeeded != rc )
+    {
+       WMCDecClose (phDecoder);
+       phDecoder = NULL;
+        // free( pDecoder );
+        return rc;
+    }
+to
+    if( WMCDec_Succeeded != rc )
+    {
+        return rc;
+    }
+
+============================== strmdec_wmv.hpp and 
+
+change 4 occurances of
+    Bool_WMV bNotEndOfFrame;
+    U32_WMV  dwBufferLen;
+    U8_WMV*  pBuffer;
+    U8_WMV tmp[6];
+    memcpy(tmp, pThis->m_pBuffer, pThis->m_cbBuflen);
+    WMVDecCBGetData (pThis->m_uiUserData, pThis->m_cbBuflen, (U8_WMV**) &pBuffer, 4, &dwBufferLen, &bNotEndOfFrame);
+    if (bNotEndOfFrame){
+        if (dwBufferLen == 0 || pBuffer == NULL){
+            BS_setInvalid(pThis);
+            return 0; //
+        }
+    }
+    //getVideoData(m_cbBuflen, &pBuffer, &dwBufferLen, &bNotEndOfFrame);
+    memcpy(pBuffer, tmp, pThis->m_cbBuflen);
+    //memcpy(pBuffer, m_pBuffer, m_cbBuflen);
+    BS_addDataToBuffer(pThis, (U8_WMV*)pBuffer, dwBufferLen, bNotEndOfFrame);
+to call
+    inline Bool_WMV WMVDecCBGetDataWithPadding(CInputBitStream_WMV* pThis)
+    {
+        Bool_WMV bNotEndOfFrame;
+        U32_WMV  dwBufferLen;
+        U8_WMV*  pBuffer;
+        U8_WMV tmp[6];
+        memcpy(tmp, pThis->m_pBuffer, pThis->m_cbBuflen);
+        WMVDecCBGetData(pThis->m_uiUserData,
+                        pThis->m_cbBuflen,
+                        &pBuffer,
+                        4,
+                        &dwBufferLen,
+                        &bNotEndOfFrame);
+
+        if (pBuffer == NULL || (bNotEndOfFrame && dwBufferLen == 0)) {
+            BS_setInvalid(pThis);
+            return FALSE_WMV;
+        }
+
+        memcpy(pBuffer, tmp, pThis->m_cbBuflen);
+        BS_addDataToBuffer(pThis, pBuffer, dwBufferLen, bNotEndOfFrame);
+        return TRUE_WMV;
+    }
+
+============================== decolorconv_wmv.cpp
+
+change
+#define BITMAP_WIDTH_WMV(width, bitCount) \
+    (I32_WMV)((I32_WMV)(((((I32_WMV)width) * ((I32_WMV)bitCount)) + 31L) & (I32_WMV)~31L) / 8L)
+
+to
+#define BITMAP_WIDTH_WMV(width, bitCount) \
+    (I32_WMV)((I32_WMV)(((((I32_WMV)width) * ((I32_WMV)bitCount)) + 511L) & (I32_WMV)~511L) / 8L)
+
+since xbox surfaces require 64-byte scanline alignment
+
+============================== get rid of nspmerged.lib
+
+sd describe 17554

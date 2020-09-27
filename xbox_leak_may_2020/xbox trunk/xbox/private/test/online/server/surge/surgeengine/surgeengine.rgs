@@ -1,0 +1,26 @@
+HKCR
+{
+	Surge.Engine.1 = s 'SurgeEngine Class'
+	{
+		CLSID = s '{12310FEC-2279-11D3-944E-00C04F7986A3}'
+	}
+	Surge.Engine = s 'SurgeEngine Class'
+	{
+		CLSID = s '{12310FEC-2279-11D3-944E-00C04F7986A3}'
+		CurVer = s 'Surge.Engine.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {12310FEC-2279-11D3-944E-00C04F7986A3} = s 'SurgeEngine Class'
+		{
+			ProgID = s 'Surge.Engine.1'
+			VersionIndependentProgID = s 'Surge.Engine'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{12310FCF-2279-11D3-944E-00C04F7986A3}'
+		}
+	}
+}

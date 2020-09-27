@@ -1,0 +1,95 @@
+NVIDIA Direct3D Driver
+----------------------
+
+------------------------------------------------------------------------------
+Add New Items here for ben to prioritize:
+priority champion description
+-------- -------- -----------
+high/r7  bdw      kick ass all around
+Modify new allocators to allow for byte aligned requirements	<Pvdk--roll into other heap stuff>
+	Scott K indicates with SSE moves can get a 20% improvement if we can 16byte align important
+	structures.
+
+------------------------------------------------------------------------------
+Release 7
+---------
+
+1 [ | ] <dev>  (hh/ml)  Get Pointsprites to pass WHQL
+1 [ | ] <dev>  (sc)     Kelvin Pixel Shaders (pass WHQL)
+1 [ | ] <perf> (sk)     Ensure that Kelvin is faster than Celsius
+1 [ | ] <bug>  (sc)     Fix Blinn Shader
+1 [x|x] <dev>  (dr)     Kelvin HOS
+1 [ | ] <dev>  (mr)     Implement nvDP2VolumeBlt
+1 [ | ] <perf> (sk)     KELVIN_COMPILED_INNER_LOOPS -- ASM code
+1 [ | ] <dev>  (sc)     Support/test VOLUMEMAP, MIPVOLUMEMAP, VOLUMEMAP_POW2 textures + caps
+1 [ | ] <perf> (sk)     Move SuperTri lookaside to SetStreamSource
+1 [ | ] <dev>  (pvdk)   Get AGP working with CAPS2_NONLOCALVIDMEM bit set.
+1 [ | ] <perf> (sk)     Verify that Winbench 2000 and 3D Mark 2000 get best possible scores on NV20.
+2 [ | ] <dev>  (ml)     Search through driver for TODO & BUGBUG
+2 [ | ] <dev>  (hh)     Implement & Verify D3DTA_TEMP, MULTIPLYADD, LERP
+2 [ | ] <perf> (sk/bdw) Opportunistically convert indexed lists to strips
+2 [ | ] <perf> (hh/sk)  Optimize state management. 
+2 [ | ] <perf> (sk)     Add Innerloop HASH
+3 [x| ] <perf> (sk)     Optimize host side HOS computations with SSE and 3D Now
+5 [ | ] <dev>  (hh)     Implement nvDP2SetTexLOD (dx7, texmanage)
+-
+1 [ | ] <dev>  (sc)     <punt?> Export STRETCHBLTMULTISAMPLE
+-
+1 [x|x] <dev>  (pvdk)   Kelvin Vertex Shaders
+1 [x|x] <dev>  (cd)     Semaphores in refcount capacity
+1 [x|x] <dev>  (cd)     Z Compression
+1 [x|x] <dev>  (hh)     Implement nvDP2BufferBlt
+1 [x|x] <dev>  (hh)     Implement nvDP2MultiplyTransform
+1 [x|x] <perf> (cd/sk)  Add SuperTri support to Craig's VB changes
+1 [x|x] <dev>  (sc)     Kelvin Anti-Aliasing / multisampling
+1 [x|x] <perf> (cd)     inline vertex reuse
+1 [x|x] <perf> (cd)     KELVIN_COMPILED_INNER_LOOPS - C code
+1 [x|x] <dev>  (sc)     Implement HILO textures
+1 [x|x] <dev>  (sc)     Implement volume textures
+2 [x|x] <perf> (sk)     Add SuperTri support for multiple vertex streams
+2 [x|x] <dev>  (cd)     Material Source for nv20 so we pass whql
+2 [x|x] <dev>  (ml)     Texture Border
+
+
+------------------------------------------------------------------------------
+Release 8
+---------
+
+. [ | ] <dev>  (pvdk)   New Vid/AGP heap class with allocated/pending/free status capabilities
+. [ | ] <perf>          See if Virtual VB's can be made to work
+. [ | ] <perf>          Find ways for the CPU to cull triangles with simple vertex shader programs.
+. [ | ] <dev>           Add Matrox style skinning vertex shader
+. [ | ] <dev>  (sc)     Shadow Maps
+. [ | ] <dev>           Allow image mode texturing
+3 [ | ] <dev>           Dynamic Volume compression
+-
+. [ | ] <dev>           <in HW?> use of pushbuf subroutines (combiner moders,state blocks, etc)
+
+
+------------------------------------------------------------------------------
+Release 9
+---------
+
+
+------------------------------------------------------------------------------
+Legend
+------
+
+[ | ] = not started / in progress
+[x| ] = implemented not tested
+[x|x] = implemented and tested
+
+dev   = development work
+perf  = performance work
+
+bdw   = ben de waal
+cd    = craig duttweiler
+dr    = daniel rohrer
+fd    = franck diard
+fs    = florin soreanu
+hh    = hadden hoppert
+ml    = menelaos levas
+mr    = matt radecki
+pvdk  = paul van der kouwe
+sc    = scott cutler
+sk    = scott kephart

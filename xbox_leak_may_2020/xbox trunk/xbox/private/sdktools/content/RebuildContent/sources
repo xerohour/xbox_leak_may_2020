@@ -1,0 +1,36 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+UMTYPE=console
+
+TARGETNAME=RebuildContent
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+USE_MSVCRT=1
+
+LINKLIBS=$(LIBRARY_PATH)\user32.lib   \
+         $(LIBRARY_PATH)\crypt32.lib \
+         $(BASEDIR)\private\lib\*\rsa32.lib \
+         $(BASEDIR)\private\lib\*\cryptcab.lib \
+
+TARGETLIBS=\
+	    $(BASEDIR)\public\wsdk\lib\kernel32.lib \
+	    $(BASEDIR)\public\wsdk\lib\user32.lib   \
+
+INCLUDES=\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\public\wsdk\inc; \
+    $(BASEDIR)\private\sdktools\content\inc; \
+    $(BASEDIR)\public\sdk\inc; \
+
+SOURCES=\
+        rebuild.c	\
+	rebuild.rc
+
+C_DEFINES = $(C_DEFINES)
+

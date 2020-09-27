@@ -1,0 +1,315 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "MUTESTRIPMGR.DLL\0"
+#define VERSIONDESCRIPTION          "MuteStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "MuteStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "MUTESTRIPMGR.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_REMAP DIALOG DISCARDABLE  0, 0, 195, 82
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Remap PChannel"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Remap PChannel %d to:",IDC_REMAPTXT,7,7,181,49
+    LTEXT           "P&Channel:",IDC_STATIC,13,23,34,8
+    EDITTEXT        IDC_PCHANNEL_EDIT,52,20,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_PCHANNEL_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,77,20,11,14
+    LTEXT           "Starting at Measure %d, Beat %d.",IDC_MEASUREBEATTXT,13,
+                    41,106,8
+    DEFPUSHBUTTON   "OK",IDOK,45,63,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,99,63,50,14
+    EDITTEXT        IDC_PCHANNEL_NAME,87,20,92,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+IDD_DLG_ADD_PCHANNEL DIALOG DISCARDABLE  0, 0, 255, 133
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add/Remove PChannels"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Add PChannel",IDC_STATIC,7,7,157,66
+    LTEXT           "P&Channel:",IDC_STATIC,14,20,34,8
+    EDITTEXT        IDC_EDIT_PCHANNEL,58,18,35,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_PCHANNEL,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,86,17,11,14
+    EDITTEXT        IDC_EDIT_PCHANNEL_NAME,13,34,80,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "&Add >>",IDC_BUTTON_ADD,100,17,58,14
+    PUSHBUTTON      "A&dd Next 16 >>",IDC_BUTTON_ADD16,100,35,58,14,
+                    WS_DISABLED
+    PUSHBUTTON      "<< &Remove",IDC_BTN_REMOVE,100,53,58,14
+    LTEXT           "&PChannels:",IDC_STATIC,173,7,75,9
+    LISTBOX         IDC_LIST_CHANNEL,170,17,78,91,LBS_EXTENDEDSEL | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "&OK",IDOK,170,112,38,14
+    PUSHBUTTON      "Ca&ncel",IDCANCEL,210,112,38,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_MUTESTRIP_POPUP MENU DISCARDABLE 
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "&Add/Remove PChannels...",    CM_ADDREMOVE
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge\tCtrl+V",              ID_EDIT_PASTE_MERGE
+            MENUITEM "&Overwrite",                  ID_EDIT_PASTE_OVERWRITE
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Remap PChannel...",          CM_REMAP
+        MENUITEM "Clear Remap",                 CM_UNREMAP
+        MENUITEM SEPARATOR
+        MENUITEM "&Mute PChannel %d",           CM_MUTEALL
+        MENUITEM "&Unmute PChannel %d",         CM_UNMUTEALL
+        MENUITEM "Clear PChannel %d",           CM_CLEARALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Add Track(s)...\tCtrl+Ins",  ID_EDIT_ADD_TRACK
+        MENUITEM "D&elete Track(s)\tCtrl+Del",  ID_EDIT_DELETE_TRACK
+    END
+END
+
+IDR_EDIT_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "&Add/Remove PChannels...",    CM_ADDREMOVE
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge\tCtrl+V",              ID_EDIT_PASTE_MERGE
+            MENUITEM "&Overwrite",                  ID_EDIT_PASTE_OVERWRITE
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT, GRAYED
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Add Track(s)...\tCtrl+Ins",  ID_EDIT_ADD_TRACK
+        MENUITEM "D&elete Track(s)\tCtrl+Del",  ID_EDIT_DELETE_TRACK
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            ID_VIEW_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_REMAP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 188
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
+
+    IDD_DLG_ADD_PCHANNEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 248
+        VERTGUIDE, 14
+        VERTGUIDE, 100
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 126
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_MUTEMGR             REGISTRY DISCARDABLE    "mutemgr1.bin"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_MUTE                BITMAP  DISCARDABLE     "bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MUTE                ICON    DISCARDABLE     "icon1.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "MuteStripMgr"
+    IDS_TRACK_NAME          "Mute Track"
+    IDS_EDITOR_NAME         "Mute Track Editor"
+    IDS_PROPPAGE_GROUP_BITS "Mute Track"
+    IDS_STRIP_NAME          "Mute"
+    IDS_CHANNEL             "Channel %3d"
+    IDS_REMOVEWARNING       "Some of the selected PChannels have mute/remap data.\nAre you sure you would like to remove the selected PChannels?"
+    IDS_MUTEPCHANNEL        "Mute PChannel"
+    IDS_UNMUTEPCHANNEL      "Unmute PChannel"
+    IDS_CLEARPCHANNEL       "Clear PChannel"
+    IDS_PCHANNELS           "PChannel(s): "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ZERO_CHANNELS       "Please add at least one PChannel before closing this dialog box."
+    IDS_UNDO_MUTE           "Set Mute(s)"
+    IDS_UNDO_REMAP_PCHANNEL "Remap PChannel"
+    IDS_UNDO_CLEAR_REMAP    "Clear Remap"
+    IDS_UNDO_MUTE_PCHANNEL  "Mute PChannel"
+    IDS_UNDO_UNMUTE_PCHANNEL "Unmute PChannel"
+    IDS_UNDO_CLEAR_PCHANNEL "Clear PChannel"
+    IDS_UNDO_ADD_REMOVE_PCHANNEL "Add/Remove PChannel(s)"
+    IDS_UNDO_DELETE_MUTE_REMAP "Delete Mute(s)/Remap(s)"
+    IDS_UNDO_PASTE_MUTE_REMAP "Paste Mute(s)/Remap(s)"
+    IDS_UNDO_TRACK_GROUP    "Track Group Assignment"
+    IDS_REMAP_PROMPT        "Remap PChannel %d (%1) to:"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Mute Track"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

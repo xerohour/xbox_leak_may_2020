@@ -1,0 +1,95 @@
+// VsdPackage.idl : IDL source for Deployment Packaging
+//
+
+
+// DISPIDs
+typedef
+[
+	uuid(54565983-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdMsmCache")
+]
+enum DISPIDs_IVsdMsmCache
+{
+	[helpstring("DISPID_IVsdMsmCache_CacheFile")] DISPID_IVsdMsmCache_CacheFile								= 1,
+	[helpstring("DISPID_IVsdMsmCache_MsmSearchPath")] DISPID_IVsdMsmCache_MsmSearchPath						= 2,
+	[helpstring("DISPID_IVsdMsmCache_DoNotDelete")] DISPID_IVsdMsmCache_DoNotDelete							= 3,
+	[helpstring("DISPID_IVsdMsmCache_SetCacheFile")] DISPID_IVsdMsmCache_SetCacheFile						= 4,
+	[helpstring("DISPID_IVsdMsmCache_FindModuleFromFileInfo")] DISPID_IVsdMsmCache_FindModuleFromFileInfo	= 5,
+	[helpstring("DISPID_IVsdMsmCache_FindModuleFromAssemblyInfo")] DISPID_IVsdMsmCache_FindModuleFromAssemblyInfo = 6,
+	[helpstring("DISPID_IVsdMsmCache_FindModuleFromMsmInfo")] DISPID_IVsdMsmCache_FindModuleFromMsmInfo		= 7,
+	[helpstring("DISPID_IVsdMsmCache_Refresh")] DISPID_IVsdMsmCache_Refresh									= 8,
+	[helpstring("DISPID_IVsdMsmCache_SetExclusion")] DISPID_IVsdMsmCache_SetExclusion						= 9,
+	[helpstring("DISPID_IVsdMsmCache_UseSystemSearchPath")] DISPID_IVsdMsmCache_UseSystemSearchPath			= 10,
+	[helpstring("DISPID_IVsdMsmCache_FindModuleFromPathInfo")] DISPID_IVsdMsmCache_FindModuleFromPathInfo	= 11
+} DISPIDs_IVsdMsmCache;
+
+
+// enums 
+typedef
+[
+	uuid(54565984-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdMsmCacheMatchFileData")
+]
+enum vsdMsmCacheMatchFileData
+{
+	[helpstring("vsdcmfLanguage")] vsdcmfLanguage							= 1,
+	[helpstring("vsdcmfMSVersion")] vsdcmfMSVersion							= 2,
+	[helpstring("vsdcmfLSVersion")] vsdcmfLSVersion							= 4,
+	[helpstring("vsdcmfSmallest")] vsdcmfSmallest							= 8
+} vsdMsmCacheMatchFileData;
+
+typedef
+[
+	uuid(A9BB5F0B-364A-4d7c-9127-1240E2E2A9D0),
+	helpstring("vsdMsmCacheMatchAssemblyData")
+]
+enum vsdMsmCacheMatchAssemblyData
+{
+	[helpstring("vsdcmaPublicKeyToken")] vsdcmaPublicKeyToken				= 1,
+	[helpstring("vsdcmaLanguage")] vsdcmaLanguage							= 2,
+	[helpstring("vsdcmaVersion")] vsdcmaVersion								= 4,
+	[helpstring("vsdcmaSmallest")] vsdcmaSmallest							= 8
+} vsdMsmCacheMatchAssemblyData;
+
+typedef
+[
+	uuid(54565985-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdMsmCacheMatchMSMData")
+]
+enum vsdMsmCacheMatchMSMData
+{
+	[helpstring("vsdcmmLanguage")] vsdcmmLanguage							= 1,
+	[helpstring("vsdcmmMSVersion")] vsdcmmMSVersion							= 2,
+	[helpstring("vsdcmmLSVersion")] vsdcmmLSVersion							= 4,
+	[helpstring("vsdcmmSmallest")] vsdcmmSmallest							= 8
+} vsdMsmCacheMatchMSMData;
+
+
+
+// interface
+[
+object,
+uuid(54565986-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdMsmCache : IDispatch
+{
+	[propget, id(DISPID_IVsdMsmCache_CacheFile), helpstring("property CacheFile")] HRESULT CacheFile([out, retval] BSTR *Val);
+	[propget, id(DISPID_IVsdMsmCache_MsmSearchPath), helpstring("property MsmSearchPath")] HRESULT MsmSearchPath([out, retval] BSTR *Val);
+	[propput, id(DISPID_IVsdMsmCache_MsmSearchPath), helpstring("property MsmSearchPath")] HRESULT MsmSearchPath([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsmCache_DoNotDelete), helpstring("method DoNotDelete")] HRESULT DoNotDelete([out, retval] VARIANT_BOOL *Val);
+	[propput, id(DISPID_IVsdMsmCache_DoNotDelete), helpstring("method DoNotDelete")] HRESULT DoNotDelete([in] VARIANT_BOOL Val);
+
+	[id(DISPID_IVsdMsmCache_SetCacheFile), helpstring("property SetCacheFile")] HRESULT SetCacheFile([in] BSTR Val);
+	[id(DISPID_IVsdMsmCache_FindModuleFromFileInfo), helpstring("method FindModuleFromFileInfo")] HRESULT FindModuleFromFileInfo([in]BSTR File, [in]long SearchFlags, [in]WORD language, [in]DWORD MSVersion, [in]DWORD LSVersion, [out]BSTR *ModulePath, [out]BSTR *ModuleSignature, [out]WORD *FoundLanguage, [out]DWORD *FoundMSVersion, [out]DWORD *FoundLSVersion);
+	[id(DISPID_IVsdMsmCache_FindModuleFromAssemblyInfo), helpstring("method FindModuleFromAssemblyInfo")] HRESULT FindModuleFromAssemblyInfo([in]BSTR bstrAssemblyName, [in]BSTR bstrOriginator, [in]long lSearchFlags, [in]long dwLanguage, [in]BSTR bstrVersion, [out]BSTR *pbstrModuleSignature, [out]BSTR *pbstrModulePath);
+	[id(DISPID_IVsdMsmCache_FindModuleFromMsmInfo), helpstring("method FindModuleFromMsmInfo")] HRESULT FindModuleFromMsmInfo([in]BSTR ModuleSignatrure, [in]long SearchFlags, [in]WORD language, [in]DWORD MSVersion, [in]DWORD LSVersion, [out]BSTR *ModulePath, [out]WORD *FoundLanguage, [out]DWORD *FoundMSVersion, [out]DWORD *FoundLSVersion);
+	[id(DISPID_IVsdMsmCache_Refresh), helpstring("method Refresh")] HRESULT Refresh();
+	[id(DISPID_IVsdMsmCache_SetExclusion), helpstring("method SetExclusion")] HRESULT SetExclusion([in]IUnknown *ExclusionObject);
+	[propget, id(DISPID_IVsdMsmCache_UseSystemSearchPath), helpstring("property UseSystemSearchPath")] HRESULT UseSystemSearchPath([out, retval] VARIANT_BOOL *Val);
+	[propput, id(DISPID_IVsdMsmCache_UseSystemSearchPath), helpstring("property UseSystemSearchPath")] HRESULT UseSystemSearchPath([in] VARIANT_BOOL Val);
+	[id(DISPID_IVsdMsmCache_FindModuleFromPathInfo), helpstring("method FindModuleFromPathInfo")] HRESULT FindModuleFromPathInfo([in]BSTR ModulePath, [out]VARIANT_BOOL *Found, [out]WORD *FoundLanguage, [out]DWORD *FoundMSVersion, [out]DWORD *FoundLSVersion);
+}

@@ -1,0 +1,26 @@
+HKLM
+{
+	%REGROOTBEGIN%
+	NoRemove CLSID
+	{
+		ForceRemove {7D8AE8C5-3FD3-11D3-8D52-00C04F8ECDB6} = s 'VCProjConvert Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+	}
+	%REGROOTEND%
+}
+
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove {7D8AE8C5-3FD3-11D3-8D52-00C04F8ECDB6} = s 'VCProjConvert Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+	}
+}

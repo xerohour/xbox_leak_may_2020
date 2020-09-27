@@ -1,0 +1,71 @@
+!IF 0
+
+Copyright (c) 1989  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    Steve Wood (stevewo) 12-Apr-1990
+
+NOTE:   Commented description of this file is in \nt\bak\bin\sources.tpl
+
+!ENDIF
+
+TARGETNAME=romdec32
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=console
+UMENTRYABS=Startup32
+
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+USE_NOLIBS=1
+
+INCLUDES=..\..\..\inc
+
+#
+# This image will not be used directly.  We don't want any debug information.
+#
+RESOURCE_ONLY_DLL=1
+
+#
+# Generate listing file
+#
+386_ADBGFLAGS=$(386_ADBGFLAGS) -Fl -Sa
+
+#
+# Merge all of the sections into .text.
+#
+LINKER_FLAGS=$(LINKER_FLAGS) -merge:.data=.text
+
+#
+# Link with -DRIVER so that the final image still has the relocations in it.
+#
+LINKER_FLAGS=$(LINKER_FLAGS) -driver -align:32
+
+#
+# The default for TARGETTYPE=PROGRAM is to mark the image as Terminal Server
+# aware.  This causes a linker warning when -driver is specified, so disable it.
+#
+NOT_TERMINAL_SERVER_AWARE=1
+
+#
+# This image is never directly used, so keep BINPLACE from whining about the
+# image not having a version stamp.
+#
+NO_BINPLACE=1
+
+SOURCES=..\romdec32.asm

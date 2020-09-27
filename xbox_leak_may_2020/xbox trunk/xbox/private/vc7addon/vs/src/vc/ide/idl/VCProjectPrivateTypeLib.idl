@@ -1,0 +1,492 @@
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "vcpbobjects.idl";
+import "xmlparser.idl";
+import "vcpberrcontext.idl";	// IVCBuildErrorContext
+
+[
+	uuid(9F367019-33C6-11D3-8D52-00C04F8ECDB6),
+	version(1.0),
+	helpstring("Microsoft Development Environment VC++ Project System Engine 7.0 Type Library"),
+	helpstringdll("VCProjectEngine.dll")
+]
+library VCProjectEnginePrivateLibrary
+{
+	importlib("stdole2.tlb");
+	
+	interface IVCProjectConfigurationSettings;
+	interface IVCGeneralMakefileSettings;
+	interface IVCGeneralFileConfigurationSettings;
+
+	interface IVCCLCompilerOptimizationPage;
+	interface IVCCLCompilerPreProcessorPage;
+	interface IVCCLCompilerAdvancedPage;
+	interface IVCCLCompilerCodeGenPage;
+	interface IVCCLCompilerLanguagePage;
+	interface IVCCLCompilerPCHPage;
+	interface IVCCLCompilerOutputPage;
+	interface IVCCLCompilerBrowsePage;
+	interface IVCCLCompilerGeneralPage;
+	interface IVCLinkerGeneralPage;
+	interface IVCLinkerInputPage;
+	interface IVCLinkerDebugPage;
+	interface IVCLinkerSystemPage;
+	interface IVCLinkerOptimizationPage;
+	interface IVCLinkerAdvancedPage;
+	interface IVCLinkerMIDLPage;
+	interface IVCLibrarianPage;
+	interface IVCCustomBuildPage;
+	interface IVCMidlGeneralPage;
+	interface IVCMidlOutputPage;
+	interface IVCMidlAdvancedPage;
+	interface IVCResourceCompilerPage;
+	interface IVCPreBuildEventPage;
+	interface IVCPreLinkEventPage;
+	interface IVCPostBuildEventPage;
+	interface IVCBscMakePage;
+	interface IVCNMakePage;
+	interface IVCWebServiceGeneralPage;
+	interface IVCWebDeploymentGeneralPage;
+	interface IXboxDeploymentGeneralPage;
+	interface IXboxImageGeneralPage;
+	interface IXboxImageCertificatePage;
+	interface IXboxImageTitleInfoPage;
+
+	interface IVCMarshallableEventHandler;
+
+	[
+		uuid(D41EC335-4924-11d3-9419-00C04F68FB62),
+		helpstring("General Configuration Page")
+	]
+	coclass GeneralConfigSettingsPage
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D41EC335-4924-11d3-9419-00C04F68FB63),
+		helpstring("General File Configuration Page")
+	]
+	coclass GeneralFileConfigSettingsPage
+	{
+		interface IUnknown;
+	};
+
+	[
+		uuid(3FA5D1CF-397B-11d3-9411-00C04F68FB62),
+		helpstringcontext(RCGeneral_Class)
+	]
+	coclass RCGeneral
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(3FA5D1D0-397B-11d3-9411-00C04F68FB62)
+	]
+	coclass RCAdditionalOptions
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(C07EDD30-3989-11d3-9411-00C04F68FB62),
+		helpstringcontext(LibGeneral_Class)
+	]
+	coclass LibGeneral
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(C07EDD32-3989-11d3-9411-00C04F68FB62)
+	]
+	coclass LibAdditionalOptions
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C80-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkGeneral_Class)
+	]
+	coclass LinkGeneral
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C81-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkInput_Class)
+	]
+	coclass LinkInput
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C84-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkDebug_Class)
+	]
+	coclass LinkDebug
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C85-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkSystem_Class)
+	]
+	coclass LinkSystem
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C86-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkOptimization_Class)
+	]
+	coclass LinkOptimization
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C87-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkAdvanced_Class)
+	]
+	coclass LinkAdvanced
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C89-3992-11d3-9411-00C04F68FB62),
+		helpstringcontext(LinkMIDL_Class)
+	]
+	coclass LinkMIDL
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(82FD6C8A-3992-11d3-9411-00C04F68FB62)
+	]
+	coclass LinkAdditionalOptions
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(D0237D6E-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClOptimization_Class)
+	]
+	coclass ClOptimization
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D6F-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClPreprocessor_Class)
+	]
+	coclass ClPreprocessor
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D70-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClAdvanced_Class)
+	]
+	coclass ClAdvanced
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D72-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClCodeGeneration_Class)
+	]
+	coclass ClCodeGeneration
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D73-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClLanguage_Class)
+	]
+	coclass ClLanguage
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D74-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClPrecompiledHeaders_Class)
+	]
+	coclass ClPrecompiledHeaders
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D75-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClOutputFiles_Class)
+	]
+	coclass ClOutputFiles
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D77-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClBrowseInfo_Class)
+	]
+	coclass ClBrowseInfo
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D78-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClGeneral_Class)
+	]
+	coclass ClGeneral
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D79-1449-11D3-8378-00C04F796961),
+		helpstringcontext(ClGeneral_Class)
+	]
+	coclass ClAdditionalOptions
+	{
+		interface IUnknown;
+	};
+
+	[
+		uuid(D0237D7A-1449-11D3-8378-00C04F796961),
+		helpstringcontext(MidlAdvanced_Class)
+	]
+	coclass MidlAdvanced
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D7D-1449-11D3-8378-00C04F796961),
+		helpstringcontext(MidlOutput_Class)
+	]
+	coclass MidlOutput
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D7F-1449-11D3-8378-00C04F796961),
+		helpstringcontext(MidlGeneral_Class)
+	]
+
+	coclass MidlGeneral
+	{
+		interface IUnknown;
+	};
+	
+	[
+		uuid(D0237D8A-1449-11D3-8378-00C04F796961)
+	]
+	coclass MidlAdditionalOptions
+	{
+		interface IUnknown;
+	}
+
+	[
+		uuid(659554C0-3986-11D3-B976-00C04F685D26),
+		helpstringcontext(VCCustomGeneral_Class)
+	]
+	coclass VCCustomGeneral
+	{
+		[default] interface IUnknown;
+	};
+	[
+		uuid(93B8B4D3-67ED-4e3f-BFE1-61E8810183BA)
+	]
+	coclass VCCustomCommandPage
+	{
+		[default] interface IUnknown;
+	};
+	
+	[
+		uuid(659554C3-3986-11D3-B976-00C04F685D26),
+		helpstringcontext(VCPreBldGeneral_Class)
+	]
+	coclass VCPreBldGeneral
+	{
+		[default] interface IUnknown;
+	};
+	
+	[
+		uuid(659554C6-3986-11D3-B976-00C04F685D26),
+		helpstringcontext(VCPreLinkGeneral_Class)
+	]
+	coclass VCPreLinkGeneral
+	{
+		[default] interface IUnknown;
+	};
+	
+	[
+		uuid(659554C9-3986-11D3-B976-00C04F685D26),
+		helpstringcontext(VCPostBldGeneral_Class)
+	]
+	coclass VCPostBldGeneral
+	{
+		[default] interface IUnknown;
+	};
+	
+	[
+		uuid(5AD57B84-609C-11d3-941F-00C04F68FB62),
+		helpstringcontext(VCNMakeGeneral_Class)
+	]
+	coclass VCNMakeGeneral
+	{
+		[default] interface IUnknown;
+	};
+	
+	[
+		uuid(5783E3E6-3FAC-11D3-B976-00C04F685D26),
+		helpstringcontext(VCBSCGeneral_Class)
+	]
+	coclass VCBSCGeneral
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(5783E3E6-3FAC-11D3-B977-00C04F685D26),
+	]
+	coclass BSCAdditionalOptions
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(DA2940CD-C9DD-4812-93A8-1DA949649879),
+	]
+	coclass WebUtilityGeneral
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(8C4053B8-CE89-4db7-8DA4-7DF0A608F55B),
+	]
+	coclass WebDeploymentGeneral
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(DA2940CE-C9DD-4812-93A8-1DA949649879),
+	]
+	coclass WebAdditionalOptions
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(994053B8-CE89-4db7-8DA4-7DF0A608F55B),
+		helpstringcontext(XboxDeploymentGeneral_Class)
+	]
+	coclass XboxDeploymentGeneral
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(984053B8-CE89-4db7-8DA4-7DF0A608F55B),
+		helpstringcontext(XboxImageGeneral_Class)
+	]
+
+	coclass XboxImageGeneral
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(974053B8-CE89-4db7-8DA4-7DF0A608F55B),
+		helpstringcontext(XboxImageCertificate_Class)
+	]
+	coclass XboxImageCertificate
+	{
+		[default] interface IUnknown;
+	};
+
+	[
+		uuid(964053B8-CE89-4db7-8DA4-7DF0A608F55B),
+		helpstringcontext(XboxImageTitleInfo_Class)
+	]
+	coclass XboxImageTitleInfo
+	{
+		[default] interface IUnknown;
+	};
+
+	// xml node factory
+	[
+		uuid(55C92926-601B-40f6-AEFD-BF96BEAF1A1A)
+	]
+	coclass VCNodeFactory
+	{
+		[default] interface IXMLNodeFactory;
+	};
+
+	[
+		uuid(A54AAE88-30C2-11D3-87BF-A04A4CC10000),
+		helpstringcontext(VCDebugSettings_Class)
+	]
+	coclass _VCDebugSettings
+	{
+		[default] interface VCDebugSettings;
+	};
+
+	[
+		uuid(A54AAE91-30C2-11D3-87BF-A04A4CC10000),
+	]
+	coclass VCPlatformWin32
+	{
+		[default] interface VCPlatform;
+	};
+
+	[
+		uuid(A54AAE92-30C2-11D3-87BF-A04A4CC10000),
+	]
+	coclass VCPlatformWin64
+	{
+		[default] interface VCPlatform;
+	};
+
+	[
+		uuid(A54AAE93-30C2-11D3-87BF-A04A4CC10000),
+	]
+	coclass VCPlatformXbox
+	{
+		[default] interface VCPlatform;
+	};
+
+	[
+		uuid(4481BEC6-4216-11d3-837B-00C04F796961),
+		helpstring("Debugger Page")
+	]
+	coclass DebugSettingsPage
+	{
+		interface IUnknown;
+	};
+
+}; // END OF LIBRARY
+
+#include "VCPBSettingsPages.idl"
+#include "VCPBBuildEngine.idl"

@@ -1,0 +1,278 @@
+// FILE:      library\hardware\drives\specific\pd4995r.h
+// AUTHOR:    M. Park
+// COPYRIGHT: (c) 1999 Ravisent Technologies. All Rights Reserved.
+// CREATED:   21.09.99
+//
+// PURPOSE:   Definitions for PIONEER PD4995 controller for front end, panel ...
+//
+// HISTORY:
+
+#ifndef PD4995R_H
+#define PD4995R_H
+
+#define PD4995REG_FP_BASE				0x60000100
+#define PD4995REG_FP_SIZEOF			0xab
+
+// The PIONEER register map.
+
+// Mychip register map
+
+#define PD4995REG_REG_MODE_SET		0x00	// Mode Setting Register
+#define PD4995REG_IDX_CDDVD			0		// CD/DVD		0 : DVD  1 : CD
+#define PD4995REG_IDX_SINGLE_WR		1		// Single WR/RD	0 : read 1 : write
+#define PD4995REG_IDX_VDI				2		// Video DMA interface
+											// 0 : asynchronous bus mode
+											// 1 : synchronous pulse mode
+#define PD4995REG_IDX_VDT				3 		// Video DMA terminal
+									 	 	// 0 : output terminals are high impedance
+											// 1 : terminal outputs are valid
+#define PD4995REG_IDX_RCS				4, 2	// Refresh Cycle Selection
+#define PD4995REG_IDX_S_RW_BREAK		6		// Single R/W Break En
+#define PD4995REG_IDX_SPINDLE_RS		7		// Spindle Reg. Sel
+
+#define PD4995REG_REG_INIT				0x01	// Initializing Register
+#define PD4995REG_IDX_C_RST			2		// C_DMA Reset
+#define PD4995REG_IDX_A_RST			3		// A_DMA Reset
+#define PD4995REG_IDX_V_RST			4		// V_DMA Reset
+#define PD4995REG_IDX_C1_RESET		5		// C1 Reset
+#define PD4995REG_IDX_C2_RESET		6		// C2 Reset
+#define PD4995REG_IDX_MASTER_RST		7		// Master Reset
+
+#define PD4995REG_REG_IRQ_A			0x02	// Interrupt Mask Register A
+#define PD4995REG_IDX_ID				0		// ID    (for DVD)
+#define PD4995REG_IDX_SUB_Q			0		// SUB-Q (for CD)
+#define PD4995REG_IDX_F_LINE			1		// First Line End
+#define PD4995REG_IDX_BLOCK			2		// Block End
+#define PD4995REG_IDX_C_DMA_END		3		// C_DMA End
+#define PD4995REG_IDX_V_DMA_PTR		4		// V_DMA Ptr Ready
+#define PD4995REG_IDX_A_DMA_PTR		5		// A_DMA Ptr Ready
+#define PD4995REG_IDX_RECEIVE			6		// Receive Buffer Full
+#define PD4995REG_IDX_TRANSFER		7		// Transfer Buffer Empty
+
+#define PD4995REG_REG_IRQ_B			0x03	// Interrupt Mask Register B
+#define PD4995REG_IDX_FG_INT			0		// FG Interrupt
+#define PD4995REG_IDX_A_FRAME			1		// Audio Block Int
+#define PD4995REG_IDX_C1_BLOCK		2		// C1 Block End
+#define PD4995REG_IDX_V_DMA_END		4		// V_DMA End
+#define PD4995REG_IDX_A_DMA_FIFO		5		// A_DMA FIFO Empty
+#define PD4995REG_IDX_END_DETECT		6		// MPEG End Code Det
+#define PD4995REG_IDX_END_SST			7		// End of Synchronous Serial Transfer
+
+#define PD4995REG_REG_IF_A				0x04	// Interrupt Factor Register A
+// bits are same as PD4995REG_REG_IRQ_A
+
+#define PD4995REG_REG_IF_B				0x05	// Interrupt Factor Register B
+// bits are same as PD4995REG_REG_IRQ_B
+
+#define PD4995REG_REG_ITS_A			0x06	// Interrupt Terminal Selection Register A/Version Register
+// bits are same as PD4995REG_REG_IRQ_A
+
+#define PD4995REG_REG_ITS_B			0x07	// Interrupt Terminal Selection Register B
+// bits are same as PD4995REG_REG_IRQ_B
+
+// DVD Mode
+#define PD4995REG_REG_ID_0				0x08	// ID Register First ID Byte
+#define PD4995REG_REG_ID_8				0x09	// ID Register Second ID Byte/PLL synchronous clear (WR)
+#define PD4995REG_REG_ID_16			0x0a	// ID Register Third ID Byte
+#define PD4995REG_REG_ID_24			0x0b	// ID Register Fourth ID Byte
+
+// CD mode
+#define PD4995REG_REG_SUBCODE_0		0x08	// Sub Code Register
+#define PD4995REG_IDX_SUB_Q_CRC		0		// Sub_Q CRC
+#define PD4995REG_IDX_SUBCODE_DMA	1		// Sub Code DMA En
+#define PD4995REG_IDX_EDC_MODE_SEL	2		// EDC Mode Selection
+#define PD4995REG_IDX_EDC_RESULT		4		// EDC Result
+#define PD4995REG_IDX_CDROM_RESYNC	5, 2	// CDROM Resync Mode
+
+#define PD4995REG_REG_SUBCODE_8		0x09
+#define PD4995REG_IDX_SUBCODE_W		0
+#define PD4995REG_IDX_SUBCODE_V		1
+#define PD4995REG_IDX_SUBCODE_U		2
+#define PD4995REG_IDX_SUBCODE_T		3
+#define PD4995REG_IDX_SUBCODE_S		4
+#define PD4995REG_IDX_SUBCODE_R		5
+
+#define PD4995REG_REG_SUBCODE_S0		0x0a
+#define PD4995REG_REG_SUBCODE_S1		0x0b
+
+//DVD Mode
+#define PD4995REG_REG_EDC_RES			0x0c	// EDC Result of ID/Subcode Q Read Register
+#define PD4995REG_IDX_C1_CRCTN_INH	0		// C1 Correction Inhibited
+#define PD4995REG_IDX_C2_CRCTN_INH	1		// C2 Correction Inhibited
+#define PD4995REG_IDX_DSCRMBL_INH	2		// Descramble Inhibited
+#define PD4995REG_IDX_EDC_STATUS	6, 2		// EDC Status of ID
+
+// CD mode should be added later
+
+#define PD4995REG_REG_SCPU_DATA		0x0d	// Sub CPU Data Transfer/Reception Register (check sum)
+
+#define PD4995REG_REG_SCPU_ST			0x0e	// Sub CPU Status Register
+#define PD4995REG_IDX_ATN				0		// ATN
+#define PD4995REG_IDX_BUSY				1		// Busy
+#define PD4995REG_IDX_READY			2		// Ready
+
+#define PD4995REG_REG_MCPU_ST			0x0f	// Main CPU Status Register
+// bits 0 and 1 are same as PD4995REG_REG_SCPU_ST
+
+#define PD4995REG_REG_BYTE_RW			0x10	// CPU Single Byte Read/Write Register
+
+#define PD4995REG_REG_BYTE_RW_BS		0x11	// CPU Single Byte Read/Write BLOCK Setting
+#define PD4995REG_IDX_B_ADDRESS		0, 7	// Block Address
+#define PD4995REG_IDX_RAMRQ0			7		// RAMRQ0
+
+#define PD4995REG_REG_BYTE_RW_V		0x12	// CPU Single Byte Read/Write Address Setting (V Address)
+#define PD4995REG_REG_BYTE_RW_H		0x13	// CPU Single Byte Read/Write Address Setting (H Address)
+
+#define PD4995REG_REG_PD_TC			0x14	// Playback Data Transfer Control Register
+#define PD4995REG_IDX_DISK_RD_EN		0		// DISK_RD Enable
+#define PD4995REG_IDX_PTR_READY		1		// Pointer Ready
+#define PD4995REG_IDX_DISK_RD_BUSY	2		// DISK_RD Busy
+#define PD4995REG_IDX_NEXT_BLK_EN	3		// Next Block Enable
+#define PD4995REG_IDX_SECTOR_NO		4, 4	// Sector No.
+
+#define PD4995REG_REG_PD_TBS			0x15	// Playback Data Transfer Block Specification/Playback End Block
+#define PD4995REG_IDX_BLOCK_NUMBER	0, 7	// Block Number
+
+// DVD Mode
+#define PD4995REG_REG_PD_EDC_8		0x16	// Playback Data EDC Register
+#define PD4995REG_IDX_SECTOR_8		0		// EDC Result of Sector 8
+#define PD4995REG_IDX_SECTOR_9		1		// EDC Result of Sector 9
+#define PD4995REG_IDX_SECTOR_10		2		// EDC Result of Sector 10
+#define PD4995REG_IDX_SECTOR_11		3		// EDC Result of Sector 11
+#define PD4995REG_IDX_SECTOR_12		4		// EDC Result of Sector 12
+#define PD4995REG_IDX_SECTOR_13		5		// EDC Result of Sector 13
+#define PD4995REG_IDX_SECTOR_14		6		// EDC Result of Sector 14
+#define PD4995REG_IDX_SECTOR_15		7		// EDC Result of Sector 15
+
+#define PD4995REG_REG_PD_EDC_0		0x17	// Playback Data EDC Register
+#define PD4995REG_IDX_SECTOR_0		0		// EDC Result of Sector 0
+#define PD4995REG_IDX_SECTOR_1		1		// EDC Result of Sector 1
+#define PD4995REG_IDX_SECTOR_2		2		// EDC Result of Sector 2
+#define PD4995REG_IDX_SECTOR_3		3		// EDC Result of Sector 3
+#define PD4995REG_IDX_SECTOR_4		4		// EDC Result of Sector 4
+#define PD4995REG_IDX_SECTOR_5		5		// EDC Result of Sector 5
+#define PD4995REG_IDX_SECTOR_6		6		// EDC Result of Sector 6
+#define PD4995REG_IDX_SECTOR_7		7		// EDC Result of Sector 7
+
+// CD Mode for the above two registers should be added later
+
+// register definition for 0x18 - 0x4f will be added here later
+
+#define PD4995REG_REG_COMMAND			0x60
+#define PD4995REG_REG_PARAMETER_0	0x61
+#define PD4995REG_REG_PARAMETER_1	0x62
+#define PD4995REG_REG_PARAMETER_2	0x63
+#define PD4995REG_REG_PARAMETER_3	0x64
+#define PD4995REG_REG_PARAMETER_4	0x65
+#define PD4995REG_REG_PARAMETER_5	0x66
+#define PD4995REG_REG_PARAMETER_6	0x67
+
+
+// MYCHIP commands
+
+#define PD4995REG_CMD_OPEN				0x01
+#define PD4995REG_PRM_SMALL_TRAY		0x01
+#define PD4995REG_PRM_LARGE_TRAY		0x02
+
+#define PD4995REG_CMD_CLOSE			0x02
+#define PD4995REG_CMD_STOP				0x03
+#define PD4995REG_CMD_DISC_SENSE		0x04
+#define PD4995REG_CMD_START_UP		0x05
+
+#define PD4995REG_CMD_READ				0x07
+// Parameters for this command and other commands below should be added here
+
+#define PD4995REG_CMD_SEEK			  			0x08
+#define PD4995REG_CMD_LOAD_ADDRESS			0x0a
+#define PD4995REG_CMD_PAUSE					0x0b
+#define PD4995REG_CMD_COMMAND_ABORT			0x0e
+#define PD4995REG_CMD_POWER_OFF				0x0f
+#define PD4995REG_CMD_PLAYER_TYPE			0x11
+#define PD4995REG_CMD_GET_STATUS_TYPE		0x20
+#define PD4995REG_CMD_GET_DISC_STATUS		0x22
+#define PD4995REG_CMD_GET_ERROR_STATUS		0x25
+#define PD4995REG_CMD_DSP_STATUS				0x26
+#define PD4995REG_CMD_SEND_CONTROL_DATA_1	0x33
+#define PD4995REG_CMD_SEND_CONTROL_DATA_2	0x34
+#define PD4995REG_CMD_SEND_CONTROL_DATA_3	0x34
+#define PD4995REG_CMD_SEND_CONTROL_DATA_4	0x35
+#define PD4995REG_CMD_RAM_DISPLAY_ON		0x40
+#define PD4995REG_CMD_SEND_SERVO_DSP		0x42
+
+#define PD4995REG_REG_SSP_CPS			 	0x68	// Synchronous Serial Port Clock and Prescalar Setting Register
+#define PD4995REG_IDX_DIVIDING_VALUE 	0, 6	// Dividing Value
+
+#define PD4995REG_REG_SSP_IC			 	0x69	// Synchronous Serial Port Interrupt Control Register
+#define PD4995REG_IDX_SCI_CH0_EOT	 	0		// SCI CH0 End of Transfer
+#define PD4995REG_IDX_SCI_CH1_EOT	 	1		// SCI CH1 End of Transfer
+#define PD4995REG_IDX_SCI_CH2_EOT	 	2		// SCI CH2 End of Transfer
+#define PD4995REG_IDX_SCI_CH0_INT_MASK	4		// SCI CH0 INT Mask
+#define PD4995REG_IDX_SCI_CH1_INT_MASK	5		// SCI CH1 INT Mask
+#define PD4995REG_IDX_SCI_CH2_INT_MASK	6		// SCI CH2 INT Mask
+
+
+// Register definitions for 0x68 - 0x6f will be added here later
+
+#define PD4995REG_REG_PFS					0x70	// Pin Function Setup Register
+#define PD4995REG_IDX_PAPORT				0		// PA-Port Main/Sub
+#define PD4995REG_IDX_PBPORT				1		// PB-Port Main/Sub
+#define PD4995REG_IDX_PCPORT				2		// PC-Port Main/Sub
+#define PD4995REG_IDX_PBSELECT			3		// PB Select Ned/Port
+#define PD4995REG_IDX_PCSELECT			4		// PC Select Stat/Port
+
+
+#define PD4995REG_REG_PA_PORT_DD			0x71	// PA Port Data Direction Register
+#define PD4995REG_IDX_LT1					3		// LT1 (protocol)
+#define PD4995REG_IDX_XRDY					4		// XRDY (protocol)
+#define PD4995REG_IDX_SS1					5		// SS1 (data)
+#define PD4995REG_IDX_SS0					6		// SS0 (data)
+#define PD4995REG_IDX_XSSCK				7		// XSSCK (clock)
+
+#define PD4995REG_REG_PB_PORT_DD			0x72	// PB Port Data Direction Register
+#define PD4995REG_REG_PC_PORT_DD			0x73	// PC Port Data Direction Register
+
+#define PD4995REG_REG_PA_PORT_DATA		0x74	// PA Port Data
+#define PD4995REG_REG_PB_PORT_DATA		0x75	// PB Port Data
+#define PD4995REG_REG_PC_PORT_DATA		0x76	// PC Port Data
+
+
+// Register definitions for 0x78 - 0x7f will be added here later
+
+
+// Register definitions for Front Panel
+
+// For front panel registers, you must add PD4995REG_FP_BASEADDRESS, which is now 0x100
+// this will be changed to 0x00 in the next hardware revision
+
+#define PD4995REG_REG_DATA_0				0x80
+#define PD4995REG_REG_DATA_1				0x81
+#define PD4995REG_REG_DATA_2				0x82
+#define PD4995REG_REG_DATA_3				0x83
+#define PD4995REG_REG_DATA_4				0x84
+#define PD4995REG_REG_DATA_5				0x85
+#define PD4995REG_REG_DATA_6				0x86
+#define PD4995REG_REG_DATA_7				0x87
+#define PD4995REG_REG_DATA_8				0x88
+#define PD4995REG_REG_DATA_9				0x89
+#define PD4995REG_REG_DATA_A				0x8a
+#define PD4995REG_REG_DATA_B				0x8b
+#define PD4995REG_REG_DATA_C				0x8c
+#define PD4995REG_REG_ECHO					0x8d
+#define PD4995REG_REG_DATA_E				0x8e
+#define PD4995REG_REG_CHECKSUM			0x8f
+
+
+#define PD4995REG_REG_TX_MODE_SETUP		0xa0	// Transmission Mode Setup
+#define PD4995REG_REG_TX_CONTROL			0xa1	// Transmission Control
+#define PD4995REG_REG_TX_LENGTH			0xa3	// Transmission Length
+#define PD4995REG_REG_TX_CLOCK			0xa4	// Transmission Clock
+#define PD4995REG_REG_TX_PORT_CONTROL	0xa8	// Transmission Port Control
+#define PD4995REG_REG_TX_IRQ_EOT			0xa9	// IRQ for End of Transmission
+
+#define PD4995REG_REG_CONTROL_OF_PORT_A	0xaa	// Control of Port A
+#define PD4995REG_IDX_SETTING_OF_PA6		1
+#define PD4995REG_IDX_SETTING_OF_PA7		2
+#define PD4995REG_IDX_CLOCK_SETTING			3, 2
+#define PD4995REG_IDX_RESET_FUNCION			7
+
+

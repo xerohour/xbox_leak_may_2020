@@ -1,0 +1,23 @@
+!include ..\sources.inc
+
+DLLDEF=dxconio.def
+
+UMTYPE=xboxdll
+
+C_DEFINES=$(C_DEFINES) -DUNDER_XBOX -DUNICODE -D_UNICODE
+
+TARGETLIBS=\
+    $(SDK_LIB_PATH)\ntoskrnl.lib \
+    $(SDK_LIB_PATH)\uuid.lib \
+    $(SDK_LIB_PATH)\dxguid.lib \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\*\kernel32.lib \
+!if $(FREEBUILD)
+    $(SDK_LIB_PATH)\libcmt.lib \
+    $(SDK_LIB_PATH)\d3d8.lib \
+    $(SDK_LIB_PATH)\d3dx8.lib \
+!else
+    $(SDK_LIB_PATH)\libcmtd.lib \
+    $(SDK_LIB_PATH)\d3d8d.lib \
+    $(SDK_LIB_PATH)\d3dx8d.lib \
+!endif

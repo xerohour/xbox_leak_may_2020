@@ -1,0 +1,55 @@
+!IF 0
+
+Copyright (c) 2001-2002 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    James Dooley (JDooley) 29-Nov-2001
+
+!ENDIF
+
+!include ..\producer.inc
+
+TARGETNAME=ParamStripMgr
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+
+UMTYPE=windows
+DLLDEF=ParamStripMgrDLL.def 
+DLLENTRY=_DllMainCRTStartup
+
+TARGETLIBS=$(TARGETLIBS) \
+    $(SDK_LIB_PATH)\dmoguids.lib
+
+SOURCES=\
+BaseMgr.cpp \
+BaseStrip.cpp \
+DLSLoadSaveUtils.cpp \
+GridsPerSecondDlg.cpp \
+GroupBitsPPG.cpp \
+newparameterdialog.cpp \
+ParamStrip.cpp \
+ParamStripMgrDLL.cpp \
+ParamStripMgrDLL.rc \
+PropCurve.cpp \
+PropPageCurve.cpp \
+RiffStrm.cpp \
+SelectedRegion.cpp \
+TabObject.cpp \
+Tracker.cpp \
+TrackFlagsPPG.cpp \
+TrackItem.cpp \
+TrackMgr.cpp \
+TrackObject.cpp \

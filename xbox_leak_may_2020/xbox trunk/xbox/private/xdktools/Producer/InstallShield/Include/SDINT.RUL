@@ -1,0 +1,689 @@
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdint.rul                                                 */
+ /*                                                                       */
+ /*   Purpose : This file contains the general internal utility code for  */
+ /*             the script dialogs.                                       */
+ /*                                                                       */
+ /*=======================================================================*/
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdInit                                                     */
+/*                                                                        */
+/*   Descrip:  This will hande any initialization required for all script */
+/*             dialogs and related functions.                             */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdInit()
+          STRING  svDontCare;
+          INT     nType;
+          NUMBER  hIsres;
+          HWND    hwndInstall;
+        begin
+
+           if (bSdInit) then return TRUE; endif;
+
+           // determine which InstallShield is operating 16 or 32 bit
+           GetSystemInfo( ISTYPE, nType, svDontCare );
+           bInstall16 = FALSE;
+           if (nType = 16) then
+             bInstall16 = TRUE;
+           endif;
+
+           bSdInit = TRUE;
+
+           // load strings
+           hIsres = GetModuleHandle( ISRES );
+           if (hIsres) then
+             LoadString( hIsres, SD_STR_NOTENOUGHSPACE, szSdStr_NotEnoughSpace, _MAX_STRING );
+           endif;
+
+           // Restore the IS window, if it was minimized . . .
+           hwndInstall = GetWindowHandle( HWND_INSTALL );
+           if( hwndInstall ) then
+                if( IsIconic( hwndInstall ) ) then
+                   ShowWindow( hwndInstall, SW_RESTORE );
+                endif;
+           endif;
+
+           // Set Checkbox style to Windows 95 style
+           DialogSetInfo( DLG_INFO_CHECKSELECTION, "", CHECKBOX95 );
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdUnInit                                                   */
+/*                                                                        */
+/*   Descrip:  This function will clean up the unneeded objects that has  */
+/*             possibly been created by SD functions.                     */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdUnInit( )
+        begin
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdGeneralInit                                              */
+/*                                                                        */
+/*   Descrip:  This will handle the general initialization for the dialog */
+/*             main wait loop.                                            */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdGeneralInit( szDlg, hwndDlg, nStyle, szProduct )
+          HWND            hwndStatic, hwndFocus;
+          INT             nItemID;
+          STRING          szClassName[ MAX_STRING ];
+          NUMBER          nReturn, nCurrentID;
+          POINTER         pLogFont, pClassName;
+        begin
+
+          // ensure next-back enablement is correct
+          SdEnablement( hwndDlg );
+
+          // Find out if current focus is a edit field
+          // If it is, select all the text in it.
+          hwndFocus  = GetFocus();
+          pClassName = AddressString( szClassName );
+
+          if (IsWindow( hwndFocus )) then
+
+             GetClassName( hwndFocus, pClassName, MAX_STRING );
+
+             if (szClassName = "edit") then
+               if (bInstall16 = TRUE) then // 16-bit version
+                  nCurrentID = GetWindowWord( hwndFocus, GWW_ID );
+               else                        // 32-bit version
+                  nCurrentID = GetWindowLong( hwndFocus, GWW_ID );
+               endif;
+
+               CtrlSelectText( szDlg, nCurrentID );
+
+             endif;
+
+          endif;
+
+          // ensure all standard 700-724 have %p replaced
+          if (szProduct != "") then
+             SdPlugInProductName( szDlg, hwndDlg, szSdProduct, 700, 25 );
+          endif;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdIsStdButton                                              */
+/*                                                                        */
+/*   Descrip:  Check if the use input is in the legal range               */
+/*                                                                        */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdIsStdButton( nId )
+        begin
+
+          if ((nId >= SD_PBUT_OK) && (nId <= SD_PBUT_BACK)) then
+            return TRUE;
+          endif;
+
+          return FALSE;
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdDoStdButton                                              */
+/*                                                                        */
+/*   Descrip:  Implement some special standard buttons                    */
+/*                                                                        */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdDoStdButton( nId )
+        begin
+
+           switch( nId )
+           case SD_PBUT_CANCEL: // (generated from ESC key)
+                Do( EXIT );
+
+           case SD_PBUT_EXITSETUP:
+                Do( EXIT );
+
+           case SD_PBUT_HELP:
+                Do( HELP );
+
+           default:
+                return TRUE;
+           endswitch;
+
+           return FALSE;
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdEnablement                                               */
+/*                                                                        */
+/*   Descrip:  This will enable/disable the next-prev-finish buttons.     */
+/*                                                                        */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdEnablement( hwndDlg )
+          HWND    hwndOk, hwndBack, hwndContinue, hwndExit, hwndCancel;
+          BOOL    bEnableNext, bEnableBack, bEnableCancel, bEnableFinish;
+          STRING  szTemp, szText;
+        begin
+
+         hwndOk       = GetDlgItem( hwndDlg, SD_PBUT_OK );
+         hwndContinue = GetDlgItem( hwndDlg, SD_PBUT_CONTINUE );
+         hwndBack     = GetDlgItem( hwndDlg, SD_PBUT_BACK );
+         hwndCancel   = GetDlgItem( hwndDlg, SD_PBUT_CANCEL );
+         hwndExit     = GetDlgItem( hwndDlg, SD_PBUT_EXITSETUP );
+
+         if (!IsWindow( hwndBack )) then return FALSE; endif; // no back-next
+
+         bEnableNext   = Is( NEXTBUTTON, szTemp );
+         bEnableBack   = Is( BACKBUTTON, szTemp );
+         bEnableCancel = Is( CANCELBUTTON, szTemp );
+         bEnableFinish = Is( FINISHBUTTON, szTemp );
+
+         // if finished enabled set ok and continue button text to finish
+
+         if (bEnableFinish) then
+
+             szText = @SETUPSTR862;     // load install program string 862
+
+             if (IsWindow( hwndOk )) then
+                 SetWindowText( hwndOk, szText );
+             endif;
+
+             if (IsWindow( hwndContinue )) then
+                 SetWindowText( hwndContinue, szText );
+             endif;
+
+         endif;
+
+         if (IsWindow( hwndOk )) then
+             EnableWindow( hwndOk, bEnableNext );
+         endif;
+
+         if (IsWindow( hwndContinue )) then
+             EnableWindow( hwndContinue, bEnableNext );
+         endif;
+
+         if (IsWindow( hwndBack )) then
+             EnableWindow( hwndBack, bEnableBack );
+         endif;
+
+         if (IsWindow( hwndCancel )) then
+             EnableWindow( hwndCancel, bEnableCancel );
+         endif;
+
+         if (IsWindow( hwndExit )) then
+             EnableWindow( hwndExit, bEnableCancel );
+         endif;
+
+         return TRUE;
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdSetStatic                                                */
+/*                                                                        */
+/*   Descrip:  Set text in the static fields( 80x and 85x ).              */
+/*                                                                        */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdSetStatic( szDlg, nControlID, szText )
+        begin
+
+           CtrlSetText( szDlg, nControlID, szText );
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdPlugInProductName                                        */
+/*                                                                        */
+/*   Descrip:  The function plugs the product name defined in             */
+/*             SdProductName() into %P found in the static message.       */
+/*             It will search for the first nMax controls only.           */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdPlugInProductName( szDlg, hwndDlg, szProduct, nItemStart, nMax )
+          HWND    hwndProduct;
+          INT     nItemID;
+          NUMBER  nMsgLength, i, nPos;
+          STRING  svTextBuf[MAX_STRING], szTemp[MAX_STRING], szTemp1[MAX_STRING];
+          BOOL    bProduct;
+        begin
+
+           nItemID     = nItemStart; // The item IDs start from 701 or 751
+           hwndProduct = GetDlgItem( hwndDlg, nItemID );
+
+
+           for i = 0 to nMax
+
+              if (hwndProduct) then
+
+                 bProduct = FALSE;
+                 CtrlGetText( szDlg, nItemID, svTextBuf );
+
+                 // Find the %P
+                 nPos =  StrFind( svTextBuf,  "%P" );
+                 nMsgLength = StrLength ( svTextBuf );
+
+                 // while the %P exists keep finding and replaced it with product Name
+                 while ( nPos >= 0 )
+
+                     bProduct = TRUE;     //  We find %P
+                     StrSub( szTemp , svTextBuf , 0, nPos );
+                     szTemp = szTemp + szProduct;
+                     nPos = nPos + 2;   //  Skip "%P" as we replaced with product name
+                     nMsgLength = nMsgLength - nPos;
+                     StrSub( szTemp1 , svTextBuf ,nPos , nMsgLength   );
+                     svTextBuf = szTemp +  szTemp1;
+                     nPos =  StrFind( svTextBuf,  "%P" );
+                     nMsgLength = StrLength ( svTextBuf );
+
+                 endwhile;
+
+                 if ( bProduct ) then
+                    CtrlSetText( szDlg, nItemID, svTextBuf );
+                 endif;
+
+              endif;
+
+              nItemID = nItemID + 1;
+              hwndProduct = GetDlgItem( hwndDlg, nItemID );
+
+           endfor;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdDiskSpace                                                */
+/*                                                                        */
+/*   Descrip:  This function will show the SdDiskSpace Dialog showing user*/
+/*             disk space information.                                    */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdDiskSpace( svDir, szDiskSpace, szReqSpace, bChange )
+          NUMBER  nDiskSpace, nMsg, nAvailableSpace;
+          LIST    listDrives;
+          HWND    hwndDlg;
+          BOOL    bDone, bRemoveSlash;
+          STRING  svCurDrive, szDlg, szDir, svOrigPath, szTemp;
+        begin
+
+           szDlg = "Disk Space";
+
+           // get original path and drives
+           StrSub( svCurDrive, svDir, 0, 1 );
+
+           bRemoveSlash = FALSE;
+           szTemp = svDir ^ "temp.txt";
+           ParsePath( svOrigPath, szTemp, PATH );
+           if (svOrigPath != svDir) then // determine if \ existed at end of string
+             bRemoveSlash = TRUE;
+           endif;
+           szTemp = svDir ^ "temp.txt";
+           ParsePath( svOrigPath, szTemp, DIRECTORY );
+           if (bRemoveSlash) then
+              StrRemoveLastSlash( svOrigPath );
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_DISKSPACE ) = DLG_ERR) then
+              return -1;
+           endif;
+
+           bDone = FALSE;
+
+           while (bDone = FALSE)
+
+              nMsg = WaitOnDialog( szDlg );
+
+              switch (nMsg)
+              case DLG_INIT:
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+
+                   // get drive list
+                   listDrives = ListCreate( STRINGLIST );
+                   GetValidDrivesList( listDrives, FIXED_DRIVE | REMOTE_DRIVE | REMOVEABLE_DRIVE, 0 );
+                   CtrlSetList( szDlg, SD_COMBO_DRIVE, listDrives );
+                   ListDestroy( listDrives );
+
+                   CtrlSetCurSel( szDlg, SD_COMBO_DRIVE, svCurDrive );
+                   CtrlSetText( szDlg, SD_DISKREQ, szReqSpace );
+
+                   szDir = svCurDrive + ":\\";
+
+                   nAvailableSpace = GetDiskSpace( szDir ) / 1024;
+                   NumToStr( szDiskSpace, nAvailableSpace );
+                   szDiskSpace = szDiskSpace + " K";
+                   CtrlSetText( szDlg, SD_DISKAVI, szDiskSpace );
+
+                   SdGeneralInit( szDlg, hwndDlg, 0, szSdProduct );
+
+              case SD_COMBO_DRIVE:
+                   CtrlGetCurSel( szDlg, SD_COMBO_DRIVE, svCurDrive );
+                   szDir = svCurDrive + ":\\";
+
+                   nAvailableSpace = GetDiskSpace( szDir ) / 1024;
+                   NumToStr( szDiskSpace, nAvailableSpace );
+                   szDiskSpace = szDiskSpace + " K";
+                   CtrlSetText( szDlg, SD_DISKAVI, szDiskSpace );
+
+              case SD_PBUT_OK:
+                   if (StrFind( svDir, svCurDrive ) != 0 ) then
+                       svDir = svCurDrive + ":\\" ^ svOrigPath;
+                   endif;
+
+                   bDone = TRUE;
+                   bChange = TRUE;
+
+              case SD_PBUT_CANCEL:
+                   bDone = TRUE;
+                   bChange = FALSE;
+
+              case DLG_CLOSE:
+                   bDone = TRUE;
+                   bChange = FALSE;
+
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdError                                                    */
+/*                                                                        */
+/*   Descrip:  This function handles some exceptional errors              */
+/*                                                                        */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdError( nCode, szMsg )
+        begin
+
+          switch (nCode)
+          case -1:
+               SprintfBox( SEVERE, "Error", "In function '%s':\n" +
+                           "Unable to create dialog.\n" +
+                           "Make sure the _ISRES.DLL is in _SYS.CAB.", szMsg );
+          endswitch;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdCloseDlg                                                 */
+/*                                                                        */
+/*   Descrip:  This function will attempt to close a dialog and do        */
+/*             standard pushbutton checking.                              */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdCloseDlg( hwndDlg, nResult, bDone )
+        begin
+
+          if (GetDlgItem(hwndDlg, SD_PBUT_EXITSETUP)) then
+             Do(EXIT);
+          elseif (GetDlgItem(hwndDlg, SD_PBUT_CANCEL)) then
+             nResult = CANCEL;
+             bDone   = TRUE;
+          else
+             nResult = CANCEL;
+             bDone   = TRUE;
+          endif;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdGetTextExtent                                            */
+/*                                                                        */
+/*   Descrip:  This function will retrieve size in pixels base on the     */
+/*             device context and string passed in                        */
+/*             (WIN16 and WIN32 compatible)                               */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdGetTextExtent( hdc, szString, nSize )
+          INT     nResult;
+          STRING  szTemp;
+          _sdSIZE SIZE;
+          POINTER pSize;
+        begin
+
+          pSize = AddressStruct( SIZE );
+          GetTextExtentPoint( hdc, szString, nSize, pSize );
+          StructGetP( pSize, "_sdSIZE", "cx", nResult, szTemp );
+
+          return nResult;
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdMakeName                                                 */
+/*                                                                        */
+/*   Descrip:  This dialog will make the name for the silent/record       */
+/*             data key.                                                  */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdMakeName( szAppKey, szDlg, szTitle, nCount )
+        begin
+
+          Sprintf( szAppKey, "%s-%ld", szDlg, nCount );
+          nCount++;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdRemoveEndSpace                                           */
+/*                                                                        */
+/*   Descrip:  This dialog will remove spaces from the end and beginning  */
+/*             of the string.                                             */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdRemoveEndSpace( szString )
+          NUMBER nLen, nValue, nFirstLastSpace, nTarget, i;
+          BOOL   bNonSpaceFound;
+          STRING szTemp;
+        begin
+
+          nLen            = StrLength( szString );
+          nTarget         = 0;
+          bNonSpaceFound  = FALSE;
+          nFirstLastSpace = 0;
+
+          for i = 0 to nLen - 1
+            GetByte( nValue, szString, i );
+            if (nValue = 32) then // if space
+               if (!nFirstLastSpace) then
+                  nFirstLastSpace = nTarget;
+               endif;
+               if (bNonSpaceFound) then
+                 SetByte( szTemp, nTarget, 32 );
+                 nTarget++;
+               endif;
+            else
+               bNonSpaceFound  = TRUE;
+               nFirstLastSpace = 0;
+               SetByte( szTemp, nTarget, nValue );
+               nTarget++;
+            endif;
+          endfor;
+
+          // clear out last space to null terminator
+          if (nFirstLastSpace) then
+            SetByte( szTemp, nFirstLastSpace, 0 );
+          endif;
+
+          szString = szTemp;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*  function: SdGetUserCompanyInfo( svName, svCompany )                   */
+/*                                                                        */
+/*  descrip:  This dialog will get the name and company name of the       */
+/*            Windows registered owner.                                   */
+/*                                                                        */
+/*  Misc:                                                                 */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function  SdGetUserCompanyInfo( svName, svCompany )
+          STRING szRegKey;
+          STRING svDontCare;
+          NUMBER nvType, nvSize, nOS;
+          LONG hUser;
+       begin
+          svName = "";
+          svCompany = "";
+          GetSystemInfo( OS, nOS, svDontCare );
+          if ( ( nOS = IS_WINDOWS95 ) &&  ( !bInstall16 ) ) then
+             RegDBSetDefaultRoot( HKEY_LOCAL_MACHINE );
+             szRegKey = "\\Software\\Microsoft\\Windows\\CurrentVersion";
+          elseif ( ( nOS = IS_WINDOWSNT ) && ( !bInstall16 ) ) then
+             RegDBSetDefaultRoot( HKEY_LOCAL_MACHINE );
+             szRegKey = "\\Software\\Microsoft\\Windows NT\\CurrentVersion";
+          else
+             hUser = GetModuleHandle("USER");
+             LoadString(hUser, 514, svName, 255);
+             LoadString(hUser, 515, svCompany, 255);
+             return TRUE;
+          endif;
+
+          if ( !bInstall16 ) then
+             if( RegDBKeyExist( szRegKey ) >= 0 ) then
+
+                if ( RegDBGetKeyValueEx( szRegKey, "RegisteredOwner",
+                           nvType, svName, nvSize ) >= 0 ) then
+                endif;
+
+
+                if ( RegDBGetKeyValueEx( szRegKey, "RegisteredOrganization",
+                           nvType, svCompany, nvSize ) >= 0 ) then
+                endif;
+
+             endif;
+          endif;
+          RegDBSetDefaultRoot( HKEY_CLASSES_ROOT );
+       end;
+
+
+
+/*------------------------------------------------------------------------*/
+/*  function: SdCreateComponentView                                       */
+/*                   ( hwndDlg, nStaticID, szComponents, szTargetDir )    */
+/*                                                                        */
+/*  descrip:  This routine will create and initialize the view object.    */
+/*            It will check to see if some predefined controls exist.     */
+/*            If they do, they are linked to the view.                    */
+/*                                                                        */
+/*  Misc:                                                                 */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdCreateComponentView( hwndDlg, nStaticID, szComponents, szTargetDir )
+         NUMBER hwndStatic;
+         NUMBER nComponentView;
+      begin
+
+         nComponentView = ComponentViewCreate( hwndDlg, nStaticID );
+
+         if (nComponentView = 0) then
+             return 0;
+         endif;
+
+         ComponentViewCreateWindow( nComponentView );
+
+         ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_COMPONENT, 0,  szComponents );
+         ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_MEDIA, 0,  MEDIA );
+
+         hwndStatic = GetDlgItem( hwndDlg, SD_SPACEAVI );
+         if( hwndStatic ) then
+             ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_SIZEAVAIL, SD_SPACEAVI, "" );
+         endif;
+
+         hwndStatic = GetDlgItem( hwndDlg, SD_SPACEREQ );
+         if( hwndStatic ) then
+             ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_SIZETOTAL, SD_SPACEREQ, "" );
+         endif;
+
+         hwndStatic = GetDlgItem( hwndDlg, SD_STA_MSG2 );
+         if( hwndStatic ) then
+             ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_DESCRIPTION, SD_STA_MSG2, "" );
+         endif;
+
+         hwndStatic = GetDlgItem( hwndDlg, SD_PBUT_CHANGE );
+         if( hwndStatic ) then
+             ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_CHANGE, SD_PBUT_CHANGE, "" );
+         endif;
+
+
+         if( szTargetDir != "" ) then
+             ComponentViewSetInfo( nComponentView, COMPONENT_VIEW_TARGETLOCATION, 0, szTargetDir );
+         endif;
+
+
+         return nComponentView;
+
+      end;
+
+/*------------------------------------------------------------------------*/
+/*  function: SdIsShellExplorer( )                                                */
+/*                                                                        */
+/*  descrip:  This routine determines the target operationg system.       */
+/*            SdIsShellExplorer returns TRUE if Windows95 or Windows NT   */
+/*            4.0 is running, FALSE otherwise.                            */
+/*                                                                        */
+/*  Misc:                                                                 */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdIsShellExplorer()
+   NUMBER  nvResult;
+   STRING  svResult;
+
+begin
+
+// Determine the target system's operating system.
+   GetSystemInfo( OS, nvResult, svResult );
+
+   if (nvResult =  IS_WINDOWSNT) then
+      // Check to see if the shell being used is EXPLORER shell.
+      if (GetSystemInfo( OSMAJOR, nvResult, svResult ) = 0) then
+            if (nvResult >= 4) then
+               return TRUE;
+            endif;
+      endif;
+   elseif (nvResult = IS_WINDOWS95 ) then
+      return TRUE;
+   endif;
+
+   return FALSE;
+end;
+

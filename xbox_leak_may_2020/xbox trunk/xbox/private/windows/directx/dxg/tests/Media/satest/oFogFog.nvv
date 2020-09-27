@@ -1,0 +1,85 @@
+; layered fog - work in progress.
+; various methods to do this...
+#include "oFogFog.h"
+
+#define R_POS_WORLD r1
+#define R_NORMAL r2
+#define R_DIFFUSE r3
+#define R_SPECULAR r4
+
+#define R_HEIGHT_TEST r5
+#define R_WEIGHTS r6
+#define R_HEIGHTS r7
+#define R_DIST r8
+#define R_TEMP1 r9
+#define R_TEMP2 r10
+#define R_FACTOR r11
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+dp4 R_POS_WORLD.x, v0, c[CV_WORLD_0]
+dp4 R_POS_WORLD.y, v0, c[CV_WORLD_1]
+dp4 R_POS_WORLD.z, v0, c[CV_WORLD_2]
+dp4 R_POS_WORLD.w, v0, c[CV_WORLD_3]
+
+; Transform normal to eye space
+dp3 R_NORMAL.x, v1, c[CV_WORLDVIEWIT_0]
+dp3 R_NORMAL.y, v1, c[CV_WORLDVIEWIT_1]
+dp3 R_NORMAL.z, v1, c[CV_WORLDVIEWIT_2]
+
+; copy texture coordinates
+mov oT0.xy, v2
+
+; Normalize transformed normal
+dp3 R_NORMAL.w, R_NORMAL, R_NORMAL
+rsq R_NORMAL.w, R_NORMAL.w												
+mul R_NORMAL, R_NORMAL, R_NORMAL.w	
+
+; Dot normal with light vector
+; This is the intensity of the diffuse component
+dp3 R_TEMP1.x, R_NORMAL, c[CV_LIGHT1_DIRECTION]
+max R_TEMP1.x, c[CV_ZERO].x, R_TEMP1.x
+
+; add the (ambient color * ambient light color * ambient intensity(1) )
+mov R_DIFFUSE, c[CV_LIGHT1_AMBIENT]
+
+; add the (diffuse color * diffuse light color * diffuse intensity(R4.y))
+mad oD0, R_TEMP1.x, c[CV_LIGHT1_DIFFUSE], R_DIFFUSE
+
+
+; calculate fog component:
+; first test if eye or vertex are underneath the fog plane
+; if yes, store 1.0 in weights.x, weights.y, respectively.
+mov R_HEIGHT_TEST.x, c[CV_WORLD_EYE].y
+mov R_HEIGHT_TEST.y, R_POS_WORLD.y
+slt R_WEIGHTS.xy, R_HEIGHT_TEST, c[CV_FOG_SCALE]
+
+; compute hv = abs(fogheight - eyeheight) and he = abs(fogheight - vertexheight)
+add R_TEMP1.xy, c[CV_FOG_SCALE], - R_HEIGHT_TEST
+max R_HEIGHTS.xy, R_TEMP1, - R_TEMP1
+
+; compute 1/length(v - eye)
+add R_TEMP1, R_POS_WORLD, - c[CV_WORLD_EYE]
+dp3 R_TEMP2, R_TEMP1, R_TEMP1
+rsq R_DIST, R_TEMP2
+
+; multiply by (he + hv)
+add R_TEMP1, R_HEIGHTS.x, R_HEIGHTS.y 
+mul R_TEMP2, R_DIST, R_TEMP1
+
+; invert to get length(v - eye)/(he + hv)
+rcp R_FACTOR, R_TEMP2
+  
+; finally compute: (weight.x*he + weight.y*hv) * R_FACTOR
+mul R_TEMP1, R_WEIGHTS.x, R_HEIGHTS.x 
+mad R_TEMP2, R_WEIGHTS.y, R_HEIGHTS.y, R_TEMP1
+mul R_TEMP1, R_TEMP2, R_FACTOR
+
+mad oFog.x, R_TEMP1, - c[CV_FOG_SCALE].z, c[CV_FOG_SCALE].w
+

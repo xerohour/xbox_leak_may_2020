@@ -1,0 +1,367 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "MakeXBG.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE, GRAYED
+        MENUITEM "&Save...\tCtrl+S",            ID_FILE_SAVE_AS, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Set Mesh &FVF",               IDM_SETMESHFVF, GRAYED
+        MENUITEM "&Stripify Mesh...",           IDM_STRIPIFY, GRAYED
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About...",                   ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  34, 22, 217, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About MakeXBG"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,18,20
+    LTEXT           "MakeXBG Xbox Geometry File Conversion Tool",IDC_STATIC,
+                    40,10,119,8
+    LTEXT           "Copyright © 2001",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,176,6,32,14,WS_GROUP
+END
+
+IDD_SETMESHFVF DIALOGEX 51, 29, 282, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Vertex Format"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "Position",IDC_POSITION,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,10,10,90,15
+    CONTROL         "Blend Weights",IDC_BLENDWEIGHTS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,25,60,15
+    COMBOBOX        IDC_NUMBLENDWEIGHTS,75,25,25,95,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Normal",IDC_NORMAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,10,40,60,15
+    CONTROL         "Color 0 (Diffuse)",IDC_DIFFUSE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,10,55,90,15
+    CONTROL         "Color 1 (Specular)",IDC_SPECULAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,70,90,15
+    CONTROL         "Tex Coords (stage 0)",IDC_TEXTURE0,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,115,10,80,15
+    COMBOBOX        IDC_TEXCOORDS0,200,10,25,95,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Tex Coords (stage 1)",IDC_TEXTURE1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,115,25,80,15
+    COMBOBOX        IDC_TEXCOORDS1,200,25,25,95,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Tex Coords (stage 2)",IDC_TEXTURE2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,115,40,80,15
+    COMBOBOX        IDC_TEXCOORDS2,200,40,25,95,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Tex Coords (stage 3)",IDC_TEXTURE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,115,55,80,15
+    COMBOBOX        IDC_TEXCOORDS3,200,55,25,95,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "FVF code:",IDC_STATIC,10,100,34,15,SS_CENTERIMAGE
+    CTEXT           "0x00000000",IDC_FVF,50,100,50,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    DEFPUSHBUTTON   "OK",IDOK,235,5,40,14
+    PUSHBUTTON      "Cancel",IDCANCEL,235,25,40,14
+    GROUPBOX        "Vertex components",IDC_STATIC,5,0,225,90
+    GROUPBOX        "FVF Code",IDC_STATIC,5,90,225,30
+END
+
+IDD_STRIPIFY DIALOGEX 0, 0, 309, 226
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Stripify Mesh"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,249,5,53,14
+    PUSHBUTTON      "Cancel",IDCANCEL,249,20,53,14
+    CONTROL         "Optimize for Min. # Cache Misses",IDC_RADIO2,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,9,194,119,11
+    CONTROL         "Optimize for Min. # Indices",IDC_RADIO1,"Button",
+                    BS_AUTORADIOBUTTON,9,204,120,11
+    CONTROL         "Output Triangle Strip",IDC_RADIO3,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,138,194,81,10
+    CONTROL         "Output Triangle List",IDC_RADIO4,"Button",
+                    BS_AUTORADIOBUTTON,138,204,77,10
+    PUSHBUTTON      "Stripify",IDC_STRIP,249,45,53,14
+    GROUPBOX        "Optimized mesh attributes",IDC_STATIC,127,0,117,180
+    LTEXT           "Num triangles:",IDC_STATIC,10,10,46,15,SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_NUMTRIANGLES,82,10,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Num degenerate tris:",IDC_STATIC,10,75,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_NUMDEGENERATETRIS,82,75,35,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    LTEXT           "Num cache misses:",IDC_STATIC,10,94,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_NUMCACHEMISSES,82,94,35,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    LTEXT           "Num pages crossed:",IDC_STATIC,10,114,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_NUMPAGESCROSSED,82,115,35,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    GROUPBOX        "Original mesh attributes",IDC_STATIC,5,0,117,180
+    LTEXT           "Num degenerate tris:",IDC_STATIC,132,75,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_STRIPPED_NUMDEGENERATETRIS,204,75,36,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    LTEXT           "Num cache misses:",IDC_STATIC,132,94,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_STRIPPED_NUMCACHEMISSES,204,94,35,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    LTEXT           "Num pages crossed:",IDC_STATIC,132,114,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_STRIPPED_NUMPAGESCROSSED,204,115,35,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    LTEXT           "Num vertices:",IDC_STATIC,10,30,46,15,SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_NUMVERTICES,82,30,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Num indices:",IDC_STATIC,10,50,46,15,SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_NUMINDICES,82,50,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Num triangles:",IDC_STATIC,132,10,46,15,SS_CENTERIMAGE
+    CTEXT           "",IDC_STRIPPED_NUMTRIANGLES,204,10,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Num vertices:",IDC_STATIC,132,30,46,15,SS_CENTERIMAGE
+    CTEXT           "",IDC_STRIPPED_NUMVERTICES,204,30,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Num indices:",IDC_STATIC,132,50,46,15,SS_CENTERIMAGE
+    CTEXT           "",IDC_STRIPPED_NUMINDICES,204,50,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Vertices per triangle:",IDC_STATIC,10,140,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_VERTSPERTRI,82,140,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Misses per triangle:",IDC_STATIC,10,160,66,15,
+                    SS_CENTERIMAGE
+    CTEXT           "",IDC_ORIGINAL_MISSESPERTRI,82,160,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Vertices per non- degenerate triangle:",IDC_STATIC,132,
+                    136,66,19
+    CTEXT           "",IDC_STRIPPED_VERTSPERTRI,204,140,35,15,SS_CENTERIMAGE,
+                    WS_EX_CLIENTEDGE
+    LTEXT           "Misses per non- degenerate triangle:",IDC_STATIC,132,
+                    156,66,16
+    CTEXT           "",IDC_STRIPPED_MISSESPERTRI,204,160,35,15,
+                    SS_CENTERIMAGE,WS_EX_CLIENTEDGE
+    GROUPBOX        "Optimization Method",IDC_STATIC,5,182,126,37
+    GROUPBOX        "Output",IDC_STATIC,134,182,111,37
+END
+
+IDD_XFILELOADOPTIONS DIALOG DISCARDABLE  0, 0, 137, 61
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DirectX file (.x) load options"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,40,40,50,14
+    CONTROL         "Collapse hierarchy to one mesh",IDC_COLLAPSEMESH,"Button",
+                    BS_AUTORADIOBUTTON,10,10,114,10
+    CONTROL         "Retain frame hierarchy",IDC_DONTCOLLAPSEMESH,"Button",
+                    BS_AUTORADIOBUTTON,10,20,87,10
+    GROUPBOX        "Frame hierarchy options",IDC_STATIC,5,0,125,35
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.rc""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_SETMESHFVF DLGINIT
+BEGIN
+    IDC_NUMBLENDWEIGHTS, 0x403, 2, 0
+0x0031, 
+    IDC_NUMBLENDWEIGHTS, 0x403, 2, 0
+0x0032, 
+    IDC_NUMBLENDWEIGHTS, 0x403, 2, 0
+0x0033, 
+    IDC_NUMBLENDWEIGHTS, 0x403, 2, 0
+0x0034, 
+    IDC_TEXCOORDS0, 0x403, 2, 0
+0x0031, 
+    IDC_TEXCOORDS0, 0x403, 2, 0
+0x0032, 
+    IDC_TEXCOORDS0, 0x403, 2, 0
+0x0033, 
+    IDC_TEXCOORDS0, 0x403, 2, 0
+0x0034, 
+    IDC_TEXCOORDS1, 0x403, 2, 0
+0x0031, 
+    IDC_TEXCOORDS1, 0x403, 2, 0
+0x0032, 
+    IDC_TEXCOORDS1, 0x403, 2, 0
+0x0033, 
+    IDC_TEXCOORDS1, 0x403, 2, 0
+0x0034, 
+    IDC_TEXCOORDS2, 0x403, 2, 0
+0x0031, 
+    IDC_TEXCOORDS2, 0x403, 2, 0
+0x0032, 
+    IDC_TEXCOORDS2, 0x403, 2, 0
+0x0033, 
+    IDC_TEXCOORDS2, 0x403, 2, 0
+0x0034, 
+    IDC_TEXCOORDS3, 0x403, 2, 0
+0x0031, 
+    IDC_TEXCOORDS3, 0x403, 2, 0
+0x0032, 
+    IDC_TEXCOORDS3, 0x403, 2, 0
+0x0033, 
+    IDC_TEXCOORDS3, 0x403, 2, 0
+0x0034, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_STRIPIFY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 219
+    END
+
+    IDD_XFILELOADOPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 130
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 54
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "MakeXBG"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "MakeXBG"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDR_DOCTEMPLATETYPE     "Window Title\nDocument Name\nFile New Name\nGeometry File (*.x;*.xbg)\n.x;*.xbg\nFileTypeID\nFileType\n"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "afxres.rc"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,2739 @@
+//-----------------------------------------------------------------------------
+// Microsoft Visual Studio Deployment Code
+//
+// Microsoft Confidential
+// Copyright 1995-2000 Microsoft Corporation. All Rights Reserved.
+//
+// VsdPlugInObjects.idl - deployment plugin interfaces.
+//-----------------------------------------------------------------------------
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "oleidl.idl";
+import "vsshell.idl";
+
+import "vsdcommon.idl";
+
+/* Forward declarations */
+interface IVsdRegistryPlugIn;
+interface IVsdRegistryKey;
+interface IVsdFolder;
+interface IVsdFile;
+interface IVsdAssembly;
+interface IVsdModule;
+interface IVsdFeature;
+interface IVsdDialogModule;
+interface IVsdFileTypeCommand;
+
+typedef
+[
+	uuid(EC586675-08D0-11d3-973D-00A0C9A86C2F),
+	helpstring("DISPIDs")
+]
+enum DISPIDs
+{
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Product DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdProductPlugIn_Name = 1,
+	DISPID_IVsdProductPlugIn_ProductName = 2,
+	DISPID_IVsdProductPlugIn_ProductCode = 3,
+	DISPID_IVsdProductPlugIn_UpgradeCode = 4,
+	DISPID_IVsdProductPlugIn_Version = 5,
+	DISPID_IVsdProductPlugIn_Manufacturer = 6,
+	DISPID_IVsdProductPlugIn_SupportPhone = 7,
+	DISPID_IVsdProductPlugIn_SupportUrl = 8,
+	DISPID_IVsdProductPlugIn_Title = 9,
+	DISPID_IVsdProductPlugIn_Subject = 10,
+	DISPID_IVsdProductPlugIn_Author = 11,
+	DISPID_IVsdProductPlugIn_Keywords = 12,
+	DISPID_IVsdProductPlugIn_Description = 13,
+	DISPID_IVsdProductPlugIn_ManufacturerUrl = 14,
+	DISPID_IVsdProductPlugIn_AddRemoveProgramsIcon = 15,
+	DISPID_IVsdProductPlugIn_AddRemoveProgramsIconIndex = 16,
+	DISPID_IVsdProductPlugIn_SearchPath = 17,
+	DISPID_IVsdProductPlugIn_AddRemoveProgramsIconVariant = 18,
+	DISPID_IVsdProductPlugIn_PackageCode = 19,
+	DISPID_IVsdProductPlugin_RemovePreviousVersions = 20,
+	DISPID_IVsdProductPlugin_DetectNewerInstalledVersion = 21,
+	DISPID_IVsdProductPlugIn_UseSystemSearchPath = 22,
+	DISPID_IVsdProductPlugIn_RefreshMsmCache = 23,
+	DISPID_IVsdProductPlugin_RestartWWWService = 24,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// W3SVc DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdW3SvcPlugIn_RebootW3Svc = 29,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// MsiBootstrapper DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdMsiBootstrapperPlugIn_IncludeBootstrapper = 39,
+	DISPID_IVsdMsiBootstrapperPlugIn_LanguageId = 40,
+	DISPID_IVsdMsiBootstrapperPlugIn_Object = 41,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Module DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdModulePlugIn_ModuleSignature = 50,
+	DISPID_IVsdModulePlugIn_UpgradeCode = 51,
+	DISPID_IVsdModulePlugIn_Version = 52,
+	DISPID_IVsdModulePlugIn_Title = 53,
+	DISPID_IVsdModulePlugIn_Subject = 54,
+	DISPID_IVsdModulePlugIn_Author = 55,
+	DISPID_IVsdModulePlugIn_Keywords = 56,
+	DISPID_IVsdModulePlugIn_Description = 57,
+	DISPID_IVsdModulePlugIn_SearchPath = 58,
+	DISPID_IVsdModulePlugIn_UseSystemSearchPath = 59,
+	DISPID_IVsdModulePlugIn_RefreshMsmCache = 60,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// DefaultFeature DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdDefaultFeaturePlugIn_DefaultFeaturePlugInGetName = 68,
+	DISPID_IVsdDefaultFeaturePlugIn_Name = 69,
+	DISPID_IVsdDefaultFeaturePlugIn_Title = 70,
+	DISPID_IVsdDefaultFeaturePlugIn_Description = 71,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// DynamicProperties DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdDynamicPropertyCallBack_DisplayString = 81,
+	DISPID_IVsdDynamicPropertyCallBack_ComboStrings = 82,
+	DISPID_IVsdDynamicPropertyCallBack_State = 83,
+	DISPID_IVsdDynamicPropertyCallBack_RefTypeInfo = 84,
+	DISPID_IVsdDynamicPropertyCallBack_PropertyValue = 85,
+	DISPID_IVsdDynamicPropertyCallBack_ShowBuilder = 86,
+	DISPID_IVsdDynamicPropertyCallBack_Reset = 87,
+
+	DISPIDs_IVsdDynamicPropertyEventListener_OnModify = 96,
+
+	DISPID_IVsdDynamicProperty_Name = 106,
+	DISPID_IVsdDynamicProperty_DocString = 107,
+	DISPID_IVsdDynamicProperty_VarType = 108,
+	DISPID_IVsdDynamicProperty_DisplayString = 109,
+	DISPID_IVsdDynamicProperty_ComboStrings = 110,
+	DISPID_IVsdDynamicProperty_State = 111,
+	DISPID_IVsdDynamicProperty_RefTypeInfo = 112,
+	DISPID_IVsdDynamicProperty_Value = 113,
+	DISPID_IVsdDynamicProperty_ShowBuilder = 114,
+	DISPID_IVsdDynamicProperty_Reset = 115,
+
+	DISPID_IVsdDynamicProperties_PutName = 123,
+	DISPID_IVsdDynamicProperties_Count = 124,
+	DISPID_IVsdDynamicProperties_Clone = 125,
+	DISPID_IVsdDynamicProperties_AddProperty = 126,
+	DISPID_IVsdDynamicProperties_UpdateProperty = 127,
+	DISPID_IVsdDynamicProperties_RemoveProperty = 128,
+	DISPID_IVsdDynamicProperties_ClearProperties = 129,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IVsdChildPropertyEventListener
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPIDs_IVsdChildPropertyEventListener_OnModify = 139,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Registry DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdRegistryPlugIn_Items = 149,
+	DISPID_IVsdRegistryPlugIn_ImportRegFile = 150,
+
+	DISPID_IVsdRegistryRoot_Registry = 160,
+	DISPID_IVsdRegistryRoot_Name = 161,
+	DISPID_IVsdRegistryRoot_Keys = 162,
+	DISPID_IVsdRegistryRoot_Close = 163,
+
+	DISPID_IVsdRegistryKey_Collection = 173,
+	DISPID_IVsdRegistryKey_Key = 174,
+	DISPID_IVsdRegistryKey_Name = 175,
+	DISPID_IVsdRegistryKey_AlwaysCreate = 176,
+	DISPID_IVsdRegistryKey_DeleteAtUninstall = 177,
+	DISPID_IVsdRegistryKey_Keys = 178,
+	DISPID_IVsdRegistryKey_Values = 179,
+	DISPID_IVsdRegistryKey_Parent = 180,
+	DISPID_IVsdRegistryKey_FullPath = 181,
+	DISPID_IVsdRegistryKey_Condition = 182,
+	DISPID_IVsdRegistryKey_Transitive = 183,
+
+	DISPID_IVsdRegistryValue_Collection = 193,
+	DISPID_IVsdRegistryValue_Key = 194,
+	DISPID_IVsdRegistryValue_Parent = 195,
+	DISPID_IVsdRegistryValue_Name = 196,
+	DISPID_IVsdRegistryValue_Value = 197,
+	DISPID_IVsdRegistryValue_ValueType = 198,
+	DISPID_IVsdRegistryValue_Condition = 199,
+	DISPID_IVsdRegistryValue_Transitive = 200,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Folder DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdFolderPlugIn_Items = 210,
+
+	DISPID_IVsdFolder_Collection = 220,
+	DISPID_IVsdFolder_Key = 221,
+	DISPID_IVsdFolder_Name = 222,
+	DISPID_IVsdFolder_AlwaysCreate = 223,
+	DISPID_IVsdFolder_Folders = 224,
+	DISPID_IVsdFolder_Parent = 225,
+	DISPID_IVsdFolder_Condition = 226,
+	DISPID_IVsdFolder_Transitive = 227,
+	DISPID_IVsdFolder_Property = 228,
+	DISPID_IVsdFolder_SourceFullPath = 229,
+	DISPID_IVsdFolder_TargetFullPath = 230,
+
+	DISPID_IVsdSpecialFolder_Property = 240,
+
+	DISPID_IVsdCustomFolder_Property = 250,
+	DISPID_IVsdCustomFolder_DefaultLocation = 251,
+
+	DISPID_IVsdTargetFolder_DefaultLocation = 261,
+
+	DISPID_IVsdWebFolder_AllowScriptSourceAccess = 271,
+	DISPID_IVsdWebFolder_AllowReadAccess = 272,
+	DISPID_IVsdWebFolder_AllowWriteAccess = 273,
+	DISPID_IVsdWebFolder_AllowDirectoryBrowsing = 274,
+	DISPID_IVsdWebFolder_LogVisits = 275,
+	DISPID_IVsdWebFolder_Index = 276,
+	DISPID_IVsdWebFolder_ExecutePermissions = 277,
+
+	DISPID_IVsdWebExtension_Extension = 287,
+	DISPID_IVsdWebExtension_ExecutablePath = 288,
+	DISPID_IVsdWebExtension_Verbs = 289,
+	DISPID_IVsdWebExtension_Executable = 290,
+
+	DISPID_IVsdWebFolderEx_DefaultDocument = 300,
+	DISPID_IVsdWebFolderEx_ApplicationProtection = 301,
+	DISPID_IVsdWebFolderEx_AppMappings = 302,
+
+	DISPID_IVsdWebTargetFolder_VirtualDirectory = 312,
+	DISPID_IVsdWebTargetFolder_IsApplication = 313,
+	DISPID_IVsdWebTargetFolder_Port = 314,
+
+	DISPID_IVsdWebCustomFolder_Property = 323,
+	DISPID_IVsdWebCustomFolder_VirtualDirectory = 324,
+	DISPID_IVsdWebCustomFolder_IsApplication = 325,
+	DISPID_IVsdWebCustomFolder_Port = 326,
+
+	DISPID_IVsdModuleRetargetableFolder_DisplayName = 335,
+	DISPID_IVsdModuleRetargetableFolder_Description = 336,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Shortcut DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdShortcutPlugIn_Items = 346,
+
+	DISPID_IVsdShortcut_Collection = 356,
+	DISPID_IVsdShortcut_Key = 357,
+	DISPID_IVsdShortcut_Name = 358,
+	DISPID_IVsdShortcut_Folder = 359,
+	DISPID_IVsdShortcut_WorkingFolder = 360,
+	DISPID_IVsdShortcut_Target = 361,
+	DISPID_IVsdShortcut_Feature = 362,
+	DISPID_IVsdShortcut_Arguments = 363,
+	DISPID_IVsdShortcut_Description = 364,
+	DISPID_IVsdShortcut_ShowCmd = 365,
+	DISPID_IVsdShortcut_Icon = 366,
+	DISPID_IVsdShortcut_IconIndex = 367,
+	DISPID_IVsdShortcut_Transitive = 368,
+	DISPID_IVsdShortcut_IconVariant = 369,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Feature DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdFeaturePlugIn_Items = 380,
+
+	DISPID_IVsdFeature_Collection = 390,
+	DISPID_IVsdFeature_Key = 391,
+	DISPID_IVsdFeature_Parent = 392,
+	DISPID_IVsdFeature_Name = 393,
+	DISPID_IVsdFeature_Features = 394,
+	DISPID_IVsdFeature_Title = 395,
+	DISPID_IVsdFeature_Description = 396,
+	DISPID_IVsdFeature_Order = 397,
+	DISPID_IVsdFeature_State = 398,
+	DISPID_IVsdFeature_DefaultLevel = 399,
+	DISPID_IVsdFeature_LevelConditions = 400,
+	DISPID_IVsdFeature_Folder = 401,
+	DISPID_IVsdFeature_Attributes = 402,
+	DISPID_IVsdFeature_Items = 403,
+
+	DISPID_IVsdFeatureLevelCondition_Collection = 413,
+	DISPID_IVsdFeatureLevelCondition_Key = 414,
+	DISPID_IVsdFeatureLevelCondition_Level = 415,
+	DISPID_IVsdFeatureLevelCondition_Condition = 416,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// File DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	DISPID_IVsdFilePlugIn_Items = 426,
+
+	DISPID_IVsdFile_Collection = 436,
+	DISPID_IVsdFile_Key = 437,
+	DISPID_IVsdFile_SourcePath = 438,
+	DISPID_IVsdFile_TargetName = 439,
+	DISPID_IVsdFile_Folder = 440,
+	DISPID_IVsdFile_Condition = 441,
+	DISPID_IVsdFile_Transitive = 442,
+	DISPID_IVsdFile_Vital = 443,
+	DISPID_IVsdFile_ReadOnly = 444,
+	DISPID_IVsdFile_Hidden = 445,
+	DISPID_IVsdFile_System = 446,
+	DISPID_IVsdFile_Permanent = 447,
+	DISPID_IVsdFile_SharedLegacy = 448,
+	DISPID_IVsdFile_PackageAs = 449,
+	DISPID_IVsdFile_Register = 450,
+	DISPID_IVsdFile_Exclude = 451,
+	DISPID_IVsdFile_Dependencies = 452,
+	DISPID_IVsdFile_Name = 453,
+	DISPID_IVsdFile_Tag = 454,
+	DISPID_IVsdFile_IsolateTo = 455,
+	DISPID_IVsdFile_IsolateToVariant = 456,
+	DISPID_IVsdFile_IsDependency = 457,
+
+	DISPID_IVsdFileDependency_File = 466,
+	DISPID_IVsdFileDependency_FileName = 467,
+	DISPID_IVsdFileDependency_LanguageId = 468,
+	DISPID_IVsdFileDependency_Version = 469,
+
+	DISPID_IVsdAssemblyDependency_Assembly = 479,
+	DISPID_IVsdAssemblyDependency_PublicKeyToken = 480,
+	DISPID_IVsdAssemblyDependency_Name = 481,
+	DISPID_IVsdAssemblyDependency_SourcePath = 482,
+	DISPID_IVsdAssemblyDependency_Language = 483,
+	DISPID_IVsdAssemblyDependency_Version = 484,
+	DISPID_IVsdAssemblyDependency_Signature = 485,
+	DISPID_IVsdAssemblyDependency_IsInGAC = 486,
+
+	DISPID_IVsdScatterAssemblyFile_Key = 494,
+	DISPID_IVsdScatterAssemblyFile_Assembly = 495,
+	DISPID_IVsdScatterAssemblyFile_Name = 496,
+	DISPID_IVsdScatterAssemblyFile_SourcePath = 497,
+	DISPID_IVsdScatterAssemblyFile_Attributes = 498,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ProjectOutput DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdProjectOutputPlugIn_Items = 508,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ProjectOutputFile DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdProjectFile_Key = 518,
+	DISPID_IVsdProjectFile_Owner = 519,
+	DISPID_IVsdProjectFile_CanonicalName = 520,
+	DISPID_IVsdProjectFile_SourcePath = 521,
+	DISPID_IVsdProjectFile_RelativePath = 522,
+	DISPID_IVsdProjectFile_Properties = 523,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ProjectOutputGroup DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdProjectOutputGroup_Collection = 533,
+	DISPID_IVsdProjectOutputGroup_Key = 534,
+	DISPID_IVsdProjectOutputGroup_SourcePath = 535,
+	DISPID_IVsdProjectOutputGroup_Folder = 536,
+	DISPID_IVsdProjectOutputGroup_Condition = 537,
+	DISPID_IVsdProjectOutputGroup_Transitive = 538,
+	DISPID_IVsdProjectOutputGroup_Vital = 539,
+	DISPID_IVsdProjectOutputGroup_ReadOnly = 540,
+	DISPID_IVsdProjectOutputGroup_Hidden = 541,
+	DISPID_IVsdProjectOutputGroup_System = 542,
+	DISPID_IVsdProjectOutputGroup_Permanent = 543,
+	DISPID_IVsdProjectOutputGroup_SharedLegacy = 544,
+	DISPID_IVsdProjectOutputGroup_PackageAs = 545,
+	DISPID_IVsdProjectOutputGroup_Register = 546,
+	DISPID_IVsdProjectOutputGroup_Exclude = 547,
+	DISPID_IVsdProjectOutputGroup_Dependencies = 548,
+	DISPID_IVsdProjectOutputGroup_ExcludeFilter = 549,
+	DISPID_IVsdProjectOutputGroup_OutputConfig = 550,
+	DISPID_IVsdProjectOutputGroup_OutputGroup = 551,
+	DISPID_IVsdProjectOutputGroup_OutputProject = 552,
+	DISPID_IVsdProjectOutputGroup_OutputKey = 553,
+	DISPID_IVsdProjectOutputGroup_Outputs = 554,
+	DISPID_IVsdProjectOutputGroup_Name = 555,
+	DISPID_IVsdProjectOutputGroup_DisplayName = 556,
+	DISPID_IVsdProjectOutputGroup_KeyOutputKey = 557,
+	DISPID_IVsdProjectOutputGroup_OutputProjectGuid = 558,
+	DISPID_IVsdProjectOutputGroup_KeyOutput = 559,
+	DISPID_IVsdProjectOutputGroup_IsolateTo = 560,
+	DISPID_IVsdProjectOutputGroup_IsolateToVariant = 561,
+	DISPID_IVsdProjectOutputGroup_KeyOutputFolder = 562,
+	DISPID_IVsdProjectOutputGroup_ShowKeyOutput = 563,
+	DISPID_IVsdProjectOutputGroup_MissingDependencies = 564,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/* Just for CABs... *////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdSimpleProjectOutputPlugIn_Items = 569,
+
+	DISPID_IVsdSimpleProjectOutputGroup_Collection = 579,
+	DISPID_IVsdSimpleProjectOutputGroup_Key = 580,
+	DISPID_IVsdSimpleProjectOutputGroup_ExcludeFilter = 581,
+	DISPID_IVsdSimpleProjectOutputGroup_OutputConfig = 582,
+	DISPID_IVsdSimpleProjectOutputGroup_OutputGroup = 583,
+	DISPID_IVsdSimpleProjectOutputGroup_OutputProject = 584,
+	DISPID_IVsdSimpleProjectOutputGroup_Outputs = 585,
+	DISPID_IVsdSimpleProjectOutputGroup_Name = 586,
+	DISPID_IVsdSimpleProjectOutputGroup_DisplayName = 587,
+	DISPID_IVsdSimpleProjectOutputGroup_OutputProjectGuid = 588,
+
+	DISPID_IVsdSimpleFilePlugIn_Items = 598,
+
+	DISPID_IVsdSimpleFile_Collection = 608,
+	DISPID_IVsdSimpleFile_Key = 609,
+	DISPID_IVsdSimpleFile_SourcePath = 610,
+	DISPID_IVsdSimpleFile_Name = 611,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Assembly DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdAssembly_Collection = 621,
+	DISPID_IVsdAssembly_Key = 622,
+	DISPID_IVsdAssembly_SourcePath = 623,
+	DISPID_IVsdAssembly_DisplayName = 624,
+	DISPID_IVsdAssembly_Folder = 625,
+	DISPID_IVsdAssembly_Condition = 626,
+	DISPID_IVsdAssembly_Transitive = 627,
+	DISPID_IVsdAssembly_Vital = 628,
+	DISPID_IVsdAssembly_ReadOnly = 629,
+	DISPID_IVsdAssembly_Hidden = 630,
+	DISPID_IVsdAssembly_System = 631,
+	DISPID_IVsdAssembly_Permanent = 632,
+	DISPID_IVsdAssembly_SharedLegacy = 633,
+	DISPID_IVsdAssembly_PackageAs = 634,
+	DISPID_IVsdAssembly_Register = 635,
+	DISPID_IVsdAssembly_Exclude = 636,
+	DISPID_IVsdAssembly_Files = 637,
+	DISPID_IVsdAssembly_Dependencies = 638,
+	DISPID_IVsdAssembly_PublicKey = 639,
+	DISPID_IVsdAssembly_PublicKeyToken = 640,
+	DISPID_IVsdAssembly_Name = 641,
+	DISPID_IVsdAssembly_Version = 642,
+	DISPID_IVsdAssembly_HashAlgorithm = 643,
+	DISPID_IVsdAssembly_IsolateTo = 644,
+	DISPID_IVsdAssembly_TargetName = 645,
+	DISPID_IVsdAssembly_IsolateToVariant = 646,
+	DISPID_IVsdAssembly_Language = 647,
+	DISPID_IVsdAssembly_AsmDisplayName = 648,
+	DISPID_IVsdAssembly_IsInGAC = 649,
+	DISPID_IVsdAssembly_Signature = 650,
+	DISPID_IVsdAssembly_IsDependency = 651,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// FileType DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdFileTypePlugIn_Items = 656,
+
+	DISPID_IVsdFileType_Collection = 666,
+	DISPID_IVsdFileType_Key = 667,
+	DISPID_IVsdFileType_Name = 668,
+	DISPID_IVsdFileType_Description = 669,
+	DISPID_IVsdFileType_Extensions = 670,
+	DISPID_IVsdFileType_MIME = 671,
+	DISPID_IVsdFileType_Icon = 672,
+	DISPID_IVsdFileType_IconIndex = 673,
+	DISPID_IVsdFileType_Command = 674,
+	DISPID_IVsdFileType_Verbs = 675,
+	DISPID_IVsdFileType_IconVariant = 676,
+
+	DISPID_IVsdFileTypeCommand_Collection = 686,
+	DISPID_IVsdFileTypeCommand_Key = 687,
+	DISPID_IVsdFileTypeCommand_Command = 688,
+	DISPID_IVsdFileTypeCommand_Feature = 689,
+
+	DISPID_IVsdFileTypeVerb_Collection = 699,
+	DISPID_IVsdFileTypeVerb_Key = 700,
+	DISPID_IVsdFileTypeVerb_Name = 701,
+	DISPID_IVsdFileTypeVerb_Verb = 702,
+	DISPID_IVsdFileTypeVerb_Arguments = 703,
+	DISPID_IVsdFileTypeVerb_Order = 704,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// MergeModulePlugin DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdMergeModulePlugIn_Items = 714,
+
+	DISPID_IVsdUserInterfacePlugIn_Items = 724,
+	DISPID_IVsdUserInterfacePlugIn_LanguageId = 725,
+
+	DISPID_IVsdMsiObjectCollisionCheckClient_Objects = 735,
+
+	DISPID_IVsdMsiCollisionCheck_CheckForCollision = 745,
+	DISPID_IVsdMsiCollisionCheck_CustomSettings = 746,
+	DISPID_IVsdMsiCollisionCheck_SettingProvider = 747,
+
+	DISPID_IVsdMsiPathCollisionCheckObject_Type = 755,
+	DISPID_IVsdMsiPathCollisionCheckObject_Value = 756,
+	DISPID_IVsdMsiPathCollisionCheckObject_Condition = 757,
+	DISPID_IVsdMsiPathCollisionCheckObject_Object = 758,
+
+	DISPID_IVsdModule_Collection = 768,
+	DISPID_IVsdModule_Key = 769,
+	DISPID_IVsdModule_SourcePath = 770,
+	DISPID_IVsdModule_Description = 771,
+	DISPID_IVsdModule_ModuleSignature = 772,
+	DISPID_IVsdModule_LangIdsArray = 773,
+	DISPID_IVsdModule_LanguageId = 774,
+	DISPID_IVsdModule_Version = 775,
+	DISPID_IVsdModule_ModuleDependencies = 776,
+	DISPID_IVsdModule_ModuleExclusions = 777,
+	DISPID_IVsdModule_Folder = 778,
+	DISPID_IVsdModule_Exclude = 779,
+	DISPID_IVsdModule_IsolateTo = 780,
+	DISPID_IVsdModule_Feature = 781,
+	DISPID_IVsdModule_Properties = 782,
+	DISPID_IVsdModule_Name = 783,
+	DISPID_IVsdModule_Subject = 784,
+	DISPID_IVsdModule_Author = 785,
+	DISPID_IVsdModule_UseDynamicProperties = 786,
+	DISPID_IVsdModule_LanguageIds = 787,
+	DISPID_IVsdModule_DynamicProperties = 788,
+	DISPID_IVsdModule_IsolateToVariant = 789,
+	DISPID_IVsdModule_Title = 790,
+	DISPID_IVsdModule_Files = 791,
+	DISPID_IVsdModule_IsDependency = 792,
+	DISPID_IVsdModule_IsSpecialMondoMsm = 793,
+
+	DISPID_IVsdUserInterfaceModule_Collection = 800,
+	DISPID_IVsdUserInterfaceModule_Key = 801,
+	DISPID_IVsdUserInterfaceModule_SourcePath = 802,
+	DISPID_IVsdUserInterfaceModule_Description = 803,
+	DISPID_IVsdUserInterfaceModule_ModuleSignature = 804,
+	DISPID_IVsdUserInterfaceModule_LangIdsArray = 805,
+	DISPID_IVsdUserInterfaceModule_Version = 806,
+	DISPID_IVsdUserInterfaceModule_Properties = 807,
+	DISPID_IVsdUserInterfaceModule_LanguageIds = 808,
+
+	DISPID_IVsdDialogModuleGroup_Collection = 818,
+	DISPID_IVsdDialogModuleGroup_Key = 819,
+	DISPID_IVsdDialogModuleGroup_Dialogs = 820,
+	DISPID_IVsdDialogModuleGroup_Sequence = 825,
+	DISPID_IVsdDialogModuleGroup_Name = 826,
+	DISPID_IVsdDialogModuleGroup_Attributes = 829,
+
+	DISPID_IVsdDialogModule_Name = 839,
+	DISPID_IVsdDialogModule_DisplayName = 840,
+	DISPID_IVsdDialogModule_Attributes = 841,
+	DISPID_IVsdDialogModule_Sequence = 842,
+	DISPID_IVsdDialogModule_DynamicProperties = 843,
+	DISPID_IVsdDialogModule_Author = 844,
+	DISPID_IVsdDialogModule_Subject = 845,
+	DISPID_IVsdDialogModule_Title = 846,
+
+	DISPID_IVsdModuleDependency_Module = 856,
+	DISPID_IVsdModuleDependency_ModuleSignature = 857,
+	DISPID_IVsdModuleDependency_LanguageId = 858,
+	DISPID_IVsdModuleDependency_Version = 859,
+	DISPID_IVsdModuleDependency_SourcePath = 860,
+
+	DISPID_IVsdModuleExclusion_Module = 870,
+	DISPID_IVsdModuleExclusion_ModuleSignature = 871,
+	DISPID_IVsdModuleExclusion_LanguageId = 872,
+	DISPID_IVsdModuleExclusion_MinVersion = 873,
+	DISPID_IVsdModuleExclusion_MaxVersion = 874,
+
+	DISPID_IVsdModuleProperty_Name = 884,
+	DISPID_IVsdModuleProperty_DisplayName = 885,
+	DISPID_IVsdModuleProperty_Description = 886,
+	DISPID_IVsdModuleProperty_Type = 887,
+	DISPID_IVsdModuleProperty_ContextData = 888,
+	DISPID_IVsdModuleProperty_Value = 889,
+	DISPID_IVsdModuleProperty_BuildData = 890,
+	DISPID_IVsdModuleProperty_Attributes = 891,
+	DISPID_IVsdModuleProperty_Setting = 892,
+	DISPID_IVsdModuleProperty_IconIndex = 893,
+	DISPID_IVsdModuleProperty_PlugInSite = 894,
+	DISPID_IVsdModuleProperty_DefaultValue = 895,
+	DISPID_IVsdModuleProperty_ParentName = 896,
+	DISPID_IVsdModuleProperty_TransferValues = 897,
+
+	DISPID_IVsdComponentUser_Components = 904,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/* LaunchCondition DISPIDs */////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdLaunchConditionPlugIn_Items = 914,
+
+	DISPID_IVsdLaunchCondition_Collection = 924,
+	DISPID_IVsdLaunchCondition_Key = 925,
+	DISPID_IVsdLaunchCondition_Name = 926,
+	DISPID_IVsdLaunchCondition_Condition = 927,
+	DISPID_IVsdLaunchCondition_Message = 928,
+
+	/* Locator DISPIDs */////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdLocatorPlugIn_Items = 938,
+
+	DISPID_IVsdFileLocator_Collection = 948,
+	DISPID_IVsdFileLocator_Key = 949,
+	DISPID_IVsdFileLocator_Name = 950,
+	DISPID_IVsdFileLocator_Folder = 951,
+	DISPID_IVsdFileLocator_Depth = 952,
+	DISPID_IVsdFileLocator_FileName = 953,
+	DISPID_IVsdFileLocator_MinVersion = 954,
+	DISPID_IVsdFileLocator_MaxVersion = 955,
+	DISPID_IVsdFileLocator_MinSize = 956,
+	DISPID_IVsdFileLocator_MaxSize = 957,
+	DISPID_IVsdFileLocator_MinDate = 958,
+	DISPID_IVsdFileLocator_MaxDate = 959,
+	DISPID_IVsdFileLocator_Languages = 960,
+	DISPID_IVsdFileLocator_Property = 961,
+
+	DISPID_IVsdRegistryKeyLocator_Collection = 971,
+	DISPID_IVsdRegistryKeyLocator_Key = 972,
+	DISPID_IVsdRegistryKeyLocator_Name = 973,
+	DISPID_IVsdRegistryKeyLocator_Root = 974,
+	DISPID_IVsdRegistryKeyLocator_RegKey = 975,
+	DISPID_IVsdRegistryKeyLocator_Value = 976,
+	DISPID_IVsdRegistryKeyLocator_Property = 977,
+
+	DISPID_IVsdComponentLocator_Collection = 987,
+	DISPID_IVsdComponentLocator_Key = 988,
+	DISPID_IVsdComponentLocator_Name = 989,
+	DISPID_IVsdComponentLocator_ComponentId = 990,
+	DISPID_IVsdComponentLocator_Property = 991,
+
+	DISPID_IVsdDependencyValidationClient_ValidationPending = 1001,
+	DISPID_IVsdDependencyValidationClient_PrimaryDependenciesOnly = 1002,
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/* CustomAction DISPIDs */////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdCustomActionPlugIn_Items = 1011,
+
+	DISPID_IVsdCustomAction_Collection = 1021,
+	DISPID_IVsdCustomAction_Key = 1022,
+	DISPID_IVsdCustomAction_Name = 1023,
+	DISPID_IVsdCustomAction_Condition = 1024,
+	DISPID_IVsdCustomAction_Object = 1025,
+	DISPID_IVsdCustomAction_FileType = 1026,
+	DISPID_IVsdCustomAction_InstallAction = 1027,
+	DISPID_IVsdCustomAction_Arguments = 1028,
+	DISPID_IVsdCustomAction_Sequence = 1029,
+	DISPID_IVsdCustomAction_Identifier = 1030,
+	DISPID_IVsdCustomAction_SourcePath = 1031,
+	DISPID_IVsdCustomAction_InstallerClass = 1033,
+	DISPID_IVsdCustomAction_CustomActionData = 1034,
+	DISPID_IVsdCustomAction_EntryPoint = 1035,
+
+	// OSD DISPIDs 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdOSDPlugIn_WebDependencies = 1043,
+	DISPID_IVsdOSDPlugIn_FriendlyName = 1044,
+	DISPID_IVsdOSDPlugIn_Version = 1045,
+
+	DISPID_IVsdCabDependency_Key = 1055,
+	DISPID_IVsdCabDependency_URL = 1056,
+	DISPID_IVsdCabDependency_FriendlyName = 1057,
+	DISPID_IVsdCabDependency_Version = 1058,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IVsdPropertyRefresh DISPIDs
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdPropertyRefresh_Refresh = 1068,
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IVsdDependencyPlugIn
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdDependencyPlugIn_Items = 1078,
+	DISPID_IVsdDependencyPlugIn_Clear = 1079,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IVsdScatterAssemblyCollection
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdScatterAssemblyCollection_ScatterAssemblyFiles = 1089,
+	DISPID_IVsdScatterAssemblyCollection_CanFindAllScatterAssemblyFiles = 1090,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IVsdModuleFile
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdModuleFile_Key = 1099,
+	DISPID_IVsdModuleFile_Module = 1100,
+	DISPID_IVsdModuleFile_FileName = 1101,
+	DISPID_IVsdModuleFile_SourceFullPath = 1102,
+	DISPID_IVsdModuleFile_TargetFullPath = 1103,
+	DISPID_IVsdModuleFile_Language = 1104,
+	DISPID_IVsdModuleFile_Version = 1105,
+	DISPID_IVsdModuleFile_Attributes = 1106,
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	// IVsdWebBootstrapperProperties
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	DISPID_IVsdWebBootstrapperProperties_LoadFrom = 1107,
+	DISPID_IVsdWebBootstrapperProperties_BaseURL = 1108,
+	DISPID_IVsdWebBootstrapperProperties_InstMsiURL = 1109,
+	DISPID_IVsdWebBootstrapperProperties_PropertyName = 1110,
+	DISPID_IVsdWebBootstrapperProperties_PropertyValue = 1111,
+} DISPIDs;
+
+typedef
+[
+	uuid(6C56106A-2E11-490f-BFCA-418252F46E33),
+	helpstring("vsdDynamicPropertyState")
+]
+enum vsdDynamicPropertyState
+{
+	[helpstring("vsddpsVisible")] vsddpsVisible = 0x0001,
+	[helpstring("vsddpsReadOnly")] vsddpsReadOnly = 0x0002,
+	[helpstring("vsddpsHidden")] vsddpsHidden = 0x0004,
+	[helpstring("vsddpsBuilder")] vsddpsBuilder = 0x0008,
+	[helpstring("vsddpsCustomTypeInfo")] vsddpsCustomTypeInfo = 0x0010,
+	[helpstring("vsddpsDisplayString")] vsddpsDisplayString = 0x0020,
+	[helpstring("vsddpsComboStrings")] vsddpsComboStrings = 0x0040,
+	[helpstring("vsddpsChildProperty")] vsddpsChildProperty = 0x0080,
+	[helpstring("vsddpsResetable")] vsddpsResetable = 0x0100,
+} vsdDynamicPropertyState;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DynamicProperties Interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(A612A982-C5B5-41ad-9A9E-D1539AB93207),
+	dual,
+	oleautomation,
+	helpstring("IVsdDynamicPropertyCallBack Interface"),
+	pointer_default(unique)
+]
+interface IVsdDynamicPropertyCallBack : IDispatch
+{
+	[propget, id(DISPID_IVsdDynamicPropertyCallBack_DisplayString), helpstring("property DisplayString")] HRESULT DisplayString([out, retval]BSTR *pVal);
+	[propget, id(DISPID_IVsdDynamicPropertyCallBack_ComboStrings), helpstring("property ComboStrings")] HRESULT ComboStrings([out, retval]BSTR *pVal);
+	[propget, id(DISPID_IVsdDynamicPropertyCallBack_State), helpstring("property State")] HRESULT State([out, retval]long *pVal);
+	[propget, id(DISPID_IVsdDynamicPropertyCallBack_RefTypeInfo), helpstring("property RefTypeInfo")] HRESULT RefTypeInfo([out, retval]ITypeInfo **pVal);
+	[propget, id(DISPID_IVsdDynamicPropertyCallBack_PropertyValue), helpstring("property PropertyValue")] HRESULT PropertyValue([out, retval]VARIANT *pVal);
+	[propput, id(DISPID_IVsdDynamicPropertyCallBack_PropertyValue), helpstring("property PropertyValue")] HRESULT PropertyValue([in]VARIANT newVal);
+	[id(DISPID_IVsdDynamicPropertyCallBack_ShowBuilder), helpstring("method ShowBuilder")] HRESULT ShowBuilder([out] VARIANT *pvResult);
+	[id(DISPID_IVsdDynamicPropertyCallBack_Reset), helpstring("method Reset")] HRESULT Reset();
+};
+
+[
+	object,
+	uuid(257DF9B8-EF5B-4c3b-B4CC-7C8055805E4F),
+	dual,
+	oleautomation,
+	helpstring("IVsdDynamicPropertyEventListener Interface"),
+	pointer_default(unique)
+]
+interface IVsdDynamicPropertyEventListener : IDispatch
+{
+	[id(DISPIDs_IVsdDynamicPropertyEventListener_OnModify), helpstring("method OnModify")] HRESULT OnModify([in] BSTR Name, [in] VARIANT_BOOL Rollback, [out, retval] VARIANT_BOOL *Continue);
+};
+
+[
+	object,
+	uuid(AB7A3762-E979-4c5d-A497-E4F46E60FBCD),
+	dual,
+	oleautomation,
+	helpstring("IVsdDynamicProperty Interface"),
+	pointer_default(unique)
+]
+interface IVsdDynamicProperty : IDispatch
+{
+	[propget, id(DISPID_IVsdDynamicProperty_Name), helpstring("property Name")] HRESULT Name([out, retval]BSTR *pVal);
+	[propget, id(DISPID_IVsdDynamicProperty_DocString), helpstring("property DocString")] HRESULT DocString([out, retval]BSTR *pVal);
+	[propget, id(DISPID_IVsdDynamicProperty_VarType), helpstring("property VarType")] HRESULT VarType([out, retval]VARTYPE *pVal);
+	[propget, id(DISPID_IVsdDynamicProperty_DisplayString), helpstring("property DisplayString")] HRESULT DisplayString([out, retval]BSTR *pVal);
+	[propget, id(DISPID_IVsdDynamicProperty_ComboStrings), helpstring("property ComboStrings")] HRESULT ComboStrings([out, retval]BSTR *pVal);
+	[propget, id(DISPID_IVsdDynamicProperty_State), helpstring("property State")] HRESULT State([out, retval]long *pVal);
+	[propget, id(DISPID_IVsdDynamicProperty_RefTypeInfo), helpstring("property RefTypeInfo")] HRESULT RefTypeInfo([out, retval]ITypeInfo **ppVal);
+	[propget, id(DISPID_IVsdDynamicProperty_Value), helpstring("property Value")] HRESULT Value([out, retval]VARIANT *Val);
+	[propput, id(DISPID_IVsdDynamicProperty_Value), helpstring("property Value")] HRESULT Value([in]VARIANT Val);
+	[id(DISPID_IVsdDynamicProperty_ShowBuilder), helpstring("method ShowBuilder")] HRESULT ShowBuilder([out] VARIANT *pvResult);
+	[id(DISPID_IVsdDynamicProperty_Reset), helpstring("method Reset")] HRESULT Reset();
+};
+
+[
+	object,
+	uuid(58A8CCCD-CA1B-48f7-BBC3-6368D7943FE9),
+	dual,
+	oleautomation,
+	helpstring("IVsdDynamicProperties Interface"),
+	pointer_default(unique)
+]
+interface IVsdDynamicProperties : IDispatch
+{
+	[id(DISPID_IVsdDynamicProperties_PutName), helpstring("method PutName")] HRESULT PutName([in] BSTR name);
+	[id(DISPID_IVsdDynamicProperties_Count), helpstring("method Count")] HRESULT Count([out, retval] long *Val);
+	[id(DISPID_IVsdDynamicProperties_Clone), helpstring("method Clone")] HRESULT Clone([out, retval]IVsdDynamicProperties **Val);
+	[id(DISPID_IVsdDynamicProperties_AddProperty), helpstring("method AddProperty")] HRESULT AddProperty([in]BSTR Key, [in]IVsdDynamicProperty *Val);
+	[id(DISPID_IVsdDynamicProperties_UpdateProperty), helpstring("method UpdateProperty")] HRESULT UpdateProperty([in]BSTR Key, [in]IVsdDynamicProperty *Val);
+	[id(DISPID_IVsdDynamicProperties_RemoveProperty), helpstring("method RemoveProperty")] HRESULT RemoveProperty([in]BSTR Key);
+	[id(DISPID_IVsdDynamicProperties_ClearProperties), helpstring("method ClearProperties")] HRESULT ClearProperties();
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IVsdChildPropertyEventListener
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(603193E0-0F77-4ad1-A3AE-936E319D1D33),
+	dual,
+	oleautomation,
+	helpstring("IVsdChildPropertyEventListener Interface"),
+	pointer_default(unique)
+]
+interface IVsdChildPropertyEventListener : IDispatch
+{
+	[id(DISPIDs_IVsdChildPropertyEventListener_OnModify), helpstring("method OnModify")] HRESULT OnModify([in] DISPID id, [in] VARIANT_BOOL Rollback, [out, retval] VARIANT_BOOL *Continue);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Product interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(EC586676-08D0-11d3-973D-00A0C9A86C2F),
+	dual,
+	oleautomation,
+	helpstring("IVsdProductPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdProductPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdProductPlugIn_ProductName), helpstring("property ProductName")] HRESULT ProductName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_ProductName), helpstring("property ProductName")] HRESULT ProductName([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_ProductCode), helpstring("property ProductCode")] HRESULT ProductCode([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_ProductCode), helpstring("property ProductCode")] HRESULT ProductCode([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_UpgradeCode), helpstring("property UpgradeCode")] HRESULT UpgradeCode([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_UpgradeCode), helpstring("property UpgradeCode")] HRESULT UpgradeCode([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Version), helpstring("property Version")] HRESULT Version([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Manufacturer), helpstring("property Manufacturer")] HRESULT Manufacturer([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Manufacturer), helpstring("property Manufacturer")] HRESULT Manufacturer([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_SupportPhone), helpstring("property SupportPhone")] HRESULT SupportPhone([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_SupportPhone), helpstring("property SupportPhone")] HRESULT SupportPhone([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_SupportUrl), helpstring("property SupportURL")] HRESULT SupportUrl([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_SupportUrl), helpstring("property SupportUrl")] HRESULT SupportUrl([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Title), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Title), helpstring("property Title")] HRESULT Title([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Subject), helpstring("property Subject")] HRESULT Subject([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Subject), helpstring("property Subject")] HRESULT Subject([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Author), helpstring("property Author")] HRESULT Author([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Author), helpstring("property Author")] HRESULT Author([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Keywords), helpstring("property Keywords")] HRESULT Keywords([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Keywords), helpstring("property Keywords")] HRESULT Keywords([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_ManufacturerUrl), helpstring("property ManufacturerUrl")] HRESULT ManufacturerUrl([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_ManufacturerUrl), helpstring("property ManufacturerUrl")] HRESULT ManufacturerUrl([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_AddRemoveProgramsIcon), helpstring("property AddRemoveProgramsIcon")] HRESULT AddRemoveProgramsIcon([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_AddRemoveProgramsIcon), helpstring("property AddRemoveProgramsIcon")] HRESULT AddRemoveProgramsIcon([in] IDispatch* newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_AddRemoveProgramsIconIndex), helpstring("property AddRemoveProgramsIconIndex")] HRESULT AddRemoveProgramsIconIndex([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_AddRemoveProgramsIconIndex), helpstring("property AddRemoveProgramsIconIndex")] HRESULT AddRemoveProgramsIconIndex([in] long newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_SearchPath), helpstring("property SearchPath")] HRESULT SearchPath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_SearchPath), helpstring("property SearchPath")] HRESULT SearchPath([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_AddRemoveProgramsIconVariant), helpstring("property AddRemoveProgramsIconVariant")] HRESULT AddRemoveProgramsIconVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_AddRemoveProgramsIconVariant), helpstring("property AddRemoveProgramsIconVariant")] HRESULT AddRemoveProgramsIconVariant([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdProductPlugIn_PackageCode), helpstring("property PackageCode")] HRESULT PackageCode([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_PackageCode), helpstring("property PackageCode")] HRESULT PackageCode([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProductPlugin_RemovePreviousVersions), helpstring("property RemovePreviousVersions")] HRESULT RemovePreviousVersions([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProductPlugin_RemovePreviousVersions), helpstring("property RemovePreviousVersions")] HRESULT RemovePreviousVersions([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProductPlugin_DetectNewerInstalledVersion), helpstring("property DetectNewerInstalledVersion")] HRESULT DetectNewerInstalledVersion([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProductPlugin_DetectNewerInstalledVersion), helpstring("property DetectNewerInstalledVersion")] HRESULT DetectNewerInstalledVersion([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProductPlugIn_UseSystemSearchPath), helpstring("property UseSystemSearchPath")] HRESULT UseSystemSearchPath([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProductPlugIn_UseSystemSearchPath), helpstring("property UseSystemSearchPath")] HRESULT UseSystemSearchPath([in] VARIANT_BOOL newVal);
+	[id(DISPID_IVsdProductPlugIn_RefreshMsmCache), helpstring("RefreshMsmCache")] HRESULT RefreshMsmCache();
+	[propget, id(DISPID_IVsdProductPlugin_RestartWWWService), helpstring("property RestartWWWService")] HRESULT RestartWWWService([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProductPlugin_RestartWWWService), helpstring("property RestartWWWService")] HRESULT RestartWWWService([in] VARIANT_BOOL pVal);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// W3Svc interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(81DDE457-647B-43cf-A06E-6B899EF7B5BB),
+	dual,
+	oleautomation,
+	helpstring("IVsdW3SvcPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdW3SvcPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdW3SvcPlugIn_RebootW3Svc), helpstring("property RebootW3Svc")] HRESULT RebootW3Svc([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdW3SvcPlugIn_RebootW3Svc), helpstring("property RebootW3Svc")] HRESULT RebootW3Svc([in] VARIANT_BOOL newVal);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MsiBootstrapper interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(F14F4318-D29C-4231-BDD7-1FF31DC086C2),
+	dual,
+	oleautomation,
+	helpstring("IVsdMsiBootstrapperPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdMsiBootstrapperPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiBootstrapperPlugIn_IncludeBootstrapper), helpstring("property IncludeBootstrapper")] HRESULT IncludeBootstrapper([out, retval] vsdBootStrapperType *pVal);
+	[propput, id(DISPID_IVsdMsiBootstrapperPlugIn_IncludeBootstrapper), helpstring("property IncludeBootstrapper")] HRESULT IncludeBootstrapper([in] vsdBootStrapperType newVal);
+	[propget, id(DISPID_IVsdMsiBootstrapperPlugIn_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdMsiBootstrapperPlugIn_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([in] long newVal);
+	[propget, id(DISPID_IVsdMsiBootstrapperPlugIn_Object), helpstring("property Object")] HRESULT Object([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdMsiBootstrapperPlugIn_Object), helpstring("property Object")] HRESULT Object([in] IDispatch *newVal);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Module interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(80151737-121D-11d3-816F-00C04F72DFBF),
+	dual,
+	oleautomation,
+	helpstring("IVsdModulePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdModulePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdModulePlugIn_ModuleSignature), helpstring("property ModuleSignature")] HRESULT ModuleSignature([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_ModuleSignature), helpstring("property ModuleSignature")] HRESULT ModuleSignature([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_Version), helpstring("property Version")] HRESULT Version([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_Title), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_Title), helpstring("property Title")] HRESULT Title([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_Subject), helpstring("property Subject")] HRESULT Subject([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_Subject), helpstring("property Subject")] HRESULT Subject([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_Author), helpstring("property Author")] HRESULT Author([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_Author), helpstring("property Author")] HRESULT Author([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_Keywords), helpstring("property Keywords")] HRESULT Keywords([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_Keywords), helpstring("property Keywords")] HRESULT Keywords([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_SearchPath), helpstring("property SearchPath")] HRESULT SearchPath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_SearchPath), helpstring("property SearchPath")] HRESULT SearchPath([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModulePlugIn_UseSystemSearchPath), helpstring("property UseSystemSearchPath")] HRESULT UseSystemSearchPath([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdModulePlugIn_UseSystemSearchPath), helpstring("property UseSystemSearchPath")] HRESULT UseSystemSearchPath([in] VARIANT_BOOL newVal);
+	[id(DISPID_IVsdModulePlugIn_RefreshMsmCache), helpstring("RefreshMsmCache")] HRESULT RefreshMsmCache();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sequences interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(7CD97233-1264-11d3-8170-00C04F72DFBF),
+	dual,
+	oleautomation,
+	helpstring("IVsdSequencesPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdSequencesPlugIn : IDispatch
+{
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DefaultFeature interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(109B7F42-12D0-11d3-8171-00C04F72DFBF),
+	dual,
+	oleautomation,
+	helpstring("IVsdDefaultFeaturePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdDefaultFeaturePlugIn : IDispatch
+{
+	[id(DISPID_IVsdDefaultFeaturePlugIn_DefaultFeaturePlugInGetName), helpstring("method DefaultFeaturePlugInGetName")] HRESULT DefaultFeaturePlugInGetName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDefaultFeaturePlugIn_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdDefaultFeaturePlugIn_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+
+	[propget, id(DISPID_IVsdDefaultFeaturePlugIn_Title), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdDefaultFeaturePlugIn_Title), helpstring("property Title")] HRESULT Title([in] BSTR newVal);
+	[propget, id(DISPID_IVsdDefaultFeaturePlugIn_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdDefaultFeaturePlugIn_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Registry interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(7136E730-E234-11d2-B409-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdRegistryPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdRegistryPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdRegistryPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdCollectionSubset **pVal);
+	[id(DISPID_IVsdRegistryPlugIn_ImportRegFile), helpstring("method ImportRegFile")] HRESULT ImportRegFile([in]BSTR bstrFileName);
+}
+
+typedef
+[
+	uuid(CD0D1CE0-EBB1-11d2-B40D-00105A190680),
+	helpstring("vsdRegistryRoot")
+]
+enum vsdRegistryRoot
+{
+	[helpstring("vsdrrHKLM")] vsdrrHKLM = 0x0001,
+	[helpstring("vsdrrHKCU")] vsdrrHKCU = 0x0002,
+	[helpstring("vsdrrHKCR")] vsdrrHKCR = 0x0003,
+	[helpstring("vsdrrHKU")]  vsdrrHKU  = 0x0004
+} vsdRegistryRoot;
+
+[
+	object,
+	uuid(CBA27A40-EBB9-11d2-B40D-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdRegistryRoot Interface"),
+	pointer_default(unique)
+]
+interface IVsdRegistryRoot : IDispatch
+{
+	[propget, id(DISPID_IVsdRegistryRoot_Registry), helpstring("property Registry")] HRESULT Registry([out, retval] IVsdRegistryPlugIn **pVal);
+	[propget, id(DISPID_IVsdRegistryRoot_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdRegistryRoot_Keys), helpstring("property Keys")] HRESULT Keys([out, retval] IVsdManagedCollection * *pVal);
+	[ id(DISPID_IVsdRegistryRoot_Close), helpstring("Close")] HRESULT Close();
+};
+
+[
+	object,
+	uuid(CD652111-EBB8-11d2-B40D-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdRegistryKey Interface"),
+	pointer_default(unique)
+]
+interface IVsdRegistryKey : IDispatch
+{
+	[propget, id(DISPID_IVsdRegistryKey_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdRegistryKey_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdRegistryKey_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdRegistryKey_Parent), helpstring("property Parent")] HRESULT Parent([out, retval] IVsdRegistryKey**pVal);
+	[propget, id(DISPID_IVsdRegistryKey_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryKey_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryKey_FullPath), helpstring("property FullPath")] HRESULT FullPath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdRegistryKey_AlwaysCreate), helpstring("property AlwaysCreate")] HRESULT AlwaysCreate([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdRegistryKey_AlwaysCreate), helpstring("property AlwaysCreate")] HRESULT AlwaysCreate([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdRegistryKey_DeleteAtUninstall), helpstring("property DeleteAtUninstall")] HRESULT DeleteAtUninstall([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdRegistryKey_DeleteAtUninstall), helpstring("property DeleteAtUninstall")] HRESULT DeleteAtUninstall([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdRegistryKey_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryKey_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryKey_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdRegistryKey_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdRegistryKey_Keys), helpstring("property Keys")] HRESULT Keys([out, retval] IVsdManagedCollection * *pVal);
+	[propget, id(DISPID_IVsdRegistryKey_Values), helpstring("property Values")] HRESULT Values([out, retval] IVsdManagedCollection * *pVal);
+};
+
+typedef
+[
+	uuid(CD65211A-EBB8-11d2-B40D-00105A190680),
+	helpstring("vsdRegistryValueTypes")
+]
+enum vsdRegistryValueTypes
+{
+	[helpstring("vsdrvtString")] vsdrvtString = 0x0001,
+	[helpstring("vsdrvtEnvironmentString")] vsdrvtEnvironmentString = 0x0002,
+	[helpstring("vsdrvtInteger")] vsdrvtInteger = 0x0003,
+	[helpstring("vsdrvtBinary")] vsdrvtBinary = 0x0004
+} vsdRegistryValueTypes;
+
+[
+	object,
+	uuid(CD652112-EBB8-11d2-B40D-00105A190680),
+	dual,
+	oleautomation,
+	helpstring("IVsdRegistryValue Interface"),
+	pointer_default(unique)
+]
+interface IVsdRegistryValue : IDispatch
+{
+	[propget, id(DISPID_IVsdRegistryValue_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdRegistryValue_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdRegistryValue_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdRegistryValue_Parent), helpstring("property Parent")] HRESULT Parent([out, retval] IVsdRegistryKey * *pVal);
+	[propget, id(DISPID_IVsdRegistryValue_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryValue_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryValue_Value), helpstring("property Value")] HRESULT Value([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdRegistryValue_Value), helpstring("property Value")] HRESULT Value([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdRegistryValue_ValueType), helpstring("property ValueType")] HRESULT ValueType([out, retval] vsdRegistryValueTypes *pVal);
+	[propput, id(DISPID_IVsdRegistryValue_ValueType), helpstring("property ValueType")] HRESULT ValueType([in] vsdRegistryValueTypes newVal);
+	[propget, id(DISPID_IVsdRegistryValue_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryValue_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryValue_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdRegistryValue_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL newVal);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Folder interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(0B69D54F-0E52-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdFolder : IDispatch
+{
+	[propget, id(DISPID_IVsdFolder_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFolder_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFolder_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFolder_Parent), helpstring("property Parent")] HRESULT Parent([out, retval] IVsdFolder**pVal);
+	[propget, id(DISPID_IVsdFolder_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFolder_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFolder_AlwaysCreate), helpstring("property AlwaysCreate")] HRESULT AlwaysCreate([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFolder_AlwaysCreate), helpstring("property AlwaysCreate")] HRESULT AlwaysCreate([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdFolder_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFolder_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFolder_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFolder_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdFolder_Folders), helpstring("property Folders")] HRESULT Folders([out, retval] IVsdManagedCollection * *pVal);
+	[propget, id(DISPID_IVsdFolder_Property), helpstring("property Property")] HRESULT Property([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFolder_SourceFullPath), helpstring("property SourceFullPath")] HRESULT SourceFullPath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFolder_TargetFullPath), helpstring("property TargetFullPath")] HRESULT TargetFullPath([out, retval] BSTR *pVal);
+};
+
+[
+	object,
+	uuid(0B69D550-0E52-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdFolderPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdFolderPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdFolderPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(4DDC5616-0FB7-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdSpecialFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdSpecialFolder : IVsdFolder
+{
+	[propput, id(DISPID_IVsdSpecialFolder_Property), helpstring("property Property")] HRESULT Property([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(3DB80B15-0FB6-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdCustomFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdCustomFolder : IVsdFolder
+{
+	[propput, id(DISPID_IVsdCustomFolder_Property), helpstring("property Property")] HRESULT Property([in] BSTR newVal);
+ 	[propget, id(DISPID_IVsdCustomFolder_DefaultLocation), helpstring("property DefaultLocation")] HRESULT DefaultLocation([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdCustomFolder_DefaultLocation), helpstring("property DefaultLocation")] HRESULT DefaultLocation([in] VARIANT newVal);
+};
+
+[
+	object,
+	uuid(7F195C41-0FC5-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdTargetFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdTargetFolder : IVsdFolder
+{
+	[propget, id(DISPID_IVsdTargetFolder_DefaultLocation), helpstring("property DefaultLocation")] HRESULT DefaultLocation([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdTargetFolder_DefaultLocation), helpstring("property DefaultLocation")] HRESULT DefaultLocation([in] BSTR newVal);
+};
+
+typedef
+[
+	uuid(CCE447E7-DAE6-42ec-8E31-4AAE81060248),
+	helpstring("vsdExecutePermissions")
+]
+enum vsdExecutePermissions
+{
+	[helpstring("vsdepNone")] vsdepNone = 0x0001,
+	[helpstring("vsdepScriptsOnly")] vsdepScriptsOnly = 0x0002,
+	[helpstring("vsdepScriptsAndExecutables")] vsdepScriptsAndExecutables = 0x0003,
+} vsdExecutePermissions;
+
+[
+	object,
+	uuid(667E31E7-792F-4b1b-9DDB-4D031BCE739B),
+	dual,
+	oleautomation,
+	helpstring("IVsdWebFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdWebFolder : IVsdFolder
+{
+	[propget, id(DISPID_IVsdWebFolder_AllowScriptSourceAccess), helpstring("property AllowScriptSourceAccess")] HRESULT AllowScriptSourceAccess([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebFolder_AllowScriptSourceAccess), helpstring("property AllowScriptSourceAccess")] HRESULT AllowScriptSourceAccess([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebFolder_AllowReadAccess), helpstring("property AllowReadAccess")] HRESULT AllowReadAccess([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebFolder_AllowReadAccess), helpstring("property AllowReadAccess")] HRESULT AllowReadAccess([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebFolder_AllowWriteAccess), helpstring("property AllowWriteAccess")] HRESULT AllowWriteAccess([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebFolder_AllowWriteAccess), helpstring("property AllowWriteAccess")] HRESULT AllowWriteAccess([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebFolder_AllowDirectoryBrowsing), helpstring("property AllowDirectoryBrowsing")] HRESULT AllowDirectoryBrowsing([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebFolder_AllowDirectoryBrowsing), helpstring("property AllowDirectoryBrowsing")] HRESULT AllowDirectoryBrowsing([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebFolder_LogVisits), helpstring("property LogVisits")] HRESULT LogVisits([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebFolder_LogVisits), helpstring("property LogVisits")] HRESULT LogVisits([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebFolder_Index), helpstring("property Index")] HRESULT Index([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebFolder_Index), helpstring("property Index")] HRESULT Index([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebFolder_ExecutePermissions), helpstring("property ExecutePermissions")] HRESULT ExecutePermissions([out, retval] vsdExecutePermissions *pVal);
+	[propput, id(DISPID_IVsdWebFolder_ExecutePermissions), helpstring("property ExecutePermissions")] HRESULT ExecutePermissions([in] vsdExecutePermissions newVal);
+};
+
+[
+	object,
+	uuid(AD38DAA9-3CE5-402b-9DF7-30FD0C55E372),
+	dual,
+	oleautomation,
+	helpstring("IVsdWebExtension Interface"),
+	pointer_default(unique)
+]
+interface IVsdWebExtension : IDispatch
+{
+	[propget, id(DISPID_IVsdWebExtension_Extension), helpstring("property Extension")] HRESULT Extension([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebExtension_Extension), helpstring("property Extension")] HRESULT Extension([in] BSTR newVal);
+	[propget, id(DISPID_IVsdWebExtension_ExecutablePath), helpstring("property ExecutablePath")] HRESULT ExecutablePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdWebExtension_Executable), helpstring("property Executable")] HRESULT Executable([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdWebExtension_Executable), helpstring("property Executable")] HRESULT Executable([in] IDispatch *newVal);
+	[propget, id(DISPID_IVsdWebExtension_Verbs), helpstring("property Verbs")] HRESULT Verbs([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebExtension_Verbs), helpstring("property Verbs")] HRESULT Verbs([in] BSTR newVal);
+};
+
+typedef
+[
+	uuid(0F439DCA-70AF-4b09-BE4C-A5CB0B2197DB),
+	helpstring("vsdApplicationProtection")
+]
+enum vsdApplicationProtection
+{
+	[helpstring("vsdapLow")] vsdapLow = 0x0001,
+	[helpstring("vsdapMedium")] vsdapMedium = 0x0002,
+	[helpstring("vsdapHigh")] vsdapHigh = 0x0003,
+} vsdApplicationProtection;
+
+[
+	object,
+	uuid(0AFD01C8-5111-4f6e-A91A-ACA5241DE33E),
+	dual,
+	oleautomation,
+	helpstring("IVsdWebFolderEx Interface"),
+	pointer_default(unique)
+]
+interface IVsdWebFolderEx : IVsdWebFolder
+{
+	[propget, id(DISPID_IVsdWebFolderEx_DefaultDocument), helpstring("property DefaultDocument")] HRESULT DefaultDocument([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebFolderEx_DefaultDocument), helpstring("property DefaultDocument")] HRESULT DefaultDocument([in] BSTR newVal);
+	[propget, id(DISPID_IVsdWebFolderEx_ApplicationProtection), helpstring("property ApplicationProtection")] HRESULT ApplicationProtection([out, retval] vsdApplicationProtection *pVal);
+	[propput, id(DISPID_IVsdWebFolderEx_ApplicationProtection), helpstring("property ApplicationProtection")] HRESULT ApplicationProtection([in] vsdApplicationProtection newVal);
+	[propget, id(DISPID_IVsdWebFolderEx_AppMappings), helpstring("property AppMappings")] HRESULT AppMappings([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(E86E1CC4-46B1-11d3-8E20-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdWebTargetFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdWebTargetFolder : IVsdWebFolderEx
+{
+	[propget, id(DISPID_IVsdWebTargetFolder_VirtualDirectory), helpstring("property VirtualDirectory")] HRESULT VirtualDirectory([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebTargetFolder_VirtualDirectory), helpstring("property VirtualDirectory")] HRESULT VirtualDirectory([in] BSTR newVal);
+	[propget, id(DISPID_IVsdWebTargetFolder_IsApplication), helpstring("property IsApplication")] HRESULT IsApplication([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebTargetFolder_IsApplication), helpstring("property IsApplication")] HRESULT IsApplication([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebTargetFolder_Port), helpstring("property Port")] HRESULT Port([out, retval] int *pVal);
+	[propput, id(DISPID_IVsdWebTargetFolder_Port), helpstring("property Port")] HRESULT Port([in] int newVal);
+};
+
+[
+	object,
+	uuid(FC71BA46-46B1-11d3-8E20-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdWebCustomFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdWebCustomFolder : IVsdWebFolderEx
+{
+	[propput, id(DISPID_IVsdWebCustomFolder_Property), helpstring("property Property")] HRESULT Property([in] BSTR newVal);
+	[propget, id(DISPID_IVsdWebCustomFolder_VirtualDirectory), helpstring("property VirtualDirectory")] HRESULT VirtualDirectory([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebCustomFolder_VirtualDirectory), helpstring("property VirtualDirectory")] HRESULT VirtualDirectory([in] BSTR newVal);
+	[propget, id(DISPID_IVsdWebCustomFolder_IsApplication), helpstring("property IsApplication")] HRESULT IsApplication([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdWebCustomFolder_IsApplication), helpstring("property IsApplication")] HRESULT IsApplication([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdWebCustomFolder_Port), helpstring("property Port")] HRESULT Port([out, retval] int *pVal);
+	[propput, id(DISPID_IVsdWebCustomFolder_Port), helpstring("property Port")] HRESULT Port([in] int newVal);
+};
+
+[
+	object,
+	uuid(FB191012-8739-4800-98EC-E25A590B09B5),
+	dual,
+	oleautomation,
+	helpstring("IVsdGlobalAssemblyCacheFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdGlobalAssemblyCacheFolder : IVsdFolder
+{
+};
+
+[
+	object,
+	uuid(923A5093-928C-48f8-BB24-8729C6E6CD68),
+	dual,
+	oleautomation,
+	helpstring("IVsdModuleRetargetableFolder Interface"),
+	pointer_default(unique)
+]
+interface IVsdModuleRetargetableFolder : IVsdCustomFolder
+{
+	[propget, id(DISPID_IVsdModuleRetargetableFolder_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModuleRetargetableFolder_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModuleRetargetableFolder_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModuleRetargetableFolder_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shortcut interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef
+[
+	uuid(3DB80B1B-0FB6-11d3-8D6C-00A0C9CFCEE6),
+	helpstring("vsdShowCmd")
+]
+enum vsdShowCmd
+{
+	[helpstring("vsdscNormal")] vsdscNormal = 0x0001,
+	[helpstring("vsdscMaximized")] vsdscMaximized = 0x0003,
+	[helpstring("vsdscMinimized")] vsdscMinimized = 0x0007
+} vsdShowCmd;
+
+[
+	object,
+	uuid(7F195C42-0FC5-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdShortcutPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdShortcutPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdShortcutPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(3DB80B1C-0FB6-11d3-8D6C-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdShortcut Interface"),
+	pointer_default(unique)
+]
+interface IVsdShortcut : IDispatch
+{
+	[propget, id(DISPID_IVsdShortcut_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdShortcut_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdShortcut_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdShortcut_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdShortcut_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdShortcut_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdShortcut_Folder), helpstring("property Folder")] HRESULT Folder([in] IVsdFolder *newVal);
+	[propget, id(DISPID_IVsdShortcut_WorkingFolder), helpstring("property WorkingFolder")] HRESULT WorkingFolder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdShortcut_WorkingFolder), helpstring("property WorkingFolder")] HRESULT WorkingFolder([in] IVsdFolder *newVal);
+	[propget, id(DISPID_IVsdShortcut_Target), helpstring("property Target")] HRESULT Target([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdShortcut_Target), helpstring("property Target")] HRESULT Target([in] IDispatch *newVal);
+	[propget, id(DISPID_IVsdShortcut_Feature), helpstring("property Feature")] HRESULT Feature([out, retval] IVsdFeature **pVal);
+	[propput, id(DISPID_IVsdShortcut_Feature), helpstring("property Feature")] HRESULT Feature([in] IVsdFeature *newVal);
+	[propget, id(DISPID_IVsdShortcut_Arguments), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdShortcut_Arguments), helpstring("property Arguments")] HRESULT Arguments([in] BSTR newVal);
+	[propget, id(DISPID_IVsdShortcut_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdShortcut_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+	[propget, id(DISPID_IVsdShortcut_ShowCmd), helpstring("property ShowCmd")] HRESULT ShowCmd([out, retval] vsdShowCmd *pVal);
+	[propput, id(DISPID_IVsdShortcut_ShowCmd), helpstring("property ShowCmd")] HRESULT ShowCmd([in] vsdShowCmd newVal);
+	[propget, id(DISPID_IVsdShortcut_Icon), helpstring("property Icon")] HRESULT Icon([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdShortcut_Icon), helpstring("property Icon")] HRESULT Icon([in] IDispatch *newVal);
+	[propget, id(DISPID_IVsdShortcut_IconIndex), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdShortcut_IconIndex), helpstring("property IconIndex")] HRESULT IconIndex([in] long newVal);
+	[propget, id(DISPID_IVsdShortcut_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdShortcut_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdShortcut_IconVariant), helpstring("property IconVariant")] HRESULT IconVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdShortcut_IconVariant), helpstring("property IconVariant")] HRESULT IconVariant([in] VARIANT newVal);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Feature interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef
+[
+	uuid(3533C8E0-453F-11D3-8196-00C04F72DFBF),
+	helpstring("vsdFeatureState")
+]
+enum vsdFeatureState
+{
+	[helpstring("vsdfsHidden")] vsdfsHidden = 0x0000,
+	[helpstring("vsdfsCollapsed")] vsdfsCollapsed = 0x0002,
+	[helpstring("vsdfsExpanded")] vsdfsExpanded = 0x0001
+} vsdFeatureState;
+
+
+typedef
+[
+	uuid(E644EC47-4541-11D3-8196-00C04F72DFBF),
+	helpstring("vsdFeatureAttributes")
+]
+enum vsdFeatureAttributes
+{
+	[helpstring("vsdfaFavorLocal")] vsdfaFavorLocal = 0x0000,
+	[helpstring("vsdfaFavorSource")] vsdfaFavorSource = 0x0001,
+	[helpstring("vsdfaFavorParent")] vsdfaFavorParent = 0x0002,
+	[helpstring("vsdfaFavorAdvertise")] vsdfaFavorAdvertise = 0x0004,
+	[helpstring("vsdfaDisallowAdvertise")] vsdfaDisallowAdvertise = 0x0008,
+	[helpstring("vsdfaDisallowAbsent")] vsdfaDisallowAbsent = 0x0010,
+	[helpstring("vsdfaDisallowUnsupportedAdvertise")] vsdfaDisallowUnsupportedAdvertise = 0x0020
+} vsdFeatureAttributes;
+
+
+[
+	object,
+	uuid(3533C8E1-453F-11D3-8196-00C04F72DFBF),
+	dual,
+	oleautomation,
+	helpstring("IVsdFeaturePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdFeaturePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdFeaturePlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(E644EC46-4541-11D3-8196-00C04F72DFBF),
+	dual,
+	oleautomation,
+	helpstring("IVsdFeature Interface"),
+	pointer_default(unique)
+]
+interface IVsdFeature : IDispatch
+{
+	[propget, id(DISPID_IVsdFeature_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFeature_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFeature_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFeature_Parent), helpstring("property Parent")] HRESULT Parent([out, retval] IVsdFeature **pVal);
+	[propget, id(DISPID_IVsdFeature_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFeature_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFeature_Features), helpstring("property Features")] HRESULT Features([out, retval] IVsdManagedCollection **pVal);
+	[propget, id(DISPID_IVsdFeature_Title), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFeature_Title), helpstring("property Title")] HRESULT Title([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFeature_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFeature_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFeature_Order), helpstring("property Order")] HRESULT Order([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdFeature_Order), helpstring("property Order")] HRESULT Order([in] long newVal);
+	[propget, id(DISPID_IVsdFeature_State), helpstring("property State")] HRESULT State([out, retval] vsdFeatureState *pVal);
+	[propput, id(DISPID_IVsdFeature_State), helpstring("property State")] HRESULT State([in] vsdFeatureState newVal);
+	[propget, id(DISPID_IVsdFeature_DefaultLevel), helpstring("property DefaultLevel")] HRESULT DefaultLevel([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdFeature_DefaultLevel), helpstring("property DefaultLevel")] HRESULT DefaultLevel([in] long newVal);
+	[propget, id(DISPID_IVsdFeature_LevelConditions), helpstring("property LevelConditions")] HRESULT LevelConditions([out, retval] IVsdManagedCollection **pVal);
+	[propget, id(DISPID_IVsdFeature_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdFeature_Folder), helpstring("property Folder")] HRESULT Folder([in] IVsdFolder *newVal);
+	[propget, id(DISPID_IVsdFeature_Attributes), helpstring("property Attributes")] HRESULT Attributes([out, retval] vsdFeatureAttributes *pVal);
+	[propput, id(DISPID_IVsdFeature_Attributes), helpstring("property Attributes")] HRESULT Attributes([in] vsdFeatureAttributes newVal);
+	[propget, id(DISPID_IVsdFeature_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+
+
+[
+	object,
+	uuid(AC8EAE68-46DD-11D3-8196-00C04F72DFBF),
+	dual,
+	oleautomation,
+	helpstring("IVsdFeatureLevelCondition Interface"),
+	pointer_default(unique)
+]
+interface IVsdFeatureLevelCondition : IDispatch
+{
+	[propget, id(DISPID_IVsdFeatureLevelCondition_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFeatureLevelCondition_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFeatureLevelCondition_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFeatureLevelCondition_Level), helpstring("property Level")] HRESULT Level([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdFeatureLevelCondition_Level), helpstring("property Level")] HRESULT Level([in] long newVal);
+	[propget, id(DISPID_IVsdFeatureLevelCondition_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFeatureLevelCondition_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// File interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef
+[
+	uuid(E92ACEC8-1538-11d3-8E02-00C04F6837D0),
+	helpstring("vsdRegisterFile")
+]
+enum vsdRegisterFile
+{
+	[helpstring("vsdrfDoNotRegister")] vsdrfDoNotRegister = 0x0001,
+	[helpstring("vsdrfCOM")] vsdrfCOM = 0x0002,
+	[helpstring("vsdrfCOMRelativePath")] vsdrfCOMRelativePath = 0x0003,
+	[helpstring("vsdrfCOMSelfReg")] vsdrfCOMSelfReg = 0x0004,
+	[helpstring("vsdrfFont")] vsdrfFont = 0x0005
+} vsdRegisterFile;
+
+[
+	object,
+	uuid(AE34BFD6-1542-11d3-8E02-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdFilePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdFilePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdFilePlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(9981C1B6-14B0-11d3-8E02-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdFile Interface"),
+	pointer_default(unique)
+]
+interface IVsdFile : IDispatch
+{
+	[propget, id(DISPID_IVsdFile_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFile_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *pVal);
+	[propget, id(DISPID_IVsdFile_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFile_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFile_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([in] BSTR pVal);
+	[propget, id(DISPID_IVsdFile_TargetName), helpstring("property TargetName")] HRESULT TargetName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFile_TargetName), helpstring("property TargetName")] HRESULT TargetName([in] BSTR pVal);
+	[propget, id(DISPID_IVsdFile_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdFile_Folder), helpstring("property Folder")] HRESULT Folder([in] IVsdFolder *pVal);
+	[propget, id(DISPID_IVsdFile_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFile_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR pVal);
+	[propget, id(DISPID_IVsdFile_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_Vital), helpstring("property Vital")] HRESULT Vital([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_Vital), helpstring("property Vital")] HRESULT Vital([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_ReadOnly), helpstring("property ReadOnly")] HRESULT ReadOnly([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_ReadOnly), helpstring("property ReadOnly")] HRESULT ReadOnly([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_Hidden), helpstring("property Hidden")] HRESULT Hidden([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_Hidden), helpstring("property Hidden")] HRESULT Hidden([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_System), helpstring("property System")] HRESULT System([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_System), helpstring("property System")] HRESULT System([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_Permanent), helpstring("property Permanent")] HRESULT Permanent([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_Permanent), helpstring("property Permanent")] HRESULT Permanent([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_SharedLegacy), helpstring("property SharedLegacy")] HRESULT SharedLegacy([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_SharedLegacy), helpstring("property SharedLegacy")] HRESULT SharedLegacy([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_PackageAs), helpstring("property PackageAs")] HRESULT PackageAs([out, retval] vsdPackageAs *pVal);
+	[propput, id(DISPID_IVsdFile_PackageAs), helpstring("property PackageAs")] HRESULT PackageAs([in] vsdPackageAs pVal);
+	[propget, id(DISPID_IVsdFile_Register), helpstring("property Register")] HRESULT Register([out, retval] vsdRegisterFile *pVal);
+	[propput, id(DISPID_IVsdFile_Register), helpstring("property Register")] HRESULT Register([in] vsdRegisterFile pVal);
+	[propget, id(DISPID_IVsdFile_Exclude), helpstring("property Exclude")] HRESULT Exclude([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_Exclude), helpstring("property Exclude")] HRESULT Exclude([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdFile_Dependencies), helpstring("property Dependencies")] HRESULT Dependencies([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdFile_Name), helpstring("property Name"), hidden] HRESULT Name ( [out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFile_Tag), helpstring("property Tag")] HRESULT Tag([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFile_Tag), helpstring("property Tag")] HRESULT Tag([in] BSTR pVal);
+	[propget, id(DISPID_IVsdFile_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdFile_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([in] IDispatch *Val);
+	[propget, id(DISPID_IVsdFile_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdFile_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([in] VARIANT Val);
+	[propget, id(DISPID_IVsdFile_IsDependency), helpstring("property IsDependency")] HRESULT IsDependency([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdFile_IsDependency), helpstring("property IsDependency")] HRESULT IsDependency([in] VARIANT_BOOL pVal);
+};
+
+[
+	object,
+	uuid(c9b91520-aaa6-478e-9d46-85ab5c197692),
+	dual,
+	oleautomation,
+	helpstring("IVsdSimpleFilePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdSimpleFilePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdSimpleFilePlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(c9b91521-aaa6-478e-9d46-85ab5c197692),
+	dual,
+	oleautomation,
+	helpstring("IVsdSimpleFile Interface"),
+	pointer_default(unique)
+]
+interface IVsdSimpleFile : IDispatch
+{
+	[propget, id(DISPID_IVsdSimpleFile_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdSimpleFile_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *pVal);
+	[propget, id(DISPID_IVsdSimpleFile_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdSimpleFile_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdSimpleFile_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([in] BSTR pVal);
+	[propget, id(DISPID_IVsdSimpleFile_Name), helpstring("property Name"), hidden] HRESULT Name ( [out, retval] BSTR *pVal);
+};
+
+[
+	object,
+	uuid(942CBD0C-51D6-11d3-8E27-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdFileDependency Interface"),
+	pointer_default(unique)
+]
+interface IVsdFileDependency : IDispatch
+{
+	[propget, id(DISPID_IVsdFileDependency_File), helpstring("property File")] HRESULT File([out, retval] IVsdFile **pVal);
+	[propget, id(DISPID_IVsdFileDependency_FileName), helpstring("property FileName")] HRESULT FileName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFileDependency_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdFileDependency_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+};
+
+[
+	object,
+	uuid(7C6D5CD2-406D-11d3-8E16-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdAssemblyDependency Interface"),
+	pointer_default(unique)
+]
+interface IVsdAssemblyDependency : IDispatch
+{
+	[propget, id(DISPID_IVsdAssemblyDependency_Assembly), helpstring("property Assembly")] HRESULT Assembly([out, retval] IVsdAssembly **pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_PublicKeyToken), helpstring("property PublicKeyToken")] HRESULT PublicKeyToken([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_Language), helpstring("property Language")] HRESULT Language([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_Signature), helpstring("property Signature")] HRESULT Signature([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssemblyDependency_IsInGAC), helpstring("property IsInGAC")] HRESULT IsInGAC([out, retval] VARIANT_BOOL *pVal);
+};
+
+[
+	object,
+	uuid(1FECA1E2-5CB6-11d3-8E2F-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdScatterAssemblyFile Interface"),
+	pointer_default(unique)
+]
+interface IVsdScatterAssemblyFile : IDispatch
+{
+	[propget, id(DISPID_IVsdScatterAssemblyFile_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdScatterAssemblyFile_Assembly), helpstring("property File")] HRESULT Assembly([out, retval] IVsdAssembly **pVal);
+	[propget, id(DISPID_IVsdScatterAssemblyFile_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdScatterAssemblyFile_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdScatterAssemblyFile_Attributes), helpstring("property Attributes")] HRESULT Attributes([out, retval] DWORD *pVal);
+};
+
+[
+	object,
+	uuid(2EB7ECCD-E6C7-486b-AB31-BAB479512952),
+	dual,
+	oleautomation,
+	helpstring("IVsdModuleFile Interface"),
+	pointer_default(unique)
+]
+interface IVsdModuleFile : IDispatch
+{
+	[propget, id(DISPID_IVsdModuleFile_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleFile_Module), helpstring("property Module")] HRESULT Module([out, retval] IVsdModule **pVal);
+	[propget, id(DISPID_IVsdModuleFile_FileName), helpstring("property FileName")] HRESULT FileName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleFile_SourceFullPath), helpstring("property SourceFullPath")] HRESULT SourceFullPath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleFile_TargetFullPath), helpstring("property TargetFullPath")] HRESULT TargetFullPath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleFile_Language), helpstring("property Language")] HRESULT Language([out, retval] DWORD *pVal);
+	[propget, id(DISPID_IVsdModuleFile_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleFile_Attributes), helpstring("property Attributes")] HRESULT Attributes([out, retval] DWORD *pVal);
+};
+
+[
+	object,
+	uuid(BCB2A0F4-406D-11d3-8E16-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdProjectOutputPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdProjectOutputPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdProjectOutputPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(c9b91522-aaa6-478e-9d46-85ab5c197692),
+	dual,
+	oleautomation,
+	helpstring("IVsdSimpleProjectOutputPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdSimpleProjectOutputPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdSimpleProjectOutputPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(E3FE5FA6-511E-11d3-8E27-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdProjectFile Interface"),
+	pointer_default(unique)
+]
+interface IVsdProjectFile : IDispatch
+{
+	[propget, id(DISPID_IVsdProjectFile_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectFile_Owner), helpstring("property Owner")] HRESULT Owner([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectFile_CanonicalName), helpstring("property CanonicalName")] HRESULT CanonicalName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectFile_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectFile_RelativePath), helpstring("property RelativePath")] HRESULT RelativePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectFile_Properties), helpstring("property Properties")] HRESULT Properties([out, retval]IVsdCollectionSubset **pVal);
+};
+
+typedef
+[
+	uuid(B39ACE4B-79DB-4488-8B3B-A1B7E47437F6),
+	helpstring("vsdRegisterProjectOutputGroup")
+]
+enum vsdRegisterProjectOutputGroup
+{
+	[helpstring("vsdrpDoNotRegister")] vsdrpDoNotRegister = 0x0001,
+	[helpstring("vsdrpCOM")] vsdrpCOM = 0x0002,
+	[helpstring("vsdrpCOMRelativePath")] vsdrpCOMRelativePath = 0x0003,
+	[helpstring("vsdrpCOMSelfReg")] vsdrpCOMSelfReg = 0x0004,
+	[helpstring("vsdrpFont")] vsdrpFont = 0x0005
+} vsdRegisterProjectOutputGroup;
+
+[
+	object,
+	uuid(D53572C6-1851-11d3-8E02-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdProjectOutputGroup Interface"),
+	pointer_default(unique)
+]
+interface IVsdProjectOutputGroup : IDispatch
+{
+	[propget, id(DISPID_IVsdProjectOutputGroup_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Folder), helpstring("property Folder")] HRESULT Folder([in] IVsdFolder *newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Vital), helpstring("property Vital")] HRESULT Vital([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Vital), helpstring("property Vital")] HRESULT Vital([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_ReadOnly), helpstring("property ReadOnly")] HRESULT ReadOnly([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_ReadOnly), helpstring("property ReadOnly")] HRESULT ReadOnly([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Hidden), helpstring("property Hidden")] HRESULT Hidden([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Hidden), helpstring("property Hidden")] HRESULT Hidden([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_System), helpstring("property System")] HRESULT System([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_System), helpstring("property System")] HRESULT System([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Permanent), helpstring("property Permanent")] HRESULT Permanent([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Permanent), helpstring("property Permanent")] HRESULT Permanent([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_SharedLegacy), helpstring("property SharedLegacy")] HRESULT SharedLegacy([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_SharedLegacy), helpstring("property SharedLegacy")] HRESULT SharedLegacy([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_PackageAs), helpstring("property PackageAs")] HRESULT PackageAs([out, retval] vsdPackageAs *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_PackageAs), helpstring("property PackageAs")] HRESULT PackageAs([in] vsdPackageAs newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Register), helpstring("property Register")] HRESULT Register([out, retval] vsdRegisterProjectOutputGroup *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Register), helpstring("property Register")] HRESULT Register([in] vsdRegisterProjectOutputGroup newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Exclude), helpstring("property Exclude")] HRESULT Exclude([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_Exclude), helpstring("property Exclude")] HRESULT Exclude([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Dependencies), helpstring("property Dependencies")] HRESULT Dependencies([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_ExcludeFilter), helpstring("property ExcludeFilter")] HRESULT ExcludeFilter([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_ExcludeFilter), helpstring("property ExcludeFilter")] HRESULT ExcludeFilter([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_OutputConfig), helpstring("property OutputConfig")] HRESULT OutputConfig([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_OutputConfig), helpstring("property OutputConfig")] HRESULT OutputConfig([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_OutputGroup), helpstring("property OutputGroup")] HRESULT OutputGroup([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_OutputGroup), helpstring("property OutputGroup")] HRESULT OutputGroup([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_OutputProject), helpstring("property OutputProject")] HRESULT OutputProject([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_OutputProject), helpstring("property OutputProject")] HRESULT OutputProject([in] BSTR newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_OutputKey), helpstring("property OutputKey"), hidden] HRESULT OutputKey([out, retval] VARIANT_BOOL *pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Outputs), helpstring("property Outputs")] HRESULT Outputs([out, retval] IVsdCollectionSubset **ppVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_Name), helpstring("property Name"), hidden] HRESULT Name ( [out, retval] BSTR * pVal );
+	[propget, id(DISPID_IVsdProjectOutputGroup_DisplayName), helpstring("property DisplayName"), hidden] HRESULT DisplayName([out, retval] BSTR * pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_KeyOutputKey), helpstring("property KeyOutputKey")] HRESULT KeyOutputKey([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_OutputProjectGuid), helpstring("property OutputProjectGuid"), hidden] HRESULT OutputProjectGuid([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_KeyOutput), helpstring("property KeyOutput")] HRESULT KeyOutput([out, retval]IDispatch **ppVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([out, retval]IDispatch **ppVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([in]IDispatch *newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([in] VARIANT Val);
+	[propget, id(DISPID_IVsdProjectOutputGroup_KeyOutputFolder), helpstring("property KeyOutputFolder")] HRESULT KeyOutputFolder([out, retval] IVsdFolder **ppVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_ShowKeyOutput), helpstring("property ShowKeyOutput"), hidden] HRESULT ShowKeyOutput([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectOutputGroup_ShowKeyOutput), helpstring("property ShowKeyOutput"), hidden] HRESULT ShowKeyOutput([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdProjectOutputGroup_MissingDependencies), helpstring("property MissingDependencies")] HRESULT MissingDependencies([out, retval] IVsdCollectionSubset **pVal);
+};
+
+[
+	object,
+	uuid(c9b91523-aaa6-478e-9d46-85ab5c197692),
+	dual,
+	oleautomation,
+	helpstring("IVsdSimpleProjectOutputGroup Interface"),
+	pointer_default(unique)
+]
+interface IVsdSimpleProjectOutputGroup : IDispatch
+{
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdSimpleProjectOutputGroup_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_ExcludeFilter), helpstring("property ExcludeFilter")] HRESULT ExcludeFilter([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdSimpleProjectOutputGroup_ExcludeFilter), helpstring("property ExcludeFilter")] HRESULT ExcludeFilter([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_OutputConfig), helpstring("property OutputConfig"), hidden] HRESULT OutputConfig([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdSimpleProjectOutputGroup_OutputConfig), helpstring("property OutputConfig"), hidden] HRESULT OutputConfig([in] BSTR newVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_OutputGroup), helpstring("property OutputGroup"), hidden] HRESULT OutputGroup([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdSimpleProjectOutputGroup_OutputGroup), helpstring("property OutputGroup"), hidden] HRESULT OutputGroup([in] BSTR newVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_OutputProject), helpstring("property OutputProject"), hidden] HRESULT OutputProject([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdSimpleProjectOutputGroup_OutputProject), helpstring("property OutputProject"), hidden] HRESULT OutputProject([in] BSTR newVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_Outputs), helpstring("property Outputs")] HRESULT Outputs([out, retval] IVsdCollectionSubset **ppVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_Name), helpstring("property Name"), hidden] HRESULT Name ( [out, retval] BSTR * pVal );
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_DisplayName), helpstring("property DisplayName"), hidden] HRESULT DisplayName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdSimpleProjectOutputGroup_OutputProjectGuid), helpstring("property OutputProjectGuid"), hidden] HRESULT OutputProjectGuid([out, retval] BSTR *pVal);
+};
+
+typedef
+[
+	uuid(85A27F11-2579-4c8a-B9F0-E5B7E1F81F77),
+	helpstring("vsdRegisterAssembly")
+]
+enum vsdRegisterAssembly
+{
+	[helpstring("vsdraDoNotRegister")] vsdraDoNotRegister = 0x0001,
+	[helpstring("vsdraCOM")] vsdraCOM = 0x0002,
+	[helpstring("vsdraCOMRelativePath")] vsdraCOMRelativePath = 0x0003
+} vsdRegisterAssembly;
+
+[
+	object,
+	uuid(9809F0F8-4B95-11d3-8E24-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdAssembly Interface"),
+	pointer_default(unique)
+]
+interface IVsdAssembly : IDispatch
+{
+	[propget, id(DISPID_IVsdAssembly_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdAssembly_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdAssembly_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdAssembly_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([in] BSTR pVal);
+	[propget, id(DISPID_IVsdAssembly_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdAssembly_Folder), helpstring("property Folder")] HRESULT Folder([in] IVsdFolder *pVal);
+	[propget, id(DISPID_IVsdAssembly_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdAssembly_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR pVal);
+	[propget, id(DISPID_IVsdAssembly_Transitive), helpstring("property Transitive")] HRESULT Transitive([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_Transitive), helpstring("property Transitive")] HRESULT Transitive([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_Vital), helpstring("property Vital")] HRESULT Vital([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_Vital), helpstring("property Vital")] HRESULT Vital([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_ReadOnly), helpstring("property ReadOnly")] HRESULT ReadOnly([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_ReadOnly), helpstring("property ReadOnly")] HRESULT ReadOnly([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_Hidden), helpstring("property Hidden")] HRESULT Hidden([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_Hidden), helpstring("property Hidden")] HRESULT Hidden([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_System), helpstring("property System")] HRESULT System([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_System), helpstring("property System")] HRESULT System([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_Permanent), helpstring("property Permanent")] HRESULT Permanent([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_Permanent), helpstring("property Permanent")] HRESULT Permanent([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_SharedLegacy), helpstring("property SharedLegacy")] HRESULT SharedLegacy([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_SharedLegacy), helpstring("property SharedLegacy")] HRESULT SharedLegacy([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_PackageAs), helpstring("property PackageAs")] HRESULT PackageAs([out, retval] vsdPackageAs *pVal);
+	[propput, id(DISPID_IVsdAssembly_PackageAs), helpstring("property PackageAs")] HRESULT PackageAs([in] vsdPackageAs pVal);
+	[propget, id(DISPID_IVsdAssembly_Register), helpstring("property Register")] HRESULT Register([out, retval] vsdRegisterAssembly *pVal);
+	[propput, id(DISPID_IVsdAssembly_Register), helpstring("property Register")] HRESULT Register([in] vsdRegisterAssembly pVal);
+	[propget, id(DISPID_IVsdAssembly_Exclude), helpstring("property Exclude")] HRESULT Exclude([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_Exclude), helpstring("property Exclude")] HRESULT Exclude([in] VARIANT_BOOL pVal);
+	[propget, id(DISPID_IVsdAssembly_Files), helpstring("property Files")] HRESULT Files([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdAssembly_Dependencies), helpstring("property Dependencies")] HRESULT Dependencies([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdAssembly_PublicKey), helpstring("property PublicKey")] HRESULT PublicKey([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_PublicKeyToken), helpstring("property PublicKeyToken")] HRESULT PublicKeyToken([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_HashAlgorithm), helpstring("property HashAlgorithm")] HRESULT HashAlgorithm([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdAssembly_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdAssembly_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([in] IDispatch *Val);
+	[propget, id(DISPID_IVsdAssembly_TargetName), helpstring("property TargetName")] HRESULT TargetName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdAssembly_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([in] VARIANT Val);
+	[propget, id(DISPID_IVsdAssembly_Language), helpstring("property Language")] HRESULT Language([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_AsmDisplayName), helpstring("property AsmDisplayName")] HRESULT AsmDisplayName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_IsInGAC), helpstring("property IsInGAC")] HRESULT IsInGAC([out, retval] VARIANT_BOOL *pVal);
+	[propget, id(DISPID_IVsdAssembly_Signature), helpstring("property Signature")] HRESULT Signature([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdAssembly_IsDependency), helpstring("property IsDependency")] HRESULT IsDependency([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdAssembly_IsDependency), helpstring("property IsDependency")] HRESULT IsDependency([in] VARIANT_BOOL pVal);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MediaPlugIn interface
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(843336D6-2438-11d3-8E0A-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdMediaPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdMediaPlugIn : IDispatch
+{
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// FileType interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(2EB26C4B-17B3-11d3-8D6D-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdFileTypePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdFileTypePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdFileTypePlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(2EB26C4E-17B3-11d3-8D6D-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdFileType Interface"),
+	pointer_default(unique)
+]
+interface IVsdFileType : IDispatch
+{
+	[propget, id(DISPID_IVsdFileType_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFileType_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFileType_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFileType_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileType_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileType_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileType_Description), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileType_Extensions), helpstring("property Extensions")] HRESULT Extensions([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileType_Extensions), helpstring("property Extensions")] HRESULT Extensions([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileType_MIME), helpstring("property MIME")] HRESULT MIME([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileType_MIME), helpstring("property MIME")] HRESULT MIME([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileType_Icon), helpstring("property Icon")] HRESULT Icon([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdFileType_Icon), helpstring("property Icon")] HRESULT Icon([in] IDispatch *newVal);
+	[propget, id(DISPID_IVsdFileType_IconIndex), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdFileType_IconIndex), helpstring("property IconIndex")] HRESULT IconIndex([in] long newVal);
+	[propget, id(DISPID_IVsdFileType_Command), helpstring("property Command")] HRESULT Command([out, retval] IVsdFileTypeCommand **pVal);
+	[propput, id(DISPID_IVsdFileType_Command), helpstring("property Command")] HRESULT Command([in] IVsdFileTypeCommand *newVal);
+	[propget, id(DISPID_IVsdFileType_Verbs), helpstring("property Verbs")] HRESULT Verbs([out, retval] IVsdManagedCollection **pVal);
+	[propget, id(DISPID_IVsdFileType_IconVariant), helpstring("property IconVariant")] HRESULT IconVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdFileType_IconVariant), helpstring("property IconVariant")] HRESULT IconVariant([in] VARIANT newVal);
+};
+
+[
+	object,
+	uuid(B4FB8012-185E-11d3-8D6D-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdFileTypeCommand Interface"),
+	pointer_default(unique)
+]
+interface IVsdFileTypeCommand : IDispatch
+{
+	[propget, id(DISPID_IVsdFileTypeCommand_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFileTypeCommand_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFileTypeCommand_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFileTypeCommand_Command), helpstring("property Command")] HRESULT Command([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdFileTypeCommand_Command), helpstring("property Command")] HRESULT Command([in] IDispatch *newVal);
+	[propget, id(DISPID_IVsdFileTypeCommand_Feature), helpstring("property Feature")] HRESULT Feature([out, retval] IVsdFeature **pVal);
+	[propput, id(DISPID_IVsdFileTypeCommand_Feature), helpstring("property Feature")] HRESULT Feature([in] IVsdFeature *newVal);
+};
+
+[
+	object,
+	uuid(B4FB8015-185E-11d3-8D6D-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdFileTypeVerb Interface"),
+	pointer_default(unique)
+]
+interface IVsdFileTypeVerb : IDispatch
+{
+	[propget, id(DISPID_IVsdFileTypeVerb_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFileTypeVerb_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFileTypeVerb_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFileTypeVerb_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileTypeVerb_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileTypeVerb_Verb), helpstring("property Verb")] HRESULT Verb([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileTypeVerb_Verb), helpstring("property Verb")] HRESULT Verb([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileTypeVerb_Arguments), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileTypeVerb_Arguments), helpstring("property Arguments")] HRESULT Arguments([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileTypeVerb_Order), helpstring("property Order")] HRESULT Order([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdFileTypeVerb_Order), helpstring("property Order")] HRESULT Order([in] long newVal);
+
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// MergeModule PlugIn interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(1B86122A-3E05-11d3-8E14-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdMergeModulePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdMergeModulePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdMergeModulePlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(8664840C-49ED-11d3-8D78-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdUserInterfacePlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdUserInterfacePlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdUserInterfacePlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+	[propget, id(DISPID_IVsdUserInterfacePlugIn_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdUserInterfacePlugIn_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([in] long newVal);
+};
+
+[
+	object,
+	uuid(FB1F3B6F-B5DC-44ee-B727-6FC8B2BF9C06),
+	dual,
+	oleautomation,
+	helpstring("IVsdMsiObjectCollisionCheckPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdMsiObjectCollisionCheckPlugIn : IDispatch
+{
+};
+
+[
+	object,
+	uuid(58CA0501-DD93-4bec-85EE-CBF03427C4DE),
+	dual,
+	oleautomation,
+	helpstring("IVsdMsiObjectCollisionCheckClient Interface"),
+	pointer_default(unique)
+]
+interface IVsdMsiObjectCollisionCheckClient : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiObjectCollisionCheckClient_Objects), helpstring("property Objects")] HRESULT Objects([out, retval] IVsdCollectionSubset **ppVal);
+};
+
+[
+	object,
+	uuid(97062BFC-CABB-4e2b-802C-E855A1021B3E),
+	dual,
+	oleautomation,
+	helpstring("IVsdMsiCollisionCheck Interface"),
+	pointer_default(unique)
+]
+interface IVsdMsiCollisionCheck : IDispatch
+{
+	[id(DISPID_IVsdMsiCollisionCheck_CheckForCollision), helpstring("method CheckForCollision")] HRESULT CheckForCollision([in] IVsdBuildManagerFireEvent *pFireEvent, [in] IVsdCollection *pCollection);
+	[propget, id(DISPID_IVsdMsiCollisionCheck_SettingProvider), helpstring("property SettingProvider")] HRESULT SettingProvider([out, retval] IDispatch **ppVal);
+	[propput, id(DISPID_IVsdMsiCollisionCheck_SettingProvider), helpstring("property SettingProvider")] HRESULT SettingProvider([in] IDispatch *ppVal);
+	[propget, id(DISPID_IVsdMsiCollisionCheck_CustomSettings), helpstring("property CustomSettings")] HRESULT CustomSettings([out, retval] long *ppVal);
+	[propput, id(DISPID_IVsdMsiCollisionCheck_CustomSettings), helpstring("property CustomSettings")] HRESULT CustomSettings([in] long ppVal);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IVsdDependencyPlugIn
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(C3CBE46F-6411-4f5b-A94D-8601C4F814D9),
+	dual,
+	oleautomation,
+	helpstring("IVsdDependencyPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdDependencyPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdDependencyPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval]IVsdCollection **pVal);
+	[id(DISPID_IVsdDependencyPlugIn_Clear), helpstring("method Clear")] HRESULT Clear();
+};
+
+typedef
+[
+	uuid(F256BC16-275F-4b97-875A-16C76EA969ED),
+	helpstring("vsdPathCollisionType")
+]
+enum vsdPathCollisionType
+{
+	[helpstring("vsdpcFile")] vsdpcFile = 0x0001,
+	[helpstring("vsdpcFolder")] vsdpcFolder = 0x0002,
+	[helpstring("vsdpcSourceFile")] vsdpcSourceFile = 0x0004,
+	[helpstring("vsdpcSourceLooseFile")] vsdpcSourceLooseFile = 0x0008,
+	[helpstring("vsdpcSourceFolder")] vsdpcSourceFolder = 0x0010
+} vsdPathCollisionType;
+
+[
+	object,
+	uuid(F29F2BFB-D84E-45a5-A155-7CA5984357B6),
+	dual,
+	oleautomation,
+	helpstring("IVsdMsiPathCollisionCheckObject Interface"),
+	pointer_default(unique)
+]
+interface IVsdMsiPathCollisionCheckObject : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiPathCollisionCheckObject_Type), helpstring("property Type")] HRESULT Type([out, retval] vsdPathCollisionType *pVal);
+	[propput, id(DISPID_IVsdMsiPathCollisionCheckObject_Type), helpstring("property Type")] HRESULT Type([in] vsdPathCollisionType newVal);
+	[propget, id(DISPID_IVsdMsiPathCollisionCheckObject_Value), helpstring("property Value")] HRESULT Value([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiPathCollisionCheckObject_Value), helpstring("property Value")] HRESULT Value([in] BSTR newVal);
+	[propget, id(DISPID_IVsdMsiPathCollisionCheckObject_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiPathCollisionCheckObject_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+	[propget, id(DISPID_IVsdMsiPathCollisionCheckObject_Object), helpstring("property Object")] HRESULT Object([out, retval] IDispatch **ppVal);
+	[propput, id(DISPID_IVsdMsiPathCollisionCheckObject_Object), helpstring("property Object")] HRESULT Object([in] IDispatch *newVal);
+};
+
+[
+	object,
+	uuid(E2798BFE-3E06-11d3-8E14-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdModule Interface"),
+	pointer_default(unique)
+]
+interface IVsdModule : IDispatch
+{
+	[propget, id(DISPID_IVsdModule_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdModule_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdModule_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModule_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([in] BSTR newVal);
+	[propget, id(DISPID_IVsdModule_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_ModuleSignature), helpstring("property ModuleSignature")] HRESULT ModuleSignature([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_LangIdsArray), helpstring("property LangIdsArray")] HRESULT LangIdsArray([out, retval] VARIANT *pVal);
+	[propget, id(DISPID_IVsdModule_LanguageIds), helpstring("property LanguageIds")] HRESULT LanguageIds([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdModule_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([in] long newVal);
+	[propget, id(DISPID_IVsdModule_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_ModuleDependencies), helpstring("property ModuleDependencies")] HRESULT ModuleDependencies([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdModule_ModuleExclusions), helpstring("property ModuleExclusions")] HRESULT ModuleExclusions([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdModule_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] IVsdFolder **pVal);
+	[propput, id(DISPID_IVsdModule_Folder), helpstring("property Folder")] HRESULT Folder([in] IVsdFolder *newVal);
+	[propget, id(DISPID_IVsdModule_Exclude), helpstring("property Exclude")] HRESULT Exclude([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdModule_Exclude), helpstring("property Exclude")] HRESULT Exclude([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdModule_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([out, retval] IDispatch **pVal);
+	[propput, id(DISPID_IVsdModule_IsolateTo), helpstring("property IsolateTo")] HRESULT IsolateTo([in] IDispatch *Val);
+	[propget, id(DISPID_IVsdModule_Feature), helpstring("property Feature")] HRESULT Feature([out, retval] IVsdFeature **pVal);
+	[propput, id(DISPID_IVsdModule_Feature), helpstring("property Feature")] HRESULT Feature([in] IVsdFeature *newVal);
+	[propget, id(DISPID_IVsdModule_Properties), helpstring("property Properties")] HRESULT Properties([out, retval] IVsdCollectionSubset **pVal);
+	[propget, id(DISPID_IVsdModule_Name), helpstring("property Name"), hidden] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_Subject), helpstring("property Subject")] HRESULT Subject([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_Author), helpstring("property Author")] HRESULT Author([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_UseDynamicProperties), helpstring("property UseDynamicProperties"), hidden] HRESULT UseDynamicProperties([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdModule_UseDynamicProperties), helpstring("property UseDynamicProperties"), hidden] HRESULT UseDynamicProperties([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdModule_DynamicProperties), helpstring("property DynamicProperties")] HRESULT DynamicProperties([out, retval] IDispatch **pVal);
+	[propget, id(DISPID_IVsdModule_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdModule_IsolateToVariant), helpstring("property IsolateToVariant")] HRESULT IsolateToVariant([in] VARIANT Val);
+	[propget, id(DISPID_IVsdModule_Title), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModule_Files), helpstring("property Files")] HRESULT Files([out, retval] IVsdCollectionSubset **ppVal);
+	[propget, id(DISPID_IVsdModule_IsDependency), helpstring("property IsDependency")] HRESULT IsDependency([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdModule_IsDependency), helpstring("property IsDependency")] HRESULT IsDependency([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdModule_IsSpecialMondoMsm), helpstring("property IsSpecialMondoMsm"), hidden] HRESULT IsSpecialMondoMsm([out, retval] VARIANT_BOOL *pVal);
+};
+
+[
+	object,
+	uuid(D9F76C44-49F5-11d3-8D78-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdUserInterfaceModule Interface"),
+	pointer_default(unique)
+]
+interface IVsdUserInterfaceModule : IDispatch
+{
+	[propget, id(DISPID_IVsdUserInterfaceModule_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdUserInterfaceModule_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdUserInterfaceModule_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([in] BSTR newVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_ModuleSignature), helpstring("property ModuleSignature")] HRESULT ModuleSignature([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_LangIdsArray), helpstring("property LangIdsArray")] HRESULT LangIdsArray([out, retval] VARIANT *pVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_LanguageIds), helpstring("property LanguageIds")] HRESULT LanguageIds([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdUserInterfaceModule_Properties), helpstring("property Properties")] HRESULT Properties([out,retval] IVsdCollectionSubset **pVal);
+};
+
+[
+	object,
+	uuid(4193306E-3E3D-11d3-8E14-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdModuleDependency Interface"),
+	pointer_default(unique)
+]
+interface IVsdModuleDependency : IDispatch
+{
+	[propget, id(DISPID_IVsdModuleDependency_Module), helpstring("property Module")] HRESULT Module([out, retval] IVsdModule **pVal);
+	[propget, id(DISPID_IVsdModuleDependency_ModuleSignature), helpstring("property ModuleSignature")] HRESULT ModuleSignature([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleDependency_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdModuleDependency_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleDependency_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+};
+
+[
+	object,
+	uuid(96285D52-3E3D-11d3-8E14-00C04F6837D0),
+	dual,
+	oleautomation,
+	helpstring("IVsdModuleExclusion Interface"),
+	pointer_default(unique)
+]
+interface IVsdModuleExclusion : IDispatch
+{
+	[propget, id(DISPID_IVsdModuleExclusion_Module), helpstring("property Module")] HRESULT Module([out, retval] IVsdModule **pVal);
+	[propget, id(DISPID_IVsdModuleExclusion_ModuleSignature), helpstring("property ModuleSignature")] HRESULT ModuleSignature([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleExclusion_LanguageId), helpstring("property LanguageId")] HRESULT LanguageId([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdModuleExclusion_MinVersion), helpstring("property MinVersion")] HRESULT MinVersion([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleExclusion_MaxVersion), helpstring("property MaxVersion")] HRESULT MaxVersion([out, retval] BSTR *pVal);
+};
+
+typedef
+[
+	uuid(D6329AEE-4A99-11d3-8D78-00A0C9CFCEE6),
+	helpstring("vsdDialogSequence")
+]
+enum vsdDialogSequence
+{
+	[helpstring("vsddsInstall")]		 vsddsInstall = 0x0001,
+	[helpstring("vsddsAdmin")]		     vsddsAdmin   = 0x0002
+} vsdDialogSequence;
+
+typedef
+[
+	uuid(432F93C8-26CB-41ed-830E-F1AFDD636689),
+	helpstring("vsdDialogModuleGroupAttributes")
+]
+enum vsdDialogModuleGroupAttributes
+{
+	[helpstring("vsdattrCustomGroup")] vsdattrCustomGroup = 0x0000,
+	[helpstring("vsdattrStartGroup")] vsdattrStartGroup = 0x0001,
+	[helpstring("vsdattrProgressGroup")] vsdattrProgressGroup = 0x0002,
+	[helpstring("vsdattrEndGroup")] vsdattrEndGroup = 0x0003
+} vsdDialogModuleGroupAttributes;
+
+[
+	object,
+	uuid(6FB1B362-49FF-11d3-8D78-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdDialogModuleGroup Interface"),
+	pointer_default(unique)
+]
+interface IVsdDialogModuleGroup : IDispatch
+{
+	[propget, id(DISPID_IVsdDialogModuleGroup_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdDialogModuleGroup_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdDialogModuleGroup_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDialogModuleGroup_Dialogs), helpstring("property Dialogs")] HRESULT Dialogs([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdDialogModuleGroup_Dialogs), helpstring("property Dialogs")] HRESULT Dialogs([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdDialogModuleGroup_Sequence), helpstring("property Sequence")] HRESULT Sequence([out, retval] vsdDialogSequence *pVal);
+	[propput, id(DISPID_IVsdDialogModuleGroup_Sequence), helpstring("property Sequence")] HRESULT Sequence([in] vsdDialogSequence newVal);
+	[propget, id(DISPID_IVsdDialogModuleGroup_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdDialogModuleGroup_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdDialogModuleGroup_Attributes), helpstring("property Attributes")] HRESULT Attributes([out, retval] vsdDialogModuleGroupAttributes *pVal);
+	[propput, id(DISPID_IVsdDialogModuleGroup_Attributes), helpstring("property Attributes")] HRESULT Attributes([in] vsdDialogModuleGroupAttributes newVal);
+};
+
+typedef
+[
+	uuid(D757F068-E5DE-43e5-B189-6A19FBA9E144),
+	helpstring("vsdDialogModuleAttributes")
+]
+enum vsdDialogModuleAttributes
+{
+	[helpstring("vsdattrStandardDialog")] vsdattrStandardDialog = 0x0000,
+	[helpstring("vsdattrStartDialog")] vsdattrStartDialog = 0x0001,
+	[helpstring("vsdattrProgressDialog")] vsdattrProgressDialog = 0x0002,
+	[helpstring("vsdattrFinishedDialog")] vsdattrFinishedDialog = 0x0004,
+	[helpstring("vsdattrFolderDialog")] vsdattrFolderDialog = 0x0008,
+	[helpstring("vsdattrCustomDialog")] vsdattrCustomDialog = 0x0010,
+	[helpstring("vsdattrWebFolderDialog")] vsdattrWebFolderDialog = 0x0020,
+	[helpstring("vsdattrNormalInstall")] vsdattrNormalInstall = 0x1000,
+	[helpstring("vsdattrAdminInstall")] vsdattrAdminInstall = 0x2000
+} vsdDialogModuleAttributes;
+
+[
+	object,
+	uuid(D6329AF0-4A99-11d3-8D78-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdDialogModule Interface"),
+	pointer_default(unique)
+]
+interface IVsdDialogModule : IVsdUserInterfaceModule
+{
+	[propget, id(DISPID_IVsdDialogModule_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDialogModule_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDialogModule_Attributes), helpstring("property Attributes")] HRESULT Attributes([out, retval] vsdDialogModuleAttributes *pVal);
+	[propget, id(DISPID_IVsdDialogModule_Sequence), helpstring("property Sequence")] HRESULT Sequence([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdDialogModule_Sequence), helpstring("property Sequence")] HRESULT Sequence([in] long newVal);
+	[propget, id(DISPID_IVsdDialogModule_DynamicProperties), helpstring("property DynamicProperties")] HRESULT DynamicProperties([out, retval] IDispatch **ppVal);
+	[propget, id(DISPID_IVsdDialogModule_Author), helpstring("property Author")] HRESULT Author([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDialogModule_Subject), helpstring("property Subject")] HRESULT Subject([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDialogModule_Title), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+};
+
+typedef
+[
+	uuid(249C04EC-503A-11d3-8D78-00A0C9CFCEE6),
+	helpstring("vsdModulePropertyType")
+]
+enum vsdModulePropertyType
+{
+	[helpstring("vsdmptInvalid")] vsdmptInvalid = 0x0000,
+	[helpstring("vsdmptInteger")]  vsdmptInteger  = 0x0001,
+	[helpstring("vsdmptEnum")] vsdmptEnum = 0x0002,
+	[helpstring("vsdmptText")] vsdmptText = 0x0003,
+	[helpstring("vsdmptFormatted")] vsdmptFormatted = 0x0004,
+	[helpstring("vsdmptBitfield")] vsdmptBitfield = 0x0005,
+	[helpstring("vsdmptTextFile")] vsdmptTextFile = 0x0006,
+	[helpstring("vsdmptAssembly")]  vsdmptAssembly  = 0x0007,
+	[helpstring("vsdmptBinary")]  vsdmptBinary = 0x0008,
+	[helpstring("vsdmptIcon")]  vsdmptIcon = 0x0009,
+	[helpstring("vsdmptDirectory")]  vsdmptDirectory = 0x000a,
+	[helpstring("vsdmptIdentifier")]  vsdmptIdentifier = 0x000b,
+	[helpstring("vsdmptProperty")]  vsdmptProperty = 0x000c,
+	[helpstring("vsdmptPrivateProperty")]  vsdmptPrivateProperty = 0x000d,
+	[helpstring("vsdmptPublicProperty")]  vsdmptPublicProperty = 0x000e,
+	[helpstring("vsdmpt_RetargetableFolder")]  vsdmpt_RetargetableFolder = 0x8001
+} vsdModulePropertyType;
+
+typedef
+[
+	uuid(27BAF930-7756-45f6-9E74-BE5C4FC70213),
+	helpstring("vsdModulePropertyAttributes")
+]
+enum vsdModulePropertyAttributes
+{
+	[helpstring("vsdmpaNone")] vsdmpaNone = 0x0000,
+	[helpstring("vsdmpaNonNullable")] vsdmpaNonNullable = 0x0002,
+	[helpstring("vsdmpaHasDefaultValue")] vsdmpaHasDefaultValue = 0x0004
+} vsdModulePropertyAttributes;
+
+typedef
+[
+	uuid(823AC064-BF91-4537-9BB5-F6C9080442EB),
+	helpstring("vsdModulePropertySettings")
+]
+enum vsdModulePropertySettings
+{
+	[helpstring("vsdmpsNone")] vsdmpsNone = 0x0000,
+	[helpstring("vsdmpsDefault")] vsdmpsDefault = 0x0001,
+	[helpstring("vsdmpsCustom")] vsdmpsCustom = 0x0002
+} vsdModulePropertySettings;
+
+[
+	object,
+	uuid(249C04EA-503A-11d3-8D78-00A0C9CFCEE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdModuleProperty Interface"),
+	pointer_default(unique)
+]
+interface IVsdModuleProperty : IDispatch
+{
+	[propget, id(DISPID_IVsdModuleProperty_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleProperty_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleProperty_Description), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleProperty_Type), helpstring("property Type")] HRESULT Type([out, retval] vsdModulePropertyType *pVal);
+	[propget, id(DISPID_IVsdModuleProperty_ContextData), helpstring("property ContextData")] HRESULT ContextData([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdModuleProperty_Value), helpstring("property Value")] HRESULT Value([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdModuleProperty_Value), helpstring("property Value")] HRESULT Value([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdModuleProperty_BuildData), helpstring("property BuildData")] HRESULT BuildData([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdModuleProperty_BuildData), helpstring("property BuildData")] HRESULT BuildData([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdModuleProperty_Attributes), helpstring("property Attributes")] HRESULT Attributes([out, retval] vsdModulePropertyAttributes *pVal);
+	[propput, id(DISPID_IVsdModuleProperty_Attributes), helpstring("property Attributes")] HRESULT Attributes([in] vsdModulePropertyAttributes newVal);
+	[propget, id(DISPID_IVsdModuleProperty_Setting), helpstring("property Setting")] HRESULT Setting([out, retval] vsdModulePropertySettings *pVal);
+	[propput, id(DISPID_IVsdModuleProperty_Setting), helpstring("property Setting")] HRESULT Setting([in] vsdModulePropertySettings newVal);
+	[propget, id(DISPID_IVsdModuleProperty_IconIndex), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdModuleProperty_IconIndex), helpstring("property IconIndex")] HRESULT IconIndex([in] long newVal);
+	[propget, id(DISPID_IVsdModuleProperty_PlugInSite), helpstring("property PlugInSite")] HRESULT PlugInSite([out, retval] IVsdPlugInSite **pVal);
+	[propget, id(DISPID_IVsdModuleProperty_DefaultValue), helpstring("property DefaultValue")] HRESULT DefaultValue([out, retval] VARIANT *pVal);
+	[propget, id(DISPID_IVsdModuleProperty_ParentName), helpstring("property ParentName")] HRESULT ParentName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdModuleProperty_ParentName), helpstring("property ParentName")] HRESULT ParentName([in] BSTR newVal);
+	[id(DISPID_IVsdModuleProperty_TransferValues), helpstring("method TransferValues")] HRESULT TransferValues([in]IVsdModuleProperty *Val);
+};
+
+[
+	object,
+	uuid(726FE42E-D35C-42f1-A96F-961BFF0F01D5),
+	dual,
+	oleautomation,
+	helpstring("IVsdComponentUser Interface"),
+	pointer_default(unique)
+]
+interface IVsdComponentUser : IDispatch
+{
+	[propget, id(DISPID_IVsdComponentUser_Components), helpstring("property Components")] HRESULT Components([out, retval] IVsdCollectionSubset **ppVal);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// LaunchCondition interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(8599237C-F772-4a40-8B20-CA2549DA39C0),
+	dual,
+	oleautomation,
+	helpstring("IVsdLaunchConditionPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdLaunchConditionPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdLaunchConditionPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(DCF09425-2007-4f53-9EDE-1CE13A9FECF3),
+	dual,
+	oleautomation,
+	helpstring("IVsdLaunchCondition Interface"),
+	pointer_default(unique)
+]
+interface IVsdLaunchCondition : IDispatch
+{
+	[propget, id(DISPID_IVsdLaunchCondition_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdLaunchCondition_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdLaunchCondition_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdLaunchCondition_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdLaunchCondition_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdLaunchCondition_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdLaunchCondition_Condition), helpstring("property Condition")] HRESULT Condition([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdLaunchCondition_Message), helpstring("property Message")] HRESULT Message([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdLaunchCondition_Message), helpstring("property Message")] HRESULT Message([in] BSTR newVal);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Locator interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(06EB1705-5FF8-4bb3-AD76-76BCB3C23B34),
+	dual,
+	oleautomation,
+	helpstring("IVsdLocatorPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdLocatorPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdLocatorPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(5365B259-81CD-433f-92FA-2C43BEADA1E7),
+	dual,
+	oleautomation,
+	helpstring("IVsdFileLocator Interface"),
+	pointer_default(unique)
+]
+interface IVsdFileLocator : IDispatch
+{
+	[propget, id(DISPID_IVsdFileLocator_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdFileLocator_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdFileLocator_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdFileLocator_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_Folder), helpstring("property Folder")] HRESULT Folder([out, retval] VARIANT *pVal);
+	[propput, id(DISPID_IVsdFileLocator_Folder), helpstring("property Folder")] HRESULT Folder([in] VARIANT newVal);
+	[propget, id(DISPID_IVsdFileLocator_Depth), helpstring("property Depth")] HRESULT Depth([out, retval] short *pVal);
+	[propput, id(DISPID_IVsdFileLocator_Depth), helpstring("property Depth")] HRESULT Depth([in] short newVal);
+	[propget, id(DISPID_IVsdFileLocator_FileName), helpstring("property FileName")] HRESULT FileName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_FileName), helpstring("property FileName")] HRESULT FileName([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_MinVersion), helpstring("property MinVersion")] HRESULT MinVersion([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_MinVersion), helpstring("property MinVersion")] HRESULT MinVersion([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_MaxVersion), helpstring("property MaxVersion")] HRESULT MaxVersion([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_MaxVersion), helpstring("property MaxVersion")] HRESULT MaxVersion([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_MinSize), helpstring("property MinSize")] HRESULT MinSize([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_MinSize), helpstring("property MinSize")] HRESULT MinSize([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_MaxSize), helpstring("property MaxSize")] HRESULT MaxSize([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_MaxSize), helpstring("property MaxSize")] HRESULT MaxSize([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_MinDate), helpstring("property MinDate")] HRESULT MinDate([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_MinDate), helpstring("property MinDate")] HRESULT MinDate([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_MaxDate), helpstring("property MaxDate")] HRESULT MaxDate([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_MaxDate), helpstring("property MaxDate")] HRESULT MaxDate([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_Languages), helpstring("property Languages")] HRESULT Languages([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_Languages), helpstring("property Languages")] HRESULT Languages([in] BSTR newVal);
+	[propget, id(DISPID_IVsdFileLocator_Property), helpstring("property Property")] HRESULT Property([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdFileLocator_Property), helpstring("property Property")] HRESULT Property([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(AFF93ECE-82F2-4003-95B2-E178EAC7A0D7),
+	dual,
+	oleautomation,
+	helpstring("IVsdRegistryKeyLocator Interface"),
+	pointer_default(unique)
+]
+interface IVsdRegistryKeyLocator : IDispatch
+{
+	[propget, id(DISPID_IVsdRegistryKeyLocator_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdRegistryKeyLocator_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdRegistryKeyLocator_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdRegistryKeyLocator_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryKeyLocator_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryKeyLocator_Root), helpstring("property Root")] HRESULT Root([out, retval] vsdRegistryRoot *pVal);
+	[propput, id(DISPID_IVsdRegistryKeyLocator_Root), helpstring("property Root")] HRESULT Root([in] vsdRegistryRoot newVal);
+	[propget, id(DISPID_IVsdRegistryKeyLocator_RegKey), helpstring("property RegKey")] HRESULT RegKey([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryKeyLocator_RegKey), helpstring("property RegKey")] HRESULT RegKey([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryKeyLocator_Value), helpstring("property Value")] HRESULT Value([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryKeyLocator_Value), helpstring("property Value")] HRESULT Value([in] BSTR newVal);
+	[propget, id(DISPID_IVsdRegistryKeyLocator_Property), helpstring("property Property")] HRESULT Property([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdRegistryKeyLocator_Property), helpstring("property Property")] HRESULT Property([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(E299C73F-2888-4b00-BEF4-282BB50A555B),
+	dual,
+	oleautomation,
+	helpstring("IVsdComponentLocator Interface"),
+	pointer_default(unique)
+]
+interface IVsdComponentLocator : IDispatch
+{
+	[propget, id(DISPID_IVsdComponentLocator_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdComponentLocator_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdComponentLocator_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdComponentLocator_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdComponentLocator_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdComponentLocator_ComponentId), helpstring("property ComponentId")] HRESULT ComponentId([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdComponentLocator_ComponentId), helpstring("property ComponentId")] HRESULT ComponentId([in] BSTR newVal);
+	[propget, id(DISPID_IVsdComponentLocator_Property), helpstring("property Property")] HRESULT Property([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdComponentLocator_Property), helpstring("property Property")] HRESULT Property([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(A39CD30D-03AD-4897-90C3-25927DE555AD),
+	dual,
+	oleautomation,
+	helpstring("IVsdDependencyValidationClient Interface"),
+	pointer_default(unique)
+]
+interface IVsdDependencyValidationClient : IDispatch
+{
+	[propget, id(DISPID_IVsdDependencyValidationClient_ValidationPending), helpstring("property ValidationPending")] HRESULT ValidationPending([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdDependencyValidationClient_ValidationPending), helpstring("property ValidationPending")] HRESULT ValidationPending([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdDependencyValidationClient_PrimaryDependenciesOnly), helpstring("property PrimaryDependenciesOnly")] HRESULT PrimaryDependenciesOnly([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdDependencyValidationClient_PrimaryDependenciesOnly), helpstring("property PrimaryDependenciesOnly")] HRESULT PrimaryDependenciesOnly([in] VARIANT_BOOL newVal);
+
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// CustomAction interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef
+[
+	uuid(1362FA14-2253-4655-B7B8-068FEB01081C),
+	helpstring("vsdCustomActionFileTypes")
+]
+enum vsdCustomActionFileTypes
+{
+	[helpstring("vsdcaNone")] vsdcaNone = 0x0000,
+	[helpstring("vsdcaDll")] vsdcaDll = 0x0001,
+	[helpstring("vsdcaExe")] vsdcaExe = 0x0002,
+	[helpstring("vsdcaJScript")] vsdcaJScript = 0x0003,
+	[helpstring("vsdcaVBScript")] vsdcaVBScript = 0x0004
+} vsdCustomActionFileTypes;
+
+typedef
+[
+	uuid(CC726B64-9557-437b-AC18-87560769D305),
+	helpstring("vsdCustomActionInstallActions")
+]
+enum vsdCustomActionInstallActions
+{
+	[helpstring("vsdcaNoAction")] vsdcaNoAction = 0x0000,
+	[helpstring("vsdcaInstall")] vsdcaInstall = 0x0001,
+	[helpstring("vsdcaCommit")] vsdcaCommit = 0x0002,
+	[helpstring("vsdcaRollback")] vsdcaRollback = 0x0003,
+	[helpstring("vsdcaUninstall")] vsdcaUninstall = 0x0004
+} vsdCustomActionInstallActions;
+
+[
+	object,
+	uuid(E270CEF9-7028-4cbf-8B10-C1188E3B541C),
+	dual,
+	oleautomation,
+	helpstring("IVsdCustomActionPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdCustomActionPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdCustomActionPlugIn_Items), helpstring("property Items")] HRESULT Items([out, retval] IVsdManagedCollection **pVal);
+};
+
+[
+	object,
+	uuid(AEBB2748-A987-476d-87CA-4D87796FCAE6),
+	dual,
+	oleautomation,
+	helpstring("IVsdCustomAction Interface"),
+	pointer_default(unique)
+]
+interface IVsdCustomAction : IDispatch
+{
+	[propget, id(DISPID_IVsdCustomAction_Collection), helpstring("property Collection")] HRESULT Collection([out, retval] IVsdManagedCollection **pVal);
+	[propput, id(DISPID_IVsdCustomAction_Collection), helpstring("property Collection")] HRESULT Collection([in] IVsdManagedCollection *newVal);
+	[propget, id(DISPID_IVsdCustomAction_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdCustomAction_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCustomAction_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCustomAction_Condition), helpstring("property Condition")] HRESULT Condition([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCustomAction_Condition), helpstring("property Condition")] HRESULT Condition([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCustomAction_Object), helpstring("property Object")] HRESULT Object([out, retval] IDispatch **ppdisp);
+	[propput, id(DISPID_IVsdCustomAction_Object), helpstring("property Object")] HRESULT Object([in] IDispatch *pdisp);
+	[propget, id(DISPID_IVsdCustomAction_FileType), helpstring("property FileType")] HRESULT FileType([out, retval] vsdCustomActionFileTypes *pVal);
+	[propput, id(DISPID_IVsdCustomAction_FileType), helpstring("property FileType")] HRESULT FileType([in] vsdCustomActionFileTypes newVal);
+	[propget, id(DISPID_IVsdCustomAction_InstallAction), helpstring("property InstallAction")] HRESULT InstallAction([out, retval] vsdCustomActionInstallActions *pVal);
+	[propput, id(DISPID_IVsdCustomAction_InstallAction), helpstring("property InstallAction")] HRESULT InstallAction([in] vsdCustomActionInstallActions newVal);
+	[propget, id(DISPID_IVsdCustomAction_Arguments), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCustomAction_Arguments), helpstring("property Arguments")] HRESULT Arguments([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCustomAction_Sequence), helpstring("property Sequence")] HRESULT Sequence([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdCustomAction_Sequence), helpstring("property Sequence")] HRESULT Sequence([in] long newVal);
+	[propget, id(DISPID_IVsdCustomAction_Identifier), helpstring("property Identifier")] HRESULT Identifier([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdCustomAction_SourcePath), helpstring("property SourcePath")] HRESULT SourcePath([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdCustomAction_InstallerClass), helpstring("property InstallerClass")] HRESULT InstallerClass([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdCustomAction_InstallerClass), helpstring("property InstallerClass")] HRESULT InstallerClass([in] VARIANT_BOOL newVal);
+	[propget, id(DISPID_IVsdCustomAction_CustomActionData), helpstring("property CustomActionData")] HRESULT CustomActionData([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCustomAction_CustomActionData), helpstring("property CustomActionData")] HRESULT CustomActionData([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCustomAction_EntryPoint), helpstring("property EntryPoint")] HRESULT EntryPoint([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCustomAction_EntryPoint), helpstring("property EntryPoint")] HRESULT EntryPoint([in] BSTR newVal);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// OSD PlugIn interfaces
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	uuid(54565997-dbfb-11d2-898d-0000f8064ebb),
+	dual,
+	oleautomation,
+	helpstring("IVsdOSDPlugIn Interface"),
+	pointer_default(unique)
+]
+interface IVsdOSDPlugIn : IDispatch
+{
+	[propget, id(DISPID_IVsdOSDPlugIn_WebDependencies), helpstring("property WebDependencies")] HRESULT WebDependencies([out, retval] IVsdManagedCollection **pVal);
+	[propget, id(DISPID_IVsdOSDPlugIn_FriendlyName), helpstring("property FriendlyName")] HRESULT FriendlyName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdOSDPlugIn_FriendlyName), helpstring("property FriendlyName")] HRESULT FriendlyName([in] BSTR newVal);
+	[propget, id(DISPID_IVsdOSDPlugIn_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdOSDPlugIn_Version), helpstring("property Version")] HRESULT Version([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(54565998-dbfb-11d2-898d-0000f8064ebb),
+	dual,
+	oleautomation,
+	helpstring("IVsdCabDependency Interface"),
+	pointer_default(unique)
+]
+interface IVsdCabDependency : IDispatch
+{
+	[propget, id(DISPID_IVsdCabDependency_Key), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabDependency_Key), helpstring("property Key")] HRESULT Key([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCabDependency_URL), helpstring("property URL")] HRESULT URL([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabDependency_URL), helpstring("property URL")] HRESULT URL([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCabDependency_FriendlyName), helpstring("property FriendlyName")] HRESULT FriendlyName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabDependency_FriendlyName), helpstring("property FriendlyName")] HRESULT FriendlyName([in] BSTR newVal);
+	[propget, id(DISPID_IVsdCabDependency_Version), helpstring("property Version")] HRESULT Version([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdCabDependency_Version), helpstring("property Version")] HRESULT Version([in] BSTR newVal);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IVsdPropertyRefresh
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(8FEC062B-F124-4847-A5D5-64F5DE152054),
+	dual,
+	oleautomation,
+	helpstring("IVsdPropertyRefresh Interface"),
+	pointer_default(unique)
+]
+interface IVsdPropertyRefresh : IDispatch
+{
+	[id(DISPID_IVsdPropertyRefresh_Refresh), helpstring("method Refresh")] HRESULT Refresh([in]DISPID id);
+};
+
+
+
+[
+	object,
+	uuid(bb4dc7b7-0364-4727-9eaf-6928a7e5221f),
+	dual,
+	helpstring("IVsdScatterAssemblyCollection Interface"),
+	pointer_default(unique)
+]
+interface IVsdScatterAssemblyCollection : IDispatch
+{
+		[propget, id(DISPID_IVsdScatterAssemblyCollection_ScatterAssemblyFiles), helpstring("property ScatterAssemblyFiles")] HRESULT ScatterAssemblyFiles([out, retval] IVsdCollectionSubset **pVal);
+		[propget, id(DISPID_IVsdScatterAssemblyCollection_CanFindAllScatterAssemblyFiles), helpstring("property CanFindAllScatterAssemblyFiles")] HRESULT CanFindAllScatterAssemblyFiles([out, retval] VARIANT_BOOL *pVal);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IVsdWebBootstrapperProperties
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(BB0D53E3-87F8-4423-9DED-30410E5A2E71),
+	dual,
+	helpstring("IVsdWebBootstrapperProperties Interface"),
+	pointer_default(unique)
+]
+interface IVsdWebBootstrapperProperties : IDispatch
+{
+	[id(DISPID_IVsdWebBootstrapperProperties_LoadFrom), helpstring("method LoadFrom")] HRESULT LoadFrom([in] IDispatch *pVal);
+ 	[propget, id(DISPID_IVsdWebBootstrapperProperties_BaseURL), helpstring("property BaseURL")] HRESULT BaseURL([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebBootstrapperProperties_BaseURL), helpstring("property BaseURL")] HRESULT BaseURL([in] BSTR pVal);
+	[propget, id(DISPID_IVsdWebBootstrapperProperties_InstMsiURL), helpstring("property InstMsiURL")] HRESULT InstMsiURL([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebBootstrapperProperties_InstMsiURL), helpstring("property InstMsiURL")] HRESULT InstMsiURL([in] BSTR pVal);
+	[propget, id(DISPID_IVsdWebBootstrapperProperties_PropertyName), helpstring("property PropertyName")] HRESULT PropertyName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebBootstrapperProperties_PropertyName), helpstring("property PropertyName")] HRESULT PropertyName([in] BSTR pVal);
+	[propget, id(DISPID_IVsdWebBootstrapperProperties_PropertyValue), helpstring("property PropertyValue")] HRESULT PropertyValue([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdWebBootstrapperProperties_PropertyValue), helpstring("property PropertyValue")] HRESULT PropertyValue([in] BSTR pVal);
+}
+
+//STUBS/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

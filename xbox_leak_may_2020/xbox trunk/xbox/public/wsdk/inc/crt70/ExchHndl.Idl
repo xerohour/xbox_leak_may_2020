@@ -1,0 +1,102 @@
+//+-------------------------------------------------------------------------
+//
+//  Microsoft Windows
+//  Copyright 1992 - 1999 Microsoft Corporation.
+//
+//  File: exchhndl.idl
+//
+//  Description: Contains interfaces for IExchangeEventHandler and IEventSource
+//
+//--------------------------------------------------------------------------
+
+
+
+cpp_quote("//+-------------------------------------------------------------------------")
+cpp_quote("//")
+cpp_quote("//  Microsoft Windows")
+cpp_quote("//  Copyright 1997 - 1999 Microsoft Corporation.")
+cpp_quote("//")
+cpp_quote("//--------------------------------------------------------------------------")
+
+
+#include <olectl.h>
+
+// Help strings for automation methods properties.
+#define STR_COMMON_MESSAGEID						"The EID of the target object, if any."
+#define STR_COMMON_SESSION							"A session object."
+
+#define STR_EXCHANGEEVENTHANDLER_HELP				"Interface the Exchange Events Service uses to execute results for an event."
+#define STR_EXCHANGEEVENTHANDLER_EXECUTEEVENT		"Executes whatever is associated with a given event."
+
+
+#define STR_EVENTSOURCE_HELP						"Contains the parameters involved in handling an event."
+#define STR_EVENTSOURCE_SOURCE						"In the case of an event with a script handler, its a stream to the script text."
+#define STR_EVENTSOURCE_SOURCEID					"The EID of the source FAI message."
+#define STR_EVENTSOURCE_EVENTTYPE					"The type of event: Folder_OnTimer, Message_OnChange, etc."
+#define STR_EVENTSOURCE_RESPONSE					"Any response returned by the handler object."
+#define STR_EVENTSOURCE_MAX_EXECUTION_TIME			"Suggested maxmimum execution time for handler. Enforced for scrioting handler."
+
+// DISPIDs
+#define DISPID_Source					1
+#define DISPID_SourceID					2
+#define DISPID_MessageID				5
+#define DISPID_Session					8
+#define DISPID_ExecuteEvent				12
+#define DISPID_EventType				11
+#define DISPID_Response					18
+#define DISPID_MaxExecutionTime			19
+
+#define DECL_INTERFACE(IntName, ParentInt, uuidInterface, szHelpString) \
+	[ \
+		object, \
+		uuid(uuidInterface), \
+		helpstring(szHelpString), \
+        oleautomation, \
+		pointer_default(unique) \
+	] \
+	interface IntName : ParentInt
+
+#define DECL_RWTYPEDPROP(PropName,szHelpString,T) \
+	[ \
+		id( DISPID_##PropName ), \
+        propget, \
+		helpstring( szHelpString ), \
+	] HRESULT PropName ([out,retval] T* p##PropName); \
+	[ \
+		id( DISPID_##PropName ), \
+        propput, \
+		helpstring( szHelpString ), \
+	] HRESULT PropName ([in] T var##PropName)
+
+#define DECL_METHOD(MethName,szHelpString) \
+	[ \
+		id( DISPID_##MethName ), \
+		helpstring ( szHelpString ) \
+	] HRESULT MethName
+
+
+DECL_INTERFACE(IExchangeEventHandler, IUnknown, 69E54156-B371-11D0-BCD9-00AA00C1AB1C, STR_EXCHANGEEVENTHANDLER_HELP)
+{
+	import "oaidl.idl";
+
+	DECL_METHOD(ExecuteEvent, STR_EXCHANGEEVENTHANDLER_EXECUTEEVENT)
+	(
+		[in] IDispatch* pEventSource
+	);
+};
+
+
+DECL_INTERFACE(IEventSource, IUnknown, 69E54152-B371-11D0-BCD9-00AA00C1AB1C, STR_EVENTSOURCE_HELP)
+{
+	import "oaidl.idl";
+
+	DECL_RWTYPEDPROP(Source, STR_EVENTSOURCE_SOURCE, IUnknown*);
+	DECL_RWTYPEDPROP(SourceID, STR_EVENTSOURCE_SOURCEID, BSTR);
+	DECL_RWTYPEDPROP(MessageID, STR_COMMON_MESSAGEID, BSTR);
+	DECL_RWTYPEDPROP(Session, STR_COMMON_SESSION, IUnknown*);
+	DECL_RWTYPEDPROP(EventType, STR_EVENTSOURCE_EVENTTYPE, DWORD);
+	DECL_RWTYPEDPROP(Response, STR_EVENTSOURCE_RESPONSE, VARIANT);
+	DECL_RWTYPEDPROP(MaxExecutionTime, STR_EVENTSOURCE_MAX_EXECUTION_TIME, DWORD);
+};
+
+

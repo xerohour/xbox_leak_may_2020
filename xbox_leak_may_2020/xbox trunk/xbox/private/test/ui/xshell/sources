@@ -1,0 +1,104 @@
+TARGETNAME=XShell
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+XE_FLAGS=$(XE_FLAGS) /TESTID:0xFFFE0000 /TESTRATINGS:0xFFFFFFFF /TESTNAME:"XDK launcher" /INITFLAGS:0x00000000
+
+!if defined(COOL_XDASH)
+XE_FLAGS=$(XE_FLAGS) /TESTMEDIATYPES:0x80000001
+!endif
+
+XDBG_COMPILE_LEVEL=5
+
+INCLUDES = \
+    $(PRIVATE_INC_PATH); \
+    $(PRIVATE_INC_PATH)\crypto; \
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\xapi\inc; \
+    $(BASEDIR)\private\test\ui\tools\inc; \
+    $(BASEDIR)\private\test\inc; \
+    $(BASEDIR)\private\ui\inc;
+
+LINKLIBS = \
+    $(LIBRARY_PATH)\xbdm.lib \
+    $(LIBRARY_PATH)\Xonline$(D).lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib \
+    $(LIBRARY_PATH)\dsound$(D).lib \
+    $(LIBRARY_PATH)\xgraphics$(D).lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\usbmanager.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\wavemedia.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\memoryareas.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\xsettings.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\menus.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\images.lib \
+    $(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+    $(BASEDIR)\private\ui\obj\*\dashst.lib \
+    $(BASEDIR)\public\sdk\lib\*\writeperboxdata.lib
+
+SOURCES=\
+    3dobject.cpp \
+    gouraudobject.cpp \
+    gouraudtexobject.cpp \
+    gouraudgroup.cpp \
+    camera.cpp \
+    xfontfuncs.cpp \
+    soundcollection.cpp \
+    screenitem.cpp \
+    screenitems.cpp \
+    menuscreen.cpp \
+    cworkerthread.cpp \
+    xbelist.cpp \
+    xbedirmonitor.cpp \
+    launchmenu.cpp \
+    optionsmenu.cpp \
+    xonlinefuncs.cpp \
+    passcodemenu.cpp \
+    olusermenu.cpp \
+    oluseroptionmenu.cpp \
+    onlinemenu.cpp \
+    certmenu.cpp \
+    certreqs.cpp \
+    madisplaymenu.cpp \
+    eepromsettingsmenu.cpp \
+    sysinfomenu.cpp \
+    dumpcachemenu.cpp \
+    languagemenu.cpp \
+    timezonemenu.cpp \
+    avregionmenu.cpp \
+    videoresmenu.cpp \
+    gameregionmenu.cpp \
+    networkmenu.cpp \
+    memorymenu.cpp \
+    memoryoptions.cpp \
+    muname.cpp \
+    muformat.cpp \
+    muformatthread.cpp \
+    muunformat.cpp \
+    muunformatthread.cpp \
+    errormsgmenu.cpp \
+    gatewaymenu.cpp \
+    keypadmenu.cpp \
+    hexkeypadmenu.cpp \
+    key.cpp \
+    genkeyboardmenu.cpp \
+    yesnomenu.cpp \
+    messagemenu.cpp \
+    keyboardmenu.cpp \
+    machinenamemenu.cpp \
+    ipmenu.cpp \
+	dnsmenu.cpp \
+    subnetmenu.cpp \
+    xshell.cpp
+
+!if defined(COOL_XDASH)
+C_DEFINES=$(C_DEFINES) -DCOOL_XDASH
+!endif
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_CXX=1

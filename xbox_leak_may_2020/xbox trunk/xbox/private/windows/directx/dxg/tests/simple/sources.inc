@@ -1,0 +1,10 @@
+TARGETNAME=Simple
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+INCLUDES=$(INCLUDES);$(PRIVATE_INC_PATH)
+
+SOURCES= \
+    main.cpp \
+    bitfont.cpp
+

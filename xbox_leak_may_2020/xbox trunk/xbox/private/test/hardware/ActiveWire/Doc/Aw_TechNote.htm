@@ -1,0 +1,450 @@
+<html>
+
+<head>
+<title>ActiveWire Technical Note</title>
+<meta name="GENERATOR" content="Microsoft FrontPage 3.0">
+</head>
+
+<body>
+
+<h2 align="center">ActiveWire <br>
+Technical Note</h2>
+
+<p align="center">&nbsp;</p>
+
+<p align="center">&nbsp;</p>
+
+<p align="left">Last Updated: <!--webbot bot="Timestamp" startspan S-Type="EDITED"
+S-Format="%m/%d/%y" -->02/24/00<!--webbot bot="Timestamp" i-checksum="12288" endspan --><br>
+<br>
+<br>
+</p>
+
+<hr width="80%" size="1">
+
+<blockquote>
+  <p>&nbsp; <a name="Index">Index</a></p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <ol>
+      <li><a href="#Hardware">Hardware</a><ol>
+          <li><a href="#SwitchInput">Interface with Switch input</a></li>
+          <li><a href="#MOSFEToutput">Interface with MOSFET output</a></li>
+          <li><a href="#OptoOutput">Interface with Optoisolator output<br>
+            </a></li>
+        </ol>
+      </li>
+      <li><a href="#Software">Software</a><ol>
+          <li><a href="#Win95Support">Windows-95 Support</a></li>
+          <li><a href="#Windows2000Support">Windows 2000 Support</a></li>
+          <li><a href="#DLLinMSVC++">DLL in MSVC++</a></li>
+          <li><a href="#AppinVisualBasic">Application in Visual Basic</a></li>
+          <li><a href="#DLLinBorlandC++">DLL in Borland C++</a></li>
+          <li><a href="#DLLinDelphi">DLL in Delphi<br>
+            </a><br>
+          </li>
+        </ol>
+      </li>
+      <li><a href="#Others">Others</a><ol>
+          <li><a href="#CompatUHC">Compatibility issue with USB Host Controller<br>
+            </a><br>
+          </li>
+        </ol>
+      </li>
+      <li><a href="#Revision History">Revision History</a></li>
+    </ol>
+  </blockquote>
+</blockquote>
+
+<p><br>
+<br>
+</p>
+
+<hr width="80%" size="1">
+
+<ol>
+  <li><p align="left"><a name="Hardware">Hardware</a><br>
+    <br>
+    </p>
+    <ol>
+      <li><a name="SwitchInput">Interface with Switch input<br>
+        </a><br>
+        To detect state of Switch, either Open of Close, you can connect wires like below.<br>
+        <p align="center"><img src="SwInput.jpg" alt="SwInput.jpg (18189 bytes)" width="640"
+        height="320"></p>
+        <p><br>
+        <br>
+        You can know if switch is open or closed by simply calling <em>InPort()</em> function of
+        ActiveWire API.<br>
+        In above&nbsp; Pull Down wiring, the <em>InPort()</em> function reads binary 0 when the
+        switch is open, 1 when it is closed.<br>
+        In above&nbsp; Pull Up wiring, the <em>InPort()</em> function reads binary 1 when the
+        switch is open, 0 when it is closed.<br>
+        <br>
+        <br>
+        </p>
+      </li>
+      <li><a name="MOSFEToutput">Interface with MOSFET output<br>
+        </a><br>
+        Output pins of ActiveWire USB board is rated as 2.4V at 1.6mA Source, or 0.8V at 1.6mA
+        Sink.&nbsp; <br>
+        There is a 47ohm resistor in series in each pin to protect from excessive current.<br>
+        According to my experiments, each output pin of ActiveWire USB board can drive 1 LED
+        directly.<br>
+        <br>
+        To turn on and off more bigger load, such as relay or motor, you can use a MOSFET.<br>
+        <br>
+        <p align="center"><img src="MOSFETOut.jpg" alt="MOSFETOut.jpg (24576 bytes)" width="640"
+        height="480"></p>
+        <p><br>
+        Please note that load has to be connected at Drain side and Source has to be grounded
+        because of required Vgs to turn on the MOSFET.<br>
+        <br>
+        In this example, the relay is On when output pin is logical High, the relay is Off when
+        the pin is logical Low.<br>
+        <br>
+        2N7000 used in this example can drive up to 60V 200mA continuous, or 500mA pulsed. <br>
+        <br>
+        <br>
+        <br>
+        </p>
+      </li>
+      <li><a name="OptoOutput">Interface with Optoisolator output<br>
+        </a><br>
+        Using optoisolator, you can connect ActiveWire USB board and your device in two
+        electrically isolated circuits,&nbsp; so it can be more robust with noise and flexible in
+        voltage and current requirement.&nbsp; <br>
+        <br>
+        <p align="center"><img src="OptoOut.jpg" alt="OptoOut.jpg (28672 bytes)" width="860"
+        height="320"></p>
+        <p><br>
+        <a href="http://www.cel.com/pdf/datasheets/ps2501.pdf">NEC's optoisolator PS2501</a> used
+        in this example can drive up to 60V 50mA. <br>
+        <br>
+        <br>
+        </p>
+      </li>
+    </ol>
+    <ol>
+      <p align="center"><small><a href="#Index">Back to Index</a><br>
+      </small></p>
+      <hr width="80%" size="1">
+      <li><a name="Software">Software</a><br>
+        <br>
+        <ol>
+          <li><a name="Win95Support">Windows-95 Support<br>
+            </a><br>
+            All of the current ActiveWire USB software have been tested and verified on Windows-95
+            with the USB Supplement released from Microsoft in April 1997.&nbsp;&nbsp; <br>
+            <br>
+            Please check if your USB host controller is recognized by Windows-95 correctly.<br>
+            From <em>Start</em> menu, choose <em>Settings</em>, <em>Control Panel</em>, then double
+            click on <em>System</em> icon.&nbsp; Choose <em>Device Manager</em> tab, then scroll
+            window and find <em>Universal serial bus controller</em> item.&nbsp; Click on <em>+</em>
+            sign in the beginning of the line, then if you see <em>USB Host Controller</em> and <em>USB
+            Root Hub</em>, your system has a very good chance to work with ActiveWire USB board.<br>
+            <br>
+            If you do not see any of above in the <em>Device Manager</em>, and/or if you have any
+            difficulties in using ActiveWire USB software, please try installing the USB Supplement
+            for Windows-95 (<a href="http://www.ActiveWireInc.com/download/Win95USBSupp.exe"><u>click
+            here to download</u></a>).<br>
+            <br>
+            If you still have problem, please contact technical support of the vendor of your USB host
+            controller for any known compatibility issues, and/or contact our technical support, <a
+            href="mailto:tech_support@ActiveWireInc.com">tech_support@ActiveWireInc.com</a>.<br>
+            <br>
+            ActiveWire will continue to support Windows-95 as best as possible.&nbsp;&nbsp; However,
+            since Microsoft will no longer provide any enhancement on Windows-95 product,&nbsp; it may
+            not be able to fix when a problem is found in future.&nbsp;&nbsp; It is suggested for all
+            customers to migrate to the latest Windows-98 environment.<br>
+            <br>
+            <br>
+          </li>
+          <li><a name="Windows2000Support">Windows 2000 Support</a><br>
+            <br>
+            Windows 2000 is supported with ActiveWire USB driver ver.1.04 and newer.&nbsp; <br>
+            Since Windows 2000 is not officially released from Microsoft yet, ActiveWire only supports
+            as Beta version.<br>
+            <br>
+            Following issues are currently known.&nbsp;&nbsp; These will be fixed in future versions
+            of ActiveWire USB driver.<br>
+            <ol>
+              <li>Windows 2000 has a feature that it saves the driver information file (.INF) in the
+                hidden system folder,<a href="file:///C:/WINNT/INF"> C:\WINNT\INF</a>,&nbsp; when the
+                first time a new hardware is installed.&nbsp; Next time when user tries to update the
+                driver, Windows 2000 system uses the saved INF file to install updated driver.
+                &nbsp;&nbsp; This feature prevents proper install of updated driver if the INF file itself
+                is updated.<br>
+                If you experienced difficulty installing ActiveWire driver in Windows 2000 environment,
+                please try either of followings ;<ol>
+                  <li>With Windows Explorer, search the file containing text &quot;ActiveWire&quot; in&nbsp; <a
+                    href="file:///C:/WINNT/INF">C:\WINNT\INF</a> folder.&nbsp; You may need to set option to
+                    actually view the folder since it is hidden system folder.&nbsp;&nbsp; The file is usually
+                    named such as &quot;oem#.inf&quot;, where # is a 1digit number like 0,1,2, ....&nbsp; If
+                    you can find it, delete the file, and try update the driver using Hardware Wizard.</li>
+                  <li>Download <a href="http://www.ActiveWireInc.com/download/RegClear.exe">RegClear.exe</a>
+                    utility and run in Windows 2000.&nbsp;&nbsp; Because of extra security feature of&nbsp;
+                    Windows 2000 system, the utility cannot clear all the registry information.&nbsp; You have
+                    to manually update/uninstall driver using Hardware Wizard.&nbsp;&nbsp; This utility
+                    removes the saved INF file in <a href="file:///C:/WINNT/INF">C:\WINNT\INF</a> folder, so
+                    tht when you try updating&nbsp; driver, it will not use the saved old INF file.<br>
+                    <br>
+                  </li>
+                </ol>
+              </li>
+              <li>After the ActiveWire USB driver software is successfully installed in Windows 2000, an
+                error occurs with the message in blue screen like ;<br>
+                <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *** STOP 0x0000009F (0x00000100,
+                0xFFAD3AD0, 0xFFAD3AD0, 0xFFAD3AD0)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DRIVER_POWER_STATE_FAILURE<br>
+                </em>This happens only when Windows 2000 tries to shutdown/restart and&nbsp; the
+                ActiveWire USB board is still plugged in to the host USB port.&nbsp;&nbsp;&nbsp;&nbsp; <br>
+                This is a problem of the current ActiveWire USB driver.&nbsp; It will be fixed in future
+                version.<br>
+                <br>
+                <strong><u>NOTE: This problem has been fixed with ActiveWire USB driver set ver.1.04B.</u></strong><br>
+              </li>
+            </ol>
+            <p><br>
+            </p>
+          </li>
+          <li><a name="DLLinMSVC++">DLL in MSVC++<br>
+            </a><br>
+            There are 2 ways to use ActiveWire DLL in Microsoft Visual C++ ;<ol>
+              <li>Statically load DLL</li>
+              <li>Dynamically load DLL</li>
+            </ol>
+            <p><br>
+            Please refer to the source code of sample application for example of statically load DLL.
+            &nbsp; (available for download as <em>AwusbIOSrc.exe</em>, <a
+            href="http://www.ActiveWireInc.com/download/AwusbIOexeSrc.exe"><u>click here</u> to
+            download now</a>.)<br>
+            <br>
+            To statically load DLL, you need to link your application with <em>awusb.lib</em> file,
+            which is included in <em>lib\</em> directory of the sample application source code.
+            &nbsp;&nbsp; From the menu bar,&nbsp; choose <em>Project</em>, <em>Settings</em>, then
+            click on <em>Link</em> tab.&nbsp; Type in <em>&quot;..\lib\awusb.lib&quot;</em> in the
+            window right below <em>Object/library modules</em>.<br>
+            In your C++ source code, include <em>AwusbApi.h</em> file, call <em>LoadLibrary()</em>
+            function with the name of DLL.&nbsp; The name of ActiveWire USB API DLL, <em>awusb.lib</em>,
+            is defined as a macro, <em>AWUSB_DLL_NAME</em>, in the header file.<br>
+            <br>
+            ex)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>#include &quot;AwusbApi.h&quot;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .....<br>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            // Load DLL library<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            LoadLibrary (AWUSB_DLL_NAME);</em><br>
+            <em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .....<br>
+            <br>
+            </em><br>
+            Then, you are free to call any of the DLL functions anywhere in your C++ code.<br>
+            <br>
+            Please note that you have to at least re-link your application with <em>awusb.lib</em>
+            when <em>awusb.dll</em> has been updated.&nbsp; <em>awusb.lib</em> and <em>awusb.dll</em>
+            will be always updated together.<br>
+            <br>
+            To avoid re-linking with <em>awusb.lib</em>, you can choose to dynamically load DLL,
+            calling <em>GetProcAddress()</em> function.&nbsp; Please refer to Microsoft Visual C++
+            Reference Manual for more detail.<br>
+            <br>
+            <br>
+            </p>
+          </li>
+          <li><a name="AppinVisualBasic">Application in Visual Basic<br>
+            </a><br>
+            There are 2 ways to write an ActiveWire application in Microsoft Visual Basic.<ol>
+              <li>Use DLL</li>
+              <li>Use OCX </li>
+            </ol>
+            <p><br>
+            Please refer to the sample Visual Basic projects. (available for download as <em>VBSampleDLL.exe</em>
+            or <em>VBSampleOCX.exe</em>, <a href="http://www.ActiveWireInc.com/download.htm">click
+            here</a> to download now.)<br>
+            <br>
+            Because the calling convention of functions in C/C++ and Basic is different, there is a
+            separate DLL specifically for Visual Basic users.&nbsp;&nbsp;&nbsp; It has been named as <em>awusbvb.dll</em>
+            as opposed to the one for MCVC++.&nbsp;&nbsp; It provides the exactly same functionality.<br>
+            <br>
+            Instead of using DLL, using OCX&nbsp; may provide more convenient and versatile interface
+            to ActiveWire products in Visual Basic application.&nbsp;&nbsp; OCX, or often called
+            ActiveX Control, is another form of library module in Microsoft Windows environment.
+            &nbsp;&nbsp; OCX provides common interface to most of popular programming language, such
+            as Visual Basic and C++,&nbsp; and scripting language recently introduced, such as
+            JavaScript.&nbsp;&nbsp; As same effort as writing an application in Visual Basic, you can
+            write HTML file that can be browsed by Internet browser and still you can use
+            functionality of ActiveWire products using&nbsp; JavaScript and OCX.&nbsp;&nbsp; <br>
+            <br>
+            This idea of using Internet browser as a programming platform saves your time and effort
+            of trial and error in application development.<br>
+            <br>
+            If you like the idea,&nbsp; please use OCX as ActiveWire interface!!<br>
+            <br>
+            <br>
+            </p>
+          </li>
+          <li><a name="DLLinBorlandC++">DLL in Borland C++<br>
+            </a><br>
+            You may refer to <a href="http://www.ActiveWireInc.com/download/AwusbIODos.exe">this
+            sample source code</a> written in MSVC++.&nbsp;&nbsp; This sample runs in DOS propmt, and
+            uses no Microsoft specific library.&nbsp;&nbsp; Also it demonstrate how to explicitly call
+            DLL function from application.&nbsp; Explicit call of DLL allows no need to link with
+            Awusb.lib file so that the source code can be compiled and link with development tools
+            other than MSVC++.<br>
+            <br>
+            Following is found in the Borland C++ 3's Online Help.<br>
+            <br>
+            A Windows DLL can be used by a C++Builder application just as it would be by any C++
+            application.<br>
+            To statically load a DLL when your C++Builder application is loaded, link the import
+            library file for that DLL into your C++Builder application at link time. To add an import
+            library to a C++Builder application, open the make file (.BPR) for the application and add
+            the import library name to the library file list assigned to the ALLLIB variable. If
+            necessary, add the path of the import library to the path(s) listed for the <em>-L</em>
+            option of LFLAGS (linker options) variable.<br>
+            <br>
+            The exported functions of that DLL then become available for use by your application.
+            Prototype the DLL functions your application uses with <em>__declspec(dllimport)</em>
+            modifier:<br>
+            <br>
+            <em>__declspec(dllimport)</em> <em>return_type imported_function_name(parameters);</em><br>
+            <br>
+            To dynamically load a DLL during the run of a C++Builder application use the Windows API
+            function <em>LoadLibrary()</em> to load the DLL, then use the API function <em>GetProcAddress()</em>
+            to obtain pointers to the individual functions you wish to use.<br>
+            <br>
+            Additional information on using DLLs can be found in the Microsoft® Win32 SDK Reference.<br>
+            <br>
+            <br>
+          </li>
+          <li><a name="DLLinDelphi">DLL in Delphi<br>
+            </a><br>
+            Here's a <a href="http://www.ActiveWireInc.com/download/AwusbIODelphi.exe">samle source
+            code</a> using Delphi.<br>
+            <br>
+            Following is found in the Delphi 4's Online Help.<br>
+            <br>
+            Before you can call routines defined in a DLL, you must import them. This can be done in
+            two ways: by declaring an external procedure or function, or by calling the Windows API
+            directly. Whichever method you use, the routines are not linked to your application until
+            runtime. This means that the DLL need not be present when you compile your program. It
+            also means that there is no compile-time validation of attempts to import a routine.<br>
+            <br>
+            Object Pascal does not support importing of variables from DLLs.<br>
+            <br>
+            Static loading<br>
+            <br>
+            The simplest way to import a procedure or function is to declare it using the external
+            directive. For example,<br>
+            <br>
+            <em>procedure DoSomething; external 'MYLIB.DLL';</em><br>
+            <br>
+            If you include this declaration in a program, MYLIB.DLL is loaded once, when the program
+            starts. Throughout execution of the program, the identifier DoSomething always refers to
+            the same entry point in the same DLL.<br>
+            <br>
+            Declarations of imported routines can be placed directly in the program or unit where they
+            are called. To simplify maintenance, however, you can collect external declarations into a
+            separate &#147;import unit&#148; that also contains any constants and types required for
+            interfacing with the DLL. (Delphi&#146;s Windows unit is a good example.) Other modules
+            that use the import unit can call any routines declared in it.<br>
+            <br>
+            For more information about external declarations, see External declarations.<br>
+            Dynamic loading through Windows API calls.<br>
+            <br>
+            <small><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            begin<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp; Handle := LoadLibrary('DATETIME.DLL');<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp; if Handle &lt;&gt; 0 then<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            begin<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @GetTime := GetProcAddress(Handle, 'GetTime');<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if @GetTime &lt;&gt; nil then<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; begin<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GetTime(Time);<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with Time do<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WriteLn('The time is ',
+            Hour, ':', Minute, ':', Second);<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;end;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;FreeLibrary(Handle);<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp; end;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            end;<br>
+            </em></small><br>
+          </li>
+        </ol>
+      </li>
+      <p align="center"><small><a href="#Index">Back to Index</a><br>
+      </small></p>
+      <hr width="80%" size="1">
+      <li><a name="Others">Others</a><br>
+        <br>
+        <ol>
+          <li><a name="CompatUHC">Compatibility issue with USB Host Controller<br>
+            </a><br>
+            There are several USB host controller chips reportedly cause problems with any USB devices
+            in certain occasions. <br>
+            The problems have been most often observed with systems such as either ;<ol>
+              <li>manufactured sometime between 1997 to early 1998. (including some big-brand laptops)</li>
+              <li>low cost machines (such as less than $500) that may use out-of-date components </li>
+            </ol>
+            <p><br>
+            If your ActiveWire USB board does not work well on your system for any reason, please
+            contact our technical support, <a href="mailto:tech_support@ActiveWireInc.com">tech_support@ActiveWireInc.com</a>.<br>
+            Please give us information of your USB host controller when contacting us.<br>
+            You can see what kind of USB host controller you have in the system by looking at <em>Control
+            Panel</em>, <em>System</em>, <em>Device Manager</em>, <em>Universal serial bus controller</em>
+            section.<br>
+            <br>
+            <br>
+            </p>
+          </li>
+        </ol>
+        <p><br>
+        </p>
+        <p align="center"><small><a href="#Index">Back to Index</a><br>
+        </small></p>
+        <hr width="80%" size="1">
+      </li>
+      <li><a name="Revision History">Revision History</a><br>
+        <blockquote>
+          <p><br>
+          Created on May 14th, 1999.<br>
+          <br>
+          Revised on Jun.22nd, 1999.<br>
+          <br>
+          Broken link fixed. <br>
+          Corrected figure in section 1-2. MOSFET output.&nbsp; &nbsp; Aug.23rd, 1999<br>
+          <br>
+          Added information about Windows 2000 support.&nbsp;&nbsp; <br>
+          Added information of new sample programs
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Oct.20th, 1999<br>
+          <br>
+          Revised information about Windows 2000 support.&nbsp;&nbsp; Feb.24th, 2000<br>
+          <br>
+          <br>
+          <br>
+          </p>
+        </blockquote>
+        <p align="center"><small><a href="#Index">Back to Index</a><br>
+        </small></p>
+      </li>
+    </ol>
+  </li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<PACKAGE>
+<JOB ID="Main">
+    <SCRIPT LANGUAGE="JScript" SRC="include/time.js"/>
+    <SCRIPT LANGUAGE="JScript" SRC="include/utils.js"/>
+    <SCRIPT LANGUAGE="JScript" SRC="include/results.js"/>
+
+<SCRIPT LANGUAGE="JScript">
+function FindEmptyColumn(sheet, row)
+    {
+    for(var column=1; 1; column++)
+        {
+        if(sheet.Cells(row, column).Value == "" || sheet.Cells(row, column).Value == undefined) return column;
+        }
+    }
+function FindEmptyRow(sheet, column)
+    {
+    for(var row=1; 1; row++)
+        {
+        if(sheet.Cells(row, column).Value == "" || sheet.Cells(row, column).Value == undefined) return row;
+        }
+    }
+</SCRIPT>
+
+    <SCRIPT LANGUAGE="JScript">
+    debugger
+    var perfSheet = "//bmckeex/bvt/xboxperf.xls";
+    var fso = WScript.CreateObject("Scripting.FileSystemObject");
+    var sheetNames = new Array("Time", "Kernel", "Idle", "DPC", "Interrupt", "TSC");
+    var excelchart = new Array();
+    var row, col, s_col, rowi, rowl, idx;
+    var s_range, test, tab, sections, xaxis;
+    var writeHeader = false;
+
+    excel.Workbooks.Open(perfSheet);
+
+    col = FindEmptyColumn(excel.Sheets(sheetNames[0]), 1) -1;
+    s_col = String.fromCharCode((col-1) + 0x41);
+    xaxis = "B1:" + s_col +"1";
+    rowl = FindEmptyRow(excel.Sheets(sheetNames[0]), 1) -1;
+    rowi = 1;
+    idx = -1;
+
+    while(rowi < rowl){
+        row = rowi +1;
+        rowi = row +10;
+        ++idx;
+        s_range = "A" + row + ":" + s_col + rowi;
+
+        excel.Sheets(sheetNames[0]).Activate;
+        test = excel.Cells(row,1).Value;
+        sections = test.split("\\");
+        tab = idx + "_" + sections[0];
+
+        excel.Range(s_range).Select;
+        excelchart[idx] = excel.Charts.Add();
+        for(var sc=1; sc<=10; sc++){
+            excelchart[idx].SeriesCollection(sc).XValues = "=Time!R1C2:R1C" + col;
+        }
+        excel.Visible = true;
+        excelchart[idx].Type = 4;
+        excelchart[idx].Name = tab;
+    }
+    WScript.Echo(idx + "  Charts generated " + xaxis);
+
+    </SCRIPT>
+</JOB>
+</PACKAGE>

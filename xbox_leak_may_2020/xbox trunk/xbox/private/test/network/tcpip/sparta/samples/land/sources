@@ -1,0 +1,37 @@
+#these two lines are only for debugging purposes
+MSC_OPTIMIZATION=/Odi
+USER_C_FLAGS=$(USER_C_FLAGS) /Zi /GX
+
+C_DEFINES= $(C_DEFINES) -DWIN32 -DNT -DDBG
+#C_DEFINES= $(C_DEFINES) -DUNICODE -D_UNICODE
+LINKER_FLAGS = $(LINKER_FLAGS) \
+               -IGNORE:4099
+
+# add all your test names in the UMAPPL list to be compiled with this one make file
+
+UMAPPL=land
+
+UMTYPE=console
+UMLIBS= ..\..\lib\SpartaApi.lib \
+        ..\..\Lib\Controller.lib \
+        ..\..\lib\ws2_32.lib \
+        ..\..\lib\iphlpapi.lib
+        
+
+INCLUDES= \
+        ..\..\Inc;                 \
+        $(SDK_INC_PATH);        \
+
+
+SOURCES=\
+     	land.rc          \
+        land.cpp
+TARGETNAME=land
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+USE_CRTDLL=1
+
+USE_NATIVE_EH=1
+USE_RTTI=1
+

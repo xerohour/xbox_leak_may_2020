@@ -1,0 +1,37 @@
+TARGETNAME=ScreenTest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+TITLEID    = 0xffffabc0
+PROJNAME = ScreenTest
+BROWSER_INFO=1
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+XNOHARDDISK=1
+
+USE_LIBCMT=1
+ 
+
+INCLUDES=\
+	$(SDKDIR); \
+	$(BASEDIR)\private\test\inc;\
+	$(BASEDIR)\private\test\common\include;\
+    $(BASEDIR)\private\ntos\inc;\
+	$(PRIVATE_INC_PATH);\
+	$(BASEDIR)\private\test\inc\cpx;\
+	$(SDK_INC_PATH);\
+	$(TEST_INCLUDE);\
+    $(INCLUDES)
+
+
+SOURCES=\
+    ScreenTest.cpp 
+
+LINKLIBS=\
+	$(BASEDIR)\private\test\lib\*\xbtestframe.lib \
+	$(XDK_LIB_PATH)\d3d8$(D).lib                \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib				\
+    $(XDK_LIB_PATH)\dsound$(D).lib              \
+    $(XDK_LIB_PATH)\xgraphics$(D).lib			\
+

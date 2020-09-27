@@ -1,0 +1,53 @@
+#include <olectl.h>
+// $$Safe_root$$StripMgr.idl : IDL source for $$Safe_root$$StripMgr.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library ($$Safe_root$$StripMgr.tlb) and marshalling code.
+
+[
+	// All the IDs in this file should be different values
+	uuid($$LIBRARY_GUID$$),
+	version(1.0),
+	helpstring("$$Safe_root$$StripMgr 1.0 Type Library")
+]
+library $$SAFE_ROOT$$STRIPMGRLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	import "oaidl.idl";
+	import "ocidl.idl";
+
+	cpp_quote("#define CF_$$SAFE_ROOT$$LIST \"DirectMusic Producer v.1 $$Safe_root$$list\"")
+
+	// TODO: Replace this CLSID with the one for your track type
+	// All the IDs in this file should be different values
+	cpp_quote("const CLSID CLSID_$$Safe_root$$Track = {$$TRACK_CLSID$$};")
+
+	[
+		// All the IDs in this file should be different values
+		uuid($$INTERFACE_GUID$$),
+
+		helpstring("I$$Safe_root$$Mgr Interface"),
+		pointer_default(unique)
+	]
+	interface I$$Safe_root$$Mgr : IUnknown
+	{
+			HRESULT IsMeasureBeatOpen(
+					[in]  long		lMeasure,
+					[in]  long		lBeat
+				);
+	};
+
+	[
+		// All the IDs in this file should be different values
+		uuid($$STRIPMGR_CLSID$$),
+		// The above GUID MUST BE THE SAME as the one in $$Safe_root$$Mgr.rgs !!!
+		helpstring("$$Safe_root$$Mgr Class")
+	]
+	coclass $$Safe_root$$Mgr
+	{
+		[default] interface I$$Safe_root$$Mgr;
+	};
+};

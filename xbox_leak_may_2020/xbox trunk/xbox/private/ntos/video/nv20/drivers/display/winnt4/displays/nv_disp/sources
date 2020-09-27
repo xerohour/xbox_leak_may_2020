@@ -1,0 +1,203 @@
+!include ..\..\..\..\sources.nv
+
+!IFDEF NV4
+NVCHIP=NV4
+TARGETNAME=nv4_disp
+NVARCH=0x10
+!ELSE
+NVCHIP=NV3
+TARGETNAME=nv3_disp
+NVARCH=0x03
+!ENDIF
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ENDIF
+
+TARGETTYPE=GDI_DRIVER
+DLLBASE=0x62200000
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W1
+!ENDIF
+
+############################################
+## Roller tool support                    ##
+############################################
+C_DEFINES= $(C_DEFINES) -DROLLER_TOOL_SUPPORT
+
+############################################
+## ELSA workstation tools escape          ##
+############################################
+# not longer used because of new NVIDIA interface! C_DEFINES= $(C_DEFINES) -DUSE_WKS_ELSA_TOOLS
+#        wkselsatoolsescape.c   \
+#        wkselsatoolsdebug.c    \
+#        wkselsatoolsregistry.c \
+#        wkselsatoolstoolbox.c  \
+#
+
+!IFDEF QUIET
+C_DEFINES= $(C_DEFINES) -DQUIET
+!ENDIF
+
+!IFDEF NVGDI
+C_DEFINES= $(C_DEFINES) -DNVGDI=1
+!ENDIF
+
+C_DEFINES= $(C_DEFINES) -DDISPDRV=1 -DNVDEPRECATED -D$(NVCHIP)=1 -DRM_HEAPMGR=1 -DNVARCH=$(NVARCH)
+
+!IFDEF NVD3D
+C_DEFINES= $(C_DEFINES) -DNVD3D -D_WIN32=1 -DNVDD32=1 -DDX_AGP=1
+!ENDIF
+
+INCLUDES= $(BASEDIR)\src\video\inc;..\..\miniport\nv_mini;$(BASEDIR)\inc;$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\inc;
+
+!IFDEF NT5
+INCLUDES=$(INCLUDES);$(BASEDIR)\src\video\displays\inc
+!ENDIF
+
+!IFDEF NVIA64
+INCLUDES=$(INCLUDES);$(BASEDIR)\inc\ddk
+!ENDIF
+
+!IFDEF DX8
+C_DEFINES= $(C_DEFINES) -DDX7=1 -DDIRECT3D_VERSION=0x0800 -DNVSPEAK=1 -DDX8
+INCLUDES=$(INCLUDES);$(BUILD_DDK_DIR)\directx8\inc
+MSC_STDCALL=1
+!ELSE
+!IFDEF DX7
+C_DEFINES= $(C_DEFINES) -DDX7=1 -DDIRECT3D_VERSION=0x0700 -DNVSPEAK=1
+INCLUDES=$(INCLUDES);$(BUILD_DDK_DIR)\directx7\inc
+MSC_STDCALL=1
+!ENDIF
+!ENDIF
+
+!IFDEF NV_BUILD_INTERNAL
+INCLUDES= $(INCLUDES);$(BUILD_TREE)\drivers\common\win9x\inc;$(BUILD_TREE)\drivers\common\inc
+!ENDIF
+
+INCLUDES=$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);..\srv\video\inc
+INCLUDES=$(INCLUDES);..\..\miniport\nv_mini
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\win9x\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vesa
+
+USE_LIBCNTPR = 1
+
+GDI_DRIVER_LIBS=$(TARGETPATH)\*\$(NVCHIP)ddrw.lib
+
+GDI_DRIVER_LIBS=$(NV_BASE)\drivers\display\winnt4\dump\*\common.lib
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(NV_BASE)\drivers\display\winnt4\dump\*\celsius.lib
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(NV_BASE)\drivers\display\winnt4\dump\*\kelvin.lib
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(NV_BASE)\drivers\display\winnt4\dump\*\common_disp.lib
+
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(NV_BASE)\drivers\display\winnt4\dump\*\nvpe.lib
+
+!IF DEFINED(NV4) && DEFINED(NVIA64)
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(BUILD_TREE)\drivers\common\lib64\oglshared.lib
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\common\nv10\inc
+!ELSEIF DEFINED(NV4) && !DEFINED(NVIA64)
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(BUILD_TREE)\drivers\common\lib\oglshared.lib
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\common\nv10\inc
+!ENDIF
+
+GDI_DRIVER_LIBS= $(GDI_DRIVER_LIBS)     \
+                $(SDK_LIB_PATH)\libcntpr.lib
+
+LINKER_FLAGS=$(LINKER_FLAGS) -IGNORE:4210
+SOURCES=misc.c          \
+        bitblt.c        \
+        escape32.c      \
+        nv4bltc.c       \
+        nv4hw.c         \
+        nvhw.c          \
+        heap.c          \
+        textout.c       \
+        nv4textc.c      \
+        brush.c         \
+        color.c         \
+        ddraw.c         \
+        nv4ddrw.c       \
+        bank.c          \
+        paint.c         \
+        debug.c         \
+        enable.c        \
+        nvinithw.c      \
+        wksappsupport.c \
+        nvMultiMon.c    \
+        nv3enabl.c      \
+        escape.c        \
+        drawescape.c    \
+        fillpath.c      \
+        lines.c         \
+        nv4lines.c      \
+        lineto.c        \
+        nv4linto.c      \
+        nv3bltc.c       \
+        nv1ddrw.c       \
+        nv3ddrw.c       \
+        nv1lines.c      \
+        nv3lines.c      \
+        nv1linto.c      \
+        nv3linto.c      \
+        nv3hw.c         \
+        multi.c         \
+        palette.c       \
+        nv4pal.c        \
+        nv3pal.c        \
+        pointer.c       \
+        nvptr.c         \
+        nv3ptr.c        \
+        stretch.c       \
+        nv3textc.c      \
+        nvapi.c         \
+        nvsetdac.c      \
+        thunk.c         \
+        pixelfmt.c      \
+        oglclip.c       \
+        oglctx.c        \
+        ogldrwbl.c      \
+        oglclient.c     \
+        oglswap.c       \
+        oglkick.c       \
+        oglsurf.c       \
+        oglexpor.c      \
+        ogloverlay.c    \
+        nvdoublebuf.c   \
+        savescreenbits.c\
+        swap.c          \
+        oglutils.c      \
+        oglclip.c       \
+        oglstereo.c     \
+        oglflip.c       \
+        cliplist.c      \
+        linkedlist.c    \
+        nt4muldirectdraw.c \
+        nt4muldrawfunc.c \
+        nt4mulescape.c  \
+        nt4mulstrokepath.c \
+        nt4multidev.c   \
+        ogldebug.c      \
+        oglsync.c       \
+        oglcmd.c        \
+        rectutils.c     \
+        res.rc
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=precomp.obj
+

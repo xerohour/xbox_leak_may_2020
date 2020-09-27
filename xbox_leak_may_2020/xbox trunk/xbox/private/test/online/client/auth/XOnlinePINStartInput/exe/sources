@@ -1,0 +1,27 @@
+TARGETNAME=XOnlinePINStartInput
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+
+USE_STL = 1
+USE_NATIVE_EH = 1
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+XE_FLAGS=/TESTNAME:"XOnlineStartPINInput" /TESTID:0xA7049955
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc; \
+                    $(BASEDIR)\private\test\online\client\auth\xonlineauthutil
+
+TARGETLIBS =        $(LIBRARY_PATH)\xonline$(D).lib                    \
+		    $(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xonlineauthutil.lib
+
+SOURCES= 			                                       \
+    ..\XOnlinePINStartInput.cpp

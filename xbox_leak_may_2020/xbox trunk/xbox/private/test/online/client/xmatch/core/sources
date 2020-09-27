@@ -1,0 +1,48 @@
+!IF 0
+
+Copyright (c) 2000 Microsoft Corporation
+
+Module Name:
+
+    xmatchtest
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Author:
+
+    Tristan Jackson (tristanj)
+
+!ENDIF
+
+TARGETNAME=xmatchtest$(D)
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+
+C_DEFINES=$(C_DEFINES)
+
+INCLUDES= \
+        $(INCLUDES);                          \
+        $(XDK_INC_PATH);                      \
+        $(BASEDIR)\private\inc;               \
+        $(BASEDIR)\private\test\inc;          \
+        $(BASEDIR)\private\online\client\inc
+
+
+SOURCES=\
+        xmatchtest.cpp       \
+	opensession.cpp      \
+	setattribute.cpp     \
+        sendsession.cpp      \
+	createsearch.cpp     \
+        appendparam.cpp      \
+        sendsearch.cpp       \
+        searchresults.cpp    \
+        addremoveplayers.cpp \
+        deletesession.cpp    \
+        findfromid.cpp       \
+        getsessionid.cpp

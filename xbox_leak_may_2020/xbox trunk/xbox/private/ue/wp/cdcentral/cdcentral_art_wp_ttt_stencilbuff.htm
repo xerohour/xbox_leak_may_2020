@@ -1,0 +1,77 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Stencil Buffer Holes</H2>
+<P><I>By Dave McCoy, Graphics Techniques Consultant, Xbox Content and Design Team</I></P>
+
+<IMG src="/content/img/stencilbuf_figure1.gif"> 
+<BR><BR>
+<P>Sometimes when you&#39;re making a game, you just want to punch a hole in the wall! Or shoot a hole in some complex surface. Now, with the stencil buffer on the Xbox&#8482; video game console from Microsoft, you can do so without getting into trouble. With just a little more effort, you can even do Boolean operations to subtract one 3-D shape from another.</P>
+<P>Basically, the stencil buffer is like a Photoshop mask or a frisket. Objects drawn to the stencil buffer don&#39;t appear in the image buffer. The stencil buffer is then used to control how objects are drawn to the image buffer. One common use for the stencil buffer is drawing shadows.</P> 
+<P>One interesting technique allows volume intersections to be represented in the stencil buffer. This technique allows volumetric shadows to be created. Using this technique, you can also create holes in an object without having to change the object geometry. This allows very flexible hole punching with arbitrary objects.</P>
+<P>To execute this technique, first draw all the geometry that you might want to punch a hole into. Don&#39;t bother with any lighting or texturing that would slow things down, and don&#39;t write anything into the stencil buffer yet. Just place the appropriate values in the z-buffer.</P> 
+<P>Next, start drawing any shapes you want to use as hole punchers into the stencil buffer. Each triangle in the shape is drawn by filling each pixel inside the triangle while checking against the z-buffer to see if that pixel is visible. Visibility normals are not considered, so polygons draw whether they face the viewpoint or not.</P>
+<P>Before you write each pixel in the shape into the stencil buffer, check to see if that pixel has been written to previously. If it has, clear the pixel rather than write to it. If not, write to the pixel.</P>
+<P>Closed volumes that don&#39;t intersect anything wind up getting wiped out as their back surfaces clear out their front surfaces. But parts of the volume that are behind another surface and don&#39;t get drawn also don&#39;t get wiped out because of the z-buffer. Here&#39;s an illustration of the idea:</P>
+<P>We start with a cone. This is the shape we&#39;ll use to punch a hole.</P>
+<IMG src="/content/img/stencilbuf_figure2.gif"> 
+<BR><BR>
+<P>For illustration purposes, we color the back faces blue and set the cone to 50 percent  transparent so we can see the interaction between the front and back faces of the cone. The front and back faces completely overlap, which causes the cone to appear purple. This means that every pixel in the shape would be written and then cleared.</P>
+<IMG src="/content/img/stencilbuf_figure3.gif"> 
+<BR><BR>
+<P>Now we introduce a box that the cone penetrates.</P>
+<IMG src="/content/img/stencilbuf_figure4.gif"> 
+<BR><BR>
+<P>The red spot is the area where the red front faces of the cone are still drawing, but the blue back faces have been covered because they are inside the box, behind the front surface. This red spot represents all the pixels that would be drawn in the stencil buffer and wouldn&#39;t be cleared out by a subsequent draw.</P>
+<P>Now draw the fully lit and textured box into the image buffer, using the pixels set in the image buffer as a hold-out mask.</P>
+<IMG src="/content/img/stencilbuf_figure5.gif"> 
+<BR><BR>
+<P>If we are simply punching a hole in a wall and don&#39;t care about the inside of an object, this is all we need to do. If we need an inside for the box, we could draw it using the same stencil buffer, but this time using the stencil buffer pixels to indicate the area to draw, rather than not draw.</P>
+<IMG src="/content/img/stencilbuf_figure6.gif"> 
+<BR><BR>
+<P>The nice thing about this approach is that it works with any shape of hole-puncher and any shape of object to be punched. The hole can be located anywhere you want and can intersect edges and corners without problems.</P>
+<P>Although we used a large cone for purposes of illustration, it is generally better to use smaller objects or objects that the eye point won&#39;t go inside. If the eye point does enter the hole-punching shape, then the stencil buffer fill routine needs minor modification for it to work correctly.</P>
+<P>As mentioned earlier, this technique can be used to create Boolean subtraction operations. Instead of drawing the inside of the box, we can draw a cone identical to the one used to punch the hole. We draw only the inside surfaces of the cone and use the pixels in the stencil buffer as a mask, allowing only those pixels where the stencil buffer is set to appear in the final image. The image at the head of this article was generated using this approach.</P>
+<P>Now let&#39;s try this technique with more complex shapes and remove more of the positive shape to demonstrate how flexible this effect can be. We&#39;ll use it on Beethoven and a chess piece.
+Here&#39;s the view of how the stencil buffer would see the scene. Only the red areas would be retained as a mask.</P>
+<IMG src="/content/img/stencilbuf_figure7.gif"> 
+<BR><BR>
+<P>And here&#39;s the image that&#39;s created when we use the stencil buffer mask to not draw the Beethoven bust and to draw the inside of the chess piece. This effect can be very cool when the two shapes are moving relative to each other.</P>
+<IMG src="/content/img/stencilbuf_figure8.gif"> 
+<BR><BR>
+<P>Now that you&#39;ve seen one of the things the stencil buffer can do, go punch some holes in stuff! It&#39;s just one of the things you get to do when you make games for the Xbox.
+As always, if you have any questions or suggested additions or revisions, please send e-mail to <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+
+<BR>
+
+<SMALL>Thursday, February 1, 2001</SMALL>
+
+
+
+</td>
+
+
+
+
+
+	

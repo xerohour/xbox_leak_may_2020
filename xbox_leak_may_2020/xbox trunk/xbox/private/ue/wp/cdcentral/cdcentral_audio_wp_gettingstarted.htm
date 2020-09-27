@@ -1,0 +1,170 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+<BR>
+<BR>
+</td><td><br>
+<H2>Getting Started with DirectMusic Producer: MIDI and DLS Collections </H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>There's an old adage that every piece of audio gear should be focused on doing one thing, and doing it well. Audio software is no different. Most sound designers and composers rely on multiple pieces of software to complete a project: some pieces for sound editing, others for mixing, others for MIDI sequencing, and so on. The challenge is trying to get all of these pieces of software to work well together, thus avoiding redundant and tedious tasks that can be associated with getting content from one piece of software to another.</P>
+<P>The goal of this paper is to help you add DirectMusic Producer to your content development process and get you authoring content for the Xbox&#8482; video game console from Microsoft as quickly as possible. We'll discuss using Producer in conjunction with your sequencer and sound editing software of choice. Specifically, we're going to walk through importing MIDI files and constructing DLS collections from waves, as well as delivering this content to your developer.</P>
+<P>Subsequent papers will discuss working with existing digital audio files in wave tracks, as well as the more powerful features of DirectMusic, such as developing dynamic content.</P>
+<H3>DirectMusic Producer: What Is It?</H3>
+<P>DirectMusic Producer is the content creation and management tool for Xbox audio content. Again, as discussed above, Producer is not meant to replace your sequencer or audio editing software. It is a tool to turn content created in your software into Xbox-formatted content. To distinguish, DirectMusic is a library-a set of interfaces, methods, and objects a programmer uses to play this content. Producer is actually used for much more than just music; it allows you to set up audiopaths and real-time effects, use wave files interactively, and design scripts using Microsoft&#174; DirectX&#174; Audio Scripting, among other features. These features will be addressed in later papers. </P>
+<H3>DirectMusic Producer: Getting Your Bearings</H3>
+<P>DirectMusic Producer is included on your XDK CD at &quot;X:\Essentls\DmusProd\Setup.exe&quot;. There's also a demo project in the DemoContent subdirectory, which we'll talk about towards the end of this paper.</P>
+<P>When you launch Producer, you're confronted with an application that has a lot of buttons, frames, toolbars, and so on. Fear not; we're only going to focus on a few things for this first lesson.</P>
+<H3><I>The Project Tree</I></H3>
+<P>Similar to an Explorer window, the project tree is where all of the files in your open project(s) (think directories) are displayed. It defaults to empty the first time you launch Producer, so let's start by creating a new project.</P>
+<ol>
+<li>From the top menu bar, on the <B>File</B> menu, click <B>New&hellip;.</B><SUP>1</SUP></li>  
+<li>A dialog comes up with a bunch of things you can create. Right now we're just interested in creating a project, so select <B>Project</B>, then click <B>OK</B>.</li>
+<li>Type the name you want to give the project into the <B>Project Name</B> text box. I chose the name &quot;MyProject&quot;. Note that the text in the <B>Project Name</B> text box always matches the lowest level subdirectory in the lower <B>Location</B> text box. Click OK when it looks good.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure1.gif" WIDTH="451" HEIGHT="136" BORDER="0" ALT=""></li> <BR>
+<li>The project tree now has a project in it, and we're on our way.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure2.gif" WIDTH="166" HEIGHT="52" BORDER="0" ALT=""></li>   
+</ol>
+<H3><I>Segment Files (.sgp/.sgt), or &quot;That Thing You Play&quot;</I></H3>
+<P>Segments are the files that are actually played in DirectMusic to make sound. They can be as basic as linear sequenced or wave data, they can be more variable, or they can even reference other pieces of DirectMusic content, such as scripts and styles. For this paper, we're going to stick with linear sequenced data imported from a MIDI file.</P>
+<H4>To import a MIDI file as a segment</H4>
+
+<OL>
+<LI>Right click your project folder, and click Import, and then point to MIDI File as Segment&hellip; <BR><BR>
+<IMG src="/content/img/gettingstarted_figure3.gif" WIDTH="404" HEIGHT="129" BORDER="0" ALT=""></LI> <BR>
+<LI>Now navigate to your MIDI file's location, and click <B>Open</B>. Voila, a new segment is created and opens. It's [your MIDI file name].sgp</LI>
+</OL>
+<P>First, let's look at the segment itself. The window that opened is called the Segment Designer Window. Mine looks like this:</P>
+<IMG src="/content/img/gettingstarted_figure4.gif" WIDTH="369" HEIGHT="487" BORDER="0" ALT=""><BR>
+<P>First, a little terminology: Segments are composed of one or more tracks. In the above segment, we have a few that look familiar, as well as a few that will require a little more explanation.</P>
+<P><B>Tempo track.</B> Contains one or more tempo changes for a segment. Italicized tempos mean there are a few tempo changes within that beat. To cycle through them, right click the tempo and click Cycle Tempos.</P>
+<P><B>Time Signature track.</B> Contains time signature information for a segment. If you use styles (we'll cover them in a later paper), they come with their own time signature, so this track is disabled in that case.</P>
+<P><B>Chord track.</B> This track tells the engine what chord is currently being played over. Note that this track doesn't affect sequence tracks-that is, changing the chord isn't going to start transposing a sequence track. However, other content (pattern tracks, styles, secondary segments) may use chord changes. We'll get into a more complete discussion of chords in a later paper. For now, it's fine to just leave it at whatever it defaults to (generally 1CM7 unless your MIDI file had key signature information).</P>
+<P><B>Sequence track.</B> The track type that's probably most familiar-all MIDI data is imported intact, including notes and controller curves. Note that initial volume and pan settings for each channel are imported here as well; this will come into play in a moment. A sequence track can have one or more parts, which correspond to the different channels (tracks) from the original MIDI file.<SUP>2</SUP>  In the graphic above, the fact that there aren't heavy black lines between the various channels of MIDI data tells us that they're all parts on the same track.</P>
+<P><B>Band track.</B> Bands are where patch change information goes. What can be confusing is that volume and pan changes can go here as well as in the controller strips of sequence tracks. Think of bands as snapshots and the &quot;MIDI-style&quot; tracks (sequence tracks, pattern tracks, and pattern parts in styles) as where you can change controller values over time.</P>
+<P>And that's the components of our segment. For the time being, let's say we don't need to tweak any of our MIDI data and we just want to get our instruments built up.</P>
+<H3>DLS (Downloadable Sounds) Collections: An Introduction</H3>
+<P>DLS-2 is an industry standard for <I>wavetable</I> synthesis that allows you to map <I>waves</I> to specific ranges of MIDI notes. One or more of these regions comprises an instrument. A DLS collection (.dlp/.dls) contains one or more instruments. DLS collections also store articulation information, which can be applied to instruments or specific regions in them. All of these features are supported by the audio hardware of the Xbox console. DLS-2 collections are authored in DirectMusic Producer using the DLS Designer module.</P>
+<H3><I>DLS Designer: Getting Started</I></H3>
+<P>Let's assume we've still got that MIDI file we imported into our project. We'll come back to it in a few minutes, once we have some instruments to use to play it.</P>
+<OL>
+<LI>Create a new DLS collection in this project. (Click <B>File</B>, then click <B>New</B>)</LI>
+<LI>Insert one or more waves (.wvp<SUP>3</SUP>/.wav) into the collection (drag into Waves folder or right click Waves folder).<BR><BR>
+<IMG src="/content/img/gettingstarted_figure5.gif" WIDTH="220" HEIGHT="92" BORDER="0" ALT=""></LI><BR>
+<LI>Adjust default wave settings if needed-root note, loop points, attenuation, fine tune, and so on. (Open the Properties page [right click, and then click <B>Properties</B> in the shortcut menu; or just use the one-step F11 shortcut and click the wave. To edit the actual waveform, double click the wave to open the Wave Editor.) By the way, if your audio editing software saves loop points and/or root note settings using the standard .wav format, Producer will attempt to use them when adding the wave to the DLS collection.</LI>
+<LI>Create an instrument (right click on the <B>Instruments</B> folder in the collection).<BR><BR>
+<IMG src="/content/img/gettingstarted_figure6.gif" WIDTH="262" HEIGHT="102" BORDER="0" ALT=""></LI>   <BR>
+<LI>Open the Instrument Editor (double click the instrument, or right click, then click <B>Open</B> in the shortcut menu).</LI>
+<LI>A single DLS-1 region spanning the full MIDI range is created by default. Choose a wave, note range, velocity range, and so on. (Note range: use the spin box or resize the bar using the mouse in the DLS-1 layer.) You can also override the wave's default settings from the region's Properties page.<BR> <BR>
+<IMG src="/content/img/gettingstarted_figure7.gif" WIDTH="148" HEIGHT="169" BORDER="0" ALT=""><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>Resizing a region using the mouse</I>.
+</LI> <BR>
+<LI>Add other regions as necessary (in an area that doesn't already have a region, CTRL+click and drag the range you want it to occupy).<BR><BR>
+<IMG src="/content/img/gettingstarted_figure8.gif" WIDTH="188" HEIGHT="123" BORDER="0" ALT=""></LI> <BR>
+<LI>For stereo regions: Add two regions on different layers with the same note range. Choose &quot;[WaveName](Left)&quot; for one and &quot;[WaveName](Right)&quot; for the other. For each region, click the <B>Multichannel</B> check box in the Properties page and choose the appropriate setting from the drop-down menu to its right. To ensure left and right channels are sample-accurate, click the <B>Phase Group ID</B> check box for both, and the <B>Master</B> check box for either one.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure9.gif" WIDTH="566" HEIGHT="251" BORDER="0" ALT=""></LI><BR>
+<LI>To audition this instrument, play from a MIDI keyboard (for MIDI setup: click the <B>MIDI Performance Options</B> icon <IMG src="/content/img/gettingstarted_figure10.gif" WIDTH="27" HEIGHT="25" BORDER="0" ALT=""> up in the <B>Transport Options</B> toolbar, choose <B>MIDI Input Device</B>) or click a region/note of the piano graphic. If you're using the mouse to trigger notes, notice the <B>Audition Options</B>, which lets you set velocity and whether or not to trigger multiple overlapped regions simultaneously.</LI>
+<LI>Now let's set this instrument's MSB, LSB, and Patch. The MSB/LSB/Patch should be a combination unique to this instrument. Note that in Producer, General MIDI instruments<SUP>4</SUP> already occupy 0,0,0 &#8211; 0,0,127. It's generally easiest to start with patch 0 and work up, so just set MSB and LSB to avoid conflicts with other instruments. Producer does this by default, so if you're happy with Producer's choice of values (generally lowest available), there's no need to change anything here. However, be careful if you're authoring several DLS collections in different projects, as Producer will only avoid patch conflicts with currently open projects. Sometimes it's worth it to create a separate written out list, particularly when several people are collaborating on a project while authoring separate DLS collections.</LI>
+<LI>Lastly, let's give this instrument a name. You can do this by right clicking the instrument in the project tree and choosing <B>Rename</B>, or by typing the name into the instrument's Properties page. Mine was built from the chimes wave, so I'll call the instrument ChimesArpeggio.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure11.gif" WIDTH="154" HEIGHT="47" BORDER="0" ALT=""></LI> 
+</OL>  <BR>
+<H3><I>Using a DLS Instrument in a Band</I></H3>
+<P>Now that we've finishing authoring our first instrument, let's get a channel from our segment to play back using this instrument.</P>
+<OL>
+<LI>Open the segment back up by double clicking the segment node in the tree.</LI>
+<LI>We want to edit the band in the segment's band track, so double click the first band in the band track (mine was called &quot;Band1&quot;). The Band Editor opens.</LI>
+<LI>Click the pchannel you want to use for this instrument and open its Properties page if it isn't already open (F11 or right click, then click <B>Properties</B> in the shortcut menu).</LI>
+<LI>Click the instrument button in the Properties page. (If it's disabled, check the &quot;Instrument&quot; check box first.)<BR><BR>
+<IMG src="/content/img/gettingstarted_figure12.gif" WIDTH="399" HEIGHT="238" BORDER="0" ALT=""></LI><BR>
+<LI>Choose Other DLS&hellip; from the list.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure13.gif" WIDTH="579" HEIGHT="388" BORDER="0" ALT=""></LI><BR>
+<LI>Choose your collection from the drop-down menu.</LI>
+<LI>Choose the instrument from the list presented, then click OK.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure14.gif" WIDTH="314" HEIGHT="301" BORDER="0" ALT=""></LI>
+</OL>
+<P>Notice that the pchannel now refers to the DLS instrument:</P>  
+<IMG src="/content/img/gettingstarted_figure15.gif" WIDTH="343" HEIGHT="32" BORDER="0" ALT="">
+<P>Close the Band Editor, reopen the Segment Designer window if it was closed, and start playing the segment. FYI, the <IMG src="/content/img/gettingstarted_figure16.gif" WIDTH="28" HEIGHT="24" BORDER="0" ALT=""> button in the <B>Transport Controls</B> menu will start playing whatever has focus.</P>
+<H3><I>Turn it Up!: Altering the Mix</I></H3>
+<P>At this point, you might notice that some instruments are louder than you want them to be. Others may be panned more or less than you intended. This brings us to one of the few tricky elements in importing MIDI files into Producer.</P>
+<P>You probably noticed a large grid on the right hand side of the Band Editor. For an imported MIDI file, notice that all of the channels were right in the center of this grid. If we open up the Properties page for a channel, we begin to see why.</P>
+<IMG src="/content/img/gettingstarted_figure17.gif" WIDTH="422" HEIGHT="396" BORDER="0" ALT=""> <BR>
+<P>Notice that the check boxes for <B>Vol</B> and <B>Pan</B> are currently unchecked. This means that their values are not currently being sent. For times when you want to alter one aspect of an instrument (such as patch) without affecting others (such as volume and pan), uncheck the information you do not want sent to the performance. The current values for these will remain unchanged by the band.</P>
+<P>So why are these two check boxes unchecked by default in an imported file? Remember that the MIDI file's initial volume and pan settings were placed in sequence track parts, not in the band. So if we were to alter the volume and pan settings in the band, we'd have two sets of competing volume and pan information. Whichever one was sent later would &quot;win,&quot; and it so happens that bands default to tick -1, while initial volume and pan in the sequence track default to tick 0.<SUP>5</SUP> So editing the band without first removing the offending curve in the sequence track would have no perceptible effect, because that volume/pan information would be overwritten immediately.</P>
+<P><IMG src="/content/img/gettingstarted_figure18.gif" WIDTH="398" HEIGHT="237" BORDER="0" ALT=""><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>The Properties page for the initial band imported with the MIDI file. Note that it plays at tick -1</I>.</P>
+<P><IMG src="/content/img/gettingstarted_figure19.gif" WIDTH="114" HEIGHT="173" BORDER="0" ALT=""><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>The controller events stored at the very beginning of the sequence track for pchannel 2. These curves are instantaneous (there's no gradual change of values). Note that they occur at bar 1, beat 1, tick 0.</I></P>
+<H4>To alter the mix of an imported MIDI file</H4>
+<OL>
+<LI>For each pchannel, expand its sequence track part and delete the initial volume and pan curves (you can jot down the data if you want to use it in your band).</LI>
+<LI><P>Open up the band by double-clicking it (In my case, the initial band was called &quot;Band1&quot;).</LI>
+<LI>Change the pan and volume values by dragging the &quot;boxes.&quot; Each box represents a pchannel that can be moved around using the mouse; horizontal movement alters the pan value and vertical movement alters the volume (up=louder, down=quieter).<BR><BR>
+<IMG src="/content/img/gettingstarted_figure20.gif" WIDTH="322" HEIGHT="198" BORDER="0" ALT=""><BR> <BR>
+Note the display down in the status bar (at the bottom of the Producer window) that shows you the current value for this pchannel. This information is also displayed in the Properties page, if it is open.<BR><BR>
+<IMG src="/content/img/gettingstarted_figure21.gif" WIDTH="155" HEIGHT="34" BORDER="0" ALT=""></P></LI>
+</OL>         
+<P>Altering the pan or volume for a pchannel will check its check box (so the data will be sent when the band is played). You can also adjust the mix during playback so you can hear it in context, though if there are other volume/pan controller curves in the sequence track parts, they will still be sent down at the appropriate time.</P>
+<P>Once you have a mix you like, you can close up the Band Editor, and you're almost ready to try playing this content on the Xbox.</P>
+<H3><I>And Here's the Handoff: Delivering Run-time Files</I></H3>
+<P>Now that we've got a DLS collection and a segment referring to it, let's wrap this lesson up by delivering the content to our developer for integration into the game. Remember, any file with a ._ _ p extension is a Producer design-time file and should be run-time saved to ensure the content is ready and optimized for in-game use.</P>
+<P>First, save all of your (design-time) content. There's a Ctrl+S shortcut to save the open editor's file. Producer also has a handy way to save all open files: click <B>File</B> in the toolbar, then click <B>Save Project</B> [Project Name].</P>
+<P>Now save the run-time files. Right clicking on a file node (one that has the actual file name for an object) brings up a shortcut menu with an option that says <B>Run-time Save As&hellip;.</B> Choose it, and a dialog appears where you can choose <B>Save</B> or alter the run-time filename before saving.</P>
+<IMG src="/content/img/gettingstarted_figure22.gif" WIDTH="267" HEIGHT="231" BORDER="0" ALT="">   <BR>
+<P>There's also a shortcut to save run-time files for everything in the current project. From the toolbar menu, click <B>File</B>, then click <B>Runtime Save All Files:</B> [Project Name].</P>
+<P>Note that by default, run-time files are saved to a subdirectory of this project called RuntimeFiles. If you want to change the default location for saving a file, go to the <B>Runtime</B> tab of that file node&#39;s Properties page. If you want to change the default location for saving all files of a certain type (for instance, all segments), go to the Project root node&#39;s Properties page.</P> 
+<P>We've now got a .sgt (run-time segment) and .dls (run-time DLS collection) that we can deliver to our developer.</P>
+<H3>A Tour of DirectMusic Features: The Producer Demo Project</H3>
+<P>Ready to move beyond linear MIDI files? An excellent place to start to get familiar with what you can do in DirectMusic is the Demo8 project, which is delivered on the CD with Producer or for separate download from the DirectX Web site.</P>
+<P>The self-extracting executable installs to My Documents\Demo8. Open the project, then use the Bookmarks toolbar to guide you through the examples. Bookmarks are a way to capture a snapshot of window locations and sizes, drop-down settings, and so on to easily recall them later.</P>
+<IMG src="/content/img/gettingstarted_figure23.gif" WIDTH="205" HEIGHT="65" BORDER="0" ALT=""><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>The <B>Bookmark</B> toolbar</I><BR>
+<P>These samples cover a few of the things we talked about above as well as some of the more powerful features of DirectMusic. Give them a try, noticing all of the different track types and how they can be used to build dynamic audio content.</P>
+<P>For more information about MIDI, waves, and DLS collections in Producer, please consult the DirectMusic Producer help document, the xds.xbox.com DirectMusic FAQ, or send e-mail to <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+ 
+<H3>Appendix A: DLS Terminology</H3>
+<P><B>Articulation.</B> Envelopes and filters applied to an instrument's (or a specific region's) playback. DLS-2 articulations support volume and pitch envelopes (each with adjustable DAHDSR parameters), two low-frequency oscillators, and variable filter cutoff, among other features. Often, a single articulation per instrument is sufficient, but articulations can also be unique per region.</P>
+<P><B>DAHDSR.</B> Articulation parameters for volume and pitch envelopes. Delay, Attack, Hold, Decay, Sustain, and Release.</P>
+<P><B>DLS-2.</B> Industry standard (http://www.midi.org/about-midi/dls/abtdls.htm) for wavetable synthesis.</P>
+<P><B>Instrument.</B> A set of regions and articulations that defines the range and attributes of one particular musical instrument or sound effect.</P>
+<P><B>MSB/LSB/Patch.</B> A set of three values (each ranging 0-127) that determine a specific instrument (MSB = most significant  byte, LSB = least significant byte). No two instruments intended to be played at the same time should have the same MSB, LSB, patch combination. General MIDI patches are traditionally 0,0,0 thru 0,0,127. GS and XG use other extended values.</P> 
+<P><B>Layer.</B> DLS-2 allows multiple regions to overlap. Thus, playing a single note can trigger several regions.</P>
+<P><B>Region.</B> A range of notes mapped to a wave. The wave is pitch shifted through this range based on its root note. DLS-2 also allows you to determine what velocity range a region has, so different waves can play at different velocities (especially good for percussion).</P>
+<P><B>Root Note.</B> The pitch that a wave is played relative to in a region. Notes played above this root note will sound higher and faster, notes below will be lower and slower.</P>
+<P><B>Wave.</B> Actual audio data referenced by one or more regions in one or more instruments.
+</P>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;Note that for many features in Producer, there's a shortcut key. It's generally displayed in the menu where you find the action you're performing. For <B>File</B>-><B>New</B>, it's <I>Ctrl+N</I>. I'll generally refrain from commenting on them, but for actions you perform a lot, it's good to know they're there.</P>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;Note that DirectMusic does not have the 16 channel limitation of traditional MIDI. It actually supports up to 32 million <I>performance channels (pchannels)</I>. Producer exposes 999 of these simultaneously. So if you author content in another sequencer that went to two or more different ports, you can easily use it on a single &quot;port&quot; (the Xbox console's audio hardware) as a DirectMusic segment.</P>
+<P style="font-size:12"><SUP>3</SUP>&nbsp;You may have noticed that some file types end with a .__p extension. &quot;P&quot; means Producer, which in turn indicates this is a design-time file. It will probably be larger than the run-time file that you will deliver to developers, as it stores Producer-specific information like window location and audition settings.</P>
+<P style="font-size:12"><SUP>4</SUP>&nbsp;Microsoft&#174; Windows&#174; operating systems come with a DLS collection called GM.dls, which contains a set of General MIDI instruments. You can actually insert this collection into Producer to see how a larger collection is built. Note however that the Xbox console will not ship with any built-in collections. So while content using General MIDI will make noise on your development machine, it will play silently on the XDK machine unless you author a collection that uses the same MSB, LSB, and Patches. It is therefore recommended that you use non-General MIDI instrument patches (avoid 0,0,0 - 0,0,127).</P>
+<P style="font-size:12"><SUP>5</SUP>&nbsp;In traditional MIDI implementations, you can guarantee an event will occur before another event by making it appear earlier in the file or stream. Even if a note and a patch are slated to occur at exactly the same time, you can ensure that the patch change will be sent first by making sure it occurs earlier in the events list. However, DirectMusic uses a time-stamping protocol, in which MIDI-like events are queued ahead of time. While this ensures very accurate timing, it means that for two events scheduled at the exact same time, there's no guarantee which one will be played first. Therefore, band changes should generally be sent down 1 tick before any notes meant to be affected by them.</P>
+
+<BR>
+
+<SMALL>Friday, December 29, 2000</SMALL>
+
+
+
+</td>

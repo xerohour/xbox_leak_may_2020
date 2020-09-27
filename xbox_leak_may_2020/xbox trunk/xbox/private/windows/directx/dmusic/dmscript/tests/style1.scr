@@ -1,0 +1,37 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim VTempo
+dim VBeatsPerMeasure
+dim VBeat
+dim VGridsPerBeat
+dim VEmbelishAvailYes
+dim VEmbelishAvailNo
+dim VEmbelishMin
+dim VEmbelishMax
+sub TGets
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	PlaySegment(seg)
+	while not IsPlaying(seg)	' ugh!
+	wend
+	set sty = GetStyle()
+	if (not sty is Nothing) then
+		VTempo = sty.GetTempo()
+		VBeatsPerMeasure = sty.GetTimeSigBeatsPerMeasure()
+		VBeat = sty.GetTimeSigBeat()
+		VGridsPerBeat = sty.GetTimeSigGridsPerBeat()
+		VEmbelishAvailYes = sty.IsEmbellishmentAvailable(DMUS_COMMANDT_FILL, 25)
+		VEmbelishAvailNo = sty.IsEmbellishmentAvailable(DMUS_COMMANDT_INTRO, 25)
+		VEmbelishMin = sty.GetEmbellishmentMinLength(DMUS_COMMANDT_FILL, 25)
+		VEmbelishMax = sty.GetEmbellishmentMaxLength(DMUS_COMMANDT_FILL, 25)
+
+		set band1 = sty.GetBand("Default")
+		set band2 = sty.GetDefaultBand()
+		if band1 is Nothing or not band1 is band2 then
+			PlaySegment Nothing
+		end if
+
+		set motif = sty.GetMotif("Pattern11")
+		PlaySegment motif, DMUS_SEGF_SECONDARY
+	end if
+end sub

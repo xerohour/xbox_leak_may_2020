@@ -1,0 +1,544 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "CHORDSTRIPMGR.DLL\0"
+#define VERSIONDESCRIPTION          "ChordStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "ChordStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "CHORDSTRIPMGR.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_CHORDMGR            REGISTRY DISCARDABLE    "ChordMgr.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_CHORDTRUCK          ICON    DISCARDABLE     "icon1.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+IDR_CHORDPROP MENU DISCARDABLE 
+BEGIN
+    POPUP "ChordProp"
+    BEGIN
+        MENUITEM "&Lock All Scale Levels",      IDM_LOCK_ALL_SCALES
+        MENUITEM "&Auto-Sync Level 1 to All",   IDM_SYNC_ALL_LEVELS
+        MENUITEM SEPARATOR
+        POPUP "&Copy Chord to..."
+        BEGIN
+            MENUITEM "level &4",                    ID_COPY_CHORD4
+            MENUITEM "level &3",                    ID_COPY_CHORD3
+            MENUITEM "level &2",                    ID_COPY_CHORD2
+            MENUITEM "level &1",                    ID_COPY_CHORD1
+            MENUITEM "&all",                        ID_COPY_CHORDALL
+        END
+        POPUP "Copy &Scale to..."
+        BEGIN
+            MENUITEM "level &4",                    ID_COPY_SCALE4
+            MENUITEM "level &3",                    ID_COPY_SCALE3
+            MENUITEM "level &2",                    ID_COPY_SCALE2
+            MENUITEM "level &1",                    ID_COPY_SCALE1
+            MENUITEM "&all",                        ID_COPY_SCALEALL
+        END
+        POPUP "Copy Chord &+ Scale to..."
+        BEGIN
+            MENUITEM "level &4",                    ID_COPY_CHORDSCALE4
+            MENUITEM "level &3",                    ID_COPY_CHORDSCALE3
+            MENUITEM "level &2",                    ID_COPY_CHORDSCALE2
+            MENUITEM "level &1",                    ID_COPY_CHORDSCALE1
+            MENUITEM "&all",                        ID_COPY_CHORDSCALEALL
+        END
+        POPUP "Clea&r ..."
+        BEGIN
+            MENUITEM "level &4",                    ID_CLEAR_CHORDSCALE4
+            MENUITEM "level &3",                    ID_CLEAR_CHORDSCALE3
+            MENUITEM "level &2",                    ID_CLEAR_CHORDSCALE2
+            MENUITEM "level &1",                    ID_CLEAR_CHORDSCALE1
+            MENUITEM "&all",                        ID_CLEAR_CHORDSCALEALL
+        END
+    END
+END
+
+IDR_PATTERN_EDITOR_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge",                      ID_EDIT_PASTE_MERGE
+            MENUITEM "&Overwrite",                  ID_EDIT_PASTE_OVERWRITE
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT, GRAYED
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM SEPARATOR
+        POPUP "&Keep Constant"
+        BEGIN
+            MENUITEM "&MIDI Notes (M)",             IDM_CONSTANT_MIDI
+            MENUITEM "&Functionality (F)",          IDM_CONSTANT_FUNCTION
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            ID_VIEW_PROPERTIES
+    END
+END
+
+IDR_SEGMENT_EDITOR_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge\tCtrl+V",              ID_EDIT_PASTE_MERGE
+            MENUITEM "&Overwrite",                  ID_EDIT_PASTE_OVERWRITE
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT, GRAYED
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM "&Hide from Chord Rhythm",     ID_HIDE_FROM_RHYTHM, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Add Track(s)...\tCtrl+Ins",  ID_EDIT_ADD_TRACK
+        MENUITEM "D&elete Track(s)\tCtrl+Del",  ID_EDIT_DELETE_TRACK
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            ID_VIEW_PROPERTIES
+    END
+END
+
+IDR_SEGMENT_EDITOR_WITHPTRN_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge\tCtrl+V",              ID_EDIT_PASTE_MERGE
+            MENUITEM "&Overwrite",                  ID_EDIT_PASTE_OVERWRITE
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT, GRAYED
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM "&Hide from Chord Rhythm",     ID_HIDE_FROM_RHYTHM, GRAYED
+        MENUITEM SEPARATOR
+        POPUP "&Keep Constant"
+        BEGIN
+            MENUITEM "&MIDI Notes (M)",             IDM_CONSTANT_MIDI
+            MENUITEM "&Functionality (F)",          IDM_CONSTANT_FUNCTION
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Add Track(s)...\tCtrl+Ins",  ID_EDIT_ADD_TRACK
+        MENUITEM "D&elete Track(s)\tCtrl+Del",  ID_EDIT_DELETE_TRACK
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            ID_VIEW_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+INVERTD                 BITMAP  DISCARDABLE     "..\\shared\\invertd.bmp"
+INVERTF                 BITMAP  DISCARDABLE     "..\\shared\\invertf.bmp"
+INVERTU                 BITMAP  DISCARDABLE     "..\\shared\\invertu.bmp"
+MIDIPLUGD               BITMAP  DISCARDABLE     "..\\shared\\midiplugd.bmp"
+MIDIPLUGF               BITMAP  DISCARDABLE     "..\\shared\\midiplugf.bmp"
+MIDIPLUGU               BITMAP  DISCARDABLE     "..\\shared\\midiplugu.bmp"
+PLAYD                   BITMAP  DISCARDABLE     "..\\shared\\playd.bmp"
+PLAYF                   BITMAP  DISCARDABLE     "..\\shared\\playf.bmp"
+PLAYU                   BITMAP  DISCARDABLE     "..\\shared\\playu.bmp"
+SHIFTLD                 BITMAP  DISCARDABLE     "..\\shared\\shiftld.bmp"
+SHIFTLF                 BITMAP  DISCARDABLE     "..\\shared\\shiftlf.bmp"
+SHIFTLU                 BITMAP  DISCARDABLE     "..\\shared\\shiftlu.bmp"
+SHIFTRD                 BITMAP  DISCARDABLE     "..\\shared\\shiftrd.bmp"
+SHIFTRF                 BITMAP  DISCARDABLE     "..\\shared\\shiftrf.bmp"
+SHIFTRU                 BITMAP  DISCARDABLE     "..\\shared\\shiftru.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_CHORDINVERSION_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_ILLEGALCHORD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_CHORDSCALE_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 243
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_PROPPAGE_CHORDTRACK_KEY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 245
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CHORDINVERSION_PROPPAGE DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Chord Inversion"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT_IROOT,6,7,18,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    EDITTEXT        IDC_EDIT_INAME,27,7,87,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    LTEXT           "Next",IDC_STATIC,117,10,16,8
+    LTEXT           "Select legal inversion",IDC_STATIC,137,10,70,8
+    LTEXT           "Legal?",IDC_STATIC,213,10,22,8
+    LTEXT           "4",IDC_STATIC,7,20,8,8
+    CONTROL         "",IDC_KEYS_BASECHORD4,"Button",BS_OWNERDRAW | BS_FLAT,
+                    15,21,83,20
+    CONTROL         "INVERT",IDC_BUTTON_INVERT4,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,112,23,15,14
+    CONTROL         "",IDC_KEYS_INVERSIONS4,"Button",BS_OWNERDRAW | BS_FLAT,
+                    125,21,83,20
+    CONTROL         "",IDC_CHECK_LEGAL4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,215,25,12,10
+    CONTROL         "PLAY",IDC_BUTTON_IPLAY4,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,231,24,12,10
+    LTEXT           "3",IDC_STATIC,7,43,8,8
+    CONTROL         "",IDC_KEYS_BASECHORD3,"Button",BS_OWNERDRAW | BS_FLAT,
+                    15,42,83,20
+    CONTROL         "INVERT",IDC_BUTTON_INVERT3,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,111,42,15,14
+    CONTROL         "",IDC_KEYS_INVERSIONS3,"Button",BS_OWNERDRAW | BS_FLAT,
+                    125,42,83,20
+    CONTROL         "",IDC_CHECK_LEGAL3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,215,46,12,10
+    CONTROL         "PLAY",IDC_BUTTON_IPLAY3,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,231,45,12,10
+    LTEXT           "2",IDC_STATIC,7,63,8,8
+    CONTROL         "",IDC_KEYS_BASECHORD2,"Button",BS_OWNERDRAW | BS_FLAT,
+                    15,63,83,20
+    CONTROL         "INVERT",IDC_BUTTON_INVERT2,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,111,63,15,14
+    CONTROL         "",IDC_KEYS_INVERSIONS2,"Button",BS_OWNERDRAW | BS_FLAT,
+                    125,63,83,20
+    CONTROL         "",IDC_CHECK_LEGAL2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,215,67,12,10
+    CONTROL         "PLAY",IDC_BUTTON_IPLAY2,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,231,65,12,10
+    LTEXT           "1",IDC_STATIC,7,83,8,8
+    CONTROL         "",IDC_KEYS_BASECHORD1,"Button",BS_OWNERDRAW | BS_FLAT,
+                    15,83,83,20
+    CONTROL         "INVERT",IDC_BUTTON_INVERT1,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,111,84,15,14
+    CONTROL         "",IDC_KEYS_INVERSIONS1,"Button",BS_OWNERDRAW | BS_FLAT,
+                    125,83,83,20
+    CONTROL         "",IDC_CHECK_LEGAL1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,215,87,12,10
+    CONTROL         "PLAY",IDC_BUTTON_IPLAY1,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,231,86,12,10
+END
+
+IDD_ILLEGALCHORD DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "WARNING: Illegal Chord"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,59,74,50,14
+    LTEXT           "Illegal Chord",IDC_ILLEGALCHORD,13,9,149,32
+    CONTROL         "Warn",IDC_DONTWARN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,60,148,10
+END
+
+IDD_CHORDSCALE_PROPPAGE DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Chord/Scale"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",IDC_STATIC,13,0,230,20
+    EDITTEXT        IDC_EDIT_ROOT,17,7,29,12,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "Spin2",IDC_SPIN_ROOT,"msctls_updown32",UDS_ALIGNRIGHT | 
+                    UDS_AUTOBUDDY | UDS_ARROWKEYS,41,5,11,14
+    EDITTEXT        IDC_EDIT_NAME,59,6,88,12,ES_AUTOHSCROLL
+    CONTROL         "Sharps",IDC_USESHARPS,"Button",BS_AUTORADIOBUTTON,151,7,
+                    35,10
+    CONTROL         "Flats",IDC_USEFLATS,"Button",BS_AUTORADIOBUTTON,192,7,
+                    31,10
+    CONTROL         "PLAY",IDC_BUTTON_PLAYALL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,225,7,12,10
+    LTEXT           "4",IDC_STATIC,6,22,8,8
+    CONTROL         "",IDC_KEYS_CHORD4,"Button",BS_OWNERDRAW | BS_FLAT,22,22,
+                    160,20
+    CONTROL         "",IDC_KEYS_SCALE4,"Button",BS_OWNERDRAW | BS_FLAT,189,
+                    22,40,20
+    CONTROL         "PLAY",IDC_BUTTON_PLAY4,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,20,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDICHORD4,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,8,31,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDISCALE4,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,30,12,10
+    LTEXT           "3",IDC_STATIC,6,42,8,8
+    CONTROL         "",IDC_KEYS_CHORD3,"Button",BS_OWNERDRAW | BS_FLAT,22,42,
+                    160,20
+    CONTROL         "",IDC_KEYS_SCALE3,"Button",BS_OWNERDRAW | BS_FLAT,189,
+                    42,40,20
+    CONTROL         "PLAY",IDC_BUTTON_PLAY3,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,42,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDICHORD3,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,8,51,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDISCALE3,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,51,12,10
+    LTEXT           "2",IDC_STATIC,6,62,8,8
+    CONTROL         "",IDC_KEYS_CHORD2,"Button",BS_OWNERDRAW | BS_FLAT,22,62,
+                    160,20
+    CONTROL         "",IDC_KEYS_SCALE2,"Button",BS_OWNERDRAW | BS_FLAT,189,
+                    62,40,20
+    CONTROL         "PLAY",IDC_BUTTON_PLAY2,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,63,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDICHORD2,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,8,71,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDISCALE2,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,72,12,10
+    LTEXT           "1",IDC_STATIC,6,82,8,8
+    CONTROL         "",IDC_KEYS_CHORD1,"Button",BS_OWNERDRAW | BS_FLAT,22,82,
+                    160,20
+    CONTROL         "",IDC_KEYS_SCALE1,"Button",BS_OWNERDRAW | BS_FLAT,189,
+                    82,40,20
+    CONTROL         "PLAY",IDC_BUTTON_PLAY1,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,84,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDICHORD1,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,8,91,12,10
+    CONTROL         "MIDIPLUG",IDC_BUTTON_MIDISCALE1,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,233,94,12,10
+END
+
+IDD_PROPPAGE_CHORDTRACK_KEY DIALOG DISCARDABLE  0, 0, 252, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Chord Track Key"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Key &Root",IDC_STATIC_KEY_ROOT,23,9,30,8
+    EDITTEXT        IDC_EDIT_KEY_ROOT,55,7,26,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_KEY_ROOT,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,75,7,11,
+                    12
+    CONTROL         "#'s",IDC_RADIO_SHARP,"Button",BS_AUTORADIOBUTTON | 
+                    WS_TABSTOP,101,7,25,10
+    CONTROL         "b's",IDC_RADIO_FLAT,"Button",BS_AUTORADIOBUTTON,101,18,
+                    25,10
+    LTEXT           "Key &Signature",IDC_STATIC_KEY_SIG,7,25,45,8
+    EDITTEXT        IDC_EDIT_ACCIDENTALS,55,23,26,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN_ACCIDENTALS,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,75,21,11,13
+    LTEXT           "#'s",IDC_STATIC_ACCIDENTALS,85,25,19,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "ChordStripMgr"
+    IDS_PROPPAGE_CHORD      "Chord"
+    IDS_TRACK_NAME          "Chord Track"
+    IDS_EDITOR_NAME         "Chord Track Editor"
+    IDS_PROPPAGE_GROUP_BITS "Chord Track"
+    IDS_ERR_DELETE_FIRST_CHORD 
+                            "The chord track must contain a chord on the first beat of measure 1."
+    IDS_CHORDS_TEXT         "Chords"
+    IDS_MIDI_MODE_TEXT      "(M)"
+    IDS_FUNCTION_MODE_TEXT  "(F)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_LEVEL               "level"
+    IDS_ILLEGALCHORD        "Illegal value: Chord root note is too high, and has been automatically shifted to legal range (from C1 to B2)"
+    IDS_ILLEGALCHORD2       "You've entered a chord whose span is greater than or equal to two octaves.  To add lower or higher notes, first remove the highest or lowest note."
+    IDS_DONTWARN            "Don't warn me about this again"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PATTERN_EDITOR_TEXT "Chords for Comp"
+    IDS_SHARP_PROPPAGE_TEXT "#'s"
+    IDS_FLAT_PROPPAGE_TEXT  "b's"
+    IDS_GROUPBITS_TITLE     "Track Group Assignment"
+    IDS_KEY_TITLE           "Key"
+    IDS_KEY_NAME_FORMAT     "(Key=%1/%2)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_PASTE          "Paste Chord(s)"
+    IDS_UNDO_DELETE         "Delete Chord(s)"
+    IDS_UNDO_INSERT         "Insert Chord"
+    IDS_UNDO_CHANGE         "Change Chord"
+    IDS_UNDO_TRACK_GROUP    "Track Group Assignment"
+    IDS_UNDO_MOVE           "Move Chord(s)"
+    IDS_UNDO_KEYCHANGE      "Change Key"
+    IDS_ILLEGALCHORD3       "It is illegal to copy a chord whose bass note is greater than B2 to chord level 1."
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+    IDS_UNDO_HIDE_FROM_RHYTHM "Hide from Chord Rhythm"
+    IDS_UNDO_LOCK_SCALES    "Lock All Scale Levels"
+    IDS_UNDO_SYNC_LEVELS    "Auto-Sync Level 1 to All"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "ChordStrip Manager"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

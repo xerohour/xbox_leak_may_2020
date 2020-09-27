@@ -1,0 +1,2751 @@
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:45
+..\i386\romdec32.asm					     Page 1 - 1
+
+
+				;++
+				;
+				; Copyright (c) 1989-2000  Microsoft Corporation
+				;
+				; Module Name:
+				;
+				;    romdec.asm
+				;
+				; Abstract:
+				;
+				;    The module decrypts the ROM loader
+				;
+				; Environment:
+				;
+				;    32-bit Protected Mode
+				;
+				;--
+
+				; ==========================================================================
+
+				        .586p
+
+				        .xlist
+				        INCLUDE bldr.inc
+			      C ;++
+			      C ;
+			      C ;  Copyright (c) 2000-2001  Microsoft Corporation
+			      C ;
+			      C ;  Module Name:
+			      C ;
+			      C ;     bldr.inc
+			      C ;
+			      C ;  Abstract:
+			      C ;
+			      C ;     This module contains shared constants for the various boot loaders.
+			      C ;
+			      C ;--
+			      C 
+			      C ;
+			      C ; Define the starting physical address where the ROM decrypts the boot loader
+			      C ;
+			      C 
+ = 00090000		      C BLDR_BOOT_ORIGIN                    EQU     00090000h
+			      C 
+			      C ;
+			      C ; Define the starting physical address where the boot loader relocates itself
+			      C ;
+			      C 
+ = 00400000		      C BLDR_RELOCATED_ORIGIN               EQU     00400000h
+			      C 
+			      C ;
+			      C ; Initialize any page table entries with valid, write, accessed, and dirty.
+			      C ;
+			      C 
+ = 0063			      C BLDR_VALID_KERNEL_PTE_BITS          EQU     063h
+			      C 
+			      C ;
+			      C ; Initialize any page table entries with valid, write, accessed, large page, and dirty.
+			      C ;
+			      C 
+ = 00E3			      C BLDR_VALID_KERNEL_LARGE_PTE_BITS    EQU     0E3h
+			      C 
+			      C ;
+			      C ; Initialize any page table entries with valid, write, accessed, large page, 
+			      C ; cache disabled, write through, and dirty.
+			      C ;
+			      C 
+ = 00FB			      C BLDR_VALID_KERNEL_LARGE_PTE_UC_BITS  EQU    0FBh
+			      C 
+			      C 
+			      C ;
+			      C ; Origin for the processor reset vector.
+			      C ;
+			      C 
+ = FE00			      C BOOT_CODE_ORIGIN                    EQU     0FE00h
+			      C 
+			      C ;
+			      C ; Size of the rom loader (must match BLDR_BLOCK_SIZE in bldr.h).
+			      C ;
+			      C 
+ = 6000			      C ROMLDR_SIZE                         EQU     6000h
+			      C 
+			      C ;
+			      C ; Size of the rom preloader (must match PRELDR_BLOCK_SIZE in bldr.h).
+			      C ;
+			      C 
+ = 2A00			      C ROMPRELDR_SIZE                      EQU     2A00h
+			      C 
+			      C ;
+			      C ; Signature in the rom loader (must match BLDR_SIGNATURE in bldr.h)
+			      C ;
+			      C 
+ = 7854794A		      C ROMLDR_SIGNATURE                    EQU     7854794Ah
+			      C 
+			      C ;
+			      C ; Size of the XBOOT_PARAM structure defined in bldr.h
+			      C ;
+			      C 
+ = 001C			      C ROMLDR_BOOTPARAMSIZE                EQU     28
+			      C 
+			      C ;
+			      C ; ROMDEC hash address and nonce
+			      C ;
+			      C 
+ = 0058			      C ROMDEC_HASH                         EQU     88
+ = 0064			      C ROMDEC_N                            EQU     100
+			      C 
+			      C ;
+			      C ; ROMDEC key size in bytes
+			      C ;
+			      C 
+ = 0010			      C ROMDEC_KEYSIZE                      EQU     16
+			      C 
+			      C ;
+			      C ; linear address for ROMDEC stack
+			      C ;
+			      C 
+ = 0008F000		      C ROMDEC_STACK                        EQU     8F000h
+			      C 
+			      C ;
+			      C ; linear address for RC4 key structure (258 bytes)
+			      C ;
+			      C 
+ = 0008F000		      C ROMDEC_KEYSTRUCT                    EQU     8F000h
+			      C 
+			      C ;
+			      C ; linear address for the start of the ROMDEC code block (top 512 bytes of
+			      C ; the address space)
+			      C ;
+			      C 
+ = FFFFFE00		      C ROMDEC_STARTADDRESS                 EQU     0FFFFFE00h
+			      C 
+			      C ;
+			      C ; ROMDEC buffer size to decrypt
+			      C ;
+			      C 
+ = ROMLDR_SIZE		      C ROMDEC_BUFFERSIZE                   EQU     ROMLDR_SIZE
+			      C 
+			      C ;
+			      C ; liner address for input buffer used in encryption
+			      C ;
+			      C 
+ =-6200			      C ROMDEC_INPUTBUFFER                  EQU     (ROMDEC_STARTADDRESS - ROMLDR_SIZE)
+			      C 
+			      C ;
+			      C ; liner address for output buffer used in encryption
+			      C ;
+			      C 
+ = BLDR_BOOT_ORIGIN	      C ROMDEC_OUTPUTBUFFER                 EQU     BLDR_BOOT_ORIGIN
+			      C 
+			      C ;
+			      C ; linear address for the init table
+			      C ;
+			      C 
+ = FF000080		      C ROMDEC_INIT_TABLE                   EQU     0FF000080h
+			      C 
+			      C 
+				        INCLUDE ks386.inc
+			      C 
+			      C ;
+			      C ;  Pointer size in bytes
+			      C ;
+			      C 
+ = 0004			      C SizeofPointer equ 00004H
+			      C 
+			      C ;
+			      C ;  Process State Enumerated Type Values
+			      C ;
+			      C 
+ = 0000			      C ProcessInMemory equ 00000H
+ = 0001			      C ProcessOutOfMemory equ 00001H
+ = 0002			      C ProcessInTransition equ 00002H
+			      C 
+			      C ;
+			      C ;  Thread State Enumerated Type Values
+			      C ;
+			      C 
+ = 0000			      C Initialized equ 00000H
+ = 0001			      C Ready equ 00001H
+ = 0002			      C Running equ 00002H
+ = 0003			      C Standby equ 00003H
+ = 0004			      C Terminated equ 00004H
+ = 0005			      C Waiting equ 00005H
+			      C 
+			      C ;
+			      C ;  Wait Reason and Wait Type Enumerated Type Values
+			      C ;
+			      C 
+ = 0000			      C WrExecutive equ 00000H
+ = 000E			      C WrEventPair equ 0000EH
+ = 0001			      C WaitAny equ 00001H
+ = 0000			      C WaitAll equ 00000H
+			      C 
+			      C ;
+			      C ;  Apc State Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C AsApcListHead equ 00000H
+ = 0010			      C AsProcess equ 00010H
+ = 0014			      C AsKernelApcInProgress equ 00014H
+ = 0015			      C AsKernelApcPending equ 00015H
+ = 0016			      C AsUserApcPending equ 00016H
+			      C 
+			      C ;
+			      C ;  Bug Check Code Definitions
+			      C ;
+			      C 
+ = 0001			      C APC_INDEX_MISMATCH equ 00001H
+ = 00B8			      C ATTEMPTED_SWITCH_FROM_DPC equ 000B8H
+ = 002E			      C DATA_BUS_ERROR equ 0002EH
+ = 0055			      C DATA_COHERENCY_EXCEPTION equ 00055H
+ = 0061			      C HAL1_INITIALIZATION_FAILED equ 00061H
+ = 002F			      C INSTRUCTION_BUS_ERROR equ 0002FH
+ = 0056			      C INSTRUCTION_COHERENCY_EXCEPTION equ 00056H
+ = 003D			      C INTERRUPT_EXCEPTION_NOT_HANDLED equ 0003DH
+ = 003C			      C INTERRUPT_UNWIND_ATTEMPTED equ 0003CH
+ = 0003			      C INVALID_AFFINITY_SET equ 00003H
+ = 0004			      C INVALID_DATA_ACCESS_TRAP equ 00004H
+ = 004A			      C IRQL_GT_ZERO_AT_SYSTEM_SERVICE equ 0004AH
+ = 000A			      C IRQL_NOT_LESS_OR_EQUAL equ 0000AH
+ = 001E			      C KMODE_EXCEPTION_NOT_HANDLED equ 0001EH
+ = 0080			      C NMI_HARDWARE_FAILURE equ 00080H
+ = 000E			      C NO_USER_MODE_CONTEXT equ 0000EH
+ = 0049			      C PAGE_FAULT_WITH_INTERRUPTS_OFF equ 00049H
+ = 002B			      C PANIC_STACK_SWITCH equ 0002BH
+ = 0081			      C SPIN_LOCK_INIT_FAILURE equ 00081H
+ = 0039			      C SYSTEM_EXIT_OWNED_MUTEX equ 00039H
+ = 003B			      C SYSTEM_SERVICE_EXCEPTION equ 0003BH
+ = 003A			      C SYSTEM_UNWIND_PREVIOUS_USER equ 0003AH
+ = 0012			      C TRAP_CAUSE_UNKNOWN equ 00012H
+ = 007F			      C UNEXPECTED_KERNEL_MODE_TRAP equ 0007FH
+			      C 
+			      C ;
+			      C ;  Breakpoint type definitions
+			      C ;
+			      C 
+ = 0001			      C DBG_STATUS_CONTROL_C equ 00001H
+			      C 
+			      C ;
+			      C ;  Client Id Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C CidUniqueProcess equ 00000H
+ = 0004			      C CidUniqueThread equ 00004H
+			      C 
+			      C ;
+			      C ;  Critical Section Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C CsDebugInfo equ 00000H
+ = 0004			      C CsLockCount equ 00004H
+ = 0008			      C CsRecursionCount equ 00008H
+ = 000C			      C CsOwningThread equ 0000CH
+ = 0010			      C CsLockSemaphore equ 00010H
+ = 0014			      C CsSpinCount equ 00014H
+			      C 
+			      C ;
+			      C ;  Critical Section Debug Information Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C CsType equ 00000H
+ = 0002			      C CsCreatorBackTraceIndex equ 00002H
+ = 0004			      C CsCriticalSection equ 00004H
+ = 0008			      C CsProcessLocksList equ 00008H
+ = 0010			      C CsEntryCount equ 00010H
+ = 0014			      C CsContentionCount equ 00014H
+			      C 
+			      C ;
+			      C ;  Exception Record Offset, Flag, and Enumerated Type Definitions
+			      C ;
+			      C 
+ = 0001			      C EXCEPTION_NONCONTINUABLE equ 00001H
+ = 0002			      C EXCEPTION_UNWINDING equ 00002H
+ = 0004			      C EXCEPTION_EXIT_UNWIND equ 00004H
+ = 0008			      C EXCEPTION_STACK_INVALID equ 00008H
+ = 0010			      C EXCEPTION_NESTED_CALL equ 00010H
+ = 0020			      C EXCEPTION_TARGET_UNWIND equ 00020H
+ = 0040			      C EXCEPTION_COLLIDED_UNWIND equ 00040H
+ = 0066			      C EXCEPTION_UNWIND equ 00066H
+ = 0001			      C EXCEPTION_EXECUTE_HANDLER equ 00001H
+ = 0000			      C EXCEPTION_CONTINUE_SEARCH equ 00000H
+ = FFFFFFFF		      C EXCEPTION_CONTINUE_EXECUTION equ 0FFFFFFFFH
+ = FFFFFFFF		      C EXCEPTION_CHAIN_END equ 0FFFFFFFFH
+			      C 
+ = 0000			      C ExceptionContinueExecution equ 00000H
+ = 0001			      C ExceptionContinueSearch equ 00001H
+ = 0002			      C ExceptionNestedException equ 00002H
+ = 0003			      C ExceptionCollidedUnwind equ 00003H
+			      C 
+ = 0000			      C ErExceptionCode equ 00000H
+ = 0004			      C ErExceptionFlags equ 00004H
+ = 0008			      C ErExceptionRecord equ 00008H
+ = 000C			      C ErExceptionAddress equ 0000CH
+ = 0010			      C ErNumberParameters equ 00010H
+ = 0014			      C ErExceptionInformation equ 00014H
+ = 0050			      C ExceptionRecordLength equ 00050H
+			      C 
+			      C ;
+			      C ;  Fast Mutex Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C FmCount equ 00000H
+ = 0004			      C FmOwner equ 00004H
+ = 0008			      C FmContention equ 00008H
+ = 000C			      C FmEvent equ 0000CH
+ = 001C			      C FmOldIrql equ 0001CH
+			      C 
+			      C ;
+			      C ;  Interrupt Priority Request Level Definitions
+			      C ;
+			      C 
+ = 0001			      C APC_LEVEL equ 00001H
+ = 0002			      C DISPATCH_LEVEL equ 00002H
+ = 001C			      C CLOCK1_LEVEL equ 0001CH
+ = 001C			      C CLOCK2_LEVEL equ 0001CH
+ = 001D			      C IPI_LEVEL equ 0001DH
+ = 001E			      C POWER_LEVEL equ 0001EH
+ = 001B			      C PROFILE_LEVEL equ 0001BH
+ = 001F			      C HIGH_LEVEL equ 0001FH
+ = 001C			      C SYNCH_LEVEL equ 0001CH
+			      C 
+			      C ;
+			      C ;  Large Integer Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C LiLowPart equ 00000H
+ = 0004			      C LiHighPart equ 00004H
+			      C 
+			      C ;
+			      C ;  List Entry Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C LsFlink equ 00000H
+ = 0004			      C LsBlink equ 00004H
+			      C 
+			      C ;
+			      C ;  String Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C StrLength equ 00000H
+ = 0002			      C StrMaximumLength equ 00002H
+ = 0004			      C StrBuffer equ 00004H
+			      C 
+			      C ;
+			      C ;  System Time Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C StLowTime equ 00000H
+ = 0004			      C StHigh1Time equ 00004H
+ = 0008			      C StHigh2Time equ 00008H
+			      C 
+			      C ;
+			      C ;  Time Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C TmLowTime equ 00000H
+ = 0004			      C TmHighTime equ 00004H
+			      C 
+			      C ;
+			      C ;  Thread Switch Counter Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C TwFindAny equ 00000H
+ = 0004			      C TwFindIdeal equ 00004H
+ = 0008			      C TwFindLast equ 00008H
+ = 000C			      C TwIdleAny equ 0000CH
+ = 0010			      C TwIdleCurrent equ 00010H
+ = 0014			      C TwIdleIdeal equ 00014H
+ = 0018			      C TwIdleLast equ 00018H
+ = 001C			      C TwPreemptAny equ 0001CH
+ = 0020			      C TwPreemptCurrent equ 00020H
+ = 0024			      C TwPreemptLast equ 00024H
+ = 0028			      C TwSwitchToIdle equ 00028H
+			      C 
+			      C ;
+			      C ;  Status Code Definitions
+			      C ;
+			      C 
+ = C0000005		      C STATUS_ACCESS_VIOLATION equ 0C0000005H
+ = C000008C		      C STATUS_ARRAY_BOUNDS_EXCEEDED equ 0C000008CH
+ = C0000242		      C STATUS_BAD_COMPRESSION_BUFFER equ 0C0000242H
+ = 80000003		      C STATUS_BREAKPOINT equ 080000003H
+ = 80000002		      C STATUS_DATATYPE_MISALIGNMENT equ 080000002H
+ = C000008D		      C STATUS_FLOAT_DENORMAL_OPERAND equ 0C000008DH
+ = C000008E		      C STATUS_FLOAT_DIVIDE_BY_ZERO equ 0C000008EH
+ = C000008F		      C STATUS_FLOAT_INEXACT_RESULT equ 0C000008FH
+ = C0000090		      C STATUS_FLOAT_INVALID_OPERATION equ 0C0000090H
+ = C0000091		      C STATUS_FLOAT_OVERFLOW equ 0C0000091H
+ = C0000092		      C STATUS_FLOAT_STACK_CHECK equ 0C0000092H
+ = C0000093		      C STATUS_FLOAT_UNDERFLOW equ 0C0000093H
+ = C00002B4		      C STATUS_FLOAT_MULTIPLE_FAULTS equ 0C00002B4H
+ = C00002B5		      C STATUS_FLOAT_MULTIPLE_TRAPS equ 0C00002B5H
+ = 80000001		      C STATUS_GUARD_PAGE_VIOLATION equ 080000001H
+ = C000014A		      C STATUS_ILLEGAL_FLOAT_CONTEXT equ 0C000014AH
+ = C000001D		      C STATUS_ILLEGAL_INSTRUCTION equ 0C000001DH
+ = C00000AA		      C STATUS_INSTRUCTION_MISALIGNMENT equ 0C00000AAH
+ = C0000008		      C STATUS_INVALID_HANDLE equ 0C0000008H
+ = C000001E		      C STATUS_INVALID_LOCK_SEQUENCE equ 0C000001EH
+ = C000005A		      C STATUS_INVALID_OWNER equ 0C000005AH
+ = C00000EF		      C STATUS_INVALID_PARAMETER_1 equ 0C00000EFH
+ = C000001C		      C STATUS_INVALID_SYSTEM_SERVICE equ 0C000001CH
+ = C0000094		      C STATUS_INTEGER_DIVIDE_BY_ZERO equ 0C0000094H
+ = C0000095		      C STATUS_INTEGER_OVERFLOW equ 0C0000095H
+ = C0000006		      C STATUS_IN_PAGE_ERROR equ 0C0000006H
+ = 0100			      C STATUS_KERNEL_APC equ 00100H
+ = 80000026		      C STATUS_LONGJUMP equ 080000026H
+ = C0000258		      C STATUS_NO_CALLBACK_ACTIVE equ 0C0000258H
+ = C000014E		      C STATUS_NO_EVENT_PAIR equ 0C000014EH
+ = C0000096		      C STATUS_PRIVILEGED_INSTRUCTION equ 0C0000096H
+ = 80000004		      C STATUS_SINGLE_STEP equ 080000004H
+ = C00000FD		      C STATUS_STACK_OVERFLOW equ 0C00000FDH
+ = 0000			      C STATUS_SUCCESS equ 00000H
+ = C000004B		      C STATUS_THREAD_IS_TERMINATING equ 0C000004BH
+ = 0102			      C STATUS_TIMEOUT equ 00102H
+ = C0000027		      C STATUS_UNWIND equ 0C0000027H
+ = 80000007		      C STATUS_WAKE_SYSTEM_DEBUGGER equ 080000007H
+			      C 
+			      C ;
+			      C ;  APC Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C ApType equ 00000H
+ = 0002			      C ApSize equ 00002H
+ = 0008			      C ApThread equ 00008H
+ = 000C			      C ApApcListEntry equ 0000CH
+ = 0014			      C ApKernelRoutine equ 00014H
+ = 0018			      C ApRundownRoutine equ 00018H
+ = 001C			      C ApNormalRoutine equ 0001CH
+ = 0020			      C ApNormalContext equ 00020H
+ = 0024			      C ApSystemArgument1 equ 00024H
+ = 0028			      C ApSystemArgument2 equ 00028H
+ = 002C			      C ApApcStateIndex equ 0002CH
+ = 002D			      C ApApcMode equ 0002DH
+ = 002E			      C ApInserted equ 0002EH
+ = 0030			      C ApcObjectLength equ 00030H
+			      C 
+			      C ;
+			      C ;  DPC object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C DpType equ 00000H
+ = 0002			      C DpNumber equ 00002H
+ = 0003			      C DpImportance equ 00003H
+ = 0004			      C DpDpcListEntry equ 00004H
+ = 000C			      C DpDeferredRoutine equ 0000CH
+ = 0010			      C DpDeferredContext equ 00010H
+ = 0014			      C DpSystemArgument1 equ 00014H
+ = 0018			      C DpSystemArgument2 equ 00018H
+ = 001C			      C DpLock equ 0001CH
+ = 0020			      C DpcObjectLength equ 00020H
+			      C 
+			      C ;
+			      C ;  Device Queue Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C DvType equ 00000H
+ = 0002			      C DvSize equ 00002H
+ = 0004			      C DvDeviceListHead equ 00004H
+ = 000C			      C DvSpinLock equ 0000CH
+ = 0010			      C DvBusy equ 00010H
+ = 0014			      C DeviceQueueObjectLength equ 00014H
+			      C 
+			      C ;
+			      C ;  Device Queue Entry Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C DeDeviceListEntry equ 00000H
+ = 0008			      C DeSortKey equ 00008H
+ = 000C			      C DeInserted equ 0000CH
+ = 0010			      C DeviceQueueEntryLength equ 00010H
+			      C 
+			      C ;
+			      C ;  Event Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C EvType equ 00000H
+ = 0002			      C EvSize equ 00002H
+ = 0004			      C EvSignalState equ 00004H
+ = 0008			      C EvWaitListHead equ 00008H
+ = 0010			      C EventObjectLength equ 00010H
+			      C 
+			      C ;
+			      C ;  Event Pair Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C EpType equ 00000H
+ = 0002			      C EpSize equ 00002H
+ = 0004			      C EpEventLow equ 00004H
+ = 0014			      C EpEventHigh equ 00014H
+			      C 
+			      C ;
+			      C ;  Interrupt Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C InLevelSensitive equ 00000H
+ = 0001			      C InLatched equ 00001H
+			      C 
+ = 0000			      C InType equ 00000H
+ = 0002			      C InSize equ 00002H
+ = 0004			      C InInterruptListEntry equ 00004H
+ = 000C			      C InServiceRoutine equ 0000CH
+ = 0010			      C InServiceContext equ 00010H
+ = 0014			      C InSpinLock equ 00014H
+ = 001C			      C InActualLock equ 0001CH
+ = 0020			      C InDispatchAddress equ 00020H
+ = 0024			      C InVector equ 00024H
+ = 0028			      C InIrql equ 00028H
+ = 0029			      C InSynchronizeIrql equ 00029H
+ = 002A			      C InFloatingSave equ 0002AH
+ = 002B			      C InConnected equ 0002BH
+ = 002C			      C InNumber equ 0002CH
+ = 0030			      C InMode equ 00030H
+ = 002D			      C InShareVector equ 0002DH
+ = 003C			      C InDispatchCode equ 0003CH
+ = 01E4			      C InterruptObjectLength equ 001E4H
+			      C 
+ = 01A8			      C NORMAL_DISPATCH_LENGTH equ 001A8H
+ = 01A8			      C DISPATCH_LENGTH equ 001A8H
+			      C 
+			      C ;
+			      C ;  Process Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C PrType equ 00000H
+ = 0002			      C PrSize equ 00002H
+ = 0004			      C PrSignalState equ 00004H
+ = 0010			      C PrProfileListHead equ 00010H
+ = 0018			      C PrDirectoryTableBase equ 00018H
+ = 0020			      C PrLdtDescriptor equ 00020H
+ = 0028			      C PrInt21Descriptor equ 00028H
+ = 0030			      C PrIopmOffset equ 00030H
+ = 0032			      C PrIopl equ 00032H
+ = 0033			      C PrVdmFlag equ 00033H
+ = 0034			      C PrActiveProcessors equ 00034H
+ = 0038			      C PrKernelTime equ 00038H
+ = 003C			      C PrUserTime equ 0003CH
+ = 0040			      C PrReadyListHead equ 00040H
+ = 0048			      C PrSwapListEntry equ 00048H
+ = 0050			      C PrThreadListHead equ 00050H
+ = 0058			      C PrProcessLock equ 00058H
+ = 005C			      C PrAffinity equ 0005CH
+ = 0060			      C PrStackCount equ 00060H
+ = 0062			      C PrBasePriority equ 00062H
+ = 0063			      C PrThreadQuantum equ 00063H
+ = 0064			      C PrAutoAlignment equ 00064H
+ = 0065			      C PrState equ 00065H
+ = 0070			      C ProcessObjectLength equ 00070H
+ = 0290			      C ExtendedProcessObjectLength equ 00290H
+			      C 
+			      C ;
+			      C ;  Profile Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C PfType equ 00000H
+ = 0002			      C PfSize equ 00002H
+ = 0004			      C PfProfileListEntry equ 00004H
+ = 000C			      C PfProcess equ 0000CH
+ = 0010			      C PfRangeBase equ 00010H
+ = 0014			      C PfRangeLimit equ 00014H
+ = 0018			      C PfBucketShift equ 00018H
+ = 001C			      C PfBuffer equ 0001CH
+ = 0020			      C PfSegment equ 00020H
+ = 0024			      C PfAffinity equ 00024H
+ = 0028			      C PfSource equ 00028H
+ = 002A			      C PfStarted equ 0002AH
+ = 002C			      C ProfileObjectLength equ 0002CH
+			      C 
+			      C ;
+			      C ;  Queue Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C QuType equ 00000H
+ = 0002			      C QuSize equ 00002H
+ = 0004			      C QuSignalState equ 00004H
+ = 0010			      C QuEntryListHead equ 00010H
+ = 0018			      C QuCurrentCount equ 00018H
+ = 001C			      C QuMaximumCount equ 0001CH
+ = 0020			      C QuThreadListHead equ 00020H
+ = 0028			      C QueueObjectLength equ 00028H
+			      C 
+			      C ;
+			      C ;  Thread Object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C EeKernelEventPair equ 00000H
+ = 01E0			      C EtCid equ 001E0H
+ = 0204			      C EtPerformanceCountLow equ 00204H
+ = 023C			      C EtPerformanceCountHigh equ 0023CH
+ = 0250			      C EtEthreadLength equ 00250H
+			      C 
+ = 0000			      C ThType equ 00000H
+ = 0002			      C ThSize equ 00002H
+ = 0004			      C ThSignalState equ 00004H
+ = 0010			      C ThMutantListHead equ 00010H
+ = 0018			      C ThInitialStack equ 00018H
+ = 001C			      C ThStackLimit equ 0001CH
+ = 0020			      C ThTeb equ 00020H
+ = 0024			      C ThTlsArray equ 00024H
+ = 0028			      C ThKernelStack equ 00028H
+ = 002C			      C ThDebugActive equ 0002CH
+ = 002D			      C ThState equ 0002DH
+ = 002E			      C ThAlerted equ 0002EH
+ = 0030			      C ThIopl equ 00030H
+ = 0031			      C ThNpxState equ 00031H
+ = 0032			      C ThSaturation equ 00032H
+ = 0033			      C ThPriority equ 00033H
+ = 0034			      C ThApcState equ 00034H
+ = 004C			      C ThContextSwitches equ 0004CH
+ = 0050			      C ThWaitStatus equ 00050H
+ = 0054			      C ThWaitIrql equ 00054H
+ = 0055			      C ThWaitMode equ 00055H
+ = 0056			      C ThWaitNext equ 00056H
+ = 0057			      C ThWaitReason equ 00057H
+ = 0058			      C ThWaitBlockList equ 00058H
+ = 005C			      C ThWaitListEntry equ 0005CH
+ = 0064			      C ThWaitTime equ 00064H
+ = 0068			      C ThBasePriority equ 00068H
+ = 0069			      C ThDecrementCount equ 00069H
+ = 006A			      C ThPriorityDecrement equ 0006AH
+ = 006B			      C ThQuantum equ 0006BH
+ = 006C			      C ThWaitBlock equ 0006CH
+ = 00D0			      C ThKernelApcDisable equ 000D0H
+ = 00D4			      C ThUserAffinity equ 000D4H
+ = 00D8			      C ThSystemAffinityActive equ 000D8H
+ = 00DC			      C ThServiceTable equ 000DCH
+ = 00E0			      C ThQueue equ 000E0H
+ = 00E4			      C ThApcQueueLock equ 000E4H
+ = 00E8			      C ThTimer equ 000E8H
+ = 0110			      C ThQueueListEntry equ 00110H
+ = 0118			      C ThAffinity equ 00118H
+ = 011C			      C ThPreempted equ 0011CH
+ = 011D			      C ThProcessReadyQueue equ 0011DH
+ = 011E			      C ThKernelStackResident equ 0011EH
+ = 011F			      C ThNextProcessor equ 0011FH
+ = 0120			      C ThCallbackStack equ 00120H
+ = 0124			      C ThWin32Thread equ 00124H
+ = 0128			      C ThTrapFrame equ 00128H
+ = 012C			      C ThApcStatePointer equ 0012CH
+ = 0134			      C ThPreviousMode equ 00134H
+ = 0135			      C ThEnableStackSwap equ 00135H
+ = 0136			      C ThLargeStack equ 00136H
+ = 0138			      C ThKernelTime equ 00138H
+ = 013C			      C ThUserTime equ 0013CH
+ = 0140			      C ThSavedApcState equ 00140H
+ = 0158			      C ThAlertable equ 00158H
+ = 0159			      C ThApcStateIndex equ 00159H
+ = 015A			      C ThApcQueueable equ 0015AH
+ = 015B			      C ThAutoAlignment equ 0015BH
+ = 015C			      C ThStackBase equ 0015CH
+ = 0160			      C ThSuspendApc equ 00160H
+ = 0190			      C ThSuspendSemaphore equ 00190H
+ = 01A4			      C ThThreadListEntry equ 001A4H
+ = 01AC			      C ThFreezeCount equ 001ACH
+ = 01AD			      C ThSuspendCount equ 001ADH
+ = 01AE			      C ThIdealProcessor equ 001AEH
+ = 01AF			      C ThDisableBoost equ 001AFH
+ = 01B0			      C ThreadObjectLength equ 001B0H
+ = 0250			      C ExtendedThreadObjectLength equ 00250H
+			      C 
+ = 009C			      C EVENT_WAIT_BLOCK_OFFSET equ 0009CH
+ = 000A			      C NPX_STATE_NOT_LOADED equ 0000AH
+ = 0000			      C NPX_STATE_LOADED equ 00000H
+			      C 
+			      C ;
+			      C ;  Timer object Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C TiType equ 00000H
+ = 0002			      C TiSize equ 00002H
+ = 0003			      C TiInserted equ 00003H
+ = 0004			      C TiSignalState equ 00004H
+ = 0010			      C TiDueTime equ 00010H
+ = 0018			      C TiTimerListEntry equ 00018H
+ = 0020			      C TiDpc equ 00020H
+ = 0024			      C TiPeriod equ 00024H
+ = 0028			      C TimerObjectLength equ 00028H
+			      C 
+ = 0080			      C TIMER_TABLE_SIZE equ 00080H
+			      C 
+			      C ;
+			      C ;  Wait Block Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C WbWaitListEntry equ 00000H
+ = 0008			      C WbThread equ 00008H
+ = 000C			      C WbObject equ 0000CH
+ = 0010			      C WbNextWaitBlock equ 00010H
+ = 0014			      C WbWaitKey equ 00014H
+ = 0016			      C WbWaitType equ 00016H
+			      C 
+			      C ;
+			      C ;  Fiber Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C FbFiberData equ 00000H
+ = 0004			      C FbExceptionList equ 00004H
+ = 0008			      C FbStackBase equ 00008H
+ = 000C			      C FbStackLimit equ 0000CH
+ = 0010			      C FbDeallocationStack equ 00010H
+ = 0014			      C FbFiberContext equ 00014H
+ = 02E0			      C FbWx86Tib equ 002E0H
+			      C 
+			      C ;
+			      C ;  Process Environment Block Structure Offset Definitions
+			      C ;
+			      C 
+ = 002C			      C PeKernelCallbackTable equ 0002CH
+			      C 
+			      C ;
+			      C ;  System Service Descriptor Table Structure Definitions
+			      C ;
+			      C 
+ = 0004			      C NUMBER_SERVICE_TABLES equ 00004H
+ = 0FFF			      C SERVICE_NUMBER_MASK equ 00FFFH
+ = 0008			      C SERVICE_TABLE_SHIFT equ 00008H
+ = 0030			      C SERVICE_TABLE_MASK equ 00030H
+ = 0010			      C SERVICE_TABLE_TEST equ 00010H
+			      C 
+ = 0000			      C SdBase equ 00000H
+ = 0004			      C SdCount equ 00004H
+ = 0008			      C SdLimit equ 00008H
+ = 000C			      C SdNumber equ 0000CH
+			      C 
+			      C ;
+			      C ;  Thread Environment Block Structure Offset Definitions
+			      C ;
+			      C 
+ = 0004			      C TeStackBase equ 00004H
+ = 0008			      C TeStackLimit equ 00008H
+ = 0010			      C TeFiberData equ 00010H
+ = 001C			      C TeEnvironmentPointer equ 0001CH
+ = 0020			      C TeClientId equ 00020H
+ = 0028			      C TeActiveRpcHandle equ 00028H
+ = 002C			      C TeThreadLocalStoragePointer equ 0002CH
+ = 0038			      C TeCountOfOwnedCriticalSections equ 00038H
+ = 0030			      C TePeb equ 00030H
+ = 003C			      C TeCsrClientThread equ 0003CH
+ = 00C0			      C TeWOW32Reserved equ 000C0H
+ = 00C8			      C TeSoftFpcr equ 000C8H
+ = 06C0			      C TeGdiClientPID equ 006C0H
+ = 06C4			      C TeGdiClientTID equ 006C4H
+ = 06C8			      C TeGdiThreadLocalInfo equ 006C8H
+ = 07C4			      C TeglDispatchTable equ 007C4H
+ = 0B68			      C TeglReserved1 equ 00B68H
+ = 0BDC			      C TeglReserved2 equ 00BDCH
+ = 0BE0			      C TeglSectionInfo equ 00BE0H
+ = 0BE4			      C TeglSection equ 00BE4H
+ = 0BE8			      C TeglTable equ 00BE8H
+ = 0BEC			      C TeglCurrentRC equ 00BECH
+ = 0BF0			      C TeglContext equ 00BF0H
+ = 0E0C			      C TeDeallocationStack equ 00E0CH
+ = 0E10			      C TeTlsSlots equ 00E10H
+ = 0F18			      C TeVdm equ 00F18H
+ = 0F70			      C TeGdiBatchCount equ 00F70H
+ = 0F2C			      C TeInstrumentation equ 00F2CH
+ = 0FA4			      C ThreadEnvironmentBlockLength equ 00FA4H
+			      C 
+			      C ;
+			      C ;  Lock Queue Structure Offset Definitions
+			      C ;
+			      C 
+ = 0001			      C LOCK_QUEUE_WAIT equ 00001H
+ = 0002			      C LOCK_QUEUE_OWNER equ 00002H
+ = 0008			      C LOCK_QUEUE_HEADER_SIZE equ 00008H
+			      C 
+ = 0000			      C LockQueueDispatcherLock equ 00000H
+ = 0001			      C LockQueueContextSwapLock equ 00001H
+ = 0002			      C LockQueuePfnLock equ 00002H
+			      C 
+ = 0000			      C LqNext equ 00000H
+ = 0004			      C LqLock equ 00004H
+			      C 
+			      C ;
+			      C ;  Apc Record Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C ArNormalRoutine equ 00000H
+ = 0004			      C ArNormalContext equ 00004H
+ = 0008			      C ArSystemArgument1 equ 00008H
+ = 000C			      C ArSystemArgument2 equ 0000CH
+ = 0010			      C ApcRecordLength equ 00010H
+			      C 
+			      C 
+			      C ;
+			      C ;  Processor Control Registers Structure Offset Definitions
+			      C ;
+			      C 
+ = FFDF0000		      C KI_BEGIN_KERNEL_RESERVED equ 0FFDF0000H
+			      C ifdef NT_UP
+ = FFDFF000		      C     P0PCRADDRESS equ 0FFDFF000H
+ = ds:[0FFDFF000H]	      C     PCR equ ds:[0FFDFF000H]
+			      C else
+			      C     PCR equ fs:
+			      C endif
+			      C 
+ = 0000			      C PcExceptionList equ 00000H
+ = 0004			      C PcInitialStack equ 00004H
+ = 0008			      C PcStackLimit equ 00008H
+ = 001C			      C PcSelfPcr equ 0001CH
+ = 0020			      C PcPrcb equ 00020H
+ = 0018			      C PcTeb equ 00018H
+ = 0024			      C PcIrql equ 00024H
+ = 0028			      C PcIRR equ 00028H
+ = 002C			      C PcIrrActive equ 0002CH
+ = 0030			      C PcIDR equ 00030H
+ = 0038			      C PcIdt equ 00038H
+ = 003C			      C PcGdt equ 0003CH
+ = 0040			      C PcTss equ 00040H
+ = 0050			      C PcDebugActive equ 00050H
+ = 0051			      C PcNumber equ 00051H
+ = 0052			      C PcVdmAlert equ 00052H
+ = 0048			      C PcSetMember equ 00048H
+ = 004C			      C PcStallScaleFactor equ 0004CH
+ = 0094			      C PcHal equ 00094H
+ = 0120			      C PcPrcbData equ 00120H
+ = 0B10			      C ProcessorControlRegisterLength equ 00B10H
+ = 0030			      C TebPeb equ 00030H
+ = 0002			      C PebBeingDebugged equ 00002H
+ = 002C			      C PebKernelCallbackTable equ 0002CH
+			      C 
+			      C ;
+			      C ;  Defines for user shared data
+			      C ;
+			      C 
+ = FFDF0000		      C USER_SHARED_DATA equ 0FFDF0000H
+ = 7FFE0000		      C MM_SHARED_USER_DATA_VA equ 07FFE0000H
+ = ds:[0FFDF0000H]	      C USERDATA equ ds:[0FFDF0000H]
+ = 0000			      C UsTickCountLow equ 00000H
+ = 0004			      C UsTickCountMultiplier equ 00004H
+ = 0008			      C UsInterruptTime equ 00008H
+ = 0014			      C UsSystemTime equ 00014H
+			      C 
+			      C ;
+			      C ;  Tss Structure Offset Definitions
+			      C ;
+			      C 
+ = 0004			      C TssEsp0 equ 00004H
+ = 001C			      C TssCR3 equ 0001CH
+ = 0066			      C TssIoMapBase equ 00066H
+ = 0068			      C TssIoMaps equ 00068H
+ = 20AC			      C TssLength equ 020ACH
+			      C 
+			      C ;
+			      C ;  Gdt Descriptor Offset Definitions
+			      C ;
+			      C 
+ = 0020			      C KGDT_R3_DATA equ 00020H
+ = 0018			      C KGDT_R3_CODE equ 00018H
+ = 0008			      C KGDT_R0_CODE equ 00008H
+ = 0010			      C KGDT_R0_DATA equ 00010H
+ = 0030			      C KGDT_R0_PCR equ 00030H
+ = 00F8			      C KGDT_STACK16 equ 000F8H
+ = 00F0			      C KGDT_CODE16 equ 000F0H
+ = 0028			      C KGDT_TSS equ 00028H
+ = 0038			      C KGDT_R3_TEB equ 00038H
+ = 0050			      C KGDT_DF_TSS equ 00050H
+ = 0058			      C KGDT_NMI_TSS equ 00058H
+ = 0048			      C KGDT_LDT equ 00048H
+			      C 
+			      C ;
+			      C ;  GdtEntry Offset Definitions
+			      C ;
+			      C 
+ = 0002			      C KgdtBaseLow equ 00002H
+ = 0004			      C KgdtBaseMid equ 00004H
+ = 0007			      C KgdtBaseHi equ 00007H
+ = 0006			      C KgdtLimitHi equ 00006H
+ = 0000			      C KgdtLimitLow equ 00000H
+			      C 
+			      C 
+			      C ;
+			      C ;  Processor Block Structure Offset Definitions
+			      C ;
+			      C 
+ = 0004			      C PbCurrentThread equ 00004H
+ = 0008			      C PbNextThread equ 00008H
+ = 000C			      C PbIdleThread equ 0000CH
+ = 0010			      C PbNumber equ 00010H
+ = 0014			      C PbSetMember equ 00014H
+ = 0019			      C PbCpuID equ 00019H
+ = 0018			      C PbCpuType equ 00018H
+ = 001A			      C PbCpuStep equ 0001AH
+ = 037C			      C PbHalReserved equ 0037CH
+ = 001C			      C PbProcessorState equ 0001CH
+ = 03BC			      C PbLockQueue equ 003BCH
+ = 043C			      C PbNpxThread equ 0043CH
+ = 0440			      C PbInterruptCount equ 00440H
+ = 0444			      C PbKernelTime equ 00444H
+ = 0448			      C PbUserTime equ 00448H
+ = 044C			      C PbDpcTime equ 0044CH
+ = 0450			      C PbInterruptTime equ 00450H
+ = 0454			      C PbApcBypassCount equ 00454H
+ = 0458			      C PbDpcBypassCount equ 00458H
+ = 045C			      C PbAdjustDpcThreshold equ 0045CH
+ = 0460			      C PbDebugDpcTime equ 00460H
+ = 0474			      C PbThreadStartCount equ 00474H
+ = 049C			      C PbAlignmentFixupCount equ 0049CH
+ = 04A0			      C PbContextSwitches equ 004A0H
+ = 04A4			      C PbDcacheFlushCount equ 004A4H
+ = 04A8			      C PbExceptionDispatchCount equ 004A8H
+ = 04AC			      C PbFirstLevelTbFills equ 004ACH
+ = 04B0			      C PbFloatingEmulationCount equ 004B0H
+ = 04B4			      C PbIcacheFlushCount equ 004B4H
+ = 04B8			      C PbSecondLevelTbFills equ 004B8H
+ = 04BC			      C PbSystemCalls equ 004BCH
+ = 0680			      C PbCurrentPacket equ 00680H
+ = 068C			      C PbTargetSet equ 0068CH
+ = 0690			      C PbWorkerRoutine equ 00690H
+ = 0694			      C PbIpiFrozen equ 00694H
+ = 06A0			      C PbRequestSummary equ 006A0H
+ = 06A4			      C PbSignalDone equ 006A4H
+ = 06AC			      C PbIpiFrame equ 006ACH
+ = 06C0			      C PbDpcInterruptRequested equ 006C0H
+ = 06D0			      C PbMaximumDpcQueueDepth equ 006D0H
+ = 06D4			      C PbMinimumDpcRate equ 006D4H
+ = 06E0			      C PbDpcListHead equ 006E0H
+ = 06E8			      C PbDpcQueueDepth equ 006E8H
+ = 06EC			      C PbDpcRoutineActive equ 006ECH
+ = 06F0			      C PbDpcCount equ 006F0H
+ = 06F4			      C PbDpcLastCount equ 006F4H
+ = 06F8			      C PbDpcRequestRate equ 006F8H
+ = 06FC			      C PbDpcStack equ 006FCH
+ = 0728			      C PbDpcLock equ 00728H
+ = 072C			      C PbSkipTick equ 0072CH
+ = 0750			      C PbQuantumEnd equ 00750H
+ = 0758			      C PbPowerState equ 00758H
+ = 09F0			      C ProcessorBlockLength equ 009F0H
+			      C 
+			      C ;
+			      C ;  Processor Power State Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C PpIdleFunction equ 00000H
+			      C 
+			      C ;
+			      C ;  Immediate Interprocessor Command Definitions
+			      C ;
+			      C 
+ = 0001			      C IPI_APC equ 00001H
+ = 0002			      C IPI_DPC equ 00002H
+ = 0004			      C IPI_FREEZE equ 00004H
+ = 0008			      C IPI_PACKET_READY equ 00008H
+ = 0010			      C IPI_SYNCH_REQUEST equ 00010H
+			      C 
+			      C ;
+			      C ;  Thread Environment Block Structure Offset Definitions
+			      C ;
+			      C 
+ = 0000			      C TbExceptionList equ 00000H
+ = 0004			      C TbStackBase equ 00004H
+ = 0008			      C TbStackLimit equ 00008H
+ = 001C			      C TbEnvironmentPointer equ 0001CH
+ = 0010			      C TbVersion equ 00010H
+ = 0010			      C TbFiberData equ 00010H
+ = 0014			      C TbArbitraryUserPointer equ 00014H
+ = 0020			      C TbClientId equ 00020H
+ = 002C			      C TbThreadLocalStoragePointer equ 0002CH
+ = 0038			      C TbCountOfOwnedCriticalSections equ 00038H
+ = 00CC			      C TbSystemReserved1 equ 000CCH
+ = 0F18			      C TbVdm equ 00F18H
+ = 003C			      C TbCsrClientThread equ 0003CH
+ = 06C8			      C TbGdiThreadLocalInfo equ 006C8H
+ = 07C4			      C TbglDispatchTable equ 007C4H
+ = 0BE0			      C TbglSectionInfo equ 00BE0H
+ = 0BE4			      C TbglSection equ 00BE4H
+ = 0BE8			      C TbglTable equ 00BE8H
+ = 0BEC			      C TbglCurrentRC equ 00BECH
+ = 0BF0			      C TbglContext equ 00BF0H
+ = 00C0			      C TbWOW32Reserved equ 000C0H
+ = 01A4			      C TbExceptionCode equ 001A4H
+ = 0E0C			      C TbDeallocationStack equ 00E0CH
+ = 0F70			      C TbGdiBatchCount equ 00F70H
+			      C 
+			      C ;
+			      C ;  Time Fields (TIME_FIELDS) Structure Offset Definitions
+			      C ;
+			      C 
+ = 000A			      C TfSecond equ 0000AH
+ = 0008			      C TfMinute equ 00008H
+ = 0006			      C TfHour equ 00006H
+ = 000E			      C TfWeekday equ 0000EH
+ = 0004			      C TfDay equ 00004H
+ = 0002			      C TfMonth equ 00002H
+ = 0000			      C TfYear equ 00000H
+ = 000C			      C TfMilliseconds equ 0000CH
+			      C 
+			      C 
+			      C ;
+			      C ;  constants for system irql and IDT vector conversion
+			      C ;
+			      C 
+ = 00FF			      C MAXIMUM_IDTVECTOR equ 000FFH
+ = 00FF			      C MAXIMUM_PRIMARY_VECTOR equ 000FFH
+ = 0030			      C PRIMARY_VECTOR_BASE equ 00030H
+ = 0003			      C RPL_MASK equ 00003H
+ = 0001			      C MODE_MASK equ 00001H
+			      C 
+			      C ;
+			      C ;  Flags in the CR0 register
+			      C ;
+			      C 
+ = 80000000		      C CR0_PG equ 080000000H
+ = 0010			      C CR0_ET equ 00010H
+ = 0008			      C CR0_TS equ 00008H
+ = 0004			      C CR0_EM equ 00004H
+ = 0002			      C CR0_MP equ 00002H
+ = 0001			      C CR0_PE equ 00001H
+ = 40000000		      C CR0_CD equ 040000000H
+ = 20000000		      C CR0_NW equ 020000000H
+ = 00040000		      C CR0_AM equ 040000H
+ = 00010000		      C CR0_WP equ 010000H
+ = 0020			      C CR0_NE equ 00020H
+			      C 
+			      C ;
+			      C ;  Flags in the CR4 register
+			      C ;
+			      C 
+ = 0001			      C CR4_VME equ 00001H
+ = 0002			      C CR4_PVI equ 00002H
+ = 0004			      C CR4_TSD equ 00004H
+ = 0008			      C CR4_DE equ 00008H
+ = 0010			      C CR4_PSE equ 00010H
+ = 0020			      C CR4_PAE equ 00020H
+ = 0040			      C CR4_MCE equ 00040H
+ = 0080			      C CR4_PGE equ 00080H
+ = 0200			      C CR4_FXSR equ 00200H
+ = 0400			      C CR4_XMMEXCPT equ 00400H
+			      C 
+			      C ;
+			      C ;  Miscellaneous Definitions
+			      C ;
+			      C 
+ = 0020			      C MAXIMUM_PROCESSORS equ 00020H
+ = 0064			      C INITIAL_STALL_COUNT equ 00064H
+ = 0009			      C IRQL_NOT_GREATER_OR_EQUAL equ 00009H
+ = 000A			      C IRQL_NOT_LESS_OR_EQUAL equ 0000AH
+ = 00BF			      C MUTEX_ALREADY_OWNED equ 000BFH
+ = 0011			      C THREAD_NOT_MUTEX_OWNER equ 00011H
+ = 000F			      C SPIN_LOCK_ALREADY_OWNED equ 0000FH
+ = 0010			      C SPIN_LOCK_NOT_OWNED equ 00010H
+ = 0008			      C BASE_PRIORITY_THRESHOLD equ 00008H
+ = 0001			      C EVENT_PAIR_INCREMENT equ 00001H
+ = 0010			      C LOW_REALTIME_PRIORITY equ 00010H
+ = FFFFA000		      C BlackHole equ 0FFFFA000H
+ = 3000			      C KERNEL_LARGE_STACK_COMMIT equ 03000H
+ = 3000			      C KERNEL_STACK_SIZE equ 03000H
+ = 1000			      C DOUBLE_FAULT_STACK_SIZE equ 01000H
+ = C000			      C EFLAG_SELECT equ 0C000H
+ = 0000			      C BREAKPOINT_BREAK equ 00000H
+ = 0004			      C IPI_FREEZE equ 00004H
+ = 0003			      C CLOCK_QUANTUM_DECREMENT equ 00003H
+ = 0002			      C READY_SKIP_QUANTUM equ 00002H
+ = 0006			      C THREAD_QUANTUM equ 00006H
+ = 0001			      C WAIT_QUANTUM_DECREMENT equ 00001H
+ = 0010			      C ROUND_TRIP_DECREMENT_COUNT equ 00010H
+			      C 
+			      C ;
+			      C ;  Trap Frame Offset Definitions and Length
+			      C ;
+			      C 
+ = 004C			      C TsExceptionList equ 0004CH
+ = 0048			      C TsPreviousPreviousMode equ 00048H
+ = 0030			      C TsSegGs equ 00030H
+ = 0050			      C TsSegFs equ 00050H
+ = 0034			      C TsSegEs equ 00034H
+ = 0038			      C TsSegDs equ 00038H
+ = 0054			      C TsEdi equ 00054H
+ = 0058			      C TsEsi equ 00058H
+ = 0060			      C TsEbp equ 00060H
+ = 005C			      C TsEbx equ 0005CH
+ = 003C			      C TsEdx equ 0003CH
+ = 0040			      C TsEcx equ 00040H
+ = 0044			      C TsEax equ 00044H
+ = 0064			      C TsErrCode equ 00064H
+ = 0068			      C TsEip equ 00068H
+ = 006C			      C TsSegCs equ 0006CH
+ = 0070			      C TsEflags equ 00070H
+ = 0074			      C TsHardwareEsp equ 00074H
+ = 0078			      C TsHardwareSegSs equ 00078H
+ = 0010			      C TsTempSegCs equ 00010H
+ = 0014			      C TsTempEsp equ 00014H
+ = 0000			      C TsDbgEbp equ 00000H
+ = 0004			      C TsDbgEip equ 00004H
+ = 0008			      C TsDbgArgMark equ 00008H
+ = 000C			      C TsDbgArgPointer equ 0000CH
+ = 0018			      C TsDr0 equ 00018H
+ = 001C			      C TsDr1 equ 0001CH
+ = 0020			      C TsDr2 equ 00020H
+ = 0024			      C TsDr3 equ 00024H
+ = 0028			      C TsDr6 equ 00028H
+ = 002C			      C TsDr7 equ 0002CH
+ = 007C			      C TsV86Es equ 0007CH
+ = 0080			      C TsV86Ds equ 00080H
+ = 0084			      C TsV86Fs equ 00084H
+ = 0088			      C TsV86Gs equ 00088H
+ = 008C			      C KTRAP_FRAME_LENGTH equ 0008CH
+ = 0004			      C KTRAP_FRAME_ALIGN equ 00004H
+ = FFF8			      C FRAME_EDITED equ 0FFF8H
+ = 00040000		      C EFLAGS_ALIGN_CHECK equ 040000H
+ = 00020000		      C EFLAGS_V86_MASK equ 020000H
+ = 0200			      C EFLAGS_INTERRUPT_MASK equ 00200H
+ = 00080000		      C EFLAGS_VIF equ 080000H
+ = 00100000		      C EFLAGS_VIP equ 0100000H
+ = 003E0DD7		      C EFLAGS_USER_SANITIZE equ 03E0DD7H
+			      C 
+			      C ;
+			      C ;  Context Frame Offset and Flag Definitions
+			      C ;
+			      C 
+ = 00010007		      C CONTEXT_FULL equ 010007H
+ = 00010010		      C CONTEXT_DEBUG_REGISTERS equ 010010H
+ = 00010001		      C CONTEXT_CONTROL equ 010001H
+ = 00010008		      C CONTEXT_FLOATING_POINT equ 010008H
+ = 00010002		      C CONTEXT_INTEGER equ 010002H
+ = 00010004		      C CONTEXT_SEGMENTS equ 010004H
+			      C 
+ = 0000			      C CsContextFlags equ 00000H
+ = 001C			      C CsFloatSave equ 0001CH
+ = 008C			      C CsSegGs equ 0008CH
+ = 0090			      C CsSegFs equ 00090H
+ = 0094			      C CsSegEs equ 00094H
+ = 0098			      C CsSegDs equ 00098H
+ = 009C			      C CsEdi equ 0009CH
+ = 00A0			      C CsEsi equ 000A0H
+ = 00B4			      C CsEbp equ 000B4H
+ = 00A4			      C CsEbx equ 000A4H
+ = 00A8			      C CsEdx equ 000A8H
+ = 00AC			      C CsEcx equ 000ACH
+ = 00B0			      C CsEax equ 000B0H
+ = 00B8			      C CsEip equ 000B8H
+ = 00BC			      C CsSegCs equ 000BCH
+ = 00C0			      C CsEflags equ 000C0H
+ = 00C4			      C CsEsp equ 000C4H
+ = 00C8			      C CsSegSs equ 000C8H
+ = 0004			      C CsDr0 equ 00004H
+ = 0008			      C CsDr1 equ 00008H
+ = 000C			      C CsDr2 equ 0000CH
+ = 0010			      C CsDr3 equ 00010H
+ = 0014			      C CsDr6 equ 00014H
+ = 0018			      C CsDr7 equ 00018H
+ = 02D0			      C ContextFrameLength equ 002D0H
+ = E00F			      C DR6_LEGAL equ 0E00FH
+ = FFFF0155		      C DR7_LEGAL equ 0FFFF0155H
+ = 0055			      C DR7_ACTIVE equ 00055H
+ = 0004			      C ErrHandler equ 00004H
+ = 0000			      C ErrNext equ 00000H
+			      C 
+			      C ;
+			      C ;  Floating save area field offset definitions
+			      C ;
+			      C 
+ = 0000			      C FpControlWord equ 00000H
+ = 0004			      C FpStatusWord equ 00004H
+ = 0008			      C FpTagWord equ 00008H
+ = 000C			      C FpErrorOffset equ 0000CH
+ = 0010			      C FpErrorSelector equ 00010H
+ = 0014			      C FpDataOffset equ 00014H
+ = 0018			      C FpDataSelector equ 00018H
+ = 001C			      C FpRegisterArea equ 0001CH
+ = 006C			      C FpCtxtCr0NpxState equ 0006CH
+			      C 
+			      C ;
+			      C ;  FX Floating save area field offset definitions
+			      C ;
+			      C 
+ = 0000			      C FxControlWord equ 00000H
+ = 0002			      C FxStatusWord equ 00002H
+ = 0004			      C FxTagWord equ 00004H
+ = 0006			      C FxErrorOpcode equ 00006H
+ = 0008			      C FxErrorOffset equ 00008H
+ = 000C			      C FxErrorSelector equ 0000CH
+ = 0010			      C FxDataOffset equ 00010H
+ = 0014			      C FxDataSelector equ 00014H
+ = 0018			      C FxMXCsr equ 00018H
+ = 0020			      C FxFpRegisterArea equ 00020H
+ = 0208			      C FpNpxSavedCpu equ 00208H
+ = 020C			      C FpCr0NpxState equ 0020CH
+			      C 
+ = 0210			      C NPX_FRAME_LENGTH equ 00210H
+			      C 
+			      C ;
+			      C ;  Processor State Frame Offset Definitions
+			      C 
+			      C ;
+			      C 
+ = 0000			      C PsContextFrame equ 00000H
+ = 02CC			      C PsSpecialRegisters equ 002CCH
+ = 0000			      C SrCr0 equ 00000H
+ = 0004			      C SrCr2 equ 00004H
+ = 0008			      C SrCr3 equ 00008H
+ = 000C			      C SrCr4 equ 0000CH
+ = 0010			      C SrKernelDr0 equ 00010H
+ = 0014			      C SrKernelDr1 equ 00014H
+ = 0018			      C SrKernelDr2 equ 00018H
+ = 001C			      C SrKernelDr3 equ 0001CH
+ = 0020			      C SrKernelDr6 equ 00020H
+ = 0024			      C SrKernelDr7 equ 00024H
+ = 002A			      C SrGdtr equ 0002AH
+ = 0032			      C SrIdtr equ 00032H
+ = 0038			      C SrTr equ 00038H
+ = 003A			      C SrLdtr equ 0003AH
+ = 0320			      C ProcessorStateLength equ 00320H
+			      C 
+			      C ;
+			      C ;  EPROCESS
+			      C ;
+			      C 
+ = 0120			      C EpDebugPort equ 00120H
+ = 01DC			      C EpVdmObjects equ 001DCH
+			      C 
+			      C ;
+			      C ;  NTDDK Resource
+			      C ;
+			      C 
+ = 0008			      C RsOwnerThreads equ 00008H
+ = 000C			      C RsOwnerCounts equ 0000CH
+ = 0010			      C RsTableSize equ 00010H
+ = 0012			      C RsActiveCount equ 00012H
+ = 0014			      C RsFlag equ 00014H
+ = 001C			      C RsInitialOwnerThreads equ 0001CH
+ = 0080			      C RsOwnedExclusive equ 00080H
+			      C 
+			      C ;
+			      C ;  Machine type definitions (Temporarily)
+			      C ;
+			      C 
+ = 0000			      C MACHINE_TYPE_ISA equ 00000H
+ = 0001			      C MACHINE_TYPE_EISA equ 00001H
+ = 0002			      C MACHINE_TYPE_MCA equ 00002H
+			      C 
+			      C ;
+			      C ;  KeFeatureBits defines
+			      C ;
+			      C 
+ = 0001			      C KF_V86_VIS equ 00001H
+ = 0002			      C KF_RDTSC equ 00002H
+ = 0004			      C KF_CR4 equ 00004H
+ = 0010			      C KF_GLOBAL_PAGE equ 00010H
+ = 0020			      C KF_LARGE_PAGE equ 00020H
+ = 0080			      C KF_CMPXCHG8B equ 00080H
+ = 1000			      C KF_FAST_SYSCALL equ 01000H
+			      C 
+			      C ;
+			      C ;  LoaderParameterBlock offsets relative to base
+			      C ;
+			      C 
+ = 0000			      C LpbLoadOrderListHead equ 00000H
+ = 0008			      C LpbMemoryDescriptorListHead equ 00008H
+ = 0018			      C LpbKernelStack equ 00018H
+ = 001C			      C LpbPrcb equ 0001CH
+ = 0020			      C LpbProcess equ 00020H
+ = 0024			      C LpbThread equ 00024H
+ = 005C			      C LpbI386 equ 0005CH
+ = 0028			      C LpbRegistryLength equ 00028H
+ = 002C			      C LpbRegistryBase equ 0002CH
+ = 0030			      C LpbConfigurationRoot equ 00030H
+ = 0034			      C LpbArcBootDeviceName equ 00034H
+ = 0038			      C LpbArcHalDeviceName equ 00038H
+ = 1000			      C PAGE_SIZE equ 01000H
+			      C 
+			      C ;
+			      C ;  VDM equates.
+			      C ;
+			      C 
+ = 0000			      C VDM_INDEX_Invalid equ 00000H
+ = 0001			      C VDM_INDEX_0F equ 00001H
+ = 0002			      C VDM_INDEX_ESPrefix equ 00002H
+ = 0003			      C VDM_INDEX_CSPrefix equ 00003H
+ = 0004			      C VDM_INDEX_SSPrefix equ 00004H
+ = 0005			      C VDM_INDEX_DSPrefix equ 00005H
+ = 0006			      C VDM_INDEX_FSPrefix equ 00006H
+ = 0007			      C VDM_INDEX_GSPrefix equ 00007H
+ = 0008			      C VDM_INDEX_OPER32Prefix equ 00008H
+ = 0009			      C VDM_INDEX_ADDR32Prefix equ 00009H
+ = 000A			      C VDM_INDEX_INSB equ 0000AH
+ = 000B			      C VDM_INDEX_INSW equ 0000BH
+ = 000C			      C VDM_INDEX_OUTSB equ 0000CH
+ = 000D			      C VDM_INDEX_OUTSW equ 0000DH
+ = 000E			      C VDM_INDEX_PUSHF equ 0000EH
+ = 000F			      C VDM_INDEX_POPF equ 0000FH
+ = 0010			      C VDM_INDEX_INTnn equ 00010H
+ = 0011			      C VDM_INDEX_INTO equ 00011H
+ = 0012			      C VDM_INDEX_IRET equ 00012H
+ = 0013			      C VDM_INDEX_NPX equ 00013H
+ = 0014			      C VDM_INDEX_INBimm equ 00014H
+ = 0015			      C VDM_INDEX_INWimm equ 00015H
+ = 0016			      C VDM_INDEX_OUTBimm equ 00016H
+ = 0017			      C VDM_INDEX_OUTWimm equ 00017H
+ = 0018			      C VDM_INDEX_INB equ 00018H
+ = 0019			      C VDM_INDEX_INW equ 00019H
+ = 001A			      C VDM_INDEX_OUTB equ 0001AH
+ = 001B			      C VDM_INDEX_OUTW equ 0001BH
+ = 001C			      C VDM_INDEX_LOCKPrefix equ 0001CH
+ = 001D			      C VDM_INDEX_REPNEPrefix equ 0001DH
+ = 001E			      C VDM_INDEX_REPPrefix equ 0001EH
+ = 001F			      C VDM_INDEX_CLI equ 0001FH
+ = 0020			      C VDM_INDEX_STI equ 00020H
+ = 0021			      C VDM_INDEX_HLT equ 00021H
+ = 0022			      C MAX_VDM_INDEX equ 00022H
+			      C 
+			      C ;
+			      C ;  VDM feature bits.
+			      C ;
+			      C 
+ = 0001			      C V86_VIRTUAL_INT_EXTENSIONS equ 00001H
+ = 0002			      C PM_VIRTUAL_INT_EXTENSIONS equ 00002H
+			      C 
+			      C ;
+			      C ;  Selector types.
+			      C ;
+			      C 
+ = 0040			      C SEL_TYPE_NP equ 00040H
+			      C 
+			      C ;
+			      C ;  Usermode callout frame definitions
+			      C ;
+			      C 
+ = 0000			      C CuInStk equ 00000H
+ = 0004			      C CuTrFr equ 00004H
+ = 0008			      C CuCbStk equ 00008H
+ = 000C			      C CuEdi equ 0000CH
+ = 0010			      C CuEsi equ 00010H
+ = 0014			      C CuEbx equ 00014H
+ = 0018			      C CuEbp equ 00018H
+ = 001C			      C CuRet equ 0001CH
+ = 0020			      C CuOutBf equ 00020H
+ = 0024			      C CuOutLn equ 00024H
+			      C 
+			      C ;
+			      C ;  VDM_PROCESS_OBJECTS
+			      C ;
+			      C 
+ = 0098			      C VpVdmTib equ 00098H
+			      C 
+				        .list
+				        
+				        INCLUDE chipset.inc
+			      C ;++
+			      C ;
+			      C ; Copyright (c) Microsoft Corporation
+			      C ;
+			      C ; Module Name:
+			      C ;
+			      C ;    chipset.inc
+			      C ;
+			      C ; Abstract:
+			      C ;
+			      C ;    This file contains defines that control which chipset romdec and
+			      C ;    init table are built for
+			      C ;
+			      C ;--
+			      C 
+			      C IFNDEF RETAILXM3
+			      C ;
+			      C ; We want MCP_XMODE2 unless retail XM3 is being built
+			      C ;
+ = 0001			      C MCP_XMODE2 = 1
+			      C 
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; Define the following, when building for MCP Rev B01 in XMODE3
+			      C ; Otherwise, this should undefined
+			      C ;
+			      C ;MCP_REV_B01 = 1
+			      C 
+			      C 
+			      C IFDEF SYS_QT
+			      C ;
+			      C ; If we are building for QT which implies C03 (or higher), the following 
+			      C ; should be defined For C02, it should not be defined
+			      C ;
+			      C MCP_REV_C03 = 1
+			      C 
+			      C ;
+			      C ; If we are building for QT, we need to automatically define DVT6
+			      C ;
+			      C SYS_DVT6 = 1
+			      C 
+			      C ENDIF
+			      C 
+			      C ;
+			      C ; If we are building retail, set the local retail define
+			      C ;
+			      C IFDEF RETAILXM3
+			      C 
+			      C SYS_RETAIL = 1
+			      C 
+			      C ENDIF
+			      C 
+			      C 
+				        
+
+ 00000000			_TEXT   SEGMENT PARA USE32 PUBLIC 'CODE'
+				        ASSUME  DS:_TEXT, ES:_TEXT, SS:NOTHING, FS:NOTHING, GS:NOTHING
+
+
+				        PUBLIC  _Startup32
+
+ 00000000			_Startup32 PROC
+
+				;
+				; Setup segment registers
+				;       
+ 00000000  33 C0		        xor     eax, eax
+ 00000002  B0 10		        mov     al, KGDT_R0_DATA
+				        
+ 00000004  8E D8		        mov     ds, eax
+ 00000006  8E C0		        mov     es, eax
+ 00000008  8E D0		        mov     ss, eax
+
+
+				;
+				; Initialize chipset and RAM by parsing the init table
+				;
+				        INCLUDE command.inc
+			      C IFDEF MCP_XMODE2
+			      C 
+			      C ;
+			      C ; Opcodes for devkits (XMODE2)
+			      C 
+ = 000000E7		      C COMMAND_RESERVED             EQU 0E7h
+ = 0000009A		      C COMMAND_READ_MEM             EQU 09Ah
+ = 0000005B		      C COMMAND_WRITE_MEM            EQU 05Bh
+ = 000000F9		      C COMMAND_PCI_CFG_WRITE        EQU 0F9h
+ = 000000F5		      C COMMAND_PCI_CFG_READ         EQU 0F5h
+ = 000000ED		      C COMMAND_RMW_RESULT           EQU 0EDh
+ = 00000068		      C COMMAND_USE_RESULT_AS_DATA   EQU 068h
+ = 00000004		      C COMMAND_COMPARE_RESULT_JNE   EQU 004h
+ = 00000025		      C COMMAND_JMP                  EQU 025h
+ = 0000006C		      C COMMAND_RMW_ACCUM            EQU 06Ch
+ = 0000003C		      C COMMAND_OUT_BYTE             EQU 03Ch
+ = 000000C8		      C COMMAND_IN_BYTE              EQU 0C8h
+ = 000000BF		      C COMMAND_QUIT                 EQU 0BFh
+			      C 
+			      C ELSE
+			      C 
+			      C ;
+			      C ; Opcodes for internal ROM (XMODE3)
+			      C ;
+			      C 
+			      C COMMAND_RESERVED             EQU 1h
+			      C COMMAND_READ_MEM             EQU 2h
+			      C COMMAND_WRITE_MEM            EQU 3h
+			      C COMMAND_PCI_CFG_WRITE        EQU 4h
+			      C COMMAND_PCI_CFG_READ         EQU 5h
+			      C COMMAND_RMW_RESULT           EQU 6h
+			      C COMMAND_USE_RESULT_AS_DATA   EQU 7h
+			      C COMMAND_COMPARE_RESULT_JNE   EQU 8h
+			      C COMMAND_JMP                  EQU 9h
+			      C COMMAND_RMW_ACCUM            EQU 10h
+			      C COMMAND_OUT_BYTE             EQU 11h
+			      C COMMAND_IN_BYTE              EQU 12h
+			      C COMMAND_QUIT                 EQU 0EEh
+			      C 
+			      C COMMAND_UNUSED1              EQU 0F5h
+			      C COMMAND_UNUSED2              EQU 080h
+			      C 
+			      C ENDIF
+			      C 
+			      C 
+ = 00000000		      C DONT_CARE                    EQU 0
+			      C 
+ 00000009		      C nv_command_struct struct
+ 00000000  00		      C         nv_command db 0
+ 00000001  00000000	      C         nv_address dd 0
+ 00000005  00000000	      C         nv_data    dd 0
+			      C nv_command_struct ends
+			      C 
+			      C 
+			      C 
+				        INCLUDE initcode.inc
+			      C ;++
+			      C ;
+			      C ;  Copyright (c) Microsoft Corporation. All rights reserved
+			      C ;
+			      C ;  Module Name:
+			      C ;
+			      C ;    initcode.inc
+			      C ;
+			      C ;  Abstract:
+			      C ;
+			      C ;    This module contains code to parse and process the init table opcodes
+			      C ;--
+			      C 
+			      C 
+			      C ;
+			      C ; Load the start address of the init table 
+			      C ;        
+ 0000000A  BE FF000080	      C         mov  esi, ROMDEC_INIT_TABLE
+			      C 
+			      C 
+ 0000000F		      C InitLoop:
+			      C ;
+			      C ; Load command and parameters
+			      C ;        
+ 0000000F  8A 06	      C         mov     al, ds:[esi]
+ 00000011  8B 5E 01	      C         mov     ebx, ds:[esi+1]
+ 00000014  8B 4E 05	      C         mov     ecx, ds:[esi+5]
+			      C         
+			      C         .if al == COMMAND_USE_RESULT_AS_DATA
+ 00000017  3C 68	   *	    cmp    al, COMMAND_USE_RESULT_AS_DATA
+ 00000019  75 08	   *	    jne    @C0001
+			      C ;
+			      C ; Use Result As Data Command 
+			      C ;        
+ 0000001B  8B D1	      C         mov     edx, ecx
+ 0000001D  8A C3	      C         mov     al, bl
+ 0000001F  8B DA	      C         mov     ebx, edx
+ 00000021  8B CF	      C         mov     ecx, edi
+			      C         .endif
+ 00000023		   *@C0001:
+			      C 
+			      C 
+			      C IFDEF MCP_REV_B01
+			      C         .if al == COMMAND_RESERVED
+			      C ;
+			      C ; This used to be the "Timing Delay Command" but was broken and not used
+			      C ;
+			      C         mov     dx, 80h
+			      C         rep     insb
+			      C 
+			      C         .elseif al == COMMAND_READ_MEM
+			      C ELSE
+			      C         .if al == COMMAND_READ_MEM
+ 00000023  3C 9A	   *	    cmp    al, COMMAND_READ_MEM
+ 00000025  75 0A	   *	    jne    @C0003
+			      C         
+			      C ENDIF   
+			      C ;
+			      C ; Read Memory Command 
+			      C ;        
+			      C ;    Disallow read memory for top of address space.  The Rev B01
+			      C ;    implementation used a cmp, others use an and instruction
+			      C ;
+			      C         
+			      C IFDEF MCP_REV_B01
+			      C 
+			      C IFDEF MCP_XMODE2
+			      C         and     ebx, 00FFFFFFFh    
+			      C         mov     edi, [ebx]
+			      C ELSE
+			      C         cmp     ebx, 0FF000000h 
+			      C         ja      ReadNotAllowed
+			      C         mov     edi, [ebx]
+			      C 
+			      C ReadNotAllowed:
+			      C ENDIF
+			      C         
+			      C ELSE    
+ 00000027  81 E3 0FFFFFFF     C         and     ebx, 00FFFFFFFh    
+ 0000002D  8B 3B	      C         mov     edi, [ebx]
+			      C ENDIF   
+			      C 
+			      C         .elseif al == COMMAND_WRITE_MEM
+ 0000002F  EB 75	   *	    jmp    @C0005
+ 00000031		   *@C0003:
+ 00000031  3C 5B	   *	    cmp    al, COMMAND_WRITE_MEM
+ 00000033  75 04	   *	    jne    @C0006
+			      C ;
+			      C ; Write Memory Command
+			      C ;        
+ 00000035  89 0B	      C         mov     [ebx], ecx
+			      C 
+			      C         .elseif al == COMMAND_RMW_RESULT
+ 00000037  EB 6D	   *	    jmp    @C0008
+ 00000039		   *@C0006:
+ 00000039  3C ED	   *	    cmp    al, COMMAND_RMW_RESULT
+ 0000003B  75 06	   *	    jne    @C0009
+			      C ;
+			      C ; Read Modify Write Result Command
+			      C ;        
+ 0000003D  23 FB	      C         and     edi, ebx
+ 0000003F  0B F9	      C         or      edi, ecx
+			      C         
+			      C         .elseif al == COMMAND_PCI_CFG_WRITE 
+ 00000041  EB 63	   *	    jmp    @C000B
+ 00000043		   *@C0009:
+ 00000043  3C F9	   *	    cmp    al, COMMAND_PCI_CFG_WRITE
+ 00000045  75 0F	   *	    jne    @C000C
+			      C         
+			      C IFNDEF MCP_XMODE2
+			      C ;
+			      C ; PCI Config Write Command
+			      C ;
+			      C ;    Check to see if the PCI write is for the General SM Ctrl 1 register
+			      C ;    which is used to turn off the SB ROM.  If it is, turn off the bit 1
+			      C ;    
+			      C         cmp     ebx, 80000880h
+			      C         jnz     OKToWrite
+			      C         and     ecx, 0FFFFFFFDh 
+			      C                 
+			      C OKToWrite:    
+			      C 
+			      C ENDIF
+ 00000047  8B C3	      C         mov     eax, ebx
+ 00000049  66| BA 0CF8	      C         mov     dx, 0cf8h
+ 0000004D  EF		      C         out     dx, eax
+ 0000004E  80 C2 04	      C         add     dl, 4
+ 00000051  8B C1	      C         mov     eax, ecx
+ 00000053  EF		      C         out     dx,eax
+			      C 
+			      C         .elseif al == COMMAND_PCI_CFG_READ
+ 00000054  EB 50	   *	    jmp    @C000E
+ 00000056		   *@C000C:
+ 00000056  3C F5	   *	    cmp    al, COMMAND_PCI_CFG_READ
+ 00000058  75 0F	   *	    jne    @C000F
+			      C ;
+			      C ; PCI Config Read Command
+			      C ;        
+ 0000005A  8B C3	      C         mov     eax, ebx
+ 0000005C  66| BA 0CF8	      C         mov     dx, 0cf8h
+ 00000060  EF		      C         out     dx, eax
+ 00000061  80 C2 04	      C         add     dl, 4
+ 00000064  ED		      C         in      eax, dx
+ 00000065  8B F8	      C         mov     edi, eax
+			      C 
+			      C         .elseif al == COMMAND_COMPARE_RESULT_JNE
+ 00000067  EB 3D	   *	    jmp    @C0011
+ 00000069		   *@C000F:
+ 00000069  3C 04	   *	    cmp    al, COMMAND_COMPARE_RESULT_JNE
+ 0000006B  75 08	   *	    jne    @C0012
+			      C ;
+			      C ; Compare Result Jump Command
+			      C ;       
+			      C         .if edi != ebx
+ 0000006D  3B FB	   *	    cmp    edi, ebx
+ 0000006F  74 35	   *	    je     @C0014
+ 00000071  03 F1	      C         add     esi, ecx
+			      C         .endif
+			      C         
+			      C         .elseif al == COMMAND_JMP
+ 00000073  EB 31	   *	    jmp    @C0016
+ 00000075		   *@C0012:
+ 00000075  3C 25	   *	    cmp    al, COMMAND_JMP
+ 00000077  75 04	   *	    jne    @C0017
+			      C ;
+			      C ; Jump Command  
+			      C ;       
+ 00000079  03 F1	      C         add  esi, ecx
+			      C 
+			      C         .elseif al == COMMAND_RMW_ACCUM
+ 0000007B  EB 29	   *	    jmp    @C0019
+ 0000007D		   *@C0017:
+ 0000007D  3C 6C	   *	    cmp    al, COMMAND_RMW_ACCUM
+ 0000007F  75 08	   *	    jne    @C001A
+			      C ;
+			      C ; Read Modify Write Accumulator Command
+			      C ;        
+ 00000081  23 EB	      C         and     ebp, ebx
+ 00000083  0B E9	      C         or      ebp, ecx
+ 00000085  8B FD	      C         mov     edi, ebp
+			      C         
+			      C 
+			      C         .elseif al == COMMAND_OUT_BYTE
+ 00000087  EB 1D	   *	    jmp    @C001C
+ 00000089		   *@C001A:
+ 00000089  3C 3C	   *	    cmp    al, COMMAND_OUT_BYTE
+ 0000008B  75 07	   *	    jne    @C001D
+			      C ;
+			      C ; OUT
+			      C ;       
+ 0000008D  8B D3	      C         mov     edx, ebx
+ 0000008F  8B C1	      C         mov     eax, ecx
+ 00000091  EE		      C         out     dx, al
+			      C 
+			      C         .elseif al == COMMAND_IN_BYTE
+ 00000092  EB 12	   *	    jmp    @C001F
+ 00000094		   *@C001D:
+ 00000094  3C C8	   *	    cmp    al, COMMAND_IN_BYTE
+ 00000096  75 08	   *	    jne    @C0020
+			      C ;
+			      C ; IN
+			      C ;       
+ 00000098  8B D3	      C         mov     edx, ebx
+ 0000009A  EC		      C         in      al, dx
+ 0000009B  0F B6 F8	      C         movzx   edi, al
+			      C         
+			      C         .elseif al == COMMAND_QUIT
+ 0000009E  EB 06	   *	    jmp    @C0022
+ 000000A0		   *@C0020:
+ 000000A0  3C BF	   *	    cmp    al, COMMAND_QUIT
+ 000000A2  75 02	   *	    jne    @C0023
+ 000000A4  EB 08	      C         jmp     InitDone
+			      C         .endif
+ 000000A6		   *@C0023:
+ 000000A6		   *@C0022:
+ 000000A6		   *@C001F:
+ 000000A6		   *@C001C:
+ 000000A6		   *@C0019:
+ 000000A6		   *@C0016:
+ 000000A6		   *@C0011:
+ 000000A6		   *@C000E:
+ 000000A6		   *@C000B:
+ 000000A6		   *@C0008:
+ 000000A6		   *@C0005:
+ 000000A6		   *@C0014:
+			      C         
+			      C ;
+			      C ; Advance to next entry in the table
+			      C ;
+ 000000A6		      C Continue:
+ 000000A6  83 C6 09	      C         add     esi, SIZEOF nv_command_struct
+			      C         
+ 000000A9  E9 FFFFFF61	      C         jmp     InitLoop
+			      C 
+ 000000AE		      C InitDone:       
+			      C 
+			      C 
+
+				;
+				; Setup MTRRs and enable caching.  EBX was setup by the COMMAND_QUIT
+				; command in the init table and is supposed to contain the value
+				; used for default MTRR register
+				;
+ 000000AE  33 C9		        xor     ecx, ecx
+ 000000B0  B5 02		        mov     ch, 02h
+ 000000B2  33 C0		        xor     eax, eax
+ 000000B4  33 D2		        xor     edx, edx
+ 000000B6			@@:
+ 000000B6  0F 30		        wrmsr
+ 000000B8  41			        inc     ecx
+ 000000B9  80 F9 0F		        cmp     cl, 0Fh
+ 000000BC  76 F8		        jbe     @B
+
+				;
+				; Enable MTRR, disable fix-range MTRRs and set default memory type to UC.
+				;
+
+ 000000BE  B1 FF		        mov     cl, 0FFh
+ 000000C0  8B C3		        mov     eax, ebx
+ 000000C2  0F 30		        wrmsr
+
+				;
+				; Enable the processor cache by clearing cache disable and not-write-through
+				; flags in CR0.
+				;
+ 000000C4  0F 20 C0		        mov     eax, cr0
+ 000000C7  25 9FFFFFFF		        and     eax, NOT (CR0_CD OR CR0_NW)
+ 000000CC  0F 22 C0		        mov     cr0, eax
+
+				IFNDEF MCP_XMODE2
+				IFNDEF MCP_XMODE3P
+				;
+				; XMODE3: Decrypt the boot loader.  Destination ROMDEC_OUTPUTBUFFER
+				;
+				        INCLUDE encrypt.inc
+
+				;
+				; Check to see if the encryption was successful.  RC4 algorithm does not provide
+				; success information.  Therefore, we check for a known signature at the end of
+				; decrypted boot loader
+				;
+
+				        mov     eax, ds:DWORD PTR [ROMDEC_OUTPUTBUFFER + ROMLDR_SIZE - ROMLDR_BOOTPARAMSIZE]
+				        cmp     eax, ROMLDR_SIGNATURE
+				        jne     Shutdown
+
+				; Jump to the boot loader startup.  The entry point of the boot loader is
+				; stored as the first DWORD at the decrypted code
+				;
+				; NOTE: The content of eax register must be the entry point of the boot
+				;       loader to indicate that we are not running in XDK box so that
+				;       boot loader will initialize MTRRs to enable RAM/ROM caching
+				; stored just prior to the signature in the boot param
+				;
+
+				        mov     eax, ds:DWORD PTR [ROMDEC_OUTPUTBUFFER]
+				        jmp     eax
+
+				ELSE ; XM3P
+
+				;
+				; XMODE3P: Hash the boot loader and verify that its hash is what we expect to find
+				;
+				        INCLUDE boothash.inc
+
+				; returns with ZF indicating whether we matched the hash
+				        jnz Shutdown
+
+				;
+				; Jump to the boot loader startup.  The entry point of the boot loader is
+				; stored just prior to the signature in the boot param
+				;
+
+				        jmp     _Startup32 - ROMPRELDR_SIZE
+
+				ENDIF ; XM3P
+				ELSE ; XM2
+
+				;
+				; XMODE2: Jump to the boot loader startup.  The entry point of the boot loader is
+				; stored just prior to the signature in the boot param
+				;
+
+ 000000CF  E9 FFFFD52C		        jmp     _Startup32 - ROMPRELDR_SIZE
+
+				ENDIF ; XM2
+
+				;
+				; Sequence of instructions to turn off SB ROM and halt.  The following code
+				; does not do RMW because the system is shutting down
+				;
+ 000000D4			Shutdown:
+				IFDEF MCP_XMODE2
+
+ 000000D4  F4			        hlt
+				        
+				ELSE
+
+				        mov     eax, 80000880h
+				        mov     dx, 0CF8h
+				        out     dx, eax
+
+				ENDIF
+				;
+				; Now jump to the top of the address space.  The code there will complete the shutdown sequence
+				;
+ 000000D5  EA			        db      0EAh
+ 000000D6  FFFFFFFA		        dd      0FFFFFFFAh
+ 000000DA  0008			        dw      KGDT_R0_CODE
+
+ 000000DC			_Startup32 ENDP
+
+				IFNDEF MCP_XMODE2
+				IFNDEF MCP_XMODE3P
+				;
+				; XMODE3: Encryption key placeholder
+				;
+				        INCLUDE ENCKEY.INC
+				ENDIF
+				ENDIF
+
+
+ 00DC				_TEXT   ENDS
+
+				; ==========================================================================
+
+				        END
+
+
+
+Microsoft (R) Macro Assembler Version 6.15.8803		    05/05/02 19:28:45
+..\i386\romdec32.asm					     Symbols 2 - 1
+
+
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+nv_command_struct  . . . . . . .	 0009
+  nv_command . . . . . . . . . .	 0000	     Byte
+  nv_address . . . . . . . . . .	 0001	     DWord
+  nv_data  . . . . . . . . . . .	 0005	     DWord
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00DC	  Para	  Public  'CODE'	
+
+
+Procedures,  parameters and locals:
+
+                N a m e                 Type     Value    Attr
+
+_Startup32 . . . . . . . . . . .	P Near	 0000	  _TEXT	Length= 00DC Public
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+APC_INDEX_MISMATCH . . . . . . .	Number	 0001h	 
+APC_LEVEL  . . . . . . . . . . .	Number	 0001h	 
+ATTEMPTED_SWITCH_FROM_DPC  . . .	Number	 00B8h	 
+ApApcListEntry . . . . . . . . .	Number	 000Ch	 
+ApApcMode  . . . . . . . . . . .	Number	 002Dh	 
+ApApcStateIndex  . . . . . . . .	Number	 002Ch	 
+ApInserted . . . . . . . . . . .	Number	 002Eh	 
+ApKernelRoutine  . . . . . . . .	Number	 0014h	 
+ApNormalContext  . . . . . . . .	Number	 0020h	 
+ApNormalRoutine  . . . . . . . .	Number	 001Ch	 
+ApRundownRoutine . . . . . . . .	Number	 0018h	 
+ApSize . . . . . . . . . . . . .	Number	 0002h	 
+ApSystemArgument1  . . . . . . .	Number	 0024h	 
+ApSystemArgument2  . . . . . . .	Number	 0028h	 
+ApThread . . . . . . . . . . . .	Number	 0008h	 
+ApType . . . . . . . . . . . . .	Number	 0000h	 
+ApcObjectLength  . . . . . . . .	Number	 0030h	 
+ApcRecordLength  . . . . . . . .	Number	 0010h	 
+ArNormalContext  . . . . . . . .	Number	 0004h	 
+ArNormalRoutine  . . . . . . . .	Number	 0000h	 
+ArSystemArgument1  . . . . . . .	Number	 0008h	 
+ArSystemArgument2  . . . . . . .	Number	 000Ch	 
+AsApcListHead  . . . . . . . . .	Number	 0000h	 
+AsKernelApcInProgress  . . . . .	Number	 0014h	 
+AsKernelApcPending . . . . . . .	Number	 0015h	 
+AsProcess  . . . . . . . . . . .	Number	 0010h	 
+AsUserApcPending . . . . . . . .	Number	 0016h	 
+BASE_PRIORITY_THRESHOLD  . . . .	Number	 0008h	 
+BLDR_BOOT_ORIGIN . . . . . . . .	Number	 00090000h   
+BLDR_RELOCATED_ORIGIN  . . . . .	Number	 00400000h   
+BLDR_VALID_KERNEL_LARGE_PTE_BITS .	Number	 00E3h	 
+BLDR_VALID_KERNEL_LARGE_PTE_UC_BITS 	Number	 00FBh	 
+BLDR_VALID_KERNEL_PTE_BITS . . .	Number	 0063h	 
+BOOT_CODE_ORIGIN . . . . . . . .	Number	 FE00h	 
+BREAKPOINT_BREAK . . . . . . . .	Number	 0000h	 
+BlackHole  . . . . . . . . . . .	Number	 FFFFA000h   
+CLOCK1_LEVEL . . . . . . . . . .	Number	 001Ch	 
+CLOCK2_LEVEL . . . . . . . . . .	Number	 001Ch	 
+CLOCK_QUANTUM_DECREMENT  . . . .	Number	 0003h	 
+COMMAND_COMPARE_RESULT_JNE . . .	Number	 0004h	 
+COMMAND_IN_BYTE  . . . . . . . .	Number	 00C8h	 
+COMMAND_JMP  . . . . . . . . . .	Number	 0025h	 
+COMMAND_OUT_BYTE . . . . . . . .	Number	 003Ch	 
+COMMAND_PCI_CFG_READ . . . . . .	Number	 00F5h	 
+COMMAND_PCI_CFG_WRITE  . . . . .	Number	 00F9h	 
+COMMAND_QUIT . . . . . . . . . .	Number	 00BFh	 
+COMMAND_READ_MEM . . . . . . . .	Number	 009Ah	 
+COMMAND_RESERVED . . . . . . . .	Number	 00E7h	 
+COMMAND_RMW_ACCUM  . . . . . . .	Number	 006Ch	 
+COMMAND_RMW_RESULT . . . . . . .	Number	 00EDh	 
+COMMAND_USE_RESULT_AS_DATA . . .	Number	 0068h	 
+COMMAND_WRITE_MEM  . . . . . . .	Number	 005Bh	 
+CONDITION_HANDLING . . . . . . .	Text   	 1
+CONTEXT_CONTROL  . . . . . . . .	Number	 00010001h   
+CONTEXT_DEBUG_REGISTERS  . . . .	Number	 00010010h   
+CONTEXT_FLOATING_POINT . . . . .	Number	 00010008h   
+CONTEXT_FULL . . . . . . . . . .	Number	 00010007h   
+CONTEXT_INTEGER  . . . . . . . .	Number	 00010002h   
+CONTEXT_SEGMENTS . . . . . . . .	Number	 00010004h   
+CR0_AM . . . . . . . . . . . . .	Number	 00040000h   
+CR0_CD . . . . . . . . . . . . .	Number	 40000000h   
+CR0_EM . . . . . . . . . . . . .	Number	 0004h	 
+CR0_ET . . . . . . . . . . . . .	Number	 0010h	 
+CR0_MP . . . . . . . . . . . . .	Number	 0002h	 
+CR0_NE . . . . . . . . . . . . .	Number	 0020h	 
+CR0_NW . . . . . . . . . . . . .	Number	 20000000h   
+CR0_PE . . . . . . . . . . . . .	Number	 0001h	 
+CR0_PG . . . . . . . . . . . . .	Number	 -80000000h   
+CR0_TS . . . . . . . . . . . . .	Number	 0008h	 
+CR0_WP . . . . . . . . . . . . .	Number	 00010000h   
+CR4_DE . . . . . . . . . . . . .	Number	 0008h	 
+CR4_FXSR . . . . . . . . . . . .	Number	 0200h	 
+CR4_MCE  . . . . . . . . . . . .	Number	 0040h	 
+CR4_PAE  . . . . . . . . . . . .	Number	 0020h	 
+CR4_PGE  . . . . . . . . . . . .	Number	 0080h	 
+CR4_PSE  . . . . . . . . . . . .	Number	 0010h	 
+CR4_PVI  . . . . . . . . . . . .	Number	 0002h	 
+CR4_TSD  . . . . . . . . . . . .	Number	 0004h	 
+CR4_VME  . . . . . . . . . . . .	Number	 0001h	 
+CR4_XMMEXCPT . . . . . . . . . .	Number	 0400h	 
+CidUniqueProcess . . . . . . . .	Number	 0000h	 
+CidUniqueThread  . . . . . . . .	Number	 0004h	 
+ContextFrameLength . . . . . . .	Number	 02D0h	 
+Continue . . . . . . . . . . . .	L Near	 00A6	  _TEXT	
+CsContentionCount  . . . . . . .	Number	 0014h	 
+CsContextFlags . . . . . . . . .	Number	 0000h	 
+CsCreatorBackTraceIndex  . . . .	Number	 0002h	 
+CsCriticalSection  . . . . . . .	Number	 0004h	 
+CsDebugInfo  . . . . . . . . . .	Number	 0000h	 
+CsDr0  . . . . . . . . . . . . .	Number	 0004h	 
+CsDr1  . . . . . . . . . . . . .	Number	 0008h	 
+CsDr2  . . . . . . . . . . . . .	Number	 000Ch	 
+CsDr3  . . . . . . . . . . . . .	Number	 0010h	 
+CsDr6  . . . . . . . . . . . . .	Number	 0014h	 
+CsDr7  . . . . . . . . . . . . .	Number	 0018h	 
+CsEax  . . . . . . . . . . . . .	Number	 00B0h	 
+CsEbp  . . . . . . . . . . . . .	Number	 00B4h	 
+CsEbx  . . . . . . . . . . . . .	Number	 00A4h	 
+CsEcx  . . . . . . . . . . . . .	Number	 00ACh	 
+CsEdi  . . . . . . . . . . . . .	Number	 009Ch	 
+CsEdx  . . . . . . . . . . . . .	Number	 00A8h	 
+CsEflags . . . . . . . . . . . .	Number	 00C0h	 
+CsEip  . . . . . . . . . . . . .	Number	 00B8h	 
+CsEntryCount . . . . . . . . . .	Number	 0010h	 
+CsEsi  . . . . . . . . . . . . .	Number	 00A0h	 
+CsEsp  . . . . . . . . . . . . .	Number	 00C4h	 
+CsFloatSave  . . . . . . . . . .	Number	 001Ch	 
+CsLockCount  . . . . . . . . . .	Number	 0004h	 
+CsLockSemaphore  . . . . . . . .	Number	 0010h	 
+CsOwningThread . . . . . . . . .	Number	 000Ch	 
+CsProcessLocksList . . . . . . .	Number	 0008h	 
+CsRecursionCount . . . . . . . .	Number	 0008h	 
+CsSegCs  . . . . . . . . . . . .	Number	 00BCh	 
+CsSegDs  . . . . . . . . . . . .	Number	 0098h	 
+CsSegEs  . . . . . . . . . . . .	Number	 0094h	 
+CsSegFs  . . . . . . . . . . . .	Number	 0090h	 
+CsSegGs  . . . . . . . . . . . .	Number	 008Ch	 
+CsSegSs  . . . . . . . . . . . .	Number	 00C8h	 
+CsSpinCount  . . . . . . . . . .	Number	 0014h	 
+CsType . . . . . . . . . . . . .	Number	 0000h	 
+CuCbStk  . . . . . . . . . . . .	Number	 0008h	 
+CuEbp  . . . . . . . . . . . . .	Number	 0018h	 
+CuEbx  . . . . . . . . . . . . .	Number	 0014h	 
+CuEdi  . . . . . . . . . . . . .	Number	 000Ch	 
+CuEsi  . . . . . . . . . . . . .	Number	 0010h	 
+CuInStk  . . . . . . . . . . . .	Number	 0000h	 
+CuOutBf  . . . . . . . . . . . .	Number	 0020h	 
+CuOutLn  . . . . . . . . . . . .	Number	 0024h	 
+CuRet  . . . . . . . . . . . . .	Number	 001Ch	 
+CuTrFr . . . . . . . . . . . . .	Number	 0004h	 
+DATA_BUS_ERROR . . . . . . . . .	Number	 002Eh	 
+DATA_COHERENCY_EXCEPTION . . . .	Number	 0055h	 
+DBG_STATUS_CONTROL_C . . . . . .	Number	 0001h	 
+DEVKIT . . . . . . . . . . . . .	Text   	 
+DEVL . . . . . . . . . . . . . .	Text   	 1
+DISPATCH_LENGTH  . . . . . . . .	Number	 01A8h	 
+DISPATCH_LEVEL . . . . . . . . .	Number	 0002h	 
+DONT_CARE  . . . . . . . . . . .	Number	 0000h	 
+DOUBLE_FAULT_STACK_SIZE  . . . .	Number	 1000h	 
+DR6_LEGAL  . . . . . . . . . . .	Number	 E00Fh	 
+DR7_ACTIVE . . . . . . . . . . .	Number	 0055h	 
+DR7_LEGAL  . . . . . . . . . . .	Number	 FFFF0155h   
+DeDeviceListEntry  . . . . . . .	Number	 0000h	 
+DeInserted . . . . . . . . . . .	Number	 000Ch	 
+DeSortKey  . . . . . . . . . . .	Number	 0008h	 
+DeviceQueueEntryLength . . . . .	Number	 0010h	 
+DeviceQueueObjectLength  . . . .	Number	 0014h	 
+DpDeferredContext  . . . . . . .	Number	 0010h	 
+DpDeferredRoutine  . . . . . . .	Number	 000Ch	 
+DpDpcListEntry . . . . . . . . .	Number	 0004h	 
+DpImportance . . . . . . . . . .	Number	 0003h	 
+DpLock . . . . . . . . . . . . .	Number	 001Ch	 
+DpNumber . . . . . . . . . . . .	Number	 0002h	 
+DpSystemArgument1  . . . . . . .	Number	 0014h	 
+DpSystemArgument2  . . . . . . .	Number	 0018h	 
+DpType . . . . . . . . . . . . .	Number	 0000h	 
+DpcObjectLength  . . . . . . . .	Number	 0020h	 
+DvBusy . . . . . . . . . . . . .	Number	 0010h	 
+DvDeviceListHead . . . . . . . .	Number	 0004h	 
+DvSize . . . . . . . . . . . . .	Number	 0002h	 
+DvSpinLock . . . . . . . . . . .	Number	 000Ch	 
+DvType . . . . . . . . . . . . .	Number	 0000h	 
+EFLAGS_ALIGN_CHECK . . . . . . .	Number	 00040000h   
+EFLAGS_INTERRUPT_MASK  . . . . .	Number	 0200h	 
+EFLAGS_USER_SANITIZE . . . . . .	Number	 003E0DD7h   
+EFLAGS_V86_MASK  . . . . . . . .	Number	 00020000h   
+EFLAGS_VIF . . . . . . . . . . .	Number	 00080000h   
+EFLAGS_VIP . . . . . . . . . . .	Number	 00100000h   
+EFLAG_SELECT . . . . . . . . . .	Number	 C000h	 
+EVENT_PAIR_INCREMENT . . . . . .	Number	 0001h	 
+EVENT_WAIT_BLOCK_OFFSET  . . . .	Number	 009Ch	 
+EXCEPTION_CHAIN_END  . . . . . .	Number	 FFFFFFFFh   
+EXCEPTION_COLLIDED_UNWIND  . . .	Number	 0040h	 
+EXCEPTION_CONTINUE_EXECUTION . .	Number	 FFFFFFFFh   
+EXCEPTION_CONTINUE_SEARCH  . . .	Number	 0000h	 
+EXCEPTION_EXECUTE_HANDLER  . . .	Number	 0001h	 
+EXCEPTION_EXIT_UNWIND  . . . . .	Number	 0004h	 
+EXCEPTION_NESTED_CALL  . . . . .	Number	 0010h	 
+EXCEPTION_NONCONTINUABLE . . . .	Number	 0001h	 
+EXCEPTION_STACK_INVALID  . . . .	Number	 0008h	 
+EXCEPTION_TARGET_UNWIND  . . . .	Number	 0020h	 
+EXCEPTION_UNWINDING  . . . . . .	Number	 0002h	 
+EXCEPTION_UNWIND . . . . . . . .	Number	 0066h	 
+EeKernelEventPair  . . . . . . .	Number	 0000h	 
+EpDebugPort  . . . . . . . . . .	Number	 0120h	 
+EpEventHigh  . . . . . . . . . .	Number	 0014h	 
+EpEventLow . . . . . . . . . . .	Number	 0004h	 
+EpSize . . . . . . . . . . . . .	Number	 0002h	 
+EpType . . . . . . . . . . . . .	Number	 0000h	 
+EpVdmObjects . . . . . . . . . .	Number	 01DCh	 
+ErExceptionAddress . . . . . . .	Number	 000Ch	 
+ErExceptionCode  . . . . . . . .	Number	 0000h	 
+ErExceptionFlags . . . . . . . .	Number	 0004h	 
+ErExceptionInformation . . . . .	Number	 0014h	 
+ErExceptionRecord  . . . . . . .	Number	 0008h	 
+ErNumberParameters . . . . . . .	Number	 0010h	 
+ErrHandler . . . . . . . . . . .	Number	 0004h	 
+ErrNext  . . . . . . . . . . . .	Number	 0000h	 
+EtCid  . . . . . . . . . . . . .	Number	 01E0h	 
+EtEthreadLength  . . . . . . . .	Number	 0250h	 
+EtPerformanceCountHigh . . . . .	Number	 023Ch	 
+EtPerformanceCountLow  . . . . .	Number	 0204h	 
+EvSignalState  . . . . . . . . .	Number	 0004h	 
+EvSize . . . . . . . . . . . . .	Number	 0002h	 
+EvType . . . . . . . . . . . . .	Number	 0000h	 
+EvWaitListHead . . . . . . . . .	Number	 0008h	 
+EventObjectLength  . . . . . . .	Number	 0010h	 
+ExceptionCollidedUnwind  . . . .	Number	 0003h	 
+ExceptionContinueExecution . . .	Number	 0000h	 
+ExceptionContinueSearch  . . . .	Number	 0001h	 
+ExceptionNestedException . . . .	Number	 0002h	 
+ExceptionRecordLength  . . . . .	Number	 0050h	 
+ExtendedProcessObjectLength  . .	Number	 0290h	 
+ExtendedThreadObjectLength . . .	Number	 0250h	 
+FPO  . . . . . . . . . . . . . .	Text   	 0
+FRAME_EDITED . . . . . . . . . .	Number	 FFF8h	 
+FbDeallocationStack  . . . . . .	Number	 0010h	 
+FbExceptionList  . . . . . . . .	Number	 0004h	 
+FbFiberContext . . . . . . . . .	Number	 0014h	 
+FbFiberData  . . . . . . . . . .	Number	 0000h	 
+FbStackBase  . . . . . . . . . .	Number	 0008h	 
+FbStackLimit . . . . . . . . . .	Number	 000Ch	 
+FbWx86Tib  . . . . . . . . . . .	Number	 02E0h	 
+FmContention . . . . . . . . . .	Number	 0008h	 
+FmCount  . . . . . . . . . . . .	Number	 0000h	 
+FmEvent  . . . . . . . . . . . .	Number	 000Ch	 
+FmOldIrql  . . . . . . . . . . .	Number	 001Ch	 
+FmOwner  . . . . . . . . . . . .	Number	 0004h	 
+FpControlWord  . . . . . . . . .	Number	 0000h	 
+FpCr0NpxState  . . . . . . . . .	Number	 020Ch	 
+FpCtxtCr0NpxState  . . . . . . .	Number	 006Ch	 
+FpDataOffset . . . . . . . . . .	Number	 0014h	 
+FpDataSelector . . . . . . . . .	Number	 0018h	 
+FpErrorOffset  . . . . . . . . .	Number	 000Ch	 
+FpErrorSelector  . . . . . . . .	Number	 0010h	 
+FpNpxSavedCpu  . . . . . . . . .	Number	 0208h	 
+FpRegisterArea . . . . . . . . .	Number	 001Ch	 
+FpStatusWord . . . . . . . . . .	Number	 0004h	 
+FpTagWord  . . . . . . . . . . .	Number	 0008h	 
+FxControlWord  . . . . . . . . .	Number	 0000h	 
+FxDataOffset . . . . . . . . . .	Number	 0010h	 
+FxDataSelector . . . . . . . . .	Number	 0014h	 
+FxErrorOffset  . . . . . . . . .	Number	 0008h	 
+FxErrorOpcode  . . . . . . . . .	Number	 0006h	 
+FxErrorSelector  . . . . . . . .	Number	 000Ch	 
+FxFpRegisterArea . . . . . . . .	Number	 0020h	 
+FxMXCsr  . . . . . . . . . . . .	Number	 0018h	 
+FxStatusWord . . . . . . . . . .	Number	 0002h	 
+FxTagWord  . . . . . . . . . . .	Number	 0004h	 
+HAL1_INITIALIZATION_FAILED . . .	Number	 0061h	 
+HIGH_LEVEL . . . . . . . . . . .	Number	 001Fh	 
+INITIAL_STALL_COUNT  . . . . . .	Number	 0064h	 
+INSTRUCTION_BUS_ERROR  . . . . .	Number	 002Fh	 
+INSTRUCTION_COHERENCY_EXCEPTION 	Number	 0056h	 
+INTERRUPT_EXCEPTION_NOT_HANDLED 	Number	 003Dh	 
+INTERRUPT_UNWIND_ATTEMPTED . . .	Number	 003Ch	 
+INVALID_AFFINITY_SET . . . . . .	Number	 0003h	 
+INVALID_DATA_ACCESS_TRAP . . . .	Number	 0004h	 
+IPI_APC  . . . . . . . . . . . .	Number	 0001h	 
+IPI_DPC  . . . . . . . . . . . .	Number	 0002h	 
+IPI_FREEZE . . . . . . . . . . .	Number	 0004h	 
+IPI_LEVEL  . . . . . . . . . . .	Number	 001Dh	 
+IPI_PACKET_READY . . . . . . . .	Number	 0008h	 
+IPI_SYNCH_REQUEST  . . . . . . .	Number	 0010h	 
+IRQL_GT_ZERO_AT_SYSTEM_SERVICE .	Number	 004Ah	 
+IRQL_NOT_GREATER_OR_EQUAL  . . .	Number	 0009h	 
+IRQL_NOT_LESS_OR_EQUAL . . . . .	Number	 000Ah	 
+InActualLock . . . . . . . . . .	Number	 001Ch	 
+InConnected  . . . . . . . . . .	Number	 002Bh	 
+InDispatchAddress  . . . . . . .	Number	 0020h	 
+InDispatchCode . . . . . . . . .	Number	 003Ch	 
+InFloatingSave . . . . . . . . .	Number	 002Ah	 
+InInterruptListEntry . . . . . .	Number	 0004h	 
+InIrql . . . . . . . . . . . . .	Number	 0028h	 
+InLatched  . . . . . . . . . . .	Number	 0001h	 
+InLevelSensitive . . . . . . . .	Number	 0000h	 
+InMode . . . . . . . . . . . . .	Number	 0030h	 
+InNumber . . . . . . . . . . . .	Number	 002Ch	 
+InServiceContext . . . . . . . .	Number	 0010h	 
+InServiceRoutine . . . . . . . .	Number	 000Ch	 
+InShareVector  . . . . . . . . .	Number	 002Dh	 
+InSize . . . . . . . . . . . . .	Number	 0002h	 
+InSpinLock . . . . . . . . . . .	Number	 0014h	 
+InSynchronizeIrql  . . . . . . .	Number	 0029h	 
+InType . . . . . . . . . . . . .	Number	 0000h	 
+InVector . . . . . . . . . . . .	Number	 0024h	 
+InitDone . . . . . . . . . . . .	L Near	 00AE	  _TEXT	
+InitLoop . . . . . . . . . . . .	L Near	 000F	  _TEXT	
+Initialized  . . . . . . . . . .	Number	 0000h	 
+InterruptObjectLength  . . . . .	Number	 01E4h	 
+KERNEL_LARGE_STACK_COMMIT  . . .	Number	 3000h	 
+KERNEL_STACK_SIZE  . . . . . . .	Number	 3000h	 
+KF_CMPXCHG8B . . . . . . . . . .	Number	 0080h	 
+KF_CR4 . . . . . . . . . . . . .	Number	 0004h	 
+KF_FAST_SYSCALL  . . . . . . . .	Number	 1000h	 
+KF_GLOBAL_PAGE . . . . . . . . .	Number	 0010h	 
+KF_LARGE_PAGE  . . . . . . . . .	Number	 0020h	 
+KF_RDTSC . . . . . . . . . . . .	Number	 0002h	 
+KF_V86_VIS . . . . . . . . . . .	Number	 0001h	 
+KGDT_CODE16  . . . . . . . . . .	Number	 00F0h	 
+KGDT_DF_TSS  . . . . . . . . . .	Number	 0050h	 
+KGDT_LDT . . . . . . . . . . . .	Number	 0048h	 
+KGDT_NMI_TSS . . . . . . . . . .	Number	 0058h	 
+KGDT_R0_CODE . . . . . . . . . .	Number	 0008h	 
+KGDT_R0_DATA . . . . . . . . . .	Number	 0010h	 
+KGDT_R0_PCR  . . . . . . . . . .	Number	 0030h	 
+KGDT_R3_CODE . . . . . . . . . .	Number	 0018h	 
+KGDT_R3_DATA . . . . . . . . . .	Number	 0020h	 
+KGDT_R3_TEB  . . . . . . . . . .	Number	 0038h	 
+KGDT_STACK16 . . . . . . . . . .	Number	 00F8h	 
+KGDT_TSS . . . . . . . . . . . .	Number	 0028h	 
+KI_BEGIN_KERNEL_RESERVED . . . .	Number	 FFDF0000h   
+KMODE_EXCEPTION_NOT_HANDLED  . .	Number	 001Eh	 
+KTRAP_FRAME_ALIGN  . . . . . . .	Number	 0004h	 
+KTRAP_FRAME_LENGTH . . . . . . .	Number	 008Ch	 
+KgdtBaseHi . . . . . . . . . . .	Number	 0007h	 
+KgdtBaseLow  . . . . . . . . . .	Number	 0002h	 
+KgdtBaseMid  . . . . . . . . . .	Number	 0004h	 
+KgdtLimitHi  . . . . . . . . . .	Number	 0006h	 
+KgdtLimitLow . . . . . . . . . .	Number	 0000h	 
+LOCK_QUEUE_HEADER_SIZE . . . . .	Number	 0008h	 
+LOCK_QUEUE_OWNER . . . . . . . .	Number	 0002h	 
+LOCK_QUEUE_WAIT  . . . . . . . .	Number	 0001h	 
+LOW_REALTIME_PRIORITY  . . . . .	Number	 0010h	 
+LiHighPart . . . . . . . . . . .	Number	 0004h	 
+LiLowPart  . . . . . . . . . . .	Number	 0000h	 
+LockQueueContextSwapLock . . . .	Number	 0001h	 
+LockQueueDispatcherLock  . . . .	Number	 0000h	 
+LockQueuePfnLock . . . . . . . .	Number	 0002h	 
+LpbArcBootDeviceName . . . . . .	Number	 0034h	 
+LpbArcHalDeviceName  . . . . . .	Number	 0038h	 
+LpbConfigurationRoot . . . . . .	Number	 0030h	 
+LpbI386  . . . . . . . . . . . .	Number	 005Ch	 
+LpbKernelStack . . . . . . . . .	Number	 0018h	 
+LpbLoadOrderListHead . . . . . .	Number	 0000h	 
+LpbMemoryDescriptorListHead  . .	Number	 0008h	 
+LpbPrcb  . . . . . . . . . . . .	Number	 001Ch	 
+LpbProcess . . . . . . . . . . .	Number	 0020h	 
+LpbRegistryBase  . . . . . . . .	Number	 002Ch	 
+LpbRegistryLength  . . . . . . .	Number	 0028h	 
+LpbThread  . . . . . . . . . . .	Number	 0024h	 
+LqLock . . . . . . . . . . . . .	Number	 0004h	 
+LqNext . . . . . . . . . . . . .	Number	 0000h	 
+LsBlink  . . . . . . . . . . . .	Number	 0004h	 
+LsFlink  . . . . . . . . . . . .	Number	 0000h	 
+MACHINE_TYPE_EISA  . . . . . . .	Number	 0001h	 
+MACHINE_TYPE_ISA . . . . . . . .	Number	 0000h	 
+MACHINE_TYPE_MCA . . . . . . . .	Number	 0002h	 
+MAXIMUM_IDTVECTOR  . . . . . . .	Number	 00FFh	 
+MAXIMUM_PRIMARY_VECTOR . . . . .	Number	 00FFh	 
+MAXIMUM_PROCESSORS . . . . . . .	Number	 0020h	 
+MAX_VDM_INDEX  . . . . . . . . .	Number	 0022h	 
+MCP_XMODE2 . . . . . . . . . . .	Number	 0001h	 
+MM_SHARED_USER_DATA_VA . . . . .	Number	 7FFE0000h   
+MODE_MASK  . . . . . . . . . . .	Number	 0001h	 
+MUTEX_ALREADY_OWNED  . . . . . .	Number	 00BFh	 
+NMI_HARDWARE_FAILURE . . . . . .	Number	 0080h	 
+NORMAL_DISPATCH_LENGTH . . . . .	Number	 01A8h	 
+NO_USER_MODE_CONTEXT . . . . . .	Number	 000Eh	 
+NPX_FRAME_LENGTH . . . . . . . .	Number	 0210h	 
+NPX_STATE_LOADED . . . . . . . .	Number	 0000h	 
+NPX_STATE_NOT_LOADED . . . . . .	Number	 000Ah	 
+NT_INST  . . . . . . . . . . . .	Text   	 0
+NT_UP  . . . . . . . . . . . . .	Text   	 1
+NUMBER_SERVICE_TABLES  . . . . .	Number	 0004h	 
+P0PCRADDRESS . . . . . . . . . .	Number	 FFDFF000h   
+PAGE_FAULT_WITH_INTERRUPTS_OFF .	Number	 0049h	 
+PAGE_SIZE  . . . . . . . . . . .	Number	 1000h	 
+PANIC_STACK_SWITCH . . . . . . .	Number	 002Bh	 
+PCR  . . . . . . . . . . . . . .	Text   	 ds:[0FFDFF000H]
+PM_VIRTUAL_INT_EXTENSIONS  . . .	Number	 0002h	 
+POWER_LEVEL  . . . . . . . . . .	Number	 001Eh	 
+PRIMARY_VECTOR_BASE  . . . . . .	Number	 0030h	 
+PROFILE_LEVEL  . . . . . . . . .	Number	 001Bh	 
+PbAdjustDpcThreshold . . . . . .	Number	 045Ch	 
+PbAlignmentFixupCount  . . . . .	Number	 049Ch	 
+PbApcBypassCount . . . . . . . .	Number	 0454h	 
+PbContextSwitches  . . . . . . .	Number	 04A0h	 
+PbCpuID  . . . . . . . . . . . .	Number	 0019h	 
+PbCpuStep  . . . . . . . . . . .	Number	 001Ah	 
+PbCpuType  . . . . . . . . . . .	Number	 0018h	 
+PbCurrentPacket  . . . . . . . .	Number	 0680h	 
+PbCurrentThread  . . . . . . . .	Number	 0004h	 
+PbDcacheFlushCount . . . . . . .	Number	 04A4h	 
+PbDebugDpcTime . . . . . . . . .	Number	 0460h	 
+PbDpcBypassCount . . . . . . . .	Number	 0458h	 
+PbDpcCount . . . . . . . . . . .	Number	 06F0h	 
+PbDpcInterruptRequested  . . . .	Number	 06C0h	 
+PbDpcLastCount . . . . . . . . .	Number	 06F4h	 
+PbDpcListHead  . . . . . . . . .	Number	 06E0h	 
+PbDpcLock  . . . . . . . . . . .	Number	 0728h	 
+PbDpcQueueDepth  . . . . . . . .	Number	 06E8h	 
+PbDpcRequestRate . . . . . . . .	Number	 06F8h	 
+PbDpcRoutineActive . . . . . . .	Number	 06ECh	 
+PbDpcStack . . . . . . . . . . .	Number	 06FCh	 
+PbDpcTime  . . . . . . . . . . .	Number	 044Ch	 
+PbExceptionDispatchCount . . . .	Number	 04A8h	 
+PbFirstLevelTbFills  . . . . . .	Number	 04ACh	 
+PbFloatingEmulationCount . . . .	Number	 04B0h	 
+PbHalReserved  . . . . . . . . .	Number	 037Ch	 
+PbIcacheFlushCount . . . . . . .	Number	 04B4h	 
+PbIdleThread . . . . . . . . . .	Number	 000Ch	 
+PbInterruptCount . . . . . . . .	Number	 0440h	 
+PbInterruptTime  . . . . . . . .	Number	 0450h	 
+PbIpiFrame . . . . . . . . . . .	Number	 06ACh	 
+PbIpiFrozen  . . . . . . . . . .	Number	 0694h	 
+PbKernelTime . . . . . . . . . .	Number	 0444h	 
+PbLockQueue  . . . . . . . . . .	Number	 03BCh	 
+PbMaximumDpcQueueDepth . . . . .	Number	 06D0h	 
+PbMinimumDpcRate . . . . . . . .	Number	 06D4h	 
+PbNextThread . . . . . . . . . .	Number	 0008h	 
+PbNpxThread  . . . . . . . . . .	Number	 043Ch	 
+PbNumber . . . . . . . . . . . .	Number	 0010h	 
+PbPowerState . . . . . . . . . .	Number	 0758h	 
+PbProcessorState . . . . . . . .	Number	 001Ch	 
+PbQuantumEnd . . . . . . . . . .	Number	 0750h	 
+PbRequestSummary . . . . . . . .	Number	 06A0h	 
+PbSecondLevelTbFills . . . . . .	Number	 04B8h	 
+PbSetMember  . . . . . . . . . .	Number	 0014h	 
+PbSignalDone . . . . . . . . . .	Number	 06A4h	 
+PbSkipTick . . . . . . . . . . .	Number	 072Ch	 
+PbSystemCalls  . . . . . . . . .	Number	 04BCh	 
+PbTargetSet  . . . . . . . . . .	Number	 068Ch	 
+PbThreadStartCount . . . . . . .	Number	 0474h	 
+PbUserTime . . . . . . . . . . .	Number	 0448h	 
+PbWorkerRoutine  . . . . . . . .	Number	 0690h	 
+PcDebugActive  . . . . . . . . .	Number	 0050h	 
+PcExceptionList  . . . . . . . .	Number	 0000h	 
+PcGdt  . . . . . . . . . . . . .	Number	 003Ch	 
+PcHal  . . . . . . . . . . . . .	Number	 0094h	 
+PcIDR  . . . . . . . . . . . . .	Number	 0030h	 
+PcIRR  . . . . . . . . . . . . .	Number	 0028h	 
+PcIdt  . . . . . . . . . . . . .	Number	 0038h	 
+PcInitialStack . . . . . . . . .	Number	 0004h	 
+PcIrql . . . . . . . . . . . . .	Number	 0024h	 
+PcIrrActive  . . . . . . . . . .	Number	 002Ch	 
+PcNumber . . . . . . . . . . . .	Number	 0051h	 
+PcPrcbData . . . . . . . . . . .	Number	 0120h	 
+PcPrcb . . . . . . . . . . . . .	Number	 0020h	 
+PcSelfPcr  . . . . . . . . . . .	Number	 001Ch	 
+PcSetMember  . . . . . . . . . .	Number	 0048h	 
+PcStackLimit . . . . . . . . . .	Number	 0008h	 
+PcStallScaleFactor . . . . . . .	Number	 004Ch	 
+PcTeb  . . . . . . . . . . . . .	Number	 0018h	 
+PcTss  . . . . . . . . . . . . .	Number	 0040h	 
+PcVdmAlert . . . . . . . . . . .	Number	 0052h	 
+PeKernelCallbackTable  . . . . .	Number	 002Ch	 
+PebBeingDebugged . . . . . . . .	Number	 0002h	 
+PebKernelCallbackTable . . . . .	Number	 002Ch	 
+PfAffinity . . . . . . . . . . .	Number	 0024h	 
+PfBucketShift  . . . . . . . . .	Number	 0018h	 
+PfBuffer . . . . . . . . . . . .	Number	 001Ch	 
+PfProcess  . . . . . . . . . . .	Number	 000Ch	 
+PfProfileListEntry . . . . . . .	Number	 0004h	 
+PfRangeBase  . . . . . . . . . .	Number	 0010h	 
+PfRangeLimit . . . . . . . . . .	Number	 0014h	 
+PfSegment  . . . . . . . . . . .	Number	 0020h	 
+PfSize . . . . . . . . . . . . .	Number	 0002h	 
+PfSource . . . . . . . . . . . .	Number	 0028h	 
+PfStarted  . . . . . . . . . . .	Number	 002Ah	 
+PfType . . . . . . . . . . . . .	Number	 0000h	 
+PpIdleFunction . . . . . . . . .	Number	 0000h	 
+PrActiveProcessors . . . . . . .	Number	 0034h	 
+PrAffinity . . . . . . . . . . .	Number	 005Ch	 
+PrAutoAlignment  . . . . . . . .	Number	 0064h	 
+PrBasePriority . . . . . . . . .	Number	 0062h	 
+PrDirectoryTableBase . . . . . .	Number	 0018h	 
+PrInt21Descriptor  . . . . . . .	Number	 0028h	 
+PrIopl . . . . . . . . . . . . .	Number	 0032h	 
+PrIopmOffset . . . . . . . . . .	Number	 0030h	 
+PrKernelTime . . . . . . . . . .	Number	 0038h	 
+PrLdtDescriptor  . . . . . . . .	Number	 0020h	 
+PrProcessLock  . . . . . . . . .	Number	 0058h	 
+PrProfileListHead  . . . . . . .	Number	 0010h	 
+PrReadyListHead  . . . . . . . .	Number	 0040h	 
+PrSignalState  . . . . . . . . .	Number	 0004h	 
+PrSize . . . . . . . . . . . . .	Number	 0002h	 
+PrStackCount . . . . . . . . . .	Number	 0060h	 
+PrState  . . . . . . . . . . . .	Number	 0065h	 
+PrSwapListEntry  . . . . . . . .	Number	 0048h	 
+PrThreadListHead . . . . . . . .	Number	 0050h	 
+PrThreadQuantum  . . . . . . . .	Number	 0063h	 
+PrType . . . . . . . . . . . . .	Number	 0000h	 
+PrUserTime . . . . . . . . . . .	Number	 003Ch	 
+PrVdmFlag  . . . . . . . . . . .	Number	 0033h	 
+ProcessInMemory  . . . . . . . .	Number	 0000h	 
+ProcessInTransition  . . . . . .	Number	 0002h	 
+ProcessObjectLength  . . . . . .	Number	 0070h	 
+ProcessOutOfMemory . . . . . . .	Number	 0001h	 
+ProcessorBlockLength . . . . . .	Number	 09F0h	 
+ProcessorControlRegisterLength .	Number	 0B10h	 
+ProcessorStateLength . . . . . .	Number	 0320h	 
+ProfileObjectLength  . . . . . .	Number	 002Ch	 
+PsContextFrame . . . . . . . . .	Number	 0000h	 
+PsSpecialRegisters . . . . . . .	Number	 02CCh	 
+QuCurrentCount . . . . . . . . .	Number	 0018h	 
+QuEntryListHead  . . . . . . . .	Number	 0010h	 
+QuMaximumCount . . . . . . . . .	Number	 001Ch	 
+QuSignalState  . . . . . . . . .	Number	 0004h	 
+QuSize . . . . . . . . . . . . .	Number	 0002h	 
+QuThreadListHead . . . . . . . .	Number	 0020h	 
+QuType . . . . . . . . . . . . .	Number	 0000h	 
+QueueObjectLength  . . . . . . .	Number	 0028h	 
+READY_SKIP_QUANTUM . . . . . . .	Number	 0002h	 
+ROMDEC_BUFFERSIZE  . . . . . . .	Text   	 ROMLDR_SIZE
+ROMDEC_HASH  . . . . . . . . . .	Number	 0058h	 
+ROMDEC_INIT_TABLE  . . . . . . .	Number	 FF000080h   
+ROMDEC_INPUTBUFFER . . . . . . .	Number	 -6200h	  
+ROMDEC_KEYSIZE . . . . . . . . .	Number	 0010h	 
+ROMDEC_KEYSTRUCT . . . . . . . .	Number	 0008F000h   
+ROMDEC_N . . . . . . . . . . . .	Number	 0064h	 
+ROMDEC_OUTPUTBUFFER  . . . . . .	Text   	 BLDR_BOOT_ORIGIN
+ROMDEC_STACK . . . . . . . . . .	Number	 0008F000h   
+ROMDEC_STARTADDRESS  . . . . . .	Number	 FFFFFE00h   
+ROMLDR_BOOTPARAMSIZE . . . . . .	Number	 001Ch	 
+ROMLDR_SIGNATURE . . . . . . . .	Number	 7854794Ah   
+ROMLDR_SIZE  . . . . . . . . . .	Number	 6000h	 
+ROMPRELDR_SIZE . . . . . . . . .	Number	 2A00h	 
+ROUND_TRIP_DECREMENT_COUNT . . .	Number	 0010h	 
+RPL_MASK . . . . . . . . . . . .	Number	 0003h	 
+Ready  . . . . . . . . . . . . .	Number	 0001h	 
+RsActiveCount  . . . . . . . . .	Number	 0012h	 
+RsFlag . . . . . . . . . . . . .	Number	 0014h	 
+RsInitialOwnerThreads  . . . . .	Number	 001Ch	 
+RsOwnedExclusive . . . . . . . .	Number	 0080h	 
+RsOwnerCounts  . . . . . . . . .	Number	 000Ch	 
+RsOwnerThreads . . . . . . . . .	Number	 0008h	 
+RsTableSize  . . . . . . . . . .	Number	 0010h	 
+Running  . . . . . . . . . . . .	Number	 0002h	 
+SEL_TYPE_NP  . . . . . . . . . .	Number	 0040h	 
+SERVICE_NUMBER_MASK  . . . . . .	Number	 0FFFh	 
+SERVICE_TABLE_MASK . . . . . . .	Number	 0030h	 
+SERVICE_TABLE_SHIFT  . . . . . .	Number	 0008h	 
+SERVICE_TABLE_TEST . . . . . . .	Number	 0010h	 
+SPIN_LOCK_ALREADY_OWNED  . . . .	Number	 000Fh	 
+SPIN_LOCK_INIT_FAILURE . . . . .	Number	 0081h	 
+SPIN_LOCK_NOT_OWNED  . . . . . .	Number	 0010h	 
+STATUS_ACCESS_VIOLATION  . . . .	Number	 C0000005h   
+STATUS_ARRAY_BOUNDS_EXCEEDED . .	Number	 C000008Ch   
+STATUS_BAD_COMPRESSION_BUFFER  .	Number	 C0000242h   
+STATUS_BREAKPOINT  . . . . . . .	Number	 80000003h   
+STATUS_DATATYPE_MISALIGNMENT . .	Number	 80000002h   
+STATUS_FLOAT_DENORMAL_OPERAND  .	Number	 C000008Dh   
+STATUS_FLOAT_DIVIDE_BY_ZERO  . .	Number	 C000008Eh   
+STATUS_FLOAT_INEXACT_RESULT  . .	Number	 C000008Fh   
+STATUS_FLOAT_INVALID_OPERATION .	Number	 C0000090h   
+STATUS_FLOAT_MULTIPLE_FAULTS . .	Number	 C00002B4h   
+STATUS_FLOAT_MULTIPLE_TRAPS  . .	Number	 C00002B5h   
+STATUS_FLOAT_OVERFLOW  . . . . .	Number	 C0000091h   
+STATUS_FLOAT_STACK_CHECK . . . .	Number	 C0000092h   
+STATUS_FLOAT_UNDERFLOW . . . . .	Number	 C0000093h   
+STATUS_GUARD_PAGE_VIOLATION  . .	Number	 80000001h   
+STATUS_ILLEGAL_FLOAT_CONTEXT . .	Number	 C000014Ah   
+STATUS_ILLEGAL_INSTRUCTION . . .	Number	 C000001Dh   
+STATUS_INSTRUCTION_MISALIGNMENT 	Number	 C00000AAh   
+STATUS_INTEGER_DIVIDE_BY_ZERO  .	Number	 C0000094h   
+STATUS_INTEGER_OVERFLOW  . . . .	Number	 C0000095h   
+STATUS_INVALID_HANDLE  . . . . .	Number	 C0000008h   
+STATUS_INVALID_LOCK_SEQUENCE . .	Number	 C000001Eh   
+STATUS_INVALID_OWNER . . . . . .	Number	 C000005Ah   
+STATUS_INVALID_PARAMETER_1 . . .	Number	 C00000EFh   
+STATUS_INVALID_SYSTEM_SERVICE  .	Number	 C000001Ch   
+STATUS_IN_PAGE_ERROR . . . . . .	Number	 C0000006h   
+STATUS_KERNEL_APC  . . . . . . .	Number	 0100h	 
+STATUS_LONGJUMP  . . . . . . . .	Number	 80000026h   
+STATUS_NO_CALLBACK_ACTIVE  . . .	Number	 C0000258h   
+STATUS_NO_EVENT_PAIR . . . . . .	Number	 C000014Eh   
+STATUS_PRIVILEGED_INSTRUCTION  .	Number	 C0000096h   
+STATUS_SINGLE_STEP . . . . . . .	Number	 80000004h   
+STATUS_STACK_OVERFLOW  . . . . .	Number	 C00000FDh   
+STATUS_SUCCESS . . . . . . . . .	Number	 0000h	 
+STATUS_THREAD_IS_TERMINATING . .	Number	 C000004Bh   
+STATUS_TIMEOUT . . . . . . . . .	Number	 0102h	 
+STATUS_UNWIND  . . . . . . . . .	Number	 C0000027h   
+STATUS_WAKE_SYSTEM_DEBUGGER  . .	Number	 80000007h   
+STD_CALL . . . . . . . . . . . .	Text   	 
+SYNCH_LEVEL  . . . . . . . . . .	Number	 001Ch	 
+SYSTEM_EXIT_OWNED_MUTEX  . . . .	Number	 0039h	 
+SYSTEM_SERVICE_EXCEPTION . . . .	Number	 003Bh	 
+SYSTEM_UNWIND_PREVIOUS_USER  . .	Number	 003Ah	 
+SdBase . . . . . . . . . . . . .	Number	 0000h	 
+SdCount  . . . . . . . . . . . .	Number	 0004h	 
+SdLimit  . . . . . . . . . . . .	Number	 0008h	 
+SdNumber . . . . . . . . . . . .	Number	 000Ch	 
+Shutdown . . . . . . . . . . . .	L Near	 00D4	  _TEXT	
+SizeofPointer  . . . . . . . . .	Number	 0004h	 
+SrCr0  . . . . . . . . . . . . .	Number	 0000h	 
+SrCr2  . . . . . . . . . . . . .	Number	 0004h	 
+SrCr3  . . . . . . . . . . . . .	Number	 0008h	 
+SrCr4  . . . . . . . . . . . . .	Number	 000Ch	 
+SrGdtr . . . . . . . . . . . . .	Number	 002Ah	 
+SrIdtr . . . . . . . . . . . . .	Number	 0032h	 
+SrKernelDr0  . . . . . . . . . .	Number	 0010h	 
+SrKernelDr1  . . . . . . . . . .	Number	 0014h	 
+SrKernelDr2  . . . . . . . . . .	Number	 0018h	 
+SrKernelDr3  . . . . . . . . . .	Number	 001Ch	 
+SrKernelDr6  . . . . . . . . . .	Number	 0020h	 
+SrKernelDr7  . . . . . . . . . .	Number	 0024h	 
+SrLdtr . . . . . . . . . . . . .	Number	 003Ah	 
+SrTr . . . . . . . . . . . . . .	Number	 0038h	 
+StHigh1Time  . . . . . . . . . .	Number	 0004h	 
+StHigh2Time  . . . . . . . . . .	Number	 0008h	 
+StLowTime  . . . . . . . . . . .	Number	 0000h	 
+Standby  . . . . . . . . . . . .	Number	 0003h	 
+StrBuffer  . . . . . . . . . . .	Number	 0004h	 
+StrLength  . . . . . . . . . . .	Number	 0000h	 
+StrMaximumLength . . . . . . . .	Number	 0002h	 
+THREAD_NOT_MUTEX_OWNER . . . . .	Number	 0011h	 
+THREAD_QUANTUM . . . . . . . . .	Number	 0006h	 
+TIMER_TABLE_SIZE . . . . . . . .	Number	 0080h	 
+TRAP_CAUSE_UNKNOWN . . . . . . .	Number	 0012h	 
+TbArbitraryUserPointer . . . . .	Number	 0014h	 
+TbClientId . . . . . . . . . . .	Number	 0020h	 
+TbCountOfOwnedCriticalSections .	Number	 0038h	 
+TbCsrClientThread  . . . . . . .	Number	 003Ch	 
+TbDeallocationStack  . . . . . .	Number	 0E0Ch	 
+TbEnvironmentPointer . . . . . .	Number	 001Ch	 
+TbExceptionCode  . . . . . . . .	Number	 01A4h	 
+TbExceptionList  . . . . . . . .	Number	 0000h	 
+TbFiberData  . . . . . . . . . .	Number	 0010h	 
+TbGdiBatchCount  . . . . . . . .	Number	 0F70h	 
+TbGdiThreadLocalInfo . . . . . .	Number	 06C8h	 
+TbStackBase  . . . . . . . . . .	Number	 0004h	 
+TbStackLimit . . . . . . . . . .	Number	 0008h	 
+TbSystemReserved1  . . . . . . .	Number	 00CCh	 
+TbThreadLocalStoragePointer  . .	Number	 002Ch	 
+TbVdm  . . . . . . . . . . . . .	Number	 0F18h	 
+TbVersion  . . . . . . . . . . .	Number	 0010h	 
+TbWOW32Reserved  . . . . . . . .	Number	 00C0h	 
+TbglContext  . . . . . . . . . .	Number	 0BF0h	 
+TbglCurrentRC  . . . . . . . . .	Number	 0BECh	 
+TbglDispatchTable  . . . . . . .	Number	 07C4h	 
+TbglSectionInfo  . . . . . . . .	Number	 0BE0h	 
+TbglSection  . . . . . . . . . .	Number	 0BE4h	 
+TbglTable  . . . . . . . . . . .	Number	 0BE8h	 
+TeActiveRpcHandle  . . . . . . .	Number	 0028h	 
+TeClientId . . . . . . . . . . .	Number	 0020h	 
+TeCountOfOwnedCriticalSections .	Number	 0038h	 
+TeCsrClientThread  . . . . . . .	Number	 003Ch	 
+TeDeallocationStack  . . . . . .	Number	 0E0Ch	 
+TeEnvironmentPointer . . . . . .	Number	 001Ch	 
+TeFiberData  . . . . . . . . . .	Number	 0010h	 
+TeGdiBatchCount  . . . . . . . .	Number	 0F70h	 
+TeGdiClientPID . . . . . . . . .	Number	 06C0h	 
+TeGdiClientTID . . . . . . . . .	Number	 06C4h	 
+TeGdiThreadLocalInfo . . . . . .	Number	 06C8h	 
+TeInstrumentation  . . . . . . .	Number	 0F2Ch	 
+TePeb  . . . . . . . . . . . . .	Number	 0030h	 
+TeSoftFpcr . . . . . . . . . . .	Number	 00C8h	 
+TeStackBase  . . . . . . . . . .	Number	 0004h	 
+TeStackLimit . . . . . . . . . .	Number	 0008h	 
+TeThreadLocalStoragePointer  . .	Number	 002Ch	 
+TeTlsSlots . . . . . . . . . . .	Number	 0E10h	 
+TeVdm  . . . . . . . . . . . . .	Number	 0F18h	 
+TeWOW32Reserved  . . . . . . . .	Number	 00C0h	 
+TebPeb . . . . . . . . . . . . .	Number	 0030h	 
+TeglContext  . . . . . . . . . .	Number	 0BF0h	 
+TeglCurrentRC  . . . . . . . . .	Number	 0BECh	 
+TeglDispatchTable  . . . . . . .	Number	 07C4h	 
+TeglReserved1  . . . . . . . . .	Number	 0B68h	 
+TeglReserved2  . . . . . . . . .	Number	 0BDCh	 
+TeglSectionInfo  . . . . . . . .	Number	 0BE0h	 
+TeglSection  . . . . . . . . . .	Number	 0BE4h	 
+TeglTable  . . . . . . . . . . .	Number	 0BE8h	 
+Terminated . . . . . . . . . . .	Number	 0004h	 
+TfDay  . . . . . . . . . . . . .	Number	 0004h	 
+TfHour . . . . . . . . . . . . .	Number	 0006h	 
+TfMilliseconds . . . . . . . . .	Number	 000Ch	 
+TfMinute . . . . . . . . . . . .	Number	 0008h	 
+TfMonth  . . . . . . . . . . . .	Number	 0002h	 
+TfSecond . . . . . . . . . . . .	Number	 000Ah	 
+TfWeekday  . . . . . . . . . . .	Number	 000Eh	 
+TfYear . . . . . . . . . . . . .	Number	 0000h	 
+ThAffinity . . . . . . . . . . .	Number	 0118h	 
+ThAlertable  . . . . . . . . . .	Number	 0158h	 
+ThAlerted  . . . . . . . . . . .	Number	 002Eh	 
+ThApcQueueLock . . . . . . . . .	Number	 00E4h	 
+ThApcQueueable . . . . . . . . .	Number	 015Ah	 
+ThApcStateIndex  . . . . . . . .	Number	 0159h	 
+ThApcStatePointer  . . . . . . .	Number	 012Ch	 
+ThApcState . . . . . . . . . . .	Number	 0034h	 
+ThAutoAlignment  . . . . . . . .	Number	 015Bh	 
+ThBasePriority . . . . . . . . .	Number	 0068h	 
+ThCallbackStack  . . . . . . . .	Number	 0120h	 
+ThContextSwitches  . . . . . . .	Number	 004Ch	 
+ThDebugActive  . . . . . . . . .	Number	 002Ch	 
+ThDecrementCount . . . . . . . .	Number	 0069h	 
+ThDisableBoost . . . . . . . . .	Number	 01AFh	 
+ThEnableStackSwap  . . . . . . .	Number	 0135h	 
+ThFreezeCount  . . . . . . . . .	Number	 01ACh	 
+ThIdealProcessor . . . . . . . .	Number	 01AEh	 
+ThInitialStack . . . . . . . . .	Number	 0018h	 
+ThIopl . . . . . . . . . . . . .	Number	 0030h	 
+ThKernelApcDisable . . . . . . .	Number	 00D0h	 
+ThKernelStackResident  . . . . .	Number	 011Eh	 
+ThKernelStack  . . . . . . . . .	Number	 0028h	 
+ThKernelTime . . . . . . . . . .	Number	 0138h	 
+ThLargeStack . . . . . . . . . .	Number	 0136h	 
+ThMutantListHead . . . . . . . .	Number	 0010h	 
+ThNextProcessor  . . . . . . . .	Number	 011Fh	 
+ThNpxState . . . . . . . . . . .	Number	 0031h	 
+ThPreempted  . . . . . . . . . .	Number	 011Ch	 
+ThPreviousMode . . . . . . . . .	Number	 0134h	 
+ThPriorityDecrement  . . . . . .	Number	 006Ah	 
+ThPriority . . . . . . . . . . .	Number	 0033h	 
+ThProcessReadyQueue  . . . . . .	Number	 011Dh	 
+ThQuantum  . . . . . . . . . . .	Number	 006Bh	 
+ThQueueListEntry . . . . . . . .	Number	 0110h	 
+ThQueue  . . . . . . . . . . . .	Number	 00E0h	 
+ThSaturation . . . . . . . . . .	Number	 0032h	 
+ThSavedApcState  . . . . . . . .	Number	 0140h	 
+ThServiceTable . . . . . . . . .	Number	 00DCh	 
+ThSignalState  . . . . . . . . .	Number	 0004h	 
+ThSize . . . . . . . . . . . . .	Number	 0002h	 
+ThStackBase  . . . . . . . . . .	Number	 015Ch	 
+ThStackLimit . . . . . . . . . .	Number	 001Ch	 
+ThState  . . . . . . . . . . . .	Number	 002Dh	 
+ThSuspendApc . . . . . . . . . .	Number	 0160h	 
+ThSuspendCount . . . . . . . . .	Number	 01ADh	 
+ThSuspendSemaphore . . . . . . .	Number	 0190h	 
+ThSystemAffinityActive . . . . .	Number	 00D8h	 
+ThTeb  . . . . . . . . . . . . .	Number	 0020h	 
+ThThreadListEntry  . . . . . . .	Number	 01A4h	 
+ThTimer  . . . . . . . . . . . .	Number	 00E8h	 
+ThTlsArray . . . . . . . . . . .	Number	 0024h	 
+ThTrapFrame  . . . . . . . . . .	Number	 0128h	 
+ThType . . . . . . . . . . . . .	Number	 0000h	 
+ThUserAffinity . . . . . . . . .	Number	 00D4h	 
+ThUserTime . . . . . . . . . . .	Number	 013Ch	 
+ThWaitBlockList  . . . . . . . .	Number	 0058h	 
+ThWaitBlock  . . . . . . . . . .	Number	 006Ch	 
+ThWaitIrql . . . . . . . . . . .	Number	 0054h	 
+ThWaitListEntry  . . . . . . . .	Number	 005Ch	 
+ThWaitMode . . . . . . . . . . .	Number	 0055h	 
+ThWaitNext . . . . . . . . . . .	Number	 0056h	 
+ThWaitReason . . . . . . . . . .	Number	 0057h	 
+ThWaitStatus . . . . . . . . . .	Number	 0050h	 
+ThWaitTime . . . . . . . . . . .	Number	 0064h	 
+ThWin32Thread  . . . . . . . . .	Number	 0124h	 
+ThreadEnvironmentBlockLength . .	Number	 0FA4h	 
+ThreadObjectLength . . . . . . .	Number	 01B0h	 
+TiDpc  . . . . . . . . . . . . .	Number	 0020h	 
+TiDueTime  . . . . . . . . . . .	Number	 0010h	 
+TiInserted . . . . . . . . . . .	Number	 0003h	 
+TiPeriod . . . . . . . . . . . .	Number	 0024h	 
+TiSignalState  . . . . . . . . .	Number	 0004h	 
+TiSize . . . . . . . . . . . . .	Number	 0002h	 
+TiTimerListEntry . . . . . . . .	Number	 0018h	 
+TiType . . . . . . . . . . . . .	Number	 0000h	 
+TimerObjectLength  . . . . . . .	Number	 0028h	 
+TmHighTime . . . . . . . . . . .	Number	 0004h	 
+TmLowTime  . . . . . . . . . . .	Number	 0000h	 
+TsDbgArgMark . . . . . . . . . .	Number	 0008h	 
+TsDbgArgPointer  . . . . . . . .	Number	 000Ch	 
+TsDbgEbp . . . . . . . . . . . .	Number	 0000h	 
+TsDbgEip . . . . . . . . . . . .	Number	 0004h	 
+TsDr0  . . . . . . . . . . . . .	Number	 0018h	 
+TsDr1  . . . . . . . . . . . . .	Number	 001Ch	 
+TsDr2  . . . . . . . . . . . . .	Number	 0020h	 
+TsDr3  . . . . . . . . . . . . .	Number	 0024h	 
+TsDr6  . . . . . . . . . . . . .	Number	 0028h	 
+TsDr7  . . . . . . . . . . . . .	Number	 002Ch	 
+TsEax  . . . . . . . . . . . . .	Number	 0044h	 
+TsEbp  . . . . . . . . . . . . .	Number	 0060h	 
+TsEbx  . . . . . . . . . . . . .	Number	 005Ch	 
+TsEcx  . . . . . . . . . . . . .	Number	 0040h	 
+TsEdi  . . . . . . . . . . . . .	Number	 0054h	 
+TsEdx  . . . . . . . . . . . . .	Number	 003Ch	 
+TsEflags . . . . . . . . . . . .	Number	 0070h	 
+TsEip  . . . . . . . . . . . . .	Number	 0068h	 
+TsErrCode  . . . . . . . . . . .	Number	 0064h	 
+TsEsi  . . . . . . . . . . . . .	Number	 0058h	 
+TsExceptionList  . . . . . . . .	Number	 004Ch	 
+TsHardwareEsp  . . . . . . . . .	Number	 0074h	 
+TsHardwareSegSs  . . . . . . . .	Number	 0078h	 
+TsPreviousPreviousMode . . . . .	Number	 0048h	 
+TsSegCs  . . . . . . . . . . . .	Number	 006Ch	 
+TsSegDs  . . . . . . . . . . . .	Number	 0038h	 
+TsSegEs  . . . . . . . . . . . .	Number	 0034h	 
+TsSegFs  . . . . . . . . . . . .	Number	 0050h	 
+TsSegGs  . . . . . . . . . . . .	Number	 0030h	 
+TsTempEsp  . . . . . . . . . . .	Number	 0014h	 
+TsTempSegCs  . . . . . . . . . .	Number	 0010h	 
+TsV86Ds  . . . . . . . . . . . .	Number	 0080h	 
+TsV86Es  . . . . . . . . . . . .	Number	 007Ch	 
+TsV86Fs  . . . . . . . . . . . .	Number	 0084h	 
+TsV86Gs  . . . . . . . . . . . .	Number	 0088h	 
+TssCR3 . . . . . . . . . . . . .	Number	 001Ch	 
+TssEsp0  . . . . . . . . . . . .	Number	 0004h	 
+TssIoMapBase . . . . . . . . . .	Number	 0066h	 
+TssIoMaps  . . . . . . . . . . .	Number	 0068h	 
+TssLength  . . . . . . . . . . .	Number	 20ACh	 
+TwFindAny  . . . . . . . . . . .	Number	 0000h	 
+TwFindIdeal  . . . . . . . . . .	Number	 0004h	 
+TwFindLast . . . . . . . . . . .	Number	 0008h	 
+TwIdleAny  . . . . . . . . . . .	Number	 000Ch	 
+TwIdleCurrent  . . . . . . . . .	Number	 0010h	 
+TwIdleIdeal  . . . . . . . . . .	Number	 0014h	 
+TwIdleLast . . . . . . . . . . .	Number	 0018h	 
+TwPreemptAny . . . . . . . . . .	Number	 001Ch	 
+TwPreemptCurrent . . . . . . . .	Number	 0020h	 
+TwPreemptLast  . . . . . . . . .	Number	 0024h	 
+TwSwitchToIdle . . . . . . . . .	Number	 0028h	 
+UNEXPECTED_KERNEL_MODE_TRAP  . .	Number	 007Fh	 
+USERDATA . . . . . . . . . . . .	Text   	 ds:[0FFDF0000H]
+USER_SHARED_DATA . . . . . . . .	Number	 FFDF0000h   
+UsInterruptTime  . . . . . . . .	Number	 0008h	 
+UsSystemTime . . . . . . . . . .	Number	 0014h	 
+UsTickCountLow . . . . . . . . .	Number	 0000h	 
+UsTickCountMultiplier  . . . . .	Number	 0004h	 
+V86_VIRTUAL_INT_EXTENSIONS . . .	Number	 0001h	 
+VDM_INDEX_0F . . . . . . . . . .	Number	 0001h	 
+VDM_INDEX_ADDR32Prefix . . . . .	Number	 0009h	 
+VDM_INDEX_CLI  . . . . . . . . .	Number	 001Fh	 
+VDM_INDEX_CSPrefix . . . . . . .	Number	 0003h	 
+VDM_INDEX_DSPrefix . . . . . . .	Number	 0005h	 
+VDM_INDEX_ESPrefix . . . . . . .	Number	 0002h	 
+VDM_INDEX_FSPrefix . . . . . . .	Number	 0006h	 
+VDM_INDEX_GSPrefix . . . . . . .	Number	 0007h	 
+VDM_INDEX_HLT  . . . . . . . . .	Number	 0021h	 
+VDM_INDEX_INBimm . . . . . . . .	Number	 0014h	 
+VDM_INDEX_INB  . . . . . . . . .	Number	 0018h	 
+VDM_INDEX_INSB . . . . . . . . .	Number	 000Ah	 
+VDM_INDEX_INSW . . . . . . . . .	Number	 000Bh	 
+VDM_INDEX_INTO . . . . . . . . .	Number	 0011h	 
+VDM_INDEX_INTnn  . . . . . . . .	Number	 0010h	 
+VDM_INDEX_INWimm . . . . . . . .	Number	 0015h	 
+VDM_INDEX_INW  . . . . . . . . .	Number	 0019h	 
+VDM_INDEX_IRET . . . . . . . . .	Number	 0012h	 
+VDM_INDEX_Invalid  . . . . . . .	Number	 0000h	 
+VDM_INDEX_LOCKPrefix . . . . . .	Number	 001Ch	 
+VDM_INDEX_NPX  . . . . . . . . .	Number	 0013h	 
+VDM_INDEX_OPER32Prefix . . . . .	Number	 0008h	 
+VDM_INDEX_OUTBimm  . . . . . . .	Number	 0016h	 
+VDM_INDEX_OUTB . . . . . . . . .	Number	 001Ah	 
+VDM_INDEX_OUTSB  . . . . . . . .	Number	 000Ch	 
+VDM_INDEX_OUTSW  . . . . . . . .	Number	 000Dh	 
+VDM_INDEX_OUTWimm  . . . . . . .	Number	 0017h	 
+VDM_INDEX_OUTW . . . . . . . . .	Number	 001Bh	 
+VDM_INDEX_POPF . . . . . . . . .	Number	 000Fh	 
+VDM_INDEX_PUSHF  . . . . . . . .	Number	 000Eh	 
+VDM_INDEX_REPNEPrefix  . . . . .	Number	 001Dh	 
+VDM_INDEX_REPPrefix  . . . . . .	Number	 001Eh	 
+VDM_INDEX_SSPrefix . . . . . . .	Number	 0004h	 
+VDM_INDEX_STI  . . . . . . . . .	Number	 0020h	 
+VpVdmTib . . . . . . . . . . . .	Number	 0098h	 
+WAIT_QUANTUM_DECREMENT . . . . .	Number	 0001h	 
+WIN32_LEAN_AND_MEAN  . . . . . .	Text   	 1
+WIN32  . . . . . . . . . . . . .	Text   	 100
+WINNT  . . . . . . . . . . . . .	Text   	 1
+WINVER . . . . . . . . . . . . .	Text   	 0x0500
+WaitAll  . . . . . . . . . . . .	Number	 0000h	 
+WaitAny  . . . . . . . . . . . .	Number	 0001h	 
+Waiting  . . . . . . . . . . . .	Number	 0005h	 
+WbNextWaitBlock  . . . . . . . .	Number	 0010h	 
+WbObject . . . . . . . . . . . .	Number	 000Ch	 
+WbThread . . . . . . . . . . . .	Number	 0008h	 
+WbWaitKey  . . . . . . . . . . .	Number	 0014h	 
+WbWaitListEntry  . . . . . . . .	Number	 0000h	 
+WbWaitType . . . . . . . . . . .	Number	 0016h	 
+WrEventPair  . . . . . . . . . .	Number	 000Eh	 
+WrExecutive  . . . . . . . . . .	Number	 0000h	 
+_NT1X_ . . . . . . . . . . . . .	Text   	 100
+_WIN32_IE  . . . . . . . . . . .	Text   	 0x0501
+_WIN32_WINNT . . . . . . . . . .	Text   	 0x0500
+_X86_  . . . . . . . . . . . . .	Text   	 1
+i386 . . . . . . . . . . . . . .	Text   	 1
+
+	   0 Warnings
+	   0 Errors

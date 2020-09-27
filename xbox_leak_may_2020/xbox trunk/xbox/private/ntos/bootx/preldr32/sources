@@ -1,0 +1,88 @@
+!IF 0
+
+Copyright (c) 1989  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    Steve Wood (stevewo) 12-Apr-1990
+
+NOTE:   Commented description of this file is in \nt\bak\bin\sources.tpl
+
+!ENDIF
+
+TARGETNAME=preldr32
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+XNOLIBS=1
+
+SUBSYSTEM=native,1.00
+UMENTRYABS=PreloaderStartup
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+C_DEFINES=$(C_DEFINES) -D_NTSYSTEM_
+
+!ifdef RETAILXM3
+C_DEFINES=$(C_DEFINES) -DMCP_XMODE3
+!else
+!ifdef RETAILXM3P
+C_DEFINES=$(C_DEFINES) -DMCP_XMODE3P
+!else
+C_DEFINES=$(C_DEFINES) -DMCP_XMODE2
+!endif
+!endif
+
+INCLUDES=$(BASEDIR)\private\ntos\inc;$(BASEDIR)\private\inc\crypto; \
+         $(BASEDIR)\private\windows\directx\dxg\d3d8\se
+
+USE_LIBCNTPR=1
+
+LINKLIBS=..\..\rtl\obj\*\bldrrtl.lib
+
+TARGETLIBS= $(BASEDIR)\private\lib\*\rsa32k.lib \
+            $(SDK_LIB_PATH)\libcntpr.lib
+
+            
+LINKER_FLAGS=$(LINKER_FLAGS) /map
+
+#
+# Simplify the life of BLDRBLD by merge all of the sections into .text.
+#
+LINKER_FLAGS=$(LINKER_FLAGS) -merge:.data=.text -merge:PAGER32C=.text
+
+#
+# Link with -DRIVER so that the final image still has the relocations in it.
+#
+LINKER_FLAGS=$(LINKER_FLAGS) -driver -align:0x20
+
+#
+# The default for TARGETTYPE=PROGRAM is to mark the image as Terminal Server
+# aware.  This causes a linker warning when -driver is specified, so disable it.
+#
+NOT_TERMINAL_SERVER_AWARE=1
+
+#
+# This image is never directly used, so keep BINPLACE from whining about the
+# image not having a version stamp.
+#
+NO_BINPLACE=1
+
+SOURCES=..\preldr32.c \
+        ..\startup.asm
+
+NTTARGETFILES=$(BASEDIR)\private\ntos\obj\i386\xpreldr.bin
+
+NODEBUGINFO=1

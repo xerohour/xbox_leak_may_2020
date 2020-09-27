@@ -1,0 +1,26 @@
+HKCR
+{
+	USBSimulator.MU.1 = s 'MU Class'
+	{
+		CLSID = s '{4D1F4649-099C-45FB-844D-4684EDC1F539}'
+	}
+	USBSimulator.MU = s 'MU Class'
+	{
+		CLSID = s '{4D1F4649-099C-45FB-844D-4684EDC1F539}'
+		CurVer = s 'USBSimulator.MU.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {4D1F4649-099C-45FB-844D-4684EDC1F539} = s 'MU Class'
+		{
+			ProgID = s 'USBSimulator.MU.1'
+			VersionIndependentProgID = s 'USBSimulator.MU'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{FA33F7A9-3CDF-4ADF-BBC8-1718F17D391F}'
+		}
+	}
+}

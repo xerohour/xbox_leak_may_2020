@@ -1,0 +1,36 @@
+; Calculates the range to the light in x,y,z and stores
+; these in the texture coordinates.
+; This will generate an attenuated texturemap
+#include "dot3.h"
+
+#define V_POSITION v0
+#define POSITION_WORLD r3
+#define LIGHT_DIRECTION r4
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, V_POSITION, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, V_POSITION, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, V_POSITION, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, V_POSITION, c[CV_WORLDVIEWPROJ_3]
+
+; transform position to world space
+dp4 POSITION_WORLD.x, V_POSITION, c[CV_WORLD_0]
+dp4 POSITION_WORLD.y, V_POSITION, c[CV_WORLD_1]
+dp4 POSITION_WORLD.z, V_POSITION, c[CV_WORLD_2]
+dp4 POSITION_WORLD.w, V_POSITION, c[CV_WORLD_3]
+
+; Calculate the vector to the light from the world vertex
+add LIGHT_DIRECTION, POSITION_WORLD, -c[CV_LIGHT_POSITION]
+mul LIGHT_DIRECTION, LIGHT_DIRECTION, c[CV_ONE_OVER_LIGHT_RANGE].x
+add LIGHT_DIRECTION, LIGHT_DIRECTION, c[CV_HALF].x
+
+; output tex coord.  We use the same attenuation map for xy and z
+mov oT0.xy, LIGHT_DIRECTION.xy
+mov oT1.x, LIGHT_DIRECTION.z
+mov oT1.y, c[CV_HALF].x
+
+; Put the light color in diffuse
+mov oD0, c[CV_LIGHT_COLOR]
+

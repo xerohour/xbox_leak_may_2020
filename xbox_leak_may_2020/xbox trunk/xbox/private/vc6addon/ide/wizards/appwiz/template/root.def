@@ -1,0 +1,16 @@
+; $$Root$$.def : Declares the module parameters for the DLL.
+
+LIBRARY      "$$Root$$"
+DESCRIPTION  '$$Root$$ Windows Dynamic Link Library'
+
+EXPORTS
+$$IF(VERBOSE)
+    ; Explicit exports can go here
+$$ENDIF //VERBOSE
+$$IF(!EXTDLL)
+$$IF(AUTOMATION)
+	DllCanUnloadNow PRIVATE
+	DllGetClassObject PRIVATE
+	DllRegisterServer PRIVATE
+$$ENDIF //AUTOMATION
+$$ENDIF //!EXTDLL

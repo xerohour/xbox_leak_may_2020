@@ -1,0 +1,59 @@
+our ee suite specifically tests most operators. i call these
+"targetted operators". other operators are used in the expressions
+being evaluated, but they aren't the operator being tested. i call
+these "incidental" operators. of course, targetted operators get
+a lot more coverage than incidental operators. that is expected.
+but the incidental operators get enough coverage that we should
+consider creating tests for un-covered operators before enhancing
+the coverage for incidental operators. that is the primary
+reason i made this list: so we know what we have covered and how
+much.
+
+8^'   michma
+
+
+targetted operators		meaning
+-------------------		-------
+&&				logical AND
+=				assignment)
+&=				bit-wise AND assignment
+&				bit-wise AND
+~				complement
+casting				int, float, double, short, long, signed, unsigned
+/				divide
+==				equal to
+>=				greater than or equal to
+>				greater than
+<=				less than or equal to
+<<=				left-shift assignment
+<<				left-shift
+<				less than
+-				subtract
+-				unary minus
+!=				not equal to
+!				bit-wise NOT
+||				logical	OR
+|=				bit-wise OR assignment
+|				bit-wise OR
+--				decrement (post-fix only)
+++				increment (pre-fix only)
++				add
+?				boolean
+%				remainder
+%=				remainder assignment
+>>=				right-shift assignment
+>>				right-shift
+*				mutliply
+^				logical exclusive OR
+^=				logical exclusive OR assignment
+
+incidental operators	meaning
+--------------------	-------
+[]			subscript, including nested (i.e. a1[a2[i]]) and two dimensional (i.e. a[i1][i2])
+*			dereference pointer
+**			dereference pointer to pointer
+()			function call
+()			parentheses (order of operation)
+->			access field of pointer to struct, including nested (i.e. v->f1->f2)
+.			access field of static struct
+().			access field of static struct returned by function

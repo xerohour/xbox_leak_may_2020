@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Duke.xidPacketLength</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>xidPacketLength</H1>
+    <DIV CLASS=BLOCK>
+    This property sets the length XID packet buffer.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("unsigned short xidPacketLength");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>This property is read write, and the default value is 20 bytes.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var duke = WScript.CreateObject(\"USBSimulator.Duke\");\n\n// Display the current XID report\nWScript.Echo( ToBinaryString(duke.xidPacket, duke.xidPacketLength) );\n\n// Change the current XID report\nduke.xidPacket = String.fromCharCode(0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14);\n\nfunction ToBinaryString(string, length)\n    {\n    var str = \"(\";\n    for(var i=0; i < length; i++)\n        {\n        str += \"0x\" + string.charCodeAt(i).toString(16);\n        if(i!=length-1) str += \", \";\n        }\n\n    return str + \")\";\n    }");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="p_xidPacket.htm">xidPacket</A>, <A HREF="p_deviceDescriptor.htm">deviceDescriptor</A>, <A HREF="p_configurationDescriptor.htm">configurationDescriptor</A>, <A HREF="p_deviceCapabilities.htm">deviceCapabilities</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

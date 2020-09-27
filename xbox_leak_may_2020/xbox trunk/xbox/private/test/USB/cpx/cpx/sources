@@ -1,0 +1,28 @@
+TARGETNAME=cpx
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+BROWSER_INFO=1
+
+C_DEFINES=$(C_DEFINES) -D_LogStuff_
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+INCLUDES=$(SDKDIR); $(BASEDIR)\private\test\inc\cpx; $(BASEDIR)\private\test\inc;
+
+SOURCES=\
+    cpx.cpp\
+    5lines.cpp\
+    commands.cpp\
+    dukedisplay.cpp
+
+TARGETLIBS=\
+    $(BASEDIR)\private\test\lib\*\cpxlib.lib    \
+    $(SDK_LIB_PATH)\dsound$(D).lib              \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib           \
+    $(SDK_LIB_PATH)\waveldr$(D).lib             \
+    $(SDK_LIB_PATH)\d3d8$(D).lib                \
+    $(BASEDIR)\private\test\lib\*\tsc.lib

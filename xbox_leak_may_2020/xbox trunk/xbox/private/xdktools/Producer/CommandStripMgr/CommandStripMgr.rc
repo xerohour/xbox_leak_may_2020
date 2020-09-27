@@ -1,0 +1,277 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "COMMANDSTRIPMGR.DLL\0"
+#define VERSIONDESCRIPTION          "CommandStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "CommandStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "COMMANDSTRIPMGR.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_COMMANDMGR          REGISTRY DISCARDABLE    "CommandMgr.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE_COMMANDS DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "Groove"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "&Embellishment",IDC_COMMAND_GRPEMBELLISHMENT,7,7,114,97
+    LISTBOX         IDC_COMMAND_EMBELLISHMENTLIST,12,16,104,53,
+                    LBS_NOINTEGRALHEIGHT | LBS_WANTKEYBOARDINPUT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Custom Embellishment:",IDC_STATIC_EMB_CUSTOM,12,84,73,
+                    8
+    EDITTEXT        IDC_EDIT_EMB_CUSTOM,88,83,28,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_EMB_CUSTOM,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,113,82,11,13
+    GROUPBOX        "Groove &Level",IDC_COMMAND_GRPGROOVELEVEL,131,7,112,56
+    EDITTEXT        IDC_EDIT_GROOVE_LEVEL,140,24,28,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_GROOVE_LEVEL,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,162,24,11,14
+    LTEXT           "+/&-",IDC_STATIC,183,26,10,8
+    EDITTEXT        IDC_EDIT_GROOVE_RANGE,196,24,28,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_GROOVE_RANGE,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,219,23,10,14
+    CHECKBOX        "&None",IDC_CHECK_GROOVE_LEVEL,140,43,33,10
+    GROUPBOX        "&Repeat Pattern",IDC_STATIC,130,63,113,41
+    COMBOBOX        IDC_COMBO_REPEAT_PATTERN,138,84,98,88,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "(If multiple patterns at this groove)",IDC_STATIC,133,
+                    73,106,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_PROPPAGE_COMMANDS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "groovste.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_PROPPAGE_COMMANDS DLGINIT
+BEGIN
+    IDC_COMBO_REPEAT_PATTERN, 0x403, 17, 0
+0x6152, 0x646e, 0x6d6f, 0x2820, 0x6564, 0x6166, 0x6c75, 0x2974, "\000" 
+    IDC_COMBO_REPEAT_PATTERN, 0x403, 12, 0
+0x6552, 0x6570, 0x7461, 0x5320, 0x6d61, 0x0065, 
+    IDC_COMBO_REPEAT_PATTERN, 0x403, 22, 0
+0x6553, 0x7571, 0x6e65, 0x6974, 0x6c61, 0x6620, 0x6f72, 0x206d, 0x6946, 
+0x7372, 0x0074, 
+    IDC_COMBO_REPEAT_PATTERN, 0x403, 23, 0
+0x6553, 0x7571, 0x6e65, 0x6974, 0x6c61, 0x6620, 0x6f72, 0x206d, 0x6152, 
+0x646e, 0x6d6f, "\000" 
+    IDC_COMBO_REPEAT_PATTERN, 0x403, 8, 0
+0x6853, 0x6675, 0x6c66, 0x0065, 
+    IDC_COMBO_REPEAT_PATTERN, 0x403, 11, 0
+0x6f4e, 0x5220, 0x7065, 0x6165, 0x7374, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "CommandStripMgr"
+    IDS_PROPPAGE_GROUP_BITS "Groove Track"
+    IDS_INTRO_TEXT          "Intro"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FILL_TEXT           "Fill"
+    IDS_BREAK_TEXT          "Break"
+    IDS_END_TEXT            "End"
+    IDS_CUSTOM_TEXT         "Custom"
+    IDS_NONE_TEXT           "None"
+    IDS_RANDOM              "[Rand]"
+    IDS_REPEAT              "[Rep]"
+    IDS_SEQUENTIAL          "[Seq]"
+    IDS_RANDOM_START        "[Seq Rand]"
+    IDS_NO_REPEAT           "[No Rep]"
+    IDS_RANDOM_ROW          "[Shuf]"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROPPAGE_COMMAND    "Groove Level"
+    IDS_FUNCTIONBAR_TEXT    "Grooves"
+    IDS_INSERT              "Insert Groove"
+    IDS_DELETE              "Delete Groove(s)"
+    IDS_PASTE               "Paste Groove(s)"
+    IDS_CHANGE              "Change Groove(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TRACK_NAME          "Groove Track"
+    IDS_EDITOR_NAME         "Groove Track Editor"
+    IDS_UNDO_TRACKGROUP     "Assign Track Group(s)"
+    IDS_UNDO_MOVE           "Move Groove(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

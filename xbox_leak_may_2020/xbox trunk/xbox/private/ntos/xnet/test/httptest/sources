@@ -1,0 +1,16 @@
+!include ..\..\sources.inc
+!include ..\sources.inc
+
+TARGETNAME=httptest
+
+SOURCES=\
+    httptest.cxx
+
+C_DEFINES=$(C_DEFINES) -D_XNET_SERVICE
+
+TARGETLIBS= \
+    $(BASEDIR)\public\sdk\lib\*\wininet.lib \
+    $(TARGETLIBS)
+
+PRECOMPILED_CXX=1
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:"HTTP Client Test"

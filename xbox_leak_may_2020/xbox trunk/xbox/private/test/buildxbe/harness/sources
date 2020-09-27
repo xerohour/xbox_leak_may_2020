@@ -1,0 +1,505 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+TARGETNAME=harness
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+USE_STL=1
+LINK_DSSTDFX=1
+
+SOURCES=main.cpp \
+        modules.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0xA7049955 /INITFLAGS:3 /TESTNAME:"Xbox Test Harness" 
+
+!ifdef NO_GRAPHICS_TEST
+C_DEFINES=$(C_DEFINES) -DNO_GRAPHICS_TEST
+GRAPHICSMODULES=
+!else
+XE_FLAGS=$(XE_FLAGS) \
+		 /INSERTFILE:media\alphpal1_backgrnd.bmp,alphpal1_backgrnd.bmp,n \
+		 /INSERTFILE:media\alphpal1_texture8.bmp,alphpal1_texture8.bmp,n \
+		 /INSERTFILE:media\ball_bubbles.bmp,ball_bubbles.bmp,n \
+		 /INSERTFILE:media\ball_chain.bmp,ball_chain.bmp,n \
+		 /INSERTFILE:media\ball_smile.bmp,ball_smile.bmp,n \
+		 /INSERTFILE:media\basic_dxlogo.bmp,basic_dxlogo.bmp,n \
+		 /INSERTFILE:media\bees_sparklen.bmp,bees_sparklen.bmp,n \
+		 /INSERTFILE:media\bumpduv1_earth.bmp,bumpduv1_earth.bmp,n \
+		 /INSERTFILE:media\bumpduv1_earthbump.bmp,bumpduv1_earthbump.bmp,n \
+		 /INSERTFILE:media\chessbrd_chess.bmp,chessbrd_chess.bmp,n \
+		 /INSERTFILE:media\chessbrd_edge.bmp,chessbrd_edge.bmp,n \
+		 /INSERTFILE:media\chessbrd_lbishop.xdg,chessbrd_lbishop.xdg,n \
+		 /INSERTFILE:media\chessbrd_lking.xdg,chessbrd_lking.xdg,n \
+		 /INSERTFILE:media\chessbrd_lpawn.xdg,chessbrd_lpawn.xdg,n \
+		 /INSERTFILE:media\chessbrd_lqueen.xdg,chessbrd_lqueen.xdg,n \
+		 /INSERTFILE:media\chessbrd_lrook.xdg,chessbrd_lrook.xdg,n \
+		 /INSERTFILE:media\chessbrd_pine.bmp,chessbrd_pine.bmp,n \
+		 /INSERTFILE:media\chessbrd_pine2.bmp,chessbrd_pine2.bmp,n \
+		 /INSERTFILE:media\chessbrd_sknight.xdg,chessbrd_sknight.xdg,n \
+		 /INSERTFILE:media\clipping_tclptex0.bmp,clipping_tclptex0.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex1.bmp,clipping_tclptex1.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex2.bmp,clipping_tclptex2.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex3.bmp,clipping_tclptex3.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex4.bmp,clipping_tclptex4.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex5.bmp,clipping_tclptex5.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex6.bmp,clipping_tclptex6.bmp,n \
+		 /INSERTFILE:media\clipping_tclptex7.bmp,clipping_tclptex7.bmp,n \
+		 /INSERTFILE:media\clockwrk_backcogs.bmp,clockwrk_backcogs.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog0.bmp,clockwrk_cog0.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog1.bmp,clockwrk_cog1.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog10.bmp,clockwrk_cog10.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog11.bmp,clockwrk_cog11.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog12.bmp,clockwrk_cog12.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog13.bmp,clockwrk_cog13.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog14.bmp,clockwrk_cog14.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog15.bmp,clockwrk_cog15.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog16.bmp,clockwrk_cog16.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog2.bmp,clockwrk_cog2.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog3.bmp,clockwrk_cog3.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog4.bmp,clockwrk_cog4.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog5.bmp,clockwrk_cog5.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog6.bmp,clockwrk_cog6.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog7.bmp,clockwrk_cog7.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog8.bmp,clockwrk_cog8.bmp,n \
+		 /INSERTFILE:media\clockwrk_cog9.bmp,clockwrk_cog9.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft0.bmp,clockwrk_shaft0.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft1.bmp,clockwrk_shaft1.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft2.bmp,clockwrk_shaft2.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft3.bmp,clockwrk_shaft3.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft4.bmp,clockwrk_shaft4.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft5.bmp,clockwrk_shaft5.bmp,n \
+		 /INSERTFILE:media\clockwrk_shaft6.bmp,clockwrk_shaft6.bmp,n \
+		 /INSERTFILE:media\dxtnoise_gradient.bmp,dxtnoise_gradient.bmp,n \
+		 /INSERTFILE:media\fvertex1_lteapot.xdg,fvertex1_lteapot.xdg,n \
+		 /INSERTFILE:media\fvertex1_texture.bmp,fvertex1_texture.bmp,n \
+		 /INSERTFILE:media\gammarmp_texture.bmp,gammarmp_texture.bmp,n \
+		 /INSERTFILE:media\hightide_beach.bmp,hightide_beach.bmp,n \
+		 /INSERTFILE:media\hightide_redbrick.bmp,hightide_redbrick.bmp,n \
+		 /INSERTFILE:media\hightide_rockwall.bmp,hightide_rockwall.bmp,n \
+		 /INSERTFILE:media\hightide_stars.bmp,hightide_stars.bmp,n \
+		 /INSERTFILE:media\innrloop_texture0.bmp,innrloop_texture0.bmp,n \
+		 /INSERTFILE:media\innrloop_texture1.bmp,innrloop_texture1.bmp,n \
+		 /INSERTFILE:media\innrloop_texture2.bmp,innrloop_texture2.bmp,n \
+		 /INSERTFILE:media\innrloop_texture3.bmp,innrloop_texture3.bmp,n \
+		 /INSERTFILE:media\litetype_texture.bmp,litetype_texture.bmp,n \
+		 /INSERTFILE:media\mirror_shade.bmp,mirror_shade.bmp,n \
+		 /INSERTFILE:media\mirror_texture.bmp,mirror_texture.bmp,n \
+		 /INSERTFILE:media\mstage1_texture1.bmp,mstage1_texture1.bmp,n \
+		 /INSERTFILE:media\mstage1_texture2.bmp,mstage1_texture2.bmp,n \
+		 /INSERTFILE:media\mstage2_backgrnd.bmp,mstage2_backgrnd.bmp,n \
+		 /INSERTFILE:media\mstage2_texture1.bmp,mstage2_texture1.bmp,n \
+		 /INSERTFILE:media\mstage2_texture2.bmp,mstage2_texture2.bmp,n \
+		 /INSERTFILE:media\mstage2_texture3.bmp,mstage2_texture3.bmp,n \
+		 /INSERTFILE:media\mstage2_texture4.bmp,mstage2_texture4.bmp,n \
+		 /INSERTFILE:media\mstage3_backgrnd.bmp,mstage3_backgrnd.bmp,n \
+		 /INSERTFILE:media\mstage3_texture1.bmp,mstage3_texture1.bmp,n \
+		 /INSERTFILE:media\mstage3_texture2.bmp,mstage3_texture2.bmp,n \
+		 /INSERTFILE:media\mstage3_texture3.bmp,mstage3_texture3.bmp,n \
+		 /INSERTFILE:media\mstage3_texture4.bmp,mstage3_texture4.bmp,n \
+		 /INSERTFILE:media\mstage3_texture5.bmp,mstage3_texture5.bmp,n \
+		 /INSERTFILE:media\mstage3_texture6.bmp,mstage3_texture6.bmp,n \
+		 /INSERTFILE:media\mstage3_texture7.bmp,mstage3_texture7.bmp,n \
+		 /INSERTFILE:media\mstage3_texture8.bmp,mstage3_texture8.bmp,n \
+		 /INSERTFILE:media\mstage4_backgrnd.bmp,mstage4_backgrnd.bmp,n \
+		 /INSERTFILE:media\mstage4_texture1.bmp,mstage4_texture1.bmp,n \
+		 /INSERTFILE:media\mstage4_texture2.bmp,mstage4_texture2.bmp,n \
+		 /INSERTFILE:media\mstage4_texture3.bmp,mstage4_texture3.bmp,n \
+		 /INSERTFILE:media\mstage4_texture4.bmp,mstage4_texture4.bmp,n \
+		 /INSERTFILE:media\mstage4_texture5.bmp,mstage4_texture5.bmp,n \
+		 /INSERTFILE:media\mstage4_texture6.bmp,mstage4_texture6.bmp,n \
+		 /INSERTFILE:media\mstage4_texture7.bmp,mstage4_texture7.bmp,n \
+		 /INSERTFILE:media\mstage4_texture8.bmp,mstage4_texture8.bmp,n \
+		 /INSERTFILE:media\mstage5_brick0_1.bmp,mstage5_brick0_1.bmp,n \
+		 /INSERTFILE:media\mstage5_brick0_2.bmp,mstage5_brick0_2.bmp,n \
+		 /INSERTFILE:media\mstage5_brick0_3.bmp,mstage5_brick0_3.bmp,n \
+		 /INSERTFILE:media\mstage5_brick0_4.bmp,mstage5_brick0_4.bmp,n \
+		 /INSERTFILE:media\mstage5_brick0_5.bmp,mstage5_brick0_5.bmp,n \
+		 /INSERTFILE:media\mstage5_brick0_6.bmp,mstage5_brick0_6.bmp,n \
+		 /INSERTFILE:media\mstage5_brick1_1.bmp,mstage5_brick1_1.bmp,n \
+		 /INSERTFILE:media\mstage5_brick1_2.bmp,mstage5_brick1_2.bmp,n \
+		 /INSERTFILE:media\mstage5_brick1_3.bmp,mstage5_brick1_3.bmp,n \
+		 /INSERTFILE:media\mstage5_brick1_4.bmp,mstage5_brick1_4.bmp,n \
+		 /INSERTFILE:media\mstage5_brick1_5.bmp,mstage5_brick1_5.bmp,n \
+		 /INSERTFILE:media\mstage5_brick1_6.bmp,mstage5_brick1_6.bmp,n \
+		 /INSERTFILE:media\mstage5_brick2_1.bmp,mstage5_brick2_1.bmp,n \
+		 /INSERTFILE:media\mstage5_brick2_2.bmp,mstage5_brick2_2.bmp,n \
+		 /INSERTFILE:media\mstage5_brick2_3.bmp,mstage5_brick2_3.bmp,n \
+		 /INSERTFILE:media\mstage5_brick2_4.bmp,mstage5_brick2_4.bmp,n \
+		 /INSERTFILE:media\mstage5_brick2_5.bmp,mstage5_brick2_5.bmp,n \
+		 /INSERTFILE:media\mstage5_brick2_6.bmp,mstage5_brick2_6.bmp,n \
+		 /INSERTFILE:media\mstage5_brick3_1.bmp,mstage5_brick3_1.bmp,n \
+		 /INSERTFILE:media\mstage5_brick3_2.bmp,mstage5_brick3_2.bmp,n \
+		 /INSERTFILE:media\mstage5_brick3_3.bmp,mstage5_brick3_3.bmp,n \
+		 /INSERTFILE:media\mstage5_brick3_4.bmp,mstage5_brick3_4.bmp,n \
+		 /INSERTFILE:media\mstage5_brick3_5.bmp,mstage5_brick3_5.bmp,n \
+		 /INSERTFILE:media\mstage5_brick3_6.bmp,mstage5_brick3_6.bmp,n \
+		 /INSERTFILE:media\mxpalskin_mxpalskin.bmp,mxpalskin_mxpalskin.bmp,n \
+		 /INSERTFILE:media\mxpalskin_mxpalskin2.vsh,mxpalskin_mxpalskin2.vsh,n \
+		 /INSERTFILE:media\mxpalskin_mxpalskin3.vsh,mxpalskin_mxpalskin3.vsh,n \
+		 /INSERTFILE:media\mxpalskin_mxpalskin4.vsh,mxpalskin_mxpalskin4.vsh,n \
+		 /INSERTFILE:media\obelisk_clouds.bmp,obelisk_clouds.bmp,n \
+		 /INSERTFILE:media\obelisk_ground.bmp,obelisk_ground.bmp,n \
+		 /INSERTFILE:media\obelisk_obelisk.bmp,obelisk_obelisk.bmp,n \
+		 /INSERTFILE:media\palette0_brick0_1.bmp,palette0_brick0_1.bmp,n \
+		 /INSERTFILE:media\palette0_brick0_2.bmp,palette0_brick0_2.bmp,n \
+		 /INSERTFILE:media\palette0_brick0_3.bmp,palette0_brick0_3.bmp,n \
+		 /INSERTFILE:media\palette0_brick0_4.bmp,palette0_brick0_4.bmp,n \
+		 /INSERTFILE:media\palette0_brick0_5.bmp,palette0_brick0_5.bmp,n \
+		 /INSERTFILE:media\palette0_brick0_6.bmp,palette0_brick0_6.bmp,n \
+		 /INSERTFILE:media\palette0_brick1_1.bmp,palette0_brick1_1.bmp,n \
+		 /INSERTFILE:media\palette0_brick1_2.bmp,palette0_brick1_2.bmp,n \
+		 /INSERTFILE:media\palette0_brick1_3.bmp,palette0_brick1_3.bmp,n \
+		 /INSERTFILE:media\palette0_brick1_4.bmp,palette0_brick1_4.bmp,n \
+		 /INSERTFILE:media\palette0_brick1_5.bmp,palette0_brick1_5.bmp,n \
+		 /INSERTFILE:media\palette0_brick1_6.bmp,palette0_brick1_6.bmp,n \
+		 /INSERTFILE:media\palette0_brick2_1.bmp,palette0_brick2_1.bmp,n \
+		 /INSERTFILE:media\palette0_brick2_2.bmp,palette0_brick2_2.bmp,n \
+		 /INSERTFILE:media\palette0_brick2_3.bmp,palette0_brick2_3.bmp,n \
+		 /INSERTFILE:media\palette0_brick2_4.bmp,palette0_brick2_4.bmp,n \
+		 /INSERTFILE:media\palette0_brick2_5.bmp,palette0_brick2_5.bmp,n \
+		 /INSERTFILE:media\palette0_brick2_6.bmp,palette0_brick2_6.bmp,n \
+		 /INSERTFILE:media\palette0_brick3_1.bmp,palette0_brick3_1.bmp,n \
+		 /INSERTFILE:media\palette0_brick3_2.bmp,palette0_brick3_2.bmp,n \
+		 /INSERTFILE:media\palette0_brick3_3.bmp,palette0_brick3_3.bmp,n \
+		 /INSERTFILE:media\palette0_brick3_4.bmp,palette0_brick3_4.bmp,n \
+		 /INSERTFILE:media\palette0_brick3_5.bmp,palette0_brick3_5.bmp,n \
+		 /INSERTFILE:media\palette0_brick3_6.bmp,palette0_brick3_6.bmp,n \
+		 /INSERTFILE:media\persistd_testpat.bmp,persistd_testpat.bmp,n \
+		 /INSERTFILE:media\present_texture.bmp,present_texture.bmp,n \
+		 /INSERTFILE:media\pshader_BEM1.bmp,pshader_BEM1.bmp,n \
+		 /INSERTFILE:media\pshader_BEM2.bmp,pshader_BEM2.bmp,n \
+		 /INSERTFILE:media\pshader_bem3.bmp,pshader_bem3.bmp,n \
+		 /INSERTFILE:media\pshader_checker.bmp,pshader_checker.bmp,n \
+		 /INSERTFILE:media\pshader_checker2.bmp,pshader_checker2.bmp,n \
+		 /INSERTFILE:media\pshader_colorchecker.bmp,pshader_colorchecker.bmp,n \
+		 /INSERTFILE:media\pshader_DP3.bmp,pshader_DP3.bmp,n \
+		 /INSERTFILE:media\pshader_DXLogo.bmp,pshader_DXLogo.bmp,n \
+		 /INSERTFILE:media\pshader_sky0.bmp,pshader_sky0.bmp,n \
+		 /INSERTFILE:media\pshader_sky1.bmp,pshader_sky1.bmp,n \
+		 /INSERTFILE:media\pshader_sky2.bmp,pshader_sky2.bmp,n \
+		 /INSERTFILE:media\pshader_sky3.bmp,pshader_sky3.bmp,n \
+		 /INSERTFILE:media\pshader_sky4.bmp,pshader_sky4.bmp,n \
+		 /INSERTFILE:media\pshader_sky5.bmp,pshader_sky5.bmp,n \
+		 /INSERTFILE:media\pslights_base.bmp,pslights_base.bmp,n \
+		 /INSERTFILE:media\pslights_bump.bmp,pslights_bump.bmp,n \
+		 /INSERTFILE:media\pslights_light1.vsh,pslights_light1.vsh,n \
+		 /INSERTFILE:media\pslights_light2.vsh,pslights_light2.vsh,n \
+		 /INSERTFILE:media\reflect0_face0.bmp,reflect0_face0.bmp,n \
+		 /INSERTFILE:media\reflect0_face1.bmp,reflect0_face1.bmp,n \
+		 /INSERTFILE:media\reflect0_face2.bmp,reflect0_face2.bmp,n \
+		 /INSERTFILE:media\reflect0_face3.bmp,reflect0_face3.bmp,n \
+		 /INSERTFILE:media\reflect0_face4.bmp,reflect0_face4.bmp,n \
+		 /INSERTFILE:media\reflect0_face5.bmp,reflect0_face5.bmp,n \
+		 /INSERTFILE:media\rteapot_backgrnd.bmp,rteapot_backgrnd.bmp,n \
+		 /INSERTFILE:media\rteapot_hteapot.xdg,rteapot_hteapot.xdg,n \
+		 /INSERTFILE:media\skulls_skull.xdg,skulls_skull.xdg,n \
+		 /INSERTFILE:media\snowfall_backgrnd.bmp,snowfall_backgrnd.bmp,n \
+		 /INSERTFILE:media\snowfall_snow.bmp,snowfall_snow.bmp,n \
+		 /INSERTFILE:media\stateblocks_checker.bmp,stateblocks_checker.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko0.bmp,stateblocks_poko0.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko1.bmp,stateblocks_poko1.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko2.bmp,stateblocks_poko2.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko3.bmp,stateblocks_poko3.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko4.bmp,stateblocks_poko4.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko5.bmp,stateblocks_poko5.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko6.bmp,stateblocks_poko6.bmp,n \
+		 /INSERTFILE:media\stateblocks_poko7.bmp,stateblocks_poko7.bmp,n \
+		 /INSERTFILE:media\stateblocks_rocks.bmp,stateblocks_rocks.bmp,n \
+		 /INSERTFILE:media\stencil0_texture.bmp,stencil0_texture.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip0.bmp,textr4_brikmip0.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip1.bmp,textr4_brikmip1.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip2.bmp,textr4_brikmip2.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip3.bmp,textr4_brikmip3.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip4.bmp,textr4_brikmip4.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip5.bmp,textr4_brikmip5.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip6.bmp,textr4_brikmip6.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip7.bmp,textr4_brikmip7.bmp,n \
+		 /INSERTFILE:media\textr4_brikmip8.bmp,textr4_brikmip8.bmp,n \
+		 /INSERTFILE:media\textr5_texture.bmp,textr5_texture.bmp,n \
+		 /INSERTFILE:media\tunnel_checker.BMP,tunnel_checker.BMP,n \
+		 /INSERTFILE:media\tunnel_errorbox.bmp,tunnel_errorbox.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex0.bmp,vbbatch_tex0.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex1.bmp,vbbatch_tex1.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex2.bmp,vbbatch_tex2.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex3.bmp,vbbatch_tex3.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex4.bmp,vbbatch_tex4.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex5.bmp,vbbatch_tex5.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex6.bmp,vbbatch_tex6.bmp,n \
+		 /INSERTFILE:media\vbbatch_tex7.bmp,vbbatch_tex7.bmp,n \
+		 /INSERTFILE:media\vpshadr1_brick.bmp,vpshadr1_brick.bmp,n \
+		 /INSERTFILE:media\vpshadr1_edge.bmp,vpshadr1_edge.bmp,n \
+		 /INSERTFILE:media\vpshadr1_pshader1.psh,vpshadr1_pshader1.psh,n \
+		 /INSERTFILE:media\vpshadr1_vshader1.vsh,vpshadr1_vshader1.vsh,n \
+		 /INSERTFILE:media\wireframe_tclptex0.bmp,wireframe_tclptex0.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex1.bmp,wireframe_tclptex1.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex2.bmp,wireframe_tclptex2.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex3.bmp,wireframe_tclptex3.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex4.bmp,wireframe_tclptex4.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex5.bmp,wireframe_tclptex5.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex6.bmp,wireframe_tclptex6.bmp,n \
+		 /INSERTFILE:media\wireframe_tclptex7.bmp,wireframe_tclptex7.bmp,n \
+		 /INSERTFILE:media\wrap1_texture.bmp,wrap1_texture.bmp,n \
+                 /INSERTFILE:media\checksum.log,checksum.log,n \
+		 /INSERTFILE:media\grid.bmp,grid.bmp,n \
+                 /INSERTFILE:media\env.dds,env.dds,n
+
+GRAPHICSMODULES= \
+            $(TESTLIBS)\satest$(D).lib \
+            $(TESTLIBS)\d3dlocus.lib \
+            $(TESTLIBS)\d3dftest.lib \
+            $(TESTLIBS)\3dmath.lib \
+            $(TESTLIBS)\cshapes.lib \
+            $(TESTLIBS)\l_d3dapi.lib \
+            $(TESTLIBS)\l_d3dbvt.lib \
+            $(TESTLIBS)\d3dbvt.lib \
+            $(TESTLIBS)\address.lib \
+            $(TESTLIBS)\alphabld.lib \
+            $(TESTLIBS)\alphacmp.lib \
+            $(TESTLIBS)\basicrst.lib \
+            $(TESTLIBS)\blend.lib \
+            $(TESTLIBS)\bump.lib \
+            $(TESTLIBS)\clear.lib \
+            $(TESTLIBS)\compress.lib \
+            $(TESTLIBS)\cubemap.lib \
+            $(TESTLIBS)\emboss.lib \
+            $(TESTLIBS)\fog.lib \
+            $(TESTLIBS)\gradient.lib \
+            $(TESTLIBS)\lightmap.lib \
+            $(TESTLIBS)\linetex.lib \
+            $(TESTLIBS)\luminanc.lib \
+            $(TESTLIBS)\mapping.lib \
+            $(TESTLIBS)\mipflter.lib \
+            $(TESTLIBS)\overdraw.lib \
+            $(TESTLIBS)\perspect.lib \
+            $(TESTLIBS)\ptsprite.lib \
+            $(TESTLIBS)\pointtex.lib \
+            $(TESTLIBS)\pshader.lib \
+            $(TESTLIBS)\srt.lib \
+            $(TESTLIBS)\stateblocks.lib \
+            $(TESTLIBS)\stencil.lib \
+            $(TESTLIBS)\texstage.lib \
+            $(TESTLIBS)\tlvclip.lib \
+            $(TESTLIBS)\volume.lib \
+            $(TESTLIBS)\wbuffer.lib \
+            $(TESTLIBS)\wcmp.lib \
+            $(TESTLIBS)\zbuffer.lib \
+            $(TESTLIBS)\zcmp.lib \
+            $(TESTLIBS)\alphabnt.lib \
+            $(TESTLIBS)\ball.lib \
+            $(TESTLIBS)\basic.lib \
+            $(TESTLIBS)\bees.lib \
+            $(TESTLIBS)\bumpduv1.lib \
+            $(TESTLIBS)\bumpduv2.lib \
+            $(TESTLIBS)\clipping.lib \
+            $(TESTLIBS)\depthbuf.lib \
+            $(TESTLIBS)\dlight.lib \
+            $(TESTLIBS)\dxtnoise.lib \
+            $(TESTLIBS)\fsaa.lib \
+            $(TESTLIBS)\fvertex1.lib \
+            $(TESTLIBS)\gammarmp.lib \
+            $(TESTLIBS)\getrstat.lib \
+            $(TESTLIBS)\hightide.lib \
+            $(TESTLIBS)\ibuffer.lib \
+            $(TESTLIBS)\innrloop.lib \
+            $(TESTLIBS)\lighting.lib \
+            $(TESTLIBS)\liteball.lib \
+            $(TESTLIBS)\litetype.lib \
+            $(TESTLIBS)\lockdpth.lib \
+            $(TESTLIBS)\matsrc.lib \
+            $(TESTLIBS)\mstage1.lib \
+            $(TESTLIBS)\mstage2.lib \
+            $(TESTLIBS)\mstage4.lib \
+            $(TESTLIBS)\mstage5.lib \
+            $(TESTLIBS)\multilit.lib \
+            $(TESTLIBS)\mpalskin.lib \
+            $(TESTLIBS)\obelisk.lib \
+            $(TESTLIBS)\palette0.lib \
+            $(TESTLIBS)\pslights.lib \
+            $(TESTLIBS)\psgen.lib \
+            $(TESTLIBS)\psverify.lib \
+            $(TESTLIBS)\reflect0.lib \
+            $(TESTLIBS)\stencil0.lib \
+            $(TESTLIBS)\terrain.lib \
+            $(TESTLIBS)\texform.lib \
+            $(TESTLIBS)\texgen.lib \
+            $(TESTLIBS)\texgenxt.lib \
+            $(TESTLIBS)\textr1.lib \
+            $(TESTLIBS)\textr2.lib \
+            $(TESTLIBS)\textr3.lib \
+            $(TESTLIBS)\textr4.lib \
+            $(TESTLIBS)\textr5.lib \
+            $(TESTLIBS)\tunnel.lib \
+            $(TESTLIBS)\vbbatch.lib \
+            $(TESTLIBS)\vbib.lib \
+            $(TESTLIBS)\vpshadr1.lib \
+            $(TESTLIBS)\vshader.lib \
+            $(TESTLIBS)\wirefram.lib \
+            $(TESTLIBS)\chessbrd.lib \
+            $(TESTLIBS)\clockwrk.lib \
+            $(TESTLIBS)\rteapot.lib \
+            $(TESTLIBS)\skulls.lib \
+            $(TESTLIBS)\snowfall.lib \
+            $(TESTLIBS)\misorbit.lib \
+            $(TESTLIBS)\l_event.lib \
+            $(TESTLIBS)\event.lib \
+            $(TESTLIBS)\l_fsaaperf.lib \
+            $(TESTLIBS)\fsaaperf.lib \
+            $(TESTLIBS)\l_vistest.lib \
+            $(TESTLIBS)\vshtools.lib \
+            $(TESTLIBS)\vistest.lib \
+            $(TESTLIBS)\xss_ani.lib \
+            $(TESTLIBS)\xbox11113.lib
+!endif
+
+!ifdef NO_KERNEL_TEST
+C_DEFINES=$(C_DEFINES) -DNO_KERNEL_TEST
+KERNELMODULES=
+!else
+KERNELMODULES= \
+            $(TESTLIBS)\cpuusage.lib \
+            $(TESTLIBS)\cryptotest.lib \
+            $(TESTLIBS)\mmtimer.lib \
+            $(TESTLIBS)\tsc.lib \
+            $(TESTLIBS)\idelog.lib \
+            $(TESTLIBS)\sdstress.lib \
+            $(TESTLIBS)\diskperf.lib \
+            $(TESTLIBS)\fpexcept.lib \
+            $(TESTLIBS)\obstress.lib \
+            $(TESTLIBS)\abuseval.lib \
+            $(TESTLIBS)\memperf.lib \
+            $(TESTLIBS)\vmstress.lib \
+            $(TESTLIBS)\xmmapi.lib \
+            $(TESTLIBS)\threading.lib \
+            $(TESTLIBS)\timetest.lib \
+            $(TESTLIBS)\fileio.lib \
+            $(TESTLIBS)\sections.lib \
+            $(TESTLIBS)\savegame.lib \
+            $(TESTLIBS)\soundtrack.lib \
+            $(TESTLIBS)\launcher.lib \
+            $(TESTLIBS)\usbinput.lib \
+            $(TESTLIBS)\mutests.lib \
+            $(TESTLIBS)\nickname.lib \
+            $(TESTLIBS)\smcstress.lib \
+            $(TESTLIBS)\medialoader.lib \
+            $(TESTLIBS)\dvdperftest.lib	\
+            $(TESTLIBS)\makeini.lib \
+            $(TESTLIBS)\media.lib \
+            $(TESTLIBS)\wfvo.lib
+!endif
+
+!ifdef NO_AUDIO_TEST
+C_DEFINES=$(C_DEFINES) -DNO_AUDIO_TEST
+AUDIOMODULES=
+!else
+AUDIOMODULES= \
+            $(TESTLIBS)\dsbvt.lib \
+            $(TESTLIBS)\dsapi.lib \
+            $(TESTLIBS)\dsreg.lib \
+            $(TESTLIBS)\dsutil.lib \
+            $(TESTLIBS)\ds3D.lib \
+            $(TESTLIBS)\ds3DStrs.lib \
+            $(TESTLIBS)\mixer.lib \
+            $(TESTLIBS)\xmoBVT.lib \
+            $(TESTLIBS)\xmoReg.lib \
+            $(TESTLIBS)\mmStress.lib \
+            $(TESTLIBS)\srcxmo$(D).lib \
+            $(TESTLIBS)\waveout$(D).lib \
+            $(TESTLIBS)\dsoundtest.lib \
+            $(TESTLIBS)\wmaStress.lib \
+            $(TESTLIBS)\wmaBvt.lib \
+            $(TESTLIBS)\wmaReg.lib \
+            $(TESTLIBS)\dmtest1.lib \
+            $(TESTLIBS)\dmth8.lib \
+            $(SDK_LIB_PATH)\netxmo$(D).lib \
+            $(TESTLIBS)\DirectSoundCreate.lib \
+            $(TESTLIBS)\DirectSoundCreateBuffer.lib \
+            $(TESTLIBS)\DirectSoundCreateStream.lib \
+            $(TESTLIBS)\playcd.lib \
+            $(TESTLIBS)\dsounddrt.lib \
+            $(SDK_LIB_PATH)\waveldr$(D).lib
+!endif
+
+!ifdef NO_ONLINE_TEST
+C_DEFINES=$(C_DEFINES) -DNO_ONLINE_TEST
+ONLINEMODULES=
+!else
+ONLINEMODULES= \
+            $(TESTLIBS)\xnetbvt.lib \
+            $(TESTLIBS)\xnetapi.lib \
+            $(TESTLIBS)\xnetstress.lib \
+            $(TESTLIBS)\xnetstream.lib \
+            $(TESTLIBS)\xauthbvt$(D).lib \
+            $(TESTLIBS)\xmatchbvt$(D).lib \
+            $(TESTLIBS)\authTest.lib	\
+            $(TESTLIBS)\xbudbvt$(D).lib	\
+            $(TESTLIBS)\feedback.lib  \
+            $(TESTLIBS)\stats.lib
+!endif
+
+TARGETLIBS=$(TESTLIBS)\harnesslib.lib \
+           $(TESTLIBS)\xtestlib.lib \
+           $(TESTLIBS)\xmem.lib \
+           $(TESTLIBS)\xnetref$(D).lib \
+           $(TESTLIBS)\xonlineref$(D).lib \
+           $(TESTLIBS)\xlog.lib \
+           $(TESTLIBS)\stressmon.lib \
+           $(TESTLIBS)\ghprof.lib \
+           $(TESTLIBS)\netsync.lib \
+           $(TESTLIBS)\dxconio.lib \
+	   $(TESTLIBS)\xlogconio.lib \
+           $(TESTLIBS)\logframework.lib \
+           $(SDK_LIB_PATH)\OnlineAccounts$(D).lib \
+	   $(SDK_LIB_PATH)\xonline$(S)$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+           $(SDK_LIB_PATH)\d3d8$(D).lib \
+           $(SDK_LIB_PATH)\d3dx8$(D).lib \
+           $(SDK_LIB_PATH)\xgraphics$(D).lib \
+           $(SDK_LIB_PATH)\dmusic$(D).lib \
+           $(SDK_LIB_PATH)\xbdm.lib \
+           $(BASEDIR)\private\lib\*\rsa32.lib \
+           $(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+           $(TESTMODULES)
+
+TESTMODULES= \
+           $(GRAPHICSMODULES) \
+           $(KERNELMODULES)   \
+           $(AUDIOMODULES)    \
+           $(ONLINEMODULES)
+
+             
+
+            
+
+
+
+

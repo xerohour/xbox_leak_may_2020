@@ -1,0 +1,21 @@
+TARGETNAME=mfgtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+C_DEFINES = $(C_DEFINES) -DDBG
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFEE00F1 /TESTNAME:"Manufacturing Loader" /INITFLAGS:0x00000000
+
+INCLUDES = $(BASEDIR)\private\ntos\inc;$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(BASEDIR)\private\ntos\xapi\inc;libsrc
+
+USE_LIBC=1
+
+XNOHARDDISK=1
+
+LINKLIBS=lib\i386\mfgtest$(D).lib
+
+
+SOURCES= main.c
+
+
+

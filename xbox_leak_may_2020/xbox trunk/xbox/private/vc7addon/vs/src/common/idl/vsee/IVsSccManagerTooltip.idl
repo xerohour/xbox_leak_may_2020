@@ -1,0 +1,39 @@
+/*-----------------------------------------------------------------------------
+Microsoft VSEE
+
+Microsoft Confidential
+Copyright 1995-2000 Microsoft Corporation. All Rights Reserved.
+
+@doc
+@module IVSSCCMANAGERTOOLTIP.IDL - Interface for SCC tooltips |
+-----------------------------------------------------------------------------*/
+
+
+// Includes -------------------------------------------------------------------
+
+import "objidl.idl";
+import "vsshell.idl";
+#include "VseeGuids.h"
+
+/*-----------------------------------------------------------------------------
+Name: IVsSccManagerTooltip
+
+@class IVsSccManagerTooltip |
+
+This interface is intended to provide access to SCC data to construct the
+tooltip text in the solution explorer.
+
+@base public | IUnknown
+
+@hung scctt
+-----------------------------------------------------------------------------*/
+[ uuid(uuid_IVsSccManagerTooltip) ]
+interface IVsSccManagerTooltip : IUnknown
+{
+	HRESULT GetGlyphTipText
+	(
+		[in] IVsHierarchy *phierHierarchy,
+		[in] VSITEMID itemidNode,
+		[out, retval] BSTR *pbstrTooltipText
+	);
+}

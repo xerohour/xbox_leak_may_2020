@@ -1,0 +1,132 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*                                                                       */
+ /*   File    : sddtpcs.rul                                               */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdDiaplayTopics       */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdDisplayTopics                                            */
+ /*                                                                        */
+ /*   Descrip:  This dialog will display the predefined topics and         */
+ /*             corresponding details.                                     */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdDisplayTopics( szTitle, szMsg, listTopics, listDetails, nStyle )
+          STRING  szDlg, svTopic, svDetail, szTemp;
+          NUMBER  nId, nReturn, nCount, nTemp;
+          HWND    hwndDlg, hwndDlgItem;
+          BOOL    bDone;
+        begin
+
+           szDlg     = SD_DLG_DISPLAYTOPICS;
+           nSdDialog = SD_NDLG_DISPLAYTOPICS;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdDisplayTopics );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            return nId;
+          endif;
+
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_DISPLAYTOPICS ) = DLG_ERR) then
+             return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_STA_MSG, szMsg );
+                   endif;
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                   nCount = 0;
+                   nReturn = ListGetFirstString( listTopics, svTopic );
+                   while( nReturn = 0 )
+                       hwndDlgItem = GetDlgItem( hwndDlg, SD_STA_TOPIC+nCount );
+                       if( hwndDlgItem ) then
+                           ShowWindow( hwndDlgItem, TRUE );
+                           SdSetStatic( szDlg, SD_STA_TOPIC+nCount, svTopic );
+                       endif;
+                       nReturn = ListGetNextString( listTopics, svTopic );
+                       nCount = nCount + 1;
+                   endwhile;
+
+                   nCount = 0;
+                   nReturn = ListGetFirstString( listDetails, svDetail );
+                   while( nReturn = 0 )
+                      hwndDlgItem = GetDlgItem( hwndDlg, SD_STA_DETAIL+nCount );
+                      if( hwndDlgItem ) then
+                          ShowWindow( hwndDlgItem, TRUE );
+                          SdSetStatic( szDlg, SD_STA_DETAIL+nCount, svDetail );
+                      endif;
+                      nReturn = ListGetNextString( listDetails, svDetail );
+                      nCount = nCount + 1;
+                   endwhile;
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdDisplayTopics" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdDisplayTopics );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+

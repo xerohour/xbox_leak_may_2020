@@ -1,0 +1,62 @@
+This file explains how to add API's and customize what is displayed in the TEST Wizard Script Dialog. 
+
+**IMPORTANT**: The format of the APIDATA.TXT will undergo some improvement changes. Any time that you might invest customizing your APIDATA.TXT could be wasted since we won't guarenteed backward compatibility. 
+
+*********** TO BE IMPLEMENTED   ******
+In the future, a tool will be available that will automatically generate APIDATA.TXT. All the necessary information will be taken from the CAFE.BSC file.  Until then, it will be necessary to edit this file manually.
+******************************************
+All the Categories, Areas, Subareas and API's shown in the Script dialog are read in from the APIDATA.TXT.
+
+APIDATA.TXT has a unique format in which the data is arranged. 
+Here is a description of the format:
+
+Every line starts with a special key word such as "API".  There are currently 5 key words in use: CATEGORY, AREA, SUBAREA, API and PARAM
+
+Here is an example:
+Supose you want to add an API defined as:
+int COSource::SaveAs(LPCSTR szName, BOOL bOverwrite = FALSE); 
+and you want to place it in the Category= Editors, Area = Source Editor and Subarea = File I/O. You would need to create the entry:
+________________________________
+CATEGORY Editors
+   AREA Source Editor
+	SUBAREA File I/O
+		API int COSource::SaveAs(LPCSTR szName, BOOL bOverwrite = FALSE);
+_____________________________________
+
+*The indents are not required but it makes it more readable to the human eye.
+Note how the the SaveAs() comes after the CATEGORY, AREA and SUBAREA in which it is contained. 
+You may specify a short description for the API immediately following its declaration. Make sure to use a space, tab, comma or semicolon as a separator.
+
+You can group API's together and have them show up in the same subarea, for example:
+If we want to show the COSource::Close() API in the File I/O subarea and the COSource::Find() API on different subarea like "Search Operations", this is what you would enter:
+_____________________________________________________
+CATEGORY Editors
+   AREA Source Editor
+	SUBAREA File I/O
+	   API int COSource::SaveAs(LPCSTR szName, BOOL bOverwrite = FALSE); Saves a text file.
+	   API int COSource::Close(void)  Closes editor window.
+	SUBAREA Search Operations
+	   API int COSource::Find(void), Finds selected text
+____________________________________________________________
+
+
+Note the short API descriptions after each API declaration. These descriptions will be displayed on the script dialog's description box.
+
+Also note the parameters must be declared just as you would do it in a header file. Default values for the parameters are handled correctly and displayed accordingly in the Parameters List box.
+
+If an API is not a member function of any class you can simply declare it as you would in a header file and preappending the API keyword like this:
+_____________________________________________________
+CATEGORY  Utilities
+    AREA IDE
+	SUBAREA Mouse Operations
+	    API void ClickMouse(int nButton,HWND hwnd, int cX,  int cY); Clicks mouse at coordinates
+CATEGORY Editors
+    AREA Source Editor
+	SUBAREA File I/O
+	    API int COSource::SaveAs(LPCSTR szName, BOOL bOverwrite = FALSE); Saves a text file.
+	    API int COSource::Close(void)  Closes editor window.
+	SUBAREA Search Operations
+	    API int COSource::Find(void), Finds selected text
+____________________________________________________________
+
+**** Look at the APIDATA.TXT to get a better idea of how all the api's are grouped.

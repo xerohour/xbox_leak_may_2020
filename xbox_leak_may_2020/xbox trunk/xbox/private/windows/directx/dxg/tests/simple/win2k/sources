@@ -1,0 +1,22 @@
+!include ..\sources.inc
+
+UMENTRY=winmain
+UMTYPE=windows
+
+!if $(FREEBUILD)
+D=
+!else
+D=d
+!endif
+
+C_DEFINES=$(C_DEFINES) -DUNICODE
+
+INCLUDES= \
+    $(INCLUDES); \
+    ..
+
+LINKLIBS=\
+    $(SDK_LIB_PATH)\uuid.lib \
+    $(SDK_LIB_PATH)\libcmt.lib \
+    $(SDK_LIB_PATH)\d3d8.lib \
+    $(SDK_LIB_PATH)\d3dx8.lib 

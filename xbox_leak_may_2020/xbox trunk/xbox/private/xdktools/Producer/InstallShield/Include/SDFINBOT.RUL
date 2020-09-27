@@ -1,0 +1,221 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdfinbot.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdFinishReboot        */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdFinishReboot                                             */
+ /*                                                                        */
+ /*   Descrip:  This dialog will ask the user to agree with the completion */
+ /*             plans for an installation.                                 */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdFinishReboot( szTitle, szMsg, nDefOption, szMsg2, nReserved )
+          STRING  szDlg, szTemp;
+          INT     nId, list, nType, nOS, nResult;
+          HWND    hwndRbut, hwndDlg;
+          BOOL    bWin16, bDone;
+        begin
+
+          szDlg     = SD_DLG_FINISHREBOOT;
+          nSdDialog = SD_NDLG_FINISHREBOOT;
+
+          // determine OS to be used for restarting
+          bWin16 = FALSE;
+          GetSystemInfo( OS, nOS, szTemp );
+          if ((nOS = IS_WIN32S) || (nOS = IS_WINDOWS)) then
+             bWin16 = TRUE;
+          endif;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdFinishReboot );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "BootOption", DATA_NUMBER, szTemp, nResult );
+               CommitSharedFiles(0);
+               if (nId = -1) then // boot had failed
+                 return -1;
+               endif;
+
+               if (nResult) then // if non 0 choice then reboot machine
+                 nId = System( nResult );
+                 if (nId < 0) then return nId; endif; // failed
+
+                 Delay( 1 );   // wait a long time to ensure under NT reboot has time
+                 nId = -1; // boot failed
+               endif;
+
+            endif;
+
+            return nId;
+          endif;
+
+          // ensure general initialization is complete
+          if (!bSdInit) then
+             SdInit();
+          endif;
+
+          if (EzDefineDialog( szDlg, "", "", SD_NDLG_FINISHREBOOT) = DLG_ERR) then
+             return -1;
+          endif;
+
+          // Loop in dialog until the user selects a standard button
+          Disable( BACKBUTTON );
+          bDone = FALSE;
+
+          while (!bDone)
+
+             nId = WaitOnDialog( szDlg );
+
+             switch (nId)
+             case DLG_INIT:
+                  if(szMsg != "") then
+                      SdSetStatic( szDlg, SD_STA_MSG1, szMsg );
+                  endif;
+
+                  if(szMsg2 != "") then
+                      SdSetStatic( szDlg, SD_STA_MSG2, szMsg2 );
+                  endif;
+
+                  hwndDlg = CmdGetHwndDlg( szDlg );
+                  SdGeneralInit( szDlg, hwndDlg, 0, szSdProduct );
+
+                  if(szTitle != "") then
+                      SetWindowText( hwndDlg, szTitle );
+                  endif;
+
+                  // if 32bit then hide non-applicable choice and move others up
+                  SdFinishInit32( szDlg, hwndDlg, bWin16 );
+
+                  // set radiobutton
+                  CtrlSetState( szDlg, SD_RBUT_RESTARTWINDOWS, 0 );
+                  CtrlSetState( szDlg, SD_RBUT_RESTARTMACHINE, 0 );
+                  CtrlSetState( szDlg, SD_RBUT_NONE, 0 );
+                  switch (nDefOption)
+                  case SYS_BOOTMACHINE:
+                       CtrlSetState( szDlg, SD_RBUT_RESTARTMACHINE, BUTTON_CHECKED );
+                       hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_RESTARTMACHINE );
+                  case SYS_BOOTWIN:
+                       if (bWin16) then
+                          CtrlSetState( szDlg, SD_RBUT_RESTARTWINDOWS, BUTTON_CHECKED );
+                          hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_RESTARTWINDOWS );
+                       else
+                          CtrlSetState( szDlg, SD_RBUT_RESTARTMACHINE, BUTTON_CHECKED );
+                          hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_RESTARTMACHINE );
+                       endif;
+                  default:
+                       CtrlSetState( szDlg, SD_RBUT_NONE, BUTTON_CHECKED );
+                       hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_NONE );
+                  endswitch;
+
+                  SetFocus( hwndRbut );
+
+             case SD_PBUT_CONTINUE:     // Finish button
+                  nId   = NEXT;
+                  bDone = TRUE;
+
+                  nResult = 0;
+
+                  // determine which operation the user has selected
+                  if (CtrlGetState( szDlg, SD_RBUT_RESTARTWINDOWS ) = BUTTON_CHECKED) then
+                     nResult = SYS_BOOTWIN;
+                  endif;
+
+                  if (CtrlGetState( szDlg, SD_RBUT_RESTARTMACHINE ) = BUTTON_CHECKED) then
+                     nResult = SYS_BOOTMACHINE;
+                  endif;
+
+                  // ensure the files were commited properly
+                  CommitSharedFiles(0);
+
+                  // perform operation
+                  if (nResult) then
+                     bDone = FALSE; // don't terminate dialog when rebooting
+
+                     // record data produced by this dialog (must write before reboot)
+                     SdMakeName( szAppKey, szDlg, szTitle, nSdFinishReboot );
+                     SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+                     SilentWriteData( szAppKey, "BootOption", DATA_NUMBER, "", nResult );
+
+                     nId = System( nResult );
+                     if ((nId = 0) && (nOS = IS_WINDOWSNT)) then
+                       Delay( 3 );
+                       nId = -1;
+                     elseif (nId < 0) then
+                       SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+                     endif;
+
+                  endif;
+
+             case SD_PBUT_BACK:
+                  nId = BACK; // should be disabled
+
+             case DLG_ERR:
+                  SdError( -1, szDlg );
+                  nId   = -1;
+                  bDone = TRUE;
+
+             case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+             default:
+                  // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                  endif;
+             endswitch;
+
+          endwhile;
+
+          EndDialog( szDlg );
+          ReleaseDialog( szDlg );
+
+          SdUnInit();
+          Enable( BACKBUTTON );
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdFinishReboot );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+          SilentWriteData( szAppKey, "BootOption", DATA_NUMBER, "", 0 );
+
+          return nId;
+        end;
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdFinishInit32                                             */
+ /*                                                                        */
+ /*   Descrip:  This will determine if dialog is operating under Win32     */
+ /*             If so it will remove the RESTARTWINDOWs option for reboot  */
+ /*             since that is not applicable.                              */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdFinishInit32( szDlg, hwndDlg, bWin16 )
+          HWND hwndRbut;
+        begin
+
+        if (bWin16) then return TRUE; endif; // all options available
+
+        hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_RESTARTWINDOWS );
+        if (hwndRbut) then
+           ShowWindow( hwndRbut, SW_HIDE );
+        endif;
+
+        end;
+
+

@@ -1,0 +1,2010 @@
+CLASS NV_AUDIO_PROCESSOR
+=================================
+
+CONTENTS
+
+Chapter  1  -  Introduction
+
+Chapter  2  -  Memory Structures
+
+Chapter  3  -  Control Space Registers
+
+Chapter  4  -  PIO Registers
+
+Chapter  5  -  DMA Registers
+
+Chapter  6  -  Reserved Registers
+
+
+Appendix A  -  Issues
+
+Appendix B  -  Key
+
+1  -  INTRODUCTION
+
+Usage
+
+NV_AUDIO_PROCESSOR is either a synchronous or isochronous Transfer class.
+Instances of this class send audio data between memory and memory with
+the computation speed optionally paced by a sample clock (isochronous mode).
+The type of the class instance (iso or sync) is determined at allocation
+time and cannot be changed.
+
+Notification memory structure:
+
+
+struct {
+	U032	GSCNT;
+	U032	Unused;
+	U032	Zero;
+	U008	Res0;
+	U008	Res1;
+	U008	Res2;
+	U008	Status;
+} Nv1BA0Notification[0];
+
+Nv1BA0Notification[0] is for the Synchronize() Method.
+
+struct {
+	U032	GSCNT;
+	U032	<TBD>;
+	U032	<TBD>;
+	U008	<TBD>;
+	U008	<TBD>;
+	U008	<TBD>;
+	U008	Status;
+} Nv1BA0Notification[1];
+
+Nv1BA0Notification[1] is for real-time performance notifies.
+
+struct {
+	U032	GSCNT;
+	U032	CurrentPosition;
+	U032	Zero;
+	U008	Res0;
+	U008	SamplesAvailable;
+	U008	EnvelopeActive;
+	U008	Status;
+} Nv1BA0Notification[2,3,6,7,etc];
+
+Nv1BA0Notification[2] is for voice 0 buffer/SSLA done.
+Nv1BA0Notification[3] is for voice 0 SSLB done.
+
+struct {
+	U032	GSCNT;
+	U032	CurrentPosition;
+	U032	Zero;
+	U008	Res0;
+	U008	Res1;
+	U008	Res2;
+	U008	Status;
+} Nv1BA0Notification[4,5,8,9,etc];
+
+Nv1BA0Notification[4] is for voice 0 buffer/SSLA get position
+Nv1BA0Notification[5] is for voice 0 SSLB get position
+
+And Nv1BA0Notification[6,7,8,9] are used for voice 1, etc...
+
+DMA memory structure for methods:
+
+struct {
+	U016	MethodOffset;
+	U016	MethodCount;
+	U032	MethodData[count];
+} Nv1BA0DMAMethodEntry[];
+
+Class Allocation memory structure:
+
+struct {
+	U032	classNumber; 	// in
+	U032	status;			// out
+	U032	objectNew;		// in
+	U032	objectParent;	// in
+	U032	objectDmaBuffer; // in buffer for global effects dma commands.
+	U032	objectNotifiesBuffer; // in buffer for voice notifies
+	U032	objectGlobalNotifiesBuffer; // in buffer for global notifies
+	U032	flags; 
+	U064	pioBase; 
+	U032	limitFifo; 
+	U032	limitBandwidth; 
+	U032	limitBlockClock; 
+	U032	overhead; 
+
+	U032	limitVoice_cnt; // in/out req # of voices , return #
+	U032	limitVoice3d_cnt;  // in/out req # of 3d voices , return #
+	U032	limitHRTF_cnt; // in/out req # of HRTFs, return #
+	U032	limitSubmix_cnt; // in/out req # of Submixes, return #
+	U032	limitSegIn_cnt;  // in/out req # of segments for input, return #
+	U032	limitSGEIn_cnt; // in/out req # of 4K SGE for input, return #
+	U032	limitSGEout_cnt; // in/out req # of 4K SGE for output, return #
+};
+
+
+2  -  CONTROL SPACE REGISTERS
+
+     The Control Space registers are the first 256 bytes of the current 
+object.  The PIO Method fifo free count and the DMA get and put pointers
+are located in this area.  The INFO state can also be read to determine
+what is currently happening when deallocating the class.
+
+Channel PIO FREE can be read by the driver to see how many PIO methods
+may be written without overflowing the PIO method fifo.
+
+ 31           24 23           16 15            8 7             0 
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |     COUNT         |0|0| PIO_FREE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ 
+#define NV1BA0_PIO_FREE                                 0x00000010 /* R--4R */
+#define NV1BA0_PIO_FREE_COUNT                                 11:2 /* R-X4F */
+#define NV1BA0_PIO_FREE_COUNT_FIFO_FULL                       0x00 /* R---V */
+
+INFO can be read by the driver to see if the class instance is idle
+for deallocation.
+
+ 31           24 23           16 15            8 7             0 
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                           | | | INFO
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ 
+#define NV1BA0_PIO_INFO                                 0x00000014 /* R--4R */
+#define NV1BA0_PIO_INFO_PIO                                    0:0 /* R-X4F */
+#define NV1BA0_PIO_INFO_PIO_EMPTY_AND_IDLE                    0x00 /* R---V */
+#define NV1BA0_PIO_INFO_PIO_BUSY                              0x01 /* R---V */
+#define NV1BA0_PIO_INFO_DMA                                    1:1 /* R-X4F */
+#define NV1BA0_PIO_INFO_DMA_EMPTY_AND_IDLE                    0x00 /* R---V */
+#define NV1BA0_PIO_INFO_DMA_BUSY                              0x01 /* R---V */
+
+Channel DMA PUT can be written by the driver to set the position of
+the last valid method written to the fixed 4k circular method buffer.
+
+
+ 31           24 23           16 15            8 7             0 
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |   OFFSET          |0 0| DMA_PUT
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ 
+#define NV1BA0_CHANNEL_DMA_PUT                         0x00000040 /* -W-4R */
+#define NV1BA0_CHANNEL_DMA_PUT_OFFSET                        11:2 /* -WXUF */
+
+Channel DMA GET can be read by the driver to see from where the audio
+processor is currently fetching DMA methods in the 4K fixed circular
+method buffer. This is typically used to prevent writing over data
+the audio processor dma hasn't read yet.
+
+ 31           24 23           16 15            8 7             0 
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |   OFFSET          |0 0| DMA_GET
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+ 
+#define NV1BA0_CHANNEL_DMA_GET                         0x00000044 /* R--4R */
+#define NV1BA0_CHANNEL_DMA_GET_OFFSET                        11:2 /* R-X4F */
+
+
+
+3  -  PIO REGISTERS
+
+     The PIO registers are accessed directly through programmed I/O by
+the User.  These registers are write only.
+
+NoOperation()
+-------------
+This method does nothing.  It is normally used in conjunction with 
+Synchronize() to determine if the class is idle.  The argument is a 
+32 bit void number.  
+
+All argument values are legal.  This method is stateless.  This method
+is synchronous and blocks writes to subsequent methods.
+
+This method does not return any errors.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | NOP
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+
+#define NV1BA0_PIO_NOP                                 0x00000100 /* -W-4R */
+#define NV1BA0_PIO_NOP_PARAMETER                             31:0 /* -W-VF */
+
+Synchronize()
+-------------
+This method provides a way to synchronize with the methods that have
+previously executed.  You can request a notification be written after
+it has synchronized.  The style of the notify can either be write only
+for polling software, or write then waken for event driven software. 
+The argument is a void 32 bit number.
+
+If a notification is written, then it takes the form
+
+     Nv1BA0Notification[0][0...3] = global_sample_count
+     Nv1BA0Notification[0][4...7] = 0;
+     Nv1BA0Notification[0][8..11] = 0;
+     Nv1BA0Notification[0][12] = 0;
+     Nv1BA0Notification[0][13] = 0;
+     Nv1BA0Notification[0][14] = 0;
+     Nv1BA0Notification[0][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+#define	NV1BA0_PIO_NOTIFICATION_STATUS_DONE_SUCCESS    0x00000001 /* -W--V */
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SYNCHRONIZE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SYNCHRONIZE                         0x00000104 /* -W-4R */
+#define NV1BA0_PIO_SYNCHRONIZE_PARAMETER                     31:0 /* -W-VF */
+#define	NV1BA0_PIO_SYNCHRONIZE_PARAMETER_NO_OPERATION  0x00000000 /* -W--V */
+#define	NV1BA0_PIO_SYNCHRONIZE_PARAMETER_WAIT_FOR_IDLE 0x00000001 /* -W--V */
+#define	NV1BA0_PIO_SYNCHRONIZE_PARAMETER_WAIT_FOR_IDLE_WRITE_PE_NOTIFY        0x00000002 /* -W--V */
+#define	NV1BA0_PIO_SYNCHRONIZE_PARAMETER_WAIT_FOR_IDLE_WRITE_PE_NOTIFY_AWAKEN 0x00000003 /* -W--V */
+
+SetTime() 
+---------
+This method set the current sample count.  For "synchronous" instances
+of this class, the current time remains to whatever time is set.
+For "isochronous" instances of this class, the current time will increment
+after being set with this method in concert with the pacing sample clock.
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_TIME
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_TIME                            0x00000108 /* -W-4R */
+#define NV1BA0_PIO_SET_TIME_VALUE                            31:0 /* -W-UF */
+
+SetMode() 
+---------
+This method starts the voice processor running or turns it off.
+In synchronous mode, this also allows single stepping of a voice
+or frame of voices.
+
+After the processor is transitioned from RUN to one of the other modes,
+then a Synchronize(WAIT_FOR_IDLE) should be executed to wait for
+the processor to flush all in process voices.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SETPROCESSORMODE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_MODE                            0x0000010C /* -W-4R */
+#define NV1BA0_PIO_SET_MODE_PARAMETER                        31:0 /* -W-VF */
+#define NV1BA0_PIO_SET_MODE_PARAMETER_OFF              0x00000000 /* -W--V */
+#define NV1BA0_PIO_SET_MODE_PARAMETER_RUN              0x00000001 /* -W--V */
+
+SetAntecedentVoice() 
+--------------------
+This method provides a way for the driver to add a voice in a specific
+position in the active voice list.  This value set by this method is
+examined when the VoiceOn() method is executed. The list is selected
+by the voice list field.  If the LIST field is set to inherit, then the
+voice will be added to the same list as HANDLE as the next list.
+
+When a VoiceOn() method is executed, and the LIST field is set to
+2D_TOP, 3D_TOP, or MP_TOP, the HANDLE field is ignored and the voice
+is added to the front of the appropriate list.
+
+This must not be set higher than the number of voices returned by
+alloc.limitVoice_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                           |LST|        HANDLE                 | SETANTECEDENTVOICE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE                0x00000120 /* -W-4R */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_HANDLE               15:0 /* -W-VF */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_HANDLE_NULL        0xFFFF /* -W--V */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_LIST                17:16 /* -W-VF */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_LIST_INHERIT         0x00 /* -W--V */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_LIST_2D_TOP          0x01 /* -W--V */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_LIST_3D_TOP          0x02 /* -W--V */
+#define NV1BA0_PIO_SET_ANTECEDENT_VOICE_LIST_MP_TOP          0x03 /* -W--V */
+
+
+VoiceOn()
+-------------
+This method provides a way to change the state of a voice to ON.
+
+ON means put the specified voice into the active voice lists after
+SetAntecedentVoice().
+
+All methods are blocked until the parameters are copied and the voice
+is moved to the appropriate active list.
+
+The initial envelope segments for the voice are also selected using this
+method.  There are 2 fully independent envelopes (ENVA and ENVF) which
+can be used to modulate voice parameters.  ENVA is an amplitude envelope
+and ENVF is a frequency envelope (which can change the pitch shift
+and the filter cutoff frequency).
+
+The DISABLE means that envelope is disabled and the envelope value is
+always full-scale.  The other states indicate in which envelope segment
+the voice should start on.
+
+DELAY starts with the envelope at zero amplitude with an initial delay 
+(set by En_DELAYTIME). 
+
+ATTACK bypasses the initial delay and goes directly to the attack envelope
+segment which goes from zero to full-scale (the attack rate is set by
+En_ATTACKRATE).  
+
+HOLD bypasses the attack segment and immediatly goes full scale until the
+hold segment expires (set by En_HOLDTIME). 
+
+After the hold time expires, the envelope decays exponentially (at a rate
+set by En_DECAYRATE) until it reaches the sustain_level (set by 
+En_SUSTAINLEVEL).  The envelope remains at the sustain level until the
+VoiceOff() or VoiceRelease() methods are executed on the voice. 
+
+Note that it isn't required for the envelope to have reached the sustain
+value before a VoiceOff() or VoiceRelease() is executed to shut off the
+voice.  These operation can occur at any time.
+
+When the current index into the buffer has reached the end offset and
+the loop bit has not been set, or the current SSL is accessed and it
+has a COUNT of zero, then following notification will be written.  
+The actual notify may be written immediatly if the persist bit is set 
+(voice remains on active list), otherwise the voice will be removed
+from the active list and returned to an idle state before this notify is
+written.
+
+For buffer type streams or when SSLA is complete.
+
+     Nv1BA0Notification[4*vh+2][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+2][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+2][8..11] = 0;
+     Nv1BA0Notification[4*vh+2][12] = 0;
+     Nv1BA0Notification[4*vh+2][13] = SamplesAvailable;
+     Nv1BA0Notification[4*vh+2][14] = EnvelopeActive;
+     Nv1BA0Notification[4*vh+2][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+For when SSLB is complete.
+
+     Nv1BA0Notification[4*vh+3][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+3][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+3][8..11] = 0;
+     Nv1BA0Notification[4*vh+3][12] = 0;
+     Nv1BA0Notification[4*vh+3][13] = SamplesAvailable;
+     Nv1BA0Notification[4*vh+3][14] = EnvelopeActive;
+     Nv1BA0Notification[4*vh+3][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+HANDLE must not be set higher than the number of voices returned by
+alloc.limitVoice_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| ENVA  | ENVF  |               |         HANDLE                | VOICE_ON
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_VOICE_ON                            0x00000124 /* -W-4R */
+#define NV1BA0_PIO_VOICE_ON_HANDLE                           15:0 /* -W-VF */
+#define NV1BA0_PIO_VOICE_ON_ENVF                            27:24 /* -W-VF */
+#define NV1BA0_PIO_VOICE_ON_ENVF_DISABLE                     0x00 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVF_DELAY                       0x01 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVF_ATTACK                      0x02 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVF_HOLD                        0x03 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVA                            31:28 /* -W-VF */
+#define NV1BA0_PIO_VOICE_ON_ENVA_DISABLE                     0x00 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVA_DELAY                       0x01 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVA_ATTACK                      0x02 /* -W--V */
+#define NV1BA0_PIO_VOICE_ON_ENVA_HOLD                        0x03 /* -W--V */
+
+VoiceOff()
+----------
+This method provides a way to change the state of a voice to OFF.
+
+The normal way to turn off a voice which has been turned on is to 
+change the envelope parameter to end the voice gracefully using
+VoiceRelease().
+
+OFF forces the voice indicated by the parameter off by putting
+the envelope to immediately release and taking it off the active list
+(if the persist bit is not set).
+
+When a voice is turned off, then the notifier(s) are written after
+the voice is processed.
+
+For voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER, or
+voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM where
+the list A is pending, the following notifier will be returned.
+
+     Nv1BA0Notification[4*vh+2][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+2][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+2][8..11] = 0;
+     Nv1BA0Notification[4*vh+2][12] = 0;
+     Nv1BA0Notification[4*vh+2][13] = SamplesAvailable;
+     Nv1BA0Notification[4*vh+2][14] = EnvelopeActive;
+     Nv1BA0Notification[4*vh+2][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+For voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM where
+the list B is pending, the following notifier will be returned.
+
+     Nv1BA0Notification[4*vh+3][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+3][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+3][8..11] = 0;
+     Nv1BA0Notification[4*vh+3][12] = 0;
+     Nv1BA0Notification[4*vh+3][13] = SamplesAvailable;
+     Nv1BA0Notification[4*vh+3][14] = EnvelopeActive;
+     Nv1BA0Notification[4*vh+3][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+This must not be set higher than the number of voices returned by
+alloc.limitVoice_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |          HANDLE               | VOICE_OFF
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_VOICE_OFF                           0x00000128 /* -W-4R */
+#define NV1BA0_PIO_VOICE_OFF_HANDLE                          15:0 /* -W-VF */
+
+VoiceRelease()
+--------------
+This method provides a way to change the state of the envelope to the
+release envelope segment.  When the envelope segment is changed to release,
+the amplitude ramps down according to the value set for
+NV1BA0_PIO_SET_VOICE_LFO_ENV_EA_RELEASERATE, until the amplitude is zero.
+When the envelope expires, then the following notifier(s) will be returned.
+
+For voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER, or
+voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM where
+the list A is pending, the following notifier will be returned.
+
+     Nv1BA0Notification[4*vh+2][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+2][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+2][8..11] = 0;
+     Nv1BA0Notification[4*vh+2][12] = 0;
+     Nv1BA0Notification[4*vh+2][13] = SamplesAvailable;
+     Nv1BA0Notification[4*vh+2][14] = EnvelopeActive;
+     Nv1BA0Notification[4*vh+2][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+For voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM where
+the list B is pending, the following notifier will be returned.
+
+     Nv1BA0Notification[4*vh+3][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+3][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+3][8..11] = 0;
+     Nv1BA0Notification[4*vh+3][12] = 0;
+     Nv1BA0Notification[4*vh+3][13] = SamplesAvailable;
+     Nv1BA0Notification[4*vh+3][14] = EnvelopeActive;
+     Nv1BA0Notification[4*vh+3][15] = NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS;
+
+Implementation note: this method temporarily locks the voice to prevent
+a race hazard from updates by the setup changing the current envelope 
+segment when the front end is updating it to FORCED_RELEASE.  This allows
+this method to be called during any envelope segment and not just during
+the sustain segment without problems.
+
+This must not be set higher than the number of voices returned by
+alloc.limitVoice_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |          HANDLE               | VOICE_RELEASE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_VOICE_RELEASE                        0x0000012C /* -W-4R */
+#define NV1BA0_PIO_VOICE_RELEASE_HANDLE                       15:0 /* -W-VF */
+
+GetVoicePosition()
+------------------
+This method provides a way to force a notification of a voice's current 
+sample position.
+
+GET_POSITION returns the block offset of the current sample position 
+(minus -3 samples) of the voice indicated into the notifier array.
+
+For voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER, or
+voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM where
+the list A is being processed, the following notifier will be returned.
+
+     Nv1BA0Notification[4*vh+4][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+4][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+4][8..11] = 0;
+     Nv1BA0Notification[4*vh+4][12] = 0;
+     Nv1BA0Notification[4*vh+4][13] = 0;
+     Nv1BA0Notification[4*vh+4][14] = 0;
+     Nv1BA0Notification[4*vh+4][15] = status; // depends on voice state...
+
+For voices of type NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM where
+the list B is being processed, the following notifier will be returned.
+
+     Nv1BA0Notification[4*vh+5][0...3] = global_sample_count
+     Nv1BA0Notification[4*vh+5][4...7] = current_offset;
+     Nv1BA0Notification[4*vh+5][8..11] = 0;
+     Nv1BA0Notification[4*vh+5][12] = 0;
+     Nv1BA0Notification[4*vh+5][13] = 0;
+     Nv1BA0Notification[4*vh+5][14] = 0;
+     Nv1BA0Notification[4*vh+5][15] = status; // depends on voice state...
+
+This must not be set higher than the number of voices returned by
+alloc.limitVoice_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |        HANDLE                 | GET_VOICE_POSITION
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_GET_VOICE_POSITION                  0x00000130 /* -W-4R */
+#define NV1BA0_PIO_GET_VOICE_POSITION_HANDLE                 15:0 /* -W-VF */
+
+VoicePause() 
+------------
+This method provides a way to change the state of a voice to PAUSED.
+
+This method is different from the VoiceOff()/VoiceRelease() methods
+in that VoicePause() allows the voice to resume playing at a place
+where it left off where a VoiceOn() always starts back at the beginning
+of a voice.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                         |P|   |        HANDLE                 | VOICE_PAUSE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_VOICE_PAUSE                  0x00000140 /* -W-4R */
+#define NV1BA0_PIO_VOICE_PAUSE_HANDLE                 15:0 /* -W-VF */
+#define NV1BA0_PIO_VOICE_PAUSE_ACTION                18:18 /* -W-VF */
+#define NV1BA0_PIO_VOICE_PAUSE_ACTION_RESUME          0x00 /* -W--V */
+#define NV1BA0_PIO_VOICE_PAUSE_ACTION_STOP            0x01 /* -W--V */
+
+SetContextDMANotify() 
+---------------------
+This method sets the context DMA for the notifier array.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_XXX_ERROR_STATUS_STATE_IN_USE
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_CTXDMANOT
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CONTEXT_DMA_NOTIFY              0x00000180 /* -W-4R */
+#define NV1BA0_PIO_SET_CONTEXT_DMA_NOTIFY_HANDLE             31:0 /* -W-VF */
+
+SetSubMixHeadroom()
+-------------------
+This method sets the headroom that should be reserved for a submix bin.
+
+Headroom must not be set on any mix bin larger than the number
+of submixes returned by alloc.limitSubmix_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                         |     | SET_SBM_HEAD
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM(i)      (0x00000200+(i)*4) /* -W-4A */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM__SIZE_1                 32 /*       */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT                 2:0 /* -W-VF */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_ZEROBITS       0x00 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_ONEBIT         0x01 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_TWOBITS        0x02 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_THREEBITS      0x03 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_FOURBITS       0x04 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_FIVEBITS       0x05 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_SIXBITS        0x06 /* -W--V */
+#define NV1BA0_PIO_SET_SUBMIX_HEADROOM_AMOUNT_SEVENBITS      0x07 /* -W--V */
+
+SetHRTFHeadroom()
+-----------------
+This method sets the headroom that should be reserved for the HRTF bins.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                         |     | SET_HRTF_HEAD
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_HRTF_HEADROOM                   0x00000280 /* -W-4R */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT                   2:0 /* -W-VF */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_ZEROBITS         0x00 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_ONEBIT           0x01 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_TWOBITS          0x02 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_THREEBITS        0x03 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_FOURBITS         0x04 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_FIVEBITS         0x05 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_SIXBITS          0x06 /* -W--V */
+#define NV1BA0_PIO_SET_HRTF_HEADROOM_AMOUNT_SEVENBITS        0x07 /* -W--V */
+
+SetHRTFSubmix()
+----------------
+This method sets the submix bin to which each one of the HRTF channels
+should be mixed.
+
+The mix bin for each HRTF channel must not be set larger than the number
+of submixes returned by alloc.limitSubmix_cnt during allocation.
+
+WARNING: THIS METHOD IS OBSOLETE. USE SetHRTFSubmixes() INSTEAD.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                     |HRTF_BIN | SET_HRTF_SM
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_HRTF_SUBMIX(i)          (0x00000290+(i)*4) /* -W-4A */
+#define NV1BA0_PIO_SET_HRTF_SUBMIX__SIZE_1                      4 /*       */
+#define NV1BA0_PIO_SET_HRTF_SUBMIX_BIN                        4:0 /* -W-UF */
+
+SetHRTFSubmixes()
+-----------------
+This method sets the submix bin to which each one of the HRTF channels
+should be mixed.
+
+The mix bin for each HRTF channel must not be set larger than the number
+of submixes returned by alloc.limitSubmix_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|     |HRTF_BIN3|     |HRTF_BIN2|     |HRTF_BIN1|     |HRTF_BIN0| SET_HRTF_SM
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_HRTF_SUBMIXES                   0x000002C0 /* -W-4R */
+#define NV1BA0_PIO_SET_HRTF_SUBMIXES_BIN0                     4:0 /* -W-UF */
+#define NV1BA0_PIO_SET_HRTF_SUBMIXES_BIN1                    12:8 /* -W-UF */
+#define NV1BA0_PIO_SET_HRTF_SUBMIXES_BIN2                   20:16 /* -W-UF */
+#define NV1BA0_PIO_SET_HRTF_SUBMIXES_BIN3                   28:24 /* -W-UF */
+
+SetVolumeTracking()
+-------------------
+This method sets the volume tracking parameter.  This parameter is
+in a 0.12 format and is used to control volume tracking for all voices.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |        VOL_TRK        | SET_VOL_TRK
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOLUME_TRACKING                 0x000002A0 /* -W-4R */
+#define NV1BA0_PIO_SET_VOLUME_TRACKING_PARAMETER             11:0 /* -W-UF */
+
+SetPitchTracking()
+------------------
+This method sets the pitch tracking parameter.  This parameter is
+in a 0.12 format and is used to control pitch tracking for all voices.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |       PITCH_TRK       | SET_PITCH_TRK
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_PITCH_TRACKING                 0x000002A4 /* -W-4R */
+#define NV1BA0_PIO_SET_PITCH_TRACKING_PARAMETER             11:0 /* -W-UF */
+
+SetHRTFTracking()
+-----------------
+This method sets the HRTF tracking parameter.  This parameter is
+in a 0.12 format and is used to control HRTF tracking for all voices.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |       HRTF_TRK        | SET_HRTF_TRK
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_HRTF_TRACKING                  0x000002A8 /* -W-4R */
+#define NV1BA0_PIO_SET_HRTF_TRACKING_PARAMETER              11:0 /* -W-UF */
+
+SetITDTracking()
+-----------------
+This method sets the ITD tracking parameter.  This parameter is
+in a 0.12 format and is used to control ITD tracking for all voices.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |       ITD_TRK         | SET_ITD_TRK
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_ITD_TRACKING                   0x000002AC /* -W-4R */
+#define NV1BA0_PIO_SET_ITD_TRACKING_PARAMETER               11:0 /* -W-UF */
+
+SetFilterTracking()
+-------------------
+This method sets the filter tracking parameter.  This parameter is
+in a 0.12 format and is used to control filter coefficient tracking
+for all voices.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                       |        FLT_TRK        | SET_FLT_TRK
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_FILTER_TRACKING                0x000002B0 /* -W-4R */
+#define NV1BA0_PIO_SET_FILTER_TRACKING_PARAMETER            11:0 /* -W-UF */
+
+SetCurrentVoice() 
+-----------------
+This method provides a way for the driver to set the current voice.  
+The voice actions and parameter set methods take effect on the voice
+selected by the current voice handle.
+
+Note that this is not related to the voice processed by the audio
+engine, as those operations are asynchronous to the background.
+This is the way to select for which voice that the user is modifing
+parameters.
+
+This must not be set higher than the number of voices returned by
+alloc.limitVoice_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |        HANDLE                 | SETCURRENTVOICE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_VOICE                   0x000002F8 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_VOICE_HANDLE                  15:0 /* -W-VF */
+
+VoiceLock()
+-----------
+This method provides a way to temporarily lock a voice to change
+it's parameters.
+
+LOCK_ON is used to allow for atomic modifications of parameters.
+When a voice is locked, the setup engine is not allowed to
+read or write that voice indicated by the method SetCurrentVoice(),
+(which means the engine stalls if it needs that voice).  
+All methods are blocked until the lock can be applied.  
+This means that if the voice engine is currently
+accessing the voice, it will block, until the access are done
+and the lock can be obtained. Typically a lock is followed by
+a bunch of parameter writes followed by an unlock for atomic
+modification of a group of parameters.
+
+LOCK_OFF releases a lock on a voice which allows the voice processor
+to again access (read or write) the internal voice structure
+indicated by the method SetCurrentVoice().
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                               |               | VOICE_LOCK
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_VOICE_LOCK                          0x000002FC /* -W-4R */
+#define NV1BA0_PIO_VOICE_LOCK_PARAMETER                       7:0 /* -W-VF */
+#define NV1BA0_PIO_VOICE_LOCK_PARAMETER_OFF            0x00000000 /* -W--V */
+#define NV1BA0_PIO_VOICE_LOCK_PARAMETER_ON             0x00000001 /* -W--V */
+
+SetVoiceCfgVBIN()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgVBIN(), configures, for the
+voice volume parameters (Volume 0 to 5), to which mix bin to apply 
+the voice volume parameter.
+
+The mix bin for each volume must not be set larger than the number
+of submixes returned by alloc.limitSubmix_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| |  V5BIN  |  V4BIN  |  V3BIN  | |  V2BIN  |  V1BIN  |  V0BIN  | SET_VOICE_CFGVBIN
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN                  0x00000300 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN_V0BIN                   4:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN_V1BIN                   9:5 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN_V2BIN                 14:10 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN_V3BIN                 20:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN_V4BIN                 25:21 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_VBIN_V5BIN                 30:26 /* -W-UF */
+
+SetVoiceCfgFMT()
+----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgFMT(), configures, for the
+voice volume parameter (Volume 6 and 7), to which mix bin to apply 
+the voice volume parameter.  The method also sets some of the format
+parameters which configure the operation of the voice.  Note that the
+Samples_Per_Block field should be programmed with the desired number
+minus one (e.g., a zero means 1 sample per block).
+
+The mix bin for each volume must not be set larger than the number
+of submixes returned by alloc.limitSubmix_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|CON|SAM|S|D|U|T|P|N|M| SB/BIN  |HEADR|G|N|N|  V7BIN  |  V6BIN  | VOICE_CFGFMT
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT                   0x00000304 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V6BIN                    4:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V7BIN                    9:5 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V6PHASE                10:10 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V6PHASE_POSITIVE        0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V6PHASE_NEGATIVE        0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V7PHASE                11:11 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V7PHASE_POSITIVE        0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_V7PHASE_NEGATIVE        0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_GAIN                   12:12 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_GAIN_X1                 0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_GAIN_X2                 0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM               15:13 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC0_FLT0      0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC0_FLT1      0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC0_FLT2      0x02 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC0_FLT3      0x03 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC1_FLT0      0x04 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC1_FLT1      0x05 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC1_FLT2      0x06 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_SRC1_FLT3      0x07 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS0     0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS1     0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS2     0x02 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS3     0x03 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS4     0x04 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS5     0x05 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS6     0x06 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_HEADROOM_MULTIPASS7     0x07 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_SAMPLES_PER_BLOCK      20:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_MULTIPASS_BIN__ALIAS__ 20:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_MULTIPASS              21:21 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_MULTIPASS_OFF           0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_MULTIPASS_ON            0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_LINKED_VOICE           22:22 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_LINKED_VOICE_OFF        0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_LINKED_VOICE_ON         0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_PERSIST                23:23 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_PERSIST_OFF             0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_PERSIST_ON              0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE              24:24 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER        0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM        0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_LOOP                   25:25 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_LOOP_OFF                0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_LOOP_ON                 0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CLEAR_MIX              26:26 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CLEAR_MIX_FALSE         0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CLEAR_MIX_TRUE          0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_STEREO                 27:27 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_STEREO_DISABLE          0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_STEREO_ENABLE           0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_SAMPLE_SIZE            29:28 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_SAMPLE_SIZE_U8          0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_SAMPLE_SIZE_S16         0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_SAMPLE_SIZE_S24         0x02 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_SAMPLE_SIZE_S32         0x03 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CONTAINER_SIZE         31:30 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CONTAINER_SIZE_B8       0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CONTAINER_SIZE_B16      0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_FMT_CONTAINER_SIZE_B32      0x03 /* -W--V */
+
+SetVoiceCfgENV0()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgENV0(), configures the
+parameters that control the amplitude envelope.  This also sets
+the pitch scale which is used to set the full scale pitch change
+of the frequency envelope.
+
+EF_PITCHSCALE is a "s.7" number which configures the amount the
+frequency envelope modulates the the pitch frequency.  A value of 0x00
+specifies that there should be not frequency modulation, a value of 0x7F
+specifies a ~+1 octave of frequency modulation.
+
+EA_DELAYTIME is a unsigned number which configures how long to delay
+before the attack phase of the amplitude envelope. A value of 1 specifies
+a delay of 512 samples (16*32). This field is unused if VoiceOn() 
+specifies that the voice is started in the attack phase w/o an initial 
+delay.
+
+EA_ATTACKRATE is a unsigned number which configures the duration of the
+attack phase of the amplitude envelope in units of 512 samples (16*32).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| EF_PITCHSCALE |    EA_DELAYTIME       |    EA_ATTACKRATE      | VOICE_CFGENV0
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV0                  0x00000308 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV0_EA_ATTACKRATE          11:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV0_EA_DELAYTIME          23:12 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV0_EF_PITCHSCALE         31:24 /* -W-UF */
+
+SetVoiceCfgENVA()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgENVA(), configures the
+parameters that control the amplitude envelope.  
+
+EA_HOLDTIME is a unsigned number which configures the duration of the hold
+phase of the amplitude envelope. A value of 1 specifies a delay of
+512 samples (16*32).
+
+EA_DECAYRATE is a unsigned number which configures the duration of the decay
+phase of the amplitude envelope. A value of 1 specifies a delay of
+512 samples (16*32).
+
+EA_SUSTAINLEVEL is a "u.8" value that specifies the sustain level
+of the amplitude envelope.  When the envelope reaches the sustain
+level, it remain there until a VoiceOff() or a VoiceRelease() method
+is processed for the voice.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|EA_SUSTAINLEVEL|    EA_HOLDTIME          |    EA_DECAYRATE     | VOICE_CFGENVA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVA                  0x0000030C /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVA_EA_DECAYRATE           11:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVA_EA_HOLDTIME           23:12 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVA_EA_SUSTAINLEVEL       31:24 /* -W-UF */
+
+SetVoiceCfgENV1()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgENV1(), configures the
+parameters that control the frequency envelope.
+
+EF_FCSCALE is a "s3.4" number which configures the amount the 
+frequency envelope modulates the the filter cutoff frequency.  
+A value of 0x80 specifies that the filter cutoff should be modulated
+by -8 octaves.  A value of 0x7F indicates a modulaton of ~+8 octaves.
+
+EF_DELAYTIME is a unsigned number which configures how long to delay
+before the attack phase of the frequency envelope. A value of 1 specifies
+a delay of 512 samples (16*32). This field is unused if VoiceOn() 
+specifies that the voice is started in the attack phase w/o an initial 
+delay.
+
+EF_ATTACKRATE is a unsigned number which configures the duration of the
+attack phase of the frequency envelope in units of 512 samples (16*32).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  EF_FCSCALE   |    EF_DELAYTIME       |    EF_ATTACKRATE      | VOICE_CFGENV1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV1                  0x00000310 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV1_EF_ATTACKRATE          11:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV1_EF_DELAYTIME          23:12 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENV1_EF_FCSCALE            31:24 /* -W-UF */
+
+SetVoiceCfgENVF()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgENVF(), configures the
+parameters that control the frequency envelope.  
+
+EF_HOLDTIME is a unsigned number which configures the duration of the hold
+phase of the frequency envelope. A value of 1 specifies a delay of
+512 samples (16*32).
+
+EF_DECAYRATE is a unsigned number which configures the duration of the decay
+phase of the frequency envelope. A value of 1 specifies a delay of
+512 samples (16*32).
+
+EF_SUSTAINLEVEL is a "u.8" value that specifies the sustain level
+of the frequency envelope.  When the envelope reaches the sustain
+level, it remain there until a VoiceOff() or a VoiceRelease() method
+is processed for the voice.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|EF_SUSTAINLEVEL|    EF_HOLDTIME          |    EF_DECAYRATE     | VOICE_CFGENVF
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVF                  0x00000314 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVF_EF_DECAYRATE           11:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVF_EF_HOLDTIME           23:12 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_ENVF_EF_SUSTAINLEVEL       31:24 /* -W-UF */
+
+SetVoiceCfgMISC()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgMISC(), configures the
+pitch/frequency envelope release and the low frequency oscillator,
+sets the filter mode, and sets the lsbs of the global sample count
+where the current voice should be started.
+
+EF_RELEASERATE is a unsigned number which configures the duration of the
+release phase of the frequency envelope. A value of 1 specifies a delay of
+512 samples (16*32).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  V_GSCNT      |I|   | BPQ |FMD|LFO|   |     EF_RELEASERATE    | VOICE_CFGMISC
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC                  0x00000318 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_EF_RELEASERATE         11:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOA_DELAYMODE        14:14 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOA_DELAYMODE_NORMAL  0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOA_DELAYMODE_DELAY   0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOF_DELAYMODE        15:15 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOF_DELAYMODE_NORMAL  0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOF_DELAYMODE_DELAY   0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE                 17:16 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_BYPASS           0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_STEREO_DLS2      0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_STEREO_P_EQ      0x02 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_STEREO_BYPASS    0x03 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_MONO_DLS2        0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_MONO_P_EQ        0x02 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_MONO_DLS2_P_EQ   0x03 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_THREED_DLS2_I3DL2 0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_THREED_P_EQ_I3DL2 0x02 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_FMODE_THREED_I3DL2     0x03 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_BPQ                   20:18 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_NOTIFY_INTERRUPT      23:23 /* -W-VF */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_NOTIFY_INTERRUPT_DISABLE 0x00 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_NOTIFY_INTERRUPT_ENABLE 0x01 /* -W--V */
+#define NV1BA0_PIO_SET_VOICE_CFG_MISC_V_GSCNT               31:24 /* -W-UF */
+
+
+SetVoiceTarHRTF()
+-----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarHRTF(), configures the
+target HRTF to be used by the current 3d voice.  The HRIR values
+indicated by the HRTF handle are not set instantaneously, but
+depend on the tracking alpha values.
+
+This must not be set higher than the number of HRTFs returned by
+alloc.limitHRTF_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |    HRTF_CONTROL_HANDLE        | VOICE_TARHRTF
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_HRTF                  0x0000031C /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_HRTF_HANDLE                 15:0 /* -W-UF */
+
+SetVoiceCfgLFODLY()
+-------------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgLFODLY(), sets the initial
+directions for the LFOs and if the LFO is configured for delay
+before oscillation NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOA_DELAYMODE_DELAY
+or NV1BA0_PIO_SET_VOICE_CFG_MISC_LFOF_DELAYMODE_DELAY, the
+the initial delay before oscillation.
+
+A setting of 1 for the LFOFDLY or LFOADLY delays the operation of
+the LFO by 32 samples.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|D|     LFOFDLY                 |D|     LFOADLY                 | VOICE_CFGLFODLY
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_PAR_LFODLY                0x00000350 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_PAR_LFODLY_LFOADLY              14:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_PAR_LFODLY_LFOADR              15:15 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_PAR_LFODLY_LFOFDLY             30:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_PAR_LFODLY_LFOFDR              31:31 /* -W-UF */
+
+SetVoiceSSLA() / SetVoiceSSLB()
+-------------------------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The methods SetVoiceSSLA(), and SetVoiceSSLB()
+are used as a ping-pong between two list of segments for a stream type
+voice.  When a voice start operation it consumes SSLA first and
+SSLB next and then goes back to SSLA.  A notification is returned
+when SSLA (and it's associated segments) is no longer needed by the
+HW and a separate notification is returned for SSLB.
+
+The new list for SSLA is configured by setting it's start pointer
+(Segment Descriptor BASE field) and count of Segment descriptors
+offset from the start pointer (COUNT).  Together these define a 
+segment of the the full SSL to be used as list A.  
+The same is true for list B.
+
+A value of zero for COUNT means that the SSL handle is ignored and
+no segment descriptors are valid.  This will result in an end to the
+voice when the voice moves to this list.
+
+This method should only be set if the voice has it's type configured
+to be NV1BA0_SET_VOICE_CFG_FMT_DATA_TYPE_STREAM or an error will be
+returned.
+
+The stream segment list used by a voice must be of a compatible
+type (same container size, samples/block and stereo capable bit)
+If these fields indicated by the SSL fetched by the voice processor
+are not compatible with the voice, then no samples in the segment
+are fetched and the voice will be handled as if the LENGTH_PARAMETER 
+of the stream segment was zero.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |             BASE              |     COUNT     | VOICE_SLL_A
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_SSL_A                     0x00000320 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_SSL_A_COUNT                      7:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_SSL_A_BASE                      23:8 /* -W-UF */
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |             BASE              |        COUNT  | VOICE_SLL_B
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_SSL_B                     0x0000035C /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_SSL_B_COUNT                      7:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_SSL_B_BASE                      23:8 /* -W-UF */
+
+SetVoiceCfgBufBase()
+--------------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgBufBase(), sets the base
+address of the start of the buffer measured in bytes.
+
+This method should only be set if the voice is configured to use
+NV1BA0_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER.
+
+The alignment of the buffer base must be compatible with the
+container size of the voice.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+  31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |              OFFSET                          | VOICE_CFG_BUF_BASE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_BUF_BASE                0x000003A0 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_BUF_BASE_OFFSET               23:0 /* -W-UF */
+
+SetVoiceCfgBufLBO()
+-------------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgBufLBO(), sets the loopback
+offset of the start of the buffer measured in blocks from the base
+offset.
+
+This method should only be set if the voice is configured to use
+NV1BA0_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER.  This is only used if
+the voice is configured NV1BA0_SET_VOICE_CFG_FMT_LOOP_ON.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |              OFFSET                           | VOICE_CFG_BUF_LBO
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_BUF_LBO               0x000003A4 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_BUF_LBO_OFFSET              23:0 /* -W-UF */
+
+SetVoiceBufCBOFrac()
+--------------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceBufCBOFrac(), sets the fractional
+part of the voice's current offset from the base offset of the buffer
+measured 65536th of a block.  This is used to set the initial phase
+offset for the pitch shifter.
+
+This method should only be set if the voice is configured to use
+NV1BA0_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |      FRACTION                 | VOICE_BUF_CBOFRAC
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_BUF_CBOFRAC               0x000003D4 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_BUF_CBOFRAC_FRACTION            15:0 /* -W-UF */
+
+SetVoiceBufCBO()
+----------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceBufCBO(), sets the voice's
+current offset from the base address of the buffer measured in blocks
+from the start of the buffer from the base offset.
+
+This method should only be set if the voice is configured to use
+NV1BA0_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |              OFFSET                           | VOICE_BUF_CBO
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_BUF_CBO                   0x000003D8 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_BUF_CBO_OFFSET                  23:0 /* -W-UF */
+
+SetVoiceCfgBufEBO()
+-------------------
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceCfgBufEBO(), sets the end
+offset of the start of the buffer measured in blocks from the base
+offset.
+
+This method should only be set if the voice is configured to use
+NV1BA0_SET_VOICE_CFG_FMT_DATA_TYPE_BUFFER.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |              OFFSET                           | VOICE_CFG_BUF_EBO
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_CFG_BUF_EBO               0x000003DC /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_CFG_BUF_EBO_OFFSET              23:0 /* -W-UF */
+
+SetVoiceTarVOLA()
+-----------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarVOLA(), sets some of
+the target volumes for the current voice.  The volumes are not
+set instantaneously, but depend on the tracking alpha values.
+
+The volume a "u6.6" value specified as attenuation in dB.
+A value of "0" mean there is no attenuation.  A value of 0xFFE
+represents an attenuation of 63.96875 dB.  The value 0xFFF is
+special coded to indicate mute (infinite attenuation).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  VOLUME1_TARGET       |V7[3:0]|  VOLUME0_TARGET       |V6[3:0]| VOICE_TARVOLA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLA                  0x00000360 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLA_VOLUME6_B3_0            3:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLA_VOLUME0                15:4 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLA_VOLUME7_B3_0          19:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLA_VOLUME1               31:20 /* -W-UF */
+
+SetVoiceTarVOLB()
+-----------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarVOLB(), sets some of
+the target volumes for the current voice.  The volumes are not
+set instantaneously, but depend on the tracking alpha values.
+
+The volume a "u6.6" value specified as attenuation in dB.
+A value of "0" mean there is no attenuation.  A value of 0xFFE
+represents an attenuation of 63.96875 dB.  The value 0xFFF is
+special coded to indicate mute (infinite attenuation).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  VOLUME3_TARGET       |V7[7:4]|  VOLUME2_TARGET       |V6[7:4]| VOICE_TARVOLB
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLB                  0x00000364 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLB_VOLUME6_B7_4            3:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLB_VOLUME2                15:4 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLB_VOLUME7_B7_4          19:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLB_VOLUME3               31:20 /* -W-UF */
+
+SetVoiceTarVOLC()
+-----------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarVOLC(), sets some of
+the target volumes for the current voice.  The volumes are not
+set instantaneously, but depend on the tracking alpha values.
+
+The volume a "u6.6" value specified as attenuation in dB.
+A value of "0" mean there is no attenuation.  A value of 0xFFE
+represents an attenuation of 63.96875 dB.  The value 0xFFF is
+special coded to indicate mute (infinite attenuation).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  VOLUME5_TARGET       |V7_HI  |  VOLUME4_TARGET       |V6_HI  | VOICE_TARVOLC
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLC                  0x00000368 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLC_VOLUME6_B11_8           3:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLC_VOLUME4                15:4 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLC_VOLUME7_B11_8         19:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_VOLC_VOLUME5               31:20 /* -W-UF */
+
+SetVoiceLFOENV()
+-------------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceLFOENV(), sets some of
+the LFO deltas which determine the LFO oscillation rate and the
+envelope release rate.
+
+EA_RELEASERATE is a unsigned number which configures the duration of the
+release phase of the amplitude envelope. A value of 1 specifies a delay of
+512 samples (16*32).
+
+LFOADLT and LFOFDLT configure the frequency of the amplitude and frequency
+LFOs.  A value of 0 disables the LFO.  A value of 0x001 is the minimum
+frequency (0.023Hz with a 48KHz sample clock) and a value 0x3FF is the
+maximum frequency (23.438Hz with a 48KHz sample clock).
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  LFOFDLT          |  LFOADLT          |  EA_RELEASERATE       | VOICE_LFO_ENV
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_LFO_ENV                   0x0000036C /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_LFO_ENV_EA_RELEASERATE          11:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_LFO_ENV_LFOADLT                21:12 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_LFO_ENV_LFOFDLT                31:22 /* -W-UF */
+
+SetVoiceLFOMOD()
+----------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceLFOMOD(), sets the
+LFO modulation amounts which determine how much effect the LFO
+has on certain parameters.
+
+LFOAAM is a "s4.3" number that configures how much the amplitude LFO 
+modulates the amplitude in dB.  A value of 0x00 specifies no amplitude
+modulation, a value of 0x7F specifies 15.875dB of amplitude of modulation.
+
+LFOAFM is a "s.7" number that configures how much the amplitude LFO 
+modulates the frequency in octaves.  A value of 0x00 specifies no frequency
+modulation, a value of 0x7F specifies ~+1 octave of frequency of modulation.
+
+LFOAFC is a "s3.4" number that configures how much the amplitude LFO 
+modulates the frequency cutoff in octaves.  A value of 0x80 specifies 
+the frequency cutoff be modulated -8 octaves, and a value of 0x7F specifies
+the frequency cutoff be modulated ~+8 octaves.
+
+LFOFFM is a "s.7" number that configures how much the frequency LFO 
+modulates the frequency in octaves.  A value of 0x00 specifies no frequency
+modulation, a value of 0x7F specifies ~+1 octave of frequency of modulation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|  LFOFFM       |  LFOAFC       |  LFOAFM       |  LFOAAM       | VOICE_LFO_MOD
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_LFO_MOD                   0x00000370 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_LFO_MOD_LFOAAM                   7:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_LFO_MOD_LFOAFM                  15:8 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_LFO_MOD_LFOAFC                 23:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_LFO_MOD_LFOFFM                 31:24 /* -W-UF */
+
+SetVoiceTarFCA()
+----------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarFCA(), sets the
+target filter coefficients 0 and 1.
+
+The filter coefficients are not set instantaneously, but depend on
+the tracking alpha values.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|            FC1                |            FC0                | VOICE_TARFCA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_FCA                   0x00000374 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_FCA_FC0                     15:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_FCA_FC1                    31:16 /* -W-UF */
+
+SetVoiceTarFCB()
+----------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarFCB(), sets the
+target filter coefficients 2 and 3.
+
+The filter coefficients are not set instantaneously, but depend on
+the tracking alpha values.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|            FC3                |            FC2                | VOICE_TARFCB
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_FCB                   0x00000378 /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_FCB_FC2                     15:0 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_FCB_FC3                    31:16 /* -W-UF */
+
+SetVoiceTarPitch()
+------------------
+
+This method sets the voice parameters for the voice selected by
+SetCurrentVoice().  The method SetVoiceTarPitch(), sets the
+target pitch step.
+
+The pitch step is not set instantaneously, but depend on
+the tracking alpha values.
+
+The value is an s3.12 octave-based number.  The maximum
+value is +2.000.  The minimum is -8.000 (absolute minimum).  The
+actual range of pitch shifts that the APU supports may be less
+than the above legal range depending on the operating mode.  The
+APU will clamp to maximum/minimum values when pitch shift exceeds
+the range supported for the current operating mode.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_VOICE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|            STEP               |                               | VOICE_TARPITCH
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_VOICE_TAR_PITCH                 0x0000037c /* -W-4R */
+#define NV1BA0_PIO_SET_VOICE_TAR_PITCH_STEP                 31:16 /* -W-UF */
+#define NV1BA0_PIO_SET_VOICE_TAR_PITCH_STEP_SMAX       0x00001fff /* -W--V */
+
+SetCurrentHRTFEntry() 
+---------------------
+This method provides a way for the driver to set the HRTF table
+entry to be modified by SetHRIR() methods.  
+
+Note that changing an entry which is set as the HRTF target for
+an active 3d voice can cause pops.
+
+This must not be set higher than the number of hrtfs returned by
+alloc.limitHRTF_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                               |     HRTF_CONTROL_HANDLE       | SET_CURRENT_HRTF
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_HRTF_ENTRY             0x00000160 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_HRTF_ENTRY_HANDLE            15:0 /* -W-VF */
+
+SetHRIR() 
+---------
+This method provides a way for the driver to configure some of the
+HRIR coeffiecients of an HRTF filter entry selected by SetHRTFTableEntry().
+
+Note that changing an entry which is set as the HRTF target for
+an active 3d voice can cause pops.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_HRTF_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| RIGHT1        | LEFT1         | RIGHT0        | LEFT0         | SET_HRIR
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_HRIR(i)                (0x00000400+(i)*4) /* -W-4A */
+#define NV1BA0_PIO_SET_HRIR__SIZE_1                           15 /*       */
+#define NV1BA0_PIO_SET_HRIR_LEFT0                            7:0 /* -W-VF */
+#define NV1BA0_PIO_SET_HRIR_RIGHT0                          15:8 /* -W-VF */
+#define NV1BA0_PIO_SET_HRIR_LEFT1                          23:16 /* -W-VF */
+#define NV1BA0_PIO_SET_HRIR_RIGHT1                         31:24 /* -W-VF */
+
+SetHRIRX() 
+----------
+This method provides a way for the driver to configure the final
+HRIR coeffiecients of an HRTF filter entry and the ITD in the
+HRTF filter entry selected by SetHRTFTableEntry().
+
+The legal range of values is -42 < ITD < 42.  Since ITD is s6.9,
+min (signed) is 0xac01 and max (signed) is 0x53ff.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_HRTF_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| ITD                           | RIGHT30       | LEFT30        | SET_HRIR_X
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_HRIR_X                         0x0000043C /* -W-4R */
+#define NV1BA0_PIO_SET_HRIR_X_LEFT30                         7:0 /* -W-VF */
+#define NV1BA0_PIO_SET_HRIR_X_RIGHT30                       15:8 /* -W-VF */
+#define NV1BA0_PIO_SET_HRIR_X_ITD                          31:16 /* -W-SF */
+#define NV1BA0_PIO_SET_HRIR_X_ITD_SMIN                0x0000ac01 /* RW--V */
+#define NV1BA0_PIO_SET_HRIR_X_ITD_SMAX                0x000053ff /* RW--V */
+
+SetCurrentSSLContextDMA() 
+-------------------------
+This method provides a way for the driver to set the context DMA for the
+Segment descriptor entries that are going to be modified.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_SSL_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_CURRENT_SSLContextDMA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_SSL_CONTEXT_DMA          0x0000018C /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_SSL_CONTEXT_DMA_HANDLE         31:0 /* -W-VF */
+
+SetCurrentSSL() 
+---------------
+This method provides a way for the driver modify a contiguous segment
+of the stream segment descriptors.  The BASE_PAGE must be aligned to
+a 64 segment chunk of the full segment descriptor list.
+
+This must not be set higher than the number of segments returned by
+alloc.limitSegIn_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                      |  BASE_PAGE                 |0 0 0 0 0 0| SET_CURRENT_SSL
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_SSL                      0x00000190 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_SSL_BASE_PAGE                  21:6 /* -W-VF */
+
+SetSSLSegmentOffset() 
+---------------------
+This method provides a way for the driver to configure several
+adjacent segment descriptors relative to the BASE_PAGE which is set
+with SetCurrentSSL().  The OFFSET is relative to the ContextDMA
+set by SetCurrentSSLContextDMA().
+
+Writes to this method must be followed by a write to the SetSSLSegmentLength()
+method or the data written to this method is ignored.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_SSL_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| SEGMENT OFFSET                                                | SET_SSL_SEG_OFF
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_SSL_SEGMENT_OFFSET(i)    (0x00000600+(i)*8) /* -W-4A */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_OFFSET__SIZE_1               64 /*       */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_OFFSET_PARAMETER           31:0 /* -W-VF */
+
+SetSSLSegmentLength() 
+---------------------
+This method provides a way for the driver to configure several
+adjacent segment descriptors relative to the BASE_PAGE which is set
+with SetCurrentSSL().  A write to this method must be preceded by
+a write to SetSSLSegmentOffset() or an error will be generated.
+
+The CONTAINER_SIZE field sets the number of bytes taken by sample
+containers for the data contained in this segment.  
+
+The SAMPLES_PER_BLOCK field sets the number of samples per block for the
+data contained in this segment.
+
+The STEREO field indicates if data in this segment can be processed
+by a stereo voice.
+
+The LENGTH_PARAMETER is relative to the Segment offset set by
+SetSSLSegmentOffset() and represents the length in blocks of this segment.
+
+When a stream type voice uses a segment configured using these
+methods, the container size, the samples/block and the stereo
+capable bits are compared.  If these fields are not compatible,
+then no samples in the segment are fetched and the voice will be
+handled as if the LENGTH_PARAMETER was zero.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_SSL_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |S|SMPLS/BLK|CS | SEGMENT LENGTH                | SET_SSL_SEG_LEN
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-' 
+
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH(i)    (0x00000604+(i)*8) /* -W-4A */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH__SIZE_1               64 /*       */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_PARAMETER           15:0 /* -W-UF */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_CONTAINER_SIZE     17:16 /* -W-VF */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_CONTAINER_SIZE_B8   0x00 /* -W--V */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_CONTAINER_SIZE_B16  0x01 /* -W--V */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_CONTAINER_SIZE_B32  0x03 /* -W--V */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_SAMPLES_PER_BLOCK  22:18 /* -W-UF */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_STEREO             23:23 /* -W-VF */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_STEREO_NOTOK        0x00 /* -W--V */
+#define NV1BA0_PIO_SET_SSL_SEGMENT_LENGTH_STEREO_OK           0x01 /* -W--V */
+
+SetCurrentInBufSGEContextDMA() 
+-------------------------------
+This method provides a way for the driver to set the context DMA for the
+current scatter gather entry.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_INSGE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_CUR_INBUF_SGE_CONTEXT_DMA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_INBUF_SGE_CONTEXT_DMA   0x00000800 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_INBUF_SGE_CONTEXT_DMA_HANDLE  31:0 /* -W-VF */
+
+SetCurrentInBufSGE() 
+---------------------
+This method provides a way for the driver to set the current buffer
+scatter gather entry to be modified.  Each scatter gather entry
+represent 4K bytes of data (independent of the sample or block size).
+
+This must not be set higher than the number of sge returned by
+alloc.limitSGEIn_cnt during allocation
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_CUR_INBUF_SGE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_INBUF_SGE             0x00000804 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_INBUF_SGE_HANDLE            31:0 /* -W-VF */
+
+
+SetCurrentInBufSGEOffset() 
+--------------------------
+This method provides a way for the driver to configure the address
+for the current scatter gather entry set with the SetCurrentInBufSGE().
+The address must be 4K byte aligned.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_INSGE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| PRD BUFFER OFFSET                     |0 0 0 0 0 0 0 0 0 0 0 0| SET_CUR_INBUF_SGE_OFFSET
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_INBUF_SGE_OFFSET         0x00000808 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_INBUF_SGE_OFFSET_PARAMETER    31:12 /* -W-VF */
+
+SetOutBufBA() 
+-------------
+The method SetOutBufBA(), sets the base address of the start of the output
+buffer measured in bytes.  The user has some freedom in setting the base address
+by choosing a scatter gather entry (SGE) for the start of this output buffer.
+The value of the base address must then be set according to the offset from
+the context DMA for this SGE:
+	base adress = 4096*SGE + offset%4096.
+When this method is set, the buffer is automatically made valid by setting
+SetOutBufLen() to 256. To set the correct length, the method SetOutBufLen()
+must then be set.
+
+Note the format of the output is configured using DMA methods.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+  31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |              ADDRESS          |0 0 0 0 0 0 0 0| OUTBUF_BA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_OUTBUF_BA(i)             (0x00001000+(i)*8) /* -W-4A */
+#define NV1BA0_PIO_SET_OUTBUF_BA__SIZE_1                         4 /*       */
+#define NV1BA0_PIO_SET_OUTBUF_BA_ADDRESS                      23:8 /* -W-UF */
+
+SetOutBufLen() 
+-------------
+The method SetOutBufLen(), sets the length of the output buffer in bytes.
+When the SetOutBufBA() method is set, it forces the value of the length
+to 256.  After a SetOutBufBA(), the method SetOutBufLen() must be executed
+again to select the length of this buffer.
+
+Note the format of the output is configured using DMA methods. 
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+  31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |              LENGTH           |0 0 0 0 0 0 0 0|OUTBUF_LEN
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_OUTBUF_LEN(i)            (0x00001004+(i)*8) /* -W-4A */
+#define NV1BA0_PIO_SET_OUTBUF_LEN__SIZE_1                        4 /*       */
+#define NV1BA0_PIO_SET_OUTBUF_LEN_VALUE                       23:8 /* -W-UF */
+
+SetCurrentOutBufSGE() 
+---------------------
+This method provides a way for the driver to set the current output buffer
+scatter gather entry to be modified.  Each scatter gather entry
+represent 4K bytes of data (independent of the sample or block size).
+
+This must not be set higher than the number of sge returned by
+alloc.limitSGEOut_cnt during allocation.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_CUR_OUTBUF_SGE
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_OUTBUF_SGE             0x00001800 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_OUTBUF_SGE_HANDLE            31:0 /* -W-VF */
+
+SetCurrentOutBufSGEContextDMA() 
+-------------------------------
+This method provides a way for the driver to set the context DMA for the
+current output buffer scatter gather entry set with SetCurrentOutBufSGE().
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_OUTSGE_NOT_SET
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | SET_CUR_OUTBUF_SGE_CONTEXT_DMA
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_BUFFER_SGE_CONTEXT_DMA   0x00001804 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_BUFFER_SGE_CONTEXT_DMA_HANDLE  31:0 /* -W-VF */
+
+SetOutBufSGEOffset() 
+--------------------
+This method provides a way for the driver to configure the address
+for the current scatter gather entry set with the SetCurrentOutBufSGE().
+The address must be 4K byte aligned.
+
+Possible errors returned in Nv000Error[].status are
+
+     0x02000000 NV_000_ERROR_STATUS_BAD_ARGUMENT
+     0x???????? NV_1BA0_ERROR_STATUS_CURRENT_OUTSGE_NOT_SET
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| BUFFER OFFSET                         |0 0 0 0 0 0 0 0 0 0 0 0| SET_CUR_OUTBUF_SGE_OFFSET
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define NV1BA0_PIO_SET_CURRENT_OUTBUF_SGE_OFFSET        0x00001808 /* -W-4R */
+#define NV1BA0_PIO_SET_CURRENT_OUTBUF_SGE_OFFSET_PARAMETER   31:12 /* -W-VF */
+
+
+ 
+4  -  DMA REGISTERS
+
+     The DMA registers are accessed by writing a method stream into the 4K
+circular method memory block provided during class allocation.  Initially,
+the put pointer and the get pointer should be zero.  As the user writes a
+method stream into the method memory block, it should set PUT pointer to
+indicate which data is valid.  Before writing data, the user should check
+the GET pointer to make sure that the method DMA has already read the
+methods before over-writing the memory with new methods.
+
+These registers are write only.
+
+NoOperation()
+-------------
+This method does nothing.  It is normally used in conjunction with 
+Synchronize() to determine if the class is idle.  The argument is a 
+32 bit void number.  
+
+All argument values are legal.  This method is stateless.  This method
+is synchronous and blocks writes to subsequent methods.
+
+This method does not return any errors.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | NOP
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+
+#define NV1BA0_DMA_NOP                                 0x00000100 /* -W-4R */
+#define NV1BA0_DMA_NOP_PARAMETER                             31:0 /* -W-VF */
+
+<<<WORK>>>
+
+5  -  RESERVED REGISTERS
+
+     Registers or fields that are not defined in this device are reserved for 
+future use.  
+
+
+ 
+
+APPENDIX A  -  ISSUES
+
+    0)	 Need to decide which methods are implemented in hardware
+
+APPENDIX B  -  KEY
+
+	Read
+	  ' ' = Other Information
+	  '-' = Field is part of a write-only register
+	  'C' = Value read is always the same, constant value line follows (C)
+	  'R' = Value is read
+
+	Write
+	  ' ' = Other Information
+	  '-' = Must not be written (D), value ignored when written (R,A,F)
+	  'W' = Can be written
+
+	Internal State
+	  ' ' = Other Information
+	  '-' = No internal state
+	  'X' = Internal state, initial value is unknown
+	  'I' = Internal state, initial value is known and follows (I)
+
+	Declaration/Size
+	  ' ' = Other Information
+	  '-' = Does Not Apply
+	  'V' = Type is void
+	  'U' = Type is unsigned integer
+	  'S' = Type is signed integer
+	  'F' = Type is IEEE floating point
+	  '1' = Byte size (008)
+	  '2' = Short size (016)
+	  '3' = Three byte size (024)
+	  '4' = Word size (032)
+	  '8' = Double size (064)
+
+	Define Indicator
+	  ' ' = Other Information
+	  'C' = Class
+	  'D' = Device
+	  'M' = Memory
+	  'R' = Register
+	  'A' = Array of Registers
+	  'F' = Field
+	  'V' = Value
+	

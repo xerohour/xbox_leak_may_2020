@@ -1,0 +1,44 @@
+// genproj.idl : IDL source for genproj.pkg
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (genproj.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+	[
+		object,
+		uuid(A15B0D66-701C-11D1-82E8-00A0C91BC942),
+		dual,
+		helpstring("IUtProjProp Interface"),
+		pointer_default(unique)
+	]
+	interface IUtProjProp : IDispatch
+	{
+		[propget, id(1), helpstring("property LaunchApp")] HRESULT LaunchApp([out, retval] BSTR *pVal);
+		[propput, id(1), helpstring("property LaunchApp")] HRESULT LaunchApp([in] BSTR newVal);
+		[propget, id(2), helpstring("property LaunchArgs")] HRESULT LaunchArgs([out, retval] BSTR *pVal);
+		[propput, id(2), helpstring("property LaunchArgs")] HRESULT LaunchArgs([in] BSTR newVal);
+	};
+
+[
+	uuid(9ED2C960-9A56-11D0-A4E9-00A0C90A6333),
+	version(1.0),
+	helpstring("Exposed Genproj 1.0 Type Library")
+]
+library ExposedLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(A15B0D66-701C-11D1-82E8-00A0C91BC943),
+		helpstring("UtProjProp Class")
+	]
+	coclass UtProjProp
+	{
+		[default] interface IUtProjProp;
+	};
+};

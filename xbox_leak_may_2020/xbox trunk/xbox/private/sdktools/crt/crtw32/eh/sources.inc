@@ -1,0 +1,12 @@
+MAJORCOMP=crt
+MINORCOMP=eh
+
+TARGETNAME=eh
+
+!INCLUDE ..\..\crt32.inc
+
+INCLUDES=$(INCLUDES);$(CRTBASE)\crtw32\stdhpp;$(CRTBASE)\crtw32\extinc
+
+CXX_FLAGS=-d1Binl $(CXX_FLAGS)
+
+USE_NATIVE_EH=1

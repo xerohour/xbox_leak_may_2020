@@ -1,0 +1,46 @@
+#include <windows.h>
+#include <xboxverp.h>
+
+#define VER_FILETYPE              VFT_APP
+#define VER_FILESUBTYPE           VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR   "XNet Stress Status Executable"
+#define VER_INTERNALNAME_STR      "xnetstressstatus.exe"
+#define VER_ORIGINALFILENAME_STR  "xnetstressstatus.exe"
+
+#include <common.ver>
+
+#include "resource.h"
+#include "status.h"
+
+
+
+IDI_STATUS_ICON  ICON  "status.ico"
+
+
+
+IDD_DIALOG DIALOG DISCARDABLE 0, 0, 512, 318
+STYLE WS_CAPTION | WS_VISIBLE | WS_DLGFRAME | WS_SYSMENU | WS_MINIMIZEBOX
+CLASS STATUS_CLASS_NAME
+FONT 8, "MS Shell Dlg"
+{
+    CONTROL        "", IDC_STATUS_LIST, "SysListView32", LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL | WS_BORDER | WS_TABSTOP, 10, 10, 492, 274
+    RTEXT          "&Host Name:", IDC_HOST_NAME_STATIC, 382, 297, 25, 8
+    EDITTEXT       IDC_HOST_NAME_TEXT, 317, 295, 125, 12, ES_AUTOHSCROLL | ES_UPPERCASE
+    DEFPUSHBUTTON  "&Query", IDC_QUERY_BUTTON, 452, 294, 50, 14, WS_GROUP
+}
+
+
+
+STRINGTABLE DISCARDABLE
+{
+    IDS_STATUS_CAPTION        "XNet Stress Status"
+    IDS_MEMORY_INIT_FAILED    "Memory initialization failed.\r\nError Code: 0x%08x"
+    IDS_WINSOCK_INIT_FAILED   "Winsock initialization failed.\r\nError Code: 0x%08x"
+    IDS_NAME_GET_FAILED       "Specify a Host Name or IP Address."
+    IDS_NAME_RESOLVE_FAILED   "Cannot resolve Host Name to an IP Address.\r\nError Code: 0x%08x"
+    IDS_NAME_NETSYNC_FAILED   "Cannot connect to the Host.\r\nError Code: 0x%08x"
+    IDS_LOCALNAME_LABEL       "Local IP"
+    IDS_REMOTENAME_LABEL      "Remote IP"
+    IDS_STRESSTYPE_LABEL      "Stress Type"
+    IDS_STATUS_LABEL          "Status"
+}

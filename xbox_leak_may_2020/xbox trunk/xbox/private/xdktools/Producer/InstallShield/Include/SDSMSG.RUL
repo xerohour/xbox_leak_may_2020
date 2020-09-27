@@ -1,0 +1,117 @@
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdsmsg.rul                                                */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdShowMsg             */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdShowMsg                                                  */
+ /*                                                                        */
+ /*   Descrip:  This dialog will show user a message during a              */
+ /*             time consuming process.                                    */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdShowMsg( szMsg, bShow )
+          STRING  szDlg, szWidth;
+          HWND    hwndDlg, hwndStatic;
+          BOOL    bDone;
+          NUMBER  nId, nMessage;
+          NUMBER  hdc, hFont;
+          INT     nWinWidth, nWinHeight, nDx, nDy;
+          INT     nTop, nBottom;
+          _sdRECT rect;
+          POINTER pRect;
+        begin
+
+           szDlg     = SD_DLG_SHOWMSG;
+           nSdDialog = SD_NDLG_SHOWMSG;
+
+           if (MODE=SILENTMODE) then return 0; endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+                SdInit();
+           endif;
+
+           if (bShow = FALSE) then
+              bSdShowMsgUsed = FALSE;
+              EndDialog( szDlg );
+              ReleaseDialog( szDlg );
+              return;
+           endif;
+
+           if (bSdShowMsgUsed) then
+             return; // already visible
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_SHOWMSG ) = DLG_ERR) then
+               return -1;
+           endif;
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           nId = WaitOnDialog( szDlg );
+
+           if( nId = DLG_ERR ) then
+               SdError( -1, "SdShowMsg" );
+               return -1;
+           endif;
+
+           if( nId = DLG_INIT ) then
+                hwndDlg = CmdGetHwndDlg( szDlg );
+                SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+                if( szMsg != "" ) then
+                    CtrlSetText( szDlg, SD_STA_MSG, szMsg );
+                else
+                    ShowWindow( hwndDlg, WM_SHOW );
+                    return;
+                endif;
+
+
+                hwndStatic = GetDlgItem( hwndDlg, SD_STA_MSG );
+
+                hdc   = GetDC(hwndStatic);
+                hFont = SendMessage(hwndStatic, WM_GETFONT, 0, 0 );
+
+                SelectObject( hdc, hFont );
+
+                GetExtents( nDx, nDy );
+                pRect = AddressStruct( rect );
+                GetWindowRect( hwndDlg, pRect );
+
+                StructGet( rect, "_sdRECT", "top", nTop, szWidth );
+                StructGet( rect, "_sdRECT", "bottom", nBottom, szWidth );
+
+
+                nWinHeight = nBottom - nTop;
+
+                nWinWidth = SdGetTextExtent(hdc, szMsg, StrLength(szMsg));
+
+                nWinWidth = nWinWidth + nWinHeight + nWinHeight/2 ;
+
+                MoveWindow( hwndDlg, (nDx-nWinWidth)/2 ,
+                            (nDy-nWinHeight)/2, nWinWidth, nWinHeight, TRUE );
+
+                ReleaseDC( hwndStatic, hdc);
+
+                ShowWindow( hwndDlg, WM_SHOW );
+
+                bSdShowMsgUsed = TRUE;
+
+           endif;
+
+           return;
+
+        end;

@@ -1,0 +1,35 @@
+DSN=CHRISKOZ0 pubs sa
+	DIAGRAM System Tables,sysprotects syskeys syspublications sysprocedures syslogs sysdepends sysindexes sysreferences sysobjects syssegments syssubscriptions systypes sysusers sysconstraints syscomments syscolumns sysarticles sysalternates dtproperties
+	PROC reptq1
+	DIAGRAM SalesDiag,sales titleauthor authors titles
+	TABLE employee
+	TABLE pub_info
+	DIAGRAM TestDiag,jobs employee publishers pub_info authors titles stores sales
+	TABLE stores
+	TABLE authors
+	VIEW titleview
+	PROC byroyalty,100
+	TRIGGER employee;employee_insupd
+	PROC reptq3,12.0 0 0
+	ADHOC dumpall.sql
+	NEWPROC TestProc,0 10 200,TestProc.tsq
+***
+-------------
+syntax:
+	<obj_type> <objname>[,params][,owner]
+	...
+***
+NOTE: !each line must be 255 characters or less!
+***
+if <obj_type>=="TRIGGER"  
+then 
+{
+	<objname>==<tablename>;<triggername>
+	<params>==<owner of the table>
+}
+if <obj_name>=="NEWPROC"
+then <owner>==<filename to retreive it from>
+if <obj_name>=="TABLE"
+then <params>==<columns list>
+if <obj_name>=="DIAGRAM"
+then <params>==<tables list>

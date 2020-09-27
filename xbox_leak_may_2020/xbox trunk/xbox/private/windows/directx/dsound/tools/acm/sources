@@ -1,0 +1,32 @@
+TARGETNAME = XBADPCM
+TARGETEXT = ACM
+TARGETTYPE = DYNLINK
+TARGETPATH = obj
+UMTYPE = windows
+
+DLLENTRY = _DllMainCRTStartup
+
+C_DEFINES = $(C_DEFINES) -UUNICODE
+
+MSC_OPTIMIZATION = $(MSC_OPTIMIZATION) /Od /FAcs
+
+INCLUDES = \
+    $(BASEDIR)\public\wsdk\inc;\
+    $(BASEDIR)\public\wddk\inc
+
+LINKLIBS =
+
+TARGETLIBS = \
+    $(BASEDIR)\public\wsdk\lib\libc.lib \
+    $(BASEDIR)\public\wsdk\lib\kernel32.lib \
+    $(BASEDIR)\public\wsdk\lib\user32.lib \
+    $(BASEDIR)\public\wsdk\lib\winmm.lib
+    
+SOURCES = \
+    imaadpcm.cpp\
+    driver.cpp\
+    xbadpcm.rc
+
+NTTARGETFILES = \
+    $(_NT386TREE)\winx\dump\$(TARGETNAME).$(TARGETEXT) \
+    $(_NT386TREE)\winx\dump\$(TARGETNAME).inf

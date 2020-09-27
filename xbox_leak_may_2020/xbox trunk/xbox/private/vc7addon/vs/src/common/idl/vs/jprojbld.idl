@@ -1,0 +1,302 @@
+// jprojbld.idl : IDL source for jprojbld.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (jprojbld.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// import "vsshell.idl";
+
+
+//----------------------------------------------------------------------
+// IDispJProject properties
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(C02B123E-A492-11D0-BFB4-00A0C91EBFA0),
+        dual,
+        helpstring("IDispJProject Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IDispJProject : IDispatch
+    {
+        [propget, helpstring("")]
+    HRESULT Caption ([out, retval]BSTR *pCaption);
+    [propput, helpstring("")]
+    HRESULT Caption ([in]BSTR Caption);
+    };
+
+
+//----------------------------------------------------------------------
+// IDispJavaFolder properties
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(88C36C20-B10E-11D0-BFBC-00A0C91EBFA0),
+        dual,
+        helpstring("IDispJavaFolder Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IDispJavaFolder : IDispatch
+    {
+    };
+
+//----------------------------------------------------------------------
+// IDispJavaFile properties
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(A58D5570-B10E-11D0-BFBC-00A0C91EBFA0),
+        dual,
+        helpstring("IDispJavaFile Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IDispJavaFile : IDispatch
+    {
+    };
+
+//----------------------------------------------------------------------
+// IJProjectClassPathEvents
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(051BB750-70DB-11d1-A962-00A0C921A4D2),
+        helpstring("IJProjectClassPathEvents Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IJProjectClassPathEvents : IUnknown
+    {
+        HRESULT OnProjectClassPathChanged([in] BSTR bstrProjectClassPathNew);
+    };
+
+//----------------------------------------------------------------------
+// IJProjectDefinesEvents
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(8748B0E9-262A-11d1-8C92-00C04FC2C6CC),
+        helpstring("IJProjectDefinesEvents Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IJProjectDefinesEvents : IUnknown
+    {
+        HRESULT OnProjectDefinesChanged([in] BSTR bstrProjectDefinesNew);
+    };
+
+//----------------------------------------------------------------------
+// IJProjectDefines
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(D26BCD91-2629-11d1-8C92-00C04FC2C6CC),
+        helpstring("IJProjectDefines Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IJProjectDefines : IUnknown
+    {
+    // Get/Set the current config's conditional compilation strings.
+    [propget] HRESULT ProjectDefines([out, retval] BSTR *pbstrProjectDefines);
+    [propput] HRESULT ProjectDefines([in] BSTR bstrProjectDefines);
+
+    HRESULT AdviseProjectDefinesEvents([in] IJProjectDefinesEvents *pEventSink, [out] DWORD_PTR *pdwCookie);
+    HRESULT UnadviseProjectDefinesEvents([in] DWORD_PTR dwCookie);
+    };
+
+//----------------------------------------------------------------------
+// IJProjectClassPath
+//----------------------------------------------------------------------
+    [
+        object,
+        uuid(7EA77851-E697-11d0-8BC1-00A0C90F26F7),
+        helpstring("IJProjectClassPath Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IJProjectClassPath : IUnknown
+    {
+    // the first two are for the current active config.
+    // If fMergeSolutionPathIfSet is TRUE, then include all solution paths if the user has specified this
+    // for the current config
+    [propget] HRESULT ClassPath([in] BOOL fMergeSolutionPathIfSet, [out, retval] BSTR *pbstrPath);
+    [propput] HRESULT ClassPath([in] BSTR bstrPath);
+    [propget] HRESULT DebugClassPath([out, retval] BSTR *pbstrPath);
+    [propput] HRESULT DebugClassPath([in] BSTR bstrPath);
+    [propget] HRESULT RetailClassPath([out, retval] BSTR *pbstrPath);
+    [propput] HRESULT RetailClassPath([in] BSTR bstrPath);
+
+    HRESULT AppendToDebugClassPath([in] BSTR bstrPath);
+    HRESULT AppendToRetailClassPath([in] BSTR bstrPath);
+
+    HRESULT RemoveFromDebugClassPath([in] BSTR bstrPath);
+    HRESULT RemoveFromRetailClassPath([in] BSTR bstrPath);
+
+    HRESULT AdviseProjectClassPathEvents([in] IJProjectClassPathEvents *pEventSink, [out] DWORD_PTR *pdwCookie);
+    HRESULT UnadviseProjectClassPathEvents([in] DWORD_PTR dwCookie);
+
+    // Obtain a properly configured JPS object (you must QI ppUnkJPS for
+    // IJavaPkgService) for the current configuration.  Note that this
+    // JPS will be configured for proper handling of source>output directories,
+    // whereas the above ClassPath properties only have the output directories
+    // present.
+    HRESULT GetJavaPkgService ([out] IUnknown **ppUnkJPS);
+
+    // Get extended classpath info.  pbstrBaseDir is the "source>output"
+    // formatted string (recognized by JPS) for the project.  pbstrAdditional
+    // is the ';'-delimited list of additional paths specified for this
+    // project.  Either can be NULL; both are for the current configuration.
+    HRESULT GetExtendedClassPathInfo ([out] BSTR *pbstrBaseDir, [out] BSTR *pbstrAdditional);
+
+    // Determine the "base" package for this project.
+    HRESULT GetBasePackage ([out] BSTR *pbstrPackage);
+    };
+
+//----------------------------------------------------------------------
+// IJProjectImport
+//----------------------------------------------------------------------
+typedef enum _VSPROJINFOKEY
+{
+    PS_FILE = 0,
+    PS_PROJECT_FILE,
+    PS_DEBUG_SETTINGS,
+    PS_RETAIL_SETTINGS,
+    PS_VJ_CLASSPATH,
+    PS_VJ_BROWSER,
+    PS_VJ_INTERPRETER,
+    PS_VJ_STARTUP,
+    PS_VJ_USE_BROWSER,
+    PS_VJ_COMPILER_OPTIONS,
+    PS_VJ_POST_BUILD_DESCRIPTION,
+    PS_VJ_POST_BUILD_COMMAND,
+    PS_VJ_PRE_BUILD_COMMAND,
+    PS_VJ_OUTPUT_DIRECTORY,
+    PS_VJ_ADDITIONAL_CLASS,
+    PS_PROJ_DEPENDENCY,
+    PS_SCC_PROJNAME,
+    PS_SCC_LOCALPATH,
+} VSPROJINFOKEY;
+
+typedef struct _VSPROJSETTINGINFO
+{
+    VSPROJINFOKEY   Key;
+    LPCOLESTR       Value;
+    DWORD           dwNumElements;
+    [size_is(dwNumElements)]
+    struct _VSPROJSETTINGINFO *pProjInfo;
+} VSPROJSETTINGINFO;
+
+    [
+        object,
+        uuid(60578a60-2fa7-11d1-bfee-00a0c91ebfa0),
+        helpstring("IJavaProjects Interface"),
+        pointer_default(unique),
+        hidden
+    ]
+    interface IJavaProjects : IDispatch
+    {
+        HRESULT ConvertVJ1Project([in] DWORD dwNumElements, [in, size_is(dwNumElements)] VSPROJSETTINGINFO pProjInfo[]);
+    };
+
+//----------------------------------------------------------------------
+//  Dual Interface
+//----------------------------------------------------------------------
+
+[
+    uuid(C02B1231-A492-11D0-BFB4-00A0C91EBFA0),
+    version(1.0),
+    helpstring("JProjectBuild 1.0 Type Library")
+]
+library JPROJBLDLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+    importlib("textmgr.tlb");
+    importlib("vsshell.tlb");
+
+    ///////////////////////////////////////////////////////
+    // JProjectPackage
+    [
+        uuid(C02B123F-A492-11D0-BFB4-00A0C91EBFA0),
+        helpstring("JProjectPackage Class")
+    ]
+    coclass JProjectPackage
+    {
+        [default] interface IVsPackage;
+    };
+
+    ///////////////////////////////////////////////////////
+    // VJLaunchSettings
+    [
+        uuid(CEC5B29E-5249-11d2-8CFC-00C04FC2C6CC),
+        helpstring("VJLaunchSettings Class")
+    ]
+    coclass VJLaunchSettings
+    {
+        interface IUnknown;
+    };
+
+    ///////////////////////////////////////////////////////
+    // VJCompileSettings
+    [
+        uuid(CEC5B29F-5249-11d2-8CFC-00C04FC2C6CC),
+        helpstring("VJCompileSettings Class")
+    ]
+    coclass VJCompileSettings
+    {
+        interface IUnknown;
+    };
+
+    ///////////////////////////////////////////////////////
+    // VJPrePostBuildRules
+    [
+        uuid(CEC5B2A0-5249-11d2-8CFC-00C04FC2C6CC),
+        helpstring("VJPrePostBuildRules Class")
+    ]
+    coclass VJPrePostBuildRules
+    {
+        interface IUnknown;
+    };
+
+    ///////////////////////////////////////////////////////
+    // VJClassPathSettings
+    [
+        uuid(CEC5B2A1-5249-11d2-8CFC-00C04FC2C6CC),
+        helpstring("VJClassPathSettings Class")
+    ]
+    coclass VJClassPathSettings
+    {
+        interface IUnknown;
+    };
+
+    ///////////////////////////////////////////////////////
+    // VJComClassSettings
+    [
+        uuid(CEC5B2A2-5249-11d2-8CFC-00C04FC2C6CC),
+        helpstring("VJComClassSettings Class")
+    ]
+    coclass VJComClassSettings
+    {
+        interface IUnknown;
+    };
+
+    ///////////////////////////////////////////////////////
+    // IJavaProjects
+        [
+        uuid(008386CD-20B2-11D1-BFE5-00A0C91EBFA0),
+        helpstring("VJProject Class")
+    ]
+    coclass CJavaProjects
+    {
+        [default] interface IJavaProjects;
+    };
+
+    cpp_quote("#define SID_SJavaProjects CLSID_CJavaProjects")
+
+};

@@ -1,0 +1,159 @@
+<td valign="TOP" width="125">
+
+<BR><BR><BR>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_home.htm" title="XDK Home">XDK Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_release.htm" 
+title="XDK Release">XDK Release Area</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_doc.htm" title="XDK Documentation">XDK Documentation</a><BR>
+<a href="/BPProgInfo.asp?Page=content/xdk_what's_new.htm" title="What's New">What's New</a><br>
+<a href="/BPProgInfo.asp?Page=content/xbox_whitepapers.htm" title="White Papers">White Papers</a><br>
+<a href="/BPProgInfo.asp?Page=content/xbox_faq.htm" title="Technical FAQs">Technical FAQs</a><br>
+<a href="/BPProgInfo.asp?Page=content/xbox_help.htm" title="Xbox SDK Help">Xbox SDK Help</a><br>
+<a href="/BPProgInfo.asp?Page=content/guide_toc.htm" title="Xbox Guide">Xbox Guide</a><br>
+<a href="/BPProgInfo.asp?Page=content/insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_resources.htm" title="What's New">XDK Beta Program Resources</a></P>
+
+<BR>
+<BR>
+
+</td><td>
+<H2>DirectMusic Producer FAQ</H2>
+<OL>
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>DirectX Audio scripting was introduced in Microsoft&#174; DirectX&#174; 8.0 Audio. Will it be supported on the Xbox&#8482; video game console from Microsoft?</B><br>
+Yes. The audio designer writes the scripts in the authoring tool, Microsoft&#174; DirectMusic&#174; Producer. We will support AudioVBScript, an audio-optimized subset of Microsoft&#174; Visual Basic&#174; that has a very low footprint.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What are DirectX Audio scripts and what benefit do they offer?</B><br>
+DirectX Audio scripts are collections of little programs, or routines, that implement audio in your game. Through audio scripting, composers and sound designers can gain greater control over the audio performance. They can tweak audio without requiring game recompiles and can add interactive features without requiring programmer time. Developers can also take advantage of scripting to streamline the development process, but they can still program using the traditional methods. For more details, please see the DirectX Audio scripting white papers on this site.</li><br><br>
+
+<LI><B>I can’t get Dolby Digital to show up in the Dashboard. How do I enable it?</B><BR>
+
+Beta "enhanced" (S-video or HDTV) AV adapters do not always properly report their support for digital output, which in turn means the Xbox Dashboard will not display the option. You can use the xbsetcfg command line tool on your PC (connected to your Xbox) to change your audio settings outside of the Xbox Dashboard. See <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap5.htm" title="Chapter 5"><B>Chapter 5</B></a> of the Audio Best Practices Guide for more information.</LI><BR><BR>
+
+<LI><B>Where do I get the Xbox ADPCM codec from, and how do I install it?</B><BR>
+
+The codec (which allows most wave editing software packages to create, edit, and play back Xbox ADPCM content) is provided with your XDK CD, in the directory x:\ADPCM\. Installation instructions are presented there, as well as in Chapter 5 of the Audio Best Practices Guide. There is also a stand-alone command-line encoder that you can use for batch conversions.</LI><BR><BR>
+
+<LI><B>Why are my Xbox ADPCM files causing asserts on the Xbox?</B><BR>
+
+Make sure that loop points (as well as the full length of the wave) are on 64-sample boundaries. The white paper "Authoring Loop Points for Xbox ADPCM-Compressed Waves" details some of the math you can do to convert your wave without losing your relative loop points. You can also use this spreadsheet, which uses the math from the white paper to calculate how to edit your wave’s loop points and sample rate to ensure you are using 64-sample boundaries.<BR><BR>
+
+You should also make sure your developer reads in the entire ADPCM header chunk.</LI><BR><BR>
+
+<LI><B>How should I be authoring my content to take advantage of Dolby Digital?</B><BR>
+
+You don’t necessarily need to create six-channel source content to take advantage of Dolby&#174 Digital. The white paper "Authoring for and Implementing Multichannel Audio Playback" details some of the ways you can author and implement content that will play back in a "surround" environment.</LI><BR><BR>
+
+<!-- Troubleshooting Issues -->
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Why won&#39;t my style bands play consistently in my segments?</B><br>
+Segments generally require a band track with its own band objects. Unlike styles, chordmaps, and waves, bands are not &#34;linked&#34; to external instances of them. That is, the band in the style will be edited independently from the band in the segment. This is complicated by the fact that because DirectMusic persists whatever has been previously downloaded&#8212;like the style&#8212;the changes may actually be heard in DirectMusic Producer but not in run&#150;time playback. To avoid this, make sure your segment has a band track, and either edit the band there or, if you edit the style band, drag it into the segment&#39;s band track.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Why should the first band in a segment usually have a negative time?</B><br>
+The inherent behavior of the DirectMusic architecture is that if you have multiple events with the same timestamp (that is, notes, patch/band changes, tempo events, and so on), the order in which they are played is indeterminable. For example, suppose you have a 2-bar segment that has a trumpet patch change at measure 1, beat 1, tick 0, and a bagpipe patch change at measure 2, beat 1, tick 0, and that you have a note also at measure 2, beat 1, tick 0. When you play the segment back, you may hear the note play as a trumpet or maybe the bagpipe. To ensure that you get what you expected, change the time of the bagpipe patch change to measure 2, beat 1, tick &#150;1.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How do bands work as a &#34;snapshot&#34; separate from CC tracks that may be affecting pan and volume?</B><br>
+Bands are one-shot settings of volume and pan (as well as priority, patch changes, and so forth). Compare these to CC (controller curve) tracks, which can have either one-shot (instantaneous) settings or curves that change value over time. If you place a band in a band track right in the middle of a CC curve, the data of the curve will almost immediately run over the band&#39;s data (you might notice a brief jump in pan or volume). We suggest using mid-segment bands with volume and pan information only when changing styles (that need a new band) or when you know that your current style has no volume and pan information in CC tracks. If you&#39;re just changing an instrument&#39;s patch, turn off the volume and pan change data in the band (uncheck the check boxes for each pchannel's <B>Volume</B> and <B>Pan</B> setting) so that only the patch changes.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Why do I sometimes get the wrong instrument on a pchannel?</B><br>
+A couple of problems can produce the wrong instrument on a pchannel:</P>
+<UL>
+<LI>Overloaded (overlapped) pchannels (in general, it&#39;s wisest to have only one pchannel per instrument, even across several styles or segments).</LI>
+<LI>Coding issues involving either band loading or pchannel group assignment or both.</LI>
+<LI>First note(s) of your segment may occur prior to the first band in the segment. (Especially watch this for notes with randomized start times, because they may appear to play properly &#34;sometimes.&#34;)</LI>
+</UL>
+<br><br>
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>I have created a sustained pad sound with three notes in the pattern (C, E, and G). If I change the chord in the segment from major to minor, I have no problems, but if I want a major 7th, it still only plays a major triad. How do I create four-note chords?</B><br>
+
+To have a four-note chord, you need to actually play four notes in the pattern. The chord play mode will reduce it to three if that&#39;s all you need. So in this case, put notes C, E, G, and B in your pattern. In the Part Properties, set the default play mode to chord (this mode makes 7ths optional, depending on the chord). So now any four-note chords in your chordmap or segment will play as four; three notes will play as three.</li><br><br>
+
+<!-- Instrument Issues -->
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Do the instruments in a Downloadable Sounds (DLS) collection take up much memory, or is it primarily the waves that take up the memory?</B><br>
+Most of the memory taken up by a downloaded collection is the actual wave data. Note that the loader attempts to be intelligent; if you download a segment, only the DLS instruments requested by that segment are actually downloaded (not necessarily entire collections). You can refine this even further in a band's settings by stating the range of notes you intend to use, so only the waves necessary to complete that range are downloaded.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How can I create more instruments using the same waves when I am combining two projects into one and want to have separate instruments?</B><br>
+Just use the wave once and have multiple instruments reference it within the same DLS collection file.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Can you have several instruments sharing the same pchannel?</B><br>
+DirectMusic uses one instrument per pchannel at any given time. You can change instruments over time with band changes. You could also define an instrument with layered regions (multiple sounds triggered from a single note), drum-kit style instruments that have different waves spanning the instrument's range, and even different regions based on note velocity. Also note that while waves in wave tracks belong to a pchannel, you can play as many at a time as you wish, and they can share the pchannel with a DLS instrument.<BR><BR>
+
+The easiest way to manage multiple instrument layering is to create new parts as linked parts. Linked parts keep their note data synchronized with each other, which also saves space (the note data is saved only once). Locked parts always play the same variation as each other. You can create linked parts from the add new part dialog. To lock parts, choose a common Variation Lock ID in the Part Properties. That way, when pchannel 3 (for example, flute) plays variation 4, linked part pchannel 4 (for example, horn) will play variation 4 also.</li><br><br>
+
+<!-- Segments -->
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What are controlling secondary segments? How do I audition them in Producer?</B><br>
+Tracks such as chord tracks, style tracks, groove tracks, and a few others in the controlling secondary segment affect and essentially replace the corresponding tracks of the primary segment. For example, let&#39;s say you have a melodic theme playing on a primary segment, and a certain event triggers a more minor feeling. You can interactively replace the major chord with minor ones in the controlling secondary segment, while continuing the overall flow of the primary segment. When playback of the controlling secondary segment stops, the primary segment reverts to its original state. 
+<BLOCKQUOTE><I><B>Note</B></I>&nbsp;&nbsp;&nbsp;To get the behavior described above for other track types (such as sequence tracks and wave tracks, which by default layer on top of the primary segment without replacing its tracks), set the &#34;Override Primary&#34; flag for these tracks (in their Properties page).</BLOCKQUOTE>
+To audition a segment as a controlling secondary segment: 
+<UL>
+<LI>Right-click the <B>Play</B> button of any secondary transport control and select the controlling secondary segment option.</LI>
+<LI>Start the primary segment by clicking the <B>Play from Start</B> button of the main transport.</LI>
+<LI>Click the <B>Play from Start</B> button in the secondary transport control. The tracks of the controlling secondary segment will replace the related tracks of the primary segment.</LI>
+</UL>
+<br><br>
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Can you change the tempo setting mid-segment?</B><br>
+Yes, you can change the tempo setting either by putting in a tempo track and setting it to what you want or, interactively, by setting up a controlling segment that has a tempo track with your new tempo. You can also use the master tempo (via scripting or the tempo modifier button <img src="/content/img/button.gif" border="0">) to change the relative tempo of the entire performance (for instance, double the current tempo and all future tempo changes). Note that the tempo modifier button is a DirectMusic Producer audition setting, and any desired values should be communicated to the developer if you wish to use this feature in a running game.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Why is it that when I import waves authored with other wave editing software, sometimes their root note is an octave lower than where I set it?</B><br>
+DirectMusic Producer defines the 128 MIDI notes as C0 to G10. Some other wave editing software packages instead start with C-1 and go up to G9. The actual note value is identical, but the octave naming scheme can vary by application.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What settings should I use in DirectMusic Producer to simulate the Xbox hardware environment?</b><br>
+Remember that DirectMusic Producer is the shared authoring tool for both Xbox audio content and PC DirectMusic content. As such, there are certain default settings appropriate to the PC that do not apply to Xbox. Remember also that some of these settings may cause added CPU overhead on your Windows 2000 development machine, which will not be seen in the hardware audio implementation for Xbox.<br><br>
+From the <B>MIDI/Performance Options</B> menu (click the icon to bring up the dialog):<br><br>
+<ul>
+<li>In the <B>Download Status</B> frame, set <B>GM Set</B> to <B>Unload.</B> Remember that GM.dls is not present on Xbox, so you should not use instruments from that collection.</li>
+<li>You can set the number of voices to up to 256, though 64 is usually sufficient.</li>
+<li>Set the sample rate to 48 kHz.</li>
+</ul>
+<br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>If my content isn't making noise on the Xbox, what should I check?</b><br>
+<ul>
+<li>Remember to avoid using (or even having bands referring to) GM.dls instruments. If such a reference is detected on Xbox, the content will fail to load.</li>
+<li>Make sure all necessary files are either embedded in the segment or are present on the Xbox in the same directory as the segment&#8212;for instance, wave files and DLS collections it uses, style files (.sty), and so on.</li>
+<li>Avoid using file formats that are unsupported&#8212;MIDI files (.mid), separate band files (.bnd), toolgraph files (.tgr), and so on.</li>
+<li>Avoid using wave files that are compressed using unsupported formats. DirectMusic natively supports linear PCM waves, a proprietary ADPCM format, and WMA. Xbox does not have a codec manager, so other compression schemes must be delivered along with a third-party Xbox Media Object. </li>
+<li>If you are using WMA, make sure that the content doesn't have Digital Rights Management (DRM) enabled. Such content will only play on the machine the content was authored with.</li>
+<li>Make sure your developer is aware of the differences between DirectMusic coding on PC and Xbox. Most significantly, threading has been removed to improve efficiency, so the developer should call <b>DirectMusicDoWork</b> every frame (<50 msec). </li>
+<br><br>
+
+</OL>
+
+<BR><BR>
+
+<P></P>
+<SMALL>Thursday, August 23, 2001</SMALL>
+
+
+</td>

@@ -1,0 +1,99 @@
+==== //depot/xbox/private/windows/directx/dmusic/dmime/dmsegobj.cpp#25 - c:\xbox\private\windows\directx\dmusic\dmime\dmsegobj.cpp ====
+2534c2534
+< 							    hr = pPrivateWave->AddWave(pWave, 0, 0, 0, &rt);
+---
+> 							    hr = pPrivateWave->AddWave(pWave, 0, 0, 0, &rt,&m_rtLoopStart,&m_rtLoopEnd,&m_dwRepeats);
+2537,2538c2537,2538
+< 								    SetClockTimeDuration(rt * REF_PER_MIL);
+< 								    SetFlags(DMUS_SEGIOF_REFLENGTH);
+---
+> 								    m_rtLength = (rt * REF_PER_MIL);
+> 								    m_dwSegFlags = DMUS_SEGIOF_REFLENGTH;
+==== //depot/xbox/private/windows/directx/dmusic/dmime/wavtrack.cpp#25 - c:\xbox\private\windows\directx\dmusic\dmime\wavtrack.cpp ====
+2187c2187,2190
+<         REFERENCE_TIME* prtLength)
+---
+>         REFERENCE_TIME* prtLength,
+>         REFERENCE_TIME* prtLoopStart,
+>         REFERENCE_TIME* prtLoopEnd,
+>         DWORD* pdwRepeatCount)
+2199c2202
+<     hr = pNewPart->GetItemValue().Add(pWave, rtTime, dwPChannel, dwIndex, prtLength);
+---
+>     hr = pNewPart->GetItemValue().Add(pWave, rtTime, dwPChannel, dwIndex, prtLength, prtLoopStart, prtLoopEnd, pdwRepeatCount);
+2604c2607,2610
+<         REFERENCE_TIME* prtLength)
+---
+>         REFERENCE_TIME* prtLength,
+>         REFERENCE_TIME* prtLoopStart,
+>         REFERENCE_TIME* prtLoopEnd,
+>         DWORD* pdwRepeatCount)
+2621c2627,2628
+<     hr = pNewItem->GetItemValue().Add( pWave, rtTime, prtLength );
+---
+>     hr = pNewItem->GetItemValue().Add( pWave, rtTime, prtLength, 
+>         prtLoopStart, prtLoopEnd, pdwRepeatCount);
+3040c3047
+<         REFERENCE_TIME* prtLength)
+---
+>         REFERENCE_TIME* prtLength, REFERENCE_TIME* prtLoopStart, REFERENCE_TIME* prtLoopEnd, DWORD* pdwRepeats)
+3049c3056,3057
+<         if (SUCCEEDED(hr = pPrivWave->GetLength(&rtLength,&m_dwLoopStart,&m_dwLoopEnd)))
+---
+>         DWORD dwSampleRate;
+>         if (SUCCEEDED(hr = pPrivWave->GetLength(&rtLength,&m_dwLoopStart,&m_dwLoopEnd,pdwRepeats,&dwSampleRate)))
+3052a3061,3062
+>             *prtLoopStart = (m_dwLoopStart * 1000) / dwSampleRate; // In ms.
+>             *prtLoopEnd = (m_dwLoopEnd * 1000) / dwSampleRate;  // In milliseconds.
+3065c3075
+<         m_dwFlags = 0;
+---
+>         m_dwFlags = DMUS_WAVEF_IGNORELOOPS; // This wave will be set to loop itself but ignore the segment loops.
+==== //depot/xbox/private/windows/directx/dmusic/dmime/wavtrack.h#12 - c:\xbox\private\windows\directx\dmusic\dmime\wavtrack.h ====
+22c22,25
+<         REFERENCE_TIME* prtLength)=0;
+---
+>         REFERENCE_TIME* prtLength,
+>         REFERENCE_TIME* prtLoopStart,
+>         REFERENCE_TIME* prtLoopEnd,
+>         DWORD* pRepeatCount)=0;
+115c118,119
+<     HRESULT Add(IDirectSoundWave* pWave, REFERENCE_TIME rtTime, REFERENCE_TIME* prtLength);
+---
+>     HRESULT Add(IDirectSoundWave* pWave, REFERENCE_TIME rtTime, REFERENCE_TIME* prtLength,
+>         REFERENCE_TIME* prtLoopStart, REFERENCE_TIME* prtLoopEnd, DWORD* pdwRepeats);
+169c173,176
+<         REFERENCE_TIME* prtLength);
+---
+>         REFERENCE_TIME* prtLength,
+>         REFERENCE_TIME* prtLoopStart, 
+>         REFERENCE_TIME* prtLoopEnd, 
+>         DWORD* pdwRepeats);
+421c428,431
+<         REFERENCE_TIME* prtLength);
+---
+>         REFERENCE_TIME* prtLength,
+>         REFERENCE_TIME* prtLoopStart,
+>         REFERENCE_TIME* prtLoopEnd,
+>         DWORD* pdwRepeatCount);
+==== //depot/xbox/private/windows/directx/dmusic/dswave/dswave.h#9 - c:\xbox\private\windows\directx\dmusic\dswave\dswave.h ====
+42c42
+<         DWORD *dwLoopStart, DWORD *dwLoopEnd) =0;
+---
+>         DWORD *dwLoopStart, DWORD *dwLoopEnd, DWORD *dwRepeats, DWORD *pdwSampleRate) =0;
+178c178
+<         DWORD *dwLoopStart, DWORD *dwLoopEnd);
+---
+>         DWORD *dwLoopStart, DWORD *dwLoopEnd, DWORD *pdwRepeats, DWORD *pdwSampleRate);
+192c192
+<         if (SUCCEEDED(GetLength(&rtLength,&dwTemp,&dwTemp)))
+---
+>         if (SUCCEEDED(GetLength(&rtLength,&dwTemp,&dwTemp,&dwTemp,&dwTemp)))
+==== //depot/xbox/private/windows/directx/dmusic/dswave/wave.cpp#15 - c:\xbox\private\windows\directx\dmusic\dswave\wave.cpp ====
+957c957
+<                                DWORD *dwLoopStart, DWORD *dwLoopEnd)
+---
+>                                DWORD *dwLoopStart, DWORD *dwLoopEnd, DWORD *pdwRepeats, DWORD *pdwSampleRate)
+985a986,987
+>         *pdwSampleRate = m_pwfx->nSamplesPerSec;
+>         *pdwRepeats = m_dwRepeatCount;

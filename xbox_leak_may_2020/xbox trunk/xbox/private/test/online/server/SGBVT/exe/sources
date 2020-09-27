@@ -1,0 +1,40 @@
+TARGETNAME=SGBVT
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_STL = 1
+USE_NATIVE_EH = 1
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+SYNCHRONIZE_DRAIN = 1
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+XE_FLAGS=/TESTNAME:"sghost" /TESTID:0xA7049955
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc;            \
+                    $(BASEDIR)\private\online\tools\onlineaccounts\inc;\
+                    $(BASEDIR)\private\test\online\client\common\onlinehelper
+
+TARGETLIBS =        $(LIBRARY_PATH)\xonline$(D).lib                            \
+                    $(TESTLIBS)\onlinehelper$(D).lib                           \
+                    $(SDK_LIB_PATH)\onlineaccounts$(D).lib                     \
+                    $(TESTLIBS)\xtestlib.lib                                   \
+                    $(TESTLIBS)\xnetref$(D).lib                                \
+                    $(TESTLIBS)\xmem.lib                                       \
+                    $(TESTLIBS)\xlog.lib
+
+SOURCES=                    \
+    ..\sgbvt.cpp     \
+    ..\clientconnection.cpp \
+    ..\listensocket.cpp     \
+    ..\sessionuser.cpp      \
+    ..\client.cpp     \
+    ..\host.cpp

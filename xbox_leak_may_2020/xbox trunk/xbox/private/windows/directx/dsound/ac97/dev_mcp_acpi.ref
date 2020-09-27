@@ -1,0 +1,2113 @@
+
+
+
+
+
+
+
+
+
+                         MCP1 FPCI Bus Reference Manual
+
+                                 Robert Chapman
+
+
+                               NVidia Corporation
+
+                                 3535 Monroe Street
+
+                              Santa Clara, CA  95051
+
+
+
+                               $Revision: 1.00 $
+
+                           $Date: 2000/04/24 16:02:38 $ 
+
+             /home/nv3/CVS/manuals/$RCSfile: dev_mcp_fpci_leg.ref,v $
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This Document contains unpublished, proprietary information and describes
+subject matter proprietary to NVidia Corporation.  This document may not be
+disclosed to third parties or copied or duplicated in any form without the
+prior written consent of NVidia Corporation.
+
+
+
+
+CONTENTS
+
+Chapter  1  -  Introduction
+
+Chapter  2  -  Boot Registers
+
+Chapter  3  -  Delay Registers
+
+Chapter  4  -  Debug Registers
+
+Chapter  5  -  Green Registers
+
+Chapter  6  -  Interrupt Registers
+
+Chapter  7  -  Context Switching Registers
+
+Chapter  8  -  Configuration Registers
+
+Chapter  9  -  Real Mode Control Registers
+
+Chapter 10  -  System Management IO Mapped Registers 
+
+
+Appendix A  -  ACPI Memory Map
+
+Appendix B  -  Bus Interface Acknowledges
+
+Appendix C  -  Issues
+
+Appendix D  -  Key
+
+
+
+1  -  INTRODUCTION
+
+	The FPCI is a standard interface used internally to the Crush architecture.
+It is based on PCI 2.2 but has extentions for support split read transactions. 
+
+This manual is for the specifics of the System Management registers in the
+MCP1 (Southbridge) chip.  A collection of these registers are required for
+ACPI compliance, and others are ACPI implementation specific registers.
+
+
+2  -  BOOT REGISTERS
+
+     The BOOT registers are used to configure each of the devices in NV at
+reset.  These register are not normally changed after reset.  Only the BIOS
+should access these registers.
+
+	Only one boot register is defined: Device_Enable. This register bit will
+reside in another block of the device. This register bit will control whether
+the FPCI (and interfaced device) is "seen" by the system.
+
+     There currently are no boot registers (0x0000).
+
+
+
+
+3  -  DELAY REGISTERS
+
+     The DELAY registers allow the output signals to be shifted in time with
+respect to the clock.  Only the BIOS should access these registers.
+
+     There currently are no delay registers (0x0040).
+
+
+
+
+4  -  DEBUG REGISTERS
+
+     The DEBUG registers are used to reconfigure NV during debug or chip
+testing.  These registers may contain function disable bits and hidden
+context.  Only the BIOS should access these registers.
+
+     There currently are no debug registers (0x0080).
+
+
+
+
+
+
+5  -  GREEN REGISTERS
+
+     The GREEN registers control power down levels for each of the devices in
+NV.  Only the BIOS should access these registers.
+
+     There currently are no green registers (0x00c0).
+
+
+
+
+6  -  INTERRUPT REGISTERS
+
+     The interrupt registers control the interrupts for the local devices.
+Interrupts are set by an event and are cleared by software.
+
+     There currently are no interrupt registers (0x00c0).
+     
+
+
+
+7  -  CONTEXT SWITCHING REGISTERS
+
+     The context switching registers control the context switching of the
+local user devices.
+
+     There currently are no context switching registers (0x0180).
+
+
+
+
+8  -  CONFIGURATION REGISTERS
+
+     The CONFIG registers are used to configure each of the devices in NV
+after reset.
+
+     There currently are no config registers (0x0180).
+
+
+
+
+9  -  REAL MODE CONTROL REGISTERS
+
+     There currently are no real mode registers (0x0180).
+
+
+
+
+10  -  SYSTEM MANAGEMENT IO MAPPED REGISTERS
+
+#define MCP_ACPI                               0x000000FC:0x00000000 /* RW--D */
+
+The System Management block allocates itself a 256 byte aligned
+block of IO registers.  The basic set of registers is as defined
+by the ACPI specification.  The ACPI specification allows for a
+wide variety of implementation specific items so the later registers
+implement the required ACPI features but are specific to our design.
+
+The first registers are the Power Management Status Registers.  They
+contain bits that are set by various hardware events.
+
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+| |0 0 0 0| | | |0 0| | |0 0 0| | PM1_STS
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_PM1_STS                                  0x00000000 /* RW-2R */
+
+#define MCP_ACPI_PM1_STS_WAK_STS                               15:15 /* RWIVF */
+#define MCP_ACPI_PM1_STS_WAK_STS_NO_WAKEUP_EVENT          0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_WAK_STS_WAKEUP_EVENT             0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_WAK_STS_WAKEUP_EVENT_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_STS_RTC_STS                               10:10 /* RWIVF */
+#define MCP_ACPI_PM1_STS_RTC_STS_NO_ALARM                 0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_RTC_STS_ALARM                    0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_RTC_STS_ALARM_CLR                0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_STS_SLPBTN_STS                              9:9 /* RWIVF */
+#define MCP_ACPI_PM1_STS_SLPBTN_STS_NOT_ASSERTED          0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_SLPBTN_STS_ASSERTED              0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_SLPBTN_STS_ASSERTED_CLR          0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_STS_PWRBTN_STS                              8:8 /* RWIVF */
+#define MCP_ACPI_PM1_STS_PWRBTN_STS_NOT_ASSERTED          0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_PWRBTN_STS_ASSERTED              0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_PWRBTN_STS_ASSERTED_CLR          0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_STS_GBL_STS                                 5:5 /* RWIVF */
+#define MCP_ACPI_PM1_STS_GBL_STS_NO_SCI                   0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_GBL_STS_SCI                      0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_GBL_STS_SCI_CLR                  0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_STS_BM_STS                                  4:4 /* RWIVF */
+#define MCP_ACPI_PM1_STS_BM_STS_NO_BM_ACTIVITY            0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_BM_STS_BM_ACTIVITY               0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_BM_STS_BM_ACTIVITY_CLR           0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_STS_TMR_STS                                 0:0 /* RWIVF */
+#define MCP_ACPI_PM1_STS_TMR_STS_NO_OVERFLOW              0x00000000 /* R-I-V */
+#define MCP_ACPI_PM1_STS_TMR_STS_OVERFLOW                 0x00000001 /* R---V */
+#define MCP_ACPI_PM1_STS_TMR_STS_OVERFLOW_CLR             0x00000001 /* -W--V */
+
+
+		Figure 10-1  ACPI IO Mapped Register 00h
+
+
+This is the Power Management Enable register.  These bits correspond to
+the Power Management Status register (0x00) and enable/disable the
+assocated events.
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0| | | |0 0| |0 0 0 0| | PM1_EN
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_PM1_EN                                   0x00000002 /* RW-2R */
+
+#define MCP_ACPI_PM1_EN_RTC_EN                                 10:10 /* RWIVF */
+#define MCP_ACPI_PM1_EN_RTC_EN_SCI_DISABLED               0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_EN_RTC_EN_SCI_ENABLED                0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_EN_SLPBTN_EN                                9:9 /* RWIVF */
+#define MCP_ACPI_PM1_EN_SLPBTN_EN_SCI_DISABLED            0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_EN_SLPBTN_EN_SCI_ENABLED             0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_EN_PWRBTN_EN                                8:8 /* RWIVF */
+#define MCP_ACPI_PM1_EN_PWRBTN_EN_SCI_DISABLED            0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_EN_PWRBTN_EN_SCI_ENABLED             0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_EN_GBL_EN                                   5:5 /* RWIVF */
+#define MCP_ACPI_PM1_EN_GBL_EN_SCI_DISABLED               0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_EN_GBL_EN_SCI_ENABLED                0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_EN_TMR_EN                                   0:0 /* RWIVF */
+#define MCP_ACPI_PM1_EN_TMR_EN_SCI_DISABLED               0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_EN_TMR_EN_SCI_ENABLED                0x00000001 /* RW--V */
+
+		Figure 10-2  ACPI IO Mapped Register 02h
+
+
+
+This is the Power Management Control Register.  It allows the BIOS to
+set the results to certain hardware events.
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0| |     |0 0 0 0 0 0 0| | | | PM1_CNT
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_PM1_CNT                                  0x00000004 /* RW-2R */
+
+#define MCP_ACPI_PM1_CNT_SLP_EN                                13:13 /* -W-VF */
+#define MCP_ACPI_PM1_CNT_SLP_EN_ENABLE                    0x00000001 /* -W--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP                               12:10 /* RWIVF */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_FON                      0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_POS                      0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_2_RESERVED               0x00000002 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_3_RESERVED               0x00000003 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_4_RESERVED               0x00000004 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_STR                      0x00000005 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_STD                      0x00000006 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SLP_TYP_SOFF                     0x00000007 /* RW--V */
+#define MCP_ACPI_PM1_CNT_GBL_RLS                                 2:2 /* RWIVF */
+#define MCP_ACPI_PM1_CNT_GBL_RLS_LOCKED                   0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_CNT_GBL_RLS_RELEASED                 0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_CNT_BM_RLD                                  1:1 /* RWIVF */
+#define MCP_ACPI_PM1_CNT_BM_RLD_DISABLED                  0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_CNT_BM_RLD_ENABLED                   0x00000001 /* RW--V */
+#define MCP_ACPI_PM1_CNT_SCI_EN                                  0:0 /* RWIVF */
+#define MCP_ACPI_PM1_CNT_SCI_EN_SMI_ENABLED               0x00000000 /* RWI-V */
+#define MCP_ACPI_PM1_CNT_SCI_EN_SCI_ENABLED               0x00000001 /* RW--V */
+
+		Figure 10-3  ACPI IO Mapped Register 04h
+
+
+The ACPI spec calls for a 24 or 32 bit free running counter that is clocked
+from the 3.579545Mhz clock.  It is used to time events in the system.  It
+provides the ACPI driver with a low latency access to a timer.
+ 
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|               |                                               | PM_TMR
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_PM_TMR                                   0x00000008 /* RW-4R */
+
+#define MCP_ACPI_PM_TMR_E_TMR_VAL                              31:24 /* RWIVF */
+#define MCP_ACPI_PM_TMR_E_TMR_VAL_DEFAULT                 0x00000000 /* RWI-V */
+#define MCP_ACPI_PM_TMR_TMR_VAL                                 23:0 /* RWIVF */
+#define MCP_ACPI_PM_TMR_TMR_VAL_DEFAULT                   0x00000000 /* RWI-V */
+
+		Figure 10-4  ACPI IO Mapped Register 08h
+
+CPU Control.  The CPU power down states can be controlled through this
+register.  There are options to apply a duty cycle to the CPU clock or
+to put the CPU into deeper sleep modes...
+ 
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0| |     |0| P_CNT 
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_P_CNT                                    0x00000010 /* RW-4R */
+
+#define MCP_ACPI_P_CNT_NTH_EN                                    4:4 /* RWIVF */
+#define MCP_ACPI_P_CNT_NTH_EN_DISABLED                    0x00000000 /* RWI-V */
+#define MCP_ACPI_P_CNT_NTH_EN_ENABLED                     0x00000001 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE                      3:1 /* RWIVF */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_RESERVED      0x00000000 /* RWI-V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_87_5          0x00000001 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_75_0          0x00000002 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_62_5          0x00000003 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_50_0          0x00000004 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_37_5          0x00000005 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_25_0          0x00000006 /* RW--V */
+#define MCP_ACPI_P_CNT_NTH_RATIO_DUTY_CYCLE_12_5          0x00000007 /* RW--V */
+
+		Figure 10-5  ACPI IO Mapped Register 10h
+
+
+
+Processor Level 2 Register.  Reads to this register are interpreted as
+commands to place the CPU into Level 2 sleep mode.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0| P_LVL2
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_LVL2                                    0x00000014 /* R--1R */
+
+#define MCP_ACPI_LVL2_EN                                        7:0 /* C--VF */
+#define MCP_ACPI_LVL2_EN_DEFAULT                         0x00000000 /* C---V */
+
+		Figure 10-6  ACPI IO Mapped Register 14h
+
+
+
+Processor Level 3 Register.  Reads to this register are interpreted as
+commands to place the CPU into Level 3 sleep mode.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0| P_LVL3
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_LVL3                                    0x00000015 /* R--1R */
+
+#define MCP_ACPI_LVL3_EN                                         7:0 /* C--VF */
+#define MCP_ACPI_LVL3_EN_DEFAULT                          0x00000000 /* C---V */
+
+		Figure 10-7  ACPI IO Mapped Register 15h
+
+
+Power Management Control Register 2.  This contains only the bit
+to disable the southbridge internal arbiter...this prevents there
+from being any PCI traffic on the southbridge what-so-ever.  This
+supports C3 mode, where the CPU can't snoop the bus and its cache
+could loose coherency were there to be a bus master write to memory.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0| | PM2_CNT
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_PM2_CNT                                 0x0000001C /* RW-1R */
+
+#define MCP_ACPI_PM2_CNT_ARB_DIS                                0:0 /* RWIVF */
+#define MCP_ACPI_PM2_CNT_ARB_DIS_ARB_ENABLED             0x00000000 /* RWI-V */
+#define MCP_ACPI_PM2_CNT_ARB_DIS_ARB_DISABLED            0x00000001 /* RW--V */
+
+		Figure 10-8  ACPI IO Mapped Register 1Ch
+
+
+Fan RPM Count.  This counter increments on the FANRPM input.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|               | RPM_CNT
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_RPM_CNT                                 0x0000001F /* RW-1R */
+
+#define MCP_ACPI_RPM_CNT_VAL                                    7:0 /* RWIVF */
+#define MCP_ACPI_RPM_CNT_VAL_DEFAULT                     0x00000000 /* RWI-V */
+
+		Figure 10-9  ACPI IO Mapped Register 1Fh
+
+
+
+General Purpose Status register.  This is an ACPI defined register
+to contain the status of the various power management events defined
+in the system.
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0| | | | | | | | | | | | | | | GPE0_STS
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPE0_STS                                 0x00000020 /* RW-2R */
+
+#define MCP_ACPI_GPE0_STS_SMBALARM_STS                         14:14 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_SMBALARM_STS_NO_EVENT           0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_SMBALARM_STS_EVENT              0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_SMBALARM_STS_CLR                0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_USB0RSM_STS                          13:13 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_USB0RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_USB0RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_USB1RSM_STS                          12:12 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_USB1RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_USB1RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_USB1RSM_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_MAC0RSM_STS                          11:11 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_MAC0RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_MAC0RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_MAC0RSM_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_MAC1RSM_STS                          10:10 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_MAC1RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_MAC1RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_MAC1RSM_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_SMB0RSM_STS                            9:9 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_SMB0RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_SMB0RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_SMB0RSM_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_SMB1RSM_STS                            8:8 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_SMB1RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_SMB1RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_SMB1RSM_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_AC97RSM_STS                            7:7 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_AC97RSM_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_AC97RSM_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_AC97RSM_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_FANRPMTO_STS                           6:6 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_FANRPMTO_STS_NO_EVENT           0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_FANRPMTO_STS_EVENT              0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_FANRPMTO_STS_CLR                0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_TCOSCI_STS                             5:5 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_TCOSCI_STS_NO_EVENT             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_TCOSCI_STS_EVENT                0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_TCOSCI_STS_CLR                  0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_PBOR_STS                               4:4 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_PBOR_STS_NO_EVENT               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_PBOR_STS_EVENT                  0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_PBOR_STS_CLR                    0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_RI_STS                                 3:3 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_RI_STS_NOT_ASSERTED             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_RI_STS_ASSERTED                 0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_RI_STS_CLR                      0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_THERM_STS                              2:2 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_THERM_STS_NOT_ASSERTED          0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_THERM_STS_ASSERTED              0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_THERM_STS_CLR                   0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_EXTSMI_STS                             1:1 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_EXTSMI_STS_NOT_ASSERTED         0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_EXTSMI_STS_ASSERTED             0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_EXTSMI_STS_CLR                  0x00000001 /* -W--V */
+#define MCP_ACPI_GPE0_STS_PME_STS                                0:0 /* RWIVF */
+#define MCP_ACPI_GPE0_STS_PME_STS_NOT_ASSERTED            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE0_STS_PME_STS_ASSERTED                0x00000001 /* R---V */
+#define MCP_ACPI_GPE0_STS_PME_STS_CLR                     0x00000001 /* -W--V */
+
+		Figure 10-10  ACPI IO Mapped Register 20h
+
+
+General Purpose Enable Register.  This is an ACPI defined register
+allows individual power management events to be enabled or disabled
+per the users preferences...
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0| | | | | | | | | | | | | | | GPE0_EN
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPE0_EN                                  0x00000022 /* RW-2R */
+
+#define MCP_ACPI_GPE0_EN_SMBALARM_EN                           14:14 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_SMBALARM_EN_DISABLED             0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_SMBALARM_EN_ENABLED              0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_USB0RSM_EN                            13:13 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_USB0RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_USB0RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_USB1RSM_EN                            12:12 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_USB1RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_USB1RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_MAC0RSM_EN                            11:11 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_MAC0RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_MAC0RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_MAC1RSM_EN                            10:10 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_MAC1RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_MAC1RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_SMB0RSM_EN                              9:9 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_SMB0RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_SMB0RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_SMB1RSM_EN                              8:8 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_SMB1RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_SMB1RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_AC97RSM_EN                              7:7 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_AC97RSM_EN_DISABLED              0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_AC97RSM_EN_ENABLED               0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_FANRPMTO_EN                             6:6 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_FANRPMTO_EN_DISABLED             0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_FANRPMTO_EN_ENABLED              0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_TCOSCI_EN                               5:5 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_TCOSCI_EN_DISABLED               0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_TCOSCI_EN_ENABLED                0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_RI_EN                                   3:3 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_RI_EN_DISABLED                   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_RI_EN_ENABLED                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_THERM_EN                                2:2 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_THERM_EN_DISABLED                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_THERM_EN_ENABLED                 0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_EXTSMI_EN                               1:1 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_EXTSMI_EN_DISABLED               0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_EXTSMI_EN_ENABLED                0x00000001 /* RW--V */
+#define MCP_ACPI_GPE0_EN_PME_EN                                  0:0 /* RWIVF */
+#define MCP_ACPI_GPE0_EN_PME_EN_DISABLED                  0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE0_EN_PME_EN_ENABLED                   0x00000001 /* RW--V */
+
+		Figure 10-11  ACPI IO Mapped Register 22h
+
+
+
+Override Button Disable.  Holding the power button for > 4 seconds automatically
+sends the machine to G2:S5 (SOFF).  This feature can be disabled here.
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0 0 0 0 0 0 0 0| | | OVR_DIS
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_OVR_DIS                                  0x00000026 /* RW-2R */
+
+#define MCP_ACPI_OVR_DIS_PBOR_DIS                                0:0 /* RWIVF */
+#define MCP_ACPI_OVR_DIS_PBOR_DIS_PBOR_ENABLED            0x00000000 /* RWI-V */
+#define MCP_ACPI_OVR_DIS_PBOR_DIS_PBOR_DISABLED           0x00000001 /* RW--V */
+
+		Figure 10-12  ACPI IO Mapped Register 26h
+
+
+This register controls whether or not Software generated SMI's are allowed.
+
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0| | |0 0 0 0 0 0| | | GLBSMI_CTL
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GLBSMI_CTL                               0x00000028 /* RW-2R */
+
+#define MCP_ACPI_GLBSMI_CTL_KBCT_STS                           11:11 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_KBCT_STS_NO_EVENT             0x00000000 /* R-I-V */
+#define MCP_ACPI_GLBSMI_CTL_KBCT_STS_EVENT                0x00000001 /* R---V */
+#define MCP_ACPI_GLBSMI_CTL_KBCT_STS_CLR                  0x00000001 /* -W--V */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_STS                           10:10 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_STS_NO_EVENT             0x00000000 /* R-I-V */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_STS_EVENT                0x00000001 /* R---V */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_STS_CLR                  0x00000001 /* -W--V */
+#define MCP_ACPI_GLBSMI_CTL_SWI_STS                              9:9 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_SWI_STS_NO_EVENT              0x00000000 /* R-I-V */
+#define MCP_ACPI_GLBSMI_CTL_SWI_STS_EVENT                 0x00000001 /* R---V */
+#define MCP_ACPI_GLBSMI_CTL_SWI_STS_CLR                   0x00000001 /* -W--V */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EVT                              8:8 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EVT_NO_EVENT              0x00000000 /* R-I-V */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EVT_EVENT                 0x00000001 /* R---V */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EVT_CLR                   0x00000001 /* -W--V */
+#define MCP_ACPI_GLBSMI_CTL_KBCT_EN                              5:5 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_KBCT_EN_SMI_ENABLED           0x00000000 /* RWI-V */
+#define MCP_ACPI_GLBSMI_CTL_KBCT_EN_SMI_DISABLED          0x00000001 /* RW--V */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EN                               4:4 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EN_SMI_ENABLED            0x00000000 /* RWI-V */
+#define MCP_ACPI_GLBSMI_CTL_TCO_EN_SMI_DISABLED           0x00000001 /* RW--V */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_RLS                             3:3 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_RLS_SMISCI_LOCK          0x00000000 /* RWI-V */
+#define MCP_ACPI_GLBSMI_CTL_BIOS_RLS_SMISCI_RELEASE       0x00000001 /* RW--V */
+#define MCP_ACPI_GLBSMI_CTL_BIOSSMI_EN                           2:2 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_BIOSSMI_EN_SMI_DISABLED       0x00000000 /* RWI-V */
+#define MCP_ACPI_GLBSMI_CTL_BIOSSMI_EN_SMI_ENABLED        0x00000001 /* RW--V */
+#define MCP_ACPI_GLBSMI_CTL_SWISMI_EN                            1:1 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_SWISMI_EN_SWISMI_DISABLED     0x00000000 /* RWI-V */
+#define MCP_ACPI_GLBSMI_CTL_SWISMI_EN_SWISMI_ENABLED      0x00000001 /* RW--V */
+#define MCP_ACPI_GLBSMI_CTL_SMI_EN                               0:0 /* RWIVF */
+#define MCP_ACPI_GLBSMI_CTL_SMI_EN_SMI_DISABLED           0x00000000 /* RWI-V */
+#define MCP_ACPI_GLBSMI_CTL_SMI_EN_SMI_ENABLED            0x00000001 /* RW--V */
+
+		Figure 10-13  ACPI IO Mapped Register 28h
+
+
+Software SMI Trigger.  Writes to this register generate an SMI, reads return the
+value written.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|               | SWISMI
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_SWISMI                                  0x0000002E /* RW-1R */
+
+#define MCP_ACPI_SWISMI_SMI_CMD                                 7:0 /* RWIVF */
+#define MCP_ACPI_SWISMI_SMI_CMD_DEFAULT                  0x00000000 /* RWI-V */
+
+		Figure 10-14  ACPI IO Mapped Register 2Eh
+
+
+
+Software SMI status, writes to this register are used to pass data to and from
+SMI mode
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|               | SWISTS  
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_SWISTS                                  0x0000002F /* RW-1R */
+
+#define MCP_ACPI_SWISTS_SMI_STS                                 7:0 /* RWIVF */
+#define MCP_ACPI_SWISTS_SMI_STS_DEFAULT                  0x00000000 /* RWI-V */
+
+		Figure 10-15  ACPI IO Mapped Register 2Fh
+
+
+
+TCO Timer Reload, Current Value.  This is the TCO timer.  Writing will cause
+the register to reload with the value in TCOINIT
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0|           | TCOTCUR 
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCOTCUR                                 0x00000040 /* RW-1R */
+
+#define MCP_ACPI_TCOTCUR_TCORLD                                 5:0 /* RWIVF */
+#define MCP_ACPI_TCOTCUR_TCORLD_DEFAULT                  0x00000004 /* RWI-V */
+
+		Figure 10-16  ACPI IO Mapped Register 40h
+
+
+
+TCO Timer Initial Value
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0|           | TCOTINIT
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCOTINIT                                0x00000041 /* RW-1R */
+
+#define MCP_ACPI_TCOTINIT_TCOTIME                               5:0 /* RWIVF */
+#define MCP_ACPI_TCOTINIT_TCOTIME_DEFAULT                0x00000004 /* RWI-V */
+
+		Figure 10-17  ACPI IO Mapped Register 41h
+
+
+
+TCO SMI Data In, Writes here generate an SMI, reads return the value written
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|               | TCOSMIDI
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCOSMIDI                                0x00000042 /* RW-1R */
+
+#define MCP_ACPI_TCOSMIDI_TCO_SMI                               7:0 /* RWIVF */
+#define MCP_ACPI_TCOSMIDI_TCO_SMI_DEFAULT                0x00000000 /* RWI-V */
+
+		Figure 10-18  ACPI IO Mapped Register 42h
+
+
+
+TCO SMI Data out, writes generate an IRQ, reads return the value written.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|               | TCOSMID0
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCOSMID0                                0x00000043 /* RW-1R */
+
+#define MCP_ACPI_TCOSMID0_TCO_OUT                               7:0 /* RWIVF */
+#define MCP_ACPI_TCOSMID0_TCO_OUT_DEFAULT                0x00000000 /* RWI-V */
+
+		Figure 10-19  ACPI IO Mapped Register 43h
+
+
+
+TCO Status Register.  Total Cost of Ownership events result in the hardware
+setting bits in this register.
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0| |0 0 0 0| | | | | TCO_STS1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCO_STS1                                 0x00000044 /* RW-2R */
+
+#define MCP_ACPI_TCO_STS1_IBIOS_STS                              8:8 /* RWIVF */
+#define MCP_ACPI_TCO_STS1_IBIOS_STS_NO_EVENT              0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS1_IBIOS_STS_EVENT                 0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS1_IBIOS_STS_CLR                   0x00000001 /* -W--V */
+#define MCP_ACPI_TCO_STS1_TOUT_STS                               3:3 /* RWIVF */
+#define MCP_ACPI_TCO_STS1_TOUT_STS_NO_EVENT               0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS1_TOUT_STS_EVENT                  0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS1_TOUT_STS_CLR                    0x00000001 /* -W--V */
+#define MCP_ACPI_TCO_STS1_TCO_INT_STS                            2:2 /* RWIVF */
+#define MCP_ACPI_TCO_STS1_TCO_INT_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS1_TCO_INT_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS1_TCO_INT_STS_CLR                 0x00000001 /* -W--V */
+#define MCP_ACPI_TCO_STS1_SW_TCO_SMI_STS                         1:1 /* RWIVF */
+#define MCP_ACPI_TCO_STS1_SW_TCO_SMI_STS_NO_EVENT         0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS1_SW_TCO_SMI_STS_EVENT            0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS1_SW_TCO_SMI_STS_CLR              0x00000001 /* -W--V */
+#define MCP_ACPI_TCO_STS1_NMI2SMI_STS                            0:0 /* RWIVF */
+#define MCP_ACPI_TCO_STS1_NMI2SMI_STS_NO_EVENT            0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS1_NMI2SMI_STS_EVENT               0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS1_NMI2SMI_STS_CLR                 0x00000001 /* -W--V */
+
+		Figure 10-20  ACPI IO Mapped Register 44h
+
+
+
+Additional TCO status register.  Additional events related to the TCO
+standard result in the hardware setting bits here.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0 0 0 0| | | | TCO_STS2
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCO_STS2                                 0x00000046 /* RW-1R */
+
+#define MCP_ACPI_TCO_STS2_BOOT_STS                               2:2 /* RWIVF */
+#define MCP_ACPI_TCO_STS2_BOOT_STS_NO_PCI_RST             0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS2_BOOT_STS_PCI_RST                0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS2_BOOT_STS_CLR                    0x00000001 /* -W--V */
+#define MCP_ACPI_TCO_STS2_2NDTO_STS                              1:1 /* RWIVF */
+#define MCP_ACPI_TCO_STS2_2NDTO_STS_NO_TIMEOUT            0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS2_2NDTO_STS_TIMEOUT               0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS2_2NDTO_STS_CLR                   0x00000001 /* -W--V */
+#define MCP_ACPI_TCO_STS2_INTRDR_STS                             0:0 /* RWIVF */
+#define MCP_ACPI_TCO_STS2_INTRDR_STS_NOT_DETECTED         0x00000000 /* R-I-V */
+#define MCP_ACPI_TCO_STS2_INTRDR_STS_DETECTED             0x00000001 /* R---V */
+#define MCP_ACPI_TCO_STS2_INTRDR_STS_CLR                  0x00000001 /* -W--V */
+
+
+		Figure 10-21  ACPI IO Mapped Register 46h
+
+
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0 0 0 0 0| |0 0 0 0| | | | | TCO_CRL1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCO_CTL1                                 0x00000048 /* RW-2R */
+
+#define MCP_ACPI_TCO_CTL1_TCOHALT                              11:11 /* RWIVF */
+#define MCP_ACPI_TCO_CTL1_TCOHALT_TMR_RUN                 0x00000000 /* RWI-V */
+#define MCP_ACPI_TCO_CTL1_TCOHALT_TMR_HALT                0x00000001 /* RW--V */
+#define MCP_ACPI_TCO_CTL1_NMI2SMI_EN                             9:9 /* RWIVF */
+#define MCP_ACPI_TCO_CTL1_NMI2SMI_EN_NORMAL_NMI           0x00000000 /* RWI-V */
+#define MCP_ACPI_TCO_CTL1_NMI2SMI_EN_NMI_2_SMI            0x00000001 /* RW--V */
+#define MCP_ACPI_TCO_CTL1_NMI_NOW                                8:8 /* RWIVF */
+#define MCP_ACPI_TCO_CTL1_NMI_NOW_DEFAULT                 0x00000000 /* RWI-V */
+#define MCP_ACPI_TCO_CTL1_NMI_NOW_GENERATE_NMI            0x00000001 /* RW--V */
+
+
+		Figure 10-22  ACPI IO Mapped Register 48h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0 0 0 0 0|   |0| TCO_CTL2
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_TCO_CTL2                                 0x0000004A /* RW-1R */
+
+#define MCP_ACPI_TCO_CTL2_INTRDR_SEL                             2:1 /* RWIVF */
+#define MCP_ACPI_TCO_CTL2_INTRDR_SEL_0_RESERVED           0x00000000 /* RWI-V */
+#define MCP_ACPI_TCO_CTL2_INTRDR_SEL_IRQ                  0x00000001 /* RW--V */
+#define MCP_ACPI_TCO_CTL2_INTRDR_SEL_SMI                  0x00000002 /* RW--V */
+#define MCP_ACPI_TCO_CTL2_INTRDR_SEL_1_RESERVED           0x00000003 /* RW--V */
+
+		Figure 10-23  ACPI IO Mapped Register 4Ah
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | GPE1_STS1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_KBCT_PREG                                0x00000090 /* RW-4R */
+
+#define MCP_ACPI_KBCT_PREG_PP64R                               31:24 /* RWIVF */
+#define MCP_ACPI_KBCT_PREG_PP64R_DEFAULT                  0x00000000 /* RWI-V */
+#define MCP_ACPI_KBCT_PREG_PP64W                               23:16 /* R-IVF */
+#define MCP_ACPI_KBCT_PREG_PP64W_DEFAULT                  0x00000000 /* R-I-V */
+#define MCP_ACPI_KBCT_PREG_PP60R                                15:8 /* RWIVF */
+#define MCP_ACPI_KBCT_PREG_PP60R_DEFAULT                  0x00000000 /* RWI-V */
+#define MCP_ACPI_KBCT_PREG_PP60W                                 7:0 /* R-IVF */
+#define MCP_ACPI_KBCT_PREG_PP60W_DEFAULT                  0x00000000 /* R-I-V */
+
+		Figure 10-24  ACPI IO Mapped Register 90h
+
+General Purpose I/O's, (GPIO's), are controlled via the following registers.
+There are a number of functions that each GPIO can support so the register
+set is large.  Also there are 36 GPIO's, so that means there are two registers
+for each of these functions.
+
+The following two registers contain the interrupt status of the GPIO's.
+When enabled, the GPIO's can function as inputs that generate interrupts.
+(either SCI or SMI depending on how the other registers are setup.)
+These are just the status, not the interrupt enable/disable bits.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | GPE1_STS1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPE1_STS                                 0x000000A0 /* RW-4R */
+
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_KBRDRSTIN                 25:25 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_KBRDRSTIN_NO_INTR    0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_KBRDRSTIN_INTR       0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_KBRDRSTIN_CLR        0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_RI                        24:24 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_RI_NO_INTR           0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_RI_INTR              0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_RI_CLR               0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_INTRUDER                  23:23 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_INTRUDER_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_INTRUDER_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_INTRUDER_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_THERM                     22:22 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_THERM_NO_INTR        0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_THERM_INTR           0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_THERM_CLR            0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_EXTSMI                    21:21 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_EXTSMI_NO_INTR       0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_EXTSMI_INTR          0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_EXTSMI_CLR           0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLP_S1                    20:20 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLP_S1_NO_INTR       0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLP_S1_INTR          0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLP_S1_CLR           0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLPBTN                    19:19 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLPBTN_NO_INTR       0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLPBTN_INTR          0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SLPBTN_CLR           0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_CPUSLP                    18:18 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_CPUSLP_NO_INTR       0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_CPUSLP_INTR          0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_CPUSLP_CLR           0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PRDY                      17:17 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PRDY_NO_INTR         0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PRDY_INTR            0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PRDY_CLR             0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON1                   16:16 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON1_NO_INTR      0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON1_INTR         0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON1_CLR          0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON0                   15:15 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON0_NO_INTR      0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON0_INTR         0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANCON0_CLR          0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANRPM                    14:14 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANRPM_NO_INTR       0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANRPM_INTR          0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_FANRPM_CLR           0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SPDIF_OUT                 13:13 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SPDIF_OUT_NO_INTR    0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SPDIF_OUT_INTR       0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_SPDIF_OUT_CLR        0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_A20GATE                   12:12 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_A20GATE_NO_INTR      0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_A20GATE_INTR         0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_A20GATE_CLR          0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_ACSDATAIN1                11:11 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_ACSDATAIN1_NO_INTR   0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_ACSDATAIN1_INTR      0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_ACSDATAIN1_CLR       0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_5                  10:10 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_5_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_5_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_5_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_4                    9:9 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_4_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_4_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_4_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_3                    8:8 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_3_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_3_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_3_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_2                    7:7 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_2_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_2_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_2_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_1                    6:6 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_1_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_1_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_USB_OC_1_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_LPC_DRQ_1                   5:5 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_LPC_DRQ_1_NO_INTR    0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_LPC_DRQ_1_INTR       0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_LPC_DRQ_1_CLR        0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_MII_RXER_P                  4:4 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_MII_RXER_P_NO_INTR   0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_MII_RXER_P_INTR      0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_MII_RXER_P_CLR       0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIINTR_E                   3:3 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIINTR_E_NO_INTR    0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIINTR_E_INTR       0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIINTR_E_CLR        0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCI_PERR                    2:2 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCI_PERR_NO_INTR     0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCI_PERR_INTR        0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCI_PERR_CLR         0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIGNT4                     1:1 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIGNT4_NO_INTR      0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIGNT4_INTR         0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIGNT4_CLR          0x00000001 /* -W--V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIREQ4                     0:0 /* RWIVF */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIREQ4_NO_INTR      0x00000000 /* R-I-V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIREQ4_INTR         0x00000001 /* R---V */
+#define MCP_ACPI_GPE1_STS_GPIOSCISTS_PCIREQ4_CLR          0x00000001 /* -W--V */
+
+		Figure 10-25  ACPI IO Mapped Register A0h
+
+
+
+GPIO Interrupt Enable registers.  This register and the one that follows it
+allow the interrupts from the GPIO pins to be enabled.  They will generate
+either an SCI or an SMI depending on how the rest of the System Management
+block is configured.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | GPE1_EN1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPE1_EN                                  0x000000A8 /* RW-4R */
+
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_KBRDRSTIN                   25:25 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_KBRDRSTIN_SCI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_KBRDRSTIN_SCI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_RI                          24:24 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_RI_SCI_DIS             0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_RI_SCI_EN              0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_INTRUDER                    23:23 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_INTRUDER_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_INTRUDER_SCI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_THERM                       22:22 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_THERM_SCI_DIS          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_THERM_SCI_EN           0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_EXTSMI                      21:21 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_EXTSMI_SCI_DIS         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_EXTSMI_SCI_EN          0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SLP_S1                      20:20 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SLP_S1_SCI_DIS         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SLP_S1_SCI_EN          0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SLPBTN                      19:19 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SLPBTN_SCI_DIS         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SLPBTN_SCI_EN          0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_CPUSLP                      18:18 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_CPUSLP_SCI_DIS         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_CPUSLP_SCI_EN          0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PRDY                        17:17 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PRDY_SCI_DIS           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PRDY_SCI_EN            0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANCON1                     16:16 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANCON1_SCI_DIS        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANCON1_SCI_EN         0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANCON0                     15:15 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANCON0_SCI_DIS        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANCON0_SCI_EN         0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANRPM                      14:14 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANRPM_SCI_DIS         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_FANRPM_SCI_EN          0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SPDIF_OUT                   13:13 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SPDIF_OUT_SCI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_SPDIF_OUT_SCI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_A20GATE                     12:12 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_A20GATE_SCI_DIS        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_A20GATE_SCI_EN         0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_ACSDATAIN1                  11:11 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_ACSDATAIN1_SCI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_ACSDATAIN1_SCI_EN      0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_5                    10:10 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_5_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_5_SCI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_4                      9:9 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_4_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_4_SCI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_3                      8:8 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_3_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_3_SCI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_2                      7:7 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_2_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_2_SCI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_1                      6:6 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_1_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_USB_OC_1_SCI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_LPC_DRQ_1                     5:5 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_LPC_DRQ_1_SCI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_LPC_DRQ_1_SCI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_MII_RXER_P                    4:4 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_MII_RXER_P_SCI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_MII_RXER_P_SCI_EN      0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIINTR_E                     3:3 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIINTR_E_SCI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIINTR_E_SCI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCI_PERR                      2:2 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCI_PERR_SCI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCI_PERR_INTR          0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIGNT4                       1:1 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIGNT4_SCI_DIS        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIGNT4_SCI_EN         0x00000001 /* RW--V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIREQ4                       0:0 /* RWIVF */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIREQ4_SCI_DIS        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPE1_EN_GPIOSCIEN_PCIREQ4_SCI_EN         0x00000001 /* RW--V */
+
+		Figure 10-26  ACPI IO Mapped Register A4h
+
+
+GPIO SMI Interrupt Enable registers.  This register and the one that follows it
+allow the interrupts from the GPIO pins to be enabled.  They will unconditionally
+generater an SMI if enabled.
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | GPIO_SMIEN1
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_SMIEN                               0x000000B0 /* RW-4R */
+
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_KBRDRSTIN                25:25 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_KBRDRSTIN_SMI_DIS   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_KBRDRSTIN_SMI_EN    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_RI                       24:24 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_RI_SMI_DIS          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_RI_SMI_EN           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_INTRUDER                 23:23 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_INTRUDER_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_INTRUDER_SMI_EN     0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_THERM                    22:22 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_THERM_SMI_DIS       0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_THERM_SMI_EN        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_EXTSMI                   21:21 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_EXTSMI_SMI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_EXTSMI_SMI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SLP_S1                   20:20 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SLP_S1_SMI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SLP_S1_SMI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SLPBTN                   19:19 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SLPBTN_SMI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SLPBTN_SMI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_CPUSLP                   18:18 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_CPUSLP_SMI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_CPUSLP_SMI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PRDY                     17:17 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PRDY_SMI_DIS        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PRDY_SMI_EN         0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANCON1                  16:16 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANCON1_SMI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANCON1_SMI_EN      0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANCON0                  15:15 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANCON0_SMI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANCON0_SMI_EN      0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANRPM                   14:14 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANRPM_SMI_DIS      0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_FANRPM_SMI_EN       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SPDIF_OUT                13:13 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SPDIF_OUT_SMI_DIS   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_SPDIF_OUT_SMI_EN    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_A20GATE                  12:12 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_A20GATE_SMI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_A20GATE_SMI_EN      0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_ACSDATAIN1               11:11 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_ACSDATAIN1_SMI_DIS  0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_ACSDATAIN1_SMI_EN   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_5                 10:10 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_5_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_5_SMI_EN     0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_4                   9:9 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_4_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_4_SMI_EN     0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_3                   8:8 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_3_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_3_SMI_EN     0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_2                   7:7 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_2_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_2_SMI_EN     0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_1                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_1_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_USB_OC_1_SMI_EN     0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_LPC_DRQ_1                  5:5 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_LPC_DRQ_1_SMI_DIS   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_LPC_DRQ_1_SMI_EN    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_MII_RXER_P                 4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_MII_RXER_P_SMI_DIS  0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_MII_RXER_P_SMI_EN   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIINTR_E                  3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIINTR_E_SMI_DIS   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIINTR_E_SMI_EN    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCI_PERR                   2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCI_PERR_SMI_DIS    0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCI_PERR_INTR       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIGNT4                    1:1 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIGNT4_SMI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIGNT4_SMI_EN      0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIREQ4                    0:0 /* RWIVF */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIREQ4_SMI_DIS     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_SMIEN_GPIOSMIEN_PCIREQ4_SMI_EN      0x00000001 /* RW--V */
+
+		Figure 10-27  ACPI IO Mapped Register A8h
+
+
+GPIO Output Clock Control.  The GPIO outputs can be driven by an internal
+clock with adjustable duty cycle and frequency.  This can be used for
+things like blinking LED's and other such nice "toys"
+
+
+ 31           24 23           16 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|                                                               | GPIO_CLK   
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_CLK                                    0x000000BC /* RW-4R */
+
+#define MCP_ACPI_GPIO_CLK_CLK1BASE                                31:30 /* RWIVF */
+#define MCP_ACPI_GPIO_CLK_CLK1BASE_DEFAULT                   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_CLK_CLK1HI                                  29:23 /* RWIVF */
+#define MCP_ACPI_GPIO_CLK_CLK1HI_DEFAULT                     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_CLK_CLK1LO                                  22:16 /* RWIVF */
+#define MCP_ACPI_GPIO_CLK_CLK1LO_DEFAULT                     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_CLK_CLK0BASE                                15:14 /* RWIVF */
+#define MCP_ACPI_GPIO_CLK_CLK0BASE_DEFAULT                   0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_CLK_CLK0HI                                   13:7 /* RWIVF */
+#define MCP_ACPI_GPIO_CLK_CLK0HI_DEFAULT                     0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_CLK_CLK0LO                                    6:0 /* RWIVF */
+#define MCP_ACPI_GPIO_CLK_CLK0LO_DEFAULT                     0x00000000 /* RWI-V */
+
+		Figure 10-28  ACPI IO Mapped Register BCh
+
+
+GPIO Control Registers.  The Function of the 36 GPIO pins are controlled
+through the 36 registers that follow.
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_0
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_0                                      0x000000C0 /* RW-1R */
+
+#define MCP_ACPI_GPIO_0_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_0_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_0_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_0_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_0_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_0_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_0_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_0_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_0_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_0_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_0_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_0_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_0_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_0_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_0_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_0_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_0_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_0_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_0_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_0_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_0_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-29  ACPI IO Mapped Register C0h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_1
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_1                                      0x000000C1 /* RW-1R */
+
+#define MCP_ACPI_GPIO_1_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_1_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_1_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_1_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_1_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_1_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_1_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_1_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_1_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_1_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_1_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_1_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_1_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_1_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_1_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_1_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_1_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_1_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_1_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_1_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_1_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-30  ACPI IO Mapped Register C1h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_2
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_2                                      0x000000C2 /* RW-1R */
+
+#define MCP_ACPI_GPIO_2_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_2_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_2_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_2_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_2_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_2_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_2_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_2_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_2_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_2_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_2_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_2_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_2_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_2_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_2_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_2_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_2_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_2_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_2_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_2_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_2_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-31  ACPI IO Mapped Register C2h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_3
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_3                                      0x000000C3 /* RW-1R */
+
+#define MCP_ACPI_GPIO_3_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_3_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_3_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_3_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_3_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_3_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_3_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_3_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_3_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_3_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_3_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_3_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_3_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_3_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_3_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_3_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_3_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_3_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_3_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_3_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_3_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-32  ACPI IO Mapped Register C3h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_4
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_4                                      0x000000C4 /* RW-1R */
+
+#define MCP_ACPI_GPIO_4_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_4_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_4_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_4_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_4_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_4_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_4_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_4_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_4_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_4_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_4_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_4_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_4_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_4_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_4_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_4_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_4_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_4_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_4_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_4_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_4_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-33  ACPI IO Mapped Register C4h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_5
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_5                                      0x000000C5 /* RW-1R */
+
+#define MCP_ACPI_GPIO_5_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_5_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_5_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_5_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_5_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_5_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_5_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_5_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_5_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_5_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_5_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_5_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_5_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_5_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_5_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_5_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_5_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_5_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_5_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_5_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_5_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-34  ACPI IO Mapped Register C5h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_6
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_6                                      0x000000C6 /* RW-1R */
+
+#define MCP_ACPI_GPIO_6_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_6_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_6_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_6_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_6_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_6_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_6_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_6_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_6_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_6_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_6_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_6_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_6_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_6_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_6_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_6_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_6_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_6_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_6_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_6_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_6_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-35  ACPI IO Mapped Register C6h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_7
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_7                                      0x000000C7 /* RW-1R */
+
+#define MCP_ACPI_GPIO_7_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_7_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_7_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_7_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_7_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_7_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_7_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_7_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_7_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_7_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_7_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_7_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_7_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_7_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_7_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_7_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_7_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_7_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_7_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_7_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_7_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-36  ACPI IO Mapped Register C7h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_8
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_8                                      0x000000C8 /* RW-1R */
+
+#define MCP_ACPI_GPIO_8_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_8_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_8_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_8_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_8_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_8_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_8_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_8_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_8_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_8_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_8_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_8_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_8_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_8_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_8_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_8_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_8_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_8_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_8_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_8_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_8_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-37  ACPI IO Mapped Register C8h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_9
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_9                                      0x000000C9 /* RW-1R */
+
+#define MCP_ACPI_GPIO_9_LTCH_STS                                    6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_9_LTCH_STS_LATCH_CLEARED               0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_9_LTCH_STS_LATCH_SET                   0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_9_LTCH_STS_CLR                         0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_9_RTIN                                        5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_9_RTIN_LOW                             0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_9_RTIN_HIGH                            0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_9_DEBOUNCE                                    4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_9_DEBOUNCE_NO_DEBOUNCE                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_9_DEBOUNCE_DEBOUNCE                    0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_9_MODE_1                                      3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_9_MODE_1_GPIO_FUNCTION                 0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_9_MODE_1_ALTERNATE_FUNCTION            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_9_MODE_0                                      2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_9_MODE_0_INPUT                         0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_9_MODE_0_OUTPUT                        0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_9_X                                           1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_9_X_IN_ACTVLO_NOLTCH_OUT_LOW           0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_9_X_IN_ACTVHI_NOLTCH_OUT_HI            0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_9_X_IN_ACTVLO_LTCH_OUT_CLK0            0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_9_X_IN_ACTVHI_LTCH_OUT_CLK1            0x00000003 /* RW--V */
+
+		Figure 10-38  ACPI IO Mapped Register C9h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_10
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_10                                     0x000000CA /* RW-1R */
+
+#define MCP_ACPI_GPIO_10_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_10_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_10_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_10_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_10_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_10_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_10_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_10_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_10_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_10_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_10_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_10_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_10_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_10_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_10_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_10_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_10_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_10_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_10_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_10_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_10_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-39  ACPI IO Mapped Register CAh
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_11
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_11                                     0x000000CB /* RW-1R */
+
+#define MCP_ACPI_GPIO_11_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_11_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_11_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_11_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_11_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_11_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_11_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_11_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_11_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_11_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_11_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_11_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_11_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_11_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_11_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_11_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_11_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_11_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_11_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_11_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_11_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-40  ACPI IO Mapped Register CBh
+
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_12
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_12                                     0x000000CC /* RW-1R */
+
+#define MCP_ACPI_GPIO_12_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_12_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_12_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_12_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_12_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_12_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_12_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_12_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_12_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_12_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_12_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_12_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_12_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_12_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_12_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_12_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_12_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_12_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_12_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_12_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_12_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-41  ACPI IO Mapped Register CCh
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_13
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_13                                     0x000000CD /* RW-1R */
+
+#define MCP_ACPI_GPIO_13_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_13_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_13_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_13_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_13_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_13_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_13_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_13_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_13_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_13_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_13_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_13_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_13_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_13_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_13_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_13_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_13_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_13_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_13_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_13_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_13_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-42  ACPI IO Mapped Register CDh
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_14
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_14                                     0x000000CE /* RW-1R */
+
+#define MCP_ACPI_GPIO_14_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_14_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_14_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_14_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_14_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_14_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_14_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_14_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_14_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_14_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_14_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_14_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_14_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_14_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_14_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_14_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_14_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_14_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_14_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_14_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_14_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-43  ACPI IO Mapped Register CEh
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_15
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_15                                     0x000000CF /* RW-1R */
+
+#define MCP_ACPI_GPIO_15_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_15_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_15_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_15_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_15_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_15_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_15_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_15_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_15_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_15_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_15_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_15_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_15_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_15_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_15_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_15_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_15_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_15_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_15_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_15_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_15_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-44  ACPI IO Mapped Register CFh
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_16
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_16                                     0x000000D0 /* RW-1R */
+
+#define MCP_ACPI_GPIO_16_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_16_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_16_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_16_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_16_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_16_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_16_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_16_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_16_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_16_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_16_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_16_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_16_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_16_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_16_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_16_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_16_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_16_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_16_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_16_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_16_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-45  ACPI IO Mapped Register D0h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_17
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_17                                     0x000000D1 /* RW-1R */
+
+#define MCP_ACPI_GPIO_17_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_17_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_17_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_17_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_17_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_17_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_17_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_17_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_17_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_17_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_17_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_17_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_17_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_17_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_17_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_17_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_17_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_17_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_17_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_17_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_17_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-46  ACPI IO Mapped Register D1h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_18
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_18                                     0x000000D2 /* RW-1R */
+
+#define MCP_ACPI_GPIO_18_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_18_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_18_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_18_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_18_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_18_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_18_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_18_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_18_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_18_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_18_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_18_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_18_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_18_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_18_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_18_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_18_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_18_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_18_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_18_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_18_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-47  ACPI IO Mapped Register D2h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_19
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_19                                     0x000000D3 /* RW-1R */
+
+#define MCP_ACPI_GPIO_19_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_19_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_19_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_19_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_19_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_19_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_19_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_19_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_19_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_19_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_19_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_19_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_19_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_19_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_19_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_19_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_19_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_19_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_19_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_19_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_19_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-48  ACPI IO Mapped Register D3h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_20
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_20                                     0x000000D4 /* RW-1R */
+
+#define MCP_ACPI_GPIO_20_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_20_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_20_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_20_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_20_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_20_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_20_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_20_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_20_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_20_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_20_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_20_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_20_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_20_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_20_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_20_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_20_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_20_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_20_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_20_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_20_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-49  ACPI IO Mapped Register D4h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_21
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_21                                     0x000000D5 /* RW-1R */
+
+#define MCP_ACPI_GPIO_21_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_21_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_21_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_21_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_21_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_21_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_21_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_21_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_21_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_21_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_21_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_21_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_21_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_21_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_21_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_21_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_21_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_21_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_21_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_21_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_21_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-50  ACPI IO Mapped Register D5h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_22
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_22                                     0x000000D6 /* RW-1R */
+
+#define MCP_ACPI_GPIO_22_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_22_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_22_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_22_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_22_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_22_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_22_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_22_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_22_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_22_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_22_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_22_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_22_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_22_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_22_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_22_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_22_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_22_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_22_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_22_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_22_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-51  ACPI IO Mapped Register D6h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_23
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_23                                     0x000000D7 /* RW-1R */
+
+#define MCP_ACPI_GPIO_23_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_23_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_23_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_23_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_23_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_23_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_23_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_23_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_23_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_23_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_23_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_23_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_23_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_23_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_23_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_23_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_23_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_23_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_23_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_23_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_23_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-52  ACPI IO Mapped Register D7h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_24
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_24                                     0x000000D8 /* RW-1R */
+
+#define MCP_ACPI_GPIO_24_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_24_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_24_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_24_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_24_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_24_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_24_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_24_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_24_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_24_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_24_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_24_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_24_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_24_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_24_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_24_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_24_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_24_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_24_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_24_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_24_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-53  ACPI IO Mapped Register D8h
+
+
+ 7             0
+.-+-+-+-+-+-+-+-.
+|0|             | GPIO_25
+`-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_GPIO_25                                     0x000000D9 /* RW-1R */
+
+#define MCP_ACPI_GPIO_25_LTCH_STS                                   6:6 /* RWIVF */
+#define MCP_ACPI_GPIO_25_LTCH_STS_LATCH_CLEARED              0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_25_LTCH_STS_LATCH_SET                  0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_25_LTCH_STS_CLR                        0x00000001 /* -W--V */
+#define MCP_ACPI_GPIO_25_RTIN                                       5:5 /* R-IVF */
+#define MCP_ACPI_GPIO_25_RTIN_LOW                            0x00000000 /* R-I-V */
+#define MCP_ACPI_GPIO_25_RTIN_HIGH                           0x00000001 /* R---V */
+#define MCP_ACPI_GPIO_25_DEBOUNCE                                   4:4 /* RWIVF */
+#define MCP_ACPI_GPIO_25_DEBOUNCE_NO_DEBOUNCE                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_25_DEBOUNCE_DEBOUNCE                   0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_25_MODE_1                                     3:3 /* RWIVF */
+#define MCP_ACPI_GPIO_25_MODE_1_GPIO_FUNCTION                0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_25_MODE_1_ALTERNATE_FUNCTION           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_25_MODE_0                                     2:2 /* RWIVF */
+#define MCP_ACPI_GPIO_25_MODE_0_INPUT                        0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_25_MODE_0_OUTPUT                       0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_25_X                                          1:0 /* RWIVF */
+#define MCP_ACPI_GPIO_25_X_IN_ACTVLO_NOLTCH_OUT_LOW          0x00000000 /* RWI-V */
+#define MCP_ACPI_GPIO_25_X_IN_ACTVHI_NOLTCH_OUT_HI           0x00000001 /* RW--V */
+#define MCP_ACPI_GPIO_25_X_IN_ACTVLO_LTCH_OUT_CLK0           0x00000002 /* RW--V */
+#define MCP_ACPI_GPIO_25_X_IN_ACTVHI_LTCH_OUT_CLK1           0x00000003 /* RW--V */
+
+		Figure 10-54  ACPI IO Mapped Register D9h
+
+
+Fan Control.  Controls for the FAN duty cycle and shutdown.
+
+ 15            8 7             0
+.-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-.
+|0 0 0| |       |0 0 0| |       | FAN_CTL
+`-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-'
+
+#define MCP_ACPI_FAN_CTL                                  0x000000F8 /* RW-2R */
+
+#define MCP_ACPI_FAN_CTL_FC1FQ                                 12:12 /* RWIVF */
+#define MCP_ACPI_FAN_CTL_FC1FQ_15MS                       0x00000000 /* RWI-V */
+#define MCP_ACPI_FAN_CTL_FC1FQ_240MS                      0x00000001 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI                                  11:8 /* RWIVF */
+#define MCP_ACPI_FAN_CTL_FC1HI_ALWAYS_LOW                 0x00000000 /* RWI-V */
+#define MCP_ACPI_FAN_CTL_FC1HI_1_15TH                     0x00000001 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_2_15TH                     0x00000002 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_3_15TH                     0x00000003 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_4_15TH                     0x00000004 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_5_15TH                     0x00000005 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_6_15TH                     0x00000006 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_7_15TH                     0x00000007 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_8_15TH                     0x00000008 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_9_15TH                     0x00000009 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_10_15TH                    0x0000000A /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_11_15TH                    0x0000000B /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_12_15TH                    0x0000000C /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_13_15TH                    0x0000000D /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_14_15TH                    0x0000000E /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC1HI_ALWAYS_HI                  0x0000000F /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0FQ                                   4:4 /* RWIVF */
+#define MCP_ACPI_FAN_CTL_FC0FQ_15MS                       0x00000000 /* RWI-V */
+#define MCP_ACPI_FAN_CTL_FC0FQ_240MS                      0x00000001 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI                                   3:0 /* RWIVF */
+#define MCP_ACPI_FAN_CTL_FC0HI_ALWAYS_LOW                 0x00000000 /* RWI-V */
+#define MCP_ACPI_FAN_CTL_FC0HI_1_15TH                     0x00000001 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_2_15TH                     0x00000002 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_3_15TH                     0x00000003 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_4_15TH                     0x00000004 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_5_15TH                     0x00000005 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_6_15TH                     0x00000006 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_7_15TH                     0x00000007 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_8_15TH                     0x00000008 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_9_15TH                     0x00000009 /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_10_15TH                    0x0000000A /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_11_15TH                    0x0000000B /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_12_15TH                    0x0000000C /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_13_15TH                    0x0000000D /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_14_15TH                    0x0000000E /* RW--V */
+#define MCP_ACPI_FAN_CTL_FC0HI_ALWAYS_HI                  0x0000000F /* RW--V */
+
+		Figure 10-55  ACPI IO Mapped Register F8h
+
+APPENDIX A  -  APCI MEMORY MAP
+
+
+APPENDIX B  -  BUS INTERFACE ACKNOWLEDGES
+
+
+APPENDIX C  -  ISSUES
+
+
+APPENDIX D  -  KEY
+
+	Read
+	  ' ' = Other Information
+	  '-' = Field is part of a write-only register
+	  'C' = Value read is always the same, constant value line follows (C)
+	  'R' = Value is read
+
+	Write
+	  ' ' = Other Information
+	  '-' = Must not be written (D), value ignored when written (R,A,F)
+	  'W' = Can be written
+
+	Internal State
+	  ' ' = Other Information
+	  '-' = No internal state
+	  'X' = Internal state, initial value is unknown
+	  'I' = Internal state, initial value is known and follows (I)
+
+	Declaration/Size
+	  ' ' = Other Information
+	  '-' = Does Not Apply
+	  'V' = Type is void
+	  'U' = Type is unsigned integer
+	  'S' = Type is signed integer
+	  'F' = Type is IEEE floating point
+	  '1' = Byte size (008)
+	  '2' = Short size (016)
+	  '3' = Three byte size (024)
+	  '4' = Word size (032)
+	  '8' = Double size (064)
+
+	Define Indicator
+	  ' ' = Other Information
+	  'D' = Device
+	  'M' = Memory
+	  'R' = Register
+	  'A' = Array of Registers
+	  'F' = Field
+	  'V' = Value
+

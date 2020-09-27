@@ -1,0 +1,112 @@
+
+;************************* MEMORY MAP **********************************
+; (c) Copyright 1999-2000 Intel Corp. All rights reserved.
+; Intel Confidential.
+;
+; 00000000-0000FFFF - Code, global data, and stack (64K)
+; For p up to 1.33M (fft size of 2**16)
+; 00010000-0011FFFF - Input number (512K * 2 for spacing + 64K for "gaps")
+; For p up to 2.63M (fft size of 2**17)
+; 00010000-0021FFFF - Input number (1MB * 2 for spacing + 64K for "gaps")
+;
+; For efficient cache usage we make sure that in any given pass the
+; FFT data and any sine/cosine data occupy different cache lines.
+;
+; The input number (FFT data) occupies the even L1 cache lines. (512K)
+;
+; The pass1 sine-cosine data occupies the odd L1 cache lines. (4K)
+;
+; The pass2 sine-cosine data (2K) and the pass2 pre-multipliers occupy
+; the odd L1 cache lines. (175K)  The pre-multipliers do not collide with
+; sine-cosine data because the 704 bytes of pre-multipliers are read in,
+; then the 2K of sine-cosine data, then the pre-multipliers again.  When
+; the next set of pre-mulitpliers there is room for them in the L1 cache
+; and no sine-cosine data is tossed out.
+;
+; The normalization column multipliers occupy the 3 mod 4 cache lines. (2K)
+; The normalization group multipliers (8K) and the limits data occupy the
+; 1 mod 4 cache lines.  Furthermore, the group multipliers and limits
+; data will not collide in the cache.
+
+;
+; The above data is layed out as follows:
+; Input occupies 1MB starting at the base address 20010000
+; Pass1 sine-cosine data are interleaved in the first 8K (20010000 - 20012000)
+; The next 24K (20012000 - 20018000) is wasted to allow for future growth
+; of the pass1 sine-cosine data.
+; The pass2 sine-cosine are interleaved in the next 4K (20018000 - 20019000)
+; The pass2 pre-multipliers are interleaved in the next 352K (actually 704K
+; to reserve room for future growth), 20019000 - 200C9000.
+; The normalization column multipliers are interleaved in the
+; next 8K (200C9000 - 200CB000)
+; The ancillary normalization data (limits, etc) occupy the 3rd through
+; 8th 1 mod 4 cache lines on the 200C9000 page.
+; The normalization group multipliers occupy the 1st and 2nd 1 mod 4 cache
+; lines on the 200C9000 page and every 8th 1 mod 4 cache line thereafter.
+; This avoids any conflicts with the ancillary normilization data.
+;
+
+IFDEF WIN31
+input		EQU	00010000h
+ELSE
+input		EQU	20010000h
+ENDIF
+
+INTERLEAVE	EQU	1
+
+assign_addrs	MACRO	sc0_size, sc1_size, sc2_size, pm1_size, pm2_size
+
+IF INTERLEAVE EQ 1
+sine_cosine0	EQU	input + n * 8 + 65536 + 4096
+sine_cosine1	EQU	sine_cosine0 + sc0_size		*INTERLEAVE
+sine_cosine2	EQU	sine_cosine1 + sc1_size		*INTERLEAVE
+pre_mults1	EQU	sine_cosine2 + sc2_size		*INTERLEAVE
+ENDIF
+
+IF INTERLEAVE EQ 2
+sine_cosine0	EQU	input + 32
+sine_cosine1	EQU	sine_cosine0 + sc0_size*4/3	*INTERLEAVE
+sine_cosine2	EQU	sine_cosine1 + sc1_size*4/3	*INTERLEAVE
+pre_mults1	EQU	sine_cosine2 + sc2_size*4/3	*INTERLEAVE
+ENDIF
+
+pre_mults2	EQU	pre_mults1 + pm1_size		*INTERLEAVE
+norm_col_mults	EQU	pre_mults2 + pm2_size		*INTERLEAVE
+norm_grp_mults	EQU	norm_col_mults + 128 * 16	*INTERLEAVE
+norm_aux1	EQU	norm_grp_mults + n / 128 * 16	*INTERLEAVE
+norm_aux2	EQU	norm_aux1 + 32			*INTERLEAVE
+sc1_gap		EQU	32				*INTERLEAVE
+sc2_gap		EQU	32				*INTERLEAVE
+norm_gap	EQU	32				*INTERLEAVE
+big_norm_gap	EQU	64				*INTERLEAVE
+		ENDM
+
+sc1_distances MACRO
+	GAP = sc1_gap
+	SCF = 0
+	IF INTERLEAVE EQ 1
+	SCD = 48
+	ELSE
+	SCD = 2*GAP
+	ENDIF
+	SQRTHALF EQU QWORD PTR ds:(sine_cosine1+16)
+	ENDM
+sc2_distances MACRO
+	GAP = sc2_gap
+	SCF = 0
+	IF INTERLEAVE EQ 1
+	SCD = 48
+	ELSE
+	SCD = 2*GAP
+	ENDIF
+	SQRTHALF EQU QWORD PTR ds:(sine_cosine2)
+	ENDM
+
+;************************* END MEMORY MAP *******************************
+
+INCLUDE	unravel.mac
+INCLUDE	lucas1.mac
+INCLUDE	lucas2.mac
+INCLUDE normal.mac
+INCLUDE pfa.mac
+

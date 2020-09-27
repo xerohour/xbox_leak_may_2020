@@ -1,0 +1,44 @@
+#include "fog.h"
+
+
+#define R_NORMAL r1
+#define R_HALF_VECTOR r8
+#define R_DIFFUSE r5
+#define R_SPECULAR r6
+#define R_POS_WORLD r9
+#define R_TEMP r10
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+mov oT0.xy, v1
+
+dp4 R_POS_WORLD.x, v0, c[CV_WORLD_0]
+dp4 R_POS_WORLD.y, v0, c[CV_WORLD_1]
+dp4 R_POS_WORLD.z, v0, c[CV_WORLD_2]
+dp4 R_POS_WORLD.w, v0, c[CV_WORLD_3]
+
+; Get height from floor
+add R_TEMP.y, R_POS_WORLD.y, c[CV_FOG_SCALE].x
+mul R_TEMP.y, R_TEMP.y, c[CV_FOG_SCALE].y
+mov oT1.y, R_TEMP.y
+
+; Get range
+mov R_POS_WORLD.y, c[CV_ZERO].y
+add R_POS_WORLD, R_POS_WORLD, -c[CV_WORLD_EYE];
+dp3 R_POS_WORLD, R_POS_WORLD, R_POS_WORLD
+rsq R_POS_WORLD.w, R_POS_WORLD.w
+rcp R_POS_WORLD.w, R_POS_WORLD.w
+mul oT1.x, R_POS_WORLD.w, c[CV_FOG_SCALE].z
+
+
+
+
+
+
+

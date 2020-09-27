@@ -1,0 +1,1 @@
+#pragma comment( linker, "/include:_xrlfunc_ExportTableDirectory" )

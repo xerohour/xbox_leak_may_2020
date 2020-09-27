@@ -1,0 +1,84 @@
+// qtest.idl : IDL source for qtest.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (qtest.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(29438ED8-578C-4d61-9F28-D31DDB9F6C66),
+		helpstring("IengineEx Interface"),
+		pointer_default(unique)
+	]
+	interface IengineEx : IUnknown
+	{
+		[helpstring("method MsgAddEx")] HRESULT MsgAddEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] ULONGLONG* rgqwUserIds, [in] unsigned long ulNumUsers, [in] unsigned long ulQType, [in] BYTE* rgbData, [in] unsigned long ulDataLen);
+		[helpstring("method MsgDeadXIPEx")] HRESULT MsgDeadXIPEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] ULONGLONG qwXIP);
+		[helpstring("method MsgDeadXRGEx")] HRESULT MsgDeadXRGEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] ULONGLONG qwXRG);
+		[helpstring("method MsgDeleteEx")] HRESULT MsgDeleteEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulQType, [in] ULONGLONG qwUserId, [in] ULONGLONG qwFirstQUID, [in] ULONGLONG qwLastQUID);
+		[helpstring("method MsgDeleteMatchesEx")] HRESULT MsgDeleteMatchesEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] ULONGLONG* rgqwUserIds, [in] unsigned long ulNumUsers, [in] unsigned long ulQType, [in] unsigned long ulMatchAttrNum, [in] BYTE* rgbData, [in] unsigned long ulDataLen);
+		[helpstring("method MsgHelloEx")] HRESULT MsgHelloEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulVersion, [in] BSTR bstrDescription, [in,defaultvalue(0)] unsigned int uiLen);
+		[helpstring("method MsgListEx")] HRESULT MsgListEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] ULONGLONG qwUserId, [in] unsigned long ulQType, [in] ULONGLONG qwCookie, [in] ULONGLONG qwStartQUID, [in] unsigned long ulMaxItems, [in] unsigned long ulTotalItemDataSize);
+		[helpstring("method MsgUserInfoEx")] HRESULT MsgUserInfoEx([in] boolean fFlush, [in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] ULONGLONG qwUserId, [in] ULONGLONG qwXIP, [in] ULONGLONG qwXRG, [in] unsigned long ulTickleIP, [in] unsigned short usTicklePort);
+		[helpstring("method InitEx")] HRESULT InitEx([in] unsigned long ulcSendBuffers, [in] unsigned long ulcSendBufferSize, [in] long ulcReceiveBufferSize);
+		[helpstring("method GetResponseData")] HRESULT GetResponseData([in] BYTE* rgbData, [in] unsigned long ulDataLen, [in,out] unsigned long* pulDataLen);
+		[helpstring("method SetShutdownEvent")] HRESULT SetShutdownEvent();
+		[helpstring("method CleanupEx")] HRESULT CleanupEx();
+		[helpstring("method Flush")] HRESULT Flush([in] unsigned long ulTimeout);
+	}
+	[
+		object,
+		uuid(E7501DAD-2399-4B00-827E-96E1B5EF861D),
+		dual,
+		helpstring("Iengine Interface"),
+		pointer_default(unique)
+	]
+	interface Iengine : IDispatch
+	{
+		[id(2), helpstring("method Connect")] HRESULT Connect([in] BSTR bstrHost, [in] unsigned int uiPort);
+		[id(3), helpstring("method Disconnect")] HRESULT Disconnect();
+		[id(4), helpstring("method GetACKElement")] HRESULT GetACKElement([in] BSTR bstrElementName, [out,retval] unsigned long *pulElement);
+		[id(5), helpstring("method GetListReplyElement")] HRESULT GetListReplyElement([in] BSTR bstrElementName, [out,retval] unsigned long *pulElement);
+		[id(6), helpstring("method GetListReplyItemElement")] HRESULT GetListReplyItemElement([in] unsigned long ulItem, [in] BSTR bstrElementName, [out,retval] VARIANT* pElement);
+		[id(7), helpstring("method GetMessageElement")] HRESULT GetMessageElement([in] BSTR bstrElementName, [out,retval] unsigned long* pulElement);
+		[id(9), helpstring("method GetReplyType")] HRESULT GetReplyType([out,retval] unsigned long* pulMsgReplyType);
+		[id(10), helpstring("method GetTickleElement")] HRESULT GetTickleElement([in] BSTR bstrElementName, [out,retval] unsigned long* pulElement);
+		[id(11), helpstring("method InternetAddress")] HRESULT InternetAddress([in] BSTR bstrHost, [out,retval] unsigned long* pulIP);
+		[id(12), helpstring("method MsgAdd")] HRESULT MsgAdd([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] BSTR bstrUsers, [in] unsigned long ulNumUsers, [in] unsigned long ulQType, [in] BSTR bstrData, [in] unsigned long ulDataLen);
+		[id(13), helpstring("method MsgDeadXIP")] HRESULT MsgDeadXIP([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulHiXIP, [in] unsigned long ulLoXIP);
+		[id(14), helpstring("method MsgDeadXRG")] HRESULT MsgDeadXRG([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulHiXRG, [in] unsigned long ulLoXRG);
+		[id(15), helpstring("method MsgDelete")] HRESULT MsgDelete([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulQType, [in] unsigned long ulHiUserId, [in] unsigned long ulLoUserId, [in] unsigned long ulHiFirstQUID, [in] unsigned long ulLoFirstQUID, [in] unsigned long ulHiLastQUID, [in] unsigned long ulLoLastQUID);
+		[id(16), helpstring("method MsgDeleteMatches")] HRESULT MsgDeleteMatches([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] BSTR bstrUsers, [in] unsigned long ulNumUsers, [in] unsigned long ulQType, [in] unsigned long ulMatchAttrNum, [in] BSTR bstrData, [in] unsigned long ulDataLen);
+		[id(17), helpstring("method MsgHello")] HRESULT MsgHello([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulVersion, [in] BSTR bstrDescription, [in,defaultvalue(0)] unsigned int uiLen);
+		[id(18), helpstring("method MsgList")] HRESULT MsgList([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulHiUserId, [in] unsigned long ulLoUserId, [in] unsigned long ulQType, [in] unsigned long ulHiCookie, [in] unsigned long ulLoCookie, [in] unsigned long ulHiStartQUID, [in] unsigned long ulLoStartQUID, [in] unsigned long ulMaxItems, [in] unsigned long ulTotalItemDataSize);
+		[id(19), helpstring("method MsgUserInfo")] HRESULT MsgUserInfo([in] unsigned long ulSessionId, [in] unsigned long ulSequence, [in] unsigned long ulHiUserId, [in] unsigned long ulLoUserId, [in] unsigned long ulLoXIP, [in] unsigned long ulHiXIP, [in] unsigned long ulHiXRG, [in] unsigned long ulLoXRG, [in] unsigned long ulTickleIP, [in] unsigned short usTicklePort);
+		[id(21), helpstring("method TickleListen")] HRESULT TickleListen([in] VARIANT_BOOL fOn, [in] unsigned short usTicklePort);
+		[id(22), helpstring("method WaitForDisconnect")] HRESULT WaitForDisconnect([in] int iTimeout, [out,retval] VARIANT_BOOL* pfConnected);
+		[id(23), helpstring("method WaitForReply")] HRESULT WaitForReply([in] unsigned long ulTimeout, [out,retval] VARIANT_BOOL* pfTimeout);
+		[id(24), helpstring("method WaitForTickle")] HRESULT WaitForTickle([in] unsigned long ulTimeout, [out,retval] VARIANT_BOOL* pfTimeout);
+		[id(25), helpstring("method Init")] HRESULT Init();
+		[id(26), helpstring("method Cleanup")] HRESULT Cleanup();
+	};
+
+[
+	uuid(C62BD187-6131-43E7-A5F7-8D506704E120),
+	version(1.0),
+	helpstring("qtest 1.0 Type Library")
+]
+library QTESTLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(49796A3E-3EAA-4B51-AD59-DE594206FAB4),
+		helpstring("engine Class")
+	]
+	coclass engine
+	{
+		[default] interface Iengine;
+		interface IengineEx;
+	};
+};

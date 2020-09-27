@@ -1,0 +1,778 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+#include "prjids.h"
+
+typedef enum enumBool
+{
+	[helpstringcontext(VCTDENUM_No)]variantFalse = 0,
+	[helpstringcontext(VCTDENUM_Yes)]variantTrue = -1
+} enumBOOL;
+
+
+typedef enum optimizeOption	// all options other than optimizeCustom override any other option in this set
+{
+	[helpstringcontext(VCTDENUM_optimizeDisabled)]optimizeDisabled,	// (/Od) disable optimizations (default); overrides Og
+	[helpstringcontext(VCTDENUM_optimizeMinSpace)]optimizeMinSpace,	// (/O1) minimize space; incompatible with all RTC options, GZ, ZI, EEf; overrides GF, Oi, Ot, Oy, Ob0, Ob2
+	[helpstringcontext(VCTDENUM_optimizeMaxSpeed)]optimizeMaxSpeed,	// (/O2) maximize speed; incompatible with all RTC options, GZ, ZI, EEf; overrides Og
+	[helpstringcontext(VCTDENUM_optimizeFull)]optimizeFull,		// (/Ox) full optimization;	incompatible with all RTC options, GZ, ZI, EEf
+	[helpstringcontext(VCTDENUM_optimizeCustom)]optimizeCustom		// (pseudo-property) one or more optimization properties (other than Optimization) is set
+} optimizeOption;
+
+typedef enum inlineExpansionOption
+{
+	[helpstringcontext(VCTDENUM_expandDisable)]expandDisable,		// (/Ob0, default) disable inline expansion
+	[helpstringcontext(VCTDENUM_expandOnlyInline)]expandOnlyInline,	// (/Ob1) expand only functions explicitly marked inline, default with /O1, /O2, /Ox, incompatible with /ZI, EEf
+	[helpstringcontext(VCTDENUM_expandAnySuitable)]expandAnySuitable	// (/Ob2) auto-expand functions at compiler discretion, incompatible with /ZI, /EEf
+} inlineExpansionOption;
+
+typedef enum favorSizeOrSpeedOption
+{
+	[helpstringcontext(VCTDENUM_favorNone)]favorNone,		// default (not set) -- need a way to turn this option off altogether
+	[helpstringcontext(VCTDENUM_favorSpeed)]favorSpeed,		// (/Ot) favor code speed
+	[helpstringcontext(VCTDENUM_favorSize)]favorSize		// (/Os) favor code size
+} favorSizeOrSpeedOption;
+
+typedef enum preprocessOption
+{
+	[helpstringcontext(VCTDENUM_preprocessNo)]preprocessNo,				// option not set
+	[helpstringcontext(VCTDENUM_preprocessYes)]preprocessYes,			// (/P) preprocess to a file, overrides /Gm
+	[helpstringcontext(VCTDENUM_preprocessNoLineNumbers)]preprocessNoLineNumbers	// (/EP /P) preprocess to file, no line numbers, overrides /Gm
+} preprocessOption;
+
+typedef enum ptrMemberOption
+{
+	[helpstringcontext(VCTDENUM_ptrMemAny)]ptrMemAny,			// (/vmg + /vmv) point to any class (default)
+	[helpstringcontext(VCTDENUM_ptrMemGeneral)]ptrMemGeneral,		// (/vmg) represent pointers to members in general-purpose fashion
+	[helpstringcontext(VCTDENUM_ptrMemBestCase)]ptrMemBestCase,		// (/vmb) represent pointers to members in best-case fashion (members must be declared before ptrs to them are)
+	[helpstringcontext(VCTDENUM_ptrMemMultiInherit)]ptrMemMultiInherit,	// (/vmg + /vmm) point to single- and multiple- inherit classes
+	[helpstringcontext(VCTDENUM_ptrMemSingleInherit)]ptrMemSingleInherit	// (/vmg + /vms) point to single- inherit classes
+} ptrMemberOption;
+
+typedef enum pchOption
+{
+	[helpstringcontext(VCTDENUM_pchNone)]pchNone,								// default
+	[helpstringcontext(VCTDENUM_pchCreateUsingSpecific)]pchCreateUsingSpecific,	// (/Yc)
+	[helpstringcontext(VCTDENUM_pchGenerateAuto)]pchGenerateAuto,				// (/YX)
+	[helpstringcontext(VCTDENUM_pchUseUsingSpecific)]pchUseUsingSpecific		// (/Yu)
+} pchOption;
+
+typedef enum asmListingOption
+{
+	[helpstringcontext(VCTDENUM_asmListingNone)]asmListingNone,				// no listing at all (same as not set)
+	[helpstringcontext(VCTDENUM_asmListingAssemblyOnly)]asmListingAssemblyOnly,		// assembly only listing (/FA), by default generates a file with a .ASM extension
+	[helpstringcontext(VCTDENUM_asmListingAsmMachineSrc)]asmListingAsmMachineSrc,	// assembly, machine code, and source listing (/FAcs), by default generates a file with a .COD extension
+	[helpstringcontext(VCTDENUM_asmListingAsmMachine)]asmListingAsmMachine,		// assembly and machine code listing (/FAc), by default generates a file with a .COD extension
+	[helpstringcontext(VCTDENUM_asmListingAsmSrc)]asmListingAsmSrc			// assembly and source listing (/FAs), by default generates a file with a .ASM extension
+} asmListingOption;
+
+typedef enum debugOption
+{
+	[helpstringcontext(VCTDENUM_debugDisabled)]debugDisabled,			// option not set
+	[helpstringcontext(VCTDENUM_debugOldStyleInfo)]debugOldStyleInfo,		// (/Z7) enable old-style debug info, incompatible with /Gi
+	[helpstringcontext(VCTDENUM_debugLineInfoOnly)]debugLineInfoOnly,		// (/Zd) line number debugging info only
+	[helpstringcontext(VCTDENUM_debugEnabled)]debugEnabled,			// (/Zi) enable debugging info
+	[helpstringcontext(VCTDENUM_debugEditAndContinue)]debugEditAndContinue	// (/ZI) enable edit and continue debug info, incompatible with Og, Ox, O1, O2, Ob1, Ob2, dlp
+} debugOption;
+
+typedef enum browseInfoOption
+{
+	[helpstringcontext(VCTDENUM_None)]brInfoNone,				// this option not set
+	[helpstringcontext(VCTDENUM_brAllInfo)]brAllInfo,			// (/FR[name]), generate browse info file, with optional file name
+	[helpstringcontext(VCTDENUM_brNoLocalSymbols)]brNoLocalSymbols	// (/Fr[name]), generate browse info file with no local symbols, with optional file name
+} browseInfoOption;
+
+typedef enum CompileAsOptions
+{
+	[helpstringcontext(VCTDENUM_Default)]compileAsDefault,	// compile based on normal rules
+	[helpstringcontext(VCTDENUM_compileAsC)]compileAsC,			// compile as C regardless of file(s) extension(s)	(/Tc, /TC)
+	[helpstringcontext(VCTDENUM_compileAsCPlusPlus)]compileAsCPlusPlus	// compile as C++ regardless of file(s) extension(s) (/Tp, /TP)
+} CompileAsOptions;
+
+typedef enum warningLevelOption
+{
+	[helpstringcontext(VCTDENUM_warningLevel_0)]warningLevel_0,	// (/W!0) ignore all warnings
+	[helpstringcontext(VCTDENUM_warningLevel_1)]warningLevel_1,	// (/W!1) ignore all but most severe warnings (default)
+	[helpstringcontext(VCTDENUM_warningLevel_2)]warningLevel_2,	// (/W!2) medium level warning messages
+	[helpstringcontext(VCTDENUM_warningLevel_3)]warningLevel_3,	// (/W!3) low level warning messages
+	[helpstringcontext(VCTDENUM_warningLevel_4)]warningLevel_4	// (/W!4) show informational-level warning messages; not valid for linker
+} warningLevelOption;
+
+typedef enum ProcessorOptimizeOption
+{
+	[helpstringcontext(VCTDENUM_procOptimizeBlended)]procOptimizeBlended,	// (/GB) optimize for blended model (default)
+	[helpstringcontext(VCTDENUM_procOptimizePentium)]procOptimizePentium,	// (/G5) optimize for Pentium
+	[helpstringcontext(VCTDENUM_procOptimizePentiumProAndAbove)]procOptimizePentiumProAndAbove	// (/G6) optimize for Pentium Pro, P-II, P-III, etc.
+} ProcessorOptimizeOption;
+
+typedef enum enumOptimizeForWindowsApplicationBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]OptimizeForWindowsApplicationNo = 0,
+	[helpstringcontext(VCTDENUM_OptimizeForWindowsApplicationYes)]OptimizeForWindowsApplicationYes = -1	// (/GA) optimize for a Windows Application
+} enumOptimizeForWindowsApplicationBOOL;
+
+typedef enum callingConventionOption
+{
+	[helpstringcontext(VCTDENUM_callConventionCDecl)]callConventionCDecl,	// (/Gd) _cdecl calling convention
+	[helpstringcontext(VCTDENUM_callConventionFastCall)]callConventionFastCall,	// (/Gr) _fastcall calling convention
+	[helpstringcontext(VCTDENUM_callConventionStdCall)]callConventionStdCall	// (/Gz) _stdcall calling convention
+} callingConventionOption;
+
+typedef enum structMemberAlignOption	// struct member alignment
+{
+	[helpstringcontext(VCTDENUM_Default)]alignNotSet,				// none of the below set
+	[helpstringcontext(VCTDENUM_alignSingleByte)]alignSingleByte,	// (/Zp1) align on single byte boundaries
+	[helpstringcontext(VCTDENUM_alignTwoBytes)]alignTwoBytes,		// (/Zp2) align on two byte boundaries
+	[helpstringcontext(VCTDENUM_alignFourBytes)]alignFourBytes,		// (/Zp4) align on four byte boundaries
+	[helpstringcontext(VCTDENUM_alignEightBytes)]alignEightBytes,	// (/Zp8) align on eight byte boundaries (default)
+	[helpstringcontext(VCTDENUM_alignSixteenBytes)]alignSixteenBytes	// (/Zp16) align on sixteen byte boundaries (not valid for MIDL)
+} structMemberAlignOption;
+
+typedef enum runtimeLibraryOption
+{
+	[helpstringcontext(VCTDENUM_rtMultiThreaded)]rtMultiThreaded,		// (/MT) multi-threaded, link with LIBCMT.LIB (default)
+	[helpstringcontext(VCTDENUM_rtMultiThreadedDebug)]rtMultiThreadedDebug,	// (/MTd) debug multi-threaded, link with LIBCMTD.LIB
+	[helpstringcontext(VCTDENUM_rtMultiThreadedDLL)]rtMultiThreadedDLL,		// (/MD) multi-threaded DLL, link with MSVCRT.LIB
+	[helpstringcontext(VCTDENUM_rtMultiThreadedDebugDLL)]rtMultiThreadedDebugDLL,	// (/MDd) debug multi-threaded DLL, link with MSVCRTD.LIB
+	[helpstringcontext(VCTDENUM_rtSingleThreaded)]rtSingleThreaded,		// (/ML) single-threaded, link with LIBC.LIB
+	[helpstringcontext(VCTDENUM_rtSingleThreadedDebug)]rtSingleThreadedDebug	// (/MLd) debug single-threaded, link with LIBCD.LIB
+} runtimeLibraryOption;
+
+typedef enum compileAsManagedOptions
+{
+	[helpstringcontext(VCTDENUM_managedNone)]managedNotSet,				// none of the below
+	[helpstringcontext(VCTDENUM_managedAssembly)]managedAssembly = 2	// (/clr) full managed assembly support
+} compileAsManagedOptions;
+
+typedef enum basicRuntimeCheckOption
+{
+	[helpstringcontext(VCTDENUM_Default)]runtimeBasicCheckNone = 0,								// not set
+	[helpstringcontext(VCTDENUM_runtimeCheckStackFrame)]runtimeCheckStackFrame = 1,				// (/RTCs) check stack frames
+	[helpstringcontext(VCTDENUM_runtimeCheckUninitVariables)]runtimeCheckUninitVariables = 2,	// (/RTCu) uninitialized variable check
+	[helpstringcontext(VCTDENUM_runtimeCheckBasic)]runtimeBasicCheckAll = 3						// (/RTC1, equiv. /RTCsu) enable basic checks, incompatible with Og, O1, O2, Ox
+} basicRuntimeCheckOption;
+
+typedef enum codeGenerationStyles
+{
+	[helpstringcontext(VCTDENUM_codeGenerationOptionNotSet)]codeGenerationOptionNotSet,			// no switches set
+	[helpstringcontext(VCTDENUM_codeGenerationManagedMSIL)]codeGenerationManagedMSIL,			// (/EEi) generate managed MSIL code
+	[helpstringcontext(VCTDENUM_codeGenerationManagedNative)]codeGenerationManagedNative,		// (/EEnm) generate managed native code
+	[helpstringcontext(VCTDENUM_codeGenerationUnmanagedNative)]codeGenerationUnmanagedNative	// (/EEnm-) generate unmanaged native
+} codeGenerationStyles;
+
+// linker
+typedef enum subSystemOption	// subsystem (linker and librarian)
+{
+	[helpstringcontext(VCTDENUM_subSystemNotSet)]subSystemNotSet,	// option not set
+	[helpstringcontext(VCTDENUM_subSystemConsole)]subSystemConsole,	// (/SUBSYSTEM:CONSOLE) Win32 character-mode app
+	[helpstringcontext(VCTDENUM_subSystemWindows)]subSystemWindows,	// (/SUBSYSTEM:WINDOWS) Windows app
+} subSystemOption;
+
+typedef enum machineTypeOption	// specify target machine (linker)
+{
+	[helpstringcontext(VCTDENUM_machineNotSet)]machineNotSet,	// option not set
+	[helpstringcontext(VCTDENUM_machineX86)]machineX86			// (/MACHINE:IX86)
+} machineTypeOption;
+
+typedef enum linkProgressOption	// verbose option (linker)
+{
+	[helpstringcontext(VCTDENUM_linkProgressNotSet)]linkProgressNotSet,	// none of the below set
+	[helpstringcontext(VCTDENUM_linkProgressAll)]linkProgressAll,	// (/VERBOSE) display details about linking process
+	[helpstringcontext(VCTDENUM_linkProgressLibs)]linkProgressLibs	// (/VERBOSE:LIB) display only messages about libraries searched
+} linkProgressOption;
+
+typedef enum optRefType	// /OPT option (linker)
+{
+	[helpstringcontext(VCTDENUM_Default)] optReferencesDefault,				// neither of the below set
+	[helpstringcontext(VCTDENUM_optNoReferences)] optNoReferences,			// /OPT:NOREF
+	[helpstringcontext(VCTDENUM_optReferences)] optReferences				// /OPT:REF
+} optRefType;
+
+typedef enum addressAwarenessType	// /LARGEADDRESSAWARE
+{
+	[helpstringcontext(VCTDENUM_addrAwareDefault)] addrAwareDefault,	// neither option set
+	[helpstringcontext(VCTDENUM_addrAwareNoLarge)] addrAwareNoLarge,	// /LARGEADDRESSAWARE:NO
+	[helpstringcontext(VCTDENUM_addrAwareLarge)] addrAwareLarge			// /LARGEADDRESSAWARE
+} addressAwarenessType;
+
+typedef enum optFoldingType	// /OPT:ICF
+{
+	[helpstringcontext(VCTDENUM_Default)] optFoldingDefault,			// neither option set
+	[helpstringcontext(VCTDENUM_optNoFolding)] optNoFolding,			// /OPT:NOICF
+	[helpstringcontext(VCTDENUM_optFolding)] optFolding					// /OPT:ICF
+} optFoldingType;
+
+typedef enum optWin98Type	// /OPT:WIN98
+{
+	[helpstringcontext(VCTDENUM_Default)] optWin98Default,			// neither option set
+	[helpstringcontext(VCTDENUM_optWin98No)] optWin98No,			// /OPT:NOWIN98
+	[helpstringcontext(VCTDENUM_optWin98Yes)] optWin98Yes			// /OPT:WIN98
+} optWin98Type;
+
+typedef enum linkIncrementalType	// /INCREMENTAL
+{
+	[helpstringcontext(VCTDENUM_Default)] linkIncrementalDefault,			// neither option set
+	[helpstringcontext(VCTDENUM_linkIncrementalNo)] linkIncrementalNo,		// /INCREMENTAL:NO
+	[helpstringcontext(VCTDENUM_linkIncrementalYes)] linkIncrementalYes		// /INCREMENTAL
+} linkIncrementalType;
+
+typedef enum termSvrAwarenessType	// /TSAWARE
+{
+	[helpstringcontext(VCTDENUM_Default)] termSvrAwareDefault,				// neither option set
+	[helpstringcontext(VCTDENUM_termSvrAwareNo)] termSvrAwareNo,			// /TSAWARE:NO
+	[helpstringcontext(VCTDENUM_termSvrAwareYes)] termSvrAwareYes			// /TSAWARE
+} termSvrAwarenessType;
+
+// midl
+
+typedef enum midlWarningLevelOption
+{
+	[helpstringcontext(VCTDENUM_midlWarningLevel_0)]midlWarningLevel_0,	// (/W!0) ignore all warnings
+	[helpstringcontext(VCTDENUM_midlWarningLevel_1)]midlWarningLevel_1,	// (/W!1) ignore all but most severe warnings (default)
+	[helpstringcontext(VCTDENUM_midlWarningLevel_2)]midlWarningLevel_2,	// (/W!2) medium level warning messages
+	[helpstringcontext(VCTDENUM_midlWarningLevel_3)]midlWarningLevel_3,	// (/W!3) low level warning messages
+	[helpstringcontext(VCTDENUM_midlWarningLevel_4)]midlWarningLevel_4,	// (/W!4) show informational-level warning messages; not valid for linker
+} midlWarningLevelOption;
+
+typedef enum midlCharOption
+{
+	[helpstringcontext(VCTDENUM_midlCharUnsigned)]midlCharUnsigned,	// (/char unsigned) char is by default unsigned (default)
+	[helpstringcontext(VCTDENUM_midlCharSigned)]midlCharSigned,		// (/char signed) char is by default signed
+	[helpstringcontext(VCTDENUM_midlCharAscii7)]midlCharAscii7		// (/char ascii7) char is in range 0 - 127
+} midlCharOption;
+
+typedef enum midlErrorCheckOption
+{
+	[helpstringcontext(VCTDENUM_midlEnableCustom)]midlEnableCustom,	// neither option set, therefore able to enable particular error checks
+	[helpstringcontext(VCTDENUM_midlDisableAll)]midlDisableAll,		// (/error none) perform no error checks
+	[helpstringcontext(VCTDENUM_midlEnableAll)]midlEnableAll		// (/error all) perform all error checks
+} midlErrorCheckOption;
+
+typedef enum midlTargetEnvironment
+{
+	[helpstringcontext(VCTDENUM_midlTargetNotSet)]midlTargetNotSet,		// neither option set
+	[helpstringcontext(VCTDENUM_midlTargetWin32)]midlTargetWin32,		// (/env win32) target Win32 environment (default)
+	[helpstringcontext(VCTDENUM_midlTargetWin64)]midlTargetWin64		// (/env win64) target Win64 environment
+} midlTargetEnvironment;
+
+typedef enum enumGenerateTypeLibraryBOOL
+{
+	[helpstringcontext(VCTDENUM_GenerateTypeLibraryFalse)]GenerateTypeLibraryFalse = 0,	// (/notlb) don't generate a type library
+	[helpstringcontext(VCTDENUM_Yes)]GenerateTypeLibraryTrue = -1						// generate type library
+} enumGenerateTypeLibraryBOOL;
+
+typedef enum midlStructMemberAlignOption	// struct member alignment
+{
+	[helpstringcontext(VCTDENUM_midlAlignNotSet)]midlAlignNotSet,			// none of the below set
+	[helpstringcontext(VCTDENUM_midlAlignSingleByte)]midlAlignSingleByte,	// (/Zp1) align on single byte boundaries
+	[helpstringcontext(VCTDENUM_midlAlignTwoBytes)]midlAlignTwoBytes,		// (/Zp2) align on two byte boundaries
+	[helpstringcontext(VCTDENUM_midlAlignFourBytes)]midlAlignFourBytes,		// (/Zp4) align on four byte boundaries
+	[helpstringcontext(VCTDENUM_midlAlignEightBytes)]midlAlignEightBytes	// (/Zp8) align on eight byte boundaries (default)
+} midlStructMemberAlignOption;
+
+typedef enum ConfigurationTypes
+{
+	[helpstringcontext(VCTDENUM_typeUnknown)]typeUnknown = 0,
+	[helpstringcontext(VCTDENUM_typeApplication)]typeApplication = 1,
+	[helpstringcontext(VCTDENUM_typeDynamicLibrary)]typeDynamicLibrary = 2,
+	[helpstringcontext(VCTDENUM_typeStaticLibrary)]typeStaticLibrary = 4,
+	[helpstringcontext(VCTDENUM_typeGeneric)]typeGeneric = 10,
+ } ConfigurationTypes;
+
+typedef enum ProjectitemTypes
+{
+	[helpstringcontext(VCTDENUM_typeFile)]typeFile = 0,
+	[helpstringcontext(VCTDENUM_typeFilter)]typeFilter = 1,
+	[helpstringcontext(VCTDENUM_typeProject)]typeProject = 2,
+} ProjectitemTypes;
+
+typedef enum useOfMfc
+{
+	[helpstringcontext(VCTDENUM_useMfcStdWin)]useMfcStdWin,	// don't use MFC, but do use core Win32 stuff
+	[helpstringcontext(VCTDENUM_useMfcStatic)]useMfcStatic,	// static link to MFC
+	[helpstringcontext(VCTDENUM_useMfcDynamic)]useMfcDynamic	// dynamic link to MFC
+} useOfMfc;
+
+typedef enum useOfATL
+{
+	[helpstringcontext(VCTDENUM_useATLNotSet)]useATLNotSet,		// not set at all
+	[helpstringcontext(VCTDENUM_useATLStatic)]useATLStatic,		// static link to ATL
+	[helpstringcontext(VCTDENUM_useATLDynamic)]useATLDynamic	// dynamic link to ATL
+} useOfATL;
+
+typedef enum charSet
+{
+	[helpstringcontext(VCTDENUM_charSetNotSet)]charSetNotSet,		// not set at all
+	[helpstringcontext(VCTDENUM_charSetUnicode)]charSetUnicode,		// use Unicode
+	[helpstringcontext(VCTDENUM_charSetMBCS)]charSetMBCS			// use MBCS
+} charSet;
+
+typedef enum toolSetType
+{
+	[helpstringcontext(VCTDENUM_toolSetUtility)]toolSetUtility,	// use the utility project toolset
+	[helpstringcontext(VCTDENUM_toolSetMakefile)]toolSetMakefile,	// use the makefile project toolset
+	[helpstringcontext(VCTDENUM_toolSetLinker)]toolSetLinker,	// use the linker toolset
+	[helpstringcontext(VCTDENUM_toolSetLibrarian)]toolSetLibrarian,	// use the librarian toolset
+	[helpstringcontext(VCTDENUM_toolSetAll)]toolSetAll			// pick up any and all tools
+} toolSetType;
+
+typedef enum enumSccEvent
+{
+	eProjectInScc,
+	ePreDirtyNotification
+} enumSccEvent;
+	
+typedef enum TypeOfDebugger
+{
+	[helpstringcontext(VCDSID_TypeNativeOnly)]DbgNativeOnly = 0,
+	[helpstringcontext(VCDSID_TypeManagedOnly)]DbgManagedOnly = 1,
+	[helpstringcontext(VCDSID_TypeMixed)]DbgMixed = 2,
+	[helpstringcontext(VCDSID_TypeAuto)]DbgAuto = 3
+} TypeOfDebugger;
+		
+typedef enum RemoteDebuggerType
+{
+	[helpstringcontext(VCDSID_RemoteLocal)]DbgLocal = 0,
+	[helpstringcontext(VCDSID_RemoteDCOM)]DbgRemote = 1,
+	[helpstringcontext(VCDSID_RemoteTCPIP)]DbgRemoteTCPIP = 2,
+} RemoteDebuggerType;
+
+typedef enum genProxyLanguage
+{
+	[helpstringcontext(VCTDENUM_genProxyNative)]genProxyNative,		// generate a native C++ proxy
+	[helpstringcontext(VCTDENUM_genProxyManaged)]genProxyManaged
+} genProxyLanguage;
+
+typedef enum enumGlobalOptimizationsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]GlobalOptimizationsFalse	= 0,					// not set
+	[helpstringcontext(VCTDENUM_GlobalOptimizationsTrue)]GlobalOptimizationsTrue = -1	// /Og
+} enumGlobalOptimizationsBOOL;
+
+typedef enum enumEnableIntrinsicFunctionsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]EnableIntrinsicFunctionsFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_EnableIntrinsicFunctionsTrue)]EnableIntrinsicFunctionsTrue = -1	// /Oi
+} enumEnableIntrinsicFunctionsBOOL;
+
+typedef enum enumImproveFloatingPointConsistencyBOOL
+{
+	[helpstringcontext(VCTDENUM_ImproveFloatingPointConsistencyFalse)]ImproveFloatingPointConsistencyFalse = 0,	// not set
+	[helpstringcontext(VCTDENUM_ImproveFloatingPointConsistencyTrue)]ImproveFloatingPointConsistencyTrue = -1		// /Op
+} enumImproveFloatingPointConsistencyBOOL;
+
+typedef enum enumOmitFramePointersBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]OmitFramePointersFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_OmitFramePointersTrue)]OmitFramePointersTrue = -1	// /Oy
+} enumOmitFramePointersBOOL;
+
+typedef enum enumEnableFiberSafeOptimizationsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]EnableFiberSafeOptimizationsFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_EnableFiberSafeOptimizationsTrue)]EnableFiberSafeOptimizationsTrue = -1	// /GT
+} enumEnableFiberSafeOptimizationsBOOL;
+
+typedef enum enumUndefineAllPreprocessorDefinitionsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]UndefineAllPreprocessorDefinitionsFalse = 0,				// not set
+	[helpstringcontext(VCTDENUM_UndefineAllPreprocessorDefinitionsTrue)]UndefineAllPreprocessorDefinitionsTrue = -1	// /u
+} enumUndefineAllPreprocessorDefinitionsBOOL;
+
+typedef enum enumIgnoreStandardIncludePathBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]IgnoreStandardIncludePathFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_IgnoreStandardIncludePathTrue)]IgnoreStandardIncludePathTrue = -1	// /X
+} enumIgnoreStandardIncludePathBOOL;
+
+typedef enum enumMidlIgnoreStandardIncludePathBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]MidlIgnoreStandardIncludePathFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_MidlIgnoreStandardIncludePathTrue)]MidlIgnoreStandardIncludePathTrue = -1	// /no_def_idir
+} enumMidlIgnoreStandardIncludePathBOOL;
+
+typedef enum enumKeepCommentsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]KeepCommentsFalse = 0,				// not set
+	[helpstringcontext(VCTDENUM_KeepCommentsTrue)]KeepCommentsTrue = -1	// /C
+} enumKeepCommentsBOOL;
+
+typedef enum enumShowIncludesBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ShowIncludesFalse = 0,				// not set
+	[helpstringcontext(VCTDENUM_ShowIncludesTrue)]ShowIncludesTrue = -1	// /showIncludes
+} enumShowIncludesBOOL;
+
+typedef enum enumSmallerTypeCheckBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]SmallerTypeCheckFalse = 0,					// not set
+	[helpstringcontext(VCTDENUM_SmallerTypeCheckTrue)]SmallerTypeCheckTrue = -1	// /RTCc
+} enumSmallerTypeCheckBOOL;
+
+typedef enum enumBufferSecurityCheckBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]BufferSecurityCheckFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_BufferSecurityCheckTrue)]BufferSecurityCheckTrue = -1	// /GS
+} enumBufferSecurityCheckBOOL;
+
+typedef enum enumMinimalRebuildBOOL
+{
+	[helpstringcontext(VCTDENUM_MinimalRebuildFalse)]MinimalRebuildFalse = 0,	// /FD
+	[helpstringcontext(VCTDENUM_MinimalRebuildTrue)]MinimalRebuildTrue = -1		// /Gm
+} enumMinimalRebuildBOOL;
+
+typedef enum enumRTTIBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]RTTIFalse = 0,			// not set
+	[helpstringcontext(VCTDENUM_RTTITrue)]RTTITrue = -1		// /GR
+} enumRTTIBOOL;
+
+typedef enum enumExceptionHandlingBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ExceptionHandlingFalse = 0,							// nothing set
+	[helpstringcontext(VCTDENUM_ExceptionHandlingTrue)]ExceptionHandlingTrue = -1,		// (/EHsc) enable C++ EH 
+} enumExceptionHandlingBOOL;
+
+typedef enum enumDisableLanguageExtensionsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]DisableLanguageExtensionsFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_DisableLanguageExtensionsTrue)]DisableLanguageExtensionsTrue = -1	// /Za
+} enumDisableLanguageExtensionsBOOL;
+
+typedef enum enumDefaultCharIsUnsignedBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]DefaultCharIsUnsignedFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_DefaultCharIsUnsignedTrue)]DefaultCharIsUnsignedTrue = -1	// /J
+} enumDefaultCharIsUnsignedBOOL;
+
+typedef enum enumTreatWChar_tAsBuiltInTypeBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]TreatWChar_tAsBuiltInTypeFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_TreatWChar_tAsBuiltInTypeTrue)]TreatWChar_tAsBuiltInTypeTrue = -1	// /Zc:wchar_t
+} enumTreatWChar_tAsBuiltInTypeBOOL;
+
+typedef enum enumEnableFunctionLevelLinkingBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]EnableFunctionLevelLinkingFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_EnableFunctionLevelLinkingTrue)]EnableFunctionLevelLinkingTrue = -1		// /Gy
+} enumEnableFunctionLevelLinkingBOOL;
+
+typedef enum enumExpandAttributedSourceBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ExpandAttributedSourceFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ExpandAttributedSourceTrue)]ExpandAttributedSourceTrue = -1	// /Fx
+} enumExpandAttributedSourceBOOL;
+
+typedef enum enumWarnAsErrorBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]WarnAsErrorFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_WarnAsErrorTrue)]WarnAsErrorTrue = -1			// /WX
+} enumWarnAsErrorBOOL;
+
+typedef enum enumSuppressStartupBannerBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]SuppressStartupBannerFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_SuppressStartupBannerTrue)]SuppressStartupBannerTrue = -1	// /nologo
+} enumSuppressStartupBannerBOOL;
+
+typedef enum enumSuppressStartupBannerUpBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]SuppressStartupBannerUpFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_SuppressStartupBannerUpTrue)]SuppressStartupBannerUpTrue = -1	// /NOLOGO
+} enumSuppressStartupBannerUpBOOL;
+
+typedef enum enumDetect64BitPortabilityProblemsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]Detect64BitPortabilityProblemsFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_Detect64BitPortabilityProblemsTrue)]Detect64BitPortabilityProblemsTrue = -1	// /Wp64
+} enumDetect64BitPortabilityProblemsBOOL;
+
+typedef enum enumForceConformanceInForLoopScopeBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ForceConformanceInForLoopScopeFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ForceConformanceInForLoopScopeTrue)]ForceConformanceInForLoopScopeTrue = -1	// /Zc:forScope
+} enumForceConformanceInForLoopScopeBOOL;
+
+typedef enum enumIgnoreAllDefaultLibrariesBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]IgnoreAllDefaultLibrariesFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_IgnoreAllDefaultLibrariesTrue)]IgnoreAllDefaultLibrariesTrue = -1	// /NODEFAULTLIB
+} enumIgnoreAllDefaultLibrariesBOOL;
+
+typedef enum enumResourceOnlyDLLBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ResourceOnlyDLLFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ResourceOnlyDLLTrue)]ResourceOnlyDLLTrue = -1		// /NOENTRY
+} enumResourceOnlyDLLBOOL;
+
+typedef enum enumSetChecksumBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]SetChecksumFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_SetChecksumTrue)]SetChecksumTrue = -1			// /RELEASE
+} enumSetChecksumBOOL;
+
+typedef enum enumTurnOffAssemblyGenerationBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]TurnOffAssemblyGenerationFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_TurnOffAssemblyGenerationTrue)]TurnOffAssemblyGenerationTrue = -1	// /NOASSEMBLY
+} enumTurnOffAssemblyGenerationBOOL;
+
+typedef enum enumSwapRunFromCDBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]SwapRunFromCDFalse = 0,					// not set
+	[helpstringcontext(VCTDENUM_SwapRunFromCDTrue)]SwapRunFromCDTrue = -1	// /SWAPRUN:CD
+} enumSwapRunFromCDBOOL;
+
+typedef enum enumSwapRunFromNetBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]SwapRunFromNetFalse = 0,					// not set
+	[helpstringcontext(VCTDENUM_SwapRunFromNetTrue)]SwapRunFromNetTrue = -1		// /SWAPRUN:NET
+} enumSwapRunFromNetBOOL;
+
+typedef enum enumGenerateDebugInformationBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]GenerateDebugInformationFalse = 0,								// not set
+	[helpstringcontext(VCTDENUM_GenerateDebugInformationTrue)]GenerateDebugInformationTrue = -1		// /DEBUG
+} enumGenerateDebugInformationBOOL;
+
+typedef enum enumGenerateMapFileBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]GenerateMapFileFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_GenerateMapFileTrue)]GenerateMapFileTrue = -1		// /MAP
+} enumGenerateMapFileBOOL;
+
+typedef enum enumMapExportsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]MapExportsFalse = 0,					// not set
+	[helpstringcontext(VCTDENUM_MapExportsTrue)]MapExportsTrue = -1		// /MAPINFO:EXPORTS
+} enumMapExportsBOOL;
+
+typedef enum enumMapLinesBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]MapLinesFalse = 0,					// not set
+	[helpstringcontext(VCTDENUM_MapLinesTrue)]MapLinesTrue = -1			// /MAPINFO:LINES
+} enumMapLinesBOOL;
+
+typedef enum enumSupportUnloadOfDelayLoadedDLLBOOL
+{
+	[helpstringcontext(VCTDENUM_SupportUnloadOfDelayLoadedDLLFalse)]SupportUnloadOfDelayLoadedDLLFalse = 0,	// not set
+	[helpstringcontext(VCTDENUM_SupportUnloadOfDelayLoadedDLLTrue)]SupportUnloadOfDelayLoadedDLLTrue = -1	// /DELAY:UNLOAD
+} enumSupportUnloadOfDelayLoadedDLLBOOL;
+
+typedef enum enumIgnoreEmbeddedIDLBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]IgnoreEmbeddedIDLFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_IgnoreEmbeddedIDLTrue)]IgnoreEmbeddedIDLTrue = -1	// /IGNOREIDL
+} enumIgnoreEmbeddedIDLBOOL;
+
+typedef enum enumShowProgressBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ShowProgressFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ShowProgressTrue)]ShowProgressTrue = -1			// /v
+} enumShowProgressBOOL;
+
+typedef enum enumMkTypLibCompatibleBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]MkTyplibCompatibilityFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_MkTyplibCompatibleTrue)]MkTyplibCompatibilityTrue = -1	// /mktyplib203
+} enumMkTypLibCompatibleBOOL;
+
+typedef enum enumErrorCheckAllocationsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ErrorCheckAllocationsFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_ErrorCheckAllocationsTrue)]ErrorCheckAllocationsTrue = -1	// /error allocation
+} enumErrorCheckAllocationsBOOL;
+
+typedef enum enumErrorCheckBoundsBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ErrorCheckBoundsFalse = 0,					// not set
+	[helpstringcontext(VCTDENUM_ErrorCheckBoundsTrue)]ErrorCheckBoundsTrue = -1	// /error bounds_check
+} enumErrorCheckBoundsBOOL;
+
+typedef enum enumErrorCheckEnumRangeBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ErrorCheckEnumRangeFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ErrorCheckEnumRangeTrue)]ErrorCheckEnumRangeTrue = -1	// /error enum
+} enumErrorCheckEnumRangeBOOL;
+
+typedef enum enumErrorCheckRefPointersBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ErrorCheckRefPointersFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_ErrorCheckRefPointersTrue)]ErrorCheckRefPointersTrue = -1	// /error ref
+} enumErrorCheckRefPointersBOOL;
+
+typedef enum enumErrorCheckStubDataBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ErrorCheckStubDataFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ErrorCheckStubDataTrue)]ErrorCheckStubDataTrue = -1		// /error stub_data
+} enumErrorCheckStubDataBOOL;
+
+typedef enum enumValidateParametersBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]ValidateParametersFalse = 0,						// not set
+	[helpstringcontext(VCTDENUM_ValidateParametersTrue)]ValidateParametersTrue = -1		// /robust
+} enumValidateParametersBOOL;
+
+typedef enum enumStringPoolingBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]StringPoolingFalse = 0,							// not set
+	[helpstringcontext(VCTDENUM_StringPoolingTrue)]StringPoolingTrue = -1			// (/GF) enable read-only string pooling
+} enumStringPoolingBOOL;
+
+typedef enum enumGenerateStublessProxiesBOOL
+{
+	[helpstringcontext(VCTDENUM_No)]GenerateStublessProxiesFalse = 0,	// no
+	[helpstringcontext(VCTDENUM_GenerateStublessProxiesTrue)]GenerateStublessProxiesTrue = -1	// generate stubless proxies (/Oicf)
+} enumGenerateStublessProxiesBOOL;
+
+typedef enum enumResourceLangID
+{
+	rcUseDefault = 0x000,
+	rcAfrikaans = 0x0436,
+	rcAlbanian = 0x041c, 	
+	rcArabicSaudi = 0x0401, 
+	rcArabicIraq = 0x0801,	
+	rcArabicEgypt = 0x0c01,
+	rcArabicLibya = 0x1001,
+	rcArabicAlgeria = 0x1401,
+	rcArabicMorocco = 0x1801,
+	rcArabicTunisia = 0x1c01,
+	rcArabicOman = 0x2001,
+	rcArabicYemen = 0x2401,
+	rcArabicSyria = 0x2801,
+	rcArabicJordan = 0x2c01,
+	rcArabicLebanon = 0x3001,
+	rcArabicKuwait = 0x3401,
+	rcArabicUnitedArabEmirates = 0x3801,
+	rcArabicBahrain = 0x3c01,
+	rcArabicQatar = 0x4001,
+	rcBasque = 0x042d,
+	rcBulgarian = 0x0402, 	
+	rcByelorussian = 0x0423,
+	rcCatalan = 0x0403, 	
+	rcChineseTaiwan = 0x0404,
+	rcChinesePRC = 0x0804, 	
+	rcChineseHongKong = 0x0c04,
+	rcChineseSingapore = 0x1004,
+	rcCroatian = 0x041a,
+	rcCzech = 0x0405, 	
+	rcDanish = 0x0406, 	
+	rcDutchStandard = 0x0413, 	
+	rcDutchBelgium = 0x0813, 	
+	rcEnglishUS = 0x0409, 	
+	rcEnglishBritain = 0x0809,
+ 	rcEnglishAustralia = 0x0c09, 	
+	rcEnglishCanada = 0x1009, 	
+	rcEnglishNewZealand = 0x1409,
+	rcEnglishIreland = 0x1809,
+	rcEnglishSouthAfrica = 0x1c09,
+	rcEnglishJamaica = 0x2009,
+	rcEnglishCarribean = 0x2409,
+	rcEstonian = 0x0425,
+	rcFarsi = 0x0429,
+	rcFinnish = 0x040b, 	
+	rcFrenchStandard = 0x040c, 	
+	rcFrenchBelgium = 0x080c,
+	rcFrenchCanada = 0x0c0c, 	
+	rcFrenchSwitzerland = 0x100c, 	
+	rcFrenchLuxembourg = 0x140c,
+	rcGermanStandard = 0x0407,
+ 	rcGermanSwitzerland = 0x0807, 	
+	rcGermanAustria = 0x0c07,
+	rcGermanLuxembourg = 0x1007,
+	rcGermanLichtenstein = 0x1407,
+	rcGreek = 0x0408, 	
+	rcHebrew = 0x040d, 	
+	rcHungarian = 0x040e,
+ 	rcIcelandic = 0x040f, 	
+	rcIndonesian = 0x0421,
+	rcItalianStandard = 0x0410, 	
+	rcItalianSwitzerland = 0x0810, 	
+	rcJapanese = 0x0411,
+  	rcKorean = 0x0412, 	
+	rcKoreanJohab = 0x0812,
+	rcLatvian = 0x0426,
+	rcLithuanian = 0x0427,
+	rcNorwegianBokmal = 0x0414,
+	rcNorwegianNynorsk = 0x0814, 	
+	rcPolish = 0x0415, 	
+	rcPortugueseBrazilian = 0x0416, 	
+	rcPortugueseStandard = 0x0816,
+	rcRomanian = 0x0418, 	
+	rcRussian = 0x0419, 	
+	rcSlovak = 0x041b, 	
+	rcSpanishTraditional = 0x040a, 	
+	rcSpanishMexico = 0x080a,
+ 	rcSpanishModern = 0x0c0a, 	
+	rcSpanishGuatemala = 0x100a,
+	rcSpanishCostaRica = 0x140a,
+	rcSpanishPanama = 0x180a,
+	rcSpanishDominicanRepublic = 0x1c0a,
+	rcSpanishVenezuela = 0x200a,
+	rcSpanishColombia = 0x240a,
+	rcSpanishPeru = 0x280a,
+	rcSpanishArgentina = 0x2c0a,
+	rcSpanishEcuador = 0x300a,
+	rcSpanishChile = 0x340a,
+	rcSpanishUruguay = 0x380a,
+	rcSpanishParaguay = 0x3c0a,
+	rcSpanishBolivia = 0x400a,
+	rcSwedish = 0x041d,
+	rcThai = 0x041e,
+	rcTurkish = 0x041f, 	
+	rcUkrainian = 0x0422,
+ 	rcSerbian = 0x081a, 	
+	rcUrdu = 0x0420 	
+} enumResourceLangID;
+
+typedef enum eAppProtectionOption
+{
+	[helpstringcontext(VCTDENUM_eAppProtectLow)]eAppProtectLow,
+	[helpstringcontext(VCTDENUM_eAppProtectMedium)]eAppProtectMedium,
+	[helpstringcontext(VCTDENUM_eAppProtectHigh)]eAppProtectHigh
+} eAppProtectionOption;
+
+[hidden] typedef enum enumFileFormat
+{
+	eANSI,
+	eUTF8,
+	eUnicode
+} enumFileFormat;
+
+// For log based debugging.
+// NOTE: the sections need to be in this enum in the order they should be written out to the log file.
+// This allows us to do a flush all at the end and catch anything not appropriately caught if necessary.
+typedef enum eLogSectionTypes 
+{ 
+	[helpstringcontext(VCTDENUM_eLogNoSection)]eLogNoSection		= 0x0000,
+	[helpstringcontext(VCTDENUM_eLogNoNewLine)]eLogNoNewLine		= 0x0001,		// final eight bits of flag are for modifiers like this one
+	[helpstringcontext(VCTDENUM_eLogStartSection)]eLogStartSection	= 0x0002,
+	[helpstringcontext(VCTDENUM_eLogHeader)]eLogHeader				= 0x0010, 
+	[helpstringcontext(VCTDENUM_eLogEnvironment)]eLogEnvironment	= 0x0020, 
+	[helpstringcontext(VCTDENUM_eLogCommand)]eLogCommand			= 0x0040, 
+	[helpstringcontext(VCTDENUM_eLogOutput)]eLogOutput				= 0x0080, 
+	[helpstringcontext(VCTDENUM_eLogResults)]eLogResults			= 0x0100, 
+	[helpstringcontext(VCTDENUM_eLogFooter)]eLogFooter				= 0x0200,
+	[helpstringcontext(VCTDENUM_eLogAll)]eLogAll					= 0x0FF0		// everything
+} eLogSectionTypes;
+
+// state of a command line execution
+typedef enum CMD
+{
+	[helpstringcontext(VCTDENUM_CMD_Canceled)]CMD_Canceled	= -2,
+	[helpstringcontext(VCTDENUM_CMD_Complete)]CMD_Complete	=  0,
+	[helpstringcontext(VCTDENUM_CMD_Error)]CMD_Error		=  1
+} CMD;
+
+typedef enum enumXboxGameRating
+{
+	[helpstringcontext(XBOXGAMERATINGENUM_eNone)]eRatingNone	= 0,				// not set
+	[helpstringcontext(XBOXGAMERATINGENUM_eRP)]eRatingRP		= 1,
+	[helpstringcontext(XBOXGAMERATINGENUM_eAO)]eRatingAO		= 2,
+	[helpstringcontext(XBOXGAMERATINGENUM_eM)]eRatingM			= 3,
+	[helpstringcontext(XBOXGAMERATINGENUM_eT)]eRatingT			= 4,
+	[helpstringcontext(XBOXGAMERATINGENUM_eE)]eRatingE			= 5,
+	[helpstringcontext(XBOXGAMERATINGENUM_eKA)]eRatingKA		= 6,
+	[helpstringcontext(XBOXGAMERATINGENUM_eEC)]eRatingEC		= 7
+} enumXboxGameRating;
+

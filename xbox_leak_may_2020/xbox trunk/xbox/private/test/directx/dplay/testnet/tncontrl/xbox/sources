@@ -1,0 +1,41 @@
+!IF 0
+
+Copyright (c) 2000 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Author:
+
+    Tristan Jackson (tristanj)
+
+!ENDIF
+
+!include ..\sources.inc
+
+UMTYPE=xboxdll
+
+DLLDEF=tncontrl.def
+
+TARGETNAME=tncontrl
+
+TARGETLIBS= \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\*\xlog.lib     \
+    $(SDK_LIB_PATH)\kernel32.lib               \
+!if $(FREEBUILD)
+    $(SDK_LIB_PATH)\libcmt.lib                 \
+!else
+    $(SDK_LIB_PATH)\libcmtd.lib                \
+!endif
+    $(SDK_LIB_PATH)\xapi.lib                   \
+    $(LIBRARY_PATH)\xnet$(D).lib               \
+    $(BASEDIR)\private\test\directx\dplay\testnet\bins\*\tncommon.lib

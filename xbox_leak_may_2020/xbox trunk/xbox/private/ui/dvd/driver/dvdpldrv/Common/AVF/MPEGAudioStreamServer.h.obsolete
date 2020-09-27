@@ -1,0 +1,144 @@
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+// Copyright 2000 Ravisent Technologies, Inc.  All Rights Reserved.           //
+// HIGHLY CONFIDENTIAL INFORMATION:  This source code contains                //
+// confidential and proprietary information of Ravisent Technologies, Inc.    //
+// This source code is provided to Microsoft Corporation under a written      //
+// confidentiality agreement between Ravisent and Microsoft.  This            //
+// software may not be reproduced, distributed, modified, disclosed, used,    //
+// displayed, stored in a retrieval system or transmitted in whole or in part,//
+// in any form or by any means, electronic, mechanical, photocopying or       //
+// otherwise, except as expressly authorized by Ravisent.  THE ONLY PERSONS   //
+// WHO MAY HAVE ACCESS TO THIS SOFTWARE ARE THOSE PERSONS                     //
+// AUTHORIZED BY RAVISENT, WHO HAVE EXECUTED AND DELIVERED A                  //
+// WRITTEN CONFIDENTIALITY AGREEMENT TO RAVISENT, IN THE FORM                 //
+// PRESCRIBED BY RAVISENT.                                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+// FILE:       Driver/Dvdpldrv/Common/MPEGAudioStreamServer.h
+// AUTHOR:     Sam Frantz
+// COPYRIGHT:  (c) 2000 Ravisent Technologies, Inc.
+// CREATED:    3-SEP-2000
+//
+// PURPOSE:    Stream Server for MPEG audio files.
+//
+// HISTORY:
+
+#ifndef MPEGAUDIOSTREAMSERVER_H
+#define MPEGAUDIOSTREAMSERVER_H
+
+#include "Driver/Dvdpldrv/Common/AVF/AVFStreamServer.h"
+#include "Driver/Dvdpldrv/Common/AVF/MPEGAudioHeader.h"
+
+#define MPEG_AUDIO_MAX_BLOCKS_WITH_NO_HEADER		3
+
+enum MPEGAudioFrameType
+	{
+	MPAFT_UNKNOWN,
+	MPAFT_AUDIO,
+	MPAFT_ID3V1,
+	MPAFT_ID3V1_1,
+	MPAFT_ID3V2
+	};
+
+//
+// class MPEGAudioFrame : public AVFFrame
+//	{
+//	public:
+//		MPEGAudioFrameType			type;
+//		MPEGAudioFrameHeader	*GetMPEGAudioHeader(void) { return((MPEGAudioFrameHeader *) pDetails); };
+//	};
+
+////////////////////////////////////////////////////////////////////
+//
+//  MPEG Audio Frame Header List Class
+//
+////////////////////////////////////////////////////////////////////
+
+class MPEGAudioFrameHeaderList
+	{
+	public:
+		MPEGAudioFrameHeader	*pHeaderArray;
+		int						arraySize;
+		MPEGAudioFrameHeaderList(void)
+			{
+			pHeaderArray = (MPEGAudioFrameHeader *) NULL;
+			arraySize = 0;
+			}
+		~MPEGAudioFrameHeaderList(void)
+			{
+			if (pHeaderArray != (MPEGAudioFrameHeader *) NULL)
+				delete [] pHeaderArray;
+			}
+		Error Initialize(int	maxLockedFrames)
+			{
+			pHeaderArray = new MPEGAudioFrameHeader[maxLockedFrames];
+			if (pHeaderArray == (MPEGAudioFrameHeader *) NULL)
+				GNRAISE(GNR_NOT_ENOUGH_MEMORY);
+			else
+				GNRAISE_OK;
+			}
+	};
+
+////////////////////////////////////////////////////////////////////
+//
+//  MPEG Audio Stream Server Class
+//
+////////////////////////////////////////////////////////////////////
+
+class MPEGAudioStreamServer : public AVFStreamServer
+	{
+	protected:
+		MPEGAudioFrameHeaderList	frameHeaderList;
+
+		// Parse state information (defined in MpegAudioHeader.h)
+		MPEGAudioParseState			parseState;		// also includes non-audio frame info
+		DWORD								totalSeconds;	//
+
+		//
+		//  Internal fucntions
+		//
+
+		virtual Error InitializeDataStructures(int maxLockedFrames, int maxFrameSize);
+#ifndef _DEBUG_SHELL
+		virtual Error GetNextFrame(AVFFrame *&sf);
+#endif
+
+		Error FindNextMPEGAudioFrame(DriveBlockNode *pBlockNode, AVFFrame * pAVFFrame, MPEGAudioParseState &parseState);
+		Error GetFrameByNumber(DWORD requestedFrameNum, AVFFrame *&pAVFFrame);
+		Error MoveToCheckPoint(DriveBlockCheckPointNode *pCheckPoint);
+		DWORD CalculateLengthInSeconds(void);
+		Error LoadID3v1Info(void);
+		void RewindDataSource(void);
+
+	public:
+#ifdef _DEBUG_SHELL
+		virtual Error GetNextFrame(AVFFrame *&sf);
+		void DebugDumpParseState(MPEGAudioParseState &parseState);
+		void DebugDumpHeaderInfo(MPEGAudioFrameHeader *pHeader);
+		void DebugDumpID3v1Info(void);
+
+#endif
+
+
+		MPEGAudioStreamServer(WinPortServer * server);
+		~MPEGAudioStreamServer(void);
+
+#ifndef _DEBUG_SHELL
+		// must be called before InitializeDataStructures()
+		virtual Error Init(WinPortServer * server, UnitSet units, GenericFileSystem * avffs);
+#else
+		virtual Error Init(GenericFileSystem * avffs);
+#endif
+		Error Cleanup(void);
+
+		//
+		//  Data source handling
+		//
+
+		virtual Error OpenDataSource(GenericFileSystemIterator * gfsi, int numberOfCheckPoints = 0);
+		DWORD GetLengthInSeconds(void) { return totalSeconds; }
+	};
+
+#endif

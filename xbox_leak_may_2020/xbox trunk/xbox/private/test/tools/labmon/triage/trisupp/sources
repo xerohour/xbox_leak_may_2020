@@ -1,0 +1,55 @@
+
+MAJORCOMP=Tools
+MINORCOMP=Nodal_Stress
+
+TARGETNAME=trisupp
+TARGETPATH=..\lib
+TARGETTYPE=DYNLINK
+
+LINKER_FLAGS=/SWAPRUN:CD /SWAPRUN:NET
+
+USE_MSVCRT=1
+DLLENTRY=DllMain
+
+C_DEFINES=-DWIN32 -DINITGUID
+
+SOURCES= \
+        trisupp.cpp \
+        failure.cpp\
+        stacks.cpp \
+        rmtcli.cpp \
+        owner.cpp \
+        bugcheck.cpp \
+        symbol.cpp \
+        utils.cpp \
+        IsDoUtils.cpp \
+        GetUtils.cpp \
+        dbgr.cpp \
+
+INCLUDES= \
+        .; \
+        ..\inc
+
+TARGETLIBS= \
+        $(SDK_LIB_PATH)\uuid.lib \
+        $(SDK_LIB_PATH)\advapi32.lib \
+        $(SDK_LIB_PATH)\kernel32.lib \
+        $(SDK_LIB_PATH)\delayload.lib \
+        $(SDK_LIB_PATH)\dbgeng.lib \
+
+        
+DELAYLOAD=dbgeng.dll
+
+DLLBASE=0x16300000
+
+UMLIBS= \
+        $(O)\rmtcli.obj \
+        $(O)\owner.obj \
+        $(O)\bugcheck.obj \
+        $(O)\symbol.obj \
+        $(O)\utils.obj \
+        $(O)\IsDoUtils.obj \
+        $(O)\GetUtils.obj
+
+UMTYPE=console
+

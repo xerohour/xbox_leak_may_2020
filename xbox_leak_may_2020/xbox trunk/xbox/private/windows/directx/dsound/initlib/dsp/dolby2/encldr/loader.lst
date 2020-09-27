@@ -1,0 +1,1610 @@
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 1
+
+
+
+1                          ; ******************************************************************
+2                          ;
+3                          ;       Unpublished work.  Copyright 2000 Dolby Laboratories Inc.
+4                          ;       All Rights Reserved.
+5                          ;
+6                          ;       File:                   loader.asm
+7                          ;
+8                          ;   Contents:           Loader for Dolby Game Encoder
+9                          ;
+10                         ;       Author:                 jmw
+11                         ;
+12                         ;       Revision:               1.00b
+13                         ;
+14                         ;       History:
+15                         ;
+16                         ;               Rev 1.00        10/11/2000 7:23:25 AM           jmw
+17                         ;                 Created.
+18                         ;               Rev 1.00b       12/11/2000 4:11:12 PM           Ethan Brodsky
+19                         ;                 brought DMA code over from Dolby/v1.20 package
+20                         ;
+21                         ;
+22                         ; ******************************************************************
+23     
+24                                   page    132,66,3,3
+25                                                   opt     cre,loc,cc,cex,mex,mu,so
+26     
+28     
+29                                                   section Loader
+30     
+31                                         ;**** include files ************************************************
+32     
+479    
+480                                        ;**** equates ******************************************************
+481    
+482    
+483    
+484                                                  DEFINE  PREAMBLE  '1'                     ; Enable AC3 SPDIF Preamble
+485                                                  DEFINE  ZEROFILL  '1'                     ; Enable AC3 SPDIF Zero Fill
+486    
+487       000800                           ROM_BASE  equ     $800
+488       000800                           ROM_SIZE  equ     $800
+489                                        XRAM_BUFFER
+490       000400                                     equ     $400
+491    
+492    
+493    
+494                                        ;**** program code *************************************************
+495    
+496                                                  xref    LdrTable
+497    
+498    
+499       P:000000                                   org     p(100):                           ; Loader Runtime Counter is 100
+500    
+501                                        ;******************************************************************************
+502                                        ;*
+503                                        ;*   Subroutine Name:   Loader
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 2
+Dolby Loader
+
+
+504                                        ;*
+505                                        ;*   Description:               Loader
+506                                        ;*
+507                                        ;*   Input:                             a       - Buffer ID word
+508                                        ;*                                              b       - Loader action
+509                                        ;*                                              r0      - DSP memory address
+510                                        ;*                                              n0      - number of words to transfer
+511                                        ;*                                              n1      - System memory offset
+512                                        ;*
+513                                        ;*   Output:                    a       - error return code: nonzero if error
+514                                        ;*
+515                                        ;*   Modifies:
+516                                        ;*
+517                                        ;*       Locals:
+518                                        ;*
+519                                        ;*       Stack Space Used:
+520                                        ;*
+521                                        ;******************************************************************************
+522    
+523                                        loader:
+524    
+525       P:000000 014085  [1 -        1]            cmp     #LID_LOADER_INIT,a                ; loader init request?
+526       P:000001 05A441  [4 -        5]            beq     <loader_init                      ; if so, go init the loader
+527    
+528       P:000002 014B85  [1 -        6]            cmp     #LID_PING_PONG,a                  ; should we toggle the PCM input ping
+ pong
+529       P:000003 05A40C  [4 -       10]            beq     <toggle_ping_pong
+530    
+531       P:000004 050C1C  [4 -       14]            bra     <done
+532    
+533                                        ;***********************************************************************
+534                                        ;       Data storage for loader variables
+535    
+536  d    P:000005 000000                  temp      dc      0
+537  d    P:000006 000000                  dmaNode   dc      0
+538  d    P:000007 000000                  dmaNode1  dc      0
+539  d    P:000008 000000                  dmaNode2  dc      0
+540  d    P:000009 000000                  dmaNode3  dc      0
+541  d    P:00000A 000000                  dmaNode4  dc      0
+542  d    P:00000B 000000                  dmaNode5  dc      0
+543  d    P:00000C 000000                  dmaNode6  dc      0
+544  d    P:00000D 000000                  prev_time dc      0
+545  d                                     elapsed_time
+546  d    P:00000E 000000                            dc      0
+547    
+548    
+549                                        ;***********************************************************************
+550                                        ;       Toggle ping pong buffer on PCM input
+551    
+552                                        toggle_ping_pong:
+553    
+554                                                                                            ; first read the EP boot rom into xra
+m offset
+555    
+556       P:00000F 60F400  [2 -       16]            move              #>XRAM_BUFFER,r0
+                   000400
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 3
+Dolby Loader
+
+
+557       P:000011 64F400  [2 -       18]            move              #>ROM_BASE,r4
+                   000800
+558    
+559       P:000013 060098  [5 -       23]            dor     #ROM_SIZE,CopyRomLoop
+                   000003
+560    
+561       P:000015 4CDC00  [1 -       24]            move                          y:(r4)+,x0
+562       P:000016 445800  [1 -       25]            move              x0,x:(r0)+
+563    
+564                                        CopyRomLoop
+565    
+566                                                                                            ; now that the rom contents are in ra
+m, DMA them into FIFO0
+567       P:000017 60F400  [2 -       27]            move              #>XRAM_BUFFER,r0
+                   000400
+568       P:000019 70F400  [2 -       29]            move              #>ROM_SIZE,n0
+                   000800
+569       P:00001B 61F400  [2 -       31]            move              #>0,r1
+                   000000
+570       P:00001D 0BF080  [4 -       35]            jsr     CopyDSPXToSys
+                   000034
+571    
+572    
+573       P:00001F 050C01  [4 -       39]            bra     <done                             ; exit
+574    
+575    
+576                                        ;***********************************************************************
+577                                        ;       Exit points
+578    
+579                                        done:
+580    
+581       P:000020 200013  [1 -       40]            clr     a                                 ; no error status
+582       P:000021 00000C  [3 -       43]            rts
+583    
+584    
+585    
+586                                        ;***********************************************************************
+587                                        ;       Loader initialization code
+588                                        ;               Copies loader table from system memory to DSP memory
+589                                        ;               Clears dynamic table entries
+590                                        ;               Initializes local heap variables
+591    
+592                                        loader_init:
+593       P:000022 60F413  [2 -       45]            clr     a         #LdrTable+LDR_HEAP_ADDR,r0 ; set up pointer
+                   000000
+594       P:000024 062490  [5 -       50]            dor     #LDR_NUM_DATA*2,clrlp
+                   000002
+595       P:000026 07588E  [6 -       56]            move              a,p:(r0)+               ; clear table value
+596                                        clrlp:
+597    
+598    
+599       P:000027 0D1080  [5 -       61]            bsr     DMAInit                           ; one-time DMA initialization
+                   0000C6
+600    
+601       P:000029 050FD7  [4 -       65]            bra     <done                             ; exit
+602    
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 4
+Dolby Loader
+
+
+603                                        ;******************************************************************************
+604                                        ;*
+605                                        ;*   Subroutine Name:   CopySysToDSPX
+606                                        ;*
+607                                        ;*   Description:       Copy from System Memory to DSP x: space
+608                                        ;*
+609                                        ;*   Input:             r0      - DSP address (x:)
+610                                        ;*                      n0      - number of words to copy
+611                                        ;*                      r1      - System Memory address
+612                                        ;*
+613                                        ;******************************************************************************
+614    
+615                                        CopySysToDSPX:
+616                                                  IF      @DEF('RTSYS')
+618                                                  ENDIF
+619    
+620                                        ; Note: Dolby-only testing code
+621                                        ;       dor             n0,systoxlp
+622                                        ;       move    x:(r1)+,x0
+623                                        ;       move    x0,x:(r0)+
+624                                        ;systoxlp:
+625    
+626       P:00002A 64F400  [2 -       67]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+627    
+628       P:00002C 220C00  [1 -       68]            move              r0,a1
+629       P:00002D 014080  [1 -       69]            add     #kEPMemory_Base_XRAM,a            ; adjust DSP address for X base
+630       P:00002E 219000  [1+1 -     71]            move              a1,r0
+631    
+632       P:00002F 0BF080  [4 -       75]            jsr     DMANewNode_Read                   ; create DMA node
+                   000074
+633    
+634       P:000031 0BF080  [4 -       79]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+635                                                                                            ; (and wait for completion)
+636    
+637                                                  IF      @DEF('RTSYS')
+639                                                  ENDIF
+640       P:000033 00000C  [3 -       82]            rts
+641    
+642                                        ;******************************************************************************
+643                                        ;*
+644                                        ;*   Subroutine Name:   CopyDSPXToSys
+645                                        ;*
+646                                        ;*   Description:       Copy from DSP x: space to System Memory
+647                                        ;*
+648                                        ;*   Input:             r0      - DSP address (x:)
+649                                        ;*                      n0      - number of words to copy
+650                                        ;*                      r1      - System Memory address
+651                                        ;*
+652                                        ;******************************************************************************
+653    
+654                                        CopyDSPXToSys:
+655                                                  IF      @DEF('RTSYS')
+657                                                  ENDIF
+658    
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 5
+Dolby Loader
+
+
+659                                        ; Note: Dolby-only testing code
+660                                        ;       dor             n0,xtosyslp
+661                                        ;       move    x:(r0)+,x0
+662                                        ;       move    x0,x:(r1)+
+663                                        ;xtosyslp:
+664    
+665       P:000034 64F400  [2 -       84]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+666    
+667       P:000036 220C00  [1 -       85]            move              r0,a1
+668       P:000037 014080  [1 -       86]            add     #kEPMemory_Base_XRAM,a            ; adjust DSP address for X base
+669       P:000038 219000  [1+1 -     88]            move              a1,r0
+670    
+671       P:000039 0BF080  [4 -       92]            jsr     DMANewNode_Write                  ; create DMA node
+                   000086
+672    
+673       P:00003B 0BF080  [4 -       96]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+674                                                                                            ; (and wait for completion)
+675    
+676                                                  IF      @DEF('RTSYS')
+678                                                  ENDIF
+679       P:00003D 00000C  [3 -       99]            rts
+680    
+681                                        ;******************************************************************************
+682                                        ;*
+683                                        ;*   Subroutine Name:   CopyDSPXToFIFO
+684                                        ;*
+685                                        ;*   Description:       Copy from DSP x: space to FIFO
+686                                        ;*
+687                                        ;*   Input:             r0      - DSP address (x:)
+688                                        ;*                      n0      - number of words to copy
+689                                        ;*                      r1      - FIFO index
+690                                        ;*
+691                                        ;******************************************************************************
+692    
+693                                        CopyDSPXToFIFO:
+694    
+695       P:00003E 64F400  [2 -      101]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+696    
+697       P:000040 220C00  [1 -      102]            move              r0,a1
+698       P:000041 014080  [1 -      103]            add     #kEPMemory_Base_XRAM,a            ; adjust DSP address for X base
+699       P:000042 219000  [1+1 -    105]            move              a1,r0
+700    
+701       P:000043 0BF080  [4 -      109]            jsr     DMANewNode_WriteFIFO              ; create DMA node
+                   000098
+702    
+703                                        CopyDSPXToFIFOStart:
+704       P:000045 0BF080  [4 -      113]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+705                                                                                            ; (and wait for completion)
+706    
+707       P:000047 00000C  [3 -      116]            rts
+708    
+709                                        ;******************************************************************************
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 6
+Dolby Loader
+
+
+710                                        ;*
+711                                        ;*   Subroutine Name:   CopySysToDSPY
+712                                        ;*
+713                                        ;*   Description:       Copy from System Memory to DSP y: space
+714                                        ;*
+715                                        ;*   Input:             r0      - DSP address (y:)
+716                                        ;*                      n0      - number of words to copy
+717                                        ;*                      r1      - System Memory address
+718                                        ;*
+719                                        ;******************************************************************************
+720    
+721                                        CopySysToDSPY:
+722    
+723                                        ; Note: Dolby-only testing code
+724                                        ;       dor             n0,systoylp
+725                                        ;       move    x:(r1)+,x0
+726                                        ;       move    x0,y:(r0)+
+727                                        ;systoylp:
+728    
+729       P:000048 64F400  [2 -      118]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+730    
+731       P:00004A 220C00  [1 -      119]            move              r0,a1
+732       P:00004B 0140C0  [2 -      121]            add     #kEPMemory_Base_YRAM,a            ; adjust DSP address for Y base
+                   001800
+733       P:00004D 219000  [1+1 -    123]            move              a1,r0
+734    
+735       P:00004E 0BF080  [4 -      127]            jsr     DMANewNode_Read                   ; create DMA node
+                   000074
+736    
+737       P:000050 0BF080  [4 -      131]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+738                                                                                            ; (and wait for completion)
+739    
+740       P:000052 00000C  [3 -      134]            rts
+741    
+742                                        ;******************************************************************************
+743                                        ;*
+744                                        ;*   Subroutine Name:   CopyDSPYToSys
+745                                        ;*
+746                                        ;*   Description:       Copy from DSP y: space to System Memory
+747                                        ;*
+748                                        ;*   Input:             r0      - DSP address (y:)
+749                                        ;*                      n0      - number of words to copy
+750                                        ;*                      r1      - System Memory address
+751                                        ;*
+752                                        ;******************************************************************************
+753    
+754                                        CopyDSPYToSys:
+755    
+756                                        ; Note: Dolby-only testing code
+757                                        ;       dor             n0,ytosyslp
+758                                        ;       move    y:(r0)+,x0
+759                                        ;       move    x0,x:(r1)+
+760                                        ;ytosyslp:
+761    
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 7
+Dolby Loader
+
+
+762    
+763       P:000053 64F400  [2 -      136]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+764    
+765       P:000055 220C00  [1 -      137]            move              r0,a1
+766       P:000056 0140C0  [2 -      139]            add     #kEPMemory_Base_YRAM,a            ; adjust DSP address for Y base
+                   001800
+767       P:000058 219000  [1+1 -    141]            move              a1,r0
+768    
+769       P:000059 0BF080  [4 -      145]            jsr     DMANewNode_Write                  ; create DMA node
+                   000086
+770    
+771       P:00005B 0BF080  [4 -      149]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+772                                                                                            ; (and wait for completion)
+773    
+774       P:00005D 00000C  [3 -      152]            rts
+775    
+776                                        ;******************************************************************************
+777                                        ;*
+778                                        ;*   Subroutine Name:   CopySysToDSPP
+779                                        ;*
+780                                        ;*   Description:       Copy from System Memory to DSP p: space
+781                                        ;*
+782                                        ;*   Input:             r0      - DSP address (p:)
+783                                        ;*                      n0      - number of words to copy
+784                                        ;*                      r1      - System Memory address
+785                                        ;*
+786                                        ;******************************************************************************
+787    
+788                                        CopySysToDSPP:
+789    
+790                                        ; Note: Dolby-only testing code
+791                                        ;       dor             n0,systoplp
+792                                        ;       move    x:(r1)+,x0
+793                                        ;       move    x0,p:(r0)+
+794                                        ;       nop
+795                                        ;systoplp:
+796    
+797       P:00005E 64F400  [2 -      154]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+798    
+799       P:000060 220C00  [1 -      155]            move              r0,a1
+800       P:000061 0140C0  [2 -      157]            add     #kEPMemory_Base_PRAM,a            ; adjust DSP address for Y base
+                   002800
+801       P:000063 219000  [1+1 -    159]            move              a1,r0
+802    
+803       P:000064 0BF080  [4 -      163]            jsr     DMANewNode_Read                   ; create DMA node
+                   000074
+804    
+805       P:000066 0BF080  [4 -      167]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+806                                                                                            ; (and wait for completion)
+807    
+808       P:000068 00000C  [3 -      170]            rts
+809    
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 8
+Dolby Loader
+
+
+810                                        ;******************************************************************************
+811                                        ;*
+812                                        ;*   Subroutine Name:   CopyDSPPToSys
+813                                        ;*
+814                                        ;*   Description:       Copy from DSP p: space to System Memory
+815                                        ;*
+816                                        ;*   Input:             r0      - DSP address (p:)
+817                                        ;*                      n0      - number of words to copy
+818                                        ;*                      r1      - System Memory address
+819                                        ;*
+820                                        ;******************************************************************************
+821    
+822                                        CopyDSPPToSys:
+823    
+824                                        ; Note: Dolby-only testing code
+825                                        ;       dor             n0,ptosyslp
+826                                        ;       move    p:(r0)+,x0
+827                                        ;       move    x0,x:(r1)+
+828                                        ;ptosyslp:
+829    
+830       P:000069 64F400  [2 -      172]            move              #dmaNode,r4             ; r4 <- address of dma node
+                   000006
+831    
+832       P:00006B 220C00  [1 -      173]            move              r0,a1
+833       P:00006C 0140C0  [2 -      175]            add     #kEPMemory_Base_PRAM,a            ; adjust DSP address for Y base
+                   002800
+834       P:00006E 219000  [1+1 -    177]            move              a1,r0
+835    
+836       P:00006F 0BF080  [4 -      181]            jsr     DMANewNode_Write                  ; create DMA node
+                   000086
+837    
+838       P:000071 0BF080  [4 -      185]            jsr     DMAStartNodeP_Wait                ; initiate DMA
+                   0000DF
+839                                                                                            ; (and wait for completion)
+840       P:000073 00000C  [3 -      188]            rts
+841    
+842    
+843                                        ;************************************************************
+844                                        ; DMANewNode_Read
+845                                        ;
+846                                        ;       This DMA Read node is configured for the System
+847                                        ;       Memory -> DSP transfer
+848                                        ;       This node is also set up to be the last node in
+849                                        ;       the list, so it is self-linked with the EndOfList
+850                                        ;       bit set
+851                                        ;
+852                                        ;       Parameters:     r4      node DSP PRAM address
+853                                        ;                       r0      DSP Memory address
+854                                        ;                       r1      System Memory address
+855                                        ;           n0      Length
+856                                        ;************************************************************
+857                                        DMANewNode_Read
+858    
+859       P:000074 0BF080  [4 -      192]            jsr     DMAWaitForIdle                    ; Wait fro DMA to be idle
+                   0000CE
+860    
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 9
+Dolby Loader
+
+
+861                                        ; Word0
+862       P:000076 229500  [1 -      193]            move              r4,r5                   ; r5 <- copy of node base
+863    
+864       P:000077 228C00  [1 -      194]            move              r4,a1
+865       P:000078 0140C6  [2 -      196]            and     #>kDMANode_EOLMask,a              ; Clear reserved upper bits
+                   003FFF
+866       P:00007A 0140C2  [2 -      198]            or      #>kDMANode_EOL,a                  ; set EOL bit
+                   004000
+867    
+868       P:00007C 075D8C  [11 -      209]           movem             a1,p:(r5)+              ; Link to itself
+869                                        ; Word1
+870       P:00007D 54F400  [2 -      211]            move              #>DMA_BASE_READ1_ISO,a1
+                   005BE0
+871                                                                                            ;move    #>DMA_BASE_READ1,a1
+872       P:00007F 075D8C  [11+1 -    223]           movem             a1,p:(r5)+
+873                                        ; Word2
+874       P:000080 075D98  [11 -      234]           movem             n0,p:(r5)+              ; Length
+875                                        ; Word3
+876       P:000081 075D90  [11 -      245]           movem             r0,p:(r5)+              ; DSP RAM address (System memory spac
+e)
+877                                        ; Word4
+878       P:000082 222E00  [1 -      246]            move              r1,a
+879       P:000083 0C1E84  [1 -      247]            lsl     #2,a
+880       P:000084 075D8C  [11 -      258]           movem             a1,p:(r5)+              ; System memory address
+881    
+882    
+883       P:000085 00000C  [3 -      261]            rts
+884                                        ; ---- end DMANewNode_Read
+885    
+886    
+887                                        ;************************************************************
+888                                        ; DMANewNode_Write
+889                                        ;
+890                                        ;       This DMA Write node is configured for the DSP -> SM
+891                                        ;       transfer
+892                                        ;       This node is also set up to be the last node in
+893                                        ;       the list, so it is self-linked with the EndOfList
+894                                        ;       bit set
+895                                        ;
+896                                        ;       Parameters:     r4      node DSP PRAM address
+897                                        ;                       r0      DSP Memory address
+898                                        ;                       r1      System Memory address
+899                                        ;                       n0      Length
+900                                        ;************************************************************
+901                                        DMANewNode_Write
+902    
+903       P:000086 0BF080  [4 -      265]            jsr     DMAWaitForIdle                    ; Wait fro DMA to be idle
+                   0000CE
+904    
+905                                        ; Word0
+906       P:000088 229500  [1 -      266]            move              r4,r5                   ; r5 <- copy of node base
+907    
+908       P:000089 228C00  [1 -      267]            move              r4,a1
+909       P:00008A 0140C6  [2 -      269]            and     #>kDMANode_EOLMask,a              ; Clear reserved upper bits
+                   003FFF
+910       P:00008C 0140C2  [2 -      271]            or      #>kDMANode_EOL,a                  ; set EOL bit
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 10
+Dolby Loader
+
+
+                   004000
+911    
+912                                        ; Word0
+913       P:00008E 075D8C  [6 -      277]            move              a1,p:(r5)+              ; Link to itself
+914    
+915                                        ; Word1
+916       P:00008F 54F400  [2 -      279]            move              #>DMA_BASE_WRITE1_ISO,a1
+                   005BE2
+917                                                                                            ;move    #>DMA_BASE_WRITE1,a1
+918       P:000091 075D8C  [11+1 -    291]           movem             a1,p:(r5)+
+919                                        ; Word2
+920       P:000092 075D98  [11 -      302]           movem             n0,p:(r5)+              ; Length
+921                                        ; Word3
+922       P:000093 075D90  [11 -      313]           movem             r0,p:(r5)+              ; DSP RAM address (System memory spac
+e)
+923                                        ; Word4
+924       P:000094 222E00  [1 -      314]            move              r1,a
+925       P:000095 0C1E84  [1 -      315]            lsl     #2,a
+926       P:000096 075D8C  [11 -      326]           movem             a1,p:(r5)+              ; System memory address
+927    
+928       P:000097 00000C  [3 -      329]            rts
+929                                        ; ---- end DMANewNode_Write ----
+930    
+931                                        ;************************************************************
+932                                        ; DMANewNode_WriteFIFO
+933                                        ;
+934                                        ;       This DMA Write node is configured for the DSP -> FIFO
+935                                        ;       transfer
+936                                        ;       This node is also set up to be the last node in
+937                                        ;       the list, so it is self-linked with the EndOfList
+938                                        ;       bit set
+939                                        ;
+940                                        ;       Parameters:     r4      node DSP PRAM address
+941                                        ;                       r0      DSP Memory address
+942                                        ;                       r1      FIFO number
+943                                        ;                       n0      Length
+944                                        ;                       n4  NULL output flag
+945                                        ;************************************************************
+946                                        DMANewNode_WriteFIFO
+947    
+948       P:000098 0BF080  [4 -      333]            jsr     DMAWaitForIdle                    ; Wait fro DMA to be idle
+                   0000CE
+949    
+950                                        ; Word0
+951       P:00009A 229500  [1 -      334]            move              r4,r5                   ; r5 <- copy of node base
+952    
+953       P:00009B 228C00  [1 -      335]            move              r4,a1
+954       P:00009C 0140C6  [2 -      337]            and     #>kDMANode_EOLMask,a              ; Clear reserved upper bits
+                   003FFF
+955       P:00009E 0140C2  [2 -      339]            or      #>kDMANode_EOL,a                  ; Set EOL bit
+                   004000
+956    
+957       P:0000A0 075D8C  [6 -      345]            move              a1,p:(r5)+              ; Link to itself
+958    
+959                                        ; Word1
+960                                                                                            ;move    #>DMA_BASE_WRITEFIFO1_ISO,a1
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 11
+Dolby Loader
+
+
+   ; start with "write to FIFO/16-bit" control word
+961       P:0000A1 54F400  [2 -      347]            move              #>DMA_BASE_WRITEFIFO_DATA_ISO,a1
+                   005A02
+962       P:0000A3 222F00  [1 -      348]            move              r1,b                    ; FIFO index from r1
+963       P:0000A4 0C1E8B  [1 -      349]            lsl     #5,b                              ; shift FIFO index smBufId bits
+964       P:0000A5 21E500  [1+1 -    351]            move              b,x1
+965       P:0000A6 200062  [1 -      352]            or      x1,a                              ; put FIFO index into control word
+966       P:0000A7 075D8C  [11+1 -    364]           movem             a1,p:(r5)+              ; write control word
+967                                        ; Word2
+968       P:0000A8 075D98  [11 -      375]           movem             n0,p:(r5)+
+969                                        ; Word3
+970       P:0000A9 238E00  [1 -      376]            move              n4,a                    ; Null Flag
+971       P:0000AA 0C1E9C  [1 -      377]            lsl     #14,a
+972       P:0000AB 220400  [1 -      378]            move              r0,x0
+973       P:0000AC 200040  [1 -      379]            add     x0,a                              ; Add DSP Address
+974       P:0000AD 075D8C  [11+1 -    391]           movem             a1,p:(r5)+              ; DSP RAM address (System memory spac
+e)
+975                                        ; Word4 is no longer used
+976    
+977       P:0000AE 00000C  [3 -      394]            rts
+978                                        ; ---- end DMANewNode_WriteFIFO ----
+979    
+980    
+981                                        ;************************************************************
+982                                        ; DMANewNode_WriteFIFOInterleaved
+983                                        ;
+984                                        ;       This DMA Write node is configured for the DSP -> FIFO
+985                                        ;       transfer
+986                                        ;       This node is also set up to be the last node in
+987                                        ;       the list, so it is self-linked with the EndOfList
+988                                        ;       bit set
+989                                        ;
+990                                        ;       Parameters:     r4      node DSP PRAM address
+991                                        ;                       r0      DSP Memory address
+992                                        ;                       r1      FIFO number
+993                                        ;                       n0      Length
+994                                        ;                       n2  Channels per block
+995                                        ;                       n4  NULL output flag
+996                                        ;************************************************************
+997                                        DMANewNode_WriteFIFOInterleaved
+998    
+999       P:0000AF 0BF080  [4 -      398]            jsr     DMAWaitForIdle                    ; Wait fro DMA to be idle
+                   0000CE
+1000   
+1001                                       ; Word0
+1002      P:0000B1 229500  [1 -      399]            move              r4,r5                   ; r5 <- copy of node base
+1003   
+1004      P:0000B2 228C00  [1 -      400]            move              r4,a1
+1005      P:0000B3 0140C6  [2 -      402]            and     #>kDMANode_EOLMask,a              ; Clear reserved upper bits
+                   003FFF
+1006      P:0000B5 0140C2  [2 -      404]            or      #>kDMANode_EOL,a                  ; Set EOL bit
+                   004000
+1007      P:0000B7 075D8C  [6 -      410]            move              a1,p:(r5)+              ; Link to itself
+1008   
+1009                                       ; Word1
+1010      P:0000B8 54F400  [2 -      412]            move              #>DMA_BASE_WRITEFIFO2_ISO,a1 ; start with "write to FIFO/16-b
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 12
+Dolby Loader
+
+
+it interleaved" control word
+                   000603
+1011                                                                                           ;move    #>DMA_BASE_WRITEFIFO2,a1
+1012      P:0000BA 222F00  [1 -      413]            move              r1,b                    ; FIFO index from r1
+1013      P:0000BB 0C1E8B  [1 -      414]            lsl     #5,b                              ; shift FIFO index smBufId bits
+1014      P:0000BC 21E500  [1+1 -    416]            move              b,x1
+1015      P:0000BD 200062  [1 -      417]            or      x1,a                              ; put FIFO index into control word
+1016   
+1017      P:0000BE 230F00  [1 -      418]            move              n0,b                    ; Set Incr value
+1018      P:0000BF 0C1E9D  [1 -      419]            lsl     #14,b                             ; shift incr value bits (Increment by
+ size of a single channel buffer)
+1019      P:0000C0 21E500  [1+1 -    421]            move              b,x1
+1020      P:0000C1 200062  [1 -      422]            or      x1,a                              ; put FIFO index into control word
+1021      P:0000C2 075D8C  [11+1 -    434]           movem             a1,p:(r5)+              ; write control word
+1022                                       ; Word2
+1023      P:0000C3 230F00  [1 -      435]            move              n0,b                    ; Set Length value
+1024      P:0000C4 0C1E89  [1 -      436]            lsl     #4,b                              ; shift Length bits (Increment by siz
+e of a single channel buffer)
+1025      P:0000C5 234500  [1 -      437]            move              n2,x1
+1026      P:0000C6 200068  [1 -      438]            add     x1,b                              ; Add samples per block
+1027      P:0000C7 075D8D  [11+1 -    450]           movem             b1,p:(r5)+              ; write control word
+1028                                       ; Word3
+1029      P:0000C8 238E00  [1 -      451]            move              n4,a                    ; Null Flag
+1030      P:0000C9 0C1E9C  [1 -      452]            lsl     #14,a
+1031      P:0000CA 220400  [1 -      453]            move              r0,x0
+1032      P:0000CB 200040  [1 -      454]            add     x0,a                              ; Add DSP Address
+1033      P:0000CC 075D8C  [11+1 -    466]           movem             a1,p:(r5)+              ; DSP RAM address (System memory spac
+e)
+1034                                       ; Word4 is no longer used
+1035   
+1036      P:0000CD 00000C  [3 -      469]            rts
+1037                                       ; ---- end DMANewNode_WriteFIFO ----
+1038   
+1039   
+1040   
+1041   
+1042   
+1043                                       ;************************************************************
+1044                                       ; DMAWaitForStop
+1045                                       ;
+1046                                       ;               Alters DMA Running state
+1047                                       ;************************************************************
+1048                                       DMAWaitForIdle
+1049   
+1050   
+1051                                       ; Wait for DMA engine to enter Idle state: 0 = Idle, 1 = Running
+1052      P:0000CE 0A96A4  [4 -      473]            jset    #kDMA_RunningBit,x:DMA_CONTROL_REGISTER,DMAWaitForIdle
+                   0000CE
+1053   
+1054                                       ; Clear DMA EndofList, Bit 7
+1055      P:0000D0 08F485  [2 -      475]            movep             #$80,x:INTERRUPT_REGISTER ; "Write-1-To-Clear-One"
+                   000080
+1056   
+1057      P:0000D2 00000C  [3 -      478]            rts
+1058                                       ; ---- end DMAStopAndFreeze ----
+1059   
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 13
+Dolby Loader
+
+
+1060                                       ;************************************************************
+1061                                       ; DMAStart
+1062                                       ;
+1063                                       ;               Alters DMA Running state
+1064                                       ;************************************************************
+1065                                       DMAStart
+1066   
+1067   
+1068                                       ; Write "run" command
+1069      P:0000D3 08F496  [2 -      480]            movep             #>kDMA_ActionRequest_Start,x:DMA_CONTROL_REGISTER
+                   000001
+1070   
+1071                                       ; Wait for DMA engine to enter Running state: 0 = Idle, 1 = Running
+1072                                       DMAUnFreezeAndStart_WaitForStart
+1073                                       ;       jset    #kDMAErrorBit,x:INTERRUPT_REGISTER,DMAError
+1074      P:0000D5 0A9684  [4 -      484]            jclr    #kDMA_RunningBit,x:DMA_CONTROL_REGISTER,DMAUnFreezeAndStart_WaitForStar
+t
+                   0000D5
+1075   
+1076      P:0000D7 00000C  [3 -      487]            rts
+1077                                       ; ---- end DMAUnFreezeAndStart ----
+1078   
+1079                                       ;************************************************************
+1080                                       ; DMAWaitForEOL         Wait for DMA EOL interrupt and clear register bit
+1081                                       ;************************************************************
+1082                                       DMAWaitForEOL
+1083   
+1084                                       ; Poll for DMA EOL interrupt
+1085                                       DMAWaitForEOL_Poll
+1086      P:0000D8 0A85AA  [4 -      491]            jset    #kDMAErrorBit,x:INTERRUPT_REGISTER,DMAError
+                   0000FC
+1087      P:0000DA 0A8587  [4 -      495]            jclr    #kDMAEndOfListBit,x:INTERRUPT_REGISTER,DMAWaitForEOL_Poll
+                   0000D8
+1088   
+1089                                       ; Clear DMA EndofList, Bit 7
+1090      P:0000DC 08F485  [2 -      497]            movep             #$80,x:INTERRUPT_REGISTER ; "Write-1-To-Clear-One"
+                   000080
+1091   
+1092                                                                                           ;debug_wait
+1093   
+1094   
+1095      P:0000DE 00000C  [3 -      500]            rts
+1096                                       ; ---- end DMAWaitForEOL ----
+1097   
+1098                                       ;************************************************************
+1099                                       ; DMAStartNodeP_Wait
+1100                                       ;
+1101                                       ;       Replace start block, initiate transfer and Wait for
+1102                                       ;                               completion
+1103                                       ;
+1104                                       ;       This function assumes a single DMA node that is
+1105                                       ;       setup as the EOL block.
+1106                                       ;
+1107                                       ;       Parameters:      r4     next node DSP PRAM address
+1108                                       ;************************************************************
+1109                                       DMAStartNodeP_Wait
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 14
+Dolby Loader
+
+
+1110   
+1111      P:0000DF 228E00  [1 -      501]            move              r4,a
+1112      P:0000E0 0140C0  [2 -      503]            add     #kEPMemory_Base_PRAM,a            ; block is in PRAM
+                   002800
+1113      P:0000E2 08CE14  [1 -      504]            movep             a,x:DMA_NEXT_BLOCK_CONTROL_REGISTER
+1114   
+1115      P:0000E3 0BF080  [4 -      508]            jsr     DMAStart                          ; Start transfer
+                   0000D3
+1116   
+1117      P:0000E5 20001B  [1 -      509]            clr     b
+1118      P:0000E6 23AF00  [1 -      510]            move              n5,b
+1119      P:0000E7 01408D  [1 -      511]            cmp     #0,b
+1120      P:0000E8 0D104A  [5 -      516]            beq     DMAStartNodeP_NoWait
+                   000004
+1121   
+1122      P:0000EA 0BF080  [4 -      520]            jsr     DMAWaitForEOL                     ; Wait for completion
+                   0000D8
+1123   
+1124                                       DMAStartNodeP_NoWait
+1125      P:0000EC 00000C  [3 -      523]            rts
+1126                                       ; ---- end DMAStartNodeX_Wait ----
+1127   
+1128   
+1129                                       ;******************************************************************************
+1130                                       ;*
+1131                                       ;*   Subroutine Name:   DMAInit
+1132                                       ;*
+1133                                       ;*   Description:               Inits the EP for DMA (based on Gints' GP code)
+1134                                       ;*
+1135                                       ;******************************************************************************
+1136                                       ;
+1137                                       ;
+1138   
+1139                                       DMAInit:
+1140                                                                                           ;GPClearInterruptRegister
+1141      P:0000ED 08F485  [2 -      525]            movep             #$FFF,x:INTERRUPT_REGISTER ; "Write-1-To-Clear-One"
+                   000FFF
+1142   
+1143                                                                                           ;GPClearProcessingControlRegister
+1144      P:0000EF 08F484  [2 -      527]            movep             #$1,x:PROCESSING_CONTROL_REGISTER ; "Set Idle bit"
+                   000001
+1145   
+1146                                                                                           ;GPClearSampleControlRegister
+1147      P:0000F1 08F48A  [2 -      529]            movep             #$0,x:SAMPLE_CONTROL_REGISTER
+                   000000
+1148   
+1149                                                                                           ;abort any DMA transfers
+1150                                       ;    movep    #>kDMA_ActionRequest_Abort,x:DMA_CONTROL_REGISTER
+1151   
+1152      P:0000F3 44F400  [2 -      531]            move              #$4000,x0
+                   004000
+1153      P:0000F5 447000  [2 -      533]            move              x0,x:DMA_START_BLOCK_CONTROL_REGISTER
+                   FFFFD5
+1154      P:0000F7 447000  [2 -      535]            move              x0,x:DMA_NEXT_BLOCK_CONTROL_REGISTER
+                   FFFFD4
+1155   
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 15
+Dolby Loader
+
+
+1156                                                                                           ;GPClearDMAConfigRegister
+1157      P:0000F9 08F497  [2 -      537]            movep             #>0,x:DMA_CONFIGURATION_REGISTER
+                   000000
+1158   
+1159      P:0000FB 00000C  [3 -      540]            rts
+1160   
+1161   
+1162                                       DMAError
+1163      P:0000FC 050C00  [4 -      544]            bra     DMAError
+1164   
+1165   
+1166   
+1167   
+1168                                       ;** Loader Status
+1169   
+1170                                       ;status_active  dc      0
+1171                                       ;status_ID              dc      -1
+1172                                       ;status_action  dc      -1
+1173                                       ;status_dspaddr dc      -1
+1174                                       ;status_length  dc      -1
+1175                                       ;status_sysaddr dc      -1
+1176                                       ;status_wait            dc      0
+1177   
+1178                                                 endsec
+1179                                                 end
+
+0    Errors
+0    Warnings
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 16
+Dolby Loader
+
+
+Define symbols:
+
+Symbol           Definition
+
+PREAMBLE.........'1'
+ZEROFILL.........'1'
+
+
+Macros:
+
+Name          Definition       Section
+                 Line
+
+EPClearDataRAM...319           Loader
+EPClearInterrupt.279           Loader
+EPClearProcessin.287           Loader
+EPClearSampleCon.295           Loader
+EPClearStartFram.311           Loader
+EPSetIdleBit.....303           Loader
+EPWritePC........328           Loader
+GPClearDMAConfig.474           Loader
+
+
+Relocatable Sections:
+
+Name
+
+Loader
+
+
+Symbols:
+
+Name             Type    Value         Section           Attributes
+
+COMMAND_GET_REGI.int     FFFFC0        Loader            ABS
+COMMAND_PUT_REGI.int     FFFFC1        Loader            ABS
+CopyDSPPToSys....int   P:000069        Loader            REL
+CopyDSPXToFIFO...int   P:00003E        Loader            REL
+CopyDSPXToFIFOSt.int   P:000045        Loader            REL
+CopyDSPXToSys....int   P:000034        Loader            REL
+CopyDSPYToSys....int   P:000053        Loader            REL
+CopyRomLoop......int   P:000017        Loader            REL
+CopySysToDSPP....int   P:00005E        Loader            REL
+CopySysToDSPX....int   P:00002A        Loader            REL
+CopySysToDSPY....int   P:000048        Loader            REL
+DMAError.........int   P:0000FC        Loader            REL
+DMAInit..........int   P:0000ED        Loader            REL
+DMANewNode_Read..int   P:000074        Loader            REL
+DMANewNode_Write.int   P:000086        Loader            REL
+DMANewNode_Write.int   P:000098        Loader            REL
+DMANewNode_Write.int   P:0000AF        Loader            REL
+DMAStart.........int   P:0000D3        Loader            REL
+DMAStartNodeP_No.int   P:0000EC        Loader            REL
+DMAStartNodeP_Wa.int   P:0000DF        Loader            REL
+DMAUnFreezeAndSt.int   P:0000D5        Loader            REL
+DMAWaitForEOL....int   P:0000D8        Loader            REL
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 17
+Dolby Loader
+
+
+DMAWaitForEOL_Po.int   P:0000D8        Loader            REL
+DMAWaitForIdle...int   P:0000CE        Loader            REL
+DMA_BASE_READ0...int     004000        Loader            ABS
+DMA_BASE_READ1...int     0059E0        Loader            ABS
+DMA_BASE_READ1_I.int     005BE0        Loader            ABS
+DMA_BASE_READ2...int     000000        Loader            ABS
+DMA_BASE_READ3...int     000000        Loader            ABS
+DMA_BASE_READ4...int     000000        Loader            ABS
+DMA_BASE_READ5...int     000000        Loader            ABS
+DMA_BASE_WRITE0..int     004000        Loader            ABS
+DMA_BASE_WRITE1..int     0059E2        Loader            ABS
+DMA_BASE_WRITE1_.int     005BE2        Loader            ABS
+DMA_BASE_WRITE2..int     000000        Loader            ABS
+DMA_BASE_WRITE3..int     000000        Loader            ABS
+DMA_BASE_WRITE4..int     000000        Loader            ABS
+DMA_BASE_WRITE5..int     000000        Loader            ABS
+DMA_BASE_WRITEFI.int     004402        Loader            ABS
+DMA_BASE_WRITEFI.int     004602        Loader            ABS
+DMA_BASE_WRITEFI.int     000403        Loader            ABS
+DMA_BASE_WRITEFI.int     000603        Loader            ABS
+DMA_BASE_WRITEFI.int     005A02        Loader            ABS
+DMA_CONFIGURATIO.int     FFFFD7        Loader            ABS
+DMA_CONTROL_REGI.int     FFFFD6        Loader            ABS
+DMA_NEXT_BLOCK_C.int     FFFFD4        Loader            ABS
+DMA_NODE_EOL0....int     004000        Loader            ABS
+DMA_NODE_EOL1....int     000000        Loader            ABS
+DMA_NODE_EOL2....int     000000        Loader            ABS
+DMA_NODE_EOL3....int     000000        Loader            ABS
+DMA_NODE_EOL4....int     000000        Loader            ABS
+DMA_NODE_EOL5....int     000000        Loader            ABS
+DMA_START_BLOCK_.int     FFFFD5        Loader            ABS
+FIFOIN_CONTROL_R.int     FFFFC9        Loader            ABS
+FIFOOUT_CONTROL_.int     FFFFC8        Loader            ABS
+GLOBAL_SAMPLE_CO.int     FFFFC6        Loader            ABS
+INTERRUPT_REGIST.int     FFFFC5        Loader            ABS
+INTERRUPT_TABLE_.int     FF0000        Loader            ABS
+LDR_ACT_ALLOC....int     000000        Loader            ABS
+LDR_ACT_FROM_DSP.int     000006        Loader            ABS
+LDR_ACT_FROM_DSP.int     000002        Loader            ABS
+LDR_ACT_FROM_DSP.int     000004        Loader            ABS
+LDR_ACT_MAX......int     000006        Loader            ABS
+LDR_ACT_MIN......int     000000        Loader            ABS
+LDR_ACT_TO_DSPP..int     000005        Loader            ABS
+LDR_ACT_TO_DSPX..int     000001        Loader            ABS
+LDR_ACT_TO_DSPY..int     000003        Loader            ABS
+LDR_ERR_ACTION...int     000002        Loader            ABS
+LDR_ERR_ALLOC....int     000004        Loader            ABS
+LDR_ERR_ID.......int     000001        Loader            ABS
+LDR_ERR_LENGTH...int     000003        Loader            ABS
+LDR_ERR_NONE.....int     000000        Loader            ABS
+LDR_HDR_SIZE.....int     000004        Loader            ABS
+LDR_HEAP_ADDR....int     00001C        Loader            ABS
+LDR_HEAP_SIZE....int     00001D        Loader            ABS
+LDR_NUM_DATA.....int     000012        Loader            ABS
+LDR_OFF_PCM_C....int     000001        Loader            ABS
+LDR_OFF_PCM_L....int     000000        Loader            ABS
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 18
+Dolby Loader
+
+
+LDR_OFF_PCM_LFE..int     000005        Loader            ABS
+LDR_OFF_PCM_LS...int     000003        Loader            ABS
+LDR_OFF_PCM_LT...int     000000        Loader            ABS
+LDR_OFF_PCM_R....int     000002        Loader            ABS
+LDR_OFF_PCM_RS...int     000004        Loader            ABS
+LDR_OFF_PCM_RT...int     000001        Loader            ABS
+LDR_PINGPONG_OFF.int     000016        Loader            ABS
+LDR_SYSTABLE_SIZ.int     00001E        Loader            ABS
+LDR_TABLE_SIZE...int     000040        Loader            ABS
+LID_AC3_PREAMBLE.int     00000D        Loader            ABS
+LID_AC3_ZEROS....int     00000C        Loader            ABS
+LID_BUF_AC3......int     000009        Loader            ABS
+LID_BUF_DATA.....int     00000E        Loader            ABS
+LID_BUF_LTRT.....int     000008        Loader            ABS
+LID_BUF_PCM......int     000007        Loader            ABS
+LID_CONFIG_LIST..int     00000A        Loader            ABS
+LID_LOADER_INIT..int     000000        Loader            ABS
+LID_MAX..........int     00001F        Loader            ABS
+LID_MAX_PROG.....int     000006        Loader            ABS
+LID_MIN..........int     000000        Loader            ABS
+LID_PING_PONG....int     00000B        Loader            ABS
+LID_PROG_DGAME1..int     000002        Loader            ABS
+LID_PROG_DGAME2..int     000003        Loader            ABS
+LID_PROG_DGAME3..int     000004        Loader            ABS
+LID_PROG_DMMONO..int     000005        Loader            ABS
+LID_PROG_DMSTERE.int     000006        Loader            ABS
+LID_PROG_DSURRE..int     000001        Loader            ABS
+MAILBOX_IN.......int     FFFFC3        Loader            ABS
+MAILBOX_OUT......int     FFFFC2        Loader            ABS
+NV_PAPU_EPOFBASE.int     003024        Loader            ABS
+NV_PAPU_EPOFBASE.int     003034        Loader            ABS
+NV_PAPU_EPOFBASE.int     003044        Loader            ABS
+NV_PAPU_EPOFBASE.int     003054        Loader            ABS
+NV_PAPU_EPOFCUR0.int     00302C        Loader            ABS
+NV_PAPU_EPOFCUR1.int     00303C        Loader            ABS
+NV_PAPU_EPOFCUR2.int     00304C        Loader            ABS
+NV_PAPU_EPOFCUR3.int     00305C        Loader            ABS
+NV_PAPU_EPOFEND0.int     003028        Loader            ABS
+NV_PAPU_EPOFEND1.int     003038        Loader            ABS
+NV_PAPU_EPOFEND2.int     003048        Loader            ABS
+NV_PAPU_EPOFEND3.int     003058        Loader            ABS
+PROCESSING_CONTR.int     FFFFC4        Loader            ABS
+ROM_BASE.........int     000800        Loader            ABS
+ROM_SIZE.........int     000800        Loader            ABS
+SAMPLE_CONTROL_R.int     FFFFCA        Loader            ABS
+TIMER1_CONFIG....int     FFFFB0        Loader            ABS
+TIMER1_CONTROL...int     FFFFB1        Loader            ABS
+TIMER1_COUNT.....int     FFFFB3        Loader            ABS
+TIMER1_TERMINAL_.int     FFFFB2        Loader            ABS
+TIMER2_CONFIG....int     FFFFB4        Loader            ABS
+TIMER2_CONTROL...int     FFFFB5        Loader            ABS
+TIMER2_COUNT.....int     FFFFB7        Loader            ABS
+TIMER2_TERMINAL_.int     FFFFB6        Loader            ABS
+XRAM_BUFFER......int     000400        Loader            ABS
+clrlp............int   P:000027        Loader            REL
+dmaNode..........int   P:000006        Loader            REL
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 19
+Dolby Loader
+
+
+dmaNode1.........int   P:000007        Loader            REL
+dmaNode2.........int   P:000008        Loader            REL
+dmaNode3.........int   P:000009        Loader            REL
+dmaNode4.........int   P:00000A        Loader            REL
+dmaNode5.........int   P:00000B        Loader            REL
+dmaNode6.........int   P:00000C        Loader            REL
+done.............int   P:000020        Loader            REL
+elapsed_time.....int   P:00000E        Loader            REL
+kAbortFrameBit...int     000000        Loader            ABS
+kAddressErrorBit.int     00000B        Loader            ABS
+kCounter.........int     000000        Loader            ABS
+kDMAComplete1Bit.int     000004        Loader            ABS
+kDMAComplete2Bit.int     000005        Loader            ABS
+kDMAComplete3Bit.int     000006        Loader            ABS
+kDMAEndOfListBit.int     000007        Loader            ABS
+kDMAErrorBit.....int     00000A        Loader            ABS
+kDMANode_EOL.....int     004000        Loader            ABS
+kDMANode_EOLMask.int     003FFF        Loader            ABS
+kDMANode_MaxSize.int     000007        Loader            ABS
+kDMANode_Size....int     000006        Loader            ABS
+kDMASampleFormat.int     000000        Loader            ABS
+kDMASampleFormat.int     000001        Loader            ABS
+kDMASampleFormat.int     000006        Loader            ABS
+kDMASampleFormat.int     000002        Loader            ABS
+kDMASampleFormat.int     000003        Loader            ABS
+kDMA_ActionReque.int     000005        Loader            ABS
+kDMA_ActionReque.int     000003        Loader            ABS
+kDMA_ActionReque.int     000001        Loader            ABS
+kDMA_ActionReque.int     000002        Loader            ABS
+kDMA_ActionReque.int     000004        Loader            ABS
+kDMA_AutoRdyBit..int     000001        Loader            ABS
+kDMA_AutoStartBi.int     000000        Loader            ABS
+kDMA_EolRequireC.int     000003        Loader            ABS
+kDMA_ErrRequireC.int     000004        Loader            ABS
+kDMA_FrozenBit...int     000003        Loader            ABS
+kDMA_IocRequireC.int     000002        Loader            ABS
+kDMA_RunningBit..int     000004        Loader            ABS
+kDMA_StoppedBit..int     000005        Loader            ABS
+kEPMemory_Base...int     000000        Loader            ABS
+kEPMemory_Base_B.int     FF0000        Loader            ABS
+kEPMemory_Base_C.int     FFF000        Loader            ABS
+kEPMemory_Base_P.int     002800        Loader            ABS
+kEPMemory_Base_X.int     000000        Loader            ABS
+kEPMemory_Base_Y.int     001800        Loader            ABS
+kEPMemory_Size_P.int     001000        Loader            ABS
+kEPMemory_Size_X.int     000C00        Loader            ABS
+kEPMemory_Size_Y.int     000100        Loader            ABS
+kFIFO_Channels1..int     000000        Loader            ABS
+kFIFO_Channels2..int     000001        Loader            ABS
+kFIFO_Channels4..int     000002        Loader            ABS
+kFIFO_Channels6..int     000003        Loader            ABS
+kFIFO_SampleForm.int     000000        Loader            ABS
+kFIFO_SampleForm.int     000001        Loader            ABS
+kFIFO_SampleForm.int     000002        Loader            ABS
+kFIFO_SampleForm.int     000003        Loader            ABS
+kFifoOut0_Defaul.int     000012        Loader            ABS
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 20
+Dolby Loader
+
+
+kFrameLength.....int     000020        Loader            ABS
+kMailInUpdateBit.int     000003        Loader            ABS
+kPCValue.........int     000000        Loader            ABS
+kProcessingContr.int     000001        Loader            ABS
+kProcessingContr.int     000000        Loader            ABS
+kPutUpdateBit....int     000002        Loader            ABS
+kStartFrameBit...int     000001        Loader            ABS
+kTimer1Bit.......int     000008        Loader            ABS
+kTimer2Bit.......int     000009        Loader            ABS
+loader...........int   P:000000        Loader            REL
+loader_init......int   P:000022        Loader            REL
+prev_time........int   P:00000D        Loader            REL
+temp.............int   P:000005        Loader            REL
+toggle_ping_pong.int   P:00000F        Loader            REL
+
+
+Symbol cross-reference listing:
+
+Name             Line number (* is definition)
+COMMAND_GET_REGI.  243*  
+COMMAND_PUT_REGI.  244*  
+CopyDSPPToSys....  822*  
+CopyDSPXToFIFO...  693*  
+CopyDSPXToFIFOSt.  703*  
+CopyDSPXToSys....  570     654*  
+CopyDSPYToSys....  754*  
+CopyRomLoop......  559     564*  
+CopySysToDSPP....  788*  
+CopySysToDSPX....  615*  
+CopySysToDSPY....  721*  
+DMAError......... 1086    1162*   1163   
+DMAInit..........  599    1139*  
+DMANewNode_Read..  632     735     803     857*  
+DMANewNode_Write.  671     769     836     901*  
+DMANewNode_Write.  701     946*  
+DMANewNode_Write.  997*  
+DMAStart......... 1065*   1115   
+DMAStartNodeP_No. 1120    1124*  
+DMAStartNodeP_Wa.  634     673     704     737     771     805     838    1109*  
+DMAUnFreezeAndSt. 1072*   1074   
+DMAWaitForEOL.... 1082*   1122   
+DMAWaitForEOL_Po. 1085*   1087   
+DMAWaitForIdle...  859     903     948     999    1048*   1052   
+DMA_BASE_READ0...  440*    448   
+DMA_BASE_READ1...  441*  
+DMA_BASE_READ1_I.  442*    870   
+DMA_BASE_READ2...  443*    451   
+DMA_BASE_READ3...  444*    452   
+DMA_BASE_READ4...  445*    453   
+DMA_BASE_READ5...  446*    454   
+DMA_BASE_WRITE0..  448*  
+DMA_BASE_WRITE1..  449*  
+DMA_BASE_WRITE1_.  450*    916   
+DMA_BASE_WRITE2..  451*  
+DMA_BASE_WRITE3..  452*  
+DMA_BASE_WRITE4..  453*  
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 21
+Dolby Loader
+
+
+DMA_BASE_WRITE5..  454*  
+DMA_BASE_WRITEFI.  456*  
+DMA_BASE_WRITEFI.  459*  
+DMA_BASE_WRITEFI.  457*  
+DMA_BASE_WRITEFI.  460*   1010   
+DMA_BASE_WRITEFI.  462*    961   
+DMA_CONFIGURATIO.  371*   1157   
+DMA_CONTROL_REGI.  360*   1052    1069    1074   
+DMA_NEXT_BLOCK_C.  384*   1113    1154   
+DMA_NODE_EOL0....  464*  
+DMA_NODE_EOL1....  465*  
+DMA_NODE_EOL2....  466*  
+DMA_NODE_EOL3....  467*  
+DMA_NODE_EOL4....  468*  
+DMA_NODE_EOL5....  469*  
+DMA_START_BLOCK_.  386*   1153   
+FIFOIN_CONTROL_R.  200*  
+FIFOOUT_CONTROL_.  199*  
+GLOBAL_SAMPLE_CO.  274*  
+INTERRUPT_REGIST.  182*   1055    1086    1087    1090    1141   
+INTERRUPT_TABLE_.  175*  
+LDR_ACT_ALLOC....  102*  
+LDR_ACT_FROM_DSP.  108*  
+LDR_ACT_FROM_DSP.  104*  
+LDR_ACT_FROM_DSP.  106*  
+LDR_ACT_MAX......  110*  
+LDR_ACT_MIN......  100*  
+LDR_ACT_TO_DSPP..  107*  
+LDR_ACT_TO_DSPX..  103*  
+LDR_ACT_TO_DSPY..  105*  
+LDR_ERR_ACTION...  128*  
+LDR_ERR_ALLOC....  130*  
+LDR_ERR_ID.......  127*  
+LDR_ERR_LENGTH...  129*  
+LDR_ERR_NONE.....  126*  
+LDR_HDR_SIZE.....   59*  
+LDR_HEAP_ADDR....   94*    593   
+LDR_HEAP_SIZE....   95*  
+LDR_NUM_DATA.....   88*    594   
+LDR_OFF_PCM_C....  115*  
+LDR_OFF_PCM_L....  114*  
+LDR_OFF_PCM_LFE..  119*  
+LDR_OFF_PCM_LS...  117*  
+LDR_OFF_PCM_LT...  121*  
+LDR_OFF_PCM_R....  116*  
+LDR_OFF_PCM_RS...  118*  
+LDR_OFF_PCM_RT...  122*  
+LDR_PINGPONG_OFF.   96*  
+LDR_SYSTABLE_SIZ.   93*  
+LDR_TABLE_SIZE...   92*  
+LID_AC3_PREAMBLE.   85*  
+LID_AC3_ZEROS....   84*  
+LID_BUF_AC3......   79*  
+LID_BUF_DATA.....   86*     88      93      94      95   
+LID_BUF_LTRT.....   78*  
+LID_BUF_PCM......   77*  
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 22
+Dolby Loader
+
+
+LID_CONFIG_LIST..   81*  
+LID_LOADER_INIT..   66*    525   
+LID_MAX..........   64*     88      92   
+LID_MAX_PROG.....   75*  
+LID_MIN..........   63*  
+LID_PING_PONG....   83*     96     528   
+LID_PROG_DGAME1..   69*  
+LID_PROG_DGAME2..   70*  
+LID_PROG_DGAME3..   71*  
+LID_PROG_DMMONO..   72*  
+LID_PROG_DMSTERE.   73*  
+LID_PROG_DSURRE..   68*  
+MAILBOX_IN.......  248*  
+MAILBOX_OUT......  247*  
+NV_PAPU_EPOFBASE.  233*  
+NV_PAPU_EPOFBASE.  234*  
+NV_PAPU_EPOFBASE.  235*  
+NV_PAPU_EPOFBASE.  236*  
+NV_PAPU_EPOFCUR0.  221*  
+NV_PAPU_EPOFCUR1.  222*  
+NV_PAPU_EPOFCUR2.  223*  
+NV_PAPU_EPOFCUR3.  224*  
+NV_PAPU_EPOFEND0.  227*  
+NV_PAPU_EPOFEND1.  228*  
+NV_PAPU_EPOFEND2.  229*  
+NV_PAPU_EPOFEND3.  230*  
+PROCESSING_CONTR.  267*   1144   
+ROM_BASE.........  487*    557   
+ROM_SIZE.........  488*    559     568   
+SAMPLE_CONTROL_R.  201*   1147   
+TIMER1_CONFIG....  250*  
+TIMER1_CONTROL...  253*  
+TIMER1_COUNT.....  259*  
+TIMER1_TERMINAL_.  256*  
+TIMER2_CONFIG....  251*  
+TIMER2_CONTROL...  254*  
+TIMER2_COUNT.....  260*  
+TIMER2_TERMINAL_.  257*  
+XRAM_BUFFER......  489*    556     567   
+clrlp............  594     596*  
+dmaNode..........  537*    626     665     695     729     763     797     830   
+dmaNode1.........  538*  
+dmaNode2.........  539*  
+dmaNode3.........  540*  
+dmaNode4.........  541*  
+dmaNode5.........  542*  
+dmaNode6.........  543*  
+done.............  531     573     579*    601   
+elapsed_time.....  545*  
+kAbortFrameBit...  183*  
+kAddressErrorBit.  194*  
+kCounter.........  145*  
+kDMAComplete1Bit.  187*  
+kDMAComplete2Bit.  188*  
+kDMAComplete3Bit.  189*  
+kDMAEndOfListBit.  190*   1087   
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 23
+Dolby Loader
+
+
+kDMAErrorBit.....  193*   1086   
+kDMANode_EOL.....  357*    866     910     955    1006   
+kDMANode_EOLMask.  358*    865     909     954    1005   
+kDMANode_MaxSize.  355*  
+kDMANode_Size....  356*  
+kDMASampleFormat.  378*  
+kDMASampleFormat.  379*  
+kDMASampleFormat.  382*  
+kDMASampleFormat.  380*  
+kDMASampleFormat.  381*  
+kDMA_ActionReque.  365*  
+kDMA_ActionReque.  363*  
+kDMA_ActionReque.  361*   1069   
+kDMA_ActionReque.  362*  
+kDMA_ActionReque.  364*  
+kDMA_AutoRdyBit..  373*  
+kDMA_AutoStartBi.  372*  
+kDMA_EolRequireC.  375*  
+kDMA_ErrRequireC.  376*  
+kDMA_FrozenBit...  367*  
+kDMA_IocRequireC.  374*  
+kDMA_RunningBit..  368*   1052    1074   
+kDMA_StoppedBit..  369*  
+kEPMemory_Base...  163*    164     165     166   
+kEPMemory_Base_B.  172*  
+kEPMemory_Base_C.  241*  
+kEPMemory_Base_P.  166*    800     833    1112   
+kEPMemory_Base_X.  164*    629     668     698   
+kEPMemory_Base_Y.  165*    732     766   
+kEPMemory_Size_P.  170*  
+kEPMemory_Size_X.  168*  
+kEPMemory_Size_Y.  169*  
+kFIFO_Channels1..  203*  
+kFIFO_Channels2..  204*  
+kFIFO_Channels4..  205*  
+kFIFO_Channels6..  206*  
+kFIFO_SampleForm.  208*  
+kFIFO_SampleForm.  209*  
+kFIFO_SampleForm.  210*  
+kFIFO_SampleForm.  211*  
+kFifoOut0_Defaul.  218*  
+kFrameLength.....  143*  
+kMailInUpdateBit.  186*  
+kPCValue.........  144*  
+kProcessingContr.  269*  
+kProcessingContr.  268*  
+kPutUpdateBit....  185*  
+kStartFrameBit...  184*  
+kTimer1Bit.......  191*  
+kTimer2Bit.......  192*  
+loader...........  523*  
+loader_init......  526     592*  
+prev_time........  544*  
+temp.............  536*  
+toggle_ping_pong.  529     552*  
+
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 24
+Dolby Loader
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  11:35:36  .\loader.asm  Page 25
+Dolby Loader
+
+
+                         Memory Utilization Report
+
+
+P Memory
+
+Start    End         Length  Type       Label             Section           Overlay Address
+000000   000004           5  CODE                         Loader
+000005   000005           1  CONST      temp              Loader
+000006   000006           1  CONST      dmaNode           Loader
+000007   000007           1  CONST      dmaNode1          Loader
+000008   000008           1  CONST      dmaNode2          Loader
+000009   000009           1  CONST      dmaNode3          Loader
+00000A   00000A           1  CONST      dmaNode4          Loader
+00000B   00000B           1  CONST      dmaNode5          Loader
+00000C   00000C           1  CONST      dmaNode6          Loader
+00000D   00000D           1  CONST      prev_time         Loader
+00000E   00000E           1  CONST      elapsed_time      Loader
+00000F   0000FC         238  CODE                         Loader
+0000FD   FFFFFF    16776963  UNUSED

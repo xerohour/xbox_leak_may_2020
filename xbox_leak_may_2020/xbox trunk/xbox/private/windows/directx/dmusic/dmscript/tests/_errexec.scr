@@ -1,0 +1,54 @@
+<script language=LimitedVBScript directmusicversion=8.0.0.0>
+
+sub UnnecessarySet
+	set x = 1
+end sub
+
+sub NeedSet
+	x = LoadSegment("sample.sgt")
+end sub
+
+sub IfUnexpectedString
+	if "hi" then
+		v1 = 1
+	end if
+end sub
+
+sub IfUnexpectedObject
+	set x = LoadSegment("sample.sgt")
+	if x then
+		v1 = 1
+	end if
+end sub
+
+sub IfUnexpecedOther
+	if x then
+		v1 = 1
+	end if
+end sub
+
+sub BaseNotObject
+	o = 1
+	o.Nonexistant = 1
+end sub
+
+sub NoProperty
+	set scr = LoadScript("_basic.scr")
+	scr.Nonexistant = 1
+end sub
+
+sub ChainNotObject
+	set scr = LoadScript("_basic.scr")
+	scr.VarOne = 1
+	scr.VarOne.Nonexistant = 1
+end sub
+
+sub NullDereference
+	set x = Nothing
+	x.DontGPF
+end sub
+
+sub NullAssign
+	set x = Nothing
+	x.DontGPF = 1
+end sub

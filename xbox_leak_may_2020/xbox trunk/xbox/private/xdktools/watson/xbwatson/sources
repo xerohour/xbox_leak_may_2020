@@ -1,0 +1,32 @@
+TARGETPATH=obj
+TARGETNAME=xbWatson
+TARGETTYPE=PROGRAM
+
+UMTYPE=windows
+UMENTRY=winmain
+
+# Use precompiled header for much faster build
+PRECOMPILED_INCLUDE=StdAfx.h
+PRECOMPILED_CXX=1
+
+SOURCES=\
+    xbWatson.rc \
+    xbWatson.cpp \
+    GetBreakInfo.cpp \
+    HandleAssert.cpp \
+    HandleBreakpoint.cpp \
+    HandleException.cpp \
+    HandleRIP.cpp \
+    InitDM.cpp \
+    Output.cpp \
+    ReadWriteBreakInfo.cpp \
+    SaveLogFile.cpp \
+    XboxNotify.cpp
+
+TARGETLIBS = \
+     $(WSDK_LIB_PATH)\gdi32.lib    \
+     $(WSDK_LIB_PATH)\comdlg32.lib \
+     $(WSDK_LIB_PATH)\imagehlp.lib \
+     $(XDK_LIB_PATH)\xboxdbg.lib
+
+USE_MSVCRT=1

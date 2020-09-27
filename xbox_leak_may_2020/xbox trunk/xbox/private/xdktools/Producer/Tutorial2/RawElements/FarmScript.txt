@@ -1,0 +1,75 @@
+' This script creates an interface for the Farm Game score.
+
+' These three routines play the Intro at the next marker, and
+' then the background segment. Any notes already playing will 
+' not cut off. The PlayFlag variable keeps track of which segment
+' is currently playing so it can be stopped.
+
+dim PlayFlag
+
+sub dmBGNight
+     BGNight.play(PlayIntro)
+     PlayFlag = 1
+end sub
+
+sub dmBGPredawn
+     BGPredawn.Play(PlayIntro+AtMarker+NoCutOff)
+     PlayFlag = 2
+end sub 
+
+sub dmBGDawn
+     BGDawn.Play(PlayIntro+AtMarker+NoCutOff)
+     PlayFlag = 3
+end sub
+
+' Stops background segments
+
+sub dmAllStop
+     Select Case PlayFlag
+          Case 1
+               BGNight.stop
+          Case 2
+               BGPredawn.stop
+          Case 3
+               BGDawn.stop
+     End Select
+end sub
+
+' Plays the end pattern, then stops
+
+sub dmEnding
+    BGNight.Play(PlayEnd+AtMarker+NoCutOff)
+    BGNight.stop(AtImmediate)
+end sub
+
+' Plays SSBird as a secondary segment and starts on the beat
+
+sub dmSSBird
+     SSBird.Play(IsSecondary+AtBeat)
+end sub
+
+' These routines play the sound effects as secondary segments
+
+sub dmSfxCow
+     SfxCow.Play(IsSecondary)
+end sub 
+
+sub dmSfxSheep
+     SfxSheep.Play(IsSecondary)
+end sub
+
+sub dmSfxCougar
+     SfxCougar.Play(IsSecondary)
+end sub
+
+sub dmSfxWolf
+     SfxWolf.Play(IsSecondary)
+end sub
+
+sub dmSfxAlarm
+     SfxAlarm.Play(IsSecondary)
+end sub
+
+Sub dmSfxRooster
+     SfxRooster.Play(IsSecondary)
+end sub

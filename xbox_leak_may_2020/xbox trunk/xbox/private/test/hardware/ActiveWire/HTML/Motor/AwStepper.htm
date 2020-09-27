@@ -1,0 +1,276 @@
+<html>
+
+<head>
+<title>ActiveWire Motor Control board</title>
+</head>
+
+<body bgcolor="#D0FFD0">
+
+<h1 align="center">Stepper Motor Control <br> using ActiveWire Motor Control Add-on board</h1>
+
+<p align="center">
+	Following example demonstrates controling 2 Stepper motors using the ActiveWire Motor Control board.<br>
+	Please refer to the wiring diagram below.<br>
+	Please refer to <a HREF="AwMotor.htm">ActiveWire Motor Control board document</a> for more detail about the board.
+</p>
+
+<p align="center">
+	<img src="AwMotorExStepper.gif" alt="ActiveWire Motor Control board Example">
+</p>
+
+<p align="center">
+	Wiring above shows how to connect 2-phase Stepper motors using 2 outputs of Motor Contoller board. <br>
+</p>
+
+
+
+<p align="center"><script language="JavaScript"><!--
+
+opened = 0;
+
+function Open (devnum)
+{
+	var	error;
+
+	if (opened)
+		skill.Close();
+
+	debug.value = "Open #" + devnum;
+	error = skill.Open (devnum);
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	opened = 1;
+
+	skill.EnablePort (0xffff);
+}	
+
+
+function Close ()
+{
+	var error;
+
+	debug.value = "Close";
+	error = skill.Close();
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	opened = 0;
+}	
+
+var StepperNum = 0;
+var Speed = 1;
+var Continuous = 0;
+
+function make_string (steppernum, forward, speed)
+{
+	var	bits0 = "0b ";
+	var	bits1 = "19 ";
+	var	bits2 = "0d ";
+	var	bits3 = "29 ";
+
+	var phase0 = "";
+	var phase1 = "";
+	var phase2 = "";
+	var phase3 = "";
+	var len;
+
+	if (steppernum)
+	{
+		bits0 = "00 " + bits0;
+		bits1 = "00 " + bits1;
+		bits2 = "00 " + bits2;
+		bits3 = "00 " + bits3;
+	}
+	else
+	{
+		bits0 += "00 ";
+		bits1 += "00 ";
+		bits2 += "00 ";
+		bits3 += "00 ";
+	}
+
+	switch (speed)
+	{
+		case 0: len = 300; break;
+		case 1: len = 120; break;
+		case 2: len = 60; break;
+		default: Speed = 1; len = 120; break;
+	}
+	
+	for (i=0; i<len; i++)
+	{
+		phase0 += bits0;
+		phase1 += bits1;
+		phase2 += bits2;
+		phase3 += bits3;
+	}
+
+	if (forward)
+	{
+		return (phase0 + phase1 + phase2 + phase3);
+	}
+	else
+	{
+		return (phase3 + phase2 + phase1 + phase0);
+	}
+}
+
+function make_one_direction (steppernum, forward)
+{
+	this[0] = make_string (steppernum, forward, 0);
+	this[1] = make_string (steppernum, forward, 1);
+	this[2] = make_string (steppernum, forward, 2);
+}
+
+function make_stepper_data (steppernum)
+{
+	this.reverse = new make_one_direction (steppernum, 0);
+	this.forward = new make_one_direction (steppernum, 1);
+}
+
+function MakeStepperData ()
+{
+	this[0] = new make_stepper_data (0);
+	this[1] = new make_stepper_data (1);
+}
+
+StepperData = new MakeStepperData ();
+
+function StepperNeutral ()
+{
+	error = skill.OutPort (0);
+	debug.value = "OutPort " + error;
+}
+
+function StepperForward (steps)
+{
+	var	string = StepperData[StepperNum].forward[Speed];
+
+	if (Continuous)
+		setTimeout ("StepperForward(400)", 100);
+
+	var count = (string.length/3) * steps / 4;
+	for (i=0; i+32000<=count; i+=32000)
+		error = skill.OutPortBlock (string, 32000);
+	error = skill.OutPortBlock (string, count-i);
+
+	debug.value = "OutPortBlock " + error
+}
+
+function StepperReverse (steps)
+{
+	var	string = StepperData[StepperNum].reverse[Speed];
+
+	if (Continuous)
+		setTimeout ("StepperReverse(400)", 100);
+
+	var count = (string.length/3) * steps / 4;
+	for (i=0; i+32000<=count; i+=32000)
+		error = skill.OutPortBlock (string, 32000);
+	error = skill.OutPortBlock (string, count-i);
+
+	debug.value = "OutPortBlock " + error
+}
+
+function StepperBreak ()
+{
+	error = skill.OutPort (0x0b0b);
+	debug.value = "OutPort " + error;
+}
+
+
+
+// --></script></p>
+
+<p align="center">
+	Please select Device# at first. <br>
+	Device# is the number sequentially assigned to each board by Windows operating system.<br>
+	If you have only 1 board plugged into your system, Device# is 0.<br>
+	If you have 2 boards plugged into your system, the first board is 0, the another is 1.<br>
+	<br>
+	Click in the box below, type in a number, then click Open. <br>
+	Device# <input type="text" size="5" name="DevNum" onchange="Open(this.value)"> <br>
+			<input type="button" name="Open" value="Open" onclick="Open(DevNum.value)"> 
+			<input type="button" name="Close" value="Close" onclick="Close()"> <br>
+</p>
+
+<p align="center">
+	Now you can click on either of following radio button, then motor of your choice will follow your command.<br>
+</p>
+
+<div align="center"><center>
+<table border="0" width="600" height="200">
+  <tr>
+    <td align="left"><p align="left">
+	<input type="radio" value="0" name="stepper" onclick="StepperNum=0" checked> Stepper #0 <br>
+    <input type="radio" value="1" name="stepper" onclick="StepperNum=1"> Stepper #1 <br>
+    </td>
+    <td align="left"><p align="left">
+	<input type="radio" value="hi"  name="speed" onclick="Speed=2"> Speed High <br>
+    <input type="radio" value="mid" name="speed" onclick="Speed=1" checked> Speed Medium <br>
+    <input type="radio" value="low" name="speed" onclick="Speed=0"> Speed Low <br>
+    </td>
+    <td align="left"><p align="left">
+    <input type="radio" value="Neutral"    name="state" onclick="Continuous=0;StepperNeutral()" checked> Neutral <br>
+    <input type="radio" value="Break"    name="state" onclick="Continuous=0;StepperBreak()"> Break <br>
+    <input type="radio" value="Forward100" name="state" onclick="Continuous=0;StepperForward(100)"> Forward 100 steps<br>
+    <input type="radio" value="Reverse100" name="state" onclick="Continuous=0;StepperReverse(100)"> Reverse 100 steps<br>
+    <input type="radio" value="Forward400" name="state" onclick="Continuous=0;StepperForward(400)"> Forward 400 steps<br>
+    <input type="radio" value="Reverse400" name="state" onclick="Continuous=0;StepperReverse(400)"> Reverse 400 steps<br>
+    <input type="radio" value="Forward800" name="state" onclick="Continuous=0;StepperForward(800)"> Forward 800 steps<br>
+    <input type="radio" value="Reverse800" name="state" onclick="Continuous=0;StepperReverse(800)"> Reverse 800 steps<br>
+    <input type="radio" value="ForwardCont" name="state" onclick="Continuous=1;StepperForward(400)"> Forward Continuous<br>
+    <input type="radio" value="ReverseCont" name="state" onclick="Continuous=1;StepperReverse(400)"> Reverse Continuous<br>
+    </td>
+  </tr>
+</table>
+</center></div>
+
+<br>
+
+<p align="center">Below is a debug message.<br>
+	If it says ERROR, check your hardware/software.<br>
+	<br>
+	debug message : <input type="text" size="40" name="debug" value="debug"> <br>
+</p>
+
+<br>
+<br>
+
+<p align="center">If you see ActiveWire bitmap below, ActiveX control is loaded
+successfully. </p>
+
+<p align="center">
+<object id="skill" name="skill" classid="clsid:95438945-F98A-11D2-AC25-00104B306BEE"
+width="64" height="64">
+</object>
+<input type="button" name="About" value="About..." onclick="skill.AboutBox()"> </p>
+
+<p align="left">If you see broken picture above, either ; </p>
+
+<ol>
+  <li><p align="left">Microsoft Internet Explorer 4.0 or above is required. Download the
+    latest from Microsoft web site.</p>
+  </li>
+  <li><p align="left">Security setting of your Internet Explorer is preventing from loading
+    ActiveX control. Choose View-&gt;Internet Option-&gt;Security, then set Local intra net
+    zone security setting to Low.</p>
+  </li>
+  <li><p align="left">ActiveX control is not installed in your system properly. <a
+    href="http://www.activewireinc.com/download.htm">Download AwusbIO.OCX</a>, and follow
+    instruction.</p>
+  </li>
+  <li><p align="left">ActiveWire USB Windows Driver is not installed properly. <a
+    href="http://www.activewireinc.com/download.htm">Download RegClear.exe</a> and try
+    reinstall driver.</p>
+  </li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,65 @@
+'$include 'install.inc'
+
+
+Scenario "Verify Uninstall after SDK Clean Updater Setup does not remove user created (Build files) files"
+	Dim xdkpath$, BuildPass%
+	'
+	' Uninstall current XDK
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Delete contents from default XDK path
+	'
+	killdir("C:\Program Files\Microsoft Xbox SDK")
+	'
+	' Install current build
+	'
+	Install(buildnumber, true)
+	'
+	' Grab XDK Install path
+	'
+	xdkpath = GetXDKPath()
+	'
+	' If FOG sample has a DSW file, get rid of it
+	'
+	if exists("C:\Program Files\Microsoft Xbox SDK\Samples\Xbox\Graphics\fog\fog.dsw") then
+		kill "C:\Program Files\Microsoft Xbox SDK\Samples\Xbox\Graphics\fog\fog.dsw"
+	end if
+	'
+	' Attempt to build all configurations in project
+	'
+	if NOT BuildProject("C:\Program Files\Microsoft Xbox SDK\Samples\Xbox\Graphics\fog\fog.dsp", true) then
+		LOG #10, "Build failure on sample project"
+	end if
+	'
+	' Uninstall XDK
+	'
+	Uninstall
+	'
+	' Make sure we still have the non-install files still there
+	'
+	if NOT exists("C:\Program Files\Microsoft Xbox SDK\Samples\Xbox\Graphics\fog", "+d") then
+		'
+		' Extra files were removed
+		'
+		FAIL "Extra user created files (Build files) were removed!"
+	end if
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

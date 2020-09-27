@@ -1,0 +1,30 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+USE_MSVCRT=1
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETNAME=mkeeprom
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+INCLUDES=$(BASEDIR)\private\inc\crypto; \
+         $(BASEDIR)\private\ntos\inc
+
+SOURCES= \
+        mkeeprom.cpp \
+        mkeeprom.rc
+
+
+LINKLIBS=$(BASEDIR)\public\sdk\lib\*\user32.lib \
+         $(BASEDIR)\public\sdk\lib\*\kernel32.lib
+
+
+TARGETLIBS= $(BASEDIR)\private\lib\*\rsa32.lib \
+            $(BASEDIR)\private\lib\*\xcrypt.lib
+
+UMTYPE=console

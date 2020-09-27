@@ -1,0 +1,26 @@
+TARGETNAME = XBADPCMEncode
+TARGETTYPE = PROGRAM
+TARGETPATH = obj
+
+C_DEFINES = $(C_DEFINES) -DWIN32
+
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+C_DEFINES = $(C_DEFINES) -DDEBUG
+!endif
+
+INCLUDES = $(WSDK_INC_PATH);
+
+SOURCES = \
+    wavparse.cpp \
+    imaadpcm.cpp \
+    driver.cpp \
+    xbadpcm.rc
+
+UMTYPE = console
+UMENTRY = main
+UMAPPL=
+UMLIBS=
+386_STDCALL=0
+
+
+USE_LIBCMT=1

@@ -1,0 +1,57 @@
+'$include 'install.inc'
+
+
+scenario "Verify SDK Updater Setup file versions/timestamp"
+	Dim FileArray$(0,3), RegArray$(0,3)
+	Dim item%, pass%
+	Dim xdkpath$
+
+	pass = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Default install
+	'
+	Install(BuildNumber, true, false)
+	'
+	' Get File Contents
+	'
+	VerifyFile(5, FileArray, RegArray)
+	'
+	' If upper bound > 0 then there were files returned
+	'
+	if ubound(FileArray, 1) <> 0 then
+		pass = false
+		LOG #10, "FAIL: The following "+trim$(str$(ubound(FileArray, 1)))+" files have mismatched versions/timestamps"
+		for item = lbound(FileArray, 1) to ubound(FileArray, 1)-1
+			LOG #10, "   "+FileArray(item, 0)+" should be ["+FileArray(item,1)+"] but actually is ["+FileArray(item, 2)+"]"
+		next item
+	end if
+	'
+	' If failed, the flag error
+	'
+	if NOT pass then
+		FAIL "Some files have mismatched timestamps/versions from reference list"
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

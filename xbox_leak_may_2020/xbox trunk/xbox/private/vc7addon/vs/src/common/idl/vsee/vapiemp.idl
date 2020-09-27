@@ -1,0 +1,74 @@
+//----------------------------------------------------------------------------- 
+// Microsoft VSEE
+// 
+// Microsoft Confidential 
+// Copyright 1995-2000 Microsoft Corporation. All Rights Reserved. 
+// 
+// @doc external 
+// 
+// @module vapiemp.idl | Interface definitions for the enlistment manager proxy.
+//
+// @owner jayk 
+//-----------------------------------------------------------------------------
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "vapiempguids.h"
+import "objidl.idl";
+cpp_quote("#pragma once")
+
+///////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+// Name: ISetVsWeb
+//
+// @interface ISetVsWeb |
+// Interface to set VSWeb on EMP session object
+//
+// @owner zacha
+//
+// @base public | IUnknown
+//------------------------------------------------------------------------------
+[
+    object,
+	uuid(6B33DBD9-1DDD-11d3-85CF-00A0C9CFCC16),
+    pointer_default(unique)
+]
+interface ISetVsWeb : IUnknown
+{
+	// @meth HRESULT | SetVsWeb | Sets VsWeb
+	HRESULT SetVsWeb([in] IUnknown *pIUnknown);
+};
+
+
+[
+	uuid(LIBID_NVseeVersioningEnlistmentManagerProxy),
+]
+library VseeVersioningEnlistmentManagerProxy
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+///////////////////////////////////////////////////////////////////////////////
+
+	[
+		uuid(CLSID_CVapiEMPDataSource)
+	]
+	coclass CVapiEMPDataSource
+	{
+		[default] interface IUnknown;
+	};
+
+///////////////////////////////////////////////////////////////////////////////
+
+	[
+		uuid(CLSID_CVapiEMPWecFactory)
+	]
+	coclass CVapiEMPWecFactory
+	{
+		[default] interface IUnknown;
+	};
+
+///////////////////////////////////////////////////////////////////////////////
+
+}; // library

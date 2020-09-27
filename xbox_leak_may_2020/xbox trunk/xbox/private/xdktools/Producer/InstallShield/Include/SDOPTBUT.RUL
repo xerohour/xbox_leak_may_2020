@@ -1,0 +1,219 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdaskopt.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdOptionsButtons      */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdOptionsButtons                                           */
+ /*                                                                        */
+ /*   Descrip:  This dialog will let user display an array of bitmap       */
+ /*             buttons along with messgaes.  The resource (dialog)        */
+ /*             governs how and where the items are positioned.            */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdOptionsButtons( szTitle, szMsg, listButton, listDescrip )
+          STRING  szDlg, szTemp;
+          STRING  svItem[ MAX_STRING ];
+          HWND    hwndDlg;
+          NUMBER  nId, nTemp;
+          NUMBER  nReturn, nMessage;
+          BOOL    bDone, bChange;
+        begin
+
+           szDlg     = SD_DLG_OPTIONSBUTTONS;
+           nSdDialog = SD_NDLG_OPTIONSBUTTONS;
+
+           // record data produced by this dialog
+           if (MODE=SILENTMODE) then
+             SdMakeName( szAppKey, szDlg, szTitle, nSdOptionsButtons );
+             SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+             return nId;
+           endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_OPTIONSBUTTONS ) = DLG_ERR) then
+              return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_COMPONENT_MSG, szMsg );
+                   endif;
+
+                   Delay(1);
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_NORMAL, szSdProduct );
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   // initialize the buttons and static fields
+                   SdOptionsButtonsInit( szDlg, hwndDlg, listButton, listDescrip );
+
+              case SD_PBUT_OK:
+                   nId   = OK;
+                   bDone = TRUE;
+
+              case SD_PBUT_BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdOptionsButtons" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                       bDone = TRUE;
+                   else
+                       if ((nId >= 100) && (nId < 200)) then
+                          bDone = TRUE; // user button
+                       endif;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit();
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdOptionsButtons );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdOptionsButtonsInit                                       */
+ /*                                                                        */
+ /*   Descrip:  This dialog will initialize the static and button controls */
+ /*             in the dialog.  This includes hiding controls as           */
+ /*             appropriate.                                               */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdOptionsButtonsInit( szDlg, hwndDlg, listButton, listDescrip )
+          NUMBER        nResult, nFirstChar;
+          LIST          listTemp;
+          STRING        szMsg[ MAX_STRING ];
+          STRING        szNew[ MAX_STRING ];
+          HWND          hwndButton, hwndNext;
+        begin
+
+         // set buttons, ensure @ is in the first set element
+         nResult  = ListGetFirstString( listButton, szMsg );
+         listTemp = ListCreate( STRINGLIST );
+
+         while (nResult = 0)
+              szNew = szMsg;
+              GetByte( nFirstChar, szMsg, 0 );
+              if (nFirstChar != 64) then // Add '@' to start of string
+                 Sprintf( szNew, "@%s", szMsg );
+              endif;
+              ListAddString( listTemp, szNew, AFTER );
+              nResult = ListGetNextString( listButton, szMsg );
+         endwhile;
+
+         // set controls
+         SdSetSequentialItems( szDlg, hwndDlg, SD_PBUT_STARTBUTTON1, listTemp );
+         SdSetSequentialItems( szDlg, hwndDlg, SD_STA_STARTMSG1, listDescrip );
+
+         ListDestroy( listTemp );
+
+         // check if next button is not enabled, if not then make first button focus
+         hwndNext   = GetDlgItem( hwndDlg, OK );
+         hwndButton = GetDlgItem( hwndDlg, SD_PBUT_STARTBUTTON1 );
+         if (!IsWindowEnabled( hwndNext )) then
+            SetFocus( hwndButton );
+         endif;
+
+        end;
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdSetSequentialItems                                       */
+ /*                                                                        */
+ /*   Descrip:  This dialog will set a list to a sequential set of controls*/
+ /*             It will set the window text.                               */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdSetSequentialItems( szDlg, hwndDlg, nStart, list )
+          HWND          hwnd;
+          INT           nResult, nId;
+          BOOL          bOutOfControls;
+          STRING        szMsg[ MAX_STRING ];
+        begin
+
+           nResult        = ListGetFirstString( list, szMsg );
+           nId            = nStart;
+           bOutOfControls = FALSE;
+
+           while (nResult = 0)
+              hwnd = GetDlgItem( hwndDlg, nId );
+
+              if (hwnd) then
+                CtrlSetText( szDlg, nId, szMsg );
+                nResult = ListGetNextString( list, szMsg );
+                nId = nId + 1;
+              else
+                bOutOfControls = TRUE;
+                nResult = 1;
+              endif;
+
+           endwhile;
+
+           // if not out of controls then hide the remaining ones
+           if (bOutOfControls = FALSE) then
+
+              hwnd = 1;
+              while (hwnd)
+                 hwnd = GetDlgItem( hwndDlg, nId );
+                 if (hwnd) then
+                    ShowWindow( hwnd, SW_HIDE );
+                 endif;
+                 nId = nId + 1;
+              endwhile;
+
+           endif;
+
+        end;
+
+

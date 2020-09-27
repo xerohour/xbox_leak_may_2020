@@ -1,0 +1,81 @@
+define(`RESOURCEFILEENTRY',POUND Begin Source File
+
+SOURCE=.\$1.rdf
+
+!IF  "$(CFG)" == "PROJNAME - Xbox Release"
+
+POUND Begin Custom Build
+ProjDir=.
+InputPath=.\$1.rdf
+InputName=$1
+
+BuildCmds= \
+    bundler $(InputPath)
+
+"$(ProjDir)\Media\$(InputName).xpr" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\$(InputName).h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "PROJNAME - Xbox Debug"
+
+POUND Begin Custom Build
+ProjDir=.
+InputPath=.\$1.rdf
+InputName=$1
+
+BuildCmds= \
+    bundler $(InputPath)
+
+"$(ProjDir)\Media\$(InputName).xpr" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\$(InputName).h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF
+
+POUND End Source File)define(`DSPIMAGEFILEENTRY',POUND Begin Source File
+
+SOURCE=.\$1.ini
+
+!IF  "$(CFG)" == "PROJNAME - Xbox Release"
+
+POUND Begin Custom Build
+ProjDir=.
+InputPath=.\$1.ini
+InputName=$1
+
+BuildCmds= \
+    xgpimage $(InputPath) $(ProjDir)\Media\$(InputName).bin $(ProjDir)\$(InputName).h
+
+"$(ProjDir)\Media\$(InputName).bin" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\$(InputName).h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "PROJNAME - Xbox Debug"
+
+POUND Begin Custom Build
+ProjDir=.
+InputPath=.\$1.ini
+InputName=$1
+
+BuildCmds= \
+    xgpimage $(InputPath) $(ProjDir)\Media\$(InputName).bin $(ProjDir)\$(InputName).h
+
+"$(ProjDir)\Media\$(InputName).bin" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\$(InputName).h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF
+
+POUND End Source File)

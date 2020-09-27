@@ -1,0 +1,45 @@
+MAJORCOMP=online
+MINORCOMP=rsabase
+
+TARGETNAME=rsabase
+TARGETTYPE=LIBRARY
+
+TARGETPATH=$(BASEDIR)\private\online\client\lib
+
+NOT_UNICODE=1
+
+C_DEFINES = $(C_DEFINES) -D_WINDOWS -D_CRYPT32_ -DCE_BUILD -DUNDER_CE -DNO_FRANCE_CHECK
+
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=\
+    ..\include;\
+    ..\..\asn1\inc;\
+    $(BASEDIR)\private\online\client\inc;\
+    $(BASEDIR)\private\online\common\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\public\sdk\inc
+
+SOURCES=\
+    nt_crypt.c \
+    nt_hash.c \
+    nt_key.c \
+    nt_rand.c \
+    nt_sign.c \
+    ntagum.c \
+    ntagimp1.c \
+    swnt_pk.c \
+    manage.c \
+    ssl3.c \
+    protstor.cpp \
+    contman.c
+
+#    rsabase.rc
+

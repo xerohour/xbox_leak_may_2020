@@ -1,0 +1,50 @@
+!IF 0
+
+Copyright (c) 2000 Microsoft Corporation
+
+Module Name:
+
+    sledge
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Author:
+
+    Tristan Jackson (tristanj)
+
+!ENDIF
+
+TARGETTYPE=DYNLINK
+TARGETPATH=$(BASEDIR)\private\test\network\winsock\bins
+
+DLLENTRY=_DllMainCRTStartup
+
+INCLUDES= \
+        $(INCLUDES); \
+        $(SDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+        $(BASEDIR)\private\test\inc; \
+
+SOURCES=\
+        ..\sendrecv.cpp         \
+
+
+UMTYPE=xboxdll
+
+DLLDEF=sendrecv.def
+
+TARGETNAME=sendrecv
+
+USE_LIBCMT=1
+
+TARGETLIBS= \
+    $(SDK_LIB_PATH)\kernel32.lib               \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\*\xlog.lib     \
+    $(LIBRARY_PATH)\xnet$(D).lib               \
+    $(LIBC_LIB)

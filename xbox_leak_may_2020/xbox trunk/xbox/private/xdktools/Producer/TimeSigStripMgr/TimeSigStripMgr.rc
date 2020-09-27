@@ -1,0 +1,383 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "TIMESIGSTRIPMGR.DLL\0"
+#define VERSIONDESCRIPTION          "TimeSigStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "TimeSigStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "TIMESIGSTRIPMGR.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_TIMESIGMGR          REGISTRY DISCARDABLE    "TimeSigMgr.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TIMESIG_PROPPAGE DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Time Signature"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "",IDC_TIME_SIGNATURE,88,6,50,14,BS_BITMAP | BS_CENTER | 
+                    BS_VCENTER
+    EDITTEXT        IDC_EDIT_MEASURE,88,23,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_MEASURE,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_TABSTOP,140,24,11,
+                    10
+    LTEXT           "Time Signature:",IDC_STATIC,25,9,50,8
+    LTEXT           "Measure",IDC_STATIC,25,24,30,10
+    LTEXT           "",IDC_INFO_STATIC,5,41,241,30
+END
+
+IDD_PROPPAGE_TIMESIG_GROUP DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Track Group Assignment"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Track Group Assignment",IDC_STATIC,3,4,244,53,WS_GROUP
+    LTEXT           "&Track Group:",IDC_STATIC,9,18,43,8
+    COMBOBOX        IDC_COMBO_GROUP_LIST,56,16,35,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "(Time Signature Tracks can belong to",IDC_STATIC,9,33,
+                    120,8
+    LTEXT           "only a single Track Group at any given time.)",
+                    IDC_STATIC,12,42,141,8
+END
+
+IDD_TIME_SIGNATURE DIALOG DISCARDABLE  0, 0, 214, 107
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Time Signature"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Time Signature",IDC_STATIC,6,6,138,49
+    LTEXT           "Beats Per &Measure:",IDC_STATIC,26,23,63,8
+    EDITTEXT        IDC_BPM,92,22,32,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_BPM_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,125,22,10,12
+    LTEXT           "&Beat:",IDC_STATIC,26,38,17,8
+    COMBOBOX        IDC_BEAT,92,37,32,120,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    GROUPBOX        "Grid",IDC_STATIC,6,67,138,34
+    LTEXT           "&Divide Beat into:",IDC_STATIC,27,84,50,8
+    COMBOBOX        IDC_GRID,90,83,32,112,CBS_DROPDOWNLIST | 
+                    CBS_OWNERDRAWFIXED | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,167,10,40,14
+    PUSHBUTTON      "Cancel",IDCANCEL,167,27,40,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TIMESIG_PROPPAGE, DIALOG
+    BEGIN
+        VERTGUIDE, 25
+        VERTGUIDE, 88
+        HORZGUIDE, 13
+        HORZGUIDE, 26
+    END
+
+    IDD_TIME_SIGNATURE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 207
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 100
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_GPB1                BITMAP  DISCARDABLE     "res\\gpb1.bmp"
+IDB_GPB1_ALT            BITMAP  DISCARDABLE     "res\\gpb1_alt.bmp"
+IDB_GPB2                BITMAP  DISCARDABLE     "res\\gpb2.bmp"
+IDB_GPB2_ALT            BITMAP  DISCARDABLE     "res\\gpb2_alt.bmp"
+IDB_GPB3                BITMAP  DISCARDABLE     "res\\gpb3.bmp"
+IDB_GPB3_ALT            BITMAP  DISCARDABLE     "res\\gpb3_alt.bmp"
+IDB_GPB4                BITMAP  DISCARDABLE     "res\\gpb4.bmp"
+IDB_GPB4_ALT            BITMAP  DISCARDABLE     "res\\gpb4_alt.bmp"
+IDB_GPB5                BITMAP  DISCARDABLE     "res\\gpb5.bmp"
+IDB_GPB6                BITMAP  DISCARDABLE     "res\\gpb6.bmp"
+IDB_GPB6_ALT            BITMAP  DISCARDABLE     "res\\gpb6_alt.bmp"
+IDB_GPB7                BITMAP  DISCARDABLE     "res\\gpb7.bmp"
+IDB_GPB8                BITMAP  DISCARDABLE     "res\\gpb8.bmp"
+IDB_GPB8_ALT            BITMAP  DISCARDABLE     "res\\gpb8_alt.bmp"
+IDB_GPB9                BITMAP  DISCARDABLE     "res\\gpb9.bmp"
+IDB_GPBa10              BITMAP  DISCARDABLE     "res\\gpba10.bmp"
+IDB_GPBa11              BITMAP  DISCARDABLE     "res\\gpba11.bmp"
+IDB_GPBa12              BITMAP  DISCARDABLE     "res\\gpba12.bmp"
+IDB_GPBa13              BITMAP  DISCARDABLE     "res\\gpba13.bmp"
+IDB_GPBa14              BITMAP  DISCARDABLE     "res\\gpba14.bmp"
+IDB_GPBa15              BITMAP  DISCARDABLE     "res\\gpba15.bmp"
+IDB_GPBa16              BITMAP  DISCARDABLE     "res\\gpba16.bmp"
+IDB_GPBa17              BITMAP  DISCARDABLE     "res\\gpba17.bmp"
+IDB_GPBa18              BITMAP  DISCARDABLE     "res\\gpba18.bmp"
+IDB_GPBa19              BITMAP  DISCARDABLE     "res\\gpba19.bmp"
+IDB_GPBb20              BITMAP  DISCARDABLE     "res\\gpbb20.bmp"
+IDB_GPBb21              BITMAP  DISCARDABLE     "res\\gpbb21.bmp"
+IDB_GPBb22              BITMAP  DISCARDABLE     "res\\gpbb22.bmp"
+IDB_GPBb23              BITMAP  DISCARDABLE     "res\\gpbb23.bmp"
+IDB_GPBb24              BITMAP  DISCARDABLE     "res\\gpbb24.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_PROPPAGE_TIMESIG_GROUP DLGINIT
+BEGIN
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0031, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0032, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0033, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0034, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0035, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0036, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0037, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0038, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0039, 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3031, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3131, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3231, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3331, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3431, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3531, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3631, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3731, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3831, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3931, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3032, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3132, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3232, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3332, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3432, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3532, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3632, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3732, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3832, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3932, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3033, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3133, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3233, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "TimeSigStripMgr"
+    IDS_PROPPAGE_TIMESIG    "Time Signature"
+    IDS_DELETE              "Delete Time Sig(s)"
+    IDS_PASTE               "Paste TimeSig(s)"
+    IDS_INSERT              "Insert TimeSig"
+    IDS_TRACK_NAME          "TimeSig Track"
+    IDS_EDITOR_NAME         "TimeSig Track Editor"
+    IDS_PROPPAGE_GROUP_BITS "TimeSig Track"
+    IDS_MULTIPLE_SELECT     "Multiple TimeSigs Selected"
+    IDS_CHANGE              "Change TimeSig"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TRACK_GROUP         "Track Group Assignment"
+    IDS_UNDO_MOVE           "Move TimeSig(s)"
+    IDS_FUNCTIONBAR_NAME    "TimeSig"
+    IDS_EDITING_INFO        "This Time Signature Track cannot be edited. It is controlled by the Style Track present in the same track group."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BEAT1               "1"
+    IDS_BEAT2               "2"
+    IDS_BEAT3               "4"
+    IDS_BEAT4               "8"
+    IDS_BEAT5               "16"
+    IDS_BEAT6               "32"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_MIN_MAX         "You must enter a number between %1 and %2."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_BEAT            "You must select an entry from the 'Beat' combo box."
+    IDS_ERR_GRIDS_PER_BEAT  "You must select an entry from the 'Divide Beat into' combo box."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

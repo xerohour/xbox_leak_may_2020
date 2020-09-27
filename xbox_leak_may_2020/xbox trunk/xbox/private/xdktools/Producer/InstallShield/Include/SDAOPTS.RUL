@@ -1,0 +1,251 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdopts.rul                                                */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdAskOptions          */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdAskOptions                                               */
+ /*                                                                        */
+ /*   Descrip:  This dialog will allow the user to choose different parts  */
+ /*             of the software to install.                                */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdAskOptions(szTitle, szMsg1, szMsg2, szDialogId, szComponents, nExclusiveFlag)
+          STRING  szDlg, svComponent, szTemp;
+          INT     nId, nReturn, nCount, nCheck, nTemp;
+          LIST    listComponents;
+          HWND    hwndDlg;
+          BOOL    bDone;
+        begin
+
+          szDlg     = SD_DLG_ASKOPTIONS;
+          nSdDialog = SD_NDLG_ASKOPTIONS;
+
+          // Check to see if user has a custom dialog, based on SdAskOptions
+          // if it is, modify nSdDialog to store ID of that dialog
+          if( szDialogId != "" ) then
+               if( StrToNum( nSdDialog, szDialogId ) < 0 ) then
+                   return -1;      // ONLY numeric Dialog ID of custom dialog
+                                   // supported
+               endif;
+          endif;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdAskOptions );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+            endif;
+
+            return nId;
+          endif;
+
+          // ensure general initialization is complete
+          if ( !bSdInit ) then
+             SdInit( );
+          endif;
+
+          if (EzDefineDialog( szDlg, "", szDialogId, nSdDialog ) = DLG_ERR) then
+             return -1;
+          endif;
+
+
+          // Loop in dialog until the user selects a standard button
+          bDone = FALSE;
+
+          while (!bDone)
+
+             nId = WaitOnDialog( szDlg );
+
+             switch (nId)
+             case DLG_INIT:
+
+                  hwndDlg = CmdGetHwndDlg( szDlg );
+
+                  // Set the correct check boxes if necessary.
+                  if( nExclusiveFlag = EXCLUSIVE) then
+                     SdOptionSetState( hwndDlg, SD_CHECK1 );
+                  endif;
+
+                  SdOptionInit( szComponents, SD_CHECK1, szDlg, nExclusiveFlag, hwndDlg );
+
+                  if(szTitle != "") then
+                      SetWindowText(hwndDlg, szTitle);
+                  endif;
+
+                  if(szMsg1 != "") then
+                        SdSetStatic(szDlg, SD_STA_MSG1, szMsg1);
+                  endif;
+
+                  if(szMsg2 != "") then
+                        SdSetStatic(szDlg, SD_STA_MSG2, szMsg2);
+                  endif;
+
+                  SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+
+             case SD_PBUT_OK:
+
+                  listComponents = ListCreate( STRINGLIST );
+                  ComponentListItems( MEDIA, szComponents, listComponents );
+
+                  nReturn = ListSetIndex( listComponents, LISTFIRST );
+                  nCount = 0;
+                  while( nReturn != END_OF_LIST )
+                      ListCurrentString( listComponents, svComponent );
+                      ComponentSelectItem( MEDIA, svComponent, FALSE );
+
+                      nCheck = CtrlGetState( szDlg, SD_CHECK1+nCount );
+                      if( nCheck = BUTTON_CHECKED ) then
+                          ComponentSelectItem( MEDIA, svComponent, TRUE );
+                      endif;
+
+                      nReturn = ListSetIndex( listComponents, LISTNEXT );
+                      nCount = nCount + 1;
+                  endwhile;
+
+                  ListDestroy( listComponents );
+
+                  nId   = OK;
+                  bDone = TRUE;
+
+             case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+             case DLG_ERR:
+                  SdError( -1, "SdAskOptions" );
+                  nId   = -1;
+                  bDone = TRUE;
+
+             case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+             default:
+                  // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                  endif;
+             endswitch;
+
+          endwhile;
+
+          EndDialog( szDlg );
+          ReleaseDialog( szDlg );
+
+          SdUnInit( );
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdAskOptions );
+          SilentWriteData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+          return nId;
+
+        end;
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdOptionSetState                                           */
+ /*                                                                        */
+ /*   Descrip:  This funciton set the check boxes or radio button in       */
+ /*             SdAskOptions dialog.                                       */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdOptionSetState( hwndDlg, nControlID )
+          NUMBER nCount;
+          HWND   hwndStatic;
+        begin
+
+           nCount = 0;
+
+           hwndStatic = GetDlgItem(hwndDlg, nControlID+nCount);
+
+           while( hwndStatic > 0 )
+              if( bInstall16 = TRUE ) then
+                  SendMessage( hwndStatic, WM_SETSTYLE, BS_AUTORADIOBUTTON, TRUE );
+              else
+                  SendMessage( hwndStatic, WM_SETSTYLE_32, BS_AUTORADIOBUTTON, TRUE );
+              endif;
+              nCount = nCount + 1;
+              hwndStatic = GetDlgItem(hwndDlg, nControlID+nCount);
+           endwhile;
+
+        end;
+
+/*------------------------------------------------------------------------*/
+/*                                                                        */
+/*   Function: SdOptionInit                                               */
+/*                                                                        */
+/*   Descrip:  This funciton initializes check boxes or radio button in   */
+/*             SdAskOptions dialog.                                       */
+/*   Misc:                                                                */
+/*                                                                        */
+/*------------------------------------------------------------------------*/
+function SdOptionInit( szComponents, nControlID, szDlg, nExclusiveFlag, hwndDlg )
+          STRING  svComponent[ MAX_STRING ];
+          NUMBER  nCount, nReturn;
+          HWND    hwndStatic;
+          LIST    listComponents;
+          BOOL    bSet;
+        begin
+
+           bSet = FALSE;
+
+           listComponents = ListCreate( STRINGLIST );
+           ComponentListItems( MEDIA, szComponents, listComponents );
+
+           nReturn = ListSetIndex( listComponents, LISTFIRST );
+           nCount = 0;
+           while( nReturn != END_OF_LIST )
+               ListCurrentString( listComponents, svComponent );
+               hwndStatic = GetDlgItem(hwndDlg, nControlID+nCount);
+               if( hwndStatic ) then
+                   CtrlSetText( szDlg, nControlID+nCount, svComponent );
+
+                   if(ComponentIsItemSelected( MEDIA, svComponent)) then
+                      if( nExclusiveFlag = EXCLUSIVE ) then
+                         if( bSet = FALSE ) then
+                           CtrlSetState( szDlg, nControlID+nCount, BUTTON_CHECKED );
+                         endif;
+                      else
+                         CtrlSetState( szDlg, nControlID+nCount, BUTTON_CHECKED );
+                     endif;
+                     // if first one then set as focus
+                     if (bSet = FALSE) then
+                          SetFocus( hwndStatic );
+                     endif;
+                     bSet = TRUE;
+                   endif;
+
+               endif;
+               nReturn = ListSetIndex( listComponents, LISTNEXT );
+               nCount = nCount + 1;
+           endwhile;
+
+           ListDestroy( listComponents );
+
+           // Hide rest of the controls, if there is any
+           hwndStatic = GetDlgItem(hwndDlg, nControlID+nCount);
+           while ( hwndStatic )
+               ShowWindow( hwndStatic, WM_HIDE );
+               nCount = nCount + 1;
+               hwndStatic = GetDlgItem(hwndDlg, nControlID+nCount);
+           endwhile;
+
+
+        end;

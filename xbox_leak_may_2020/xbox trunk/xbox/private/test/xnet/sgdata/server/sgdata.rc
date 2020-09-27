@@ -1,0 +1,43 @@
+#include <windows.h>
+#include <xboxverp.h>
+
+#define VER_FILETYPE              VFT_APP
+#define VER_FILESUBTYPE           VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR   "Security Gateway Data Validation Executable"
+#define VER_INTERNALNAME_STR      "sgdata_nt.exe"
+#define VER_ORIGINALFILENAME_STR  "sgdata_nt.exe"
+
+#include <common.ver>
+
+#include "resource.h"
+#include "sgdatap.h"
+
+
+
+IDI_SGDATA_ICON ICON  "sgdata.ico"
+
+
+
+IDD_DIALOG DIALOG DISCARDABLE 0, 0, 512, 294
+STYLE WS_CAPTION | WS_VISIBLE | WS_DLGFRAME | WS_SYSMENU | WS_MINIMIZEBOX
+CLASS SGDATA_CLASS_NAME
+FONT 8, "MS Shell Dlg"
+{
+    CONTROL  "", IDC_STATUS_LIST, "SysListView32", LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SINGLESEL | WS_BORDER | WS_TABSTOP, 10, 10, 492, 274
+}
+
+
+
+STRINGTABLE DISCARDABLE
+{
+    IDS_SGDATA_CAPTION           "Security Gateway Data Validation Utility"
+    IDS_MEMORY_INIT_FAILED       "Memory initialization failed.\r\nError Code: 0x%08x"
+    IDS_LOGFILE_INIT_FAILED      "Log file initialization failed.\r\nError Code: 0x%08x"
+    IDS_WINSOCK_INIT_FAILED      "Winsock initialization failed.\r\nError Code: 0x%08x"
+    IDS_SESSION_INIT_FAILED      "Session initialization failed.\r\nError Code: 0x%08x"
+    IDS_REMOTENAME_LABEL         "Remote Name"
+    IDS_UDPBYTECOUNT_LABEL       "UDP Byte Count"
+    IDS_TCPBYTECOUNT_LABEL       "TCP Byte Count"
+    IDS_FIRSTACTIVITYTIME_LABEL  "First Activity Time"
+    IDS_LASTACTIVITYTIME_LABEL   "Last Activity Time"
+}

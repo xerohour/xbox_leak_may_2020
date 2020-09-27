@@ -1,0 +1,6 @@
+/////////////////////////////////////////////////////////////////////////////
+// About Box and Splash Screen
+//
+
+void ShowSplashScreen(BOOL bShow);
+CWnd *PwndSplashScreen(void);

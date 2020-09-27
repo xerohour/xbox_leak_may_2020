@@ -1,0 +1,42 @@
+
+%ENVIRONMENT    DRV16.ENV
+
+!IFDEF DEBUG
+WFLAGS = $(WFLAGS) -Od -Gs
+!ELSE
+WFLAGS = $(WFLAGS) -Oxt
+!ENDIF
+
+%LIBRARY nvmode16.lib
+%WINDOWS
+%CFLAGS -NT_NVTEXT _UNDEF -GD -u -AL -c
+%AFLAGS -Cp -DCODE_SPACE=0
+dmt.c
+digmode.c
+edid.c
+gtf.c
+gtfmath.asm
+modeset.c
+restime.c
+utils.c
+tvmode.c
+%END
+
+
+#%ENVIRONMENT    DRV32.ENV
+#
+#%LIBRARY nvmode32.lib
+#%WINDOWS
+#%CFLAGS -Ox -Gz -Zp1 -D_WIN32
+#%AFLAGS /Zp1 /Cp /DWIN32 /DCODE_SPACE=1 /D_WIN32
+#dmt.c
+#digmode.c
+#edid.c
+#gtf.c
+#gtfmath.asm
+#modeset.c
+#restime.c
+#tvmode.c
+#utils.c
+#%END
+

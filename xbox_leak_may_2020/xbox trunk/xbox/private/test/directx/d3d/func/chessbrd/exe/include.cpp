@@ -1,0 +1,11 @@
+#pragma comment(linker, "/include:_chessbrd_lpawn")
+#pragma comment(linker, "/include:_chessbrd_lrook")
+#pragma comment(linker, "/include:_chessbrd_lbishop")
+#pragma comment(linker, "/include:_chessbrd_sknight")
+#pragma comment(linker, "/include:_chessbrd_lqueen")
+#pragma comment(linker, "/include:_chessbrd_lking")
+#pragma comment(linker, "/include:_chessbrd_chess")
+#pragma comment(linker, "/include:_chessbrd_edge")
+#pragma comment(linker, "/include:_chessbrd_pine")
+#pragma comment(linker, "/include:_chessbrd_pine2")
+#include "exe\main.cpp"

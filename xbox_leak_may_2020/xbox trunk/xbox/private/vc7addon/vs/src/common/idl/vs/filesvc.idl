@@ -1,0 +1,47 @@
+
+[
+    uuid(FC4415F0-7E2C-11d0-B5FD-00A0C922E851),
+    version(1.0)
+]
+library FileServiceLib
+{
+    importlib("stdole.tlb");
+    importlib("textmgr.tlb");
+    importlib("vsshell.tlb");
+
+	////////////////////////////////////////////////////////////////////////////
+	// IFileService interface
+
+    [
+        uuid(400E7260-7E2D-11d0-B5FD-00A0C922E851)
+    ]
+    interface IFileService : IUnknown
+    {
+        HRESULT Open(BSTR bstrName, REFCLSID clsid, REFIID iid, DWORD dwFlags,
+			IUnknown** ppObj);
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// FileService coclass
+
+    [
+        uuid(F5E7E716-1401-11d1-883B-0000F87579D2)
+    ]
+    coclass FileService
+    {
+        interface IFileService;
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// FilePackage coclass
+
+	[
+		uuid(F5E7E717-1401-11d1-883B-0000F87579D2)
+	]
+	coclass FilePackage
+	{
+		interface IVsPackage;
+	};
+};
+
+cpp_quote("#define SID_SFileService CLSID_FileService")

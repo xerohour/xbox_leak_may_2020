@@ -1,0 +1,45 @@
+TARGETTYPE=LIBRARY
+
+DXBASEDIR=$(BASEDIR)\private\windows\directx
+XACTBASEDIR=$(DXBASEDIR)\xact
+
+NTDBGFILES=1
+USE_MAPSYM=1
+
+USER_C_FLAGS=$(USER_C_FLAGS) /FAcs
+
+!if !$(FREEBUILD)
+MSC_OPTIMIZATION=$(MSC_OPTIMIZATION) /Od
+!endif
+
+INCLUDES=\
+    $(XACTBASEDIR)\runtime\inc;\
+    $(XACTBASEDIR)\runtime\common;\
+
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+C_DEFINES=$(C_DEFINES) -DDPF_LIBRARY=\"XACTENG\" -DNAMESPACE=XACT -DDPFLVL_DEFAULT=4
+C_DEFINES=$(C_DEFINES) -DXACTVER 
+
+INCLUDES=\
+    $(SDK_INC_PATH);\
+    $(PRIVATE_INC_PATH);\
+    $(BASEDIR)\private\ntos\inc;\
+    $(INCLUDES)
+
+TARGETNAME = xacteng$(D)
+
+NTTARGETFILES = \
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib
+
+
+SOURCES =\
+    xactapi.cpp\
+    common.cpp\
+    engine.cpp\
+    soundbank.cpp\
+    soundsource.cpp\
+    wavebank.cpp\
+    cue.cpp\
+    sequencer.cpp
+

@@ -1,0 +1,9 @@
+#define PREPEND_MODULE(Suffix) module##Suffix
+#define MODULE_STRING "module"
+#pragma comment(linker, "/include:_module_ExhibitScene@8")
+#pragma comment(linker, "/include:_module_face0")
+#pragma comment(linker, "/include:_module_face1")
+#pragma comment(linker, "/include:_module_face2")
+#pragma comment(linker, "/include:_module_face3")
+#pragma comment(linker, "/include:_module_face4")
+#pragma comment(linker, "/include:_module_face5")

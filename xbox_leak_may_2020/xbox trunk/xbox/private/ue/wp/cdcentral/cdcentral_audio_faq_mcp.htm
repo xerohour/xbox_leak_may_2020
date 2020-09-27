@@ -1,0 +1,320 @@
+<td valign="TOP" width="125">
+
+<BR><BR><BR>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_home.htm" title="XDK Home">XDK Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_release.htm" 
+title="XDK Release">XDK Release Area</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_doc.htm" title="XDK Documentation">XDK Documentation</a><BR>
+<a href="/BPProgInfo.asp?Page=content/xdk_what's_new.htm" title="What's New">What's New</a><br>
+<a href="/BPProgInfo.asp?Page=content/xbox_whitepapers.htm" title="White Papers">White Papers</a><br>
+<a href="/BPProgInfo.asp?Page=content/xbox_faq.htm" title="Technical FAQs">Technical FAQs</a><br>
+<a href="/BPProgInfo.asp?Page=content/xbox_help.htm" title="Xbox SDK Help">Xbox SDK Help</a><br>
+<a href="/BPProgInfo.asp?Page=content/guide_toc.htm" title="Xbox Guide">Xbox Guide</a><br>
+<a href="/BPProgInfo.asp?Page=content/insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/xdk_resources.htm" title="What's New">XDK Beta Program Resources</a></P>
+
+
+</TD><td>
+<H2>Xbox MCP FAQ</H2>
+<OL>
+<LI><B>Can you give a general description of the audio processor?</B><br>
+
+The Xbox Media Communications Processor (Xbox MCP), like the graphics processor unit (GPU), integrates multiple processor cores in a pipeline architecture that enables maximum performance and flexibility. It provides hardware processing for output streams (playback). An Audio Codec '97 (AC'97) is provided so titles are free to bypass the chip entirely to stream their own data to the analog and/or digital outputs (though this would preclude hardware mixing and effects).</li><br><br>
+
+<LI><B>I can’t get Dolby Digital to show up in the Dashboard. How do I enable it?</B><BR>
+
+Beta "enhanced" (S-video or HDTV) AV adapters do not always properly report their support for digital output, which in turn means the Xbox Dashboard will not display the option. You can use the xbsetcfg command line tool on your PC (connected to your Xbox) to change your audio settings outside of the Xbox Dashboard. See <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap5.htm" title="Chapter 5"><B>Chapter 5</B></a> of the Audio Best Practices Guide for more information.</LI><BR><BR>
+
+<LI><B>Where do I get the Xbox ADPCM codec from, and how do I install it?</B><BR>
+
+The codec (which allows most wave editing software packages to create, edit, and play back Xbox ADPCM content) is provided with your XDK CD, in the directory x:\ADPCM\. Installation instructions are presented there, as well as in Chapter 5 of the Audio Best Practices Guide. There is also a stand-alone command-line encoder that you can use for batch conversions.</LI><BR><BR>
+
+<LI><B>Why are my Xbox ADPCM files causing asserts on the Xbox?</B><BR>
+
+Make sure that loop points (as well as the full length of the wave) are on 64-sample boundaries. The white paper "Authoring Loop Points for Xbox ADPCM-Compressed Waves" details some of the math you can do to convert your wave without losing your relative loop points. You can also use this spreadsheet, which uses the math from the white paper to calculate how to edit your wave’s loop points and sample rate to ensure you are using 64-sample boundaries.<BR><BR>
+
+You should also make sure your developer reads in the entire ADPCM header chunk.</LI><BR><BR>
+
+<LI><B>How should I be authoring my content to take advantage of Dolby Digital?</B><BR>
+
+You don’t necessarily need to create six-channel source content to take advantage of Dolby&#174 Digital. The white paper "Authoring for and Implementing Multichannel Audio Playback" details some of the ways you can author and implement content that will play back in a "surround" environment.</LI><BR><BR>
+
+<LI><B>The Xbox MCP is a multiprocessor engine. How many processors are there, and what are they responsible for?</B><br>
+There are four independent (they can be configured independently) hardware processors, three of which are digital signal processors (DSPs):
+
+<UL>
+<LI>Setup engine</LI>
+<LI>Voice processor</LI>
+<LI>Global processor</LI>
+<LI>Encode processor</LI>
+</UL>
+
+The setup engine contains several fixed-function microcontrollers for setup and parameter processing along with a direct memory access (DMA) engine. Memory management, mapping, and DMA resources are all controlled in this unit. The setup engine will also present a single consistent view of the external memory to the processors, dealing with all the scatter-gather, list processing, and offset mapping needed to access external memory space. The setup engine calculates and manages cross-fading to relieve this effort from the driver and increase the effective voice count from traditional audio controllers. As an example, instead of having to use two 3-D voices when changing Head Related Transfer Function (HRTF) parameters or using host processing to iteratively step through the transition, the Xbox MCP will use a single voice, and the setup engine will automatically smooth out the transition.<BR><BR>
+
+The voice processor contains several fixed function DSP units that process voices and mix the results. The voice processor renders all the 2-D and 3-D voices, performs Interactive 3-D Audio Level 2 (I3DL2) and Downloadable Sounds Level 2 (DLS-2) filtering per voice, and performs sample-rate conversion and mixing. The voice processor can also perform HRTF calculations in parallel with the rest of the 2-D processing tasks.
+
+<BLOCKQUOTE><I><B>Note&nbsp;&nbsp;&nbsp;&nbsp;</B></I>The voice processor supports wavetable synthesis based on a superset of the DLS-2 standard. Wavetable synthesis generates instrument sounds based on digital samples obtained from recordings of real musical instruments or effects, such as a dog&#39;s bark or dripping water. The sampled sound is stored as digital information, and then looped and manipulated to produce continuous sounds at various pitches and volumes. Information regarding the spec for DLS-2 can be found on the MIDI Manufacturers Association site at <a href="http://www.midi.org/">http://www.midi.org/</a>.</BLOCKQUOTE>
+
+The global processor is a programmable DSP that is responsible for applying effects, such as reverb, chorus, EQ, and cross-talk cancellation, to the data in the mixer buffers and producing the final output stream. The global processor supports I3DL2 reverb, occlusion, and obstruction as well as DLS-2 reverb.<BR><BR>
+
+The encode processor is a dedicated DSP that is responsible for real-time multispeaker surround encoding in which the data is sent out the analog and/or digital outputs to an external consumer decoder. This allows game audio to be encoded and transmitted in realtime to a multichannel output. Both audio streams are available concurrently. The user chooses whether they want mono, stereo, Dolby&#174; Surround, or Dolby&#174; Digital output from the Xbox Dashboard.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How many voices does the audio chip support?</B><br>
+
+The Xbox MCP is capable of processing as many as 256 individual voices, all in hardware, all supporting PCM and ADPCM data, and all supporting a superset of the DLS-2 standard. Each voice can be filtered independently using parametric EQ and/or DLS-2 filtering. 192 of the voices are "2-D" wavetable, and can be either mono or stereo. The remaining 64 must be mono, and can be either 2-D or have 3-D HRTF algorithms applied, along with I3DL2 and parametric EQ or DLS-2 filtering. Any number of voices may be submixed before 3-D and/or effects are applied, saving precious hardware resources. For full details, consult Chapter 3 of the Xbox Audio Best Practices document.</li><br><br>
+  
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How does processing of 3-D voices compare to that of 2-D voices?</B><br>
+The voice processor will simultaneously process 2-D and 3-D voices. Because 3-D voices take longer (4x) to process than 2-D voices, the setup engine will always give priority to 3-D voices to keep this pipe full as long as there are 3-D voices to process. 2-D voices will be processed around the 3-D voices.<BR><BR>
+
+A sample is rendered every 10 clocks for the whole engine, except the HRTF, which renders a sample every 40 clocks. All samples are mixed into 1 of 32 bins.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What's the maximum number of 48-KHz sounds I can play through the chip concurrently without blowing my bus bandwidth?</B><br>>
+
+You can play all of them. The audio processor will consume, at most, 121.37 MB/s out of a total bus throughput of 6.4 GB/s&#151;1.9 percent at peak capacity. These are worst case numbers, and they assume that you are using all 256 voices at all times.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How much data is really going across the bus in this situation?</B><br>
+256 voices, 48,000 samples/second/voice, 2 channels/voice, 2 bytes/sample/voice = 49,152,000 bytes/s or 46.875 MB/s plus voice render lists. This number assumes 100 percent efficiency and only audio data moving across the bus, which will never happen.</li><br><br>
+  
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What speed does the chip run at?</B><br>
+
+The Xbox MCP runs at 133 MHz.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Is there separate audio memory, or is this part of the UMA?</B><br>
+
+The audio memory is part of the UMA (unified memory architecture). You divide up the UMA amongst the various processors in any way you want. You can also make use of the hard drive and DVD for additional storage, data caching, and playback.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How does the caching work (for example, caching audio from the DVD onto the hard disk)?</B><br>
+
+The Xbox Title Libraries (XTL) provides a general mechanism to cache data off the DVD onto the hard disk, but any audio-specific caching mechanism needs to be implemented in the game itself.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What sample rates are supported?</B><br>
+
+Waves sampled at 4 kHz to 48 kHz can be used. We support 8- and 16-bit data at input. Within the Xbox MCP, all sounds are upsampled to 48 kHz and have 24-bit resolution. Output is 48 kHz 20 bit. For more information, see Chapter 2 of the Audio Best Practices document.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Won&#39;t there be artifacts when things get up-sampled?</B><br>
+
+No, we use multipoint polynomial interpolation, so there will be no noticeable artifacts.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What are all the filters in the chip?</B><br>
+
+There are three filter types:
+
+<UL>
+<LI>I3DL2 dual low pass</LI>
+<LI>DLS-2 mono low pass with resonance</LI>
+<LI>EQ single band pass/band reject with gain</LI>
+</UL>
+
+We use a Chamberlin filter structure.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What is &#34;multipass processing&#34; and how does it work?  Are there limitations on what can be done on the second pass?</B><br>
+
+Each voice can be mixed into as many as 8 of the 32 mix bins. It isn't necessary to mix every voice into every bin, which would take far too many volume parameters, anyway. The bins are partitioned depending on the needs of the application. If desired, all the bins can be reprocessed or remixed. In this case they have the full parameter set of any other voice. This set includes all note and 3-D parameters. Each second pass bin uses a &#34;voice&#34;; therefore these are processed after all active &#34;voices&#34; have been processed in the same &#34;frame.&#34; Note, though, that second pass processing does not allow pitch shifting. Any pitch changes need to be handled in the first pass.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Is there any limit to the number of passes a single frame of audio can make through the chip? Can I route a sound back through the voice processor and submixer an infinite number of times?</B><br>
+
+Two total passes per voice can be made using multipass processing.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How do I manage my memory?</B><br>
+
+Memory management will be really simple from a game's point of view: allocate it, write to it, and pass pointers around. The hardware will do all scatter-gather and so on for you. As to use of Microsoft&#174;DirectMusic&#174;, the DirectMusic loader dynamically allocates space as content (for example, streamed waves or DLS instruments) calls for it. You can get statistics for the current footprint from the DirectMusic performance. DirectMusic does not have to automatically manage the download of sound data. You can manually manage the download of segments, specific instruments, or waves. You can also write a custom loader to replace the DirectMusic loader with your own
+resource management tools. Sample code for this is provided with the DirectX 7.0 SDK, and will be included in a future XDK release.
+</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Do effects allocate additional buffers in system memory? If so, can you characterize how large these buffers are?</B><br>
+
+Chorus and reverb for music and I3DL2 reverb all allocate buffers, although there can be some initial sharing between music chorus and reverb. Buffer sizes are settable, and typically range from a few KB to a few hundred KB for more complicated reverbs.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What is the lowest bus speed between the Xbox MCP and system memory (that is, the bus between the Xbox MCP and the GPU)?</B><br>
+
+The lowest bus speed is 100 MHz at 32 bits &#215 2. The &#34;upstream&#34; and &#34;downstream&#34; paths are separate. Peak bandwidth is 800 MB. The typical Xbox MCP bandwidth will be 121.37 MB/s for 256 voices. (This is dependent on a number of items, including samples/block, pitch, sample size, buffer versus stream, and so forth.) These are worst case numbers, assuming you actually use 256 voices all the time. Note that because the voice description (our audio equivalent of a graphics &#34;render list&#34;) is in system memory, we need to read and update it. However, in general, bandwidth is not a concern; latency is.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Won&#39;t graphics saturate the bus between the GPU and memory, starving the Xbox MCP?</B><br>
+
+The bus between the north bridge and the south bridge is a Lightning Data Transfer (LDT) bus, with 800-MB/s bandwidth in both directions (independent). The reason for this fast bus is latency, not bandwidth. The audio chip, at maximum utilization, will consume only around 120 MB/s of bandwidth, which is around 15 percent of the LDT bandwidth and less than 2 percent of the total memory bandwidth.<BR><BR>
+
+The UMA design and the LDT protocol improve the GPU/CPU/audio memory collision problem. Each of the major memory consumers has different priorities. The CPU generally uses a small amount of memory bandwidth but is latency critical. The CPU is often in a stall condition until it gets a response from memory. The GPU requires a huge amount of memory bandwidth but has relatively low latency requirements. The low latency requirements are due to the depth of the pipeline, which hides the memory latency. The audio core both consumes low bandwidth and has low (but critical) latency. LDT has the advantage of being able to flag memory requests based on how soon they need a response. It also has the ability to respond to requests out of order. We actually have four independent memory controllers, each with an independent memory bus. The memory arbitrator takes all these requirements into consideration. It prioritizes as follows: CPU requests, LDT requests that are flagged as isochronous, GPU requests, and other LDT requests.<BR><BR>
+
+In other words, don&#39;t worry about memory bandwidth for audio. It can safely be ignored in system performance analyses. The CPU/GPU contention is all a game developer needs to consider for optimizing memory bandwidth.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Do you support EAX?</B><br>
+
+Actually, we support I3DL2 for all 3-D voices. This is a standard for environmental modeling, occlusion, and obstruction. It represents the work done by the 3-D Audio Working Group of the IA-SIG (Interactive Audio Special Interest Group) of the MIDI Manufacturers Association. You can find the rendering guidelines on the IA-SIG Web site at <A HREF="http://www.iasig.org/pages/wg/3DWG/3dl2v1a.pdf">http://www.iasig.org/pages/wg/3dwg/3dl2v1a.pdf</A>.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How do you anticipate developers will stream audio and music?</B><br>
+
+We provide an IDirectSoundStream interface for DirectSound streaming. DirectMusic automatically manages streaming of audio content based on settings applied while authoring. And Xbox Media Objects, a standard interface for media transforms on Xbox, can be used for data compression or decompression, signal processing (for example, software filtering), or the general handling of streaming data. A full listing of these interfaces can be found in Chapter 1 of the Audio Best Practices document.
+</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How can I scale the quality of an effect based on audio processor demand at that moment?</B><br>
+
+You don't have to. The Xbox MCP can handle whatever you throw at it. The only thing a game will have to do is to watch the number of available 3-D and effects voices and be smart about its own voice management so that the important sounds get the right effects. The capabilities structure will maintain status of all 3-D, 2-D, and mix bins, allowing an application to monitor audio usage.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What is the authoring environment for Xbox audio?</B><br>
+
+If you are planning to create run-time rendered audio, composers and sound designers will use DirectMusic Producer, the authoring tool for DirectMusic, in addition to all of the tools (sequencers and Wave editing packages) you are already familiar and comfortable with. If you are planning to write audio scripts, you will use Script Designer, which is a module of DirectMusic Producer.<BR><BR> 
+
+If you are planning to create pre-rendered audio, you can use your favorite wave editing tools and sequencers. DLS Collections can be authored in DirectMusic Producer or other DLS editing applications. DirectMusic Producer allows for easy interchange with other sequencers through MIDI import/export, MIDI clipboard (for copy/paste within and between applications), and so on. It&#39;s important to note that DirectMusic can handle all your music and sound effects needs, synthesized or pre-rendered.
+</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Will the Xbox audio card be available as a PCI card for use in an authoring PC?</B><br>
+
+No. There will eventually be a version of the XDK for audio production use. More details will be available later.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Are the Xbox audio APIs identical to the DirectX 8.0 audio APIs?</B><br>
+
+No. The audio APIs on the Xbox console were developed specifically for the platform to provide a high-performance, thin layer that enables developers to be as productive as possible. Special versions of three key technologies have been optimized for Xbox audio: DirectMusic, Microsoft&#174 DirectSound&#174, and Xbox Media Objects. For full details on their implementation, see Chapter 1 of the Audio Best Practices Document on this site.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>How do I create sample-accurate loops?</B><br>
+
+There are a couple of ways to get sample-accurate loops. You can create DLS instruments, and wave playback supports sample accurate loops via a DirectMusic Wave Track or by generating an entire Segment from a wave predefined (for example, in wave editing software or DirectMusic Producer) to have loop points.<BR><BR>
+
+A programmer can also set loop points on a DirectSound buffer by using the Xbox additions to the DirectSound API.&nbsp;&nbsp;<br><br>
+
+Sample-accurate looping is guaranteed for linear PCM (on any boundary) and for ADPCM (on 64-sample boundaries). Sample accurate looping is not guaranteed for WMA. Custom compression formats require third party Xbox Media Objects.
+
+</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What will the audio jack look like on the final Xbox console?</B><br>
+
+There will be a proprietary A/V jack and a number of cables, which will support different standards. All AV adapters will have stereo RCA jacks. Enhanced (S-Video) and Component (HDTV) adapters will add optical (toslink) audio output. For full details, see the "End User Audio Configurations" section of Chapter 3 of the Audio Best Practices document.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What do I have to do to support digital audio out?</B><br>
+
+The end user will need to purchase an Enhanced or Component A/V adapter to get digital audio via an optical (toslink) cable. From the developer's point of view, using DirectSound 3D or 3D DirectMusic audiopaths will get you multichannel output with no additional implementation. You can also mix sounds to specific speakers or combinations of speakers to manually control position.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>When will audio hardware be available in the development kits?</B><br>
+
+The alpha XDKs contain an AMR card&#151;a DAC that can output the audio from the software mixer and driver. We support software mixing and the NO_VIRTUALIZATION stereo pan 3-D algorithm. The spring beta XDK release will contain a feature-complete audio hardware implementation.</li><br><br>
+
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What is the data transfer rate from the Xbox DVD to the hard disk (for file copying calculation purposes)?</B><br>
+
+The hard disk burst rate is 33 MB/s, but sustained data rates of about 12 MB/s are realistically achievable. For DVD, the rate can be much closer to theoretical because they're mastered specifically to optimize sequential transfer rate. The sustained DVD data rate for 12cm DVD media is 2-5.5 MB/sec. The Xbox DVD is a constant angular velocity drive, so the outside tracks read faster than the inside tracks. This means that transfer is limited by the DVD rate, which would take between 18 and 50 seconds to load a sequential 100-MB file, depending upon where on the DVD the file lives.</li><br><br>
+
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What compression formats will Xbox support?</B><br>
+
+A proprietary format of ADPCM is supported in hardware, as well as Windows Media Audio (.wma) in software. We support all standard compression ratios for WMA. Other formats will require third party-authored Xbox Media Objects (software audio/video transforms).
+</li><br><br>
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Can 3-D buffers be compressed?</B><br>
+
+Yes.</li><br><br>
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Will Xbox support custom audio decompression routines?</B><br>
+
+Yes, you can author an Xbox Media Object to do software decompression. For more details, see the "Xbox Media Objects" section of Chapter 1 of the Audio Best Practices document. 
+You could also potentially make use of the Global Processor DSP on the audio chip for custom compression.</li><br><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>What is the latency of the Xbox media communications processor (MCP)?</b><br>
+
+<P>The <b>full path latency</b> (time from the developer triggering a sound to the consumer hearing the decoded signal out of their speakers) is approximately:
+<UL>
+<LI>Mono, Stereo, Dolby Surround: 8 msec or less</LI>
+<LI>Dolby Digital: 47-51 msec</LI> 
+</UL>
+<P>The Xbox implementation of the Dolby Digital encoder is using a new high-performance encoder we worked with Dolby to optimize for real-time applications. Our initial estimates show that it should require only around 25ms to encode a 5.1 stream, compared to standard Dolby Digital latencies of more than 100 ms. Since a standard consumer decoder requires on average around 20 ms to decode a Dolby Digital stream, the full path latency&#8212;from the time you play a wave using DirectSound or DirectMusic to the time a user hears the decoded wave output through their speakers&#8212;will be approximately 47 to 51 ms.</P>
+<p>A few separate areas to address here:</p>
+<OL>
+<LI><b>Latency and perception:</b> The general rule of thumb for television and film audio/visual synchronization is that the audio can be up to 2 SMPTE frames after the visuals and still be considered in sync. That translates to about 67 msec &#34;tolerable&#34; latency, and this is what we have tried to strive for in Xbox, though of course less latency is better.</LI>
+<LI><b>PC comparison to Xbox:</b> The latency on a PC varies quite a bit, but is generally 30-80 msec for DirectSound. Engines that sit on top of DirectSound (e.g. Miles Sound System, Qmixer, etc.) can add significantly more latency to playback. DirectMusic is typically 90 msec or more. By comparison, because DirectMusic and DirectSound for Xbox have been optimized for the Xbox audio hardware, the numbers for DirectMusic and DirectSound on Xbox are negligible (and are included in the 'full path' latency value above). If you are satisfied with the latency in your PC games, you should be thrilled on Xbox.</LI>
+<LI><b>Pre-rendered audio:</b> We expose the option for you to write directly to the digital and analog outputs. This would preclude hardware mixing and effects using the Xbox MCP, but for things like cutscenes, it might be appropriate. When writing directly to the digital outputs, you can supply any format you want, including pre-encoded Dolby Digital, Sony DTS, etc.</LI>
+<Li><b>Latency for compressed audio:</b> ADPCM is supported in hardware and is decoded with no CPU hit and no added latency. WMA (and any other third party formats provided via Xbox Media Objects), will probably add some amount of latency (we have not yet characterized WMA latency), so for quick twitch sounds, they may not be appropriate.
+</ol>
+</P>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Are there issues with maintaining audio sync when video streams are rendered to NTSC versus PAL?</b><br>
+The audio realtime playback rate is the same regardless of the video mode. Video sync and audio clocks are locked to a common frequency reference, such that they have zero ppm relative drift. All of the system clocks, with the exception of the real-time clock, are locked to a common reference, so if you use the tick timer or VBLANK to calculate real time, sync will be maintained so long as your VBLANK conversion uses the correct values. (For NTSC video mode, the VBLANK rate is 60/1.001 Hz (~59.9401Hz) or aproximately 16.6833-ms intervals. For PAL video mode, the VBLANK rate is 50 Hz, or 20-ms intervals.)
+</li><br>
+
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Are there any benefits to submixing other than conserving RAM used for effects processing?</b><br>
+Yes.<BR>
+<ul>
+<li>Conserve 3-D voices. Example: A helicopter composed of wind, blade noises, and pilot noises. Rather than using 3 of our 64 3-D voices on sounds that all come from the same position, we submix the 2-D voices and send them to a single 3-D voice.</li>
+<li>Chaining. You get an extra filter block on one or more voices for more processing.</li>
+<li>Conserve space on the GP. Not just space in UMA (for any effects that work on a buffer instead of in-place), but for the limited programmable space in the GP DSP. If I've got five voices that I want to apply identical chorus to, why not submix them and apply a single chorus instance?</li>
+<li>Programmatic multichannel positioning. You can take a sound and send it at full volume to the left rear speaker and 1/2 volume to the right rear speaker to get it to sound just to the left of rear center. This can be done on any of the voices, not just the 64 3-D ones (which can get the same effect algorithmically through HRTF).</li>
+</ul>
+<BR>
+<!----------------------------------QUESTION----------------------------------------------------------
+------------------------------------------------------------------------------------------------------>
+<LI><B>Can games "rip" their own audio tracks?</b><br>
+Xbox allows the end user to use the Xbox Dashboard to rip tracks from their audio CDs and place them on the hard disk (WMA compressed). They can also assemble multiple WMA "playlists." A title can choose to use these playlists to supplement or replace its own audio content, though it should not depend on these playlists being present. Titles cannot rip their own audio CDs from in-game, though of course any content that your title requires (from its own DVD) can be cached to the hard disk for in-game use.</li><br><br>
+  
+
+</OL>
+<BR><BR>
+
+
+<P></P>
+<SMALL>Thursday, August 23, 2001</SMALL>
+</TD>

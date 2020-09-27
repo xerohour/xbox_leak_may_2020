@@ -1,0 +1,32 @@
+TARGETNAME=dvdtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+BROWSER_INFO=1
+
+C_DEFINES=$(C_DEFINES) -D_LogStuff
+
+XE_FLAGS=/TESTNAME:"Xbox IR Remote Dongle Test"
+
+INCLUDES=$(INCLUDES);$(BASEDIR)\PRIVATE\INC;\
+         $(BASEDIR)\private\ntos\inc;\
+          $(BASEDIR)\private\ntos\xapi\inc;\
+          $(BASEDIR)\private\test\inc;\
+          $(BASEDIR)\private\test\inc\cpx
+
+SOURCES= \
+    bitfont.cpp\
+   dvdtest.cpp
+
+USE_NOLIB=1
+
+LINKLIBS=\
+    $(LIBRARY_PATH)\d3d8$(D).lib       \
+	$(SDK_LIB_PATH)\xdcs.lib  \
+    $(BASEDIR)\private\test\lib\*\cpxlib.lib\
+    $(LIBRARY_PATH)\dsound$(D).lib              \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib           \
+    $(SDK_LIB_PATH)\waveldr$(D).lib             \
+    $(LIBRARY_PATH)\d3d8$(D).lib                \
+    $(BASEDIR)\private\test\lib\*\tsc.lib

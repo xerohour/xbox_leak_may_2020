@@ -1,0 +1,262 @@
+; XDK.INF
+; Setup INF file for the Microsoft Xbox SDK
+
+// Flags:
+//    DBG - Set for debug builds
+
+#include "xboxverp.h"
+
+// This comment used for 16-bit INF install version checking
+; Version VER_PRODUCTVERSION
+
+// *************************************************************************
+// SECTION 1 - Install rules and directory specifications
+// *************************************************************************
+
+[version]
+signature="$CHICAGO$"
+AdvancedINF=2.5
+
+[DefaultInstall]
+CopyFiles      = XDK.Install.Inf,XDK.Install.App,XDK.Install.Help,XDK.Install.Shared
+DelFiles       = XDK.CleanPrev.App
+DelReg         = XDK.CleanPrev.Reg,XDK.CleanPrev.Reg.PerUser
+AddReg         = XDK.Install.Reg,XDK.Install.Reg.PerUser
+CustomDestination = XDK.Destination
+PerUserInstall = XDK.Install.UserStub
+UpdateInis     = XDK.Install.Inis.PerUser
+RunPreSetupCommands = XDK.Install.PreSetup
+RunPostSetupCommands = XDK.Install.PostSetup
+
+; Uninstall section
+;
+[XDK.Remove]
+SmartReboot    = I
+BeginPrompt    = XDK.Remove.BeginPrompt
+EndPrompt      = XDK.Remove.EndPrompt
+CustomDestination = XDK.Existing
+PerUserInstall = XDK.Remove.UserStub
+
+DelFiles       = XDK.Remove.App,XDK.Remove.Help
+DelReg         = XDK.Remove.Reg,XDK.Remove.Reg.PerUser
+DelDirs        = XDK.Remove.Dirs
+UpdateInis     = XDK.Remove.Inis.PerUser
+
+; Removal of old program item during presetup
+[XDK.Remove.PreInstall]
+UpdateInis     = XDK.Remove.Inis.PerUser
+
+[XDK.Remove.BeginPrompt]
+Prompt="%REMOVE_CONFIRMATION_PROMPT%"
+ButtonType=YESNO
+Title="%XDK_NAME_AND_VER%"
+
+[XDK.Remove.EndPrompt]
+Prompt="%REMOVE_COMPLETION_PROMPT%"
+
+// *************************************************************************
+// SECTION 1A - Per-user installation sections
+// *************************************************************************
+
+[XDK.Install.UserStub]
+DisplayName=%XDK_NAME_AND_VER%
+ComponentID=XDK
+GUID=%XDK_GUID%
+Version=VER_PRODUCTVERSION
+Locale=%LOCALE_ID%
+IsInstalled=1
+StubPath=rundll32.exe advpack.dll,LaunchINFSection %17%\xdk.inf,XDK.Install.PerUser
+
+[XDK.Remove.UserStub]
+DisplayName=%XDK_NAME_AND_VER%
+QuietDisplayName=%XDK_NAME_AND_VER%
+ComponentID=XDK
+GUID=%XDK_GUID%
+Version=VER_PRODUCTVERSION
+Locale=%LOCALE_ID%
+RequiresIESysFile=0.0
+IsInstalled=0
+StubPath=rundll32.exe advpack.dll,LaunchINFSection %17%\xdk.inf,XDK.Remove.PerUser
+
+[XDK.Install.PerUser]
+CustomDestination = XDK.Existing
+AddReg            = XDK.Install.Reg.PerUser,XDK.Install.Reg.PUAlwaysRun
+DelReg            = XDK.CleanPrev.Reg.PerUser
+UpdateInis        = XDK.Install.Inis.PerUser
+
+[XDK.Remove.PerUser]
+DelReg            = XDK.Remove.Reg.PerUser
+UpdateInis        = XDK.Remove.Inis.PerUser
+
+[DestinationDirs]
+XDK.Install.App        = 49000 ; XDKDir
+XDK.CleanPrev.App      = 49000 ; XDKDir
+XDK.Remove.App         = 49000 ; XDKDir
+
+XDK.Install.Help       = 18    ; Help directory
+XDK.Remove.Help        = 18    ; Help directory
+XDK.Install.Inf        = 17    ; LDID_INF
+XDK.Install.Shared     = 11    ; LDID_SYS
+
+; Sections for custom directory installation
+[XDK.Destination]
+49300,49301=ProgramFilesDir,5
+
+49000,49001,49002=XDKDir,5
+
+[XDK.Existing]
+49000,49001,49002=XDKDir.Remove,7
+
+[XDKDir]
+HKLM,"%KEY_XDK%",'InstallationDirectory','%INSTALL_DIR_PROMPT%',"%49301%\%XDKDIR%"
+
+[XDKDir.Remove]
+HKLM,"%KEY_XDK%",'InstallationDirectory','',''
+"","","",'%REMOVE_NODIR_ERROR%',""
+
+[ProgramFilesDir]
+HKLM,"Software\Microsoft\Windows\CurrentVersion","ProgramFilesDir",,"%24%\%ProgramFiles%"
+
+// *************************************************************************
+// SECTION 2 - File specifications
+// *************************************************************************
+
+[XDK.Install.Inf]
+xdk.inf
+
+[XDK.Install.Shared]
+// We silently don't install these if newer versions exist on the system
+#if 0
+msvcrtd.dll,,,32
+#endif // 0
+
+[XDK.Install.Help]
+
+[XDK.Remove.Help]
+
+[XDK.CleanPrev.App]
+
+[XDK.Install.App]
+ReadMe1st.Txt
+
+[XDK.Remove.App]
+ReadMe1st.Txt,,,1
+
+[XDK.Remove.Dirs]
+%49000%
+
+[XDK.Install.PreSetup]
+#if 0
+msmsgsin.exe -r
+#endif // 0
+
+[XDK.Install.PostSetup]
+#if 0
+msmsgsin.exe -o
+#endif // 0
+
+// *************************************************************************
+// SECTION 3 - Registry entries
+// *************************************************************************
+[XDK.Install.Reg]
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%XDK_GUID%","KeyFileName",,"%49001%\ReadMe1st.Txt"
+
+// Store install directory in registry for use by uninstall
+HKLM,%KEY_XDK%,"InstallationDirectory",,"%49001%"
+
+// Register XDK for uninstall
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\XDK,"DisplayName",,"%XDK_NAME_AND_VER%"
+#if 0
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\XDK,"UninstallString",,"%49001%\msmsgsin -x"
+#endif // 0
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\XDK,"UninstallString",,"RunDll32 advpack.dll,LaunchINFSection %17%\xdk.inf,XDK.Remove,5"
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\XDK,"QuietUninstallString",,"RunDll32 advpack.dll,LaunchINFSection %17%\xdk.inf,XDK.Remove,5"
+HKLM,%KEY_XDK%,,,"%XDK_NAME%"
+
+[XDK.Install.Reg.PerUser]
+
+[XDK.Remove.Reg]
+HKLM,"SOFTWARE\Microsoft\Active Setup\Installed Components\%XDK_GUID%","KeyFileName"
+HKLM,%KEY_XDK%
+HKLM,SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\XDK
+
+[XDK.Remove.Reg.PerUser]
+
+[XDK.CleanPrev.Reg]
+// These settings were written in previous versions:
+
+
+// *************************************************************************
+// SECTION 4 - INI entries
+// *************************************************************************
+
+[XDK.Install.Inis.PerUser]
+setup.ini, progman.groups,, "groupxdk="%PGMGRP_FOLDER%""
+setup.ini, groupxdk,, """%PGMITEM_XDK_README%"", """"""%49002%\ReadMe1st.Txt"""""",,,,,,""%README_DESC%"""
+
+[XDK.Remove.Inis.PerUser]
+setup.ini, progman.groups,, "groupxdk="%PGMGRP_FOLDER%""
+setup.ini, groupxdk,, """%PGMITEM_XDK_README%"""
+
+// *************************************************************************
+// SECTION 5 - Source disk(s)
+// *************************************************************************
+
+[SourceDisksNames]
+1863=%DISK1%,"",0
+
+[SourceDisksFiles]
+ReadMe1st.Txt=1863
+
+#if 0
+msvcrtd.dll=1863
+#endif // 0
+
+// *************************************************************************
+// SECTION 6 - String definitions
+// *************************************************************************
+
+[Strings]
+; ************************************************************************
+; IMPORTANT - Be sure to place any localizable strings below the
+; "LOCALIZATION BORDER" comment.
+; ************************************************************************
+
+KEY_XDK            = "SOFTWARE\Microsoft\XboxSDK"
+XDK_GUID           = "{bd59ed9c-6bc1-4978-9791-2e3b369751e4}"
+
+; ************************************************************************
+; LOCALIZATION BORDER
+;
+; No strings above this line should be localized.
+; All strings below this line should be localized.
+; ************************************************************************
+
+ProgramFiles     = "Program Files"
+
+XDKDIR           = "Microsoft Xbox SDK"
+
+XDK_NAME         = "Microsoft Xbox SDK"
+XDK_NAME_AND_VER = "Microsoft Xbox SDK " VER_PRODUCTVERSION_STR
+
+DISK1            = "Microsoft Xbox SDK Files"
+
+; Program folder and item names
+PGMGRP_FOLDER    = "Microsoft Xbox SDK"
+; Note: this is the string treated as the "brand name" when rebranding. Only occurrences of this string will change.
+PGMITEM_XDK_README = "Read Me"
+README_DESC = "Read this after installing the Xbox SDK."
+
+REMOVE_CONFIRMATION_PROMPT = "This will remove the Microsoft Xbox SDK.  Do you wish to continue?"
+REMOVE_COMPLETION_PROMPT   = "The Microsoft Xbox SDK has been removed successfully."
+
+; Two-letter ID of locale/language
+LOCALE_ID = "EN"
+
+; These strings are embedded in registry values, and, if they contain quotes, each quote must be quadrupled.
+; ALL STRINGS BELOW THIS LINE THAT CONTAIN THE BRAND WILL HAVE ALL QUOTES QUADRUPLED
+; [Strings.Embedded]
+; Prompt for installation directory
+INSTALL_DIR_PROMPT = "Please enter the directory in which to install the Microsoft Xbox SDK Files:"
+REMOVE_NODIR_ERROR = "The Microsoft Xbox SDK is not installed on this computer."
+

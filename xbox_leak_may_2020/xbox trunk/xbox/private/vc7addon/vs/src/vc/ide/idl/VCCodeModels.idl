@@ -1,0 +1,1363 @@
+// VC Code Models.idl
+//
+
+// System
+//
+
+import "oaidl.idl";
+import "ocidl.idl";
+#include "olectl.h"
+
+// Visual Studio
+//
+
+#include "CodeModelBases.h"
+
+// Visual C++
+//
+
+#include "VCCodeModelsHelpBS.h"
+#include "VCCodeModelsHelpID.h"
+#include "Providers.idl" // UNDONE : Compiler team should must provide a Providers.h before we can use import "Providers.idl"; here
+
+
+//
+// Visual C++ Code Models Library
+//
+
+[
+	uuid(57D97102-7F20-11d1-B29E-0040053089AE),
+	version(7.0),
+	helpfile(""),
+	helpstring("Microsoft Development Environment VC++ Code Model 7.0 Type Library"),
+#ifdef  DEBUG
+	helpstringdll("VCPkgd.dll")
+#else
+	helpstringdll("VCPkg.dll")
+#endif
+]
+library VCCodeModelLibrary
+{
+
+importlib("stdole32.tlb");
+importlib("stdole2.tlb");
+importlib("DTE.tlb");
+
+
+// Macros, Macros, Macros, and Macros
+//
+
+#ifndef VARIANT_FALSE
+#define VARIANT_FALSE 0
+#endif
+
+#define HELP(devstring) helpcontext(HID_##devstring), helpstring(BS_##devstring), helpstringcontext(HID_##devstring)
+
+
+// Design Elements
+//
+
+// DTE
+//
+
+#define VCPROPERTY_get_DTE(dispid) \
+	[id(dispid), propget, HELP(vsproDTEProperty)] \
+	HRESULT DTE([out, retval] DTE ** ppDTE);
+
+// Name
+//
+
+#define VCPROPERTY_get_Name(dispid) \
+	[ id(dispid), propget, HELP(vsproNameProperty) ] \
+	HRESULT Name([out, retval] BSTR * pbstrName);
+
+// This is the common interface for all elements in the DTE.  
+// code elements are a subset of design elements.
+//
+
+#define FIRSTVCDESIGNELEMENTDISPID_V7 512
+
+#define VCDESIGNELEMENT_V7 \
+	[ id(FIRSTVCDESIGNELEMENTDISPID_V7), propget, nonbrowsable, HELP(vccmDisplayName) ] \
+	HRESULT DisplayName([out, retval] BSTR * pbstrDisplayName); \
+	[ id(FIRSTVCDESIGNELEMENTDISPID_V7 + 1), propget, nonbrowsable, HELP(vccmIsCaseSensitive) ] \
+	HRESULT IsCaseSensitive([out, retval] VARIANT_BOOL * pbIsCaseSensitive); \
+	[ id(FIRSTVCDESIGNELEMENTDISPID_V7 + 2), propget, nonbrowsable, HELP(vccmIsReadOnly) ] \
+	HRESULT IsReadOnly([out, retval] VARIANT_BOOL * pbIsReadOnly); \
+	[ id(FIRSTVCDESIGNELEMENTDISPID_V7 + 3), propget, nonbrowsable, HELP(vccmIsZombie) ] \
+	HRESULT IsZombie([out, retval] VARIANT_BOOL * pbIsZombie); \
+	[ id(FIRSTVCDESIGNELEMENTDISPID_V7 + 4), propget, nonbrowsable, HELP(vccmPicture) ] \
+	HRESULT Picture([out, retval] IDispatch ** ppPicture); \
+	[ id(FIRSTVCDESIGNELEMENTDISPID_V7 + 6), HELP(vccmIsSelf) ] \
+	HRESULT IsSelf([in] IDispatch * pOther, [out, retval] VARIANT_BOOL * pbIsSelf);
+
+#define LASTVCDESIGNELEMENTDISPID_V7 FIRSTVCDESIGNELEMENTDISPID_V7 + 32
+
+// Code Elements
+//
+
+#ifndef vsCMAccessDefault
+#define vsCMAccessDefault 32
+#endif 
+
+// A usefull macro that defines the standard collection property prototype.
+//
+
+#define VCPROPERTY_COLLECTION(CollectionType, dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vccm##CollectionType) ] \
+	HRESULT CollectionType([out, retval] CodeElements ** pp##CollectionType);
+
+#define VCPROPERTY_FILTERED_COLLECTION(CollectionType, dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vccm##CollectionType) ] \
+	HRESULT CollectionType([in, defaultvalue("")] BSTR Filter, [out, retval] CodeElements ** pp##CollectionType);
+
+#define VCPROPERTY_COLLECTION_ATTRIBUTES(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vsextCodeModelAttributes) ] \
+	HRESULT Attributes([out, retval] CodeElements ** ppAttributes);
+
+#define VCPROPERTY_COLLECTION_PARAMETERS(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vsextCodeModelParamsProp) ] \
+	HRESULT Parameters([out, retval] CodeElements ** ppParameters);
+
+#define VCPROPERTY_COLLECTION_MEMBERS(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vsextCodeModelMembers) ] \
+	HRESULT Members([out, retval] CodeElements ** ppMembers);
+
+// Access
+//
+
+#define VCPROPERTY_get_Access(dispid) \
+	[ id(dispid), propget, HELP(vsextCodeModelAccess)] \
+	HRESULT Access([out, retval] enum vsCMAccess * pAccess);
+#define VCPROPERTY_put_Access(dispid) \
+	[ id(dispid), propput, HELP(vsextCodeModelAccess) ] \
+	HRESULT Access([in] enum vsCMAccess Access);
+#define VCPROPERTY_Access(dispid) \
+	VCPROPERTY_get_Access(dispid) VCPROPERTY_put_Access(dispid)
+
+// Comment
+//
+
+#define VCPROPERTY_get_Comment(dispid) \
+	[ id(dispid), propget, HELP(vsextCodeModelComment)] \
+	HRESULT Comment([out, retval] BSTR *pComment);
+#define VCPROPERTY_put_Comment(dispid) \
+	[ id(dispid), propput, HELP(vsextCodeModelComment)] \
+	HRESULT Comment([in] BSTR Comment);
+#define VCPROPERTY_Comment(dispid) \
+	VCPROPERTY_get_Comment(dispid) VCPROPERTY_put_Comment(dispid) 
+
+// Parent
+//
+
+#define VCPROPERTY_get_Parent(parent_type, dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vsproParentProperty)] \
+	HRESULT Parent([out, retval] parent_type ** pp##parent_type);
+
+// Value
+//
+
+#define VCPROPERTY_Value(dispid) \
+	[ id(dispid), propget, HELP(vccmValue)] \
+	HRESULT Value([out, retval] BSTR* pbstrVal); \
+	[ id(dispid), propput, HELP(vccmValue) ] \
+	HRESULT Value([in] BSTR bstrVal);
+
+#define VCPROPERTY_DefaultExpression(dispid) \
+  [ id(dispid), propget, HELP(vsextCodeModelInitialize) ] \
+  HRESULT DefaultExpression([out, retval] VARIANT *pExpr); \
+  [ id(dispid), propput, HELP(vsextCodeModelInitialize) ] \
+  HRESULT DefaultExpression([in] VARIANT Expr); \
+
+
+// TypeString
+//
+
+#define VCPROPERTY_TypeString(dispid) \
+	[ id(dispid), propget, HELP(vccmTypeString) ] \
+	HRESULT TypeString([out, retval] BSTR * pbstrType); \
+	[ id(dispid), propput, HELP(vccmTypeString) ] \
+	HRESULT TypeString([in] BSTR bstrType);
+
+// Class
+//
+
+#define VCPROPERTY_get_Class(dispid) \
+	[ id(dispid), propget, HELP(vccmClassOfBase) ] \
+	HRESULT Class([out, retval] CodeType ** ppCodeType);
+
+// Namespace
+//
+
+#define VCPROPERTY_get_Namespace(dispid) \
+	[ id(dispid), propget, HELP(vsextCodeModelNamespaceProp), nonbrowsable ] \
+	HRESULT Namespace([out, retval] CodeNamespace **ppCodeNamespace);
+
+// IsTemplate
+//
+
+#define VCPROPERTY_IsTemplate(dispid) \
+	[ id(dispid), propget, HELP(vccmIsTemplate) ] \
+	HRESULT IsTemplate([out, retval] VARIANT_BOOL *pbTemplate);
+
+// IsVirtual
+//
+
+#define VCPROPERTY_IsVirtual(dispid) \
+	[ id(dispid), propget, HELP(vccmIsVirtual) ] \
+	HRESULT IsVirtual([out, retval] VARIANT_BOOL *pbVirtual); \
+	[ id(dispid), propput, HELP(vccmIsVirtual) ] \
+	HRESULT IsVirtual([in] VARIANT_BOOL bVirtual);
+
+// IsInline
+//
+
+#define VCPROPERTY_IsInline(dispid) \
+	[ id(dispid), propget, HELP(vccmIsInline) ] \
+	HRESULT IsInline([out, retval] VARIANT_BOOL *pbInline); \
+	[ id(dispid), propput, HELP(vccmIsInline) ] \
+	HRESULT IsInline([in] VARIANT_BOOL bInline);
+
+// IsShared
+//
+
+#define VCPROPERTY_get_IsShared(dispid) \
+	[ id(dispid), propget, HELP(vsextCodeModelIsStatic) ] \
+	HRESULT IsShared([out, retval] VARIANT_BOOL * Shared);
+#define VCPROPERTY_put_IsShared(dispid) \
+	[ id(dispid), propput, HELP(vsextCodeModelIsStatic) ] \
+	HRESULT IsShared([in] VARIANT_BOOL Shared);
+#define VCPROPERTY_IsShared(dispid) \
+	VCPROPERTY_get_IsShared(dispid) VCPROPERTY_put_IsShared(dispid)
+
+// IsConstant
+//
+
+#define VCPROPERTY_IsConstant(dispid) \
+	[ id(dispid), propget, HELP(vsextCodeModelIsConst) ] \
+	HRESULT IsConstant([out, retval] VARIANT_BOOL *pIsConstant); \
+	[ id(dispid), propput, HELP(vsextCodeModelIsConst) ] \
+	HRESULT IsConstant([in] VARIANT_BOOL IsConstant);
+
+// Index
+//
+
+#define VCPROPERTY_get_Index(dispid) \
+	[ id(dispid), propget, HELP(vccmIndex) ] \
+	HRESULT Index([out, retval] LONG * pIndex);
+
+// BodyText
+//
+
+#define VCPROPERTY_BodyText(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vccmBodyText)] \
+	HRESULT BodyText([out, retval] BSTR* pbstrBodyText); \
+	[ id(dispid), propput, nonbrowsable, HELP(vccmBodyText) ] \
+	HRESULT BodyText([in] BSTR bstrBodyText);
+
+// DeclarationText
+//
+
+#define VCPROPERTY_DeclarationText(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vccmDeclarationText) ] \
+	HRESULT DeclarationText([out, retval] BSTR* pbstrDeclarationText); \
+	[ id(dispid), propput, nonbrowsable, HELP(vccmDeclarationText) ] \
+	HRESULT DeclarationText([in] BSTR bstrDeclarationText);
+
+// IsSealed
+//
+
+#define VCPROPERTY_IsSealed(dispid) \
+	[ id(dispid), propget, HELP(vccmIsSealed) ] \
+	HRESULT IsSealed([out, retval] VARIANT_BOOL *pIsSealed); \
+	[ id(dispid), propput, HELP(vccmIsSealed) ] \
+	HRESULT IsSealed([in] VARIANT_BOOL IsSealed);
+
+// IsValue
+//
+
+#define VCPROPERTY_IsValue(dispid) \
+	[ id(dispid), propget, HELP(vccmIsValue) ] \
+	HRESULT IsValue([out, retval] VARIANT_BOOL *pIsValue); \
+	[ id(dispid), propput, HELP(vccmIsValue) ] \
+	HRESULT IsValue([in] VARIANT_BOOL IsValue);
+
+// IsManaged
+//
+
+#define VCPROPERTY_IsManaged(dispid) \
+	[ id(dispid), propget, HELP(vccmIsManaged) ] \
+	HRESULT IsManaged([out, retval] VARIANT_BOOL *pIsManaged); \
+	[ id(dispid), propput, HELP(vccmIsManaged) ] \
+	HRESULT IsManaged([in] VARIANT_BOOL IsManaged);
+
+// StartPoint & EndPoint
+//
+
+#define VCPROPRERTY_get_StartPoint(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vsextCodeModelStartPoint) ] \
+	HRESULT StartPoint([out, retval] TextPoint ** ppTextPoint);
+#define VCPROPRERTY_get_EndPoint(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vsextCodeModelEndPoint) ] \
+	HRESULT EndPoint([out, retval] TextPoint ** ppTextPoint);
+
+// StartPointOf & EndPointOf
+//
+
+#define VCPROPERTY_get_StartPointOf(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vccmStartPointOf) ] \
+	HRESULT StartPointOf([in] enum vsCMPart Part, \
+		[in, defaultvalue(vsCMWhereDefault)] enum vsCMWhere Where, \
+		[out, retval] TextPoint ** ppTextPoint);
+
+#define VCPROPERTY_get_EndPointOf(dispid) \
+	[ id(dispid), propget, nonbrowsable, HELP(vccmEndPointOf) ] \
+	HRESULT EndPointOf([in] enum vsCMPart Part, \
+		[in, defaultvalue(vsCMWhereDefault)] enum vsCMWhere Where, \
+		[out, retval] TextPoint ** ppTextPoint);
+
+// AddXXX
+//
+
+// Add Parameter
+//
+
+#define ADDVCPARAMETER_NOTYPE(dispid) \
+	[ id(dispid), HELP(vsextCMAddParameter) ] \
+	HRESULT AddParameter(BSTR Name, BSTR Value, [optional] VARIANT Position, \
+		[out, retval] CodeParameter **ppCodeParameter);
+#define ADDVCPARAMETER_NOTYPENAME(dispid) \
+	[ id(dispid), HELP(vsextCMAddParameter) ] \
+	HRESULT AddParameter(BSTR Value, [optional] VARIANT Position, \
+		[out, retval] CodeParameter **ppCodeParameter);
+#define ADDVCPARAMETER_NOTYPEVALUE(dispid) \
+	[ id(dispid), HELP(vsextCMAddParameter) ] \
+	HRESULT AddParameter(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] CodeParameter **ppCodeParameter);
+
+// AddMap
+//
+
+#define ADDVCMAP(dispid) \
+	[ id(dispid), HELP(vccmAddMap) ] \
+	HRESULT AddMap(BSTR Name, VARIANT Location, [defaultvalue("")] BSTR ParameterText, \
+		[optional] VARIANT Position, [out, retval] VCCodeMap ** ppVCCodeMap);
+#define ADDVCMAP_OPTIONALLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddMap) ] \
+	HRESULT AddMap(BSTR Name, [defaultvalue("")] BSTR ParameterText, [optional] VARIANT Position, \
+		[optional] VARIANT Location, [out, retval] VCCodeMap ** ppVCCodeMap);
+#define ADDVCMAP_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddMap) ] \
+	HRESULT AddMap(BSTR Name, [defaultvalue("")] BSTR ParameterText, \
+		[optional] VARIANT Position, [out, retval] VCCodeMap ** ppVCCodeMap);
+
+// Add Typedef
+//
+
+#define ADDVCTYPEDEF(dispid) \
+	[ id(dispid), HELP(vccmAddTypedef) ] \
+	HRESULT AddTypedef(BSTR Name, VARIANT Location, [optional] VARIANT Type, \
+		[optional] VARIANT Position, \
+		[defaultvalue(vsCMAccessDefault)] enum vsCMAccess Access, \
+		[out, retval] VCCodeTypedef ** ppVCCodeTypedef);
+#define ADDVCTYPEDEF_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddTypedef) ] \
+	HRESULT AddTypedef(BSTR Name, [optional] VARIANT Type, [optional] VARIANT Position, \
+		[defaultvalue(vsCMAccessDefault)] enum vsCMAccess Access, \
+		[out, retval] VCCodeTypedef ** ppVCCodeTypedef);
+
+// Add Union
+//
+
+#define ADDVCUNION(dispid) \
+	[ id(dispid), HELP(vccmAddUnion) ] \
+	HRESULT AddUnion(BSTR Name, VARIANT Location, [optional] VARIANT Position, \
+		[defaultvalue(vsCMAccessDefault)] enum vsCMAccess Access, \
+		[out, retval] VCCodeUnion **ppVCCodeUnion);
+#define ADDVCUNION_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddUnion) ] \
+	HRESULT AddUnion(BSTR Name, [optional] VARIANT Position, \
+		[defaultvalue(vsCMAccessDefault)] enum vsCMAccess Access, \
+		[out, retval] VCCodeUnion **ppVCCodeUnion);
+
+// Add Map Entry
+//
+
+#define ADDVCMAPENTRY_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddMapEntry)] \
+	HRESULT AddEntry(BSTR Name, [optional] VARIANT Position, \
+	[out, retval] VCCodeMapEntry ** ppVCCodeMapEntry);
+
+// Add Macro
+//
+
+#define ADDVCMACRO(dispid) \
+	[ id(dispid), HELP(vccmAddMacro)] \
+	HRESULT AddMacro(BSTR Name, VARIANT Location, [defaultvalue("")] BSTR Value, \
+		[optional] VARIANT Position, [out, retval] VCCodeMacro ** ppVCCodeMacro);
+#define ADDVCMACRO_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddMacro)] \
+	HRESULT AddMacro(BSTR Name, [defaultvalue("")] BSTR Value, \
+		[optional] VARIANT Position, [out, retval] VCCodeMacro ** ppVCCodeMacro);
+
+// Add IDLImportLib
+//
+
+#define ADDVCIDLIMPORTLIB_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddIDLImportLib)] \
+	HRESULT AddIDLImportLib(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] VCCodeIDLImportLib ** ppVCCodeIDLImportLib);
+
+// Add IDLCoClass
+//
+
+#define ADDVCIDLCOCLASS_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddIDLCoClass)] \
+	HRESULT AddIDLCoClass(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] VCCodeIDLCoClass ** ppVCCodeIDLCoClass);
+
+// Add Include
+//
+
+#define ADDVCINCLUDE(dispid) \
+	[ id(dispid), HELP(vccmAddInclude)] \
+	HRESULT AddInclude(BSTR Name, VARIANT Location, [optional] VARIANT Position, \
+		[out, retval] VCCodeInclude ** ppVCCodeInclude);
+#define ADDVCINCLUDE_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddInclude)] \
+	HRESULT AddInclude(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] VCCodeInclude ** ppVCCodeInclude);
+
+// Add Import
+//
+
+#define ADDVCIMPORT(dispid) \
+	[ id(dispid), HELP(vccmAddImport)] \
+	HRESULT AddImport(BSTR Name, VARIANT Location, [optional] VARIANT Position, \
+		[optional, defaultvalue("")] BSTR Attributes, [out, retval] VCCodeImport ** ppVCCodeImport);
+#define ADDVCIMPORT_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddImport)] \
+	HRESULT AddImport(BSTR Name, [optional] VARIANT Position, \
+		[optional, defaultvalue("")] BSTR Attributes, [out, retval] VCCodeImport ** ppVCCodeImport);
+
+// Add Using
+//
+
+#define ADDVCUSING(dispid) \
+	[ id(dispid), HELP(vccmAddUsing)] \
+	HRESULT AddUsing(BSTR Name, VARIANT Location, [optional] VARIANT Position, \
+		[out, retval] VCCodeUsing ** ppVCCodeUsing);
+#define ADDVCUSING_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddUsing)] \
+	HRESULT AddUsing(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] VCCodeUsing ** ppVCCodeUsing);
+
+// Add IDLImport
+//
+
+#define ADDVCIDLIMPORT(dispid) \
+	[ id(dispid), HELP(vccmAddIDLImport)] \
+	HRESULT AddIDLImport(BSTR Name, VARIANT Location, [optional] VARIANT Position, \
+		[out, retval] VCCodeIDLImport ** ppVCCodeIDLImport);
+#define ADDVCIDLIMPORT_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddIDLImport)] \
+	HRESULT AddIDLImport(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] VCCodeIDLImport ** ppVCCodeIDLImport);
+
+// Add IDLLibrary
+//
+
+#define ADDVCIDLLIBRARY(dispid) \
+	[ id(dispid), HELP(vccmAddIDLLibrary)] \
+	HRESULT AddIDLLibrary(BSTR Name, VARIANT Location, [optional] VARIANT Position, \
+		[out, retval] VCCodeIDLLibrary ** ppVCCodeIDLLibrary);
+#define ADDVCIDLLIBRARY_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddIDLLibrary)] \
+	HRESULT AddIDLLibrary(BSTR Name, [optional] VARIANT Position, \
+		[out, retval] VCCodeIDLLibrary ** ppVCCodeIDLLibrary);
+
+// Add Event
+//
+
+#define ADDVCEVENT_NOLOCATION(dispid) \
+	[ id(dispid), HELP(vccmAddEvent)] \
+	HRESULT AddEvent(BSTR Name, [optional] VARIANT Type, [optional] VARIANT Position, \
+		[defaultvalue(vsCMAccessDefault)] enum vsCMAccess Access, \
+		[out, retval] VCCodeEvent ** ppVCCodeEvent);
+
+
+
+// RemoveXXX
+//
+
+#define REMOVEVCENTRY(dispid) \
+  [ id(dispid), HELP(vccmRemoveEntry) ] \
+  HRESULT RemoveEntry(VARIANT Element);
+
+#define REMOVEVCPARAMETER(dispid) \
+  [ id(dispid), HELP(vsextCMRemoveParam) ] \
+  HRESULT RemoveParameter(VARIANT Element);
+
+// Validate
+//
+
+// Validates that the proposed name is a valid C++ name for the kind given in the context
+// the parent.
+//
+
+#define VCVALIDATEMEMBER(dispid) \
+	[ id(dispid), HELP(vccmValidateMember) ] \
+	HRESULT ValidateMember([in] BSTR bstrName, \
+		[in] enum vsCMElement Kind, \
+		[in, optional, defaultvalue("")] BSTR bstrType, \
+		[out, retval] VARIANT_BOOL* pbValid);
+
+
+// VC Common Code Element
+//
+// Shared by all CodeElement objects of MC++, & C++
+//
+// This macro contains those methods & properties that are not a part of the VS interfaces, but are common to
+// all VC Code Elements.
+//
+
+#define VCCODEELEMENT_V7 \
+	VCDESIGNELEMENT_V7 \
+	[ id(LASTVCDESIGNELEMENTDISPID_V7 + 1), propget, nonbrowsable, HELP(vccmProject)] \
+	HRESULT Project([out, retval] Project ** ppProject); \
+	[ id(LASTVCDESIGNELEMENTDISPID_V7 + 2), propget, nonbrowsable, HELP(vccmCodeModel)] \
+	HRESULT CodeModel([out, retval] VCCodeModel ** ppVCCodeModel); \
+	[ id(LASTVCDESIGNELEMENTDISPID_V7 + 3), propget, HELP(vccmIsInjected) ] \
+	HRESULT IsInjected([out, retval] VARIANT_BOOL * pbInjected); \
+	[ id(LASTVCDESIGNELEMENTDISPID_V7 + 4), propget, HELP(vccmFile) ] \
+	HRESULT File([out, retval] BSTR * pbstrLocation); \
+	[ id(LASTVCDESIGNELEMENTDISPID_V7 + 5), propget, HELP(vccmLocation) ] \
+	HRESULT Location([in, defaultvalue(vsCMWhereDefault)] enum vsCMWhere Where, \
+		[out, retval] BSTR * pbstrLocation); \
+	VCPROPERTY_get_StartPointOf(LASTVCDESIGNELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_get_EndPointOf(LASTVCDESIGNELEMENTDISPID_V7 + 7)
+
+#define LASTVCCODEELEMENTDISPID_V7 LASTVCDESIGNELEMENTDISPID_V7 + 32
+
+// Now, the actual interfaces
+//
+
+#define VCCodeAttribute_V7 CODEATTRIBUTEBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_PARAMETERS(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_get_Index(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	\
+	ADDVCPARAMETER_NOTYPE(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	REMOVEVCPARAMETER(LASTVCCODEELEMENTDISPID_V7 + 4)
+
+#define VCCodeUnion_V7 CODETYPEBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Classes, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEELEMENTDISPID_V7 + 7) \
+	VCPROPERTY_COLLECTION(Templatizations, LASTVCCODEELEMENTDISPID_V7 + 8) \
+	\
+	VCPROPERTY_IsTemplate(LASTVCCODEELEMENTDISPID_V7 + 9) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 10) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 11) \
+	ADDFUNCTION_OPTLOC(LASTVCCODEELEMENTDISPID_V7 + 12) \
+	ADDVARIABLE_OPTLOC(LASTVCCODEELEMENTDISPID_V7 + 13) \
+	ADDCLASS_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 14) \
+	ADDSTRUCT_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 15) \
+	ADDENUM_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 16) \
+	ADDVCTYPEDEF_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 17) \
+	ADDVCUNION_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 18) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 19)
+
+#define VCCodeBase_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Access(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_get_Parent(CodeType, LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_get_Class(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_IsVirtual(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 6)
+
+#define VCCodeClass_V7 CODECLASSBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Classes, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_COLLECTION(Maps, LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEELEMENTDISPID_V7 + 7) \
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEELEMENTDISPID_V7 + 8) \
+	VCPROPERTY_COLLECTION(Properties, LASTVCCODEELEMENTDISPID_V7 + 9) \
+	VCPROPERTY_COLLECTION(Events, LASTVCCODEELEMENTDISPID_V7 + 10) \
+	VCPROPERTY_COLLECTION(Templatizations, LASTVCCODEELEMENTDISPID_V7 + 11) \
+	\
+	VCPROPERTY_IsTemplate(LASTVCCODEELEMENTDISPID_V7 + 12) \
+	VCPROPERTY_IsManaged(LASTVCCODEELEMENTDISPID_V7 + 13) \
+	VCPROPERTY_IsValue(LASTVCCODEELEMENTDISPID_V7 + 14) \
+	VCPROPERTY_IsSealed(LASTVCCODEELEMENTDISPID_V7 + 15) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 16) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 17) \
+	\
+	ADDVCEVENT_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 18) \
+	ADDVCMAP_OPTIONALLOCATION(LASTVCCODEELEMENTDISPID_V7 + 19) \
+	ADDVCTYPEDEF_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 20) \
+	ADDVCUNION_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 21) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 22)
+
+#define VCCodeStruct_V7 CODESTRUCTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Classes, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEELEMENTDISPID_V7 + 7) \
+	VCPROPERTY_COLLECTION(Properties, LASTVCCODEELEMENTDISPID_V7 + 8) \
+	VCPROPERTY_COLLECTION(Events, LASTVCCODEELEMENTDISPID_V7 + 9) \
+	VCPROPERTY_COLLECTION(Templatizations, LASTVCCODEELEMENTDISPID_V7 + 10) \
+	\
+	VCPROPERTY_IsTemplate(LASTVCCODEELEMENTDISPID_V7 + 11) \
+	VCPROPERTY_IsManaged(LASTVCCODEELEMENTDISPID_V7 + 12) \
+	VCPROPERTY_IsValue(LASTVCCODEELEMENTDISPID_V7 + 13) \
+	VCPROPERTY_IsSealed(LASTVCCODEELEMENTDISPID_V7 + 14) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 15) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 16) \
+	\
+	ADDVCEVENT_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 17) \
+	ADDVCTYPEDEF_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 18) \
+	ADDVCUNION_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 19) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 20)
+
+#define VCCodeEnum_V7 CODEENUMBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_IsValue(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_IsManaged(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 5)
+
+#define VCCodeInterface_V7 CODEINTERFACEBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	\
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_IsManaged(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	\
+	ADDVARIABLE_NOFILE(LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 7)
+
+#define VCCodeMacro_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_PARAMETERS(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_Value(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	\
+	ADDVCPARAMETER_NOTYPEVALUE(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	REMOVEVCPARAMETER(LASTVCCODEELEMENTDISPID_V7 + 6)
+
+#define VCCodeMap_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Entries, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION_PARAMETERS(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 6) \
+	\
+	ADDVCMAPENTRY_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 7) \
+	REMOVEVCENTRY(LASTVCCODEELEMENTDISPID_V7 + 8)
+
+#define VCCodeMapEntry_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_PARAMETERS(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_get_Parent(VCCodeMap, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	\
+	ADDVCPARAMETER_NOTYPENAME(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	REMOVEVCPARAMETER(LASTVCCODEELEMENTDISPID_V7 + 6)
+
+#define VCCodeFunction_V7 CODEFUNCTIONBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Templatizations, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	\
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_IsConstant(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_IsVirtual(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_IsInline(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_IsTemplate(LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 7) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 8) \
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 9) \
+	[ id(LASTVCCODEELEMENTDISPID_V7 + 10) ] \
+	HRESULT AddInitializer([in]BSTR bstrText);
+
+#define VCCodeNamespace_V7 CODENAMESPACEBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION(Classes, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_COLLECTION(Interfaces, LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_COLLECTION(Macros, LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_COLLECTION(Maps, LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_COLLECTION(Namespaces, LASTVCCODEELEMENTDISPID_V7 + 7) \
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEELEMENTDISPID_V7 + 8) \
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEELEMENTDISPID_V7 + 9) \
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEELEMENTDISPID_V7 + 10) \
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEELEMENTDISPID_V7 + 11) \
+	\
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 12) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 13) \
+	\
+	ADDFUNCTION_NOFILE(LASTVCCODEELEMENTDISPID_V7 + 14) \
+	ADDVARIABLE_NOFILE(LASTVCCODEELEMENTDISPID_V7 + 15) \
+	ADDVCMAP_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 16) \
+	ADDVCTYPEDEF_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 17) \
+	ADDVCUNION_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 18) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 19) \
+
+#define VCCodeParameter_V7 CODEPARAMETERBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_DefaultExpression(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_get_Index(LASTVCCODEELEMENTDISPID_V7 + 3)
+
+#define VCCodeTypedef_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_Access(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 6) \
+	\
+	ADDATTRIBUTE_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 7)
+
+#define VCCodeVariable_V7 CODEVARIABLEBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 3)
+
+#define VCCodeInclude_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2)
+
+#define VCCodeImport_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2)
+
+#define VCCodeUsing_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2)
+
+#define VCCodeIDLImport_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2)
+
+#define VCCodeIDLImportLib_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_get_Parent(VCCodeIDLLibrary, LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2)
+
+#define VCCodeIDLCoClass_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	\
+	ADDATTRIBUTE_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 6)
+
+#define VCCodeIDLLibrary_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_COLLECTION_MEMBERS(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_COLLECTION(Interfaces, LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEELEMENTDISPID_V7 + 6) \
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEELEMENTDISPID_V7 + 7) \
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEELEMENTDISPID_V7 + 8) \
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEELEMENTDISPID_V7 + 9) \
+	VCPROPERTY_COLLECTION(IDLImportLibs, LASTVCCODEELEMENTDISPID_V7 + 10) \
+	VCPROPERTY_COLLECTION(IDLCoClasses, LASTVCCODEELEMENTDISPID_V7 + 11) \
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 12) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 13) \
+	VCPROPERTY_BodyText(LASTVCCODEELEMENTDISPID_V7 + 14) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 15) \
+	\
+	ADDATTRIBUTE_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 16) \
+	ADDENUM_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 17) \
+	ADDFUNCTION_NOFILE(LASTVCCODEELEMENTDISPID_V7 + 18) \
+	ADDVARIABLE_NOFILE(LASTVCCODEELEMENTDISPID_V7 + 19) \
+	ADDINTERFACE_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 20) \
+	ADDSTRUCT_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 21) \
+	ADDVCTYPEDEF_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 22) \
+	ADDVCUNION_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 23) \
+	ADDVCIDLIMPORTLIB_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 24) \
+	ADDVCIDLCOCLASS_NOLOCATION(LASTVCCODEELEMENTDISPID_V7 + 25) \
+	VCVALIDATEMEMBER(LASTVCCODEELEMENTDISPID_V7 + 26)
+
+#define VCCodeDelegate_V7 CODEDELEGATEBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 1)
+
+#define VCCodeProperty_V7 CODEPROPERTYBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 3)
+
+#define VCCodeEvent_V7 CODEELEMENTBASEMETHODS_V7 VCCODEELEMENT_V7 \
+	\
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEELEMENTDISPID_V7 + 1) \
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 2) \
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 3) \
+	VCPROPERTY_get_Namespace(LASTVCCODEELEMENTDISPID_V7 + 4) \
+	VCPROPERTY_DeclarationText(LASTVCCODEELEMENTDISPID_V7 + 5) \
+	VCPROPERTY_TypeString(LASTVCCODEELEMENTDISPID_V7 + 6) \
+	\
+	ADDATTRIBUTE_NOFILENAME(LASTVCCODEELEMENTDISPID_V7 + 7)
+
+
+// Finally, the actual IDL
+//
+
+interface VCCodeModel;
+interface VCCodeAttribute;
+interface VCCodeAttributeArgument;
+interface VCCodeAttributeArgumentDisabled;
+interface VCCodeBase;
+interface VCCodeClass;
+interface VCCodeEnum;
+interface VCCodeInterface;
+interface VCCodeMacro;
+interface VCCodeMap;
+interface VCCodeMapEntry;
+interface VCCodeFunction;
+interface VCCodeNamespace;
+interface VCCodeParameter;
+interface VCCodeStruct;
+interface VCCodeTypedef;
+interface VCCodeUnion;
+interface VCCodeVariable;
+interface VCCodeInclude;
+interface VCCodeImport;
+interface VCCodeUsing;
+interface VCCodeIDLImport;
+interface VCCodeIDLImportLib;
+interface VCCodeIDLCoClass;
+interface VCCodeIDLLibrary;
+interface VCCodeDelegate;
+interface VCCodeProperty;
+interface VCCodeEvent;
+interface VCLanguageManager;
+
+cpp_quote("extern \"C\" const __declspec(selectany) GUID LIBID_VCCodeModelLibrary = { 0x57D97102, 0x7F20, 0x11d1, { 0xB2, 0x9E, 0x00, 0x40, 0x05, 0x30, 0x89, 0xAE } };")
+
+
+// Typedefs
+//
+#include "VCCodeModelsEnums.idl"
+
+
+// Extenders
+//
+
+// Constants
+//
+
+[ uuid(5607738D-439B-4f59-9B47-C859BACD65D9), dllname("<no entry points>") ] 
+module Constants
+{
+
+const LPWSTR vcCMCATIDClass = L"{145257D6-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDFunction = L"{145257D7-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDVariable = L"{145257D8-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDNamespace = L"{145257D9-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDParameter = L"{145257DA-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDAttribute = L"{145257DB-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDInterface = L"{145257DC-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDEnum = L"{145257DD-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDStruct = L"{145257DF-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDUnion = L"{145257E0-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDTypeDef = L"{145257E2-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIncludeStmt = L"{145257E3-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDImportStmt = L"{145257E4-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDUsingStmt = L"{145257E5-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDMacro = L"{145257E6-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDMap = L"{145257E7-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLImport = L"{145257E8-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLImportLib = L"{145257E9-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLCoClass = L"{145257EA-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLLibrary = L"{145257EB-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDMapEntry = L"{145257EC-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDVCBase = L"{145257EE-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDDelegate = L"{145257F3-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDProperty = L"{145257F4-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDEvent = L"{145257F5-3B94-4d00-9EB7-0B0A5141AB22}";
+
+const LPWSTR vcCMVCDialogExtender = L"VCDialog";
+const LPWSTR vcCMMFCDialogVariableExtender = L"MFCDialogVariable";
+const LPWSTR vcCMMFCDialogStringVariableExtender = L"MFCDialogStringVariable";
+const LPWSTR vcCMMFCDialogNumberVariableExtender = L"MFCDialogNumberVariable";
+
+};
+
+
+const LPWSTR vcCMCATIDClass = L"{145257D6-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDFunction = L"{145257D7-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDVariable = L"{145257D8-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDNamespace = L"{145257D9-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDParameter = L"{145257DA-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDAttribute = L"{145257DB-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDInterface = L"{145257DC-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDEnum = L"{145257DD-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDStruct = L"{145257DF-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDUnion = L"{145257E0-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDTypeDef = L"{145257E2-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIncludeStmt = L"{145257E3-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDImportStmt = L"{145257E4-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDUsingStmt = L"{145257E5-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDMacro = L"{145257E6-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDMap = L"{145257E7-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLImport = L"{145257E8-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLImportLib = L"{145257E9-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLCoClass = L"{145257EA-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDIDLLibrary = L"{145257EB-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDMapEntry = L"{145257EC-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDVCBase = L"{145257EE-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDDelegate = L"{145257F3-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDProperty = L"{145257F4-3B94-4d00-9EB7-0B0A5141AB22}";
+const LPWSTR vcCMCATIDEvent = L"{145257F5-3B94-4d00-9EB7-0B0A5141AB22}";
+
+const LPWSTR vcCMVCDialogExtender = L"VCDialog";
+const LPWSTR vcCMMFCDialogVariableExtender = L"MFCDialogVariable";
+const LPWSTR vcCMMFCDialogStringVariableExtender = L"MFCDialogStringVariable";
+const LPWSTR vcCMMFCDialogNumberVariableExtender = L"MFCDialogNumberVariable";
+
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDClass = { 0x145257D6, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDFunction = { 0x145257D7, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDVariable = { 0x145257D8, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDNamespace = { 0x145257D9, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDParameter = { 0x145257DA, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDAttribute = { 0x145257DB, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDInterface = { 0x145257DC, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDEnum = { 0x145257DD, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDStruct = { 0x145257DF, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDUnion = { 0x145257E0, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDTypeDef = { 0x145257E2, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDIncludeStmt = { 0x145257E3, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDImportStmt = { 0x145257E4, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDUsingStmt = { 0x145257E5, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDMacro = { 0x145257E6, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDMap = { 0x145257E7, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDIDLImport = { 0x145257E8, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDIDLImportLib = { 0x145257E9, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDIDLCoClass = { 0x145257EA, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDIDLLibrary = { 0x145257EB, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDMapEntry = { 0x145257EC, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDVCBase = { 0x145257EE, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDDelegate = { 0x145257F3, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDProperty = { 0x145257F4, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID guidVCCMCATIDEvent = { 0x145257F5, 0x3B94, 0x4D00, { 0x9E, 0xB7, 0x0B, 0x0A, 0x51, 0x41, 0xAB, 0x22 } };")
+
+// Interfaces
+//
+
+[
+	object,
+	uuid(FEBEA835-1F65-4ff2-809A-F61116119A81),
+	dual,
+	helpstring("VCDesignElement Interface"),
+	pointer_default(unique),
+	hidden
+]
+interface VCDesignElement : IDispatch
+{
+	VCDESIGNELEMENT_V7
+
+	// These can not go into VCDESIGNELEMENT_V7 because
+	// they are also in CODEELEMENTBASEMETHODS_V7 (See interface VCCodeElement).
+
+	VCPROPERTY_get_DTE(LASTVCDESIGNELEMENTDISPID_V7 + 1)
+	VCPROPERTY_get_Name(LASTVCDESIGNELEMENTDISPID_V7 + 2)
+	VCPROPERTY_get_Parent(IDispatch, LASTVCDESIGNELEMENTDISPID_V7 + 3)
+};
+
+
+
+[
+	object,
+	uuid(FEBEA836-1F65-4ff2-809A-F61116119A81),
+	dual,
+	helpstring("VCDesignElements Interface"),
+	pointer_default(unique),
+	hidden
+]
+interface VCDesignElements : IDispatch
+{
+  [id(DISPID_NEWENUM), restricted]
+  HRESULT _NewEnum([out, retval] IUnknown ** ppEnum);
+
+  [id(1), propget, HELP(vsproDTEProperty)] 
+  HRESULT DTE([out, retval] DTE ** ppDTE);
+
+  [id(2), propget, HELP(vsproDTEProperty)] 
+  HRESULT Parent ([out, retval] IDispatch ** ppParent);
+
+  [id(DISPID_VALUE), HELP(vsextItemMethod)]
+  HRESULT Item(VARIANT vItem, [out, retval] IDispatch ** ppItem);
+
+  [id(3), propget, HELP(vsproCountProperty)]
+  HRESULT Count([out, retval] LONG * plCount);
+
+  [id(4), HELP(vsextItemMethod)]
+  HRESULT Find(BSTR bstrSearch, [out, retval] IDispatch ** ppItem);
+};
+
+
+
+[
+	object,
+	uuid(29BF7873-FE8C-11d2-AAE9-00C04F72DB55),
+	dual,
+	helpstring("VCCodeElement Interface"),
+	pointer_default(unique)
+]
+interface VCCodeElement : IDispatch
+{
+	// The intersection of CODEELEMENTBASEMETHODS_V7 
+	// and VCCODEELEMENT_V7 must be the empty set (they are 
+	// used in combination).
+
+	CODEELEMENTBASEMETHODS_V7
+	VCCODEELEMENT_V7
+
+	// These can not go into VCCODEELEMENT_V7 because they are
+	// also in several of the VSCODEELEMENT_*_V7 macros
+	// (See Common\IDL\VS\CodeModelBases.h).
+
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEELEMENTDISPID_V7 + 1)
+	VCPROPERTY_Comment(LASTVCCODEELEMENTDISPID_V7 + 2)
+	VCPROPERTY_get_Parent(IDispatch, LASTVCCODEELEMENTDISPID_V7 + 3)
+};
+
+
+#define VCCODEELEMENT_INTERFACE(Language, Name, iid) \
+\
+[ \
+	object, \
+	uuid(iid), \
+	dual, \
+	helpstring(#Language "Code" #Name " Interface"), \
+	pointer_default(unique) \
+] \
+interface Language##Code##Name : IDispatch \
+{ \
+	Language##Code##Name##_V7 \
+};
+
+// C++
+//
+
+VCCODEELEMENT_INTERFACE(VC, Attribute,29BF783D-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Base,     29BF7846-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Class,    29BF7849-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Enum,     29BF784C-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Interface,29BF7852-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Macro,    29BF7855-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Map,      29BF7858-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, MapEntry, 29BF785B-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Function, 29BF785E-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Namespace,29BF7861-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Parameter,29BF7864-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Struct,   29BF7867-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Typedef,  29BF786A-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Union,    29BF786D-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Variable, 29BF7870-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Include,  29BF788A-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Import,   29BF788D-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, Using,    29BF7890-FE8C-11d2-AAE9-00C04F72DB55)
+
+// IDL
+//
+
+VCCODEELEMENT_INTERFACE(VC, IDLImport,   29BF7893-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, IDLImportLib,29BF7896-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, IDLCoClass,  29BF7899-FE8C-11d2-AAE9-00C04F72DB55)
+VCCODEELEMENT_INTERFACE(VC, IDLLibrary,  29BF789C-FE8C-11d2-AAE9-00C04F72DB55)
+
+// MC++
+//
+
+VCCODEELEMENT_INTERFACE(VC, Delegate,    211F5FCD-B7FE-4983-8616-8DA698881879)
+VCCODEELEMENT_INTERFACE(VC, Property,    211F5FCE-B7FE-4983-8616-8DA698881879)
+VCCODEELEMENT_INTERFACE(VC, Event,       211F5FCF-B7FE-4983-8616-8DA698881879)
+
+// The very end, VCCodeModel, VCFileCodeModel, CodeElements, and Events...
+//
+
+#define FIRSTVCCODEELEMENTSDISPID 512
+
+[
+	odl, dual, oleautomation, object,
+	uuid(29BF7888-FE8C-11d2-AAE9-00C04F72DB55),
+	helpstring("VCCodeElements Interface")
+]
+interface VCCodeElements : CodeElements
+{
+  [id(FIRSTVCCODEELEMENTSDISPID), HELP(vsextItemMethod)]
+  HRESULT Find(BSTR bstrSearch, [out, retval] IDispatch ** ppItem);
+  [id(FIRSTVCCODEELEMENTSDISPID + 1), HELP(vccmSort)]
+  HRESULT Sort(enum vsCMSort vscmSort);
+};
+
+#define FIRSTVCCODEMODELDISPID_V7 512
+
+#define VCCOMMON_CODEMODEL \
+\
+	VCVALIDATEMEMBER(FIRSTVCCODEMODELDISPID_V7) \
+	[ id(FIRSTVCCODEMODELDISPID_V7 + 6) ] \
+	HRESULT CodeElementFromFullName([in] BSTR Name, \
+		[out, retval] CodeElements ** ppCodeElements); \
+	[ id(FIRSTVCCODEMODELDISPID_V7 + 7) ] \
+	HRESULT StartTransaction(BSTR bstrName); \
+	[ id(FIRSTVCCODEMODELDISPID_V7 + 8) ] \
+	HRESULT AbortTransaction(); \
+	[ id(FIRSTVCCODEMODELDISPID_V7 + 9) ] \
+	HRESULT CommitTransaction(); \
+	[ id(FIRSTVCCODEMODELDISPID_V7 + 10) ] \
+	HRESULT Synchronize();
+
+#define LASTVCCODEMODELDISPID_V7 FIRSTVCCODEMODELDISPID_V7 + 32
+
+[
+	odl, dual, oleautomation, object,
+	uuid(29BF7889-FE8C-11d2-AAE9-00C04F72DB55),
+	helpstring("VCCodeModel Interface")
+]
+interface VCCodeModel : CodeModel
+{
+	VCCOMMON_CODEMODEL
+
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEMODELDISPID_V7 + 1)
+	VCPROPERTY_COLLECTION(Classes, LASTVCCODEMODELDISPID_V7 + 2)
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEMODELDISPID_V7 + 3)
+	VCPROPERTY_COLLECTION(Interfaces, LASTVCCODEMODELDISPID_V7 + 4)
+	VCPROPERTY_COLLECTION(Macros, LASTVCCODEMODELDISPID_V7 + 5)
+	VCPROPERTY_COLLECTION(Maps, LASTVCCODEMODELDISPID_V7 + 6)
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEMODELDISPID_V7 + 7)
+	VCPROPERTY_COLLECTION(Namespaces, LASTVCCODEMODELDISPID_V7 + 8)
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEMODELDISPID_V7 + 9)
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEMODELDISPID_V7 + 10)
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEMODELDISPID_V7 + 11)
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEMODELDISPID_V7 + 12)
+	VCPROPERTY_COLLECTION(Includes, LASTVCCODEMODELDISPID_V7 + 13)
+	VCPROPERTY_COLLECTION(Imports, LASTVCCODEMODELDISPID_V7 + 14)
+	VCPROPERTY_COLLECTION(Usings, LASTVCCODEMODELDISPID_V7 + 15)
+	VCPROPERTY_COLLECTION(IDLImports, LASTVCCODEMODELDISPID_V7 + 16)
+	VCPROPERTY_COLLECTION(IDLLibraries, LASTVCCODEMODELDISPID_V7 + 17)
+	VCPROPERTY_COLLECTION(Delegates, LASTVCCODEMODELDISPID_V7 + 18)
+	VCPROPERTY_FILTERED_COLLECTION(DialogClasses, LASTVCCODEMODELDISPID_V7 + 19)
+
+	ADDVCMACRO(LASTVCCODEMODELDISPID_V7 + 20)
+	ADDVCMAP(LASTVCCODEMODELDISPID_V7 + 21)
+	ADDVCTYPEDEF(LASTVCCODEMODELDISPID_V7 + 22)
+	ADDVCUNION(LASTVCCODEMODELDISPID_V7 + 23)
+	ADDVCINCLUDE(LASTVCCODEMODELDISPID_V7 + 24)
+	ADDVCIMPORT(LASTVCCODEMODELDISPID_V7 + 25)
+	ADDVCUSING(LASTVCCODEMODELDISPID_V7 + 26)
+	ADDVCIDLIMPORT(LASTVCCODEMODELDISPID_V7 + 27)
+	ADDVCIDLLIBRARY(LASTVCCODEMODELDISPID_V7 + 28)
+};
+
+
+[
+	odl, dual, oleautomation, object,
+	uuid(29BF7889-FE8C-11d2-AAE9-00C04F72DB56),
+	helpstring("VCCodeModel Interface")
+]
+interface VCFileCodeModel : FileCodeModel
+{
+	VCCOMMON_CODEMODEL
+
+	VCPROPERTY_COLLECTION_ATTRIBUTES(LASTVCCODEMODELDISPID_V7 + 1)
+	VCPROPERTY_COLLECTION(Classes, LASTVCCODEMODELDISPID_V7 + 2)
+	VCPROPERTY_COLLECTION(Enums, LASTVCCODEMODELDISPID_V7 + 3)
+	VCPROPERTY_COLLECTION(Interfaces, LASTVCCODEMODELDISPID_V7 + 4)
+	VCPROPERTY_COLLECTION(Macros, LASTVCCODEMODELDISPID_V7 + 5)
+	VCPROPERTY_COLLECTION(Maps, LASTVCCODEMODELDISPID_V7 + 6)
+	VCPROPERTY_COLLECTION(Functions, LASTVCCODEMODELDISPID_V7 + 7)
+	VCPROPERTY_COLLECTION(Namespaces, LASTVCCODEMODELDISPID_V7 + 8)
+	VCPROPERTY_COLLECTION(Structs, LASTVCCODEMODELDISPID_V7 + 9)
+	VCPROPERTY_COLLECTION(Typedefs, LASTVCCODEMODELDISPID_V7 + 10)
+	VCPROPERTY_COLLECTION(Unions, LASTVCCODEMODELDISPID_V7 + 11)
+	VCPROPERTY_COLLECTION(Variables, LASTVCCODEMODELDISPID_V7 + 12)
+	VCPROPERTY_COLLECTION(Includes, LASTVCCODEMODELDISPID_V7 + 13)
+	VCPROPERTY_COLLECTION(Imports, LASTVCCODEMODELDISPID_V7 + 14)
+	VCPROPERTY_COLLECTION(Usings, LASTVCCODEMODELDISPID_V7 + 15)
+	VCPROPERTY_COLLECTION(IDLImports, LASTVCCODEMODELDISPID_V7 + 16)
+	VCPROPERTY_COLLECTION(IDLLibraries, LASTVCCODEMODELDISPID_V7 + 17)
+	VCPROPERTY_COLLECTION(Delegates, LASTVCCODEMODELDISPID_V7 + 18)
+
+	ADDVCMACRO_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 19)
+	ADDVCMAP_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 20)
+	ADDVCTYPEDEF_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 21)
+	ADDVCUNION_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 22)
+	ADDVCINCLUDE_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 23)
+	ADDVCIMPORT_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 24)
+	ADDVCUSING_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 25)
+	ADDVCIDLIMPORT_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 26)
+	ADDVCIDLLIBRARY_NOLOCATION(LASTVCCODEMODELDISPID_V7 + 27)
+
+	VCPROPRERTY_get_StartPoint(LASTVCCODEMODELDISPID_V7 + 28)
+	VCPROPRERTY_get_EndPoint(LASTVCCODEMODELDISPID_V7 + 29)
+};
+
+// HACK! HACK!
+//
+// Should be in CodeModel.idl
+//
+
+[ 
+	uuid(0CFBC2D1-0D4E-11D3-8997-00C04F688DDE), 
+	HELP(vsextCodeModelEventsObj) 
+]
+coclass CodeModelEvents
+{
+	[default] interface _CodeModelEvents;
+	[source] dispinterface _dispCodeModelEvents;
+};
+
+[ 
+	uuid(0CFBC2D2-0D4E-11D3-8997-00C04F688DDE), 
+	HELP(vsextCodeModelEventsObj) 
+]
+dispinterface _dispCodeModelEvents
+{
+  properties:
+  methods:
+    [id(1), HELP(vsextCodeModelEventsAdded) ] 
+    void Added(CodeElement *Parent, CodeElement *NewElement);
+
+    [id(2), HELP(vsextCodeModelEventsRemoved) ] 
+    void Removed(CodeElement *Parent, CodeElement *Deleted);
+
+    [id(3), HELP(vsextCodeModelEventsChanged) ] 
+    void Changed(CodeElement *Parent, CodeElement *Modified);
+};
+
+
+[ 
+	uuid(0CFBC2D3-0D4E-11D3-8997-00C04F688DDE), 
+	oleautomation, odl, hidden,
+	HELP(vsextCodeModelEventsObj)
+]
+interface _CodeModelEvents : IDispatch 
+{
+	[ id(1), propget, hidden, restricted ] HRESULT CodeModelEvents([out, retval] IDispatch ** ppCodeModelEvents);
+};
+
+[ 	
+	object,
+	uuid(852E2929-8F57-41c1-8D44-7ADCB622F239),
+	dual,
+	pointer_default(unique)
+]
+interface VCLanguageManager : IDispatch 
+{
+	[ id(1), HELP(vccmIsReservedName) ] HRESULT IsReservedName([ in ] BSTR bstrName, 
+		[ out, retval ] VARIANT_BOOL * pbReserved);
+	[ id(2), HELP(vccmValidateIdentifier) ] HRESULT ValidateIdentifier([ in ] BSTR bstrIdentifier,
+		[ out, retval ] VARIANT_BOOL * pbValid);
+	// Validates that the name given is a valid C++ qualified name, i.e., [::]name[<template-parameters>]+ 
+	[ id(3), HELP(vccmValidateQualifiedName) ] HRESULT ValidateQualifiedName([ in ] BSTR bstrName,
+		[ out, retval ] VARIANT_BOOL * pbValid);
+	// Validates that the type given is a valid C++ type expression, including C++ keywords
+	// & complex type expressions, i.e. int (*)(int).  All QNames are considered (possibly incorrectly)
+	// valid type expressions.
+	[ id(4), HELP(vccmValidateType) ] HRESULT ValidateType([ in ] BSTR bstrType,
+		[ out, retval ] VARIANT_BOOL * pbValid);
+	[ id(5), HELP(vccmValidateParameterNames) ] HRESULT ValidateParameterNames([ in ] BSTR bstrName, [ in ] BSTR bstrParameterNames, [ in ] enum vsCMElement Kind,
+		[ out, retval ] VARIANT_BOOL * pbValid);
+	// Validates that the name given is a valid file name and that it can be added to the project.
+	[ id(6), HELP(vccmValidateFileName) ] HRESULT ValidateFileName([ in ] BSTR bstrFile, 
+		[ in, optional, defaultvalue(vsCMValidateFileExtCpp)] enum vsCMValidateFileExtension eFileType,
+		[ out, retval ] VARIANT_BOOL * pbValid);
+    [ id(7), HELP(vccmRefreshUserKeywords) ] HRESULT RefreshUserKeywords([ in, defaultvalue("") ] BSTR bstrUserTypeFile);
+};
+
+[
+	object,
+	uuid(BC691AF0-4C32-404B-8A73-A75B99BD1D50),
+	dual,
+	helpstring("VCDialogExtender Interface"),
+	pointer_default(unique)
+]
+interface VCDialogExtender : IDispatch
+{
+	[ propget ] HRESULT DialogID([out, retval] BSTR * pbstrDialogID);
+	[ hidden, restricted ] HRESULT Initialize(IDispatch * ExtendeeObject, IExtenderSite * ExtenderSite, long Cookie);
+};
+
+[
+	object,
+	uuid(BC691AF1-4C32-404B-8A73-A75B99BD1D50),
+	dual,
+	helpstring("MFCDialogVariableExtender Interface"),
+	pointer_default(unique)
+]
+interface MFCDialogVariableExtender : IDispatch
+{
+	[ id(1), propget] HRESULT ControlID([out, retval] BSTR * pbstrControlID);
+	[ id(2), propget] HRESULT IDType([out, retval] enum vsCMMFCDialogVariableIDType * pVarIDType);
+	[ hidden, restricted ] HRESULT Initialize(IDispatch * ExtendeeObject, IExtenderSite * ExtenderSite, long Cookie);
+};
+
+[
+	object,
+	uuid(BC691AF2-4C32-404B-8A73-A75B99BD1D50),
+	dual,
+	helpstring("MFCDialogStringVariableExtender Interface"),
+	pointer_default(unique)
+]
+interface MFCDialogStringVariableExtender : IDispatch
+{
+	[ id(1), propget] HRESULT MaxChars([out, retval] BSTR * pbstrMaxChars);
+	[ id(1), propput] HRESULT MaxChars([in] BSTR bstrMaxChars);
+	[ hidden, restricted ] HRESULT Initialize(IDispatch * ExtendeeObject, IExtenderSite * ExtenderSite, long Cookie);
+};
+
+[
+	object,
+	uuid(BC691AF3-4C32-404B-8A73-A75B99BD1D50),
+	dual,
+	helpstring("MFCDialogNumberVariableExtender Interface"),
+	pointer_default(unique)
+]
+interface MFCDialogNumberVariableExtender : IDispatch
+{
+	[ id(1), propget] HRESULT MinValue([out, retval] BSTR * pbstrMinValue);
+	[ id(1), propput] HRESULT MinValue([in] BSTR bstrMinValue);
+	[ id(2), propget] HRESULT MaxValue([out, retval] BSTR * pbstrMaxValue);
+	[ id(2), propput] HRESULT MaxValue([in] BSTR bstrMaxValue);
+	[ hidden, restricted ] HRESULT Initialize(IDispatch * ExtendeeObject, IExtenderSite * ExtenderSite, long Cookie);
+};
+
+};

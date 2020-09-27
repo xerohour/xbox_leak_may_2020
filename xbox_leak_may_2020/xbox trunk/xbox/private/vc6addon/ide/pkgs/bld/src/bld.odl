@@ -1,0 +1,234 @@
+#include <ids.h>
+#include "resource.h"
+
+[
+  uuid(96961265-A819-11cf-AD07-00A0C9034965), 
+  // DevStudio 96 bug 21113 caused this easy fix which hard-codes the typelib
+  //  name in the typelibrary, rather than allowing it to be localized.
+  //  Otherwise, the first time type libraries are registered, the ugly library
+  //  name (e.g., DSSharedObjects) is used as the display name in oleview and
+  //  the VB object browsers instead of the pretty long name (e.g.,
+  //  Visual Studio 97 Shared Objects).
+  helpstring("Visual C++ Project System"),
+  //helpstringcontext(IDS_HS_BLD_LIB),
+  version(6.0),
+#ifdef _DEBUG
+  helpstringdll("DevTLDcD.dll")
+#else
+  helpstringdll("DevTLDc.dll")
+#endif
+] 
+
+library DSProjectSystem
+{
+	importlib("stdole2.tlb");
+	#include "odh\shell.odh" // common base dual interfaces
+
+	interface IBuildProject;
+	interface IConfiguration;
+
+	/////////////////////////////////////////////////////////////////////////////
+	// CONFIGURATIONS COLLECTION
+
+	// Dual interface for CAutoConfigurations
+	
+	[ uuid(96961260-A819-11cf-AD07-00A0C9034965),
+	  oleautomation, hidden,
+	  dual, helpstringcontext(IDS_HS_CONFIGS)
+	]
+	interface IConfigurations : IDispatch
+	{
+	// properties
+			[id(1), propget, helpstringcontext(IDS_HS_SHARED_APPLICATION)]
+			HRESULT Application([out, retval] IDispatch** Application);
+			[id(2), propget, helpstringcontext(IDS_HS_CONFIGS_COUNT)]
+			HRESULT Count([out, retval] long* Count);
+			[id(4), propget, helpstringcontext(IDS_HS_CONFIG_PARENT)]
+			HRESULT Parent([out, retval] IBuildProject** Parent);
+			[id(-4), hidden, propget]
+			HRESULT _NewEnum([out, retval] IUnknown** _NewEnum);
+
+	// methods
+			[id(0), helpstringcontext(IDS_HS_CONFIGS_ITEM)]
+			HRESULT Item([in] VARIANT Index, [out, retval] IConfiguration** Item);
+	};
+
+	//  Primary dispatch interface for CAutoConfigurations
+	
+	[ uuid(96961261-A819-11cf-AD07-00A0C9034965), helpstringcontext(IDS_HS_CONFIGS), hidden ]
+	dispinterface IDispConfigurations
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoConfigurations)
+			[id(1), readonly, helpstringcontext(IDS_HS_SHARED_APPLICATION)] IDispatch* Application;
+			[id(2), readonly, helpstringcontext(IDS_HS_CONFIGS_COUNT)] long Count;
+			[id(4), readonly, helpstringcontext(IDS_HS_CONFIGS_PARENT)] IDispatch* Parent;
+			//}}AFX_ODL_PROP
+			[id(-4), hidden, readonly] IUnknown* _NewEnum;
+
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoConfigurations)
+			[id(0), helpstringcontext(IDS_HS_CONFIGS_ITEM)] IDispatch* Item(VARIANT Index);
+			//}}AFX_ODL_METHOD
+
+	};
+
+
+	//  Class information for CAutoConfigurations
+
+	[ uuid(96961262-A819-11cf-AD07-00A0C9034965), helpstringcontext(IDS_HS_CONFIGS) ]
+	coclass Configurations
+	{
+		[default] interface IConfigurations;
+		dispinterface IDispConfigurations;
+	};
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	// PROJECT OBJECT
+
+	// Primary dual interface for CAutoProject
+	
+	[ uuid(96961264-A819-11cf-AD07-00A0C9034965),
+	  oleautomation, hidden,
+	  dual, helpstringcontext(IDS_HS_BLDPROJ)
+	]
+	interface IBuildProject : IGenericProject
+	{
+	// properties
+			[id(100), propget, helpstringcontext(IDS_HS_BLDPROJ_CONFIGS)]
+			HRESULT Configurations ([out, retval] IConfigurations** Configurations);
+	
+	// methods
+			[id(101), helpstringcontext(IDS_HS_BLDPROJ_ADDFILE)]
+			HRESULT AddFile([in] BSTR szFile, [in, optional] VARIANT Reserved);
+			[id(102), helpstringcontext(IDS_HS_BLDPROJ_ADDCONFIG)]
+			HRESULT AddConfiguration([in] BSTR szConfig, [in, optional] VARIANT Reserved);
+	};
+
+
+	//  Primary dispatch interface for CAutoProject
+	
+	[ uuid(0452FFE0-A81D-11CF-AD07-00A0C9034965), helpstringcontext(IDS_HS_BLDPROJ), hidden ]
+	dispinterface IDispBuildProject
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoProject)
+			[id(0), readonly, helpstringcontext(IDS_HS_GENERICPROJECT_NAME)] BSTR Name;
+			[id(1), readonly, helpstringcontext(IDS_HS_GENERICPROJECT_FULLNAME)] BSTR FullName;
+			[id(2), readonly, helpstringcontext(IDS_HS_SHARED_APPLICATION)] IDispatch* Application;
+			[id(3), readonly, helpstringcontext(IDS_HS_SHARED_APPLICATION)] IDispatch* Parent;
+			[id(4), readonly, helpstringcontext(IDS_HS_GENERICPROJECT_TYPE)] BSTR Type;
+			[id(100), readonly, helpstringcontext(IDS_HS_BLDPROJ_CONFIGS)] IDispatch* Configurations;
+			//}}AFX_ODL_PROP
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoProject)
+			[id(101), helpstringcontext(IDS_HS_BLDPROJ_ADDFILE)] void AddFile(BSTR szFile, [optional] VARIANT Reserved);
+			[id(102), helpstringcontext(IDS_HS_BLDPROJ_ADDCONFIG)] void AddConfiguration(BSTR szConfiguration, [optional] VARIANT Reserved);
+			//}}AFX_ODL_METHOD
+
+	};
+
+	//  Class information for CAutoProject
+
+	[ uuid(0452FFE1-A81D-11CF-AD07-00A0C9034965), helpstringcontext(IDS_HS_BLDPROJ) ]
+	coclass BuildProject
+	{
+		[default] interface IBuildProject;
+		dispinterface IDispBuildProject;
+	};
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	// CONFIGURATION OBJECT
+
+	// Primary dual interface for CAutoConfiguration
+
+	[ uuid(96961263-A819-11cf-AD07-00A0C9034965),
+	  oleautomation, hidden,
+	  dual, helpstringcontext(IDS_HS_CONFIG)
+	]
+	interface IConfiguration : IDispatch
+	{
+	// properties
+			[id(0), propget, helpstringcontext(IDS_HS_CONFIG_NAME)]
+			HRESULT Name ([out, retval] BSTR* Name);
+			[id(1), propget, helpstringcontext(IDS_HS_SHARED_APPLICATION)]
+			HRESULT Application([out, retval] IDispatch** Application);
+			[id(2), propget, helpstringcontext(IDS_HS_CONFIG_PARENT)]
+			HRESULT Parent([out, retval] IDispatch** Parent);
+
+	// methods
+			[id(3), helpstringcontext(IDS_HS_CONFIG_ADDTOOL)]
+			HRESULT AddToolSettings([in] BSTR szTool, [in] BSTR szSettings, [in, optional] VARIANT Reserved);
+			[id(4), helpstringcontext(IDS_HS_CONFIG_REMOVETOOL)]
+			HRESULT RemoveToolSettings([in] BSTR szTool, [in] BSTR szSettings, [in, optional] VARIANT Reserved);
+			[id(5), helpstringcontext(IDS_HS_CONFIG_ADDSTEP)]
+			HRESULT AddCustomBuildStep([in] BSTR szCommand, [in] BSTR szOutput, [in] BSTR szDescription, [in, optional] VARIANT Reserved);
+			[id(6), propget, helpstringcontext(IDS_HS_CONFIG_CONFIGURATIONS)]
+			HRESULT Configurations([out, retval] IConfigurations** Configurations);
+			[id(7), helpstringcontext(IDS_HS_CONFIG_RES)]
+			HRESULT Reserved11();
+			[id(8), helpstringcontext(IDS_HS_CONFIG_MAKEDEF)]
+			HRESULT MakeCurrentSettingsDefault([in, optional] VARIANT Reserved);
+			[id(9), helpstringcontext(IDS_HS_CONFIG_ADDTOOL)]
+			HRESULT AddFileSettings([in] BSTR szFile, [in] BSTR szSettings, [in, optional] VARIANT Reserved);
+			[id(10),helpstringcontext(IDS_HS_CONFIG_REMOVETOOL)]
+			HRESULT RemoveFileSettings([in] BSTR szFile, [in] BSTR szSettings, [in, optional] VARIANT Reserved);
+			[id(11),helpstringcontext(IDS_HS_CONFIG_ADDSTEP)]
+			HRESULT AddCustomBuildStepToFile([in] BSTR szFile, [in] BSTR szCommand, [in] BSTR szOutput, [in] BSTR szDescription, [in, optional] VARIANT Reserved);
+			
+	};
+
+	//  Primary dispatch interface for CAutoConfiguration
+	
+	[ uuid(0452FFE2-A81D-11CF-AD07-00A0C9034965), helpstringcontext(IDS_HS_CONFIG), hidden ]
+	dispinterface IDispConfiguration
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoConfiguration)
+			[id(1), helpstringcontext(IDS_HS_SHARED_APPLICATION)] IDispatch* Application;
+			[id(2), helpstringcontext(IDS_HS_CONFIG_PARENT)] IDispatch* Parent;
+			[id(6), helpstringcontext(IDS_HS_CONFIG_CONFIGURATIONS)] IDispatch* Configurations;
+			//}}AFX_ODL_PROP
+			[id(0), helpstringcontext(IDS_HS_CONFIG_NAME)] BSTR Name;
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoConfiguration)
+			[id(3), helpstringcontext(IDS_HS_CONFIG_ADDTOOL)] void AddToolSettings(BSTR szTool, BSTR szSettings, [optional] VARIANT Reserved);
+			[id(4), helpstringcontext(IDS_HS_CONFIG_REMOVETOOL)] void RemoveToolSettings(BSTR szTool, BSTR szSettings, [optional] VARIANT Reserved);
+			[id(5), helpstringcontext(IDS_HS_CONFIG_ADDSTEP)] void AddCustomBuildStep(BSTR szCommand, BSTR szOutput, BSTR szDescription, [optional] VARIANT Reserved);
+			[id(7), helpstringcontext(IDS_HS_CONFIG_RES)] void Reserved11();
+			[id(8), helpstringcontext(IDS_HS_CONFIG_MAKEDEF)] void MakeCurrentSettingsDefault([optional] VARIANT Reserved);
+			[id(9), helpstringcontext(IDS_HS_FILE_ADDTOOL)] void AddFileSettings(BSTR szFile, BSTR szSettings, [optional] VARIANT Reserved);
+			[id(10), helpstringcontext(IDS_HS_FILE_REMOVETOOL)] void RemoveFileSettings(BSTR szFile, BSTR szSettings, [optional] VARIANT Reserved);
+			[id(11), helpstringcontext(IDS_HS_FILE_ADDSTEP)] void AddCustomBuildStepToFile(BSTR szFile, BSTR szCommand, BSTR szOutput, BSTR szDescription, [optional] VARIANT Reserved);
+			//}}AFX_ODL_METHOD
+
+	};
+
+	//  Class information for CAutoConfiguration
+
+	[ uuid(0452FFE3-A81D-11CF-AD07-00A0C9034965), helpstringcontext(IDS_HS_CONFIG) ]
+	coclass Configuration
+	{
+		[default] interface IConfiguration;
+		dispinterface IDispConfiguration;
+	};
+
+	//{{AFX_APPEND_ODL}}
+};

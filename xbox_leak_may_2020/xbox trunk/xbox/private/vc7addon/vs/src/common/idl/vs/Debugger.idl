@@ -1,0 +1,1218 @@
+//-------------------------------------------------------------------------------------------------
+// Debugger.idl
+//-------------------------------------------------------------------------------------------------
+// This file contains interface and object definitions for support of the
+// debugging Automation model.  This is the model that is publicly exposed
+// for macro and addin support.
+//-------------------------------------------------------------------------------------------------
+// Copyright (c) 1988-1999, Microsoft Corporation
+//		       All Rights Reserved
+// Information Contained Herein Is Proprietary and Confidential.
+//-------------------------------------------------------------------------------------------------
+// History: 2/2/99 - JimGries - Created
+//-------------------------------------------------------------------------------------------------
+
+interface Breakpoint;
+interface Breakpoints;
+interface Debugger;
+interface DebuggerEvents;
+interface Expression;
+interface Expressions;
+interface Language;
+interface Languages;
+interface Process;
+interface Processes;
+interface Program;
+interface Programs;
+interface StackFrame;
+interface StackFrames;
+interface Thread;
+interface Threads;
+
+// IMPORTANT: Please note that the automation implementation in the debugger depends on the fact  
+// that the enumerations defined in this file are all 1-based.
+typedef [uuid(75607DDE-2B43-11d3-B88B-00C04F79E479), HELP(vsextDebugBreakpointType)] enum dbgBreakpointType
+{
+    dbgBreakpointTypePending = 1,           // Must start at 1, otherwise mapping of internal
+    dbgBreakpointTypeBound,                 // debugger events to these automation events could break.
+#ifdef BREAKPOINT_GROUPS
+    dbgBreakpointTypeGroup
+#endif
+} dbgBreakpointType;
+
+
+typedef [uuid(229C054C-C146-11d2-8AD1-00C04F79E479), HELP(vsextDebugBreakpointLocationType)] enum dbgBreakpointLocationType
+{
+    dbgBreakpointLocationTypeNone = 1,  // Must start at 1, otherwise mapping of internal         
+    dbgBreakpointLocationTypeFunction,  // debugger events to these automation events could break.
+    dbgBreakpointLocationTypeFile,
+    dbgBreakpointLocationTypeData,
+    dbgBreakpointLocationTypeAddress
+} dbgBreakpointLocationType;
+
+
+typedef [uuid(2A594772-C146-11d2-8AD1-00C04F79E479), HELP(vsextDebugBreakpointConditionType)] enum dbgBreakpointConditionType
+{
+    dbgBreakpointConditionTypeWhenTrue = 1, // Must start at 1, otherwise mapping of internal
+    dbgBreakpointConditionTypeWhenChanged   // debugger events to these automation events could break.
+} dbgBreakpointConditionType;
+
+typedef [uuid(ED2FBDD2-1EB1-11d3-B888-00C04F79E479), HELP(vsextDebugExceptionAction)] enum dbgExceptionAction
+{
+    dbgExceptionActionDefault = 1,      // Must start at 1, otherwise mapping of internal         
+    dbgExceptionActionIgnore,           // debugger events to these automation events could break.
+    dbgExceptionActionBreak,
+    dbgExceptionActionContinue
+} dbgExceptionAction;
+
+typedef [uuid(3A3329CE-C146-11d2-8AD1-00C04F79E479), HELP(vsextDebugHitCountType)] enum dbgHitCountType
+{
+    dbgHitCountTypeNone = 1,            // Must start at 1, otherwise mapping of internal         
+    dbgHitCountTypeEqual,               // debugger events to these automation events could break.
+    dbgHitCountTypeGreaterOrEqual,
+    dbgHitCountTypeMultiple
+} dbgHitCountType;
+
+typedef [uuid(E940C60A-C68F-11d2-8AD6-00C04F79E479), HELP(vsextDebugDebugMode)] enum dbgDebugMode
+{
+    dbgDesignMode = 1,                  // Must start at 1, otherwise mapping of internal         
+    dbgBreakMode,                       // debugger events to these automation events could break.
+    dbgRunMode
+} dbgDebugMode;
+
+typedef [uuid(4106C580-C146-11d2-8AD1-00C04F79E479), HELP(vsextDebugEventReason)] enum dbgEventReason
+{
+    dbgEventReasonNone = 1,             // Must start at 1, otherwise mapping of internal 
+    dbgEventReasonGo,                   // debugger events to these automation events could break.
+    dbgEventReasonAttachProgram,
+    dbgEventReasonDetachProgram,
+    dbgEventReasonLaunchProgram,
+    dbgEventReasonEndProgram,
+    dbgEventReasonStopDebugging,
+    dbgEventReasonStep,
+    dbgEventReasonBreakpoint,
+    dbgEventReasonExceptionThrown,
+    dbgEventReasonExceptionNotHandled,
+    dbgEventReasonUserBreak,
+    dbgEventReasonContextSwitch
+} dbgEventReason;
+
+typedef [uuid(77940E85-BCE0-443d-8B77-F5BD841A211E), HELP(vsextDebugExecutionAction)] enum dbgExecutionAction
+{
+    dbgExecutionActionDefault = 1,          // Must start at 1, otherwise mapping of internal 
+    dbgExecutionActionGo,                   // debugger events to these automation events could break.
+    dbgExecutionActionStopDebugging,    
+    dbgExecutionActionStepInto,
+    dbgExecutionActionStepOut,
+    dbgExecutionActionStepOver,
+    dbgExecutionActionRunToCursor
+} dbgExecutionAction;
+
+//---------------------------------------------------------------------------------------------
+// Debugger
+//---------------------------------------------------------------------------------------------
+[
+    uuid(338FB9A0-BAE5-11d2-8AD1-00C04F79E479),
+    dual, 
+    HELP(vsextDebugDebuggerObj),
+    version(1.0)
+]
+interface Debugger : IDispatch
+{
+    [id(1), HELP(vsextDebugDebuggerGetExpressionFunc)]
+    HRESULT GetExpression([in] BSTR ExpressionText, [in, optional, defaultvalue(0)] VARIANT_BOOL UseAutoExpandRules, [in, defaultvalue(-1)] long Timeout, [out, retval] Expression** Expression);
+
+    [id(2), HELP(vsextDebugDebuggerDetachAllFunc)]
+    HRESULT DetachAll();
+
+    [id(3), HELP(vsextDebugDebuggerStepIntoFunc)]
+    HRESULT StepInto([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(4), HELP(vsextDebugDebuggerStepOverFunc)]
+    HRESULT StepOver([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(5), HELP(vsextDebugDebuggerStepOutFunc)]
+    HRESULT StepOut([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(6), HELP(vsextDebugDebuggerGoFunc)]
+    HRESULT Go([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(7), HELP(vsextDebugDebuggerBreakFunc)]
+    HRESULT Break([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForBreakMode);
+
+    [id(8), HELP(vsextDebugDebuggerStopFunc)]
+    HRESULT Stop([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForDesignMode);
+
+    [id(9), HELP(vsextDebugDebuggerSetNextStatementFunc)]
+    HRESULT SetNextStatement();
+
+    [id(10), HELP(vsextDebugDebuggerRunToCursorFunc)]
+    HRESULT RunToCursor([in, optional, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(11), HELP(vsextDebugDebuggerExecuteStatementFunc)]
+    HRESULT ExecuteStatement([in] BSTR Statement, [in, defaultvalue(-1)] long Timeout, [in, optional, defaultvalue(0)] VARIANT_BOOL TreatAsExpression);
+
+    // Properties
+    // Todo: Note that the breakpoint model is yet to be determined.  We are in the process of figuring
+    //       out how to show the user the concept of pending and bound breakpoints, and how they are related
+    //       to breakpoint groups.  
+    [id(100), propget, HELP(vsextDebugDebuggerBreakpointsProp)]
+    HRESULT Breakpoints([out, retval] Breakpoints** Breakpoints);
+
+    [id(101), propget, HELP(vsextDebugDebuggerLanguagesProp)]
+    HRESULT Languages([out, retval] Languages** Languages);
+
+    [id(102), propget, HELP(vsextDebugDebuggerCurrentModeProp)]
+    HRESULT CurrentMode([out, retval] dbgDebugMode* Mode);
+
+    [id(103), propget, HELP(vsextDebugDebuggerCurrentProcessProp)]
+    HRESULT CurrentProcess([out, retval] Process** Process);
+    [id(103), propput, HELP(vsextDebugDebuggerCurrentProcessProp)]
+    HRESULT CurrentProcess([in] Process* Process);
+
+    [id(104), propget, HELP(vsextDebugDebuggerCurrentProgramProp)]
+    HRESULT CurrentProgram([out, retval] Program** Program);
+    [id(104), propput, HELP(vsextDebugDebuggerCurrentProgramProp)]
+    HRESULT CurrentProgram([in] Program* Program);
+
+    [id(105), propget, HELP(vsextDebugDebuggerCurrentThreadProp)]
+    HRESULT CurrentThread([out, retval] Thread** Thread);
+    [id(105), propput, HELP(vsextDebugDebuggerCurrentThreadProp)]
+    HRESULT CurrentThread([in] Thread* Thread);
+
+    [id(106), propget, HELP(vsextDebugDebuggerCurrentStackFrameProp)]
+    HRESULT CurrentStackFrame([out, retval] StackFrame** StackFrame);
+    [id(106), propput, HELP(vsextDebugDebuggerCurrentStackFrameProp)]
+    HRESULT CurrentStackFrame([in] StackFrame* StackFrame);
+
+    [id(107), propget, HELP(vsextDebugDebuggerHexDisplayModeProp)]
+    HRESULT HexDisplayMode([out, retval] VARIANT_BOOL* HexModeOn);
+    [id(107), propput, HELP(vsextDebugDebuggerHexDisplayModeProp)]
+    HRESULT HexDisplayMode([in] VARIANT_BOOL HexModeOn);
+
+    [id(108), propget, HELP(vsextDebugDebuggerHexInputModeProp)]
+    HRESULT HexInputMode([out, retval] VARIANT_BOOL* HexModeOn);
+    [id(108), propput, HELP(vsextDebugDebuggerHexInputModeProp)]
+    HRESULT HexInputMode([in] VARIANT_BOOL HexModeOn);
+
+    [id(109), propget, HELP(vsextDebugDebuggerLastBreakReasonProp)]
+    HRESULT LastBreakReason([out, retval] dbgEventReason* Reason);
+
+    [id(110), propget, HELP(vsextDebugDebuggerBreakpointLastHitProp)]
+    HRESULT BreakpointLastHit([out, retval] Breakpoint** Breakpoint);
+
+    [id(111), propget, HELP(vsextDebugDebuggerAllBreakpointsLastHitProp)]
+    HRESULT AllBreakpointsLastHit([out, retval] Breakpoints** Breakpoints);
+
+    [id(112), propget, HELP(vsextDebugDebuggerDebuggedProcessesProp)]
+    HRESULT DebuggedProcesses([out, retval] Processes** Processes);
+
+    [id(113), propget, HELP(vsextDebugDebuggerLocalProcessesProp)]
+    HRESULT LocalProcesses([out, retval] Processes** Processes);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] DTE** DTE);
+
+#ifdef DebuggerAutomationOptionsHack
+/*
+    // The following methods/properties were added after interface freeze.  They were
+    // intended to be used to set debugger options to fix a usability bug.  However,
+    // immediately after they were implemented, the fix for the usability bug changed,
+    // rendering these functions unecessary.  
+    //
+    // Eventually the getting and setting of debugger properties will probably become
+    // desired again.  Either these two functions could be re-enabled, or the
+    // debugger automation model should support the somewhat standardized notion of 
+    // Property Collections.
+
+    [id(12), HELP(DEFINE HELP STRING IN VSEXT.ID)]
+    HRESULT GetOption([in] BSTR Option, [in, out] long* Value);
+
+    [id(13), HELP(DEFINE HELP STRING IN VSEXT.ID)]
+    HRESULT SetOption([in] BSTR Option, [in] long Value);
+*/
+#endif
+};
+
+//---------------------------------------------------------------------------------------------
+// Breakpoint
+//---------------------------------------------------------------------------------------------
+[
+    uuid(11C5114C-BB00-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugBreakpointObj),
+    version(1.0)
+]
+interface Breakpoint : IDispatch
+{
+    [id(1), HELP(vsextDebugBreakpointDeleteFunc)]
+    HRESULT Delete();
+
+    [id(100), propget, HELP(vsextDebugBreakpointTypeProp)]
+    HRESULT Type([out, retval] dbgBreakpointType* Type);
+
+    [id(DISPID_VALUE), propget, HELP(vsextDebugBreakpointNameProp)]
+    HRESULT Name([out, retval] BSTR* Name);
+    [id(DISPID_VALUE), propput, HELP(vsextDebugBreakpointNameProp)]
+    HRESULT Name([in] BSTR Name);
+
+    [id(101), propget, HELP(vsextDebugBreakpointLocationTypeProp)]
+    HRESULT LocationType([out, retval] dbgBreakpointLocationType* LocationType);
+
+    [id(102), propget, HELP(vsextDebugBreakpointFunctionNameProp)]
+    HRESULT FunctionName([out, retval] BSTR* FunctionName);
+
+    [id(103), propget, HELP(vsextDebugBreakpointFunctionLineOffsetProp)]
+    HRESULT FunctionLineOffset([out, retval] long* Offset);
+
+    [id(104), propget, HELP(vsextDebugBreakpointFunctionColumnOffsetProp)]
+    HRESULT FunctionColumnOffset([out, retval] long* Offset);
+
+    [id(105), propget, HELP(vsextDebugBreakpointFileProp)]
+    HRESULT File([out, retval] BSTR* File);
+
+    [id(106), propget, HELP(vsextDebugBreakpointFileLineProp)]
+    HRESULT FileLine([out, retval] long* Line);
+
+    [id(107), propget, HELP(vsextDebugBreakpointFileColumnProp)]
+    HRESULT FileColumn([out, retval] long* Column);
+
+    [id(108), propget, HELP(vsextDebugBreakpointConditionTypeProp)]
+    HRESULT ConditionType([out, retval] dbgBreakpointConditionType* ConditionType);
+
+    [id(109), propget, HELP(vsextDebugBreakpointConditionProp)]
+    HRESULT Condition([out, retval] BSTR* Condition);
+
+    [id(110), propget, HELP(vsextDebugBreakpointLanguageProp)]
+    HRESULT Language([out, retval] BSTR* Language);
+
+    [id(111), propget, HELP(vsextDebugBreakpointHitCountTypeProp)]
+    HRESULT HitCountType([out, retval] dbgHitCountType* HitCountType);
+
+    [id(112), propget, HELP(vsextDebugBreakpointHitCountTargetProp)]
+    HRESULT HitCountTarget([out, retval] long* HitCountTarget);
+
+    [id(113), propget, HELP(vsextDebugBreakpointEnabledProp)]
+    HRESULT Enabled([out, retval] VARIANT_BOOL *Enabled);
+    [id(113), propput, HELP(vsextDebugBreakpointEnabledProp)]
+    HRESULT Enabled([in] VARIANT_BOOL Enable);
+
+    [id(114), propget, HELP(vsextDebugBreakpointTagProp)]
+    HRESULT Tag([out, retval] BSTR* Tag);
+    [id(114), propput, HELP(vsextDebugBreakpointTagProp)]
+    HRESULT Tag([in] BSTR Tag);
+
+    [id(115), propget, HELP(vsextDebugBreakpointCurrentHitsProp)]
+    HRESULT CurrentHits([out, retval] long* CurHitCount);
+
+    [id(116), propget, HELP(vsextDebugBreakpointProgramProp)]
+    HRESULT Program([out, retval] Program** Program);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsextDebugBreakpointParentProp)]
+    HRESULT Parent([out, retval] Breakpoint** Breakpoint);
+
+    [id(202), propget, HELP(vsextDebugBreakpointCollectionProp)]
+    HRESULT Collection([out, retval] Breakpoints** Breakpoints);
+
+    [id(203), propget, HELP(vsextDebugBreakpointCollectionChildrenProp)]
+    HRESULT Children([out, retval] Breakpoints** Breakpoints);
+
+};
+
+//---------------------------------------------------------------------------------------------
+// Expression
+//---------------------------------------------------------------------------------------------
+[
+    uuid(27ADC812-BB07-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugExpressionObj),
+    version(1.0)
+]
+interface Expression : IDispatch
+{
+    [id(DISPID_VALUE), propget, HELP(vsextDebugExpressionNameProp)]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [id(100), propget, HELP(vsextDebugExpressionTypeProp)]
+    HRESULT Type([out, retval] BSTR* Type);
+
+    [id(101), propget, HELP(vsextDebugExpressionDataMembersProp)]
+    HRESULT DataMembers([out, retval] Expressions** Expressions);
+
+    [id(102), propget, HELP(vsextDebugExpressionValueProp)]
+    HRESULT Value([out, retval] BSTR* Value);
+    [id(102), propput, HELP(vsextDebugExpressionValueProp)]
+    HRESULT Value([in] BSTR NewValue);
+
+    [id(103), propget, HELP(vsextDebugExpressionIsValidValueProp)]
+    HRESULT IsValidValue([out, retval] VARIANT_BOOL* ValidValue);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(202), propget, HELP(vsproCollectionProperty)]
+    HRESULT Collection([out, retval] Expressions** Expressions);
+};
+
+//---------------------------------------------------------------------------------------------
+// Process
+//---------------------------------------------------------------------------------------------
+[
+    uuid(5C5A0070-F396-4e37-A82A-1B767E272DF9),
+    dual,
+    HELP(vsextDebugProcessObj),
+    version(1.0)
+]
+interface Process : IDispatch
+{
+    [id(1), HELP(vsextDebugProcessAttachFunc)]
+    HRESULT Attach();
+
+    [id(2), HELP(vsextDebugProcessDetachFunc)]
+    HRESULT Detach([in, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(3), HELP(vsextDebugProcessBreakFunc)]
+    HRESULT Break([in, defaultvalue(-1)] VARIANT_BOOL WaitForBreakMode);
+
+    [id(4), HELP(vsextDebugProcessTerminateFunc)]
+    HRESULT Terminate([in, defaultvalue(-1)] VARIANT_BOOL WaitForBreakOrEnd);
+
+    [id(DISPID_VALUE), propget, HELP(vsextDebugProcessNameProp)]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [id(100), propget, HELP(vsextDebugProcessProcessIDProp)]
+    HRESULT ProcessID([out, retval] long* ID);
+
+    [id(101), propget, HELP(vsextDebugProcessProgramsProp)]
+    HRESULT Programs([out, retval] Programs** Programs);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(202), propget, HELP(vsproCollectionProperty)]
+    HRESULT Collection([out, retval] Processes** Processes);
+};
+
+//---------------------------------------------------------------------------------------------
+// Program
+//---------------------------------------------------------------------------------------------
+[
+    uuid(6A38D87C-BBA0-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugProgramObj),
+    version(1.0)
+]
+interface Program : IDispatch
+{
+    [id(DISPID_VALUE), propget, HELP(vsextDebugProgramNameProp)]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [id(100), propget, HELP(vsextDebugProgramProcessProp)]
+    HRESULT Process([out, retval] Process** Process);
+
+    [id(101), propget, HELP(vsextDebugProgramThreadsProp)]
+    HRESULT Threads([out, retval] Threads** Threads);
+
+    [id(102), propget, HELP(vsextDebugProgramIsBeingDebuggedProp)]
+    HRESULT IsBeingDebugged([out, retval] VARIANT_BOOL *IsBeingDebugged);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(202), propget, HELP(vsproCollectionProperty)]
+    HRESULT Collection([out, retval] Programs** Programs);
+};
+
+//---------------------------------------------------------------------------------------------
+// Thread
+//---------------------------------------------------------------------------------------------
+[
+    uuid(9407F466-BBA1-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugThreadObj),
+    version(1.0)
+]
+interface Thread : IDispatch
+{
+    [id(1), HELP(vsextDebugThreadFreezeFunc)]
+    HRESULT Freeze();
+
+    [id(2), HELP(vsextDebugThreadThawFunc)]
+    HRESULT Thaw();
+
+    [id(DISPID_VALUE), propget, HELP(vsextDebugThreadNameProp)]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [id(100), propget, HELP(vsextDebugThreadSuspendCountProp)]
+    HRESULT SuspendCount([out, retval] long* Count);
+
+    [id(101), propget, HELP(vsextDebugThreadIDProp)]
+    HRESULT ID([out, retval] long *ID);
+
+    [id(102), propget, HELP(vsextDebugThreadStackFramesProp)]
+    HRESULT StackFrames([out, retval] StackFrames** StackFrames);
+
+    [id(103), propget, HELP(vsextDebugThreadProgramProp)]
+    HRESULT Program([out, retval] Program** Program);
+
+    [id(104), propget, HELP(vsextDebugThreadIsAliveProp)]
+    HRESULT IsAlive([out, retval] VARIANT_BOOL* IsAlive);
+
+    [id(105), propget, HELP(vsextDebugThreadPriorityProp)]
+    HRESULT Priority([out, retval] BSTR* Priority);
+
+    [id(106), propget, HELP(vsextDebugThreadLocationProp)]
+    HRESULT Location([out, retval] BSTR* Location);
+
+    [id(107), propget, HELP(vsextDebugThreadIsFrozenProp)]
+    HRESULT IsFrozen([out, retval] VARIANT_BOOL* IsFrozen);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(202), propget, HELP(vsproCollectionProperty)]
+    HRESULT Collection([out, retval] Threads** Threads);
+};
+
+//---------------------------------------------------------------------------------------------
+// StackFrame
+//---------------------------------------------------------------------------------------------
+[
+    uuid(1342D0D8-BBA3-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugStackFrameObj),
+    version(1.0)
+]
+interface StackFrame : IDispatch
+{
+    [id(100), propget, HELP(vsextDebugStackFrameLanguageProp)]
+    HRESULT Language([out, retval] BSTR* Language);
+
+    [id(DISPID_VALUE), propget, HELP(vsextDebugStackFrameFunctionNameProp)]
+    HRESULT FunctionName([out, retval] BSTR* FunctionName);
+
+    [id(102), propget, HELP(vsextDebugStackFrameReturnTypeProp)]
+    HRESULT ReturnType([out, retval] BSTR* ReturnType);
+
+    [id(103), propget, HELP(vsextDebugStackFrameLocalsProp)]
+    HRESULT Locals([out, retval] Expressions** Expressions);
+
+    [id(104), propget, HELP(vsextDebugStackFrameArgumentsProp)]
+    HRESULT Arguments([out, retval] Expressions** Expressions);
+
+    [id(105), propget, HELP(vsextDebugStackFrameModuleProp)]
+    HRESULT Module([out, retval] BSTR* Module);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] Thread** Thread);
+
+    [id(202), propget, HELP(vsproCollectionProperty)]
+    HRESULT Collection([out, retval] StackFrames** StackFrames);
+};
+
+//---------------------------------------------------------------------------------------------
+// Language
+//---------------------------------------------------------------------------------------------
+[
+    uuid(B3CCFA68-C145-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugLanguageObj),
+    version(1.0)
+]
+interface Language : IDispatch
+{
+    [id(DISPID_VALUE), propget, HELP(vsextDebugLanguageNameProp)]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [id(200), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [id(201), propget, HELP(vsproParentProperty)]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(202), propget, HELP(vsproCollectionProperty)]
+    HRESULT Collection([out, retval] Languages** Languages);
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Collection Declarations
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+//---------------------------------------------------------------------------------------------
+// Breakpoints
+//---------------------------------------------------------------------------------------------
+
+// Todo: Note that the breakpoint user model is yet to be determined.  We are in the process of figuring
+//       out how to show the user the concept of pending and bound breakpoints, and how they are related
+//       to breakpoint groups.  
+[
+    uuid(25968106-BAFB-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0),
+    HELP(vsextDebugBreakpointsObj)
+]
+interface Breakpoints : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] Breakpoint** Breakpoint);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+
+    [id(4), HELP(vsextDebugBreakpointsAddFunc)]
+    HRESULT Add([in, optional, defaultvalue("")] BSTR Function,  
+                [in, optional, defaultvalue("")] BSTR File,  
+                [in, optional, defaultvalue(1)] long Line, 
+                [in, optional, defaultvalue(1)] long Column, 
+                [in, optional, defaultvalue("")] BSTR Condition, 
+                [in, optional, defaultvalue(dbgBreakpointConditionTypeWhenTrue)] dbgBreakpointConditionType ConditionType, 
+                [in, optional, defaultvalue("")] BSTR Language, 
+                [in, optional, defaultvalue("")]BSTR Data,
+                [in, optional, defaultvalue(1)] long DataCount,
+                [in, optional, defaultvalue("")]BSTR Address,
+                [in, optional, defaultvalue(0)] long HitCount,
+                [in, optional, defaultvalue(dbgHitCountTypeNone)] dbgHitCountType HitCountType,
+                [out, retval] Breakpoints** Breakpoints);
+};
+
+//---------------------------------------------------------------------------------------------
+// Expressions
+//---------------------------------------------------------------------------------------------
+[
+    uuid(2685337A-BB9E-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0),
+    HELP(vsextDebugExpressionsObj)
+]
+interface Expressions : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] Expression** Expression);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Processes
+//---------------------------------------------------------------------------------------------
+[
+    uuid(9F379969-5EAC-4a54-B2BC-6946CFFB56EF),
+    dual,
+    version(1.0),
+    HELP(vsextDebugProcessesObj)
+]
+interface Processes : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] Process** Process);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Programs
+//---------------------------------------------------------------------------------------------
+[
+    uuid(DC6A118A-BBAB-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0),
+    HELP(vsextDebugProgramsObj)
+]
+interface Programs : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] Program** Program);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Threads
+//---------------------------------------------------------------------------------------------
+[
+    uuid(6AA23FB4-BBA1-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0),
+    HELP(vsextDebugThreadsObj)
+]
+interface Threads : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] Thread** Thread);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// StackFrames
+//---------------------------------------------------------------------------------------------
+[
+    uuid(4ED85664-BBA2-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0),
+    HELP(vsextDebugStackFramesObj)
+]
+interface StackFrames : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] StackFrame** StackFrame);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Languages
+//---------------------------------------------------------------------------------------------
+[
+    uuid(A4F4246C-C131-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP(vsextDebugLanguagesObj),
+    version(1.0)
+]
+interface Languages : IDispatch
+{
+    [id(DISPID_VALUE), HELP(vsextItemMethod)]
+    HRESULT Item([in] VARIANT Index, [out, retval] Language** Language);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP(vsproDTEProperty)] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP(vsproParentProperty)] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP(vsproCountProperty)]
+    HRESULT Count([out, retval] long* Count);
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Event support
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+//---------------------------------------------------------------------------------------------
+// _dispDebuggerEvents
+//---------------------------------------------------------------------------------------------
+[
+    uuid(46209330-0FBA-11d3-B880-00C04F79E479),
+    version(1.0)
+]
+dispinterface _dispDebuggerEvents
+{
+    properties:
+    methods:    // Events
+    [id(1), HELP(vsextDebugOnEnterRunModeEvent)]
+    void OnEnterRunMode([in] dbgEventReason Reason);
+
+    [id(2), HELP(vsextDebugOnEnterDesignModeEvent)]
+    void OnEnterDesignMode([in] dbgEventReason Reason);
+
+    [id(3), HELP(vsextDebugOnEnterBreakModeEvent)]
+    void OnEnterBreakMode([in] dbgEventReason Reason, [in, out] dbgExecutionAction* ExecutionAction);
+
+    [id(4), HELP(vsextDebugOnExceptionThrownEvent)]
+    void OnExceptionThrown([in]BSTR ExceptionType, [in]BSTR Name, [in] long Code, [in] BSTR Description, [in, out] dbgExceptionAction* ExceptionAction);
+
+    [id(5), HELP(vsextDebugOnExceptionNotHandledEvent)]
+    void OnExceptionNotHandled([in]BSTR ExceptionType, [in]BSTR Name, [in] long Code, [in] BSTR Description, [in, out] dbgExceptionAction* ExceptionAction);
+
+    [id(6), HELP(vsextDebugOnContextChangedEvent)]
+    void OnContextChanged([in]Process* NewProcess, [in] Program* NewProgram, [in]Thread* NewThread, [in]StackFrame* NewStackFrame);
+};
+
+//---------------------------------------------------------------------------------------------
+// _DebuggerEventsRoot
+//---------------------------------------------------------------------------------------------
+[ 
+    uuid(D4BB39FB-0F0E-11d3-B880-00C04F79E479), 
+    dual, 
+    object,
+    hidden,
+    version(1.0)
+]
+interface _DebuggerEventsRoot : IDispatch
+{
+    // Todo: Do we need to supply a way to filter debugger events?  To do so, we'd
+    // probably modify this interface to accept an [in] parameter to represents
+    // what we want to filter on.  Could be any type...
+    [id(1), propget, hidden] 
+    HRESULT _stdcall DebuggerEvents([out, retval] IDispatch**disp);
+};
+
+//---------------------------------------------------------------------------------------------
+// _DebuggerEvents
+//---------------------------------------------------------------------------------------------
+[
+    uuid(D4EAE958-0FBA-11d3-B880-00C04F79E479),
+    oleautomation,
+    odl,
+    HELP(vsextDebugEventsObj)
+]
+interface _DebuggerEvents : IDispatch
+{
+};
+
+
+//---------------------------------------------------------------------------------------------
+// DebuggerEvents
+//---------------------------------------------------------------------------------------------
+[ 
+    uuid(0C763210-0FBB-11d3-B880-00C04F79E479), 
+    HELP(vsextDebugEventsObj)
+]
+coclass DebuggerEvents 
+{
+    [default] interface _DebuggerEvents;
+    [source] dispinterface _dispDebuggerEvents;     // [source] Indicates we're the source of
+                                                    // events, and that this class will implement
+                                                    // IConnectionPointContainer.
+};
+
+#ifdef VS7Beta1Cuts
+// The following members, objects, and collections were cut during V7 Beta 1 per DCR 75269.
+/*
+
+interface Exception;
+interface Exceptions;
+interface ExceptionType;
+interface ExceptionTypes;
+interface Machine;
+interface Machines;
+interface Port;
+interface Ports;
+interface Runtime;
+interface Runtimes;
+
+interface Debugger
+{
+    [id(11), HELP("Adds an expression to be watched.")]
+    HRESULT AddWatch([in] BSTR ExpressionText, [out, retval] Expression** Expression);
+
+    [id(12), HELP("Attaches to a machine.  Can be used to enumerate programs running on a remote machine.")]
+    HRESULT AttachMachine([in] BSTR MachineName, [out, retval] Machine** Machine);
+
+    [propget, HELP("Returns a collection representing the current list of Expressions in the autos window.")]
+    HRESULT Autos([out, retval] Expressions** Expressions);
+
+    [id(13), HELP("Detaches from a machine.")]
+    HRESULT DetachMachine([in] BSTR MachineName, [out, retval] Machine** Machine);
+
+    [propget, HELP("Gets a collection of exception types that the debugger currently supports.")]
+    HRESULT ExceptionTypes([out, retval] ExceptionTypes** ExceptionTypes);
+
+    [id(14), HELP("Executes a statement.")]
+    HRESULT ExecuteStatement([in] BSTR Statement);
+
+    [propget, HELP("Gets a collection of machines to which the debugger is attached.")]
+    HRESULT Machines([out, retval] Machines** Machines);
+
+    [propget, HELP("The debugger name and machine on which it is running")]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [propget, HELP("Returns a collection of watch items.")]
+    HRESULT Watches([out, retval] Expressions** Expressions);
+};
+
+interface Expression
+{
+    [propget, HELP("Gets the current value in the expression's native format.")]
+    HRESULT Value([out, retval] VARIANT* Value);
+    [propput, HELP("Sets the current value using the expression's native format.")]
+    HRESULT Value([in] VARIANT Value);
+}
+
+interface Process
+{
+    [propget, HELP("Gets the port object through which this process is attached")]
+    HRESULT Port([out, retval] Port** Port);
+}
+
+//---------------------------------------------------------------------------------------------
+// Exception
+//---------------------------------------------------------------------------------------------
+[
+    uuid(35CB197C-BBAC-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP("Used to examine and manipulate Exceptions."),
+    version(1.0)
+]
+interface Exception : IDispatch
+{
+    [propget, HELP("Gets the name of this exception.")]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [propget, HELP("Gets the exception code")]
+    HRESULT Code([out, retval] long* Code);
+
+    [propget, HELP("Returns whether this exception supports breaking, continuing, or ignoring.  Event handlers can query the object to determine whether they can return a specific dbgExceptionAction")]
+    HRESULT IsActionAllowed([in] dbgExceptionAction, [out, retval] VARIANT_BOOL* ActionAllowed);
+
+    [propget, HELP("Describes the action to be taken when this exception is first thrown")]
+    HRESULT ActionWhenThrown([out, retval] dbgExceptionAction* Action);
+    [propput, HELP("Sets the action to be taken when this exception is first thrown")]
+    HRESULT ActionWhenThrown([in] dbgExceptionAction Action);
+
+    [propget, HELP("Describes the action to be taken when this exception has not been handled")]
+    HRESULT ActionWhenNotHandled([out, retval] dbgExceptionAction* Action);
+    [propput, HELP("Sets the action to be taken when this exception has not been handled")]
+    HRESULT ActionWhenNotHandled([in] dbgExceptionAction Action);
+
+    [propget, HELP("Returns an object representing the ExceptionType of this exception")]
+    HRESULT Type([out, retval] ExceptionType** ExceptionType);
+
+    [propget, HELP(vsproDTEPropertyTE ([out, retval] DTE** DTE);
+
+    [propget, HELP("")]
+    HRESULT vsproParentPropertyarent([out, retval] Debugger** Debugger);
+
+    [propget, HELP("")]
+    HRESULT Collection([out, retval] Exceptions** Exceptions);
+
+    [propget, HELP("Returns a collection of exceptions that represent this exception's children.  If the exception has no children then nothing is returned.")]
+    HRESULT Children([out, retval] Exceptions** Exceptions);
+};
+
+//---------------------------------------------------------------------------------------------
+// ExceptionType
+//---------------------------------------------------------------------------------------------
+[
+    uuid(12C8BCB9-9138-4bd6-BB71-A0B41EA7692E),
+    dual,
+    HELP("Used to examine and manipulate ExceptionTypes."),
+    version(1.0)
+]
+interface ExceptionType : IDispatch
+{
+    [id(1), HELP("Creates and enables a new exception for this type.")]
+    HRESULT Add([in, optional, defaultvalue("")] BSTR Name, 
+                [in, optional, defaultvalue(1)] long Code, 
+                [in, optional, defaultvalue(dbgExceptionActionDefault)] dbgExceptionAction ActionWhenThrown, 
+                [in, optional, defaultvalue(dbgExceptionActionDefault)] dbgExceptionAction ActionWhenNotHandled);
+
+    [propget, HELP("Gets the name of this exception type.")]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [propget, HELP("Gets the default first chance action for exceptions of this type")]
+    HRESULT ActionWhenThrown([out, retval] dbgExceptionAction *Action);
+    [propput, HELP("Sets the default first chance action for exceptions of this type")]
+    HRESULT ActionWhenThrown([in] dbgExceptionAction Action);
+
+    [propget, HELP("Gets the default second chance action for exceptions of this type")]
+    HRESULT ActionWhenNotHandled([out, retval] dbgExceptionAction *Action);
+    [propput, HELP("Sets the default second chance action for exceptions of this type")]
+    HRESULT ActionWhenNotHandled([in] dbgExceptionAction Action);
+
+    [propget, HELP("Returns the collection of exceptions representing this type")]
+    HRESULT Exceptions([out, retval] Exceptions** Exceptions);
+
+    [propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [propget, HELP("")]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [propget, HELP("")]
+    HRESULT Collection([out, retval] ExceptionTypes** ExceptionTypes);
+};
+
+//---------------------------------------------------------------------------------------------
+// Machine
+//---------------------------------------------------------------------------------------------
+[
+    uuid(8B9CDF62-BBAB-11d2-8AD1-00C04F79E479),
+    dual,
+    HELP("Used to examine and manipulate Machine objects."),
+    version(1.0)
+]
+interface Machine : IDispatch
+{
+    [propget, HELP("Gets the name of this machine.")]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [propget, HELP("Gets a collection of ports on this machine.")]
+    HRESULT Ports([out, retval] Ports** Ports);
+
+    [propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [propget, HELP("")]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [propget, HELP("")]
+    HRESULT Collection([out, retval] Machines** Machines);
+};
+
+//---------------------------------------------------------------------------------------------
+// Runtime
+//---------------------------------------------------------------------------------------------
+[
+    uuid(99CC2D0C-C6B3-11d2-8AD7-00C04F79E479),
+    dual,
+    HELP("Used to examine and manipulate Runtime objects."),
+    version(1.0)
+]
+interface Runtime : IDispatch
+{
+    [propget, HELP("Gets the human-readable name of this runtime architecture.")]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [propget, HELP("")]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [propget, HELP("")]
+    HRESULT Collection([out, retval] Runtimes** Runtimes);
+};
+
+//---------------------------------------------------------------------------------------------
+// Port
+//---------------------------------------------------------------------------------------------
+[
+    uuid(4DF28BAA-E554-4319-894C-4FDC41EB8D1D),
+    dual,
+    HELP("Used to examine and manipulate Ports."),
+    version(1.0)
+]
+interface Port : IDispatch
+{
+    [propget, HELP("Gets the name of the port.")]
+    HRESULT Name([out, retval] BSTR* Name);
+
+    [propget, HELP("Gets the machine that owns this port.")]
+    HRESULT Machine([out, retval] Machine** Machine);
+
+    [propget, HELP("Gets a comma-separated list, representing the arguments used to setup the debugging connection through this port.")]
+    HRESULT Arguments([out, retval] BSTR* Arguments);
+
+    [propget, HELP("Gets the Win32 port ID for this port")]
+    HRESULT ID([out, retval] BSTR* Guid);
+
+    [propget, HELP("Gets a collection of processes available through this port")]
+    HRESULT Processes([out, retval] Processes** Processes);
+
+    [propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTE);
+
+    [propget, HELP("")]
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [propget, HELP("")]
+    HRESULT Collection([out, retval] Ports** Ports);
+};
+
+//---------------------------------------------------------------------------------------------
+// Exceptions
+//---------------------------------------------------------------------------------------------
+[
+    uuid(352052EE-BAFD-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0)
+]
+interface Exceptions : IDispatch
+{
+    [id(DISPID_VALUE), HELP("Returns an exception object that best matches the index supplied.")]
+    HRESULT Item([in] VARIANT Index, [out, retval] Exception** Exception);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP("")] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP("")]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// ExceptionTypes
+//---------------------------------------------------------------------------------------------
+[
+    uuid(5EF4514F-3EF6-41ee-9669-ED36DFF693AC),
+    dual,
+    version(1.0)
+]
+interface ExceptionTypes : IDispatch
+{
+    [id(DISPID_VALUE), HELP("Returns an exception type object that best matches the index supplied.")]
+    HRESULT Item([in] VARIANT Index, [out, retval] ExceptionType** ExceptionType);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP("")] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP("")]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Ports
+//---------------------------------------------------------------------------------------------
+[
+    uuid(FA74108A-82CD-4ec3-87AA-A2C0E245C66A),
+    dual,
+    version(1.0)
+]
+interface Ports : IDispatch
+{
+    [id(DISPID_VALUE), HELP("Returns a Port object that best matches the index supplied.")]
+    HRESULT Item([in] VARIANT Index, [out, retval] Port** Port);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP("")] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP("")]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Machines
+//---------------------------------------------------------------------------------------------
+[
+    uuid(067BA858-BBB6-11d2-8AD1-00C04F79E479),
+    dual,
+    version(1.0)
+]
+interface Machines : IDispatch
+{
+    [id(DISPID_VALUE), HELP("Returns a Machine that matches the index supplied.")]
+    HRESULT Item([in] VARIANT Index, [out, retval] Machine** Machine);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP("")] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP("")]
+    HRESULT Count([out, retval] long* Count);
+};
+
+//---------------------------------------------------------------------------------------------
+// Runtimes
+//---------------------------------------------------------------------------------------------
+[
+    uuid(FC5A2108-C6B4-11d2-8AD7-00C04F79E479),
+    dual,
+    HELP("Represents a list of runtimes supported by the debugger."),
+    version(1.0)
+]
+interface Runtimes : IDispatch
+{
+    [id(DISPID_VALUE), HELP("Returns a runtime object representing the runtime that matches the index supplied.")]
+    HRESULT Item([in] VARIANT Index, [out, retval] Runtime** Runtime);
+
+    [id(DISPID_NEWENUM), restricted]
+    HRESULT _NewEnum([out, retval] IUnknown** Enumerator);
+
+    [id(1), propget, HELP("")] 
+    HRESULT DTE ([out, retval] DTE** DTEObject);
+        
+    [id(2), propget, HELP("")] 
+    HRESULT Parent([out, retval] Debugger** Debugger);
+
+    [id(3), propget, HELP("")]
+    HRESULT Count([out, retval] long* Count);
+};
+
+*/
+#endif

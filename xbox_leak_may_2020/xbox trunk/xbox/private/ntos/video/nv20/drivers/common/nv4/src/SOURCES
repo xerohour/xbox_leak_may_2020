@@ -1,0 +1,39 @@
+NVCHIP=NV4
+TARGETNAME=$(NVCHIP)init
+TARGETTYPE=LIBRARY
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(BASEDIR)\lib
+!ENDIF
+
+DLLBASE=0x62200000
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+!IFDEF QUIET
+C_DEFINES= $(C_DEFINES) -DQUIET
+!ENDIF
+
+D3DOPT = -DNVD3D=1 -DD3D_DMAONLY=1 -DGAP_FILL=1 -DNVD3D_DX6=1
+NV_OPTS = -DNV4=1 -DRM_HEAPMGR
+MM_OPTS = -DMULTI_MON=1 -DNVHEAPMGR=1
+
+C_DEFINES= $(C_DEFINES) $(D3DOPT) $(NV_OPTS) $(MM_OPTS) -DNVDEPRECATED
+
+!IFDEF DX8
+INCLUDES= $(BUILD_NVSDK_DIR)\$(NVCHIP)\inc;$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\inc;$(BUILD_TREE)\drivers\common\win9x\inc;$(VPEDIR);$(BUILD_DDK_DIR)\directx8\inc;$(BASEDIR)\inc;$(BASEDIR)\src\video\inc;$(BASEDIR)\src\video\displays\inc;$(BUILD_TREE)\drivers\display\winnt4\displays\nv_disp;$(BUILD_TREE)\drivers\display\winnt4\miniport\nv_mini;$(INCLUDES);$(NTMAKEENV)
+!ELSE
+INCLUDES= $(BUILD_NVSDK_DIR)\$(NVCHIP)\inc;$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\inc;$(BUILD_TREE)\drivers\common\win9x\inc;$(VPEDIR);$(BUILD_DDK_DIR)\directx7\inc;$(BASEDIR)\inc;$(BASEDIR)\src\video\inc;$(BASEDIR)\src\video\displays\inc;$(BUILD_TREE)\drivers\display\winnt4\displays\nv_disp;$(BUILD_TREE)\drivers\display\winnt4\miniport\nv_mini;$(INCLUDES);$(NTMAKEENV)
+!ENDIF
+!IFDEF NV_BUILD_INTERNAL
+INCLUDES= $(INCLUDES);$(BUILD_TREE)\drivers\common\$(NVCHIP)\inc
+!ENDIF
+
+SOURCES =   ddmini16.c

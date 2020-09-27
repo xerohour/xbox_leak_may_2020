@@ -1,0 +1,23 @@
+!include ..\sources.inc
+
+TARGETNAME=dpnaddr
+TARGETPATH=obj
+TARGETTYPE=LIBRARY
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=dnaddri.h
+PRECOMPILED_PCH=dnaddri.pch
+PRECOMPILED_OBJ=dnaddri.obj
+
+!if $(FREEBUILD)
+C_DEFINES=$(C_DEFINES) -DASSUME_VALID_PARAMETERS
+!else
+C_DEFINES=$(C_DEFINES) -DDEBUG
+MSC_OPTIMIZATION=$(MSC_OPTIMIZATION) /Od
+!endif
+
+SOURCES= addbase.cpp \
+         addcore.cpp \
+	 addparse.cpp \
+         addtcp.cpp \
+	 strcache.cpp

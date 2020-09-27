@@ -1,0 +1,65 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!IF $(FREEBUILD)
+TARGETNAME=dvdkey
+!ELSE
+TARGETNAME=dvdkeyd
+!ENDIF
+
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XNOLIBS=1
+USE_MAPSYM=1
+USE_NOLIBS=1
+NOT_UNICODE=1
+USE_NATIVE_EH=1
+NO_BINPLACE=1
+
+SOURCES=dvdkey.cpp \
+        crt.c
+
+i386_SOURCES=..\i386\dvdtls.asm \
+             ..\i386\thunks.asm
+
+ASM_DEFINES=-DXDCS
+
+INCLUDES=$(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(PRIVATE_INC_PATH)\crypto; \
+         $(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\ui\xapp; \
+         ..\dvdlib
+
+TARGETLIBS=$(BASEDIR)\private\ui\dvd\driver\softwarecinemaster\cinemast\$(O)\cinemlib$(D).lib \
+           $(BASEDIR)\private\ui\dvd\driver\dvdpldrv\common\avf\$(O)\dvdpldrv$(D).lib \
+           $(SDK_LIB_PATH)\xboxkrnl.lib
+
+PRECOMPILED_INCLUDE=dvdkeyp.h
+PRECOMPILED_CXX=1
+
+!IF "$(NOLINK)" != "1"
+NTTARGETFILES=$(NTTARGETFILES) \
+              obj\i386\dvdkey1$(D).bin \
+              obj\i386\dvdkey2$(D).bin \
+              obj\i386\dvdkey3$(D).bin \
+              obj\i386\dvdkey4$(D).bin \
+              obj\i386\dvdkey5$(D).bin \
+              obj\i386\dvdkey6$(D).bin
+!ENDIF

@@ -1,0 +1,50 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+MAJORCOMP=windows
+MINORCOMP=base
+
+TARGETNAME=dirlog
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=xboxdll
+
+DLLENTRY=DllMain
+
+SOURCES=..\dirlog.c \
+        ..\version.rc
+
+DLLDEF=obj\*\dirlog.def
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(BASEDIR)\private\test\kernel\utils
+
+TARGETLIBS=$(BASEDIR)\private\test\lib\*\xtestlib.lib \
+           $(SDK_LIB_PATH)\xapi.lib \
+           $(SDK_LIB_PATH)\ntoskrnl.lib \
+           $(SDK_LIB_PATH)\libcmt.lib \
+           $(BASEDIR)\private\test\lib\*\xlog.lib
+
+LINKER_FLAGS=$(LINKER_FLAGS) -align:0x20 -driver

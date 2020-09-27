@@ -1,0 +1,1542 @@
+//+---------------------------------------------------------------------------
+//
+//  Microsoft Windows
+//  Copyright (C) Microsoft Corporation, 1997 - 1999.
+//
+//  File:       vjext.idl
+//
+//  Contents:   VJ Object Model description
+//
+//  Classes:
+//
+//  Functions:
+//
+//  History:    04-15-97	JosephF Created
+//
+//----------------------------------------------------------------------------
+
+// imports
+
+#ifndef __midl
+#define VARIANT_BOOL boolean
+#endif
+
+cpp_quote("//+-------------------------------------------------------------------------")
+cpp_quote("//")
+cpp_quote("//  Microsoft Windows")
+cpp_quote("//  Copyright 1997 - 1999 Microsoft Corporation. All Rights Reserved.")
+cpp_quote("//")
+cpp_quote("//  File: vjext.h")
+cpp_quote("//")
+cpp_quote("//--------------------------------------------------------------------------")
+
+
+cpp_quote("#ifndef _vjext_H_")
+cpp_quote("#define _vjext_H_")
+
+#include "shellver.h"
+
+#define VJEXT_VER	DTE_LIB_VERSION
+#define STRING(x) #x
+#define XSTRING(x) STRING(x)
+#define foo(ver) Microsoft Visual J++ Extensibility ver
+[
+    uuid(694EAA82-B6CC-11D0-BB8E-00A0C90F2744),
+    version(1.0),
+	helpfile("csext.chm"),
+	helpstring(XSTRING(foo(VJEXT_VER)))
+]
+library VJExt
+{
+	importlib("stdole.tlb");
+	importlib("DTE.tlb");
+
+	coclass VJProjects;
+	coclass VJProject;
+
+	////////////////////////////////////////////////////////////////////////////
+	// _VJProject interface
+
+    [
+        uuid(694EAA84-B6CC-11D0-BB8E-00A0C90F2744), dual, object
+    ]
+    interface _VJProjects : Projects
+    {
+		// add vjproject specifics
+    };
+
+
+    [
+	uuid(FC7D6331-3C3C-11D1-BBF3-00A0C90F2744) 
+	]
+    dispinterface _dispVJProjectsEvents
+    {
+	properties:
+	methods: // Events
+	[id(1)]     void ItemAdded    ( [in] VJProject _far *VJProject );
+	[id(2)]		void ItemRemoved  ( [in] VJProject _far *VJProject );
+	[id(3)]		void ItemRenamed  ( [in] VJProject _far *VJProject , [in] BSTR OldName);
+	// [id(4)]		void ItemActivated( [in] VBProject _far *VBProject );
+    };
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProject coclass
+
+    [
+        uuid(694EAA85-B6CC-11D0-BB8E-00A0C90F2744)
+    ]
+    coclass VJProjects
+    {
+		[default] interface _VJProjects;
+		[source] dispinterface _dispVJProjectsEvents;
+    };
+
+
+    [
+        uuid(32961EF1-B753-11D0-BB8E-00A0C90F2744), dual, object
+    ]
+    interface _VJProject : Project
+    {
+
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProject coclass
+
+    [
+        uuid(32961EF2-B753-11D0-BB8E-00A0C90F2744)
+    ]
+    coclass VJProject
+    {
+        interface _VJProject;
+    };
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectProperties coclass
+
+    [
+        uuid(F7EC5A51-ECD2-11D0-BBB1-00A0C90F2744), dual, object, hidden
+    ]
+    interface _VJProjectProperties : IDispatch
+    {
+
+	[id(1), propget]
+	HRESULT Release([out, retval] IDispatch  **ppdisp);
+
+	[id(2), propget]
+	HRESULT Debug([out, retval] IDispatch  **ppdisp);
+
+	[id(3), propget]
+	HRESULT GlobalClassPath([out, retval] BSTR  *pbstrPath);
+
+	[id(3), propput]
+	HRESULT GlobalClassPath([in] BSTR bstrPath);
+
+    };
+
+
+    [
+        uuid(11594F21-257A-11D1-BBE5-00A0C90F2744), dual, object//, hidden
+    ]
+    interface _VJProjConfigProperties : IDispatch
+    {
+
+	[id(1), propget]
+	HRESULT Launch([out, retval] IDispatch  **ppdisp);
+
+	[id(2), propget]
+	HRESULT Compile([out, retval] IDispatch  **ppdisp);
+
+	[id(3), propget]
+	HRESULT ClassPath([out, retval] BSTR  *pbstrPath);
+
+	[id(3), propput]
+	HRESULT ClassPath([in] BSTR bstrPath);
+
+	/*[id(4), propget]
+	HRESULT Packaging([out, retval] IDispatch  **ppdisp);
+
+	[id(5), propget]
+	HRESULT Deployment([out, retval] IDispatch  **ppdisp);*/
+
+	}
+
+	/*[
+		uuid(3FB83C0C-B884-11d1-B306-00C04FB6C6FF)
+	]
+	coclass VJProjConfigProperties
+	{
+		interface _VJProjConfigProperties;
+	}*/
+
+
+typedef
+	[uuid(C7255E91-4F27-11D1-B6D3-00A0C90F2744)]
+	enum vjext_LaunchMode
+	{
+		vjext_lm_Default = 0,
+		vjext_lm_Alternative = 1
+	} vjext_LaunchMode;
+
+
+
+    [
+        uuid(11594F22-257A-11D1-BBE5-00A0C90F2744), dual, object, hidden
+    ]
+    interface _VJProjLaunchProperties : IDispatch
+    {
+	[id(1), propget]
+	HRESULT DefaultStartItem([out, retval] BSTR  *pbstrPath);
+
+	[id(1), propput]
+	HRESULT DefaultStartItem([in] BSTR bstrPath);
+
+	[id(2), propget]
+	HRESULT DefaultStartProgram([out, retval] BSTR  *pbstrPath);
+
+	[id(2), propput]
+	HRESULT DefaultStartProgram([in] BSTR bstrPath);
+
+	[id(3), propget]
+	HRESULT DefaultStartArguments([out, retval] BSTR  *pbstrPath);
+
+	[id(3), propput]
+	HRESULT DefaultStartArguments([in] BSTR bstrPath);
+
+	[id(4), propget]
+	HRESULT AlternativeStartProgram([out, retval] BSTR  *pbstrPath);
+
+	[id(4), propput]
+	HRESULT AlternativeStartProgram([in] BSTR bstrPath);
+
+	[id(5), propget]
+	HRESULT AlternativeStartArguments([out, retval] BSTR  *pbstrPath);
+
+	[id(5), propput]
+	HRESULT AlternativeStartArguments([in] BSTR bstrPath);
+
+	[id(6), propget]
+	HRESULT WhatToLaunch([out, retval] vjext_LaunchMode  *plvalue);
+
+	[id(6), propput]
+	HRESULT WhatToLaunch([in] vjext_LaunchMode lvalue);
+	}
+
+
+
+typedef
+	[uuid(C7255E92-4F27-11D1-B6D3-00A0C90F2744)]
+	enum vjext_WarningLevel
+	{
+		vjext_wl_None	= 0,			
+		vjext_wl_Level1 = 1,
+		vjext_wl_Level2 = 2,
+		vjext_wl_Level3 = 3,
+		vjext_wl_Level4 = 4
+		
+	} vjext_WarningLevel;
+
+
+    [
+        uuid(11594F23-257A-11D1-BBE5-00A0C90F2744), dual, object, hidden
+    ]
+    interface _VJProjCompileProperties : IDispatch
+    {
+		[id(1), propget]
+		HRESULT WarningLevel([out, retval] vjext_WarningLevel  *plvalue);
+
+		[id(1), propput]
+		HRESULT WarningLevel([in] vjext_WarningLevel  lvalue);
+
+		[id(2), propget]
+		HRESULT DisableMicrosoftExtensions([out, retval] VARIANT_BOOL *pfvalue);
+
+		[id(2), propput]
+		HRESULT DisableMicrosoftExtensions([in] VARIANT_BOOL fvalue);
+
+		[id(3), propget]
+		HRESULT GenerateDebuggingInfo([out, retval] VARIANT_BOOL *plvalue);
+
+		[id(3), propput]
+		HRESULT GenerateDebuggingInfo([in] VARIANT_BOOL lvalue);
+
+		[id(4), propget]
+		HRESULT OptimizeCompiledCode([out, retval] VARIANT_BOOL *plvalue);
+
+		[id(4), propput]
+		HRESULT OptimizeCompiledCode([in] VARIANT_BOOL lvalue);
+
+		[id(5), propget]
+		HRESULT ConditionalCompilationSymbols([out, retval] BSTR *pbstrSymbols);
+
+		[id(5), propput]
+		HRESULT ConditionalCompilationSymbols([in] BSTR pbstrSymbols);
+
+		[id(6), propget]
+		HRESULT CustomCompilerOptions([out, retval] BSTR *pbstrOptions);
+
+		[id(6), propput]
+		HRESULT CustomCompilerOptions([in] BSTR pbstrOptions);
+
+	/*[id(1), propget]
+	HRESULT FullOptimization([out, retval] VARIANT_BOOL  *pfvalue);
+
+	[id(1), propput]
+	HRESULT FullOptimization([in] VARIANT_BOOL  fvalue);
+
+	[id(2), propget]
+	HRESULT OptimizeByteCodeJumps([out, retval] VARIANT_BOOL  *pfvalue);
+
+	[id(2), propput]
+	HRESULT OptimizeByteCodeJumps([in] VARIANT_BOOL  fvalue);
+
+	[id(3), propget]
+	HRESULT TurnOffWarnings([out, retval] VARIANT_BOOL  *pfvalue);
+
+	[id(3), propput]
+	HRESULT TurnOffWarnings([in] VARIANT_BOOL  fvalue);
+
+	[id(4), propget]
+	HRESULT WarningLevel([out, retval] vjext_WarningLevel  *plvalue);
+
+	[id(4), propput]
+	HRESULT WarningLevel([in] vjext_WarningLevel  lvalue);*/
+	}
+
+
+	[
+        uuid(DD370E42-C26E-11D0-BB94-00A0C90F2744), dual, object
+    ]
+    interface _VJProjectItems : ProjectItems
+    {
+
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectItems coclass
+
+    [
+        uuid(DD370E43-C26E-11D0-BB94-00A0C90F2744)
+    ]
+    coclass VJProjectItems
+    {
+        interface _VJProjectItems;
+    };
+
+
+
+	[
+        uuid(DD370E44-C26E-11D0-BB94-00A0C90F2744), dual, object
+    ]
+    interface _VJProjectItem : ProjectItem
+    {
+	[id(1004),propget]
+	HRESULT  Code([out, retval] IDispatch  **ppdisp); 
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectItem coclass
+
+    [
+        uuid(DD370E45-C26E-11D0-BB94-00A0C90F2744)
+    ]
+    coclass VJProjectItem
+    {
+        interface _VJProjectItem;
+    };
+
+/*
+	[
+        uuid(CEBFB5F1-CBD1-11D0-BB96-00A0C90F2744), dual, object
+    ]
+    interface _VJModule : _TextBuffer
+    {
+
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectItem coclass
+
+    [
+        uuid(CEBFB5F2-CBD1-11D0-BB96-00A0C90F2744)
+    ]
+    coclass VJModule
+    {
+        interface _VJModule;
+    };
+
+*/
+
+	[
+        uuid(00B4CF51-F332-11D0-BBB6-00A0C90F2744), dual, object
+    ]
+    interface _VJSelectedItem : SelectedItem
+    {
+
+    };
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectItem coclass
+
+    [
+        uuid(00B4CF52-F332-11D0-BBB6-00A0C90F2744)
+    ]
+    coclass VJSelectedItem
+    {
+        interface _VJSelectedItem;
+    };
+
+
+	[
+		uuid(4BF5E441-D3AC-11D0-BB9A-00A0C90F2744) 
+	] 
+
+	module VJConstant 
+	{
+	const LPSTR vjext_Projects_Kind			= "{694EAA84-B6CC-11D0-BB8E-00A0C90F2744}";
+	const LPSTR vjext_Project_Kind			= "{66355F20-A65B-11D0-BFB5-00A0C91EBFA0}";
+	const LPSTR vjext_ProjectItems_Kind		= "{DD370E42-C26E-11D0-BB94-00A0C90F2744}";
+	const LPSTR vjext_ProjectItem_Kind		= "{DD370E44-C26E-11D0-BB94-00A0C90F2744}";
+	}
+
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectItemsEvents
+
+
+    [
+        uuid(739EFCB3-3E53-11D1-BCB5-000000000000), dual, object
+    ]
+    interface _VJProjectItemsEvents : IDispatch
+    {
+
+    };
+
+
+	[
+	uuid(739EFCB2-3E53-11D1-BCB5-000000000000) 
+	]
+    dispinterface _dispVJProjectItemsEvents
+    {
+	properties:
+	methods: // Events
+	[id(1)]     void ItemAdded    ( [in] VJProjectItem _far *VJProjectItem );
+	[id(2)]		void ItemRemoved  ( [in] VJProjectItem _far *VJProjectItem );
+	[id(3)]		void ItemRenamed  ( [in] VJProjectItem _far *VJProjectItem , [in] BSTR OldName);
+	// [id(4)]		void ItemActivated( [in] VBProject _far *VBProject );
+    };
+
+    [
+        uuid(739EFCB4-3E53-11D1-BCB5-000000000000)
+    ]
+    coclass VJProjectItemsEvents
+    {
+ 		[default] interface _VJProjectItemsEvents;
+		[source] dispinterface _dispVJProjectItemsEvents;
+    };
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJProjectItemsEvents
+
+	[
+        uuid(7502AD61-4029-11D1-B6CC-00A0C90F2744), dual, object
+    ]
+    interface _VJProjectsEvents : IDispatch
+    {
+
+    };
+
+
+    [
+        uuid(7502AD62-4029-11D1-B6CC-00A0C90F2744)
+    ]
+    coclass VJProjectsEvents
+    {
+ 		[default] interface _VJProjectsEvents;
+		[source] dispinterface _dispVJProjectsEvents;
+    };
+
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// VJEvents
+
+	[
+        uuid(7502AD63-4029-11D1-B6CC-00A0C90F2744), hidden
+    ]
+    interface _VJEvents : IDispatch
+    {
+	[id(1), propget]
+	HRESULT VJProjectsEvents([out, retval] IDispatch  **ppdisp);
+
+	[id(2), propget]
+	HRESULT VJProjectItemsEvents([in, defaultvalue(0)] IDispatch *Filter,  [out, retval] IDispatch  **ppdisp);
+    };
+
+
+    [
+        uuid(7502AD64-4029-11D1-B6CC-00A0C90F2744), hidden
+    ]
+    coclass VJEvents
+    {
+ 		[default] interface _VJEvents;
+    };
+
+
+	/////////////////////////////////////////////////////////////////////////
+    // CodeSense interfaces
+	/////////////////////////////////////////////////////////////////////////
+
+
+	interface IJavaCodeSense;
+	interface IJavaPackages;
+	interface IJavaPackage;
+	interface IJavaPackageEvents;
+	interface IJavaTasks;
+	interface IJavaTask;
+	interface IJavaCompileUnit;
+	interface IJavaCompileUnitEvents;
+	interface IJavaImports;
+	interface IJavaSourceElements;
+	interface IJavaSourceElement;
+	interface IJavaClasses;
+	interface IJavaClass;
+	interface IJavaMembers;
+	interface IJavaMember;
+	interface IJavaField;
+	interface IJavaMethod;
+	interface IJavaInitializers;
+	interface IJavaInitializer;
+	interface IJavaStatement;
+	interface IJavaBlockStatement;
+	interface IJavaCommentTags;
+	interface IJavaDocComment;
+	interface IJavaItem;
+	interface IJavaNames;
+	interface IJavaNamespace;
+	interface IJavaLocal;
+	interface IJavaParameterContext;
+	interface IDataObjectSource;
+	interface IJavaClassTransfer;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaTaskType
+
+	typedef
+	[
+		hidden,
+		restricted
+	]
+	enum JavaTaskType
+	{
+		JTT_COMMENT			= 0x0001,
+		JTT_ERROR			= 0x0002,
+		JTT_STATEMENTERROR	= 0x0004,
+	}
+	JavaTaskType;
+
+	typedef long JavaTaskTypes;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaStatementType
+
+	typedef
+	[
+		uuid(9F42D5C8-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaStatementType
+	{
+		JST_EMPTY		= 0,
+		JST_BLOCK		= 1,
+		JST_IF			= 2,
+		JST_WHILE		= 3,
+		JST_DO			= 4,
+		JST_FOR			= 5,
+		JST_SWITCH		= 6,
+		JST_CASE		= 7,
+		JST_TRY			= 8,
+		JST_BREAK		= 9,
+		JST_CONTINUE	= 10,
+		JST_LABEL		= 11,
+		JST_RETURN		= 12,
+		JST_THROW		= 13,
+		JST_SYNC		= 14,
+		JST_EXPRESSION	= 15,
+		JST_DECLARATION	= 16,
+		JST_SWITCHLABEL = 17,
+		JST_LOCALCLASS	= 18,
+		JST_GOTO		= 19,
+	}
+	JavaStatementType;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaClassModifier, JavaClassModifiers
+
+	typedef
+	[
+		uuid(9F42D5C9-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaClassModifier
+	{
+		JCM_PUBLIC		= 0x0001,
+		JCM_PRIVATE		= 0x0002,
+		JCM_PROTECTED	= 0x0004,
+		JCM_STATIC		= 0x0008,
+		JCM_FINAL		= 0x0010,
+		JCM_ABSTRACT	= 0x0400,
+	}
+	JavaClassModifier;
+
+	typedef long JavaClassModifiers;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaMemberModifier, JavaMemberModifiers
+
+	typedef
+	[
+		uuid(9F42D5CA-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaMemberModifier
+	{
+		JMM_PUBLIC		= 0x0001,
+		JMM_PRIVATE		= 0x0002,
+		JMM_PROTECTED	= 0x0004,
+		JMM_STATIC		= 0x0008,
+		JMM_FINAL		= 0x0010,
+		JMM_SYNCHRONIZED= 0x0020,
+		JMM_VOLATILE	= 0x0040,
+		JMM_TRANSIENT	= 0x0080,
+		JMM_NATIVE		= 0x0100,
+		JMM_ABSTRACT	= 0x0400,
+	}
+	JavaMemberModifier;
+
+	typedef long JavaMemberModifiers;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaAttribute, JavaAttributes
+
+	typedef
+	[
+		hidden,
+		restricted
+	]
+	enum JavaAttribute
+	{
+		JA_DEPRECATED	= 0x0001,
+		JA_HIDDEN		= 0x0002,
+	}
+	JavaAttribute;
+
+	typedef long JavaAttributes;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaMembersFlag, JavaMembersFlags
+	
+	typedef
+	[
+		uuid(9F42D5CB-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaMembersFlag
+	{
+	    JMF_STATICONLY		    = 0x00000001,
+        JMF_INCLUDEPROTECTED    = 0x00000002,
+        JMF_CONSTRUCTORSONLY    = 0x00000004,
+	}
+	JavaMembersFlag;
+	
+	typedef long JavaMembersFlags;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaNamespaceFlag, JavaNamespaceFlags
+	
+	typedef
+	[
+		hidden,
+		restricted
+	]
+	enum JavaNamespaceFlag
+	{
+	    JNF_STATICONLY		    = 0x00000001,	// same as JMF_STATICONLY
+        JNF_INCLUDEPROTECTED    = 0x00000002,	// same as JMF_INCLUDEPROTECTED
+        JNF_CONSTRUCTORSONLY    = 0x00000004,	// same as JMF_CONSTRUCTORSONLY
+	    JNF_TYPESONLY		    = 0x00000008,
+	    JNF_INVOLVED		    = 0x00000010,
+		JNF_IMPORT			    = 0x00000020,
+        JNF_PACKAGE             = 0x00000040,
+        JNF_FINAL_LOCALS_ONLY   = 0x00000080,
+	}
+	JavaNamespaceFlag;
+	
+	typedef long JavaNamespaceFlags;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaSubItemKind
+	
+	typedef
+	[
+		hidden,
+		restricted
+	]
+	enum JavaSubItemKind
+	{
+	    JSI_ARRAYELEMENT,
+	    JSI_RETURNTYPE
+	}
+	JavaSubItemKind;
+	
+	////////////////////////////////////////////////////////////////////////////
+	// ParameterContextMode
+	
+	typedef
+	[
+		hidden,
+		restricted
+	]
+	enum ParameterContextMode
+	{
+	    PCM_SAMECALL,
+	    PCM_DEEPESTCALL,
+	    PCM_CHILDCALL,
+	    PCM_PARENTCALL
+	}
+	ParameterContextMode;
+	
+	/////////////////////////////////////////////////////////////////////////
+	// JavaReferenceType
+
+	typedef
+	[
+		uuid(9F42D5CC-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaReferenceType
+	{
+		JRT_SHORT		= 1,
+		JRT_FULL		= 2,
+		JRT_MINIMAL		= 3,
+	}
+	JavaReferenceType;
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// CSClipboardCmd
+
+	typedef
+	[
+		hidden,
+		restricted
+	]
+	enum CSClipboardCmd
+	{
+		CSCCMD_COPY,
+		CSCCMD_CUT,
+		CSCCMD_DELETE
+	}
+	CSClipboardCmd;
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaPrototypeFlag, JavaPrototypeFlags
+
+	typedef
+	[
+		uuid(9F42D5CD-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaPrototypeFlag
+	{
+		JPF_NONAME			= 0x0001,	// mutually exclusive with JPF_CLASSNAME
+										// and JPF_FULLNAME
+		JPF_CLASSNAME		= 0x0002,
+		JPF_FULLNAME		= 0x0006,	// includes JPF_CLASSNAME
+		JPF_TYPE			= 0x0008,
+		JPF_PARAMTYPES		= 0x0010,
+		JPF_PARAMNAMES		= 0x0020,
+		JPF_FULLTYPENAMES	= 0x0040,
+	}
+	JavaPrototypeFlag;
+
+	typedef long JavaPrototypeFlags;
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaNameSearchFlag, JavaNameSearchFlags
+
+	typedef
+	[
+		uuid(9F42D5CE-A426-11D1-8A63-00C04FA3028A)
+	]
+	enum JavaNameSearchFlag
+	{
+		JNSF_NOOPENPROJECTS		= 0x0001,
+		JNSF_NOINSTALLEDPACKAGES= 0x0002,
+		JNSF_NOCLASSES			= 0x0004,
+		JNSF_NOMEMBERS			= 0x0008,
+	}
+	JavaNameSearchFlag;
+
+	typedef long JavaNameSearchFlags;
+
+	/////////////////////////////////////////////////////////////////////////
+	// JavaMakeWritableFlag, JavaMakeWritableFlags
+
+	typedef
+	[
+		hidden
+	]
+	enum JavaMakeWritableFlag
+	{
+		JMWF_ATTEMPTCHECKOUT	= 0x0001,
+	}
+	JavaMakeWritableFlag;
+
+	typedef long JavaMakeWritableFlags;
+	
+	////////////////////////////////////////////////////////////////////////////
+	// JavaChangeEventFlag, JavaChangeEventFlags
+	
+	typedef
+	[
+	    uuid(92E590DE-4414-11d2-8FC2-00C04FA30279)
+	]
+	enum JavaChangeEventFlag
+	{
+	    // Flags sent to IJavaCompileUnitEvents2::OnUnitChanged
+	    JCEF_PACKAGE        = 0x0001,
+	    JCEF_IMPORTS        = 0x0002,
+	    JCEF_CLASSES        = 0x0004,
+	    JCEF_TASKS          = 0x0008,
+	
+	    // Flags sent to IJavaCompileUnitClassEvents::OnClassesChanged and IJavaClassEvents::OnClassChanged
+	    JCEF_ACCESS         = 0x0001,
+	    JCEF_DESIGNATION    = 0x0002,       // Designation == class vs. interface vs. delegate
+	    JCEF_NAME           = 0x0004,
+	    JCEF_SUPERCLASS     = 0x0008,
+	    JCEF_INTERFACES     = 0x0010,
+	    JCEF_INNERCLASSES   = 0x0020,
+	    JCEF_INITIALIZERS   = 0x0040,
+	    JCEF_MEMBERS        = 0x0080,
+	
+	    // Flags sent to IJavaClassMemberEvents::OnMembersChanged and IJavaCompileUnitClassEvents::OnClassesChanged
+	    JCEF_ADDED          = 0x0100,
+	    JCEF_DELETED        = 0x0200,
+	    JCEF_CHANGED        = 0x0400,
+	}
+	JavaChangeEventFlag;
+	
+	typedef long JavaChangeEventFlags;
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaCodeSense interface
+
+	[
+		uuid(E88F8024-209F-11D1-A5EE-00C04FB68033),
+		dual,
+	]
+	interface IJavaCodeSense : IDispatch
+	{
+		[propget] HRESULT CompileUnit([in] BSTR bstrFile, [out, retval] IJavaCompileUnit** retval);
+		[propget] HRESULT Package([in] BSTR bstrName, [in] BSTR bstrDir, [out, retval] IJavaPackage** retval);
+		[propget] HRESULT SourceElements([in] BSTR bstrName, [in] JavaNameSearchFlags flags, [out, retval] IJavaSourceElements **retval);
+		[propget] HRESULT Class([in] BSTR bstrClassName, [in] BSTR bstrCurrentDirectory, [out, retval] IJavaClass **retval);
+	}
+	
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaPackages interface
+	[
+		uuid(F84D5FAE-1B45-11D1-81F9-00C04FC29FCC),
+		dual
+	]
+	interface IJavaPackages : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaPackage** retval);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+		[propget] HRESULT Count([out, retval] long* retval);
+		[hidden, propget] HRESULT PackageAt([in] long nIndex, [out, retval] IJavaPackage** retval);
+		[propget] HRESULT PackageNamed([in] BSTR bstrName, [out, retval] IJavaPackage **retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaPackage interface
+
+	[
+		uuid(11085060-A479-11D1-81A4-00C04FC29FCC),
+		dual
+	]
+	interface IJavaPackage : IDispatch
+	{
+		[propget] HRESULT Name ([out, retval] BSTR* retval);
+		[propget] HRESULT ParentPackage ([out, retval] IJavaPackage** retval);
+		[propget] HRESULT SubPackages ([out, retval] IJavaPackages** retval);
+		[propget] HRESULT Classes ([out, retval] IJavaClasses** retval);
+	};
+
+    ////////////////////////////////////////////////////////////////////////////
+    // IJavaPackageEvents interface
+
+    [
+        uuid(E05A34D0-65DB-11D1-A95E-00A0C921A4D2),
+		hidden,
+		restricted
+    ]
+    interface IJavaPackageEvents : IUnknown
+    {
+        void    OnContentChange (IJavaPackage *pPackage);
+    };
+	
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaTasks interface
+
+	[
+		uuid(5197BA70-12A6-11D1-B64B-00A0C922E851),
+		dual,
+		hidden,
+		restricted
+	]
+	interface IJavaTasks : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaTask** retval);
+		[propget] HRESULT Count([out, retval] long* retval);
+		[hidden, propget] HRESULT TaskAt([in] long nIndex, [out, retval] IJavaTask** retval);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaTask interface
+
+	[
+		uuid(56F1B362-4315-11D0-B5E9-00A0C922E851),
+		dual,
+		hidden,
+		restricted
+	]
+	interface IJavaTask : IDispatch
+	{
+		[propget] HRESULT IsValid([out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT Text([out, retval] BSTR* retval);
+		HRESULT GetRange([out] long* pnStart, [out] long* pnLength);
+		[propget] HRESULT ErrorCode([out, retval] long* retval);
+		[propget] HRESULT CompileUnit([out, retval] IJavaCompileUnit** retval);
+		[propget] HRESULT Buffer([out, retval] IUnknown** retval);
+		[propget] HRESULT TaskTypes([out, retval] JavaTaskTypes* retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaCompileUnit interface
+
+
+    typedef [hidden, restricted] struct
+    {
+        //11 bits - 2047 characters per line max
+        //21 bits - 2097152 lines per file max
+        //these are already hard coded in tokinfo.h
+        unsigned long    m_iCol             :11;
+        unsigned long    m_iLine            :21;
+        unsigned long    m_iChangeCol       :11;
+        unsigned long    m_iChangeLine      :21;
+        unsigned long    m_iEndChangeCol    :11;
+        unsigned long    m_iEndChangeLine   :21;
+        long             m_iOldLen;
+        long             m_iNewLen;
+        long             m_iIndentLevel;
+        short            m_chInserted;
+    }
+    AUTOINDENT_INFO;
+
+	[
+		uuid(433F0B30-B221-11D1-B615-00A0C922E851),
+		dual
+	]
+	interface IJavaCompileUnit : IDispatch
+	{
+		[propget] HRESULT ReadOnly([out, retval] VARIANT_BOOL* retval);
+		[hidden, restricted] HRESULT Lock();
+		[hidden, restricted] HRESULT Unlock();
+		[hidden, restricted, propget] HRESULT Buffer([out, retval] IUnknown** retval);
+		[propget] HRESULT Classes([out, retval] IJavaClasses** retval);
+		[propget] HRESULT Imports([out, retval] IJavaImports** retval);
+		[hidden, restricted, propget] HRESULT Tasks([in] JavaTaskTypes nTaskTypes, [out, retval] IJavaTasks** retval);
+		[hidden, restricted, propget] HRESULT SourceElement([in] BSTR bstrKey, [out, retval] IJavaSourceElement** retval);
+		[propget] HRESULT PackageName([out, retval] BSTR* retval);
+		[propget] HRESULT Package([out, retval] IJavaPackage** retval);
+		[propget] HRESULT PrimaryClassName([out, retval] BSTR* retval);
+		[hidden, restricted, propget] HRESULT Namespace([in] long nPosition, [in] IJavaClass *pWhoIsAsking,
+			[in] JavaNamespaceFlags flags, [out, retval] IJavaNamespace** retval);
+		HRESULT TypeFromText([in] BSTR bstrText, [out, retval] BSTR* retval);
+		HRESULT TextFromType([in] JavaReferenceType jrt, [in] IJavaCompileUnit* pUnitDest, [in] BSTR bstrType, [out, retval] BSTR* retval);
+		HRESULT ClassFromType([in] BSTR bstrType, [out, retval] IJavaClass** retval);
+		HRESULT FindPackage([in] BSTR bstrName, [out, retval] IJavaPackage** retval);
+		[hidden, restricted] HRESULT GetCompletionContext([in] long iPos, [out] long* piAnchor, [out] long* piLength, [out] IJavaNamespace **ppNS);
+		[hidden, restricted] HRESULT GetParameterContext ([in] long iPos, [out] IJavaParameterContext **ppParamCtx);
+		[hidden] HRESULT Freeze ([in] VARIANT_BOOL fFreeze);
+        [hidden, restricted] HRESULT GetAutoIndent([in, out] AUTOINDENT_INFO *pcIndent, [out] BSTR *bstrText, [in, out] void *pReserved);
+        HRESULT VersionCode ([in, out] long * iStartLine, [in, out] long * iStartCol, [in, out] long * iStopLine, [in, out] long * iStopCol); //replacing GetRegionIndent's VTable entry
+		[hidden, restricted] HRESULT GetPairExtents([in] long iPos, [out] long* piPosMatch);
+		HRESULT SaveChanges();
+		
+		// Filter for entering characters from the editor for auto-indent/format.  If this
+		// fails, the view filter will simply let the view do its normal thing.
+		[hidden, restricted] HRESULT FilterUserInput ([in] long iPos, [in] short chCharToInsert,
+			[out] long *piReplacePos, [out] long *piReplaceLength,
+			[out] BSTR *pbstrReplaceText, [out] long *piCaretPos);
+
+		[propget] HRESULT ProjectItem([out, retval] _VJProjectItem** retval);
+
+		[hidden] HRESULT MakeWritable([in] JavaMakeWritableFlags flags);
+
+        HRESULT FormatRange ([in, out] long *iAnchorLine, [in, out] long *iAnchorCol, [in, out] long *iEndAnchorLine, [in, out] long *iEndAnchorCol);
+        HRESULT CommentBlock ([in, out] long * iStartLine, [in, out] long * iStartCol, [in, out] long * iStopLine, [in, out] long * iStopCol, [in]VARIANT_BOOL addComments);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaCompileUnitEvents interface
+
+	[
+		uuid(E2145780-DDCC-11D0-B627-00A0C922E851)
+	]
+	interface IJavaCompileUnitEvents : IUnknown
+	{
+		HRESULT OnCompileUnitChanged([in] IJavaCompileUnit* pUnit);
+		HRESULT OnKeyChanged([in] IJavaCompileUnit* pUnit, [in] IJavaSourceElement* pElem);
+	};
+	
+	////////////////////////////////////////////////////////////////////////////
+	// IJavaCompileUnitEvents2 interface
+	
+	[
+	    uuid(23775612-4381-11d2-8FC2-00C04FA30279)
+	]
+	interface IJavaCompileUnitEvents2 : IUnknown
+	{
+	    HRESULT OnUnitChanged ([in] IJavaCompileUnit *pUnit, [in] JavaChangeEventFlags flags);
+	};
+	
+	////////////////////////////////////////////////////////////////////////////
+	// IJavaCompileUnitClassEvents
+	
+	[
+	    uuid(23775613-4381-11d2-8FC2-00C04FA30279)
+	]
+	interface IJavaCompileUnitClassEvents : IUnknown
+	{
+	    HRESULT OnClassesChanged ([in] IJavaCompileUnit *pUnit, [in] long iCount, [in] IJavaClass **ppClasses, [in] JavaChangeEventFlags *pFlags);
+	};
+	
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaImports interface
+
+	[
+		uuid(B4C7A2A4-199B-11D1-81F9-00C04FC29FCC),
+		dual
+	]
+	interface IJavaImports : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] BSTR* retval);
+		[propget] HRESULT Count([out, retval] long* pCount);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+		[hidden, propget] HRESULT ImportAt([in] long nIndex, [out, retval] BSTR* retval);
+		HRESULT Add([in] BSTR bstrName);
+		HRESULT Remove([in] BSTR bstrName);
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaSourceElements interface
+	[
+		uuid(A93A2DC8-134A-11D1-A5DA-00C04FB68033),
+		dual
+	]
+	interface IJavaSourceElements : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaSourceElement** retval);
+		[propget] HRESULT Count([out, retval] long* pCount);
+		[propget] HRESULT ItemAt([in] long nIndex, [out, retval] IJavaSourceElement** retval);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaSourceElement interface
+
+	[
+		uuid(755EF36A-9746-11D0-819D-00C04FC29FCC),
+		dual
+	]
+	interface IJavaSourceElement : IDispatch
+	{
+		[propget] HRESULT CompileUnit([out, retval] IJavaCompileUnit** retval);
+		[hidden, restricted, propget] HRESULT Buffer([out, retval] IUnknown** retval);
+		HRESULT GetRange([out] long* pnStart, [out] long* pnLength);
+		[hidden, restricted] HRESULT Lock();
+		[hidden, restricted] HRESULT Unlock();
+		[hidden, restricted, propget] HRESULT Key([out, retval] BSTR* retval);
+		[propget] HRESULT IsValid([out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT DocComment([out, retval] IJavaDocComment** retval);
+		[propget] HRESULT Prototype([in] JavaPrototypeFlags jpf, [out, retval] BSTR* retval);
+		[hidden] HRESULT MakeWritable([in] JavaMakeWritableFlags flags);
+		[hidden, restricted, propget] HRESULT Attributes([out, retval] JavaAttributes* retval);
+		[hidden, restricted, propget] HRESULT NavigatePosition([out, retval] long* retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaClasses interface
+
+	[
+		uuid(6F8FA634-FF9F-11D0-81DF-00C04FC29FCC),
+		dual
+	]
+	interface IJavaClasses : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaClass** ppClass);
+		[propget] HRESULT Count([out, retval] long* pCount);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+
+		[hidden, propget] HRESULT ClassAt([in] long nIndex, [out, retval] IJavaClass** ppClass);
+		[propget] HRESULT ClassNameAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden, propget] HRESULT ClassNamed([in] BSTR bstrName, [out, retval] IJavaClass** retval);
+		HRESULT Add([in] BSTR bstrName, [in] VARIANT_BOOL bClass, [in] long nIndex, [out, retval] IJavaClass** retval);
+		HRESULT Remove([in] IJavaClass* pClass);
+		HRESULT RemoveAt([in] long nIndex);
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaClass interface
+
+	[
+		uuid(CAEAF6FA-E695-11D0-A59D-00C04FB68033),
+		dual
+	]
+	interface IJavaClass : IJavaSourceElement
+	{
+		[propget] HRESULT Package([out, retval] IJavaPackage** retval);
+		HRESULT GetNameRange([out] long* pnStart, [out] long* pnLength);
+		HRESULT GetBodyRange([out] long* pnStart, [out] long* pnLength);
+		[propget] HRESULT Name([out, retval] BSTR* retval);
+		[propput] HRESULT Name([in] BSTR newval);
+		[propget] HRESULT FullName([out, retval] BSTR* retval);
+		[propget] HRESULT SuperclassName([out, retval] BSTR* retval);
+		[propput] HRESULT SuperclassName([in] BSTR newval);
+		[propget] HRESULT Superclass([out, retval] IJavaClass** retval);
+		[propputref] HRESULT Superclass([in] IJavaClass* newval);
+		[propget] HRESULT IsClass([out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT IsInterface([out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT IsDelegate([out, retval] VARIANT_BOOL* retval);
+
+		[propget] HRESULT Interfaces([out, retval] IJavaClasses** retval);
+		[propget] HRESULT InnerClasses([out, retval] IJavaClasses** retval);
+		[propget] HRESULT Initializers([out, retval] IJavaInitializers** retval);
+
+		[propget] HRESULT Members([in, defaultvalue("")] BSTR bstrName,
+			[in, defaultvalue(0)] VARIANT_BOOL fIncludeInherited,
+			[in, defaultvalue(0)] IJavaClass *pWhoIsAsking,
+			[in, defaultvalue(0)] JavaMembersFlags flags,
+			[out,retval] IJavaMembers **ppMembers);
+			
+		HRESULT AddField([in] JavaMemberModifiers mods, [in] BSTR pType,
+			[in] BSTR bstrName, [in] BSTR bstrInitializer, [in] long nIndex,
+			[out, retval] IJavaField** retval);			
+		HRESULT AddMethod([in] JavaMemberModifiers mods, [in] BSTR bstrSignature,
+			[in] BSTR bstrName, [in] BSTR bstrFormalNames,
+			[in] BSTR bstrBodyText, [in] long nIndex,
+			[out, retval] IJavaMethod** retval);
+		HRESULT RemoveMember([in] IJavaMember* pMember);		
+
+		[propget] HRESULT Modifiers([out, retval] JavaMemberModifiers* retval);
+		[propput] HRESULT Modifiers([in] JavaMemberModifiers newval);
+		HRESULT OverrideMethod([in] IJavaMethod* pMethod);
+		[propget] HRESULT CanOverride([in] IJavaMethod* pMethod, [out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT IsSubclassOf([in] BSTR bstrName, [out, retval] VARIANT_BOOL* retval);
+
+		HRESULT GetBlockRange([out] long* pnStart, [out] long* pnLength);
+
+		//SubClasses
+		[propget] HRESULT Subclasses([out, retval] IJavaClasses** retval);
+	};
+	
+	////////////////////////////////////////////////////////////////////////////
+	// IJavaClassEvents interface
+	
+	[
+	    uuid(23775614-4381-11d2-8FC2-00C04FA30279)
+	]
+	interface IJavaClassEvents : IUnknown
+	{
+	    HRESULT OnClassChanged ([in] IJavaClass *pClass, [in] JavaChangeEventFlags flags);
+	};
+	
+	////////////////////////////////////////////////////////////////////////////
+	// IJavaClassMemberEvents interface
+	
+	[
+	    uuid(23775615-4381-11d2-8FC2-00C04FA30279)
+	]
+	interface IJavaClassMemberEvents : IUnknown
+	{
+	    HRESULT OnMembersChanged ([in] IJavaClass *pClass, [in] long iCount, [in] IJavaMember **ppMembers, [in] JavaChangeEventFlags *pFlags);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaMembers interface
+	[
+	    uuid(608504F5-199E-11D1-81F9-00C04FC29FCC),
+	    dual
+	]
+	interface IJavaMembers : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaMember** ppMember);
+		[propget] HRESULT Count([out, retval] long* pCount);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+
+	    [hidden, propget] HRESULT MemberAt ([in] long iIndex, [out,retval] IJavaMember **ppMember);
+	    [propget] HRESULT UniqueField ([out,retval] IJavaField **ppField);
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaMember interface
+
+	[
+		uuid(BA715710-E695-11D0-A59D-00C04FB68033),
+		dual
+	]
+	interface IJavaMember : IJavaSourceElement
+	{
+		HRESULT GetNameRange([out] long* pnStart, [out] long* pnLength);
+		[propget] HRESULT Name([out, retval] BSTR* retval);
+		[propput] HRESULT Name([in] BSTR newval);
+		[propget] HRESULT IsMethod([out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT IsField([out, retval] VARIANT_BOOL* retval);
+		[propget] HRESULT Modifiers([out, retval] JavaMemberModifiers* retval);
+		[propput] HRESULT Modifiers([in] JavaMemberModifiers newval);
+		[propget] HRESULT Type([out, retval] BSTR* retval);
+		[propput] HRESULT Type([in] BSTR newval);
+		[propget] HRESULT Class([out, retval] IJavaClass** retval);
+		HRESULT GetBlockRange([out] long* pnStart, [out] long* pnLength);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaField interface
+
+	[
+		uuid(56F1B368-4315-11D0-B5E9-00A0C922E851),
+		dual
+	]
+	interface IJavaField : IJavaMember
+	{
+		[propget] HRESULT InitialValue([out, retval] BSTR* retval);
+		[propput] HRESULT InitialValue([in] BSTR newval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaMethod interface
+
+	[
+		uuid(18416378-C029-11D0-A57A-00C04FB68033),
+		dual
+	]
+	interface IJavaMethod : IJavaMember
+	{
+		[propget] HRESULT FormalTypes([out, retval] BSTR* retval);
+		[propget] HRESULT FormalNames([out, retval] BSTR* retval);
+		[propget] HRESULT FormalCount([out, retval] long* retval);
+		[propget] HRESULT FormalTypeAt([in] long nIndex, [out, retval] BSTR* retval);
+		[propput] HRESULT FormalTypeAt([in] long nIndex, [in] BSTR newval);
+		[propget] HRESULT FormalNameAt([in] long nIndex, [out, retval] BSTR* retval);
+		[propput] HRESULT FormalNameAt([in] long nIndex, [in] BSTR newval);
+		HRESULT AddFormal([in] BSTR pType, [in] BSTR bstrName, [in] long nIndex);
+		HRESULT RemoveFormalAt([in] long nIndex);
+		HRESULT RemoveFormal([in] BSTR bstrName);
+		[propget] HRESULT Exceptions([out, retval] IJavaClasses** retval);
+		[propget] HRESULT Body([out, retval] IJavaBlockStatement** retval);
+		HRESULT GetBodyRange([out] long* pnStart, [out] long* pnLength);
+		[propget] HRESULT Signature([out, retval] BSTR* retval);
+		[propget] HRESULT IsConstructor([out, retval] VARIANT_BOOL* retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaInitializers interface
+
+	[
+		uuid(F1467E7E-07AA-11D1-81DF-00C04FC29FCC),
+		dual
+	]
+	interface IJavaInitializers : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaInitializer** retval);
+		[propget] HRESULT Count([out, retval] long* pCount);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+		[hidden, propget] HRESULT InitializerAt([in] long nIndex, [out, retval] IJavaInitializer** retval);
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaInitializer interface
+
+	[
+		uuid(C2A9E470-C19B-11D0-A57E-00C04FB68033),
+		dual
+	]
+	interface IJavaInitializer : IJavaSourceElement
+	{
+		[propget] HRESULT Body([out, retval] IJavaBlockStatement** retval);
+		[propget] HRESULT Modifiers([out, retval] JavaMemberModifiers* retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaStatement interface
+
+	[
+		uuid(56F1B36B-4315-11D0-B5E9-00A0C922E851),
+		dual
+	]
+	interface IJavaStatement : IJavaSourceElement
+	{
+		[propget] HRESULT StatementType([out, retval] JavaStatementType* retval);
+		[propget] HRESULT Text([out, retval] BSTR* retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaBlockStatement interface
+
+	[
+		uuid(56F1B36C-4315-11D0-B5E9-00A0C922E851),
+		dual
+	]
+	interface IJavaBlockStatement : IJavaStatement
+	{
+		[id(0)] HRESULT Item([in] VARIANT index, [out, retval] IJavaStatement** ppMember);
+		[propget] HRESULT Count([out, retval] long* retval);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+		[hidden, propget] HRESULT StatementAt([in] long nIndex, [out, retval] IJavaStatement** retval);
+		HRESULT AddStatementText([in] BSTR bstrStatementText, [in] long nIndex);
+		HRESULT RemoveStatementAt([in] long nIndex);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaCommentTags interface
+
+	[
+		uuid(3B3D9391-1E3B-11D1-81F9-00C04FC29FCC),
+		dual
+	]
+	interface IJavaCommentTags : IDispatch
+	{
+		[id(0)] HRESULT Item([in] VARIANT varIndex, [out, retval] BSTR* retval);
+		[propget] HRESULT Count([out, retval] long* retval);
+		[restricted, id(-4)] HRESULT _NewEnum([out, retval] IUnknown** ppUnk);
+		HRESULT Add([in] BSTR bstrText, [in] long nIndex);
+		HRESULT Remove([in] VARIANT varIndex);
+	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaDocComment interface
+
+	[
+		uuid(1A0CAAA0-70D3-11D0-B5F9-00A0C922E851),
+		dual
+	]
+	interface IJavaDocComment : IDispatch
+	{
+		[propget] HRESULT Text([out, retval] BSTR* retval);
+		[propput] HRESULT Text([in] BSTR newval);
+		[propget] HRESULT Summary([out, retval] BSTR* retval);
+		[propget] HRESULT Description([out, retval] BSTR* retval);
+		[propput] HRESULT Description([in] BSTR newval);
+		[propget] HRESULT Version([out, retval] BSTR* retval);
+		[propput] HRESULT Version([in] BSTR newval);
+		[propget] HRESULT Return([out, retval] BSTR* retval);
+		[propput] HRESULT Return([in] BSTR newval);
+		[propget] HRESULT TagValue([in] BSTR bstrTagName, [out, retval] BSTR* retval);
+		[propput] HRESULT TagValue([in] BSTR bstrTagName, [in] BSTR newval);
+		HRESULT RemoveTag([in] BSTR bstrTagName);
+
+		[propget] HRESULT Links([out, retval] IJavaCommentTags** retval);
+		[propget] HRESULT Authors([out, retval] IJavaCommentTags** retval);
+		[propget] HRESULT Params([out, retval] IJavaCommentTags** retval);
+		[propget] HRESULT Exceptions([out, retval] IJavaCommentTags** retval);
+
+		[hidden, propget] HRESULT LinkCount([out, retval] long* retval);
+		[hidden, propget] HRESULT LinkAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden] HRESULT AddLink([in] BSTR bstrLink, [in] long nIndex);
+		[hidden] HRESULT RemoveLinkAt([in] long nIndex);
+		[hidden, propget] HRESULT AuthorCount([out, retval] long* retval);
+		[hidden, propget] HRESULT AuthorAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden] HRESULT AddAuthor([in] BSTR bstrAuthor, [in] long nIndex);
+		[hidden] HRESULT RemoveAuthorAt([in] long nIndex);
+		[hidden, propget] HRESULT ParamCount([out, retval] long* retval);
+		[hidden, propget] HRESULT ParamNameAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden, propget] HRESULT ParamDescriptionAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden, propget] HRESULT ParamDescription([in] BSTR bstrName, [out, retval] BSTR* retval);
+		[hidden] HRESULT AddParam([in] BSTR bstrName, [in] BSTR bstrDescription, [in] long nIndex);
+		[hidden] HRESULT RemoveParam([in] BSTR bstrName);
+		[hidden] HRESULT RemoveParamAt([in] long nIndex);
+		[hidden, propget] HRESULT ExceptionCount([out, retval] long* retval);
+		[hidden, propget] HRESULT ExceptionNameAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden, propget] HRESULT ExceptionDescriptionAt([in] long nIndex, [out, retval] BSTR* retval);
+		[hidden, propget] HRESULT ExceptionDescription([in] BSTR bstrName, [out, retval] BSTR* retval);
+		[hidden] HRESULT AddException([in] BSTR bstrName, [in] BSTR bstrDescription, [in] long nIndex);
+		[hidden] HRESULT RemoveException([in] BSTR bstrName);
+		[hidden] HRESULT RemoveExceptionAt([in] long nIndex);
+
+		[propget] HRESULT SourceElement([out, retval] IJavaSourceElement** retval);
+	};
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaItem interface
+	
+	[
+	    uuid(BF2AEF70-CD83-11D0-A8E8-00A0C921A4D2),
+	    dual,
+		hidden,
+		restricted
+	]
+	interface IJavaItem : IUnknown
+	{
+	    [propget] HRESULT Description ([out,retval] BSTR *pbstrDescription);
+	    [propget] HRESULT Namespace ([in] IJavaClass *pWhoIsAsking, [in] JavaNamespaceFlags flags,
+	                                 [out,retval] IJavaNamespace **ppNamespace);
+	    [propget] HRESULT SubItem ([in] JavaSubItemKind iKind, [out,retval] IJavaItem **ppItem);
+	};
+	
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaNames interface
+
+	[
+		uuid(AD20D880-B12D-11D0-81A8-00C04FC29FCC),
+		dual,
+		hidden,
+		restricted
+	]
+	interface IJavaNames : IDispatch
+	{
+		[propget] HRESULT NameCount([out, retval] long* retval);
+		[propget] HRESULT NameAt([in] long nIndex, [out, retval] BSTR* retval);
+		[propget] HRESULT GlyphAt([in] long nIndex, [out, retval] long* retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaNamespace interface
+
+	[
+		uuid(AF7B8BB2-B12C-11D0-81A8-00C04FC29FCC),
+		dual,
+		hidden,
+		restricted
+	]
+	interface IJavaNamespace : IUnknown
+	{
+	    [propget]   HRESULT Names ([out,retval] IJavaNames **ppNames);
+	                HRESULT BindName ([in] BSTR bstrName, [out,retval] IJavaItem **ppItem);
+	};
+	
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaLocal interface
+	
+	[
+	    uuid(BF2AEF71-CD83-11D0-A8E8-00A0C921A4D2),
+	    dual,
+		hidden,
+		restricted
+	]
+	interface IJavaLocal : IDispatch
+	{
+	    [propget] HRESULT Type ([out,retval] BSTR *pbstrType);
+	    [propget] HRESULT Name ([out,retval] BSTR *pbstrName);
+	    [propget] HRESULT IsParameter ([out,retval] VARIANT_BOOL *retval);
+	    [propget] HRESULT IsVariable ([out,retval] VARIANT_BOOL *retval);
+	};
+	
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaParameterContext interface
+
+	[
+		uuid(503894F0-C594-11D0-A8DD-00A0C921A4D2),
+		dual,
+		hidden,
+		restricted
+	]
+	interface IJavaParameterContext : IDispatch
+	{
+	    [propget] HRESULT Methods ([out, retval] IJavaMembers **ppMembers);
+	    [propget] HRESULT ParameterCount ([out, retval] long *piCount);
+	    [propget] HRESULT CurrentParameter ([out, retval] long *piCurParm);
+	    HRESULT GetContextStream ([out] long *piStart, long *piLength);
+	
+	    // Update the context using iPos as focal point.  This will rebuild
+	    // state if necessary (i.e., the buffer has changed).  Return values:
+	    //  S_OK        - Context was updated, and something is different
+	    //                  (could be different current parameter, new set of
+	    //                  methods, or even a different call)
+	    //  S_FALSE     - Context is no different
+	    //  E_FAIL      - iPos has no meaning in the context (note that this
+	    //                  does NOT invalidate the context -- for example,
+	    //                  Update (iPos, PCM_PARENTCALL) might return E_FAIL
+	    //                  but that doesn't mean the tip should go away.
+	    // E_INVALIDARG - if mode is PCM_CHILDCALL or PCM_PARENTCALL and iPos
+	    //                  is not the same position as that used to create
+	    //                  or last update this context.
+	    HRESULT Update ([in] long iPos, [in] ParameterContextMode mode);
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// IDataObjectSource interface
+	[
+		uuid(6D710990-2EF6-11D1-B65A-00A0C922E851),
+		hidden,
+		restricted
+	]
+	interface IDataObjectSource : IUnknown
+	{
+		[propget] HRESULT DataObject([out, retval] IDataObject** retval);
+	};
+
+	/////////////////////////////////////////////////////////////////////////
+	// IJavaClassTransfer interface
+	[
+		uuid(CE6B8F60-2EF5-11D1-B65A-00A0C922E851),
+		hidden,
+		restricted
+	]
+	interface IJavaClassTransfer : IDataObjectSource
+	{
+		//Clipboard support
+		[propget] HRESULT CanPaste([in] IDataObject *pDataObj, [in] IJavaSourceElement* pInsertBefore, [in] VARIANT_BOOL fInitializer, [out, retval] VARIANT_BOOL* retval);
+		HRESULT Paste([in] IDataObject *pDataObj, [in] IJavaSourceElement* pInsertBefore, [in] VARIANT_BOOL fInitializer);
+		HRESULT CutCopy([in] IJavaSourceElement* pElem, [in] CSClipboardCmd action);
+	};
+
+
+	/////////////////////////////////////////////////////////////////////////
+	// CJavaCodeSense coclass
+
+	[
+		uuid(78BFDC57-5246-11d2-8CFC-00C04FC2C6CC),
+		helpstring("JavaCodeSense Class"),
+		hidden,
+		restricted
+	]
+	coclass CJavaCodeSense
+	{
+		[default] interface IJavaCodeSense;
+	};
+
+	cpp_quote("#define SID_SJavaCodeSense CLSID_CJavaCodeSense")
+
+	/////////////////////////////////////////////////////////////////////////
+	// CJavaLibMgr coclass
+
+	[
+		uuid(78BFDC58-5246-11d2-8CFC-00C04FC2C6CC),
+		hidden,
+		restricted
+	]
+	coclass CJavaLibMgr
+	{
+		[default] interface IUnknown;
+	};
+
+	cpp_quote("#define SID_SJavaLibMgr CLSID_CJavaLibMgr")
+
+	cpp_quote("#endif")
+}

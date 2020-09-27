@@ -1,0 +1,33 @@
+TARGETNAME =        xstagedpeer
+TARGETPATH =        obj
+TARGETTYPE =        PROGRAM
+UMTYPE =            xboxapp
+
+TITLEID =           0xffff0023
+PROJNAME =          XStagedPeer
+
+NTTARGETFILE0 =     $(O)\xstagedpeer.dsp $(O)\Font.xpr $(O)\Gamepad.xpr
+
+XE_FLAGS = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+                    
+SYNCHRONIZE_DRAIN = 1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /FAcs
+
+C_DEFINES =         $(C_DEFINES) -DKERNEL_MODE
+
+INCLUDES =          $(BASEDIR)\public\ddk\inc; \
+                    $(BASEDIR)\public\Xdk\inc; \
+                    ..\..\common\include;      \
+
+LINKLIBS =          $(XDK_LIB_PATH)\dplay8$(D).lib \
+                    $(XDK_LIB_PATH)\xnet$(D).lib \
+                    $(XDK_LIB_PATH)\d3d8$(D).lib \
+                    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+                    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+                    ..\..\common\src\obj\*\xbframe.lib \
+
+SOURCES =           xstagedpeer.cpp xstage.cpp
+                    
+
+USE_LIBCMT=1

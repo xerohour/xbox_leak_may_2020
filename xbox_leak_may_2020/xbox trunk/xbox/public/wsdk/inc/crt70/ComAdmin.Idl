@@ -1,0 +1,945 @@
+// comadmin.idl : IDL source for comadmin.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (comadmin.tlb) and marshalling code.
+//
+cpp_quote("// -----------------------------------------------------------------------	") 
+cpp_quote("// comadmin.h  -- COM Administration Programming Interfaces					")
+cpp_quote("//																			")
+cpp_quote("// This file provides the prototypes for the APIs and COM interfaces			")
+cpp_quote("// used by Microsoft COM applications.										")
+cpp_quote("//																			")
+cpp_quote("// Copyright (c) 1995-1999 Microsoft Corporation.  All Rights Reserved.		")
+cpp_quote("// -----------------------------------------------------------------------	")  
+
+cpp_quote("#include <objbase.h>")
+
+
+cpp_quote("#ifndef DECLSPEC_UUID")
+cpp_quote("#if _MSC_VER >= 1100")
+cpp_quote("#define DECLSPEC_UUID(x)    __declspec(uuid(x))")
+cpp_quote("#else")
+cpp_quote("#define DECLSPEC_UUID(x)")
+cpp_quote("#endif")
+cpp_quote("#endif")
+
+#include "winerror.h"
+import "unknwn.idl";
+
+
+//
+//  IRunningAppCollection
+//
+	[
+		object,
+		uuid(ab9d3261-d6ea-4fbd-80f6-cf7bad0732f3),
+		dual,
+		helpstring("IRunningAppCollection interface"),
+		pointer_default(unique)
+	]
+	interface IRunningAppCollection : IDispatch
+	{
+		import "oaidl.idl";
+		[ propget, restricted, id(DISPID_NEWENUM) ]
+		HRESULT _NewEnum( [out, retval] IUnknown** ppEnumVariant );
+		
+		[ propget, id(1), helpstring("Gets count of apps in collection") ]
+		HRESULT Count([out,retval]long* pCount);
+
+		[ propget, id(2), helpstring("Returns an app instance by index") ]
+		HRESULT Item([in]long lIndex, [out,retval]IDispatch** ppAppObject);
+
+	};
+
+
+//
+//  IRunningAppInfo
+//
+	[
+		object,
+		uuid(1fd6f178-bfb9-4629-93c7-4ca9a2724efd),
+		dual,
+		helpstring("IRunningAppInfo interface"),
+		pointer_default(unique)
+	]
+	interface IRunningAppInfo : IDispatch
+	{
+		import "oaidl.idl";
+
+		[ propget, id(1), helpstring("Gets the application id of this process") ]
+		HRESULT ApplicationID([out,retval]BSTR* pbstrAppID);
+
+		[ propget, id(2), helpstring("Gets the instance id of this process") ]
+		HRESULT InstanceID([out,retval]BSTR* pbstrInstanceID);
+
+		[ propget, id(3), helpstring("Gets the process id of this process") ]
+		HRESULT ProcessID([out,retval]long* plProcessID);
+				
+		[ propget, id(4), helpstring("Gets whether this process is paused or not") ]
+		HRESULT Paused([out,retval]VARIANT_BOOL* pbPaused);
+
+	};
+
+
+// ---------------------------------------------------------------------------
+// ICOMAdmin 
+
+	[
+		object,
+		uuid(DD662187-DFC2-11d1-A2CF-00805FC79235),
+		dual,
+		helpstring("ICOMAdminCatalog Interface"),
+		pointer_default(unique)
+	]
+	interface ICOMAdminCatalog : IDispatch
+	{
+		import "oaidl.idl";
+
+		[id(1), helpstring("Gets a collection on the local catalog - without reading any objects from the catalog data store")]
+		HRESULT GetCollection([in] BSTR bstrCollName, [out, retval] IDispatch** ppCatalogCollection);
+
+		[id(2), helpstring("---")]
+		HRESULT Connect
+		(
+			[in] BSTR bstrConnectString
+		  , [out, retval] IDispatch** ppCatalogCollection 
+		);
+
+		[propget, id(3), helpstring("Gets the major version number of the COM Admin objects")]
+		HRESULT MajorVersion( [out, retval] long* retval );
+
+		[propget, id(4), helpstring("Gets the minor version number of the COM Admin objects")]
+		HRESULT MinorVersion( [out, retval] long* retval );
+
+
+		[id(5), helpstring("---")]
+		HRESULT GetCollectionByQuery
+		(
+			[in] BSTR bstrCollName, 
+			[in] SAFEARRAY( VARIANT )* aQuery,
+			[out, retval] IDispatch** ppCatalogCollection
+		);
+
+
+		[id(6), helpstring("Imports a component that is already registered as an inproc server")]
+		HRESULT ImportComponent( [in] BSTR bstrApplIdOrName, [in] BSTR bstrCLSIDOrProgId );
+
+		[id(7), helpstring("Installs a component into an application (if one is provided)")]
+		HRESULT InstallComponent( [in] BSTR bstrApplIdOrName, [in] BSTR bstrDLL, [in] BSTR bstrTLB, [in] BSTR bstrPSDLL );
+
+
+		[id(8), helpstring("Initiates shutdown of an application server process")]
+		HRESULT ShutdownApplication( [in] BSTR bstrApplIdOrName );
+
+		[id(9), helpstring("Exports an application or client application to be installed on a different machine")]
+		HRESULT ExportApplication( [in] BSTR	bstrApplIdOrName
+									 , [in] BSTR	bstrApplicationFile
+									 , [in] long	lOptions );
+
+
+// Turn off warning about how optional params should be of type VARIANT.  This interface
+// has shipped so we can't fix it correctly, unfortunately.
+midl_pragma warning( disable : 2400)
+
+		[id(10), helpstring("Imports an application from a file")]
+		HRESULT InstallApplication( [in] BSTR	bstrApplicationFile
+									 , [in, optional] BSTR	bstrDestinationDirectory
+									 , [in, optional] long	lOptions 
+									 , [in, optional] BSTR bstrUserId
+									 , [in, optional] BSTR bstrPassword
+									 , [in, optional] BSTR bstrRSN
+									 );
+// Turn default behavior back on for this warning:									 
+midl_pragma warning( default : 2400)
+
+
+		[id(11), helpstring("Stops the router service")]
+		HRESULT StopRouter(  );
+
+		[id(12), helpstring("Refreshes the data being used by the router service")]
+		HRESULT RefreshRouter(  );
+
+		[id(13), helpstring("Starts the router service")]
+		HRESULT StartRouter(  );
+
+		[id(14), helpstring("Reserved1 method 1")]
+		HRESULT Reserved1(  );
+
+		[id(15), helpstring("Reserved1 method 2")]
+		HRESULT Reserved2(  );
+
+		[id(16), helpstring("Installs components into an application from multiple files")]
+		HRESULT InstallMultipleComponents( [in] BSTR bstrApplIdOrName
+										 , [in] SAFEARRAY( VARIANT )* varFileNames 
+										 , [in] SAFEARRAY( VARIANT )* varCLSIDS);
+
+		[id(17), helpstring("Returns information about components found in the files")]
+		HRESULT GetMultipleComponentsInfo( [in] BSTR bstrApplIdOrName
+						 , [in] SAFEARRAY( VARIANT )* varFileNames
+ 						 , [out] SAFEARRAY( VARIANT )* varCLSIDs
+ 						 , [out] SAFEARRAY( VARIANT )* varClassNames
+ 						 , [out] SAFEARRAY( VARIANT )* varFileFlags
+ 						 , [out] SAFEARRAY( VARIANT )* varComponentFlags
+						 );
+
+		[id(18), helpstring("Refreshes all component registration information")]
+		HRESULT RefreshComponents(  );
+
+		[id(19), helpstring("Registration database backup")]
+		HRESULT BackupREGDB( [in] BSTR bstrBackupFilePath );
+
+		[id(20), helpstring("Registration database restore (must reboot after)")]
+		HRESULT RestoreREGDB( [in] BSTR bstrBackupFilePath );
+
+		[id(21), helpstring("Returns information about an application that is about to be installed")]
+		HRESULT QueryApplicationFile( [in] BSTR	bstrApplicationFile
+ 						 , [out] BSTR* bstrApplicationName
+ 						 , [out] BSTR* bstrApplicationDescription
+ 						 , [out] VARIANT_BOOL* bHasUsers
+ 						 , [out] VARIANT_BOOL* bIsProxy
+ 						 , [out] SAFEARRAY( VARIANT )* varFileNames
+						 );
+
+		[id(22), helpstring("Launches application server process")]
+		HRESULT StartApplication( [in] BSTR bstrApplIdOrName );
+
+		[id(23), helpstring("Checks the status of a COM+ related service")]
+		HRESULT ServiceCheck  ( [in]		  long		lService
+							,   [out, retval] long*		pulStatus);
+							
+		[id(24), helpstring("Installs multiple event classes into an application")]
+		HRESULT InstallMultipleEventClasses( [in] BSTR bstrApplIdOrName
+										 , [in] SAFEARRAY( VARIANT )* varFileNames 
+										 , [in] SAFEARRAY( VARIANT )* varCLSIDS);
+
+		[id(25), helpstring("Installs a event class into an application (if one is provided)")]
+		HRESULT InstallEventClass( [in] BSTR bstrApplIdOrName, [in] BSTR bstrDLL, [in] BSTR bstrTLB, [in] BSTR bstrPSDLL );
+
+		[id(26), helpstring("Gets a list of event classes that implement a specified interface")]
+		HRESULT GetEventClassesForIID( [in] BSTR bstrIID
+ 								   , [out] SAFEARRAY (VARIANT) *varCLSIDs
+								   , [out] SAFEARRAY (VARIANT) *varProgIDs
+ 								   , [out] SAFEARRAY (VARIANT) *varDescriptions
+								   );
+
+	}
+
+// ---------------------------------------------------------------------------
+// ICOMAdminCatalog2
+
+	[
+		object,
+		uuid(D81AB10D-2EE4-48db-9C90-54110998B105), 
+		dual,
+		helpstring("ICOMAdminCatalog2 Interface"),
+		pointer_default(unique)
+	]
+	interface ICOMAdminCatalog2 : ICOMAdminCatalog
+	{
+
+// NOTE: when adding new methods to this interface, please check for "VB friendliness"! 
+// For example, one [out][retval] parameter only
+
+          [id(27), helpstring("Initiates shutdown of the specified process")]
+          HRESULT ShutdownProcess( [in] BSTR bstrApplInstanceId );
+                    
+          [id(28), helpstring("Pauses an application server process")]
+          HRESULT PauseProcess( [in] BSTR bstrApplInstanceId );
+                    
+          [id(29), helpstring("Resumes an application server process")]
+          HRESULT ResumeProcess( [in] BSTR bstrApplInstanceId );
+                    
+          [id(30), helpstring("Returns TRUE if process is paused")]
+          HRESULT IsProcessPaused( [in] BSTR bstrApplInstanceId, [out,retval] VARIANT_BOOL *bPaused );
+          
+          [id(31), helpstring("Dumps an image of this process to disk")]
+          HRESULT DumpProcess([in] BSTR bstrApplInstanceId,
+                                  [in] BSTR bstrDirectory,
+                                  [in] DWORD dwMaxImages,
+                                  [out,retval] BSTR *pbstrDumpFile);
+          
+          [id(32), helpstring("Tells the caller if the process dump feature is supported on this server")]
+          HRESULT IsProcessDumpSupported();
+          
+          [id(33), helpstring("Sets the Application Partition scope")]
+          HRESULT SetApplicationPartition( [in] BSTR bstrApplPartitionIdOrName );
+
+          [id(34), helpstring("Gets the current Application Partition id")]
+          HRESULT GetCurrentApplicationPartitionId( [out, retval] BSTR *pbstrApplPartitionId );
+
+          [id(35), helpstring("Gets the current Application Partition name")]
+          HRESULT GetCurrentApplicationPartitionName( [out, retval] BSTR *pbstrApplPartitionName );
+          
+          [id(36), helpstring("Gets running applications for the specified application")]
+          HRESULT GetRunningApps([in]BSTR bstrApplIdOrName,  
+                                 [out,retval]IDispatch** ppRunningAppCollection);
+                    
+          [id(37), helpstring("Configures an application to run as an NT service")]
+          HRESULT CreateServiceForApplication([in] BSTR bstrAppIdOrName,
+                                              [in] BSTR bstrServiceName,
+                                              [in] BSTR bstrStartType,
+                                              [in] BSTR bstrErrorControl,
+                                              [in] BSTR bstrDependencies,
+                                              [in] BSTR bstrRunAs,
+                                              [in] BSTR bstrPassword,
+                                              [in] VARIANT_BOOL bDesktopOk);
+          
+          [id(38), helpstring("Un-configures an application running as an NT service")]
+          HRESULT DeleteServiceForApplication([in] BSTR bstrAppIdOrName);
+
+		  [id(39), helpstring("Gets the application partition ID for the base application partition")]
+		  HRESULT GetBaseApplicationPartitionId([out,retval] BSTR * pbstrBasePartitionId);
+
+		  [id(40), helpstring("Copy applications from source partition to current Application Partition")]
+		  HRESULT CopyApplications( [in] BSTR bstrSourcePartitionId,
+									[in] SAFEARRAY(VARIANT) * varApplIds); 
+
+		  [id(41), helpstring("Copy component configuration while retaining the implementation")]
+		  HRESULT CopyComponent( [in] BSTR bstrSourcePartitionId,
+								 [in] BSTR bstrClsid,
+								 [in] BSTR bstrNewApplId,
+								 [in] BSTR bstrNewClsid,
+								 [in] BSTR bstrNewProgId);
+
+		  [id(42), helpstring("Imports the specified class as a non-configured component")]
+		  HRESULT ImportComponentAsLegacy([in]BSTR bstrAppIdOrName, [in]BSTR bstrCLSIDOrProgId, [in]long lComponentType);
+
+		  [id(43), helpstring("Promotes the specified class to a configured COM+ component")]
+		  HRESULT PromoteLegacyComponent([in]BSTR bstrAppIdOrName, [in]BSTR bstrCLSIDOrProgId);
+
+		  [id(44), helpstring("Gets partition ID and partition name for the specified application ID")]
+		  HRESULT GetAppPartition( [in] BSTR bstrAppId,
+							       [out] BSTR * pbstrPartitionId,
+							       [out] BSTR * pbstrPartitionName);
+
+		  [id(45), helpstring("Imports a component that is already registered as an inproc server in the 32 or 64 bit registry")]
+          HRESULT ImportComponentByType ( [in] BSTR bstrApplIdOrName, [in] BSTR bstrCLSIDOrProgId, [in] long lComponentType );
+
+          [id(46), helpstring("Determines if the target catalog server is 64 bit")]
+          HRESULT Is64BitCatalogServer ( [out] VARIANT_BOOL* pbIs64Bit );
+
+          [id(47), helpstring("Move component configuration while retaining the implementation")]
+          HRESULT MoveComponent ([in] BSTR bstrSourcePartitionId,
+								    [in] BSTR bstrDestinationPartitionId,
+									[in] BSTR bstrClsid,
+									[in] BSTR bstrDestinationApplId);
+
+          [id(48), helpstring("Given a Process ID returns an Instance ID")]
+          HRESULT GetInstanceIDFromPID([in] DWORD dwPID, [out, retval] BSTR *pbstrInstanceID);
+
+// NOTE: when adding new methods to this interface, please check for "VB friendliness"! 
+// For example, one [out][retval] parameter only
+
+        }
+
+// ---------------------------------------------------------------------------
+// ICatalogObject
+
+	[
+		object,
+		uuid(6eb22871-8a19-11d0-81b6-00a0c9231c29),
+		dual,
+		helpstring("ICatalogObject Interface"),
+		pointer_default(unique)
+	]
+	interface ICatalogObject : IDispatch
+	{
+		import "oaidl.idl";
+
+
+		[propget, id(1), helpstring("Gets a property value")]
+		HRESULT Value( [in] BSTR bstrPropName
+					 , [out, retval] VARIANT* retval
+					 );
+
+		[propput, id(1), helpstring("Sets a property value")]
+		HRESULT Value( [in] BSTR bstrPropName
+					 , [in] VARIANT val
+					 );
+
+		[propget, id(2), helpstring("Gets the value of the key property")]
+		HRESULT Key( [out, retval] VARIANT* retval );
+
+		[propget, id(3), helpstring("Gets the name of the object")]
+		HRESULT Name( [out, retval] VARIANT* retval );
+
+		[ id(4), helpstring("True if the property cannot be set")]
+		HRESULT IsPropertyReadOnly( [in] BSTR bstrPropName
+								  , [out, retval] VARIANT_BOOL* retval
+								  );
+
+		[propget, id(5), helpstring("True if all properties were successfully read from the catalog data store")]
+		HRESULT Valid( [out, retval] VARIANT_BOOL* retval );
+
+		[ id(6), helpstring("True if the property only supports set")]
+		HRESULT IsPropertyWriteOnly( [in] BSTR bstrPropName
+								   , [out, retval] VARIANT_BOOL* retval
+								   );
+	};
+
+
+
+	[
+		object,
+		uuid(6eb22872-8a19-11d0-81b6-00a0c9231c29),
+		dual,
+		helpstring("ICatalogCollection Interface"),
+		pointer_default(unique)
+	]
+	interface ICatalogCollection : IDispatch
+	{
+		import "oaidl.idl";
+		[propget, restricted, id(DISPID_NEWENUM)]   // Must be propget.
+		HRESULT _NewEnum( [out, retval] IUnknown** ppEnumVariant );
+
+		[propget, id(1), helpstring("Returns an object by index")]
+		HRESULT Item( [in] long lIndex
+					, [out, retval] IDispatch** ppCatalogObject
+					);				
+				
+		[propget, helpstring("Returns number of objects in the collection.")]
+		HRESULT Count( [out, retval] long* retval );	
+		
+		[helpstring("Removes an item, given the index")]
+		HRESULT Remove( [in] long lIndex );	
+
+		[helpstring("Adds an object to the collection - returns the new object ")]
+		HRESULT Add( [out, retval] IDispatch** ppCatalogObject );	
+
+		[id(2), helpstring("Reads all the collection objects from the catalog data store")]
+		HRESULT Populate();
+
+		[id(3), helpstring("Saves changes made to the collection into the catalog data store")]
+		HRESULT SaveChanges( [out, retval] long* retval );
+
+		[id(4), helpstring("Gets a collection related to a specific object - without reading any objects from the catalog data store")]
+		HRESULT GetCollection( [in] BSTR bstrCollName
+							 , [in] VARIANT varObjectKey
+							 , [out, retval] IDispatch** ppCatalogCollection
+							 );
+
+		[ propget, id(6), helpstring("Gets the name of the collection")]
+		HRESULT Name( [out, retval] VARIANT* retval );
+
+		[ propget, id(7), helpstring("Returns true if Add is enabled")]
+		HRESULT AddEnabled( [out, retval] VARIANT_BOOL* retval );
+
+		[ propget, id(8), helpstring("Returns true if Remove is enabled")]
+		HRESULT RemoveEnabled( [out, retval] VARIANT_BOOL* retval );
+
+		[ id(9), helpstring("Get the utility interface")]
+		HRESULT GetUtilInterface( [out, retval] IDispatch** ppUtil );
+
+		[propget, id(10), helpstring("Gets the major version number of the Catalog data store")]
+		HRESULT DataStoreMajorVersion( [out, retval] long* retval );
+
+		[propget, id(11), helpstring("Gets the minor version number of the Catalog data store")]
+		HRESULT DataStoreMinorVersion( [out, retval] long* retval );
+
+		[id(12), helpstring("Reads selected objects from the catalog data store")]
+		HRESULT PopulateByKey( [in] SAFEARRAY( VARIANT ) aKeys );
+
+		[id(13), helpstring("Reserved for future use")]
+		HRESULT PopulateByQuery( [in] BSTR bstrQueryString, [in] long lQueryType );
+	};
+
+
+[
+	uuid(F618C513-DFB8-11d1-A2CF-00805FC79235),
+	version(1.0),
+	helpstring("COM + 1.0 Admin Type Library")
+]
+library COMAdmin
+{
+	importlib("stdole32.tlb");
+	
+	// We don't have any coclass defns that implement the IRunningAppCollection and IRunningApp
+	// interfaces.   This means we need to put those interface defns directly within the library
+	// block so that the interfaces get defined in the tlb.
+	interface IRunningAppCollection;
+	interface IRunningAppInfo;	
+
+	[
+		uuid(F618C514-DFB8-11d1-A2CF-00805FC79235),
+		helpstring("COM Admin Class")
+	]
+	coclass COMAdminCatalog
+	{
+		[default] interface ICOMAdminCatalog2;
+	};
+
+
+	[
+		uuid(F618C515-DFB8-11d1-A2CF-00805FC79235),
+		helpstring("COM Admin Catalog Object Class")
+	]
+	coclass COMAdminCatalogObject
+	{
+		[default] interface ICatalogObject;
+	};
+
+	[
+		uuid(F618C516-DFB8-11d1-A2CF-00805FC79235),
+		helpstring("COM Admin Catalog Collection Class")
+	]
+	coclass COMAdminCatalogCollection
+	{
+		[default] interface ICatalogCollection;
+	};
+	
+	typedef[helpstring("ComponentType values for ImportComponentAsLegacy")]
+	enum COMAdminComponentType
+	{ 
+		COMAdminUseAnyComponent = 0x00000001,
+		COMAdminWOWComponent = 0x00000002,
+		COMAdminNativeComponent = 0x00000003
+	} COMAdminComponentType;
+
+	typedef[helpstring("Application install options - these options can be or'ed together")]
+	enum COMAdminApplicationInstallOptions{ 
+		  COMAdminInstallNoUsers = 0  //Default
+		, COMAdminInstallUsers = 1 
+		, COMAdminInstallForceOverwriteOfFiles = 2
+	}COMAdminApplicationInstallOptions;
+	
+	typedef[helpstring("Application export options - these options can be or'ed together")]
+	enum COMAdminApplicationExportOptions{ 
+		COMAdminExportNoUsers = 0 ,  //Default
+		COMAdminExportUsers = 1 ,
+		COMAdminExportApplicationProxy = 2,
+		COMAdminExportForceOverwriteOfFiles = 4,
+		COMAdminExportIn10Format = 16
+	}COMAdminApplicationExportOptions;
+
+	typedef[helpstring("Threading Model Enumerations")]
+	enum COMAdminThreadingModels{ 
+		  COMAdminThreadingModelApartment = 0
+		, COMAdminThreadingModelFree = 1
+		, COMAdminThreadingModelMain = 2
+		, COMAdminThreadingModelBoth = 3
+		, COMAdminThreadingModelNeutral = 4
+		, COMAdminThreadingModelNotSpecified = 5
+	}	COMAdminThreadingModels;
+
+	typedef[helpstring("Transaction Settings Enumerations")] 
+	enum COMAdminTransactionOptions
+	{ 
+		COMAdminTransactionIgnored = 0, 
+		COMAdminTransactionNone, 
+		COMAdminTransactionSupported, 
+		COMAdminTransactionRequired, 
+		COMAdminTransactionRequiresNew,
+	}	COMAdminTransactionOptions;
+
+	typedef[helpstring("Transaction Isolation Level Enumerations")] 
+    // If these values are changed, also change TxIsolationLevelOption in CatQCS.idl.
+	enum COMAdminTxIsolationLevelOptions
+	{ 
+		COMAdminTxIsolationLevelNone = 0, 
+		COMAdminTxIsolationLevelReadUnCommitted,	// translates to ISOLATIONLEVEL_READUNCOMMITTED
+		COMAdminTxIsolationLevelReadCommitted,		// translates to ISOLATIONLEVEL_READCOMMITTED
+		COMAdminTxIsolationLevelRepeatableRead,		// translates to ISOLATIONLEVEL_REPEATABLEREAD
+		COMAdminTxIsolationLevelSerializable,		// translates to ISOLATIONLEVEL_SERIALIZABLE
+	}	COMAdminTxIsolationLevelOptions;
+
+	typedef[helpstring("Synchronization Settings Enumerations")] 
+	enum COMAdminSynchronizationOptions
+	{ 
+		COMAdminSynchronizationIgnored = 0, 
+		COMAdminSynchronizationNone, 
+		COMAdminSynchronizationSupported, 
+		COMAdminSynchronizationRequired, 
+		COMAdminSynchronizationRequiresNew,
+	}	COMAdminSynchronizationOptions;
+
+	typedef[helpstring("Activation Settings Enumerations")] 
+	enum COMAdminActivationOptions
+	{ 
+		COMAdminActivationInproc = 0, 
+		COMAdminActivationLocal, 
+	}	COMAdminActivationOptions;
+
+	typedef[helpstring("Access Level Settings Enumerations")] 
+	enum COMAdminAccessChecksLevelOptions
+	{ 
+		COMAdminAccessChecksApplicationLevel = 0, 
+		COMAdminAccessChecksApplicationComponentLevel = 1, 
+	}	COMAdminAccessChecksLevelOptions;
+
+	typedef[helpstring("Authentication Level Settings Enumerations")] 
+	enum COMAdminAuthenticationLevelOptions
+	{ 
+		COMAdminAuthenticationDefault = 0, 
+		COMAdminAuthenticationNone, 
+		COMAdminAuthenticationConnect, 
+		COMAdminAuthenticationCall,
+		COMAdminAuthenticationPacket, 
+		COMAdminAuthenticationIntegrity, 
+		COMAdminAuthenticationPrivacy, 
+	}	COMAdminAuthenticationLevelOptions;
+
+	typedef[helpstring("Impersonation Level Settings Enumerations")] 
+	enum COMAdminImpersonationLevelOptions
+	{ 
+		COMAdminImpersonationAnonymous = 1, 
+		COMAdminImpersonationIdentify, 
+		COMAdminImpersonationImpersonate, 
+		COMAdminImpersonationDelegate, 
+	}	COMAdminImpersonationLevelOptions;
+
+	typedef[helpstring("Authentication Capabilities Settings Enumerations")] 
+	enum COMAdminAuthenticationCapabilitiesOptions
+	{ 
+		COMAdminAuthenticationCapabilitiesNone					= 0x0, 
+		COMAdminAuthenticationCapabilitiesStaticCloaking		= 0x20, 
+		COMAdminAuthenticationCapabilitiesDynamicCloaking		= 0x40, 
+		COMAdminAuthenticationCapabilitiesSecureReference		= 0x2,  
+	}	COMAdminAuthenticationCapabilitiesOptions;
+
+	typedef[helpstring("Operating System Enumerations")] 
+	enum COMAdminOS
+	{ 
+		COMAdminOSWindows3_1 					= 1, 
+		COMAdminOSWindows9x						= 2, 
+		COMAdminOSWindowsNT						= 3, 
+		COMAdminOSWindowsNTEnterprise			= 4, 
+	}	COMAdminOS;
+
+	typedef[helpstring("Service Enumerations")] 
+	enum COMAdminServiceOptions
+	{ 
+		COMAdminServiceLoadBalanceRouter 		= 1, 
+	}	COMAdminServiceOptions;
+
+	typedef[helpstring("Service Status Enumerations")] 
+	enum COMAdminServiceStatusOptions
+	{ 
+		COMAdminServiceStopped	= 0,
+		COMAdminServiceStartPending,
+		COMAdminServiceStopPending,
+		COMAdminServiceRunning,
+		COMAdminServiceContinuePending,
+		COMAdminServicePausePending,
+		COMAdminServicePaused,
+		COMAdminServiceUnknownState,
+	}	COMAdminServiceStatusOptions;
+
+	typedef[helpstring("File Flags")]
+	enum COMAdminFileFlags
+	{ 
+		[helpstring("File is Loadable")]
+		COMAdminFileFlagLoadable							= 0x00000001
+
+		, [helpstring("File contains COM Objects")]
+		COMAdminFileFlagCOM									= 0x00000002
+
+		, [helpstring("File contains a proxy stub")]
+		COMAdminFileFlagContainsPS							= 0x00000004
+
+		, [helpstring("File contains a component")]
+		COMAdminFileFlagContainsComp						= 0x00000008
+			   
+		, [helpstring("File contains a typelibrary")]
+		COMAdminFileFlagContainsTLB							= 0x00000010
+			   
+		, [helpstring("File contains self registration code")]
+		COMAdminFileFlagSelfReg								= 0x00000020
+	   
+		, [helpstring("File contains self un-registration code")]
+		COMAdminFileFlagSelfUnReg							= 0x00000040
+	   
+		, [helpstring("File is unloadable")]
+		COMAdminFileFlagUnloadableDLL						= 0x00000080
+	   
+		, [helpstring("File does not exist")]
+		COMAdminFileFlagDoesNotExist						= 0x00000100
+	 
+		, [helpstring("File is already installed")]
+		COMAdminFileFlagAlreadyInstalled					= 0x00000200
+	   
+		, [helpstring("File contains a bad typelibrary")]
+		COMAdminFileFlagBadTLB								= 0x00000400
+	  
+		, [helpstring("GetClassObj call failed on file")]
+		COMAdminFileFlagGetClassObjFailed					= 0x00000800
+	   
+		, [helpstring("Class is not available")]
+		COMAdminFileFlagClassNotAvailable					= 0x00001000
+	 
+		, [helpstring("File uses a registrar to register")]
+		COMAdminFileFlagRegistrar							= 0x00002000
+	   
+		, [helpstring("File does not use a registrar to register")]
+		COMAdminFileFlagNoRegistrar							= 0x00004000
+	 
+		, [helpstring("Regsvr call on file failed")]
+		COMAdminFileFlagDLLRegsvrFailed						= 0x00008000
+	 
+		, [helpstring("Register typelibrary call on file failed")]
+		COMAdminFileFlagRegTLBFailed						= 0x00010000
+	   
+		, [helpstring("Registrar failed to register file")]
+		COMAdminFileFlagRegistrarFailed						= 0x00020000
+	   
+		, [helpstring("Generic file error ocurred")]
+		COMAdminFileFlagError								= 0x00040000
+	}COMAdminFileFlags;
+
+	typedef[helpstring("Component Flags")]
+	enum COMAdminComponentFlags
+	{ 
+		[helpstring("Component type information not found")]
+		COMAdminCompFlagTypeInfoFound						= 0x00000001
+		
+		, [helpstring("COM Plus Properties Found")]
+		COMAdminCompFlagCOMPlusPropertiesFound				= 0x00000002
+		
+		, [helpstring("Proxy Found")]
+		COMAdminCompFlagProxyFound							= 0x00000004
+		
+		, [helpstring("Interfaces Found")]
+		COMAdminCompFlagInterfacesFound						= 0x00000008
+	   
+		, [helpstring("Component is already installed")]
+		COMAdminCompFlagAlreadyInstalled					= 0x00000010
+	   
+		, [helpstring("Component is not in application")]
+		COMAdminCompFlagNotInApplication					= 0x00000020
+	}COMAdminComponentFlags;
+
+	const  wchar_t *COMAdminCollectionRoot = "Root";
+	const  wchar_t *COMAdminCollectionApplications = "Applications";
+	const  wchar_t *COMAdminCollectionComponents = "Components";
+	const  wchar_t *COMAdminCollectionComputerList = "ComputerList";
+	const  wchar_t *COMAdminCollectionApplicationCluster = "ApplicationCluster";
+	const  wchar_t *COMAdminCollectionLocalComputer = "LocalComputer";
+	const  wchar_t *COMAdminCollectionInprocServers = "InprocServers";
+	const  wchar_t *COMAdminCollectionRelatedCollectionInfo = "RelatedCollectionInfo";
+	const  wchar_t *COMAdminCollectionPropertyInfo = "PropertyInfo";
+	const  wchar_t *COMAdminCollectionRoles = "Roles";
+	const  wchar_t *COMAdminCollectionErrorInfo = "ErrorInfo";
+	const  wchar_t *COMAdminCollectionInterfacesForComponent = "InterfacesForComponent";
+	const  wchar_t *COMAdminCollectionRolesForComponent = "RolesForComponent";
+	const  wchar_t *COMAdminCollectionMethodsForInterface = "MethodsForInterface";
+	const  wchar_t *COMAdminCollectionRolesForInterface = "RolesForInterface";
+	const  wchar_t *COMAdminCollectionRolesForMethod = "RolesForMethod";
+	const  wchar_t *COMAdminCollectionUsersInRole = "UsersInRole";
+	const  wchar_t *COMAdminCollectionDCOMProtocols = "DCOMProtocols";
+	const  wchar_t *COMAdminCollectionApplicationPartitions = "ApplicationPartitions";
+
+	// CODEWORK: add string const "Base Application Partition"?
+
+	// VB style error codes
+		
+	typedef[helpstring("Error codes (HRESULTS)")]
+	enum COMAdminErrorCodes
+	{ 
+		  [helpstring("Errors occurred accessing one or more objects - the ErrorInfo collection may have more detail")] 
+			COMAdminErrObjectErrors	 = 	COMADMIN_E_OBJECTERRORS
+
+		, [helpstring("One or more of the object's properties are missing or invalid")] 
+			COMAdminErrObjectInvalid	 = 	COMADMIN_E_OBJECTINVALID
+
+		, [helpstring("The object was not found in the catalog")] 
+			COMAdminErrKeyMissing	 = 	COMADMIN_E_KEYMISSING
+
+		, [helpstring("The object is already registered")] 
+			COMAdminErrAlreadyInstalled	 = 	COMADMIN_E_ALREADYINSTALLED
+
+		, [helpstring("Error occurred writing to the application file")] 
+			COMAdminErrAppFileWriteFail	 = 	COMADMIN_E_APP_FILE_WRITEFAIL
+
+		, [helpstring("Error occurred reading the application file")] 
+			COMAdminErrAppFileReadFail	 = 	COMADMIN_E_APP_FILE_READFAIL
+
+		, [helpstring("Invalid version number in application file")] 
+			COMAdminErrAppFileVersion	 = 	COMADMIN_E_APP_FILE_VERSION
+
+		, [helpstring("The file path is invalid")] 
+			COMAdminErrBadPath	 = 	COMADMIN_E_BADPATH
+
+		, [helpstring("The application is already installed")] 
+			COMAdminErrApplicationExists	 = 	COMADMIN_E_APPLICATIONEXISTS
+
+		, [helpstring("The role already exists")] 
+			COMAdminErrRoleExists	 = 	COMADMIN_E_ROLEEXISTS
+
+		, [helpstring("An error occurred copying the file")] 
+			COMAdminErrCantCopyFile	 = 	COMADMIN_E_CANTCOPYFILE
+
+		, [helpstring("One or more users are not valid")] 
+			COMAdminErrNoUser	 = 	COMADMIN_E_NOUSER
+
+		, [helpstring("One or more users in the application file are not valid")] 
+			COMAdminErrInvalidUserids	 = 	COMADMIN_E_INVALIDUSERIDS
+
+		, [helpstring("The component's CLSID is missing or corrupt")] 
+			COMAdminErrNoRegistryCLSID	 = 	COMADMIN_E_NOREGISTRYCLSID
+
+		, [helpstring("The component's progID is missing or corrupt")] 
+			COMAdminErrBadRegistryProgID	 = 	COMADMIN_E_BADREGISTRYPROGID
+
+		, [helpstring("Unable to set required authentication level for update request")] 
+			COMAdminErrAuthenticationLevel	 = 	COMADMIN_E_AUTHENTICATIONLEVEL
+
+		, [helpstring("The identity or password set on the application is not valid")] 
+			COMAdminErrUserPasswdNotValid	 = 	COMADMIN_E_USERPASSWDNOTVALID
+
+		, [helpstring("Application file CLSIDs or IIDs do not match corresponding DLLs")] 
+			COMAdminErrCLSIDOrIIDMismatch	 = 	COMADMIN_E_CLSIDORIIDMISMATCH
+
+		, [helpstring("Interface information is either missing or changed")] 
+			COMAdminErrRemoteInterface	 = 	COMADMIN_E_REMOTEINTERFACE
+
+		, [helpstring("DllRegisterServer failed on component install")] 
+			COMAdminErrDllRegisterServer	 = 	COMADMIN_E_DLLREGISTERSERVER
+
+		, [helpstring("No server file share available")] 
+			COMAdminErrNoServerShare	 = 	COMADMIN_E_NOSERVERSHARE
+
+		, [helpstring("DLL could not be loaded")] 
+			COMAdminErrDllLoadFailed	 = 	COMADMIN_E_DLLLOADFAILED
+
+		, [helpstring("The registered TypeLib ID is not valid")] 
+			COMAdminErrBadRegistryLibID	 = 	COMADMIN_E_BADREGISTRYLIBID
+
+		, [helpstring("Application install directory not found")] 
+			COMAdminErrAppDirNotFound	 = 	COMADMIN_E_APPDIRNOTFOUND
+
+		, [helpstring("Errors occurred while in the component registrar")] 
+			COMAdminErrRegistrarFailed	 = 	COMADMIN_E_REGISTRARFAILED
+
+		, [helpstring("The file does not exist")] 
+			COMAdminErrCompFileDoesNotExist	 = 	COMADMIN_E_COMPFILE_DOESNOTEXIST
+
+		, [helpstring("The DLL could not be loaded")] 
+			COMAdminErrCompFileLoadDLLFail	 = 	COMADMIN_E_COMPFILE_LOADDLLFAIL
+
+		, [helpstring("GetClassObject failed in the DLL")] 
+			COMAdminErrCompFileGetClassObj	 = 	COMADMIN_E_COMPFILE_GETCLASSOBJ
+
+		, [helpstring("The DLL does not support the components listed in the TypeLib")] 
+			COMAdminErrCompFileClassNotAvail	 = 	COMADMIN_E_COMPFILE_CLASSNOTAVAIL
+
+		, [helpstring("The TypeLib could not be loaded")] 
+			COMAdminErrCompFileBadTLB	 = 	COMADMIN_E_COMPFILE_BADTLB
+
+		, [helpstring("The file does not contain components or component information")] 
+			COMAdminErrCompFileNotInstallable	 = 	COMADMIN_E_COMPFILE_NOTINSTALLABLE
+
+		, [helpstring("Changes to this object and its sub-objects have been disabled")] 
+			COMAdminErrNotChangeable	 = 	COMADMIN_E_NOTCHANGEABLE
+
+		, [helpstring("The delete function has been disabled for this object")] 
+			COMAdminErrNotDeletable	 = 	COMADMIN_E_NOTDELETEABLE
+
+		, [helpstring("The server catalog version is not supported")] 
+			COMAdminErrSession	 = 	COMADMIN_E_SESSION
+
+		, [helpstring("The component move was disallowed, because the source or destination application is either a system application or currently locked against changes")] 
+			COMAdminErrCompMoveLocked	 = 	COMADMIN_E_COMP_MOVE_LOCKED
+
+		, [helpstring("The component move failed because the destination package no longer exists")] 
+			COMAdminErrCompMoveBadDest	 = 	COMADMIN_E_COMP_MOVE_BAD_DEST
+
+		, [helpstring("The system was unable to register the TypeLib")] 
+			COMAdminErrRegisterTLB	 = 	COMADMIN_E_REGISTERTLB
+
+		, [helpstring("This operation can not be performed on the system application")] 
+			COMAdminErrSystemApp	 = 	COMADMIN_E_SYSTEMAPP
+
+		, [helpstring("The component registrar referenced in this file is not available")] 
+			COMAdminErrCompFileNoRegistrar	 = 	COMADMIN_E_COMPFILE_NOREGISTRAR
+
+		, [helpstring("A component in the same DLL is already installed")] 
+			COMAdminErrCoReqCompInstalled	 = 	COMADMIN_E_COREQCOMPINSTALLED
+
+		, [helpstring("The service is not installed")] 
+			COMAdminErrServiceNotInstalled	 = 	COMADMIN_E_SERVICENOTINSTALLED
+
+		, [helpstring("One or more property settings are either invalid or in conflict with each other")] 
+			COMAdminErrPropertySaveFailed	 = 	COMADMIN_E_PROPERTYSAVEFAILED
+
+		, [helpstring("The object you are attempting to add or rename already exists")] 
+			COMAdminErrObjectExists	 = 	COMADMIN_E_OBJECTEXISTS
+
+		, [helpstring("The registration file is corrupt")] 
+			COMAdminErrRegFileCorrupt	 = 	COMADMIN_E_REGFILE_CORRUPT
+
+		, [helpstring("The property value is too large")] 
+			COMAdminErrPropertyOverflow	 = 	COMADMIN_E_PROPERTY_OVERFLOW
+
+		, [helpstring("Object was not found in registry")] 
+			COMAdminErrNotInRegistry	 = 	COMADMIN_E_NOTINREGISTRY
+
+		, [helpstring("This object is not poolable")] 
+			COMAdminErrObjectNotPoolable	 = 	COMADMIN_E_OBJECTNOTPOOLABLE
+
+		, [helpstring("A CLSID with the same GUID as the new application ID is already installed on this machine")] 
+			COMAdminErrApplidMatchesClsid	 = 	COMADMIN_E_APPLID_MATCHES_CLSID
+
+		, [helpstring("A role assigned to a component, interface, or method did not exist in the application")] 
+			COMAdminErrRoleDoesNotExist	 = 	COMADMIN_E_ROLE_DOES_NOT_EXIST
+
+		, [helpstring("You must have components in an application in order to start the application.")] 
+			COMAdminErrStartAppNeedsComponents	 = 	COMADMIN_E_START_APP_NEEDS_COMPONENTS
+
+		, [helpstring("This operation is not enabled on this platform.")] 
+			COMAdminErrRequiresDifferentPlatform	 = 	COMADMIN_E_REQUIRES_DIFFERENT_PLATFORM
+
+		, [helpstring("The queuing service is not installed")] 
+			COMAdminErrQueuingServiceNotAvailable	 = 	COMQC_E_QUEUING_SERVICE_NOT_AVAILABLE
+
+		, [helpstring("One of the objects being inserted or updated does not belong to a valid parent collection")] 
+			COMAdminErrObjectParentMissing	 = 	COMADMIN_E_OBJECT_PARENT_MISSING
+
+		, [helpstring("One of the objects being updated or worked on does not exist")] 
+			COMAdminErrObjectDoesNotExist	 = 	COMADMIN_E_OBJECT_DOES_NOT_EXIST
+
+		, [helpstring("Application Proxy is not exportable")] 
+			COMAdminErrCanNotExportAppProxy	 = 	COMADMIN_E_CAN_NOT_EXPORT_APP_PROXY
+
+		, [helpstring("Failed to start application because it is either a library application or an application proxy")] 
+			COMAdminErrCanNotStartApp	 = 	COMADMIN_E_CAN_NOT_START_APP 
+			
+		, [helpstring("System application is not exportable")] 
+			COMAdminErrCanNotExportSystemApp	 = 	COMADMIN_E_CAN_NOT_EXPORT_SYS_APP
+
+		, [helpstring("Can not subscribe to this component (the component may have been imported)")]
+			COMAdminErrCanNotSubscribeToComponent  = COMADMIN_E_CANT_SUBSCRIBE_TO_COMPONENT
+
+		, [helpstring("The specified application is not currently running")]
+			COMAdminErrAppNotRunning = COMADMIN_E_APP_NOT_RUNNING
+
+		, [helpstring("One or more of the specified application processes were already paused")]
+			COMAdminSomeAlreadyPaused = COMADMIN_S_SOMEALREADYPAUSED
+
+		, [helpstring("One or more of the specified application processes were already running")]
+			COMAdminSomeAlreadyRunning = COMADMIN_S_SOMEALREADYRUNNING
+
+// TODO: CODEWORK: When these error codes get moved into WinError.h, uncomment these lines!!!
+//		, [helpstring("An event class cannot also be a subscriber component")]
+//			COMAdminErrEventClassCannotBeSubscriber  = COMADMIN_E_EVENTCLASS_CANT_BE_SUBSCRIBER
+
+//		, [helpstring("Library applications and application proxies are incompatible")]
+//			COMAdminErrLibAppProxyIncompatible  = COMADMIN_E_LIB_APP_PROXY_INCOMPATIBLE
+
+//		, [helpstring("The specified partition name is already in use on this computer")]
+//			COMAdminErrDuplicatePartitionName  = COMADMIN_E_CAT_DUPLICATE_PARTITION_NAME
+
+//		, [helpstring("The specified partition name is invalid. Check that the name contains at least one visible character")]
+//			COMAdminErrInvalidPartitionName  = COMADMIN_E_CAT_INVALID_PARTITION_NAME
+
+//		, [helpstring("The specified partition set name is already in use on this computer")]
+//			COMAdminErrDuplicatePartitionSetName  = COMADMIN_E_CAT_DUPLICATE_PARTITION_SET_NAME
+
+//		, [helpstring("The specified partition set name is invalid. Check that the name contains at least one visible character")]
+//			COMAdminErrInvalidPartitionSetName  = COMADMIN_E_CAT_INVALID_PARTITION_SET_NAME
+
+//		, [helpstring("This function is valid for the base partition only")]
+//			COMAdminErrBasePartitionOnly  = COMADMIN_E_BASE_PARTITION_ONLY
+
+	}COMAdminErrorCodes;
+	
+};

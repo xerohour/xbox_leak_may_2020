@@ -1,0 +1,1086 @@
+[FileKeyedClasses]
+    Hal            = hal.dll
+    Ntoskrnl       = ntoskrnl.exe
+[FilesKeyedSections]
+    FilesHal       = $(STF_HALDEST)
+    FilesNtoskrnl  = $(STF_WINDOWSSYSPATH)
+[FilesHal]
+[FilesNtoskrnl]
+[FileSections]
+    FilesPrimary        = C:
+    FilesOsLoader       = $(STF_OSLDEST)
+    FilesPal            = $(STF_HALDEST)
+    FilesWinnt          = $(STF_WINDOWSPATH)
+    FilesSystem32       = $(STF_WINDOWSSYSPATH)
+    FilesSystem         = $(STF_WINDOWSPATH)\system
+    FilesDrivers        = $(STF_WINDOWSSYSPATH)\drivers
+    FilesConfig         = $(STF_WINDOWSSYSPATH)\config
+    FilesWinspool       = $(STF_WINDOWSSYSPATH)\spool
+    FilesPrnDriver      = $(STF_WINDOWSSYSPATH)\spool\drivers\$(!STF_PRNPLATFORM)
+    FilesPrnProc        = $(STF_WINDOWSSYSPATH)\spool\prtprocs\$(!STF_PRNPLATFORM)
+    FilesDbgCom         = $(STF_WINDOWSPATH)\symbols\com
+    FilesDbgCpl         = $(STF_WINDOWSPATH)\symbols\cpl
+    FilesDbgDll         = $(STF_WINDOWSPATH)\symbols\dll
+    FilesDbgDrv         = $(STF_WINDOWSPATH)\symbols\drv
+    FilesDbgExe         = $(STF_WINDOWSPATH)\symbols\exe
+    FilesDbgScr         = $(STF_WINDOWSPATH)\symbols\scr
+    FilesDbgSys         = $(STF_WINDOWSPATH)\symbols\sys
+[FileSectionsCopyAlways]
+    FilesSystem32CopyAlways = $(STF_WINDOWSSYSPATH)
+    FilesDriversCopyAlways  = $(STF_WINDOWSSYSPATH)\drivers
+[FileSectionsWINNT]
+    FilesInfWinnt       = $(STF_WINDOWSSYSPATH)
+[FileSectionsLANMANNT]
+    FilesInfLanmanNT    = $(STF_WINDOWSSYSPATH)
+[FilesPrimary]
+[FilesOsLoader]
+[FilesPal]
+[FilesWinnt]
+[FilesSystem32]
+[FilesSystem]
+[FilesDrivers]
+[FilesConfig]
+[FilesWinspool]
+[FilesPrnDriver]
+[FilesPrnProc]
+[FilesDbgCom]
+[FilesDbgCpl]
+[FilesDbgDll]
+[FilesDbgDrv]
+[FilesDbgExe]
+[FilesDbgScr]
+[FilesDbgSys]
+[FilesInfWinnt]
+[FilesInfLanmanNT]
+[FilesSystem32CopyAlways]
+[FilesDriversCopyAlways]
+[FileAttributes]
+[ProcessorID]
+    ProcessorID_I386  = I386
+    ProcessorID_I486  = I486
+    ProcessorID_I586  = I586
+    ProcessorID_R4000 = R4000
+[UiVars]
+    STF_PLATFORMDET    = "" ? $(!LIBHANDLE) GetPlatform
+    STF_CSDVER         = 256
+    STF_BUILDVER       = 807
+    STF_CSD1_NT35      = 256
+    STF_NT31_BUILDVER  = 528
+    STF_NT35_BUILDVER  = 807
+    STF_PRIMARY        = "C:"
+    STF_NTDRIVE        = ""
+    STF_WINDOWSPATH    = "" ? $(!LIBHANDLE) GetWindowsNtDir
+    STF_WINDOWSSYSPATH = "" ? $(!LIBHANDLE) GetWindowsNtSysDir
+    STF_CONTROLSET     = CurrentControlSet
+    VolumeList         = {} ? $(!LIBHANDLE) GetHardDriveLetters
+    VolumeFSList       = {} ? $(!LIBHANDLE) GetHardDriveFileSystems
+    VolumeFreeList     = {} ? $(!LIBHANDLE) GetHardDriveFreeSpace
+    DisketteList       = {} ? $(!LIBHANDLE) GetFloppyDriveLetters
+[FreeSpaceI386]
+    RequiredFreeWinnt  = 25
+[FreeSpaceMips]
+    RequiredFreeWinnt  = 32
+[FreeSpaceppc]
+    RequiredFreeWinnt  = 32
+[FreeSpaceAlpha]
+    RequiredFreeWinnt  = 27
+[NVRAMVars]
+    SystemPartition = "" ? $(!LIBHANDLE) GetNVRAMVar SYSTEMPARTITION
+    OsLoader        = "" ? $(!LIBHANDLE) GetNVRAMVar OSLOADER
+    OsLoadPartition = "" ? $(!LIBHANDLE) GetNVRAMVar OSLOADPARTITION
+    OsLoadFilename  = "" ? $(!LIBHANDLE) GetNVRAMVar OSLOADFILENAME
+[Shell Commands]
+    set-title "Windows NT Setup"
+    set-subst CR = "\r"
+    set-subst LF = "\n"
+    set STF_LANGUAGE = ENG
+    read-syms Strings
+    shell "subroutn.inf" PushBillboard STATUSDLG $(Billboard1)
+    set BillboardPushed = TRUE
+    set !LIBHANDLE      = ""
+    set !PATCHLIBHANDLE = ""
+    install   LoadSetupLibrary
+    read-syms ProductType
+    ifstr(i) $(!STF_PLATFORM) == I386
+        set STF_PRNPLATFORM = "w32x86"
+    else-ifstr(i) $(!STF_PLATFORM) == Mips
+        set STF_PRNPLATFORM = "w32mips"
+    else-ifstr(i) $(!STF_PLATFORM) == ppc
+        set STF_PRNPLATFORM = "w32ppc"
+    else-ifstr(i) $(!STF_PLATFORM) == Alpha
+        set STF_PRNPLATFORM = "w32alpha"
+    endif
+    read-syms UiVars
+    detect    UiVars
+    read-syms FreeSpace$(!STF_PLATFORM)
+    ifstr(i) $(STF_PLATFORM) != $(STF_PLATFORMDET)
+         ifstr(i) $(BillboardPushed) == TRUE
+             shell "subroutn.inf" PopBillboard
+             set BillboardPushed = FALSE
+         endif
+         shell "subroutn.inf" SetupMessage $(STF_LANGUAGE) "FATAL" $(String1)
+         goto patchnotdone
+    endif
+    shell "registry.inf" CheckSetupModify
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        ifstr(i) $(BillboardPushed) == TRUE
+            shell "subroutn.inf" PopBillboard
+            set BillboardPushed = FALSE
+        endif
+        Debug-Output "shelling CheckSetupModify failed"
+        goto patchnotdone
+    else-ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        ifstr(i) $(BillboardPushed) == TRUE
+            shell "subroutn.inf" PopBillboard
+            set BillboardPushed = FALSE
+        endif
+        shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) "FATAL" $(String4)
+        goto patchnotdone
+    endif
+    install   LoadPatchLibrary
+    shell "" GetCheckedFree
+    ifint $($ShellCode) == $(!SHELL_CODE_OK)
+        ifstr(i) $($R0) == "STATUS_SUCCESSFUL"
+            ifstr(i) $($R1) == "checked"
+                shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) "FATAL" $(String15)
+                goto patchnotdone
+            endif
+        endif
+    endif
+    LibraryProcedure STATUS,$(!PATCHLIBHANDLE), CheckBuildVersion
+    ifint $(STATUS) <= $(STF_NT31_BUILDVER)
+        shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) FATAL $(String16)
+        goto patchnotdone
+    else-ifint $(STATUS) < $(STF_NT35_BUILDVER)
+        shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) FATAL $(String17)
+        goto patchnotdone
+    endif
+    shell "" GetCSDVersion
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        ifstr(i) $(BillboardPushed) == TRUE
+            shell "subroutn.inf" PopBillboard
+            set BillboardPushed = FALSE
+        endif
+        Debug-Output "PATCH.INF: Shelling GetCSDVersion failed"
+        goto patchnotdone
+    endif
+    ifstr(i) $($R0) != "STATUS_SUCCESSFUL"
+        Debug-Output "PATCH.INF: GetCSDVersion failed to return a value"
+        ifstr(i) $(!STF_PLATFORM) != ppc
+            ifint $(!STF_CSDVER) >= $(STF_CSD1_NT35)
+            else
+                shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) FATAL $(String18)
+                goto patchnotdone
+            endif
+        endif
+    else
+        ifint $($R1) > $(!STF_CSDVER)
+            ifstr(i) $(BillboardPushed) == TRUE
+                shell "subroutn.inf" PopBillboard
+                set BillboardPushed = FALSE
+            endif
+            shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) WARNING $(String8)
+            ifstr(i) $($R1) == "OK"
+            else
+                goto patchnotdone
+            endif
+        endif
+    endif
+skip_patchvercheck = +
+    GetDriveInPath !STF_NTDRIVE $(!STF_WINDOWSSYSPATH)
+    ifint *($(VolumeFreeList), ~($(VolumeList), $(!STF_NTDRIVE))) < $(RequiredFreeWinnt)
+        shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) FATAL $(String13a)$(RequiredFreeWinnt)$(String13b)$(!STF_NTDRIVE)$(String13c)
+        goto patchnotdone
+    endif
+    set STF_PRODUCT = ""
+    OpenRegKey $(!REG_H_LOCAL) "" "System\CurrentControlSet\Control\ProductOptions" 33554432 KeyProductOption
+    ifstr(i) $(KeyProductOption) != ""
+        GetRegValue $(KeyProductOption) "ProductType" ProductTypeList
+        set TempProductType = *($(ProductTypeList),4)
+        ifstr(i) $(TempProductType) == "winnt"
+            set !STF_PRODUCT = WINNT
+            set !PRODUCT_DIR = WINNT
+        else-ifstr(i) $(TempProductType) == "lanmannt"
+            set !STF_PRODUCT = LANMANNT
+            set !PRODUCT_DIR = NTAS
+        else-ifstr(i) $(TempProductType) == "servernt"
+            set !STF_PRODUCT = SERVERNT
+            set !PRODUCT_DIR = NTAS
+        endif
+        CloseRegKey $(KeyProductOptions)
+    endif
+    ifstr(i) $(STF_PRODUCT) == ""
+        shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) FATAL $(String14)
+        goto patchnotdone
+    endif
+    ifstr(i) $(!STF_PLATFORM) == I386
+        set STF_HALDEST = $(!STF_WINDOWSSYSPATH)
+        LibraryProcedure STF_OSLDEST,$(!PATCHLIBHANDLE), GetOsLoaderDest
+    else
+        read-syms NVRAMVars
+        detect    NVRAMVars
+        LibraryProcedure STATUS,$(!PATCHLIBHANDLE), GetOsLoaderDest         +
+                                                         $(SystemPartition) +
+                                                         $(OsLoader)        +
+                                                         $(OsLoadPartition) +
+                                                         $(OsLoadFilename)
+        ifstr(i) $(STATUS) == ERROR
+            goto patchnotdone
+        else
+            set STF_OSLDEST = $(STATUS)
+            set STF_HALDEST = $(STATUS)
+        endif
+    endif
+    read-syms FilesKeyedSections
+    set KeyedClassKeys  = ^(FileKeyedClasses, 0)
+    set KeyedClassFiles = ^(FileKeyedClasses, 1)
+    set KeyedClassFilesList = {}
+    ForListDo $(KeyedClassKeys)
+        set TmpKey       = Files$($)
+        set TmpFile      = #(FileKeyedClasses, $($), 1)
+        set TmpFilePath  = $($(TmpKey))\$(TmpFile)
+        set KeyedClassFilesList = >($(KeyedClassFilesList), $(TmpFilePath))
+    EndForListDo
+    LibraryProcedure STATUS,$(!PATCHLIBHANDLE), GetFileTypes $(KeyedClassFilesList)
+    ifstr(i) $(STATUS) == ERROR
+        goto patchnotdone
+    else-ifstr(i) $(STATUS) == SETUPLOGNOTPRESENT
+        shell "subroutn.inf" SetupMessage $(!STF_LANGUAGE) FATAL $(String11)
+        goto patchnotdone
+    else
+        ForListDo $(KeyedClassKeys)
+            set $($)Type = *($(STATUS), $(#))
+        EndForListDo
+    endif
+    ifstr(i) $(BillboardPushed) == TRUE
+        shell "subroutn.inf" PopBillboard
+        set BillboardPushed = FALSE
+    endif
+    shell "" QueryOkCancel $(String9)
+    ifstr(i) $($R1) == "OK"
+    else
+        set String = $(String12)
+        goto finish2
+    endif
+    shell "subroutn.inf" PushBillboard STATUSDLG $(Billboard2)
+    set BillboardPushed = TRUE
+    set MoveFileExList  = {}
+    read-syms FileSections
+    set FileSectionsList = ^(FileSections, 0)
+    set FileSource  = $(!STF_SRCDIR)
+    ForListDo $(FileSectionsList)
+        set FileSection = $($)
+        set FileDest    = $($($))
+        set FileList    = ^($(FileSection), 0)
+        ForListDo $(FileList)
+            set FileKey = $($)
+            set File    = #($(FileSection), $(FileKey), 2)
+            set FileDestFullPath = $(FileDest)\$(File)
+            LibraryProcedure STATUS,$(!LIBHANDLE),CheckFileExistance $(FileDestFullPath)
+            ifstr(i) $(STATUS) == YES
+                LibraryProcedure STATUS, $(!PATCHLIBHANDLE), IsFileOpenedExclusive $(FileDestFullPath)
+                ifstr(i) $(STATUS) == ERROR
+                    goto patchnotdone
+                else
+                    ifstr(i) $(STATUS) == "YES"
+                        LibraryProcedure NEWFILE, $(!PATCHLIBHANDLE), GenerateTemporary $(FileDest)
+                        ifstr(i) $(NEWFILE) == ERROR
+                            goto patchnotdone
+                        else
+                            set FileComp = {$(FileDest)\$(NEWFILE), $(FileDestFullPath)}
+                            set MoveFileExList = >($(MoveFileExList), $(FileComp))
+                        endif
+                    else
+                        set NEWFILE = $(File)
+                    endif
+                    install Install-File
+                endif
+            endif
+        EndForListDo
+    EndForListDO
+    set FileSource  = $(!STF_SRCDIR)
+    ForListDo $(KeyedClassKeys)
+        set FileSection = Files$($)
+        set FileDest    = $($(FileSection))
+        set FileKey     = $($($)Type)
+        set KeyedClassChoices = ^(Files$($), 0)
+        ifcontains(i) $(FileKey) in $(KeyedClassChoices)
+            set File             = #(FileKeyedClasses, $($), 1)
+            set FileDestFullPath = $(FileDest)\$(File)
+            LibraryProcedure STATUS,$(!LIBHANDLE),CheckFileExistance $(FileDestFullPath)
+            ifstr(i) $(STATUS) == YES
+                LibraryProcedure STATUS, $(!PATCHLIBHANDLE), IsFileOpenedExclusive $(FileDestFullPath)
+                ifstr(i) $(STATUS) == ERROR
+                    goto patchnotdone
+                else
+                    ifstr(i) $(STATUS) == "YES"
+                        LibraryProcedure NEWFILE, $(!PATCHLIBHANDLE), GenerateTemporary $(FileDest)
+                        ifstr(i) $(NEWFILE) == ERROR
+                            goto patchnotdone
+                        else
+                            set FileComp = {$(FileDest)\$(NEWFILE), $(FileDestFullPath)}
+                            set MoveFileExList = >($(MoveFileExList), $(FileComp))
+                        endif
+                    else
+                        set NEWFILE = $(File)
+                    endif
+                    install Install-File
+                endif
+            endif
+        endif
+    EndForListDo
+    ifstr(i) $(STF_PRODUCT) == "WINNT"
+        set TEMP_PRODUCT = WINNT
+    else
+        set TEMP_PRODUCT = LANMANNT
+    endif
+    read-syms FileSections$(TEMP_PRODUCT)
+    set FileSectionsList = ^(FileSections$(TEMP_PRODUCT), 0)
+    set FileSource  = $(!STF_SRCDIR)$(PRODUCT_DIR)
+    ForListDo $(FileSectionsList)
+        set FileSection = $($)
+        set FileDest    = $($($))
+        set FileList    = ^($(FileSection), 0)
+        ForListDo $(FileList)
+            set FileKey = $($)
+            set File    = #($(FileSection), $(FileKey), 2)
+            set FileDestFullPath = $(FileDest)\$(File)
+            LibraryProcedure STATUS,$(!LIBHANDLE),CheckFileExistance $(FileDestFullPath)
+            ifstr(i) $(STATUS) == YES
+                LibraryProcedure STATUS, $(!PATCHLIBHANDLE), IsFileOpenedExclusive $(FileDestFullPath)
+                ifstr(i) $(STATUS) == ERROR
+                    goto patchnotdone
+                else
+                    ifstr(i) $(STATUS) == "YES"
+                        LibraryProcedure NEWFILE, $(!PATCHLIBHANDLE), GenerateTemporary $(FileDest)
+                        ifstr(i) $(NEWFILE) == ERROR
+                            goto patchnotdone
+                        else
+                            set FileComp = {$(FileDest)\$(NEWFILE), $(FileDestFullPath)}
+                            set MoveFileExList = >($(MoveFileExList), $(FileComp))
+                        endif
+                    else
+                        set NEWFILE = $(File)
+                    endif
+                    install Install-File
+                endif
+            endif
+        EndForListDo
+    EndForListDO
+    ifstr(i) $(BillboardPushed) == TRUE
+        shell "subroutn.inf" PopBillboard
+        set BillboardPushed = FALSE
+    endif
+    read-syms FileSectionsCopyAlways
+    set FileSectionsList = ^(FileSectionsCopyAlways, 0)
+    set FileSource  = $(!STF_SRCDIR)
+    ForListDo $(FileSectionsList)
+        set FileSection = $($)
+        set FileDest    = $($($))
+        set FileList    = ^($(FileSection), 0)
+        ForListDo $(FileList)
+            set FileKey = $($)
+            set File    = #($(FileSection), $(FileKey), 2)
+            set NEWFILE = $(File)
+            set FileDestFullPath = $(FileDest)\$(File)
+            install Install-File
+        EndForListDo
+    EndForListDO
+    read-syms ProgressCopy$(!STF_LANGUAGE)
+    install   Install-DoCopy
+    ifstr(i) $(STF_INSTALL_OUTCOME) == "STF_USERQUIT"
+        goto patchnotdone
+    else-ifstr(i) $(STF_INSTALL_OUTCOME) == "STF_FAILURE"
+        goto patchnotdone
+    endif
+    set FileSection = "FileAttributes"
+    set FileList    = ^(FileSection, 0)
+    ForListDo $(FileList)
+        set FileKey          = $($)
+        set File             = #($(FileSection), $(FileKey), 2)
+        set FileDest         = #($(FileSection), $(FileKey), 3)
+        set FilePerms        = #($(FileSection), $(FileKey), 4)
+        set FileDestFullPath = $(FileDest)\$(File)
+        ifstr(i) $(FilePerms) != ""
+            LibraryProcedure STATUS,$(!PATCHLIBHANDLE),ChangeFileAttributes $(FilePerms) $(FileDestFullPath)
+        endif
+    EndForListDo
+processmovefileex=+
+    ForListDo $(MoveFileExList)
+        set ExistingPath = *($($), 1)
+        set NewPath      = *($($), 2)
+        LibraryProcedure STATUS, $(!PATCHLIBHANDLE), CopyFileOnReboot $(ExistingPath) $(NewPath)
+        ifstr(i) $(STATUS) == ERROR
+            goto patchnotdone
+        endif
+    EndForListDo
+patchdone =+
+    ifstr(i) $(BillboardPushed) == TRUE
+        shell "subroutn.inf" PopBillboard
+        set BillboardPushed = FALSE
+    endif
+    shell "" DoRegistryModifications $(!STF_CSDVER)
+    read-syms SetupDoneDlg$(!STF_LANGUAGE)
+    ui start "SetupDone"
+    ifstr(i) $(DLGEVENT) == "CONTINUE"
+        ui pop 1
+        goto rebootend
+    else
+        ui pop 1
+        goto finish1
+    endif
+patchnotdone =+
+    set String = $(String2)
+finish2 =+
+    ifstr(i) $(BillboardPushed) == TRUE
+        shell "subroutn.inf" PopBillboard
+        set BillboardPushed = FALSE
+    endif
+    shell "subroutn.inf" SetupMessage $(STF_LANGUAGE) "FATAL" $(String)
+    goto finish1
+finish1 =+
+    install   FreeSetupLibrary
+finish =+
+    install   FreePatchLibrary
+    exit
+rebootend =+
+    set Reboot = YES
+    install   Install-Shutdown
+    goto finish1
+    exit
+[LoadPatchLibrary]
+    LoadLibrary "x" patchdll.dll !PATCHLIBHANDLE
+    exit
+[FreePatchLibrary]
+    ifstr(i) $(!PATCHLIBHANDLE) != ""
+        FreeLibrary $(!PATCHLIBHANDLE)
+    endif
+    exit
+[LoadSetupLibrary]
+    LoadLibrary "x" $(!STF_CWDDIR)setupdll.dll !LIBHANDLE
+    exit
+[FreeSetupLibrary]
+    ifstr(i) $(!LIBHANDLE) != ""
+        FreeLibrary $(!LIBHANDLE)
+    endif
+    exit
+[Install-File]
+    set STF_VITAL = ""
+    AddSectionKeyFileToCopyList $(FileSection) $(FileKey) $(FileSource) $(FileDest)
+    exit
+[Install-DoCopy]
+    CopyFilesInCopyList
+    exit
+[Install-Shutdown]
+    LibraryProcedure STATUS,$(!LIBHANDLE),ShutdownSystem $(Reboot)
+    exit
+[RegistryConstants]
+    MaskAllAccess          = 33554432
+    NoTitle                = 0
+    RegLastError           = $(!REG_ERROR_SUCCESS)
+[DoRegistryModifications]
+    set Status = STATUS_FAILED
+    read-syms RegistryConstants
+    set KeyPath   = { +
+                     {SOFTWARE,       $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,      $(NoTitle), $(MaskAllAccess)}, +
+                     {"Windows NT",   $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentVersion, $(NoTitle), $(MaskAllAccess)}, +
+                     {WOW,            $(NoTitle), $(MaskAllAccess)}, +
+                     {Compatibility,  $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {FH3, $(NoTitle), $(!REG_VT_SZ), "0x00004000" }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,            $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,     $(NoTitle), $(MaskAllAccess)}, +
+                     {Control,           $(NoTitle), $(MaskAllAccess)}, +
+                     {"Keyboard Layout", $(NoTitle), $(MaskAllAccess)}, +
+                     {DosKeybIDs,        $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {0000041F, $(NoTitle), $(!REG_VT_SZ), "179" }  +
+                     {0001041F, $(NoTitle), $(!REG_VT_SZ), "440" }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {"Windows NT",            $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentVersion,          $(NoTitle), $(MaskAllAccess)}, +
+                     {"Time Zones",             $(NoTitle), $(MaskAllAccess)}, +
+                     {"Romance Standard Time", $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {TZI, $(NoTitle), $(!REG_VT_BIN), { +
+                                                         "196","255","255","255", +
+                                                         "000","000","000","000", +
+                                                         "196","255","255","255", +
+                                                         "000","000","009","000", +
+                                                         "000","000","005","000", +
+                                                         "000","000","000","000", +
+                                                         "000","000","000","000", +
+                                                         "000","000","003","000", +
+                                                         "000","000","005","000", +
+                                                         "000","000","000","000", +
+                                                         "000","000","000","000"  +
+                                                       }  +
+                     } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {"Windows NT",            $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentVersion,          $(NoTitle), $(MaskAllAccess)}, +
+                     {"Time Zones",            $(NoTitle), $(MaskAllAccess)}, +
+                     {"GFT Standard Time",     $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {TZI, $(NoTitle), $(!REG_VT_BIN), { +
+                                                         "136","255","255","255", +
+                                                         "000","000","000","000", +
+                                                         "196","255","255","255", +
+                                                         "000","000","009","000", +
+                                                         "000","000","005","000", +
+                                                         "000","000","000","000", +
+                                                         "000","000","000","000", +
+                                                         "000","000","003","000", +
+                                                         "000","000","005","000", +
+                                                         "000","000","000","000", +
+                                                         "000","000","000","000"  +
+                                                       }  +
+                     } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {"Windows NT",            $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentVersion,          $(NoTitle), $(MaskAllAccess)}, +
+                     {"Time Zones",            $(NoTitle), $(MaskAllAccess)}, +
+                     {"Central Asia Standard Time",     $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {Display, $(NoTitle), $(!REG_VT_SZ), "(GMT+06:00) Almaty, Dhaka" } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {"Windows NT",            $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentVersion,          $(NoTitle), $(MaskAllAccess)}, +
+                     {"Time Zones",            $(NoTitle), $(MaskAllAccess)}, +
+                     {"E. South America Standard Time",     $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {Display, $(NoTitle), $(!REG_VT_SZ), "(GMT-03:00) Brazilia" } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {"Windows NT",            $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentVersion,          $(NoTitle), $(MaskAllAccess)}, +
+                     {IniFileMapping,          $(NoTitle), $(MaskAllAccess)}, +
+                     {win.ini,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {Windows,                 $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {SnapToDefaultButton, $(NoTitle), $(!REG_VT_SZ), "#USR:Control Panel\Mouse" }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Control,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {Print,                   $(NoTitle), $(MaskAllAccess)}, +
+                     {Providers,               $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {RouterCacheSize, $(NoTitle), $(!REG_VT_DWORD), 5 }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Control,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {ServiceGroupOrder,       $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {List, $(NoTitle), $(!REG_VT_MULTI_SZ), {                       +
+                                                              "SCSI miniport",       +
+                                                              "port",                +
+                                                              "Primary disk",        +
+                                                              "SCSI class",          +
+                                                              "SCSI CDROM class",    +
+                                                              "filter",              +
+                                                              "boot file system",    +
+                                                              "Base",                +
+                                                              "Pointer Port",        +
+                                                              "Keyboard Port",       +
+                                                              "Pointer Class",       +
+                                                              "Keyboard Class",      +
+                                                              "Video Init",          +
+                                                              "Video",               +
+                                                              "Video Save",          +
+                                                              "file system",         +
+                                                              "Event log",           +
+                                                              "Streams Drivers",     +
+                                                              "NDIS",                +
+                                                              "TDI",                 +
+                                                              "NetBIOSGroup",        +
+                                                              "SpoolerGroup",        +
+                                                              "NetDDEGroup",         +
+                                                              "Parallel arbitrator", +
+                                                              "extended base",       +
+                                                              "RemoteValidation",    +
+                                                              "PCI Configuration"    +
+                                                             } }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Control,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {"Session Manager",       $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {GlobalFlag, $(NoTitle), $(!REG_VT_DWORD), 0 }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Control,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {"Session Manager",       $(NoTitle), $(MaskAllAccess)}, +
+                     {"Memory Management",     $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {DisablePagingExecutive, $(NoTitle), $(!REG_VT_DWORD), 0 }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Services,                $(NoTitle), $(MaskAllAccess)}, +
+                     {et4000,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {Device0,                 $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {InstalledDisplayDrivers, $(NoTitle), $(!REG_VT_MULTI_SZ), {       +
+                                                                                 "vga",    +
+                                                                                 "w32",    +
+                                                                                 "vga256", +
+                                                                                 "vga64k"  +
+                                                                                } }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Services,                $(NoTitle), $(MaskAllAccess)}, +
+                     {tga,                     $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {Type,          $(NoTitle), $(!REG_VT_DWORD), 1 }  +
+                     {Start,         $(NoTitle), $(!REG_VT_DWORD), 1 }  +
+                     {ErrorControl,  $(NoTitle), $(!REG_VT_DWORD), 0 }  +
+                     {Group,         $(NoTitle), $(!REG_VT_SZ), "Video" }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Services,                $(NoTitle), $(MaskAllAccess)}, +
+                     {tga,                     $(NoTitle), $(MaskAllAccess)}, +
+                     {Device0,                 $(NoTitle), $(MaskAllAccess)}, +
+                    }
+    set KeyValues = { +
+                     {VgaCompatible,          $(NoTitle), $(!REG_VT_DWORD), 0 }  +
+                     {InstalledDisplayDrivers,$(NoTitle), $(!REG_VT_MULTI_SZ), {"tga"} }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Services,                $(NoTitle), $(MaskAllAccess)}, +
+                     {PCIDump,                 $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {ErrorControl,          $(NoTitle), $(!REG_VT_DWORD), 0 }  +
+                     {Group,                 $(NoTitle), $(!REG_VT_SZ), "PCI Configuration" }  +
+                     {Start,                 $(NoTitle), $(!REG_VT_DWORD), 1 }  +
+                     {Tag,                   $(NoTitle), $(!REG_VT_DWORD), 1 }  +
+                     {Type,                  $(NoTitle), $(!REG_VT_DWORD), 1 }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {Classes,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {CLSID,                   $(NoTitle), $(MaskAllAccess)}, +
+                     {"{00022601-0000-0000-C000-000000000046}",     $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {"", $(NoTitle), $(!REG_VT_SZ), "Media Clip" } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {Classes,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {CLSID,                   $(NoTitle), $(MaskAllAccess)}, +
+                     {"{00022601-0000-0000-C000-000000000046}",     $(NoTitle), $(MaskAllAccess)}  +
+                     {verb,                    $(NoTitle), $(MaskAllAccess)}  +
+                     {2,                       $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {"", $(NoTitle), $(!REG_VT_SZ), "&Open,0,2" } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SOFTWARE,                $(NoTitle), $(MaskAllAccess)}, +
+                     {Microsoft,               $(NoTitle), $(MaskAllAccess)}, +
+                     {Classes,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {MPlayer,                 $(NoTitle), $(MaskAllAccess)}, +
+                     {protocol,                $(NoTitle), $(MaskAllAccess)}, +
+                     {StdFileEditing,          $(NoTitle), $(MaskAllAccess)}, +
+                     {verb,                    $(NoTitle), $(MaskAllAccess)}  +
+                     {2,                       $(NoTitle), $(MaskAllAccess)}  +
+                    }
+    set KeyValues = { +
+                     {"", $(NoTitle), $(!REG_VT_SZ), "&Open" } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,                  $(NoTitle), $(MaskAllAccess)}, +
+                     {ControlSet001,           $(NoTitle), $(MaskAllAccess)}, +
+                     {Services,                $(NoTitle), $(MaskAllAccess)}, +
+                     {qv,                      $(NoTitle), $(MaskAllAccess)}, +
+                     {Device0,                 $(NoTitle), $(MaskAllAccess)}, +
+                    }
+    set KeyValues = { +
+                     {InstalledDisplayDrivers,$(NoTitle), $(!REG_VT_MULTI_SZ), {"vga", "qv"} }  +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set KeyPath   = { +
+                     {SYSTEM,            $(NoTitle), $(MaskAllAccess)}, +
+                     {CurrentControlSet, $(NoTitle), $(MaskAllAccess)}, +
+                     {Control,           $(NoTitle), $(MaskAllAccess)}, +
+                     {ProductOptions,    $(NoTitle), $(MaskAllAccess)}, +
+                    }
+    set KeyValues = { +
+                     {CSDVersion, $(NoTitle), $(!REG_VT_DWORD), $($0) } +
+                    }
+    shell "registry.inf" CreateKey $(!REG_H_LOCAL) $(KeyPath) $(KeyValues)
+    ifint $($ShellCode) != $(!SHELL_CODE_OK)
+        goto endCSDVersionCreate
+    endif
+    ifstr(i) $($R0) != STATUS_SUCCESSFUL
+        goto endCSDVersionCreate
+    else
+        CloseRegKey $($R1)
+    endif
+    set Status = STATUS_SUCCESSFUL
+endCSDVersionCreate = +
+    Return $(Status)
+[GetCSDVersion]
+    set Status = STATUS_SUCCESSFUL
+    read-syms RegistryConstants
+    set CSDVersion = 0
+    set KeyName = "SYSTEM\CurrentControlSet\ProductOptions"
+    OpenRegKey $(!REG_H_LOCAL) "" $(KeyName) $(!REG_KEY_READ) KeyHandle
+    ifint $(RegLastError) != $(!REG_ERROR_SUCCESS)
+        Debug-Output "REGISTRY.INF: Couldn't open windows nt software key for read access"
+        goto end_GetCSDVersion
+    endif
+    GetRegValue $(KeyHandle) "CSDVersion" CSDVersionValue
+    ifint $(RegLastError) != $(!REG_ERROR_SUCCESS)
+        CloseRegKey $(KeyHandle)
+        goto end_GetCSDVersion
+    endif
+    set CSDVersion =  *($(CSDVersionValue), 4)
+    CloseRegKey $(KeyHandle)
+end_GetCSDVersion = +
+    Return $(Status) $(CSDVersion)
+[GetCheckedFree]
+    set Status = STATUS_SUCCESSFUL
+    read-syms RegistryConstants
+    set System = Free
+    set KeyName = "Software\Microsoft\Windows NT\CurrentVersion"
+    OpenRegKey $(!REG_H_LOCAL) "" $(KeyName) $(!REG_KEY_READ) KeyHandle
+    ifint $(RegLastError) != $(!REG_ERROR_SUCCESS)
+        Debug-Output "REGISTRY.INF: Couldn't open windows nt software key for read access"
+        goto end_GetCheckedFree
+    endif
+    GetRegValue $(KeyHandle) "CurrentType" CurrentTypeValue
+    ifint $(RegLastError) != $(!REG_ERROR_SUCCESS)
+        CloseRegKey $(KeyHandle)
+        goto end_GetCheckedFree
+    endif
+    Split-String *($(CurrentTypeValue), 4) " " CurrentTypeList
+    ForListDo $(CurrentTypeList)
+       ifstr(i) $($) == "free"
+          set System = free
+       else-ifstr(i) $($) == "checked"
+          set System = checked
+       endif
+    EndForListDo
+    CloseRegKey $(KeyHandle)
+end_GetCheckedFree = +
+    Return $(Status) $(System)
+[QueryOkCancel]
+    set DlgText = $($0)
+    read-syms QueryOKCancelDlg$(!STF_LANGUAGE)
+    ui start "SetupMessage"
+    ifstr(i) $(DLGEVENT) == "OK"
+        set Status     = STATUS_SUCCESSFUL
+        set UserAction = $(DLGEVENT)
+    else-ifstr(i) $(DLGEVENT) == "CANCEL"
+        set Status     = STATUS_SUCCESSFUL
+        set UserAction = $(DLGEVENT)
+    else
+        set Status     = STATUS_FAILED
+        set UserAction = "CANCEL"
+    endif
+    Return $(Status) $(UserAction)
+[Source Media Descriptions]
+    1 = "Windows 2000 Professional (Beta 3) CD-ROM" , TAGFILE = cdrom_ip.5b3
+[Signature]
+    FileType = MICROSOFT_FILE
+[GetSignature]
+    read-syms Signature
+    return $(FileType)
+[ProductType]
+STF_PRODUCT  = Winnt
+STF_PLATFORM = I386
+[Source Media Descriptions]
+    1  = "Windows NT 3.51 Update Disk #1"  , TAGFILE = disk1
+    2  = "Windows NT 3.51 Update Disk #2"  , TAGFILE = disk2
+    3  = "Windows NT 3.51 Update Disk #3"  , TAGFILE = disk3
+    4  = "Windows NT 3.51 Update Disk #4"  , TAGFILE = disk4
+    5  = "Windows NT 3.51 Update Disk #5"  , TAGFILE = disk5
+    6  = "Windows NT 3.51 Update Disk #6"  , TAGFILE = disk6
+    7  = "Windows NT 3.51 Update Disk #7"  , TAGFILE = disk7
+    8  = "Windows NT 3.51 Update Disk #8"  , TAGFILE = disk8
+    9  = "Windows NT 3.51 Update Disk #9"  , TAGFILE = disk9
+    10 = "Windows NT 3.51 Update Disk #10" , TAGFILE = disk10
+[Strings]
+    String1 = "This update disk cannot be used on this platform."
+    String2 = "Setup failed to update the system."
+    String3 = "Setup has successfully updated your system."
+    String4 = "You do not have permission to update the system.  Please contact your system administrator."
+    String5 = "Setup failed to setup your updated files for secure operation."
+    String8 = "Setup has detected that the version of the system installed is "+
+              "newer than the update you are applying to it.  The update can render "+
+              "your system unstartable.  Press OK if you still wish to continue "+
+              "or press Cancel to exit Setup."
+    String9 = "Setup is going to update your Windows NT system with the English "+
+              "version of the update program.  If you wish to cancel the update "+
+              "process, please press Cancel or press OK to continue."
+    String11 = "Setup couldn't find the setup.log file in your repair directory. "+
+               "Setup cannot proceed to update your system.  Please copy the setup.log "+
+               "file from your Emergency Repair Disk to your repair directory "+
+               "and restart the update."
+    String12 = "Setup has not updated your system.  If you wish to update your "+
+               "system please run the update utility again."
+    String13a = "Not enough hard disk space to run Setup.  Setup needs at least "
+    String13b = "MB of free hard disk space on "
+    String13c = " before it can be run.  Delete some"+
+                " files and run the Update program again."
+    String14  = "Setup cannot update your Windows NT files because it could not "+
+                "determine your product type.  Your registry may be corrupt."
+    String15  = "Setup cannot update your checked system.  The update can only "+
+                "be applied to the retail system."
+    String16  = "Setup cannot update your Windows NT files because your system is "+
+                "NT 3.1. Please upgrade your system to the retail Windows NT 3.5, "+
+                "and then update your system."
+    String17  = "Setup cannot update your Windows NT files because your system is "+
+                "a pre-release of NT 3.5. Please upgrade your system to the retail "+
+                "Windows NT 3.5, and then update your system."
+    String18  = "Setup cannot update your system using the current Service Pack. "+
+                "You must first update your system using Service Pack 1 for NT 3.5."
+    Billboard1 = "Please wait..."
+    Billboard2 = "Please wait while the files to be updated are determined..."
+    Billboard3 = "Please wait while the Emergency Repair Disk is updated..."
+[ProgressCopyENG]
+    ProCaption   = "Windows NT Setup"
+    ProCancel    = "Cancel"
+    ProCancelMsg = "The Windows NT 3.51 files are not completely updated.  Are you sure you want "+
+                   "to cancel copying files?"
+    ProCancelCap = "Setup Message"
+    ProText1     = "Copying:"
+    ProText2     = "To:"
+[SetupDoneDlgENG]
+    Caption     = "Windows NT Setup"
+    DlgText     = "Windows NT 3.5 has been updated. If you change or add "+
+                  "any components to your system, you will need to "+
+                  "reapply the update."$(!LF)$(!LF)+
+                  "Remove disks from the floppy disk drives and "+
+                  "choose Restart Computer to run the updated system."
+    Reboot      = "&Restart Computer"
+    Windows     = "E&xit to Windows NT"
+    DlgType     = "Info"
+    DlgTemplate = "REBOOT"
+[QueryOKCancelDlgENG]
+    STF_MB_TITLE = "Setup Message"
+    DlgType      = "MessageBox"
+    STF_MB_TEXT  = $(DlgText)
+    STF_MB_TYPE  = 2
+    STF_MB_ICON  = 4
+    STF_MB_DEF   = 1

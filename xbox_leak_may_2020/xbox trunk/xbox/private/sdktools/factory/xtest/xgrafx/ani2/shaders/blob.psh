@@ -1,0 +1,24 @@
+xps.1.1
+
+; Inputs:
+; t0          = surface normal (renormalize and dot with light)
+; c0          = light 1 direction
+; c1          = light 2 direction
+; c2          = base blob color
+; c3          = ambient color
+
+
+tex t0
+
+dp3 r0, t0_bx2, c0_bx2
+dp3 r1, t0_bx2, c1_bx2
+add r0, r0_sat, r1_sat
+
+mul r0.rgb, r0, c2.rgb
+add r0.rgb, r0.rgb, c3.rgb
+mov r0.a, v0.a
+
+;xdd r1, r0, t0_bx2, v1, t0_bx2, -v1					; r0 and r1 are the dots of the normal with the light dir and negative dir
+;xmma discard, discard, r0, r0_sat, v0, r1_sat, v0	; r0 is the blob color scaled by the non-negative dot
+
+

@@ -1,0 +1,1308 @@
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                          //
+//  IIIIIII SSSSSS                                                                          //
+//    II    SS                          InstallShield (R)                                   //
+//    II    SSSSSS      (c) 1996-2000, InstallShield Software Corporation                   //
+//    II        SS      (c) 1990-1996, InstallShield Corporation                            //
+//  IIIIIII SSSSSS                     All Rights Reserved.                                 //
+//                                                                                          //
+//                                                                                          //
+//  File Name:    Setup.rul                                                                 //
+//                                                                                          //
+//  Description:  InstallShield script                                                      //
+//                                                                                          //
+//  Comments:     This project demonstrates setup that works as an maintenance pack of      //
+//                Microsoft Xbox SDK application. It will run only if the application       //
+//                is already installed on the machine. The setup will install new/updated   //
+//                files for existing components.  Components are updated only if they       //
+//                were originally installed for the application.                            //
+//                                                                                          //
+//                This template script performs a basic setup on a Windows 2000 platform.   //
+//                                                                                          //
+//  History       Emily Wang Create for Xbox on December 5, 2000                            //
+//                                                                                          //
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// Include header files
+
+#include "ifx.h"
+#include "xboxverp.h"
+
+prototype BOOL CheckVersionNumber();
+prototype NUMBER CreateTempFile(BYREF STRING);
+prototype VCComponents_BackupVCDLLs();
+prototype VCComponents_CheckRequirements();
+prototype VCComponents_Installing();
+prototype STRING ResetStrValue(BYREF STRING);
+prototype ShellExecute(STRING);
+prototype VCComponents_RestoreVCDLLs();
+
+prototype Kernel32.GetTempFileNameA( BYREF STRING, BYREF STRING, INT, BYREF STRING );
+prototype Shell32.ShellExecuteA( HWND,BYVAL STRING, BYREF STRING, BYREF STRING, BYREF STRING, INT);
+
+BOOL    bRestartNeeded;
+BOOL    bAddRemove;
+STRING  szOrgSrcDir;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnBegin
+//
+//  EVENT:      Begin event is always sent as the first event during installation.
+//
+//////////////////////////////////////////////////////////////////////////////
+function OnBegin()
+    NUMBER nResult, nvType, nvSize;
+    STRING szVCPath, szAdmin;
+
+begin
+    if (MODE=SILENTMODE) then
+       TARGETDIR = PROGRAMFILES ^ @PRODUCT_NAME;
+    endif;
+
+    //Check if user is the administrator or not.
+    if( Is( USER_ADMINISTRATOR, szAdmin) != 1) then
+        MessageBox(@ERROR_ADMINISTRATOR, SEVERE);
+        abort;
+    endif;
+
+     //Check if VC in use
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    nResult = RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\Setup","VsCommonDir",nvType,szVCPath,nvSize);
+    if (nResult = 0) then
+        if (Is (FILE_LOCKED, szVCPath ^ "\\MSDev98\\Bin\\msdev.exe") = 1) then
+            MessageBox(@ERROR_VCINUSE, SEVERE);
+            abort;
+        endif;
+    endif;
+    //check if setup run update or add/remove program
+    bAddRemove = FALSE;
+    if ( CMDLINE = "XDKUpate" || CheckVersionNumber() = TRUE) then
+        bAddRemove = TRUE;
+    endif;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnAppSearch
+//
+//  EVENT:      AppSearch event is used as an entry point to implement code to
+//              search for previous versions of the current application. This
+//              event is sent only for a first time installation.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnAppSearch()
+
+begin
+      VCComponents_CheckRequirements();
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFirstUIBefore
+//
+//  EVENT:      FirstUIBefore event is sent when installation is run for the first
+//              time on given machine. In the handler installation usually displays
+//              UI allowing end user to specify installation parameters. After this
+//              function returns, ComponentTransferData is called to perform file
+//              transfer.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFirstUIBefore()
+    NUMBER  nResult,nSetupType,nFreeSpace, nReqSpace, nLength, nFileResult;
+    STRING  szTitle, szMsg, szReadMeFile,szQuestion;
+    STRING  szDir, szTempDir;
+    STRING  szfolder;
+    LIST    listStartCopy, list;
+
+begin
+
+    SetTitle( @TITLE_MAIN, 24, WHITE );
+    SetTitle( @TITLE_CAPTIONBAR, 0, BACKGROUNDCAPTION );
+
+    Enable( CORECOMPONENTHANDLING );
+
+    TARGETDIR = PROGRAMFILES ^ @PRODUCT_NAME;
+    SHELL_OBJECT_FOLDER = @FOLDER_NAME;
+    szDir = TARGETDIR;
+
+    SdProductName( @PRODUCT_NAME );
+
+    Enable( DIALOGCACHE );
+
+    // Initialize global flags
+    bRestartNeeded = FALSE;
+
+    //svDefGroup = @FOLDER_NAME;
+
+    Enable( INDVFILESTATUS );
+    SetDialogTitle(DLG_STATUS, @SETUP_DIALOG_TITLE );
+
+Dlg_Start:
+    // beginning of dialogs label
+
+Dlg_SdWelcome:
+    szTitle = @MSG_WELCOME_TITLE;
+    szMsg   = @MSG_WELCOME;
+    nResult = SdWelcome( szTitle, szMsg );
+    if (nResult = BACK) goto Dlg_Start;
+
+Dlg_SdLicense:
+
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        szReadMeFile = SRCDIR ^ "ReadMe1st.Txt";
+    else
+        szReadMeFile = SRCDIR ^ "ReadMe1stJpn.Txt";
+    endif;
+    szTitle    = @README_TITLE;
+    szMsg      = @README_MESSAGE;
+    szQuestion = @README_QUESTION;
+    nResult    = SdLicense( szTitle, szMsg, szQuestion, szReadMeFile );
+    if (nResult = BACK) goto Dlg_SdWelcome;
+
+Dlg_SdRegisterUserEx:
+//    szMsg   = "";
+//    szTitle = "";
+//    nResult = SdRegisterUserEx( szTitle, szMsg, svName, svCompany, svSerial );
+    if (nResult = BACK) goto Dlg_SdLicense;
+
+Dlg_SdAskDestPath:
+    szTitle = "";
+    szMsg   = "";
+    nResult = SdAskDestPath( szTitle, szMsg, szDir, 0 );
+    if (ExistsDir(szDir) == 0) then
+        szTempDir = szDir;
+        if (Is(DIR_WRITEABLE,szDir)!= TRUE || CreateTempFile( szTempDir) = 0 ) then
+            MessageBox (szDir + "\n " + @ERROR_PATH, SEVERE);
+            goto Dlg_SdAskDestPath;
+        endif;
+    endif;
+
+    if (nResult = BACK) goto Dlg_SdLicense;
+    //Check req space.
+    nReqSpace  = ComponentTotalSize( MEDIA, "", TRUE, TRUE );
+    nFreeSpace = GetDiskSpaceEx(szDir, BYTES);
+    if ( nReqSpace > nFreeSpace ) then
+        MessageBox (@ERROR_TARGETSIZE, WARNING);
+        goto Dlg_SdAskDestPath;
+    endif;
+    TARGETDIR = szDir;
+
+Dlg_ObjDialogs:
+    nResult = ShowObjWizardPages(nResult);
+    if (nResult = BACK) then
+        DeleteDir(szDir, ONLYDIR);
+        TARGETDIR = szDir;
+        goto Dlg_SdAskDestPath;
+    endif;
+Dlg_SdSelectFolder:
+    szfolder = SHELL_OBJECT_FOLDER;
+    szTitle    = "";
+    szMsg      = "";
+    nResult    = SdSelectFolder( szTitle, szMsg, szfolder );
+    SHELL_OBJECT_FOLDER = szfolder;
+    if (nResult = BACK) goto Dlg_ObjDialogs;
+
+Dlg_SdStartCopy:
+    szTitle = "";
+    szMsg   = "";
+
+    ComponentSelectItem( MEDIA, "DX CD Image", FALSE);
+    listStartCopy = ListCreate( STRINGLIST );
+    ListAddString(listStartCopy, @MSG_LIST, AFTER);
+    ListAddString(listStartCopy, "       "+ szDir, AFTER);
+
+    //Set Target Variable for Readme and releasenote.
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        ComponentSetTarget (MEDIA, "<TargetReadMe>", TARGETDIR ^ "ReadMe1st.Txt");
+        ComponentSetTarget (MEDIA, "<TargetRelNotes>", TARGETDIR ^ "RelNotes.Htm");
+//      ComponentSetTarget (MEDIA, "<TargetXDKInstall>", TARGETDIR ^ "XDKUpdateInstall.Htm");
+    else
+        ComponentSetTarget (MEDIA, "<TargetReadMe>", TARGETDIR ^ "ReadMe1stJpn.Txt");
+        ComponentSetTarget (MEDIA, "<TargetRelNotes>", TARGETDIR ^ "RelNotesJpn.Htm");
+//      ComponentSetTarget (MEDIA, "<TargetXDKInstall>", TARGETDIR ^ "XDKUpdateInstallJpn.Htm");
+    endif;
+
+    // Select proper VC language components
+
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        ComponentSelectItem(MEDIA, "VC Components", TRUE);
+        ComponentSelectItem(MEDIA, "VC Components (Jpn)", FALSE);
+    else
+        ComponentSelectItem(MEDIA, "VC Components", FALSE);
+        ComponentSelectItem(MEDIA, "VC Components (Jpn)", TRUE);
+    endif;
+
+    VCComponents_BackupVCDLLs();
+    nResult = SdStartCopy( szTitle, szMsg, listStartCopy );
+    ListDestroy(listStartCopy);
+    if (nResult = BACK) goto Dlg_SdSelectFolder;
+    TARGETDIR = szDir;
+    // setup default status
+    SetStatusWindow(0, "");
+    Enable(STATUSEX);
+    StatusUpdate(ON, 100);
+    VCComponents_Installing();
+    //return 0;
+
+    //string for diff update or add/remove program
+    UNINSTALL_STRING = UNINSTALL_STRING + "XDKUpdate";
+
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFirstUIAfter
+//
+//  EVENT:      FirstUIAfter event is sent after file transfer, when installation
+//              is run for the first time on given machine. In this event handler
+//              installation usually displays UI that will inform end user that
+//              installation has been completed successfully.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFirstUIAfter()
+    STRING szTitle, szOption1, szOption2, szMsg1, szMsg2;
+    STRING szValueName, szKey, szString, szC2Path;
+    NUMBER bOpt1, bOpt2, nResult, nDefOptions, nvType, nvSize;
+begin
+
+    Disable(STATUSEX);
+    ShowObjWizardPages(NEXT);
+
+
+    //Create the Registry sets that were defined in the Resources pane.
+    if (CreateRegistrySet ("") < 0) then
+        MessageBox (@ERROR_REG,SEVERE);
+        abort;
+    endif;
+
+    //Create the Shell objects that were defined in the Resources pane.
+    if (CreateShellObjects ("") < 0) then
+        MessageBox (@ERROR_SHELL,SEVERE);
+        abort;
+    endif;
+
+    // Get the paths used for Win32 (x86)
+    RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+    szValueName = "Path Dirs";
+    szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+    if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+        // prepend the Xbox bin directories (incl. VC7 dir) to the path
+        szString = TARGETDIR ^ "\\Xbox\\Bin\\VC7;" + TARGETDIR ^ "\\Xbox\\Bin;" + szString;
+    else // Win32 project type hadn't been built. Fabricate a path.
+        RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+        RegDBGetKeyValueEx("Software\\Microsoft\\DevStudio\\6.0\\Products\\Microsoft Visual C++","ProductDir",nvType,szC2Path,nvSize);
+        RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+        GetEnvVar("Path", szString);
+        szString = TARGETDIR ^ "\\Xbox\\Bin\\VC7;" + TARGETDIR ^ "\\Xbox\\Bin;" +
+                       szC2Path + "\\\.\.\\Common\\MSDev98\\Bin;" +
+                       szC2Path + "\\Bin;" +
+                       szC2Path + "\\\.\.\\Common\\Tools;" +
+                       szString;
+    endif;
+    szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Xbox\\Directories";
+    RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+
+     // Prepend our Win32 Include & Lib directories to the Win32 project dirs in VC
+    Disable(LOGGING);
+    szValueName = "Include Dirs";
+    szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+    if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+        // strip the old %xdk% directories from the path and then
+        // prepend the Xbox bin directories (incl. VC7 dir) to the path
+        szString = TARGETDIR ^ "\\Include;" + ResetStrValue( szString );
+        RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+    endif;
+
+    szValueName = "Library Dirs";
+    szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+    if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+        // strip the old %xdk% directories from the path and then
+        // prepend the Xbox bin directories (incl. VC7 dir) to the path
+        szString = TARGETDIR ^ "\\Lib;" + ResetStrValue( szString );
+        RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+    endif;
+    Enable(LOGGING);
+
+    szKey = "Environment";
+    szValueName = "Path";
+    szString = "";
+
+    Disable(LOGGING);
+    RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize);
+    RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString + ";" + TARGETDIR ^ "Xbox\\Bin",-1);
+    Enable(LOGGING);
+
+    // write to registry what build is installed on the machine
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    NumToStr(szString,VER_PRODUCTBUILD);
+    RegDBSetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Build", REGDB_NUMBER, szString, -1);
+
+    /* jcahill - hack - bug #4054 */
+    NumToStr(szString,VER_PRODUCTBUILD);
+    RegDBSetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Beta1SDK", REGDB_NUMBER, szString, -1);
+
+    RegDBDeleteKey ("Software\\Microsoft\\Microsoft Xbox SDK");
+
+    SendMessage(-1, 0x001A /* WM_WININICHANGE */, 0, &szKey);
+
+    // If we didn't install the runtime (either for the first time, or by
+    // overwriting an existing DX version), then we don't need to reboot.
+    if (bRestartNeeded) then
+        nDefOptions = SYS_BOOTMACHINE;
+        szTitle     = "";
+        szMsg1      = @WARNING_REBOOT;
+        szMsg2      = "";
+        nResult     = SdFinishReboot( szTitle, szMsg1, nDefOptions, szMsg2, 0 );
+        return nResult;
+    else
+        bOpt1 = FALSE;
+        bOpt2 = FALSE;
+        szMsg1 = @MSG_FINISH;
+        szMsg2 = "";
+        szOption1 = "";
+        szOption2 = "";
+        szTitle = @SETUP_DIALOG_TITLE;
+        nResult = SdFinish( szTitle, szMsg1, szMsg2, szOption1, szOption2,bOpt1, bOpt2 );
+    endif;
+
+    if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+        ShellExecute( TARGETDIR ^ "RelNotes.Htm" );
+    else
+        ShellExecute( TARGETDIR ^ "RelNotesJpn.Htm" );
+    endif;
+
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMaintUIBefore
+//
+//  EVENT:      MaintUIBefore event is sent when end user runs installation that
+//              has already been installed on the machine. Usually this happens
+//              through Add/Remove Programs applet. In the handler installation
+//              usually displays UI allowing end user to modify existing installation
+//              or uninstall application. After this function returns,
+//              ComponentTransferData is called to perform file transfer.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMaintUIBefore()
+    NUMBER nResult, nvSize, nType;
+    STRING szTitle, szMsg, szDir, svResult, szCaption, szExistingVersion;
+
+begin
+
+    if (bAddRemove = TRUE )then
+        //user run add/remove
+        Dlg_Start:
+            szTitle = @MSG_WELCOME_TITLE;
+            szMsg   = @MSG_UNINSTALL;
+            Disable(BACKBUTTON);
+            nType = SdWelcomeMaint(szTitle, szMsg, REMOVEALL);
+            Enable(BACKBUTTON);
+
+            if (nType = REMOVEALL) then
+                svResult = SdLoadString(IFX_MAINTUI_MSG);
+                szCaption = SdLoadString(IFX_ONMAINTUI_CAPTION);
+                nResult = SprintfBox(MB_OKCANCEL,szCaption,"%s",svResult);
+                if (nResult = IDCANCEL) goto Dlg_Start;
+            endif;
+            nResult = NEXT;
+
+        Dlg_SdComponentTree:
+            if (nType = MODIFY) then
+                MessageBox (@ERROR_MODIFY, WARNING);
+                goto Dlg_Start;
+            endif;
+
+        Dlg_ObjDialogs:
+            nResult = ShowObjWizardPages(nResult);
+            if ((nResult = BACK) && (nType != MODIFY)) goto Dlg_Start;
+            switch(nType)
+                case REMOVEALL:
+
+                    if (Is(FILE_LOCKED,TARGETDIR ^"Doc\\XBoxSDK.Chm"))then
+                        MessageBox(@MSG_FILE_LOCKED,SEVERE);
+                        abort;
+                    endif;
+                    ComponentRemoveAll();
+
+                case REPAIR:
+                    ComponentReinstall();
+                    VCComponents_CheckRequirements();
+                    VCComponents_Installing();
+            endswitch;
+            // Setup default status.
+            SetStatusWindow(0, "");
+            Enable(STATUSEX);
+            StatusUpdate(ON, 100);
+    else
+        //user run update
+        //Set up the window for update
+        Enable( INDVFILESTATUS );
+        SetTitle( @TITLE_MAIN, 24, WHITE );
+        SetTitle( @TITLE_CAPTIONBAR, 0, BACKGROUNDCAPTION );
+
+        Dlg_StartUpdate:
+
+            szTitle = @MSG_WELCOME_TITLE;
+            szMsg   = @MSG_UPDATEWELCOME;
+
+
+            SetDialogTitle(DLG_STATUS, @SETUP_DIALOG_TITLE );
+            nResult = SdWelcome( szTitle, szMsg );
+            if (nResult = BACK) goto Dlg_StartUpdate;
+
+            // Select proper VC language components
+
+            if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+                ComponentSelectItem(MEDIA, "VC Components", TRUE);
+                ComponentSelectItem(MEDIA, "VC Components (Jpn)", FALSE);
+            else
+                ComponentSelectItem(MEDIA, "VC Components", FALSE);
+                ComponentSelectItem(MEDIA, "VC Components (Jpn)", TRUE);
+            endif;
+
+
+            ComponentUpdate("");
+            // Setup default status.
+            SetStatusWindow(0, "");
+            Enable(STATUSEX);
+            StatusUpdate(ON, 100);
+    endif;
+
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMoving
+//
+//  EVENT:      Moving event is sent when file transfer is started as a result of
+//              ComponentTransferData call, before any file transfer operations
+//              are performed.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMoving()
+begin
+    //Load the original values of SRCDIR, etc., from IS6's log file
+    //into memory so that they are re-entered into the log by IFX's
+    //call to ComponentSaveTarget( "" ).
+    if (bAddRemove != TRUE)  then
+        //user run update.
+        ComponentLoadTarget("");
+    endif;
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnMaintUIAfter
+//
+//  EVENT:      MaintUIAfter event is sent after file transfer, when end user runs
+//              installation that has already been installed on the machine. Usually
+//              this happens through Add/Remove Programs applet.
+//              In the handler installation usually displays UI that will inform
+//              end user that maintenance/uninstallation has been completed successfully.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMaintUIAfter()
+    STRING szTitle, szMsg1, szMsg2, szOption1, szOption2, szVersion, szSubKey, szValue;
+    NUMBER bOpt1, bOpt2, nResult, listDirs, listID, nvType,nvSize;
+    NUMBER nFlag, nvFileHandle, nDefaultRoot;
+    STRING svLine, szPath, szResetString, szKey, szName, szStrGet;
+    STRING szValueName, szString;
+begin
+
+    Disable(STATUSEX);
+    if ( bAddRemove = TRUE) then
+        //user run add/remove
+        ShowObjWizardPages(NEXT);
+        //Check if removeall or repair for reset regPath in envionment
+        if (CheckVersionNumber() != TRUE ) then
+            //remove the value inserted to path during install
+            RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+            szKey = "Environment";
+            szName = "Path";
+            RegDBGetKeyValueEx (szKey, szName, nvType, szStrGet, nvSize);
+            szResetString = ResetStrValue(szStrGet);
+            RegDBSetKeyValueEx(szKey,szName,REGDB_STRING,szResetString,-1);
+            //VCComponents_RestoreVCDLLs();
+            szValueName = "Include Dirs";
+            szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+            if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+                // strip the %xdk% directories from the path
+                RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,ResetStrValue( szString ),-1);
+            endif;
+
+            szValueName = "Library Dirs";
+            szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+            if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+                // strip the %xdk% directories from the path
+                RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,ResetStrValue( szString ),-1);
+            endif;
+
+            //Restore the original VC components that replaced by pre-XDK install.
+            VCComponents_RestoreVCDLLs();
+
+        endif;
+        bOpt1   = FALSE;
+        bOpt2   = FALSE;
+        szMsg1  = SdLoadString(IFX_SDFINISH_MAINT_MSG1);
+        szTitle = SdLoadString(IFX_SDFINISH_MAINT_TITLE);
+        SdFinish(szTitle, szMsg1, szMsg2, szOption1, szOption2, bOpt1, bOpt2);
+
+    else //run update
+        //Delete the files don't need anymore.
+        //Open deleted file list file.
+        Disable(LOGGING);
+        OpenFileMode(FILE_MODE_NORMAL);
+        OpenFile(nvFileHandle, SUPPORTDIR, "DelFiles.Txt");
+        while (nFlag = 0)
+            nFlag = GetLine(nvFileHandle, svLine);
+            szPath = TARGETDIR ^ svLine;
+            DeleteFile (szPath);
+        endwhile;
+        CloseFile(nvFileHandle);
+
+        //Delete the directories that don't need to exist any further
+        OpenFileMode(FILE_MODE_NORMAL);
+        OpenFile(nvFileHandle, SUPPORTDIR, "DelDirs.Txt");
+        while (nFlag = 0)
+            nFlag = GetLine(nvFileHandle, svLine);
+            szPath = TARGETDIR ^ svLine;
+            DeleteDir(szPath, ALLCONTENTS);
+        endwhile;
+        CloseFile(nvFileHandle);
+        Enable(LOGGING);
+
+        //delete winsock2.h file
+        DeleteFile ( TARGETDIR ^ "\\Xbox\\Include\\WinSock2.h");
+
+        //delete pre-release unused regkey.
+        RegDBSetDefaultRoot(HKEY_CURRENT_USER);
+        RegDBDeleteKey ("\\Software\\Microsoft\\Devstudio\\6.0\Build System\\Components\\Platforms\\Xbox\\Tools");
+
+        /* jcahill - hack - bug #3934 */
+        RegDBSetDefaultRoot(HKEY_CURRENT_USER);
+        RegDBDeleteKey ("\\Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Xbox\\Execution Models");
+
+        /* jcahill - hack - bug #4206 */
+        RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+        RegDBDeleteValue("Software\\Microsoft\\XboxSDK", "March01SDK");
+        RegDBDeleteValue("Software\\Microsoft\\XboxSDK", "April01SDK");
+        RegDBDeleteValue("Software\\Microsoft\\XboxSDK", "May01SDK");
+
+        /* jcahill - hack - bug #4054 */
+        RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+        NumToStr(szString,VER_PRODUCTBUILD);
+        RegDBSetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Beta1SDK", REGDB_NUMBER, szString, -1);
+
+        //delete icon from QFE updates
+        DeleteFolderIcon(SHELL_OBJECT_FOLDER, @MENU_XDKINSTALL);
+/*
+        //Create the Registry sets that were defined in the Resources pane.
+        if (CreateRegistrySet ("") < 0) then
+            MessageBox (@ERROR_REG,SEVERE);
+            abort;
+        endif;
+*/
+        //Create the Shell objects that were defined in the Resources pane.
+        if (CreateShellObjects ("") < 0) then
+            MessageBox (@ERROR_SHELL,SEVERE);
+            abort;
+        endif;
+
+        // Since we now include VC7 compiler & linker, we need to
+        // prepend %xdk%\Xbox\Bin\VC7 to Xbox project executable path
+        Disable(LOGGING);
+        RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+        szValueName = "Path Dirs";
+        szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Xbox\\Directories";
+        if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+            // strip the old %xdk% directories from the path and then
+            // prepend the Xbox bin directories (incl. VC7 dir) to the path
+            szString = TARGETDIR ^ "\\Xbox\\Bin\\VC7;" + TARGETDIR ^ "\\Xbox\\Bin;" + ResetStrValue( szString );
+            RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+        endif;
+        Enable(LOGGING);
+
+        // Add our Win32 Include & Lib directories to the Win32 project dirs in VC
+
+        Disable(LOGGING);
+        szValueName = "Include Dirs";
+        szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+        if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+            // strip the old %xdk% directories from the path and then
+            // prepend the Xbox bin directories (incl. VC7 dir) to the path
+            szString = TARGETDIR ^ "\\Include;" + ResetStrValue( szString );
+            RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+        endif;
+        Enable(LOGGING);
+
+        Disable(LOGGING);
+        szValueName = "Library Dirs";
+        szKey =  "Software\\Microsoft\\Devstudio\\6.0\\Build System\\Components\\Platforms\\Win32 (x86)\\Directories";
+        if (0 == RegDBGetKeyValueEx(szKey,szValueName,nvType,szString,nvSize)) then
+            // strip the old %xdk% directories from the path and then
+            // prepend the Xbox bin directories (incl. VC7 dir) to the path
+            szString = TARGETDIR ^ "\\Lib;" + ResetStrValue( szString );
+            RegDBSetKeyValueEx(szKey,szValueName,REGDB_STRING,szString,-1);
+        endif;
+        Enable(LOGGING);
+ /*
+        // write to registry what build is installed on the machine
+        RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+        NumToStr(szString,VER_PRODUCTBUILD);
+        RegDBSetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Build", REGDB_NUMBER, szString, -1);
+ */
+        ShowObjWizardPages(NEXT);
+        bOpt1   = FALSE;
+        bOpt2   = FALSE;
+        szMsg1  = SdLoadString(IFX_SDFINISH_MAINT_MSG1);
+        szTitle = SdLoadString(IFX_SDFINISH_MAINT_TITLE);
+        SdFinish(szTitle, szMsg1, szMsg2, szOption1, szOption2, bOpt1, bOpt2);
+
+        if (ISLANG_ENGLISH == SELECTED_LANGUAGE) then
+            ShellExecute( TARGETDIR ^ "RelNotes.Htm" );
+        else
+            ShellExecute( TARGETDIR ^ "RelNotesJpn.Htm" );
+        endif;
+    endif;
+
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnCanceling
+//
+//  EVENT:      Canceling event is sent when installation is being canceled,
+//              usually as result of end user clicking Cancel button or pressing
+//              Esc key. Execution of Do(EXIT) will also trigger this event.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnCanceling()
+begin
+    if (IDYES = SprintfBox(MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2,
+                            SdLoadString(SD_STR_ONCANCELING_TITLE),
+                            SdLoadString(SD_STR_ONCANCELING_MSG))) then
+        abort;
+    endif;
+end;
+
+//////////////////////////////////////////////////////////////////////////////
+//  FUNCTION:   OnFileError
+//
+//  EVENT:      File Error event is sent when an unknown error occurs as a
+//              result from a call to ComponentTransferData.
+//
+//  ARGUMENTS:  File - full path of the file
+//              Error - result of GetLastError
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - the file is now available in location pointed to by Path
+//              ERR_ABORT  - file transfer should be aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFileError(File, Error)
+STRING szErrMsg, szCaption, szDesc, svResult;
+NUMBER nRet;
+begin
+    // Error - result of GetLastError
+    // return ERR_IGNORE, ERR_RETRY or ERR_ABORT
+
+    szErrMsg = SdLoadString(IFX_ONFILE_ERROR);
+    szCaption = SdLoadString(IFX_ONFILE_CAPTION);
+    szDesc = FormatMessage(Error);
+
+    //SprintfBox (SEVERE, "Problem", "Don't go there");
+    DISPLAY_ERROR:
+
+    nRet = SprintfBox(MB_ABORTRETRYIGNORE, szCaption, szErrMsg, File,szDesc,Error);
+    if(nRet = IDABORT)then
+        Do(EXIT);
+        goto DISPLAY_ERROR:
+    endif;
+
+    return nRet;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  FUNCTION:   OnMD5Error
+//
+//  EVENT:      MD5 event is sent when the file requested doesn't match the file
+//              in the InstallShield CAB file.
+//
+//  ARGUMENTS:  File - full path of the file
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - the file is now available in location pointed to by Path
+//              ERR_ABORT  - file transfer should be aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnMD5Error(File)
+begin
+    return ERR_IGNORE;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnHelp
+//
+//  EVENT:      Help event is sent when end user presses F1 key. Execution
+//              of Do(HELP) will also trigger this event.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnHelp()
+begin
+    MessageBox (@MSG_ONHELP, INFORMATION);
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFileReadOnly
+//
+//  EVENT:      FileReadOnly event is sent during file transfer when a read-only
+//              file is needs to be overwritten or removed.
+//
+//  ARGUMENTS:  File - full path of file that is marked as read-only.
+//
+//  RETURN:     ERR_YES - the file should be overwritten or removed.
+//              ERR_NO  - the file should not be modified.
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFileReadOnly(File)
+begin
+    return ERR_YES;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnFileLocked
+//
+//  EVENT:      FileLocked event is sent during file transfer when a file that needs
+//              to be overwritten or removed is in use by other application.
+//              This event will not be sent for files that are in file group
+//              marked as potentially locked. In this case operation is automatically
+//              performed after reboot.
+//
+//  ARGUMENTS:  File - full path of file that is locked
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - engine should retry to perform operation on the file
+//              ERR_ABORT  - file transfer should be aborted
+//              ERR_PERFORM_AFTER_REBOOT - necessary operation should be performed
+//                                         after system is rebooted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnFileLocked(File)
+begin
+     bRestartNeeded = TRUE;
+     return ERR_PERFORM_AFTER_REBOOT;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnRemovingSharedFile
+//
+//  EVENT:      RemovingSharedFile event is sent during file transfer when a
+//              shared file is being uninstalled and ref. count for the file
+//              reached zero.
+//
+//  ARGUMENTS:  File - full path of the shared file
+//
+//  RETURN:     ERR_YES - the file should be removed from system
+//              ERR_NO  - the file should not be removed from system
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnRemovingSharedFile(File)
+begin
+    if (File % "mfcapwz.dll") then
+        return ERR_NO;
+    else
+        return ERR_YES;
+    endif;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   OnNextDisk
+//
+//  EVENT:      NextDisk event is sent during file transfer when engine can not
+//              automatically locate a file. For example it will be sent for
+//              floppy disk installation when next floppy is needed.
+//
+//  ARGUMENTS:  File - name of file that is needed, for example data3.cab
+//              Disk - number of disk on which this file should be located
+//              Path - when the function is called this argument contains
+//                     path where engine expected to find the file, for example A:\
+//                     When the function returns this argument should contain the
+//                     path where the file is really located. It can be the same as
+//                     path originally passed to the function or different.
+//
+//  RETURN:     ERR_IGNORE - engine should ignore the file and continue file transfer
+//              ERR_RETRY  - the file is now available in location pointed to by Path
+//              ERR_ABORT  - file transfer should be aborted
+//
+///////////////////////////////////////////////////////////////////////////////
+function OnNextDisk(File, Disk, Path)
+    STRING szMsg, szFormat;
+    NUMBER nResult;
+begin
+
+    VarSave(SRCTARGETDIR);
+    SRCDIR = Path;
+    nResult = EnterDisk(@ERROR_DISK1, "");
+
+    if (nResult = OK) then
+        Path = SRCDIR;
+        nResult = ERR_RETRY;
+    elseif(nResult < 0) then
+        nResult = ERR_ABORT;
+    endif;
+
+    VarRestore(SRCTARGETDIR);
+
+    return nResult;
+
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  EVENT:      Installing event is sent just before files for the component:
+//              VC Components are transferred.
+///////////////////////////////////////////////////////////////////////////////
+
+function VCComponents_Installing()
+NUMBER nResult, nvType, nvSize;
+STRING  svValue, szVCDirectory,szReferenceFile;
+
+begin
+    RegDBSetDefaultRoot ( HKEY_LOCAL_MACHINE );
+       if ( ComponentIsItemSelected(MEDIA,"C Compile Environment") ) then
+          nResult =  RegDBGetKeyValueEx ( "Software\\Microsoft\\VisualStudio\\6.0\\Setup",
+                                    "VsCommonDir", nvType , svValue , nvSize );
+          if ( 0 == nResult ) then
+             szVCDirectory = svValue ^ "\\MSDev98\\Bin";
+             nResult = ComponentSetTarget (MEDIA, "<VCAddIn>", szVCDirectory);
+             if (nResult < 0) then
+               MessageBox( "Error in ComponentSetTarget, <VCAddIn>\n" ^ FormatMessage(nResult), WARNING );
+             endif;
+          else
+             SprintfBox ( SEVERE, "",
+                "Unable to read VisualStudio install location!\n\nError code: 0x%08xd\nMessage text: %s",
+                nResult, FormatMessage ( nResult ) );
+             abort;
+          endif;
+       endif;
+
+     ComponentSelectItem( MEDIA, "DX CD Image", FALSE);
+ //    return 0;
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//  EVENT:      CheckRequirements event is called in the beginning of
+//              installing and repairing.
+///////////////////////////////////////////////////////////////////////////////
+
+function VCComponents_CheckRequirements()
+    NUMBER  nvDx, nvDy, nvResult, nvType, nvSize,nResult;
+    STRING  svResult,svValue, szTempTargetDir, szVersion, szC2Path, szVCPath;
+    BOOL    bProcessorPackInstalled;
+begin
+
+    bProcessorPackInstalled = FALSE;
+
+    // Check screen resolution.
+    GetExtents( nvDx, nvDy );
+    if (nvDy < 480) then
+        MessageBox( @ERROR_VGARESOLUTION, SEVERE );
+        abort;
+    endif;
+
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    if (0 < ( nResult = RegDBGetKeyValueEx ( "System\\CurrentControlSet\\Services\\VGASave", "Dev",
+                        nvType , svValue , nvSize ))) then
+       // Value returned; it shouldn't even exist
+       MessageBox( @ERROR_NOTTARGET, SEVERE );
+       abort;
+   endif;
+
+    // Determine the target system's operating system.
+    if ((SYSINFO.WINNT.bWin2000)= 0) then
+        MessageBox( @MSG_INSTALL_INFO, SEVERE );
+        abort;
+    endif;
+
+    VarSave(SRCTARGETDIR);   // Save TARGETDIR
+    RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+    RegDBGetKeyValueEx("Software\\Microsoft\\DevStudio\\6.0\\Products\\Microsoft Visual C++","ProductDir",nvType,szC2Path,nvSize);
+    szTempTargetDir = szC2Path + "\\Bin";
+    TARGETDIR = szTempTargetDir;
+
+    nvResult = VerFindFileVersion("C2.Dll",szTempTargetDir,szVersion);
+    // Compare. ProcssorPack C2 = 13.0.8942.0. SPx w/o PP 12.0.0.0 < ver < 13.0.0.0
+    if (GREATER_THAN == VerCompare(szVersion,"13.0.8941.0",VERSION)) then
+        bProcessorPackInstalled = TRUE;
+    endif;
+
+    // check to see if sp4 reg key exists; if not, error out.
+    if ((0 > RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\ServicePacks", "sp4", nvType, szC2Path, nvSize)) &&
+        (0 > RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\ServicePacks", "sp5", nvType, szC2Path, nvSize))) then
+        bProcessorPackInstalled = FALSE;
+    endif;
+
+    VarRestore(SRCTARGETDIR); // restore TARGETDIR
+
+    if (/*(SYSINFO.WINNT.nServicePack < 1) ||*/ !bProcessorPackInstalled) then
+        MessageBox(@ERROR_REQPROCESSORPACK, SEVERE);
+        abort;
+    endif;
+
+    // 2197: Remove extra XboxDbg.Dll
+    DeleteFile(szVCPath ^ "\\MSDev98\\Bin\\XboxDbg.Dll");
+
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  EVENT:      ResetRegValues event is called in the removeall of
+//              uninstalling to remove value of Xbox.
+///////////////////////////////////////////////////////////////////////////////
+function STRING ResetStrValue(szStrGet)
+    STRING szSubStr,szValue, szSubString, szFindString, szResetValue;
+    NUMBER nLength, nSemicolon, nvType, nSubLength;
+begin
+    nLength = StrLength (szStrGet);
+    repeat
+        nSemicolon = StrFind (szStrGet, ";");
+        StrSub(szSubStr, szStrGet, 0, nSemicolon + 1);
+        szFindString = TARGETDIR;
+        if (StrFind (szSubStr, szFindString) < 0) then
+            szValue = szValue + szSubStr;
+        endif;
+
+        nSubLength = nLength - nSemicolon;
+        StrSub (szSubString, szStrGet, nSemicolon + 1, nSubLength);
+        szStrGet = szSubString;
+        nLength = nSubLength;
+    until (nSemicolon < 0);
+    if (StrFind (szStrGet, szFindString) < 0) then
+        szValue = szValue + szStrGet;
+        szResetValue = szStrGet;
+    else
+        nLength = StrLength (szValue);
+        StrSub (szResetValue, szValue, 0, nLength-1);
+    endif;
+    return szValue;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      CheckVersionNumber event is called before uninstall and after removeall
+//
+///////////////////////////////////////////////////////////////////////////////////
+
+function BOOL CheckVersionNumber()
+    STRING szBuild;
+    NUMBER nBuild, nType, nvSize;
+begin
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+    RegDBGetKeyValueEx("SOFTWARE" ^ @COMPANY_NAME ^ "XboxSDK", "Beta1SDK", nType, szBuild, nvSize);
+    StrToNum(nBuild, szBuild);
+    if (nBuild = VER_PRODUCTBUILD) then
+        return TRUE;
+    endif;
+end;
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      BackupVCDLLs is called before install SDK to backup VC components
+//              .Dll file to .Dll.VC file in same folder
+////////////////////////////////////////////////////////////////////////////////////
+
+function VCComponents_BackupVCDLLs()
+NUMBER  nResult, nvType, nvSize;
+STRING  szVCPath, svResult, szSrcDir, szFileName1, szFileName2,szFileName3,szFileName4;
+
+begin
+
+    RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+    nResult = RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\Setup","VsCommonDir",nvType,szVCPath,nvSize);
+    if (nResult = 0) then
+
+        Disable (LOGGING);
+        szSrcDir = szVCPath ^ "\\MSDev98\\Bin";
+        szFileName1 = "DevShl.Dll.VC";
+        if (FindFile (szSrcDir, szFileName1, svResult) != 0) then
+            CopyFile (szSrcDir ^ "\\DevShl.Dll", szSrcDir ^ "\\" ^ szFileName1);
+        endif;
+
+        szSrcDir = szSrcDir ^ "\\IDE";
+        szFileName2 = "DevBld.Pkg.VC";
+        if (FindFile (szSrcDir, szFileName2, svResult) != 0 ) then
+            CopyFile (szSrcDir ^ "\\DevBld.Pkg", szSrcDir ^ "\\" ^ szFileName2);
+        endif;
+        szFileName3 = "DevDbg.Pkg.VC";
+        if (FindFile (szSrcDir, szFileName3, svResult) != 0 ) then
+            CopyFile (szSrcDir ^ "\\DevDbg.Pkg", szSrcDir ^ "\\" ^ szFileName3);
+        endif;
+        szFileName4 = "MfcApWz.Dll.VC";
+        if (FindFile (szSrcDir, szFileName4, svResult) != 0 ) then
+            CopyFile (szSrcDir ^ "\\mfcapwz.Dll", szSrcDir ^ "\\" ^ szFileName4);
+        endif;
+        Enable(LOGGING);
+
+    endif;
+
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      GetTempFileName event is called to get a temporary file name
+//              to create a file with this name to check if the destination
+//              is read only or not
+///////////////////////////////////////////////////////////////////////////////////
+
+function NUMBER CreateTempFile( szTempDir)
+    STRING szFileName, szTempFileName;
+    NUMBER nFileResult;
+
+begin
+
+   // Load Kernel32.Dll into memory.
+   UseDLL ("Kernel32.Dll");
+
+   szFileName = "XDK";
+   nFileResult = GetTempFileNameA (szTempDir, szFileName, 0, szTempFileName);
+   if (nFileResult != 0) then
+        DeleteFile (szTempFileName);
+   endif;
+
+   // The following removes Kernel32.Dll from memory.
+   UnUseDLL ("Kernel32.Dll");
+   return nFileResult;
+end;
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//  FUNCTION:   ShellExecute is called when finish install to open file
+//              XDKUpdateInstall.Htm or XDKUpdateInstallJpn.Htm
+//
+///////////////////////////////////////////////////////////////////////////////
+function ShellExecute(szFile)
+    HWND hInstallHwnd;
+    STRING szPath, szParameter;
+    NUMBER nHwndFlag;
+begin
+
+   // Load shell32.DLL into memory.
+   UseDLL ("Shell32.Dll");
+   ShellExecuteA( hInstallHwnd, "OPEN", szFile, szParameter, szPath, SW_SHOWNORMAL);
+
+   // The following removes Shell32.dll from memory.
+   UnUseDLL ("Shell32.Dll");
+
+end;
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//  EVENT:      RestoreVCDLLs is called during uninstall SDK using original VC
+//              component to replace Xbox VC components
+////////////////////////////////////////////////////////////////////////////////////
+function VCComponents_RestoreVCDLLs()
+NUMBER  nResult, nvType, nvSize;
+STRING  szVCPath, svResult, szSrcDir, szFileName1, szFileName2,szFileName3,szFileName4;
+
+begin
+
+    RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+    nResult = RegDBGetKeyValueEx("Software\\Microsoft\\VisualStudio\\6.0\\Setup","VsCommonDir",nvType,szVCPath,nvSize);
+    if (nResult = 0) then
+
+        szSrcDir = szVCPath ^ "\\MSDev98\\Bin";
+        szFileName1 = szSrcDir ^ "\\DevShl.Dll.VC";
+        CopyFile (szFileName1, szSrcDir ^ "\\DevShl.Dll");
+        DeleteFile (szFileName1);
+
+        szSrcDir = szSrcDir ^ "\\IDE";
+        szFileName2 = szSrcDir ^ "\\DevBld.Pkg.VC";
+        szFileName3 = szSrcDir ^ "\\DevDbg.Pkg.VC";
+        szFileName4 = szSrcDir ^ "\\MfcApWz.Dll.VC";
+        CopyFile (szFileName2, szSrcDir ^ "\\Devbld.Pkg");
+        DeleteFile(szFileName2);
+        CopyFile (szFileName3, szSrcDir ^ "\\Devdbg.Pkg");
+        DeleteFile(szFileName3);
+        CopyFile (szFileName4, szSrcDir ^ "\\MfcApWz.Dll");
+        DeleteFile(szFileName4);
+
+    endif;
+
+end;
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//                                                                              //
+//   Function: SdAskDestPath                                                    //
+//                                                                              //
+//   Descrip:  This dialog will ask user for the destination directory          //
+//             for installation.                                                //
+//   Misc:                                                                      //
+//                                                                              //
+//////////////////////////////////////////////////////////////////////////////////
+function SdAskDestPath(szTitle, szMsg, szDir, nStyle)
+    STRING  szDlg, szDirLoc, szTemp;
+    INT     nId, nTemp;
+    HWND    hwndDlg;
+    BOOL    bDone;
+    NUMBER  nSdDialog, nResult, nLength, nFileResult;
+    STRING  szTempDir;
+
+begin
+
+    szDlg     = SD_DLG_ASKDESTPATH;
+    nSdDialog = SD_NDLG_ASKDESTPATH;
+    szDirLoc  = szDir;
+    szTitle   = @SETUP_DIALOG_TITLE;
+
+    // record data produced by this dialog
+    if (MODE=SILENTMODE) then
+        SdMakeName( szAppKey, szDlg, szTitle, nSdAskDestPath );
+        SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+        if ((nId != BACK) && (nId != CANCEL)) then
+            SilentReadData( szAppKey, "szDir", DATA_STRING, szDir, nTemp );
+        endif;
+
+        return nId;
+    endif;
+
+    //ensure general initialization is complete
+    if (!bSdInit) then
+        SdInit();
+    endif;
+
+    if (EzDefineDialog( szDlg, "", "", SD_NDLG_ASKDESTPATH ) = DLG_ERR) then
+        return -1;
+    endif;
+
+    // Loop in dialog until the user selects a standard button
+    bDone = FALSE;
+
+    while (!bDone)
+
+        nId = WaitOnDialog( szDlg );
+        switch (nId)
+            case DLG_INIT:
+                CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, szDirLoc );
+
+                if(szMsg != "") then
+                    SdSetStatic( szDlg, SD_STA_CHANGEDIRMSG, szMsg );
+                endif;
+
+                    hwndDlg = CmdGetHwndDlg( szDlg );
+                    SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                if(szTitle != "") then
+                    SetWindowText( hwndDlg, szTitle );
+                endif;
+
+            case SD_PBUT_CHANGEDIR:
+                //nTemp = MODE;
+                //MODE  = NORMALMODE;
+                _SelectDir:
+                nResult = SelectDirEx (szTitle, "", "", "", BIF_RETURNONLYFSDIRS | BIF_EDITBOX , szDirLoc);
+                if (nResult != 2) then
+                    if (szDirLoc == "C:\\" || szDirLoc == "C:\\NUL") then
+                        MessageBox( szDirLoc + " " + @ERROR_PATH_ROOTNUL, SEVERE);
+                        szDirLoc = szDir;
+                        goto _SelectDir;
+
+                    elseif (ExistsDir(szDirLoc) == 0) then
+
+                        szTempDir = szDirLoc;
+                        if (Is(DIR_WRITEABLE,szDirLoc)!= TRUE || CreateTempFile( szTempDir) = 0) then
+                            MessageBox (szDirLoc + "\n " + @ERROR_PATH, SEVERE);
+                            szDirLoc = szDir;
+                            goto _SelectDir;
+                        else
+                            szDir = szDirLoc;
+                        endif;
+                    else
+                        nResult = StrRemoveLastSlash (szDirLoc);
+                        SetDialogTitle (DLG_ASK_YESNO, szTitle);
+                        if (AskYesNo( @MSG_CREATE_DIR1 + "\n" + "\n" + szDirLoc + "\n"+ "\n" + @MSG_CREATE_DIR2, YES) = YES) then
+
+                            // Get the number of characters in the string, and remove last slash.
+                            nLength = StrLengthChars (szDirLoc);
+                            if (nLength > 175 || nResult < 0) then
+                                MessageBox (@MSG_PATHLEN, SEVERE);
+                                szDirLoc = szDir;
+                                goto _SelectDir;
+                            endif;
+                        else
+                            szDirLoc = szDir;
+                            goto _SelectDir;
+                        endif;
+                    endif;
+                endif;
+
+                CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, szDirLoc );
+                //MODE = nTemp;
+            case SD_PBUT_CONTINUE:
+                //CreateDir.
+                nResult = CreateDir(szDirLoc);
+                if (nResult != 0) then
+                    MessageBox(@ERROR_DIR, SEVERE);
+                    szDirLoc = szDir;
+                    goto _SelectDir;
+                endif;
+                szDir = szDirLoc;
+                nId   = NEXT;
+                bDone = TRUE;
+
+            case BACK:
+                nId    = BACK;
+                bDone  = TRUE;
+
+            case DLG_ERR:
+                SdError( -1, "SdAskDestPath" );
+                nId   = -1;
+                bDone = TRUE;
+
+            case DLG_CLOSE:
+                SdCloseDlg( hwndDlg, nId, bDone );
+
+            default:
+                // check standard handling
+                if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                    bDone = TRUE;
+                endif;
+        endswitch;
+
+    endwhile;
+    EndDialog( szDlg );
+    ReleaseDialog( szDlg );
+
+    SdUnInit( );
+
+        // record data produced by this dialog
+        SdMakeName( szAppKey, szDlg, szTitle, nSdAskDestPath );
+        SilentWriteData( szAppKey, "szDir", DATA_STRING, szDir, 0 );
+        SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+        return nId;
+
+    end;

@@ -1,0 +1,1564 @@
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+// Copyright 2000 Ravisent Technologies, Inc.  All Rights Reserved.           //
+// HIGHLY CONFIDENTIAL INFORMATION:  This source code contains                //
+// confidential and proprietary information of Ravisent Technologies, Inc.    //
+// This source code is provided to Microsoft Corporation under a written      //
+// confidentiality agreement between Ravisent and Microsoft.  This            //
+// software may not be reproduced, distributed, modified, disclosed, used,    //
+// displayed, stored in a retrieval system or transmitted in whole or in part,//
+// in any form or by any means, electronic, mechanical, photocopying or       //
+// otherwise, except as expressly authorized by Ravisent.  THE ONLY PERSONS   //
+// WHO MAY HAVE ACCESS TO THIS SOFTWARE ARE THOSE PERSONS                     //
+// AUTHORIZED BY RAVISENT, WHO HAVE EXECUTED AND DELIVERED A                  //
+// WRITTEN CONFIDENTIALITY AGREEMENT TO RAVISENT, IN THE FORM                 //
+// PRESCRIBED BY RAVISENT.                                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+// FILE:       Driver/Dvdpldrv/Common/AVF/MPEGAudioStreamServer.cpp
+// AUTHOR:     Sam Frantz
+// COPYRIGHT:  (c) 2000 Ravisent Technologies, Inc.
+// CREATED:    4-SEP-2000
+//
+// PURPOSE:    Header and parser for common MPEG audio files
+//
+// HISTORY:
+
+#include "Driver/Dvdpldrv/Common/AVF/MPEGAudioStreamServer.h"
+
+#ifdef _DEBUG_SHELL
+// #define _DEBUG_SHELL_DUMP	// for avfsh, this will dump the data blocks
+#endif
+
+//
+//  Constructor
+//
+
+MPEGAudioStreamServer::MPEGAudioStreamServer(WinPortServer * server) : AVFStreamServer(server)
+	{
+	}
+
+//
+//  Destructor
+//
+
+MPEGAudioStreamServer::~MPEGAudioStreamServer()
+	{
+	}
+
+//
+//  Init
+//
+
+#ifdef _DEBUG_SHELL
+Error MPEGAudioStreamServer::Init(GenericFileSystem * avffs)
+#else
+Error MPEGAudioStreamServer::Init(WinPortServer * server, UnitSet units, GenericFileSystem * avffs)
+#endif
+	{
+	Error err = GNR_OK;
+
+#ifdef _DEBUG_SHELL
+	GNREASSERT(AVFStreamServer::Init(avffs));
+#else
+	GNREASSERT(AVFStreamServer::Init(server, units, avffs));
+#endif
+
+	GNRAISE(InitializeDataStructures(10,2048)); // will come from profile or define soon
+	}
+
+//
+//  Cleanup
+//
+
+//
+//  Initalize data structures
+//
+
+Error MPEGAudioStreamServer::InitializeDataStructures(int maxLockedFrames, int maxFrameSize)
+	{
+	GNREASSERT(AVFStreamServer::InitializeDataStructures(maxLockedFrames, maxFrameSize));
+	GNREASSERT(frameHeaderList.Initialize(maxLockedFrames));
+	GNRAISE(frameList.AttachSubClassFrameData((HBPTR) frameHeaderList.pHeaderArray,
+															(int) sizeof(MPEGAudioFrameHeader)));
+	}
+
+//------------------------------------------------------------------------------
+//
+//  Open data source
+//
+//------------------------------------------------------------------------------
+
+Error MPEGAudioStreamServer::OpenDataSource(GenericFileSystemIterator * gfsi, int numberOfCheckPoints)
+	{
+	Error	err;
+	parseState.InitFirstFrameInFile();
+	GNREASSERT(AVFStreamServer::OpenDataSource(gfsi,numberOfCheckPoints));
+	err = LoadID3v1Info();  // always get this right away
+	if (IS_ERROR(err))
+		{
+#ifdef _DEBUG_SHELL
+		pShell->Print("This file has no ID3v1 information.\n");
+#else
+		DP("This file has no ID3v1 information.\n");
+#endif
+		}
+	GNRAISE_OK;
+	}
+
+//------------------------------------------------------------------------------
+//  Find next MPEG audio frame
+//  FindNextMPEGAudioFrame() parses for MPEG Audio frames one block at a time
+//------------------------------------------------------------------------------
+
+Error MPEGAudioStreamServer::FindNextMPEGAudioFrame(DriveBlockNode *pBlockNode,
+																	 AVFFrame *pFrame,
+																	 MPEGAudioParseState &parseState)
+	{
+	BYTE	*pCurr, *pEnd, *pHeader, *pBlockStart, *pData, *pParseStart, *pVBR;
+	BYTE						lastByte;
+	static BYTE				prevLastByte = 0;
+	static BYTE				headerByte0 = 0;
+	static BYTE				headerByte1 = 0;
+	static BYTE				headerByte2 = 0;
+	Error						err = GNR_OK;
+	DWORD						prevSegmentBytes;
+	BOOL						deletePreviousSegments;
+	BOOL						deletePreviousSegmentsLatch;
+	BOOL						nonAudioFrameDone = FALSE;
+	MPEGAudioFrameHeader		*pFrameHeader;
+#ifdef _DEBUG_SHELL
+	// static BYTE	*lastParseStart = 0;
+	// static DWORD lastBlock = 0;
+	if (pShell->verbose)
+		{
+		pShell->Print(">> entering FindNextMPEGAudioFrame: currentBlockUnparsedOffset = 0x%lX (%ld)\n",
+				(long) parseState.currentBlockUnparsedOffset, (long) parseState.currentBlockUnparsedOffset);
+		DebugDumpParseState(parseState);
+		}
+#endif
+	pFrameHeader = (MPEGAudioFrameHeader *) pFrame->pDetails;
+
+	if (pBlockNode == (DriveBlockNode *) NULL)
+		GNRAISE(GNR_OBJECT_NOT_ALLOCATED);
+
+	pHeader = (BYTE *) NULL;
+	pData = (BYTE *) NULL;
+	pBlockStart = pBlockNode->pData;
+	pParseStart = pBlockStart + parseState.currentBlockUnparsedOffset;
+	pCurr = pParseStart;
+	if (lastBlockInFile)
+		pEnd = pBlockStart + (fileSizeDWORD % dataSize);
+	else
+		pEnd = pBlockStart + dataSize;
+
+#ifdef _DEBUG_SHELL
+	if (pShell->verbose)
+		{
+		pShell->Print("blockNum=%ld, pBlockStart = 0x%lX (%ld), pParseStart = 0x%lX (%ld)\n",
+			(DWORD) (lastBlockRead-1), (DWORD) pBlockStart, (DWORD) pBlockStart,
+			(DWORD) pParseStart, (DWORD) pParseStart);
+		pShell->Print("pEnd = 0x%lX (%ld), dataSize = 0x%lX (%ld), lastBlockInFile=%s\n",
+			(DWORD) pEnd, (DWORD) pEnd,
+			(DWORD) dataSize, (DWORD) dataSize,
+			(lastBlockInFile) ? "TRUE" : "FALSE");
+		}
+	// if (lastBlock && (lastBlock == lastBlockRead) && (lastParseStart > pParseStart))
+	//	{
+	//	pShell->Print("[MAJORPROBLEM] lastParseStart = 0x%lX, pParseStart = 0x%lX\n",
+	//		(long) lastParseStart, (long) pParseStart);
+	//	exit(-1); // MAJOR PROBLEM ABORT!!!
+	//	}
+	// lastParseStart = pParseStart;
+	// lastBlock = lastBlockRead;
+#endif
+
+
+	deletePreviousSegments = FALSE;
+	deletePreviousSegmentsLatch = FALSE;
+
+	if (parseState.state == MP3PS_AFTER_DATA)
+		parseState.state = MP3PS_BEGINNING_FRAME_SEARCH;
+
+	if (parseState.state != MP3PS_BEGINNING_OF_FILE &&
+		 parseState.state != MP3PS_BEGINNING_FRAME_SEARCH &&
+		 parseState.state != MP3PS_IN_DATA)  // in the middle of a possible header (ugh)
+		{
+		lastByte = prevLastByte;
+		prevSegmentBytes = pFrame->segmentArray[0].data.size;
+		pHeader = pBlockStart - prevSegmentBytes;
+		// this makes the size calculations work, no actual accesses are done here
+		}
+	else
+		{
+		lastByte = 0;
+		prevSegmentBytes = 0;
+		}
+
+	while ((pCurr != pEnd) && (parseState.state != MP3PS_AFTER_DATA))
+		{
+		if (parseState.bytesToSkip)
+			{
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Skipping %d bytes to get beyond nonAudioFrame.\n",
+					parseState.bytesToSkip);
+#endif
+			pData = pCurr;
+			if ((pEnd - pCurr) < parseState.bytesToSkip)
+				{
+				parseState.bytesToSkip -= (pEnd - pCurr);
+				pCurr = pEnd - 1;  // force break of parse loop without additional test
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("Didn't make it in one shot, must skip %d more beginning with next frame.\n",
+					parseState.bytesToSkip);
+#endif
+				}
+			else
+				{
+				parseState.bytesToSkip = 0;
+				pCurr += parseState.bytesToSkip - 1;
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("Made it in one shot, picking up at offset 0x%lX.\n",
+					(long) (pCurr - pBlockStart + 1));
+#endif
+				}
+			lastByte = 0;
+			}
+		else
+			{
+			switch (parseState.state)
+				{
+				case MP3PS_BEGINNING_OF_FILE:
+				case MP3PS_BEGINNING_FRAME_SEARCH:
+					if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(*pCurr) && (!parseState.nonAudio.inNonAudioFrame))
+						{
+						pHeader = pCurr;
+						headerByte0 = *pCurr;
+						parseState.state = MP3PS_AFTER_FIRST_HEADER_BYTE;
+						}
+#ifdef ID3V2_HANDLING_IMPLEMENTED
+					else
+						{
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("[NONAUDIO] Byte at 0x%lX (0x%02X or '%c') is not sync byte 0\n",
+							  (DWORD)(pCurr - pBlockStart), (int) *pCurr, PRINT_BYTE(*pCurr));
+#endif
+						if (!IS_ERROR(parseState.nonAudio.NonAudioFrameByteFilter(
+								*pCurr, parseState.bytesToSkip, type,
+								nonAudioFrameDone, MPEG_NONAUDIO_PARSE_QUICK))) // SKIP data
+							{
+							if (nonAudioFrameDone)
+								{
+#ifdef _DEBUG_SHELL
+								pShell->Print("Done parsing non-audio header\n");
+#endif
+								if (parseState.bytesToSkip)
+									{
+#ifdef _DEBUG_SHELL
+									pShell->Print("Skipping %d bytes to get beyond nonAudioFrame.\n",
+										parseState.bytesToSkip);
+#endif
+									}
+								nonAudioFrameDone = FALSE;
+								}
+							}
+						}
+#endif	//	ID3V2_HANDLING_IMPLEMENTED
+					break;
+				case MP3PS_AFTER_FIRST_HEADER_BYTE:
+					if (pFrameHeader->VerifyByte1(*pCurr) == GNR_OK) // relative 0
+						{
+						headerByte1 = *pCurr;
+						parseState.state = MP3PS_AFTER_SECOND_HEADER_BYTE;
+						}
+					else
+						{
+						deletePreviousSegments = TRUE;
+						prevSegmentBytes = 0;
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("[NONAUDIO] Byte at 0x%lX (0x%02X or '%c') is not sync byte 1\n",
+							  (DWORD)(pCurr - pBlockStart), (int) *pCurr, PRINT_BYTE(*pCurr));
+#endif
+						if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(*pCurr))
+							{
+							pHeader = pCurr;
+							headerByte0 = *pCurr;
+							parseState.state = MP3PS_AFTER_FIRST_HEADER_BYTE;
+							}
+						else
+							{
+							pHeader = (BYTE *) NULL;
+							parseState.state = MP3PS_BEGINNING_FRAME_SEARCH;
+							}
+						}
+					break;
+				case MP3PS_AFTER_SECOND_HEADER_BYTE:
+					if (pFrameHeader->VerifyByte2(*pCurr) == GNR_OK) // relative 0
+						{
+						headerByte2 = *pCurr;
+						parseState.state = MP3PS_AFTER_THIRD_HEADER_BYTE;
+						}
+					else
+						{
+						deletePreviousSegments = TRUE;
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("[NONAUDIO] Byte at 0x%lX (0x%02X or '%c') is not sync byte 2\n",
+							  (DWORD)(pCurr - pBlockStart), (int) *pCurr, PRINT_BYTE(*pCurr));
+#endif
+						if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(lastByte) &&
+							 (pFrameHeader->VerifyByte1(*pCurr) == GNR_OK))
+							{
+							pHeader = (pCurr - 1); // this is OK if pCurr is first byte of block
+							if (pHeader < pBlockStart)
+								deletePreviousSegments = FALSE;
+							headerByte0 = lastByte;
+							headerByte1 = *pCurr;
+							parseState.state = MP3PS_AFTER_SECOND_HEADER_BYTE;
+							}
+						else
+							{
+							if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(*pCurr))
+								{
+								pHeader = pCurr;
+								headerByte0 = *pCurr;
+								parseState.state = MP3PS_AFTER_FIRST_HEADER_BYTE;
+								}
+							else
+								{
+								pHeader = (BYTE *) NULL;
+								parseState.state = MP3PS_BEGINNING_FRAME_SEARCH;
+								}
+							}
+						}
+					break;
+				case MP3PS_AFTER_THIRD_HEADER_BYTE:
+					if (pFrameHeader->VerifyByte3(*pCurr) == GNR_OK) // relative 0
+						{
+						pFrameHeader->LoadHeader(headerByte0, headerByte1, headerByte2, *pCurr);
+						// pFrameHeader->LoadHeader(pHeader); // assumes (safely) that block size < header size
+						if (!IS_ERROR(pFrameHeader->ParseHeader()))
+							{
+#ifdef _DEBUG_SHELL
+							if (pShell->verbose)
+								{
+								pShell->Print("valid header#%ld @ 0x%04X in block %ld\n",
+									pFrame->GetFrameNum(),	(long) ((pCurr - pBlockStart) - 3),
+									(long)(lastBlockRead-1));
+								DebugDumpHeaderInfo((MPEGAudioFrameHeader *)(pFrame->pDetails));
+								}
+#endif
+							if (pFrame->GetFrameNum() == 1) // first frame might have VBR header
+								{
+								(void) parseState.nonAudio.LoadFirstFrameInfo(
+											(MPEGAudioFrameHeader *)(pFrame->pDetails));
+
+								// determine VBR offset from first frame-header
+								// based upon the mpeg-version and the channel mode
+								if (pFrameHeader->mpegVersion == MPEG_AUDIO_VERSION_1)
+									{  // mpeg version 1
+									if (pFrameHeader->channelMode == MPEG_AUDIO_MODE_SINGLE_CHANNEL)
+										pVBR = pCurr + MPEG1_MONO_VBR_OFFSET;
+									else
+										pVBR = pCurr + MPEG1_STEREO_VBR_OFFSET;
+									}
+								else // mpeg version 2 or 2.5
+									{
+									if (pFrameHeader->channelMode == MPEG_AUDIO_MODE_SINGLE_CHANNEL)
+										pVBR = pCurr + MPEG2_MONO_VBR_OFFSET;
+									else
+										pVBR = pCurr + MPEG2_STEREO_VBR_OFFSET;
+									}
+#ifdef _DEBUG_SHELL
+								if (pShell->verbose)
+									{
+									pShell->Print("[NONAUDIO] looking for VBR header at offset 0x%lX = '%c'\n",
+										(long) (pVBR - pBlockStart), PRINT_BYTE(*pVBR) );
+									pShell->PrintDump(pVBR, 12, 12, TRUE);
+									}
+#endif
+
+								if (IS_VBR_HEADER(pVBR))	// i.e. pVBR == 'Xing'
+									{
+#ifdef _DEBUG_SHELL
+									pShell->Print("[NONAUDIO] VBR header found at 0x%lX:\n",
+										(long) (pVBR - pBlockStart) );
+									pShell->PrintDump(pVBR, 120, 120, TRUE);
+#endif
+									// turn 12 chars into a CVBitRate class structure
+									// VBitRate = vbr.loadHeader(vbrchars);
+									if (!IS_ERROR(parseState.nonAudio.ParseVBRHeader(pVBR)))
+										{
+#ifdef _DEBUG_SHELL
+										pShell->Print("[NONAUDIO] parseState.nonAudio.ParseVBRHeader(pVBR=0x%lX) succeeded\n",
+											(long) pVBR);
+#endif
+										}
+									else
+										{
+#ifdef _DEBUG_SHELL
+										pShell->Print("[NONAUDIO] parseState.nonAudio.ParseVBRHeader(pVBR=0x%lX) failed\n",
+											(long) pVBR);
+#endif
+										}
+									}
+
+								totalSeconds = CalculateLengthInSeconds();
+								}
+
+							if (pFrameHeader->hasCRC)
+								parseState.state = MP3PS_BEFORE_CRC_BYTE0;
+							else
+								parseState.state = MP3PS_AFTER_HEADER;
+							}
+						else
+							{
+							deletePreviousSegments = TRUE;
+							if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(lastByte) &&
+								 (pFrameHeader->VerifyByte1(*pCurr) == GNR_OK))
+								{
+								pHeader = (pCurr - 1); // this is OK if pCurr is first byte of block
+								if (pHeader < pBlockStart)
+									deletePreviousSegments = FALSE;
+								parseState.state = MP3PS_AFTER_SECOND_HEADER_BYTE;
+								}
+							else
+								{
+								if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(*pCurr))
+									{
+									pFrameHeader->InvalidateHeader();
+									pHeader = pCurr;
+									parseState.state = MP3PS_AFTER_FIRST_HEADER_BYTE;
+									}
+								else
+									{
+									pFrameHeader->InvalidateHeader();
+									pHeader = (BYTE *) NULL;
+									parseState.state = MP3PS_BEGINNING_FRAME_SEARCH;
+									}
+								}
+							}
+						}
+					else
+						{
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("[NONAUDIO] Byte at 0x%lX (0x%02X or '%c') is not sync byte 3\n",
+							  (DWORD)(pCurr - pBlockStart), (int) *pCurr, PRINT_BYTE(*pCurr));
+#endif
+						deletePreviousSegments = TRUE;
+						if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(lastByte) &&
+							 (pFrameHeader->VerifyByte1(*pCurr) == GNR_OK))
+							{
+							pHeader = (pCurr - 1); // this is OK if pCurr is first byte of block
+							if (pHeader < pBlockStart)
+								deletePreviousSegments = FALSE;
+							parseState.state = MP3PS_AFTER_SECOND_HEADER_BYTE;
+							}
+						else
+							{
+							if (IS_MPEG_FRAMEHEADER_SYNC_BYTE0(*pCurr))
+								{
+								pHeader = pCurr;
+								parseState.state = MP3PS_AFTER_FIRST_HEADER_BYTE;
+								}
+							else
+								{
+								pHeader = (BYTE *) NULL;
+								parseState.state = MP3PS_BEGINNING_FRAME_SEARCH;
+								}
+							}
+						}
+					break;
+				case MP3PS_BEFORE_CRC_BYTE0:
+					pFrameHeader->actualCRC = *pCurr << 8;
+					parseState.state = MP3PS_BEFORE_CRC_BYTE1;
+					break;
+				case MP3PS_BEFORE_CRC_BYTE1:
+					pFrameHeader->actualCRC += *pCurr;
+					parseState.state = MP3PS_AFTER_HEADER;
+					break;
+				case MP3PS_AFTER_HEADER:
+
+					pData = pCurr;
+#ifdef _DEBUG_SHELL
+					pShell->VerbosePrint("? pData = 0x%lX, pEnd = 0x%lX, frameLength = 0x%lX\n"
+						"? (pEnd - pData) = 0x%lX - Next Frame Block Offset = 0x%lX\n"
+						"? pData + pFrameHeader->frameLength - 4 = 0x%lX\n",
+								(DWORD) pData, (DWORD) pEnd, (DWORD) pFrameHeader->frameLength,
+								(DWORD) (pEnd - pData),
+								(DWORD)(pCurr - pBlockStart) + pFrameHeader->frameLength - 4,
+								((DWORD) pData) + ((DWORD) pFrameHeader->frameLength) - 4);
+#endif
+					// if ((pEnd - pData) < pFrameHeader->frameLength)
+					if ((pEnd - pData) < (pFrameHeader->frameLength - 4))
+						{
+						parseState.state = MP3PS_IN_DATA;
+						parseState.dataBytesRead = pEnd - pData;
+						pCurr = pEnd - 1;  // force break of parse loop without additional test
+#ifdef _DEBUG_SHELL
+						if (pShell->verbose)
+							{
+							if (pHeader < pBlockStart)
+								pShell->Print("(FRAME EXTENDS PAST BLOCK, HEADER BEGAN ON LAST BLOCK)\n");
+							pShell->Print("(FRAME EXTENDS PAST BLOCK!) - next Frame should begin at 0x%lX\n"
+								"parseState.state = MP3PS_IN_DATA, parseState.dataBytesRead = 0x%lX\n",
+								(pFrameHeader->frameLength - dataSize - (pHeader - pBlockStart)),
+								(DWORD) parseState.dataBytesRead);
+							}
+#endif
+						}
+					else // if (pEnd - pData >= pFrameHeader->frameLength)
+						{
+						parseState.state = MP3PS_AFTER_DATA;
+						parseState.dataBytesRead = pFrameHeader->frameLength - 4;
+						parseState.timestamp += pFrameHeader->CalculateMilliSeconds(pFrameHeader->frameLength);
+
+						// pCurr = pData + pFrameHeader->frameLength - 1;
+						pCurr = pData + pFrameHeader->frameLength - 5;
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("(1) parseState.state = MP3PS_AFTER_DATA, parseState.dataBytesRead = 0x%lX (%ld)\n",
+								(DWORD) parseState.dataBytesRead, (DWORD) parseState.dataBytesRead);
+#endif
+						}
+					break;
+				case MP3PS_IN_DATA:
+					pHeader = pBlockStart;
+					if ((pCurr + (pFrameHeader->frameLength - parseState.dataBytesRead)) < pEnd)
+						{
+						parseState.state = MP3PS_AFTER_DATA;
+						// pCurr += ((pFrameHeader->frameLength - parseState.dataBytesRead) - 1);
+						pCurr += ((pFrameHeader->frameLength - parseState.dataBytesRead) - 5);
+						// parseState.dataBytesRead = pFrameHeader->frameLength;
+						parseState.dataBytesRead = pFrameHeader->frameLength - 4;
+						parseState.timestamp += pFrameHeader->CalculateMilliSeconds(pFrameHeader->frameLength);
+
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("(2) parseState.state = MP3PS_AFTER_DATA, parseState.dataBytesRead = 0x%lX (%ld)\n",
+								(DWORD) parseState.dataBytesRead, (DWORD) parseState.dataBytesRead);
+#endif
+						}
+					else
+						{
+						parseState.state = MP3PS_IN_DATA;
+						parseState.dataBytesRead += pEnd - pCurr;
+						pCurr = pEnd - 1;  // force break of parse loop without additional test
+#ifdef _DEBUG_SHELL
+						pShell->VerbosePrint("(FRAME EXTENDS PAST BLOCK AGAIN!)\n"
+								"parseState.state = MP3PS_IN_DATA, parseState.dataBytesRead = 0x%lX\n",
+								(DWORD) parseState.dataBytesRead);
+#endif
+						}
+					break;
+				case MP3PS_AFTER_DATA:
+				default:
+					break;
+				}
+			}
+
+		lastByte = *pCurr;	// potential bug here, if pCurr is advanced quickly and ending byte is FF
+									// and if several other things line up in a somewhat unlikely manner...
+		pCurr++;
+		}
+
+
+	if (deletePreviousSegments)
+		{
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("Calling pFrame->Invalidate() (deletePreviousSegments)\n");
+#endif
+		pFrame->Invalidate();
+		}
+
+
+	if ((parseState.state != MP3PS_BEGINNING_OF_FILE) &&
+		 (parseState.state != MP3PS_BEGINNING_FRAME_SEARCH))
+		{
+		// this may be the first frame segment in the frame
+		if (pHeader < pBlockStart) // possible when header began in last block
+			{
+			if ((DWORD) (pBlockStart - pHeader) != prevSegmentBytes)
+				pFrame->segmentArray[0].AdjustSegmentSize((DWORD) (pBlockStart - pHeader));
+			pHeader = pBlockStart;
+			}
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("Calling pFrame->AddNewSegment(pBN=0x%lX, %d ms, offset=0x%lX, size=0x%lX)\n",
+			 (long) pBlockNode, parseState.timestamp,
+			 (long)(pHeader - pBlockStart), (long)(pCurr - pHeader));
+#endif
+		err = pFrame->AddNewSegment(pBlockNode, parseState.timestamp,
+					(DWORD)(pHeader - pBlockStart), (DWORD)(pCurr - pHeader));
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("actualSegments in this frame: %d\n",
+					pFrame->GetActualSegmentCount() );
+#endif
+		if (parseState.state != MP3PS_IN_DATA &&
+			 parseState.state != MP3PS_AFTER_DATA)
+			 // ending in the middle of a possible header (ugh)
+			{
+			prevLastByte = *(pEnd - 1);
+			}
+		}
+	else if (parseState.state == MP3PS_BEGINNING_OF_FILE)		// this means "frame not found"
+		parseState.state = MP3PS_BEGINNING_FRAME_SEARCH;		// to the calling function
+
+	parseState.currentBlockUnparsedOffset = DWORD (pCurr - pBlockStart);
+	if (lastBlockInFile && IS_ERROR(err) && (pEnd == pCurr))
+		{
+#ifdef _DEBUG_SHELL
+		pShell->Print("GNR_END_OF_FILE set in FindNextMPEGAudioFrame\n");
+#endif
+		err = GNR_END_OF_FILE;
+		}
+
+#ifdef _DEBUG_SHELL
+	pShell->VerbosePrint("pEnd=0x%lX, pCurr=0x%lX\n", (long) pEnd, (long) pCurr);
+	pShell->VerbosePrint(
+		"<< end FindNextMPEGAudioFrame: currentBlockUnparsedOffset=0x%lX (%ld), segments=%d\n\n",
+				(long) parseState.currentBlockUnparsedOffset,
+				(long) parseState.currentBlockUnparsedOffset,
+					pFrame->GetActualSegmentCount() );
+#endif
+
+	GNRAISE(err);
+	}
+
+//-----------------------------------------------------------------------------
+//  Get next frame
+//  GetNextFrame() reads the file, calls FindNextMPEGAudioFrame to parse frames
+//-----------------------------------------------------------------------------
+
+Error MPEGAudioStreamServer::GetNextFrame(AVFFrame *&pFrame)
+	{
+	WORD	failedBlockCount;
+	Error	err;
+
+#ifdef _DEBUG_SHELL
+	pShell->VerbosePrint("%d ----------------------------------------------------------\n",
+		parseState.currentFrameNum);
+#endif
+	failedBlockCount = 0;
+	err = GNR_OK;
+	pFrame = frameList.GetContiguousFreeFrames();
+	if (pFrame == (AVFFrame *) NULL)
+		GNRAISE(GNR_NOT_ENOUGH_MEMORY);
+
+	if ((parseState.currentBlockUnparsedOffset >= dataSize) ||
+		 (parseState.state == MP3PS_BEGINNING_OF_FILE))
+		{
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint(">> in GetNextFrame: currentBlockUnparsedOffset = 0x%lX (%ld) >= dataSize 0x%lX (%ld)\n",
+				(long) parseState.currentBlockUnparsedOffset, (long) parseState.currentBlockUnparsedOffset,
+				(long) dataSize, (long) dataSize);
+#endif
+		if (numLastBlockInFile < lastBlockRead)
+			{
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("END OF FILE (prevented reading across end)\n");
+#endif
+			GNRAISE(GNR_END_OF_FILE);
+			}
+
+		// this means there is nothing to parse, need to read a new block first
+		parseState.InitNewFrameNewBlock();
+
+		// read the next block of the file
+		pCurrentBlockNode = blockList.GetContiguousFreeBlocks();
+		if (pCurrentBlockNode == (DriveBlockNode *) NULL)
+			{
+			frameList.UnGetContiguousFrames(pFrame);
+			GNRAISE(GNR_NOT_ENOUGH_MEMORY);
+			}
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("[GetNextFrame] calling LockBlock(lastBlockRead=%ld) (before loop)\n",
+				(long) lastBlockRead);
+#endif
+		//------------------------------------------------------------------
+		// read the next block (before loop)
+		//------------------------------------------------------------------
+		err = pCurrentBlockNode->LockBlock(gf, lastBlockRead, DAT_LOCK_AND_READ, &rh);
+		// err = gf->LockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_LOCK_AND_READ, &rh);
+		if (IS_ERROR(err))
+			{
+#ifdef _DEBUG_SHELL
+			pShell->Print("ERROR: pCurrentBlockNode->LockBlock(lastBlockRead=%ld) failed!\n", (long) lastBlockRead);
+#else
+			DP("ERROR: pCurrentBlockNode->LockBlock(lastBlockRead=%ld) failed!\n", (long) lastBlockRead);
+#endif
+			(void) pCurrentBlockNode->UnlockBlock();
+			// (void) gf->UnlockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_UNLOCK_CLEAN, &rh);
+			frameList.UnGetContiguousFrames(pFrame);
+			blockList.UnGetContiguousBlocks(pCurrentBlockNode);
+			GNRAISE(err);
+			}
+		else
+			{
+			pCurrentBlockNode->pData = pCurrentBlockNode->block.data + headerSize;
+#ifdef _DEBUG_SHELL_DUMP
+			if (pShell->verbose)
+				{
+				pShell->Print("Contents of block #%d:\n", lastBlockRead);
+				if (lastBlockRead)
+					pShell->PrintDump(pCurrentBlockNode->pData, (int) dataSize,
+						(int) dataSize, FALSE);
+				else
+					pShell->PrintDump(pCurrentBlockNode->pData, (int) dataSize,
+						(int) dataSize, TRUE);  // show ASCII on first block
+				}
+#else
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Successfully read block #%d (define _DEBUG_SHELL_DUMP to dump)\n",
+					lastBlockRead);
+#endif
+#endif
+			lastBlockRead++;
+			}
+		}
+	else // not finished parsing current block
+		{
+#ifdef _DEBUG_SHELL
+		if (pShell->verbose)
+			{
+			pShell->Print("not finished parsing current block>>\n");
+			pShell->Print(">> in GetNextFrame: currentBlockUnparsedOffset = 0x%lX (%ld) < dataSize 0x%lX (%ld)\n",
+				(long) parseState.currentBlockUnparsedOffset, (long) parseState.currentBlockUnparsedOffset,
+				(long) dataSize, (long) dataSize);
+			}
+#endif
+		parseState.InitNewFrameSameBlock();
+		}
+
+	// create the frame container
+	pFrame->SetFrameNum(parseState.currentFrameNum);
+
+	//------------------------------------------------------------------
+	// find the next frame (before loop)
+	//------------------------------------------------------------------
+
+	if (numLastBlockInFile < lastBlockRead)
+		{
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("[GetNextFrame] numLastBlockInFile < lastBlockRead => lastBlockInFile = TRUE;\n");
+#endif
+#ifdef _DEBUG_SHELL_DUMP
+		if ((!lastBlockInFile) && (pShell->verbose))
+			{
+			pShell->Print("Contents of last block #%d:\n", numLastBlockInFile);
+			pShell->PrintDump(pCurrentBlockNode->pData, (int) dataSize,
+				(int) dataSize, TRUE);
+			}
+#endif
+		lastBlockInFile = TRUE;
+		}
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint(
+			"[GetNextFrame] calling FindNextMPEGAudioFrame(frameNum=%ld) (before loop)\n",
+				(long) parseState.currentFrameNum);
+#endif
+	err = FindNextMPEGAudioFrame(pCurrentBlockNode, pFrame, parseState);
+	if (parseState.needToCleanUpBlocks)
+		{
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("CleanUpBlockList(DBPM_CLEANUP_ALL_UNUSED_BLOCKS_EXCEPT_THE_LAST_ONE);\n");
+#endif
+		CleanUpBlockList(DBPM_CLEANUP_ALL_UNUSED_BLOCKS_EXCEPT_THE_LAST_ONE);
+		parseState.needToCleanUpBlocks = FALSE;
+		}
+
+	if (parseState.state == MP3PS_BEGINNING_FRAME_SEARCH) // next frame not found yet
+		{
+		(void) pCurrentBlockNode->UnlockBlock();
+		// (void) gf->UnlockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_UNLOCK_CLEAN, &rh);
+		blockList.UnGetContiguousBlocks(pCurrentBlockNode);
+		failedBlockCount++;	// cleanup done in FindNextMP3Frame() and in CleanupBlockList(), above
+		}
+
+	//------------------------------------------------------------------------
+	// keep looking until we find a complete frame, or there is an error, or
+	// or we've looked at MPEG_AUDIO_MAX_BLOCKS_WITH_NO_HEADER without finding
+	// a valid frame frame header
+	//------------------------------------------------------------------------
+	while (((parseState.state != MP3PS_AFTER_DATA) && (!IS_ERROR(err)) && (!lastBlockInFile) &&
+			  (parseState.state != MP3PS_BEGINNING_FRAME_SEARCH ||
+			   failedBlockCount < MPEG_AUDIO_MAX_BLOCKS_WITH_NO_HEADER)))
+		{
+		parseState.InitSameFrameNewBlock();
+		// existing value is saved, overwrite with next block
+		pCurrentBlockNode = blockList.GetContiguousFreeBlocks();
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("[GetNextFrame] calling LockBlock(lastBlockRead=%ld) (inside loop)\n",
+				(long) lastBlockRead);
+#endif
+		//------------------------------------------------------------------
+		// read the next block (inside loop)
+		//------------------------------------------------------------------
+		err = pCurrentBlockNode->LockBlock(gf, lastBlockRead, DAT_LOCK_AND_READ, &rh);
+		// err = gf->LockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_LOCK_AND_READ, &rh);
+		if (IS_ERROR(err))
+			{
+#ifdef _DEBUG_SHELL
+			pShell->Print("ERROR: pCurrentBlockNode->LockBlock(lastBlockRead=%ld) failed!\n", (long) lastBlockRead);
+#else
+			DP("ERROR: pCurrentBlockNode->LockBlock(lastBlockRead=%ld) failed!\n", (long) lastBlockRead);
+#endif
+			(void) pCurrentBlockNode->UnlockBlock();
+			// (void) gf->UnlockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_UNLOCK_CLEAN, &rh);
+			blockList.UnGetContiguousBlocks(pCurrentBlockNode);
+			}
+		else // if (!IS_ERROR(err))
+			{
+			pCurrentBlockNode->pData = pCurrentBlockNode->block.data + headerSize;
+#ifdef _DEBUG_SHELL_DUMP
+			if (pShell->verbose)
+				{
+				pShell->Print("Contents of block #%d:\n", lastBlockRead);
+				pShell->PrintDump(pCurrentBlockNode->pData,
+					(int) dataSize,  (int) dataSize, FALSE);
+				}
+#else
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Successfully read block #%d (define _DEBUG_SHELL_DUMP to dump)\n",
+					lastBlockRead);
+#endif
+#endif
+
+			lastBlockRead++;
+			//------------------------------------------------------------------
+			// find the next frame (inside loop)
+			//------------------------------------------------------------------
+			if (numLastBlockInFile < lastBlockRead)
+				{
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("[GetNextFrame] numLastBlockInFile < lastBlockRead => lastBlockInFile = TRUE;\n");
+#endif
+#ifdef _DEBUG_SHELL_DUMP
+				if ((!lastBlockInFile) && (pShell->verbose))
+					{
+					pShell->Print("Contents of last block #%d:\n", numLastBlockInFile);
+					pShell->PrintDump(pCurrentBlockNode->pData, (int) dataSize,
+						(int) dataSize, TRUE);
+					}
+#endif
+				lastBlockInFile = TRUE;
+				}
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint(
+			"[GetNextFrame] calling FindNextMPEGAudioFrame(frameNum=%ld) (inside loop)\n",
+				(long) parseState.currentFrameNum);
+#endif
+			err = FindNextMPEGAudioFrame(pCurrentBlockNode, pFrame, parseState);
+			if (parseState.needToCleanUpBlocks)
+				{
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("CleanUpBlockList(DBPM_CLEANUP_ALL_UNUSED_BLOCKS_EXCEPT_THE_LAST_ONE);\n");
+#endif
+				CleanUpBlockList(DBPM_CLEANUP_ALL_UNUSED_BLOCKS_EXCEPT_THE_LAST_ONE);
+				parseState.needToCleanUpBlocks = FALSE;
+				}
+
+			if (!IS_ERROR(err))	// currently, there can be no error
+				{
+				if (parseState.state == MP3PS_BEGINNING_FRAME_SEARCH) // first frame not found yet
+					{
+					(void) pCurrentBlockNode->UnlockBlock();
+					// (void) gf->UnlockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_UNLOCK_CLEAN, &rh);
+					blockList.UnGetContiguousBlocks(pCurrentBlockNode);
+					failedBlockCount++;	// cleanup done in FindNextMP3Frame() and in CleanupBlockList(), above
+					}
+				}
+			}
+		}
+
+	if (IS_ERROR(err))
+		{
+#ifdef _DEBUG_SHELL
+		pShell->Print("[GetNextFrame] err = 0x%lX;\n", (long) err);
+#endif
+		}
+	else
+		{
+		if (pFrame->GetActualSegmentCount() == 0)
+			{
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Discarding unused frame pointer, returning a NULL for pFrame\n");
+#endif
+			err = frameList.UnGetContiguousFrames(pFrame, 1);
+			pFrame = (AVFFrame *) NULL;
+			if (lastBlockInFile &&
+				 (parseState.currentBlockUnparsedOffset >= (fileSizeDWORD % dataSize)))
+				{
+				err = GNR_END_OF_FILE;
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("END OF FILE (calculated when no segments found)\n");
+#endif
+				}
+			else
+				err = GNR_FILE_WRONG_FORMAT;
+
+			}
+		else if (checkPointList.enabled && (!lastBlockInFile))
+			// add first segment block of this frame to checkPointList
+			{
+			DWORD		startBlock;
+
+			startBlock = pFrame->segmentArray[0].pBlockNode->GetRelativeBlockNum();
+			if ((startBlock % checkPointList.blocksPerCheckPoint) == 0)
+				{
+				DWORD		offset;
+				offset = (DWORD) (pFrame->segmentArray[0].data.data -
+									pFrame->segmentArray[0].pBlockNode->block.data);
+				checkPointList.AddCheckPoint(parseState.currentFrameNum,
+													  startBlock, offset, parseState.timestamp);
+				}
+			}
+		else if (lastBlockInFile &&
+				 (parseState.currentBlockUnparsedOffset >= (fileSizeDWORD % dataSize)) &&
+				 (parseState.state != MP3PS_AFTER_DATA))
+			{
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Discarding unused frame pointer, returning a NULL for pFrame\n");
+#endif
+			err = frameList.UnGetContiguousFrames(pFrame, 1);
+			CleanUpBlockList(DBPM_CLEANUP_ALL_UNUSED_BLOCKS);
+			pFrame = (AVFFrame *) NULL;
+			err = GNR_END_OF_FILE;
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("END OF FILE (calculated when segments *were* found)\n");
+#endif
+			}
+
+
+		}
+
+	GNRAISE(err);
+	}
+
+//------------------------------------------------------------------------------
+//
+//  Get frame by number
+//  Frame numbers are relative 1
+//
+//------------------------------------------------------------------------------
+
+Error MPEGAudioStreamServer::GetFrameByNumber(DWORD requestedFrameNum, AVFFrame *&pAVFFrame)
+	{
+	BOOL parseFromBeginningOfFile;
+
+	if (parseState.currentFrameNum == requestedFrameNum)
+		{
+		pAVFFrame = frameList.GetLockedFrame(0);
+		// set function parameter
+		GNRAISE(GNR_OK);
+		}
+	else if (parseState.currentFrameNum < requestedFrameNum)
+		{
+		parseFromBeginningOfFile = FALSE;
+		}
+	else if (checkPointList.enabled)
+		{
+		DriveBlockCheckPointNode *pCheckPoint;
+
+		pCheckPoint = checkPointList.GetFrameCheckPoint(requestedFrameNum);
+		if (pCheckPoint)
+			{
+			err = MoveToCheckPoint(pCheckPoint);
+			if (!IS_ERROR(err))
+				parseFromBeginningOfFile = FALSE;
+			else
+				parseFromBeginningOfFile = TRUE;
+			}
+		else
+			parseFromBeginningOfFile = TRUE;
+		}
+	else
+		parseFromBeginningOfFile = TRUE;
+
+	if (parseFromBeginningOfFile)
+		{
+		frameList.Invalidate();
+		CleanUpBlockList(DBPM_CLEANUP_ALL_BLOCKS);
+		blockList.Invalidate();
+		RewindDataSource();
+		}
+
+	while ((parseState.currentFrameNum < requestedFrameNum) && (!IS_ERROR(err)))
+		{
+		if ((parseState.currentFrameNum + 1) == requestedFrameNum)
+			{
+			err = GetNextFrame(pAVFFrame);
+			}
+		else
+			{
+			err = GetNextFrame(pAVFFrame);
+			CleanUpBlockList(DBPM_CLEANUP_ALL_EXCEPT_LAST_BLOCK);
+			}
+		}
+
+	GNRAISE(err);
+	}
+
+//------------------------------------------------------------------------------
+//
+//  Rewind data source
+//
+//------------------------------------------------------------------------------
+
+void MPEGAudioStreamServer::RewindDataSource()
+	{
+	lastBlockRead = 0;		//  block numbers are relative 0
+	parseState.InitFirstFrameInFile();
+	}
+
+//------------------------------------------------------------------------------
+//
+//  Move to check point
+//
+//------------------------------------------------------------------------------
+
+Error MPEGAudioStreamServer::MoveToCheckPoint(DriveBlockCheckPointNode *pCheckPoint)
+	{
+	Error err;
+
+	if (pCheckPoint)
+		{
+		lastBlockRead = pCheckPoint->blockNum;
+		parseState.currentBlockUnparsedOffset = pCheckPoint->offset;
+		parseState.state = MP3PS_AFTER_DATA;
+		parseState.needToCleanUpBlocks;
+		parseState.currentFrameNum = pCheckPoint->frameNum - 1; // frameNum is incremented in GetNextFrame()
+
+		// read the next block of the file
+		pCurrentBlockNode = blockList.GetContiguousFreeBlocks();
+		err = pCurrentBlockNode->LockBlock(gf, lastBlockRead, DAT_LOCK_AND_READ, &rh);
+		// err = gf->LockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_LOCK_AND_READ, &rh);
+		if (IS_ERROR(err))
+			{
+			(void) pCurrentBlockNode->UnlockBlock();
+			// (void) gf->UnlockBlocks(lastBlockRead, 1, &pCurrentBlockNode->block, DAT_UNLOCK_CLEAN, &rh);
+			blockList.UnGetContiguousBlocks(pCurrentBlockNode);
+			pCurrentBlockNode = (DriveBlockNode *) NULL;
+			GNRAISE(err);
+			}
+		else
+			{
+			pCurrentBlockNode->pData = pCurrentBlockNode->block.data + headerSize;
+#ifdef _DEBUG_SHELL_DUMP
+			pShell->Print("Contents of block #%d:\n", lastBlockRead);
+			pShell->PrintDump(pCurrentBlockNode->block.data,
+				(int) this->dataSize,  (int) this->dataSize, FALSE);
+#else
+#ifdef _DEBUG_SHELL
+				pShell->Print("Successfully read block #%d (define _DEBUG_SHELL_DUMP to dump)\n",
+					lastBlockRead);
+#endif
+#endif
+			}
+		}
+	else
+		err = GNR_INVALID_PARAMETERS;
+
+	GNRAISE(err);
+	}
+
+//------------------------------------------------------------------------------
+//
+//	CalculateLengthInSeconds
+//
+//------------------------------------------------------------------------------
+
+
+DWORD MPEGAudioStreamServer::CalculateLengthInSeconds(void)
+	{
+	DWORD		bitrate;
+	DWORD		seconds;
+	DWORD		fileSizeInKiloBits;
+	DWORD		fileSizeInBytes;
+	DWORD		frames;
+
+#ifdef _DEBUG_SHELL
+	pShell->Print(">> in GetLengthInSeconds()\n");
+#endif
+	if (!parseState.nonAudio.info.firstFrameAvailable)
+		{
+#ifdef _DEBUG_SHELL
+		pShell->Print("ERROR - GetLengthInSeconds() called before LoadFirstFrameInfo()\n");
+#endif
+		return(0);
+		}
+
+   if (parseState.nonAudio.info.vbrFrameAvailable)
+		{
+      // get average frame size by deviding fileSize by the number of frames
+      float avgFrameSize;
+
+		if (parseState.nonAudio.info.vbrFrame.fileSize)
+			{
+			fileSizeInBytes = parseState.nonAudio.info.vbrFrame.fileSize;
+			}
+		else
+			{
+			fileSizeInBytes = fileSizeDWORD;
+#ifdef _DEBUG_SHELL
+			pShell->Print("GetLengthInSeconds: parseState.nonAudio.info.vbrFrame.fileSize = 0!\n");
+#endif
+			}
+
+		if (parseState.nonAudio.info.vbrFrame.frames)
+			frames = parseState.nonAudio.info.vbrFrame.frames;
+		else
+			{
+#ifdef _DEBUG_SHELL
+			pShell->Print("GetLengthInSeconds: parseState.nonAudio.info.vbrFrame.frames = 0!\n");
+#endif
+			return(0);
+			}
+
+		avgFrameSize = (float) fileSizeInBytes / (float) frames;
+
+		if (parseState.nonAudio.info.firstFrame.mpegLayer == MPEG_AUDIO_LAYER_1)
+			bitrate = (DWORD)((avgFrameSize * (float) parseState.nonAudio.info.firstFrame.sampleRate ) /
+                     ( 1000.0 * ( 12.0 )));
+		else
+			bitrate = (DWORD)((avgFrameSize * (float) parseState.nonAudio.info.firstFrame.sampleRate ) /
+			            ( 1000.0 * ( 144.0 )));
+
+		fileSizeInKiloBits = ((8 * parseState.nonAudio.info.vbrFrame.fileSize) / 1000);
+		seconds = fileSizeInKiloBits / bitrate;
+#ifdef _DEBUG_SHELL
+		pShell->Print("GetLengthInSeconds: fileSizeInBytes = %ld\n", (long) fileSizeInBytes);
+		pShell->Print("GetLengthInSeconds: frames = %ld\n", (long) frames);
+		pShell->Print("GetLengthInSeconds: avgFrameSize = %1.1f\n", avgFrameSize);
+		pShell->Print("GetLengthInSeconds: bitrate = %ld\n", (long) bitrate);
+		pShell->Print("GetLengthInSeconds: fileSizeInKiloBits = %ld\n", (long) fileSizeInKiloBits);
+		pShell->Print("GetLengthInSeconds: sampleRate = %ld\n", (long) parseState.nonAudio.info.firstFrame.sampleRate);
+		pShell->Print("GetLengthInSeconds: seconds = %ld\n", (long) seconds);
+#endif
+		}
+	else
+		{
+#ifdef _DEBUG_SHELL
+	pShell->Print("parseState.nonAudio.info.vbrFrameAvailable == FALSE\n");
+#endif
+		if (parseState.nonAudio.info.id3v1FrameAvailable)
+			fileSizeInKiloBits = (8 * (fileSizeDWORD - MPEG_ID3V1_FRAME_BYTES)) / 1000;
+		else
+			fileSizeInKiloBits = (8 * fileSizeDWORD) / 1000;
+		seconds = fileSizeInKiloBits / (DWORD) parseState.nonAudio.info.firstFrame.bitrate;
+		}
+
+#ifdef _DEBUG_SHELL
+		pShell->Print("[NONAUDIO] GetLengthInSeconds() returns %ld, aka %ld:%02ld\n",
+			(long) seconds, (long) (seconds / 60), (long) (seconds % 60));
+#endif
+
+	return (seconds);
+	}
+
+//
+//	LoadID3v1Info
+//
+
+Error MPEGAudioStreamServer::LoadID3v1Info(void)
+	{
+	DWORD		lastBlockBytes;
+	DWORD		startOffset;
+	DWORD		bytesToSkip;
+	Error		err = GNR_OK;
+	BYTE		*pData, *pEnd;
+	BOOL		frameDone = FALSE;
+	MPEGNonAudioFrameType	type;
+
+#ifdef _DEBUG_SHELL_DEAD
+	pShell->VerbosePrint("MPEG_ID3V1_TITLE_START = %d\n",
+		(MPEG_ID3V1_ID_LEN));
+	pShell->VerbosePrint("MPEG_ID3V1_ARTIST_START = %d\n",
+		(MPEG_ID3V1_TITLE_START+MPEG_ID3V1_TITLE_LEN));
+	pShell->VerbosePrint("MPEG_ID3V1_ALBUM_START = %d\n",
+		(MPEG_ID3V1_ARTIST_START+MPEG_ID3V1_ARTIST_LEN));
+	pShell->VerbosePrint("MPEG_ID3V1_YEAR_START = %d\n",
+		(MPEG_ID3V1_ALBUM_START+MPEG_ID3V1_ALBUM_LEN));
+	pShell->VerbosePrint("MPEG_ID3V1_COMMENT_START = %d\n",
+		(MPEG_ID3V1_YEAR_START+MPEG_ID3V1_YEAR_LEN));
+	pShell->VerbosePrint("MPEG_ID3V1_TRACKNUM_BYTE = %d\n",
+		(MPEG_ID3V1_COMMENT_START+MPEG_ID3V1_COMMENT_LEN));
+	pShell->VerbosePrint("MPEG_ID3V1_GENRE_BYTE = %d\n",
+		(MPEG_ID3V1_TRACKNUM_BYTE+1));
+	pShell->VerbosePrint("MPEG_ID3V1_FRAME_BYTES = %d\n",
+		(MPEG_ID3V1_GENRE_BYTE+1));
+	pShell->VerbosePrint("MPEG_ID3V1_FRAME_SKIP_BYTES = %d\n",
+		(MPEG_ID3V1_FRAME_BYTES - MPEG_ID3V1_ID_LEN));
+#endif
+
+	lastBlockBytes = (fileSizeDWORD % dataSize);
+	if (lastBlockBytes >= MPEG_ID3V1_FRAME_BYTES)
+		{
+		// OK to parse the whole thing at once
+		startOffset = lastBlockBytes - MPEG_ID3V1_FRAME_BYTES;
+		//------------------------------------------------------------------
+		// read the last block in the file
+		//------------------------------------------------------------------
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("[LoadID3v1Info] (last block) startOffset = %ld = (%ld - %ld)\n",
+			(long) startOffset, (long) lastBlockBytes, (long) MPEG_ID3V1_FRAME_BYTES);
+		pShell->VerbosePrint("[LoadID3v1Info] calling LockBlock(lastBlockRead=%ld)\n",
+				(long) numLastBlockInFile);
+#endif
+		err = randomAccessBlock.LockBlock(gf, numLastBlockInFile, DAT_LOCK_AND_READ, &rh);
+		if (IS_ERROR(err))
+			{
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("ERROR: gf->LockBlocks(numLastBlockInFile=%ld) failed!\n", (long) numLastBlockInFile);
+#endif
+			(void) randomAccessBlock.UnlockBlock();
+			GNRAISE(err);
+			}
+		else
+			{
+			randomAccessBlock.pData = randomAccessBlock.block.data + headerSize;
+#ifdef _DEBUG_SHELL_DUMP
+			if (pShell->verbose)
+				{
+				pShell->Print("Contents of block #%d:\n", numLastBlockInFile);
+				pShell->PrintDump(randomAccessBlock.pData, (int) dataSize,
+						(int) dataSize, TRUE);  // show ASCII on first block
+				}
+#else
+#ifdef _DEBUG_SHELL
+				pShell->Print("Successfully read block #%d (define _DEBUG_SHELL_DUMP to dump)\n",
+					numLastBlockInFile);
+#endif
+#endif
+			pData = randomAccessBlock.pData + startOffset;
+			pEnd = randomAccessBlock.pData + lastBlockBytes;
+			while ((err == GNR_OK) && (pData != pEnd) && (!frameDone))
+				{
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("checking for ID3v1 at offset 0x%lX\n",
+					    (long)(pData-randomAccessBlock.pData));
+#endif
+				err = parseState.nonAudio.NonAudioFrameByteFilter(*pData, bytesToSkip,
+					type, frameDone, MPEG_NONAUDIO_PARSE_FULL);
+				pData++;
+				}
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Out of ID3v1 loop, pData@0x%lX, pEnd@0x%lX, err=%lX, frameDone=%d\n",
+				    (long)(pData-randomAccessBlock.pData), (long)(pEnd-randomAccessBlock.pData),
+					 (long) err, (int) frameDone);
+#endif
+			if (!IS_ERROR(err))
+				{
+				if (frameDone)
+					{
+#ifdef _DEBUG_SHELL
+					pShell->Print("Successfully read ID3v1 information!\n");
+					DebugDumpID3v1Info();
+#endif
+					}
+				else
+					{
+#ifdef _DEBUG_SHELL
+					pShell->Print("No error parsing ID3v1 information, but frameDone == FALSE???\n");
+#endif
+					}
+				}
+			else
+				{
+#ifdef _DEBUG_SHELL
+				pShell->Print("Error reading ID3v1 information at offset 0x%lX!\n",
+					    (long)(pData-randomAccessBlock.pData-1));
+#endif
+				}
+			}
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("calling randomAccessBlock.UnlockBlock()\n");
+#endif
+		(void) randomAccessBlock.UnlockBlock();
+		}
+	else   //-------- ID3v1 Frame split across last two blocks ---------
+		{
+		// must parse it byte by byte
+		startOffset = dataSize - (MPEG_ID3V1_FRAME_BYTES - lastBlockBytes);
+		//------------------------------------------------------------------
+		// read the 2nd last block in the file
+		//------------------------------------------------------------------
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("[LoadID3v1Info] startOffset = %ld = %ld - (%ld - %ld)\n",
+			(long) startOffset, (long) dataSize, (long) MPEG_ID3V1_FRAME_BYTES, (long) lastBlockBytes);
+		pShell->VerbosePrint("[LoadID3v1Info] (2nd last block) calling LockBlock(lastBlockRead=%ld)\n",
+				(long) numLastBlockInFile - 1);
+#endif
+		err = randomAccessBlock.LockBlock(gf, numLastBlockInFile - 1, DAT_LOCK_AND_READ, &rh);
+		if (IS_ERROR(err))
+			{
+#ifdef _DEBUG_SHELL
+			pShell->Print("ERROR: randomAccessBlock.LockBlock(numLastBlockInFile-1=%ld) failed!\n", (long) numLastBlockInFile-1);
+#else
+			DP("ERROR: randomAccessBlock.LockBlock(numLastBlockInFile-1=%ld) failed!\n", (long) numLastBlockInFile-1);
+#endif
+			(void) randomAccessBlock.UnlockBlock();
+			GNRAISE(err);
+			}
+		else
+			{
+			randomAccessBlock.pData = randomAccessBlock.block.data + headerSize;
+#ifdef _DEBUG_SHELL_DUMP
+			if (pShell->verbose)
+				{
+				pShell->Print("Contents of block #%d:\n", numLastBlockInFile-1);
+				pShell->PrintDump(randomAccessBlock.pData, (int) dataSize,
+						(int) dataSize, TRUE);  // show ASCII on first block
+				}
+#else
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Successfully read block #%d (define _DEBUG_SHELL_DUMP to dump)\n",
+					numLastBlockInFile-1);
+#endif
+#endif
+			pData = randomAccessBlock.pData + startOffset;
+			pEnd = randomAccessBlock.pData + dataSize;
+			while ((err == GNR_OK) && (pData != pEnd) && (!frameDone))
+				{
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("checking for ID3v1 at offset 0x%lX\n",
+					    (long)(pData-randomAccessBlock.pData));
+#endif
+				err = parseState.nonAudio.NonAudioFrameByteFilter(*pData, bytesToSkip,
+					type, frameDone, MPEG_NONAUDIO_PARSE_FULL);
+				pData++;
+				}
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Out of ID3v1 loop, pData@0x%lX, pEnd@0x%lX, err=%lX, frameDone=%d\n",
+				    (long)(pData-randomAccessBlock.pData), (long)(pEnd-randomAccessBlock.pData),
+					 (long) err, (int) frameDone);
+#endif
+			if (!IS_ERROR(err))
+				{
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("No error so far reading ID3v1 information!\n");
+#endif
+				}
+			else
+				{
+#ifdef _DEBUG_SHELL
+				pShell->Print("Error reading ID3v1 information at offset 0x%lX!\n",
+					    (long)(pData-randomAccessBlock.pData-1));
+#endif
+				}
+			}
+
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("calling randomAccessBlock.UnlockBlock()\n");
+#endif
+		(void) randomAccessBlock.UnlockBlock();
+		if (IS_ERROR(err))
+			{
+			parseState.nonAudio.ResetByteParser();
+			GNRAISE(err);
+			}
+
+		//------------------------------------------------------------------
+		// read the last block in the file
+		//------------------------------------------------------------------
+		startOffset = 0;
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("[LoadID3v1Info] startOffset = %ld\n", (long) 0);
+		pShell->VerbosePrint("[LoadID3v1Info] (last block) calling LockBlock(lastBlockRead=%ld)\n",
+				(long) numLastBlockInFile);
+#endif
+		err = randomAccessBlock.LockBlock(gf, numLastBlockInFile, DAT_LOCK_AND_READ, &rh);
+		if (IS_ERROR(err))
+			{
+#ifdef _DEBUG_SHELL
+			pShell->Print("ERROR: randomAccessBlock.LockBlock(numLastBlockInFile=%ld) failed!\n", (long) numLastBlockInFile);
+#else
+			DP("ERROR: randomAccessBlock.LockBlock(numLastBlockInFile=%ld) failed!\n", (long) numLastBlockInFile);
+#endif
+			(void) randomAccessBlock.UnlockBlock();
+			GNRAISE(err);
+			}
+		else
+			{
+			randomAccessBlock.pData = randomAccessBlock.block.data + headerSize;
+#ifdef _DEBUG_SHELL_DUMP
+			if (pShell->verbose)
+				{
+				pShell->Print("Contents of block #%d:\n", numLastBlockInFile);
+				pShell->PrintDump(randomAccessBlock.pData, (int) dataSize,
+						(int) dataSize, TRUE);  // show ASCII on first block
+				}
+#else
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Successfully read block #%d (define _DEBUG_SHELL_DUMP to dump)\n",
+					numLastBlockInFile);
+#endif
+#endif
+			pData = randomAccessBlock.pData + startOffset;
+			pEnd = randomAccessBlock.pData + lastBlockBytes;
+			while ((err == GNR_OK) && (pData != pEnd) && (!frameDone))
+				{
+#ifdef _DEBUG_SHELL
+				pShell->VerbosePrint("checking for ID3v1 at offset 0x%lX\n",
+					    (long)(pData-randomAccessBlock.pData));
+#endif
+				err = parseState.nonAudio.NonAudioFrameByteFilter(*pData, bytesToSkip,
+					type, frameDone, MPEG_NONAUDIO_PARSE_FULL);
+				pData++;
+				}
+#ifdef _DEBUG_SHELL
+			pShell->VerbosePrint("Out of ID3v1 loop, pData@0x%lX, pEnd@0x%lX, err=%lX, frameDone=%d\n",
+				    (long)(pData-randomAccessBlock.pData), (long)(pEnd-randomAccessBlock.pData),
+					 (long) err, (int) frameDone);
+#endif
+			if (!IS_ERROR(err))
+				{
+				if (frameDone)
+					{
+#ifdef _DEBUG_SHELL
+					pShell->Print("Successfully read ID3v1 information!\n");
+					DebugDumpID3v1Info();
+#endif
+					}
+				else
+					{
+#ifdef _DEBUG_SHELL
+					pShell->Print("No error parsing ID3v1 information, but frameDone == FALSE???\n");
+#endif
+					}
+				}
+			else
+				{
+#ifdef _DEBUG_SHELL
+				pShell->Print("Error reading ID3v1 information at offset 0x%lX!\n",
+					    (long)(pData-randomAccessBlock.pData-1));
+#endif
+				}
+			}
+
+#ifdef _DEBUG_SHELL
+		pShell->VerbosePrint("calling randomAccessBlock.UnlockBlock()\n");
+#endif
+		(void) randomAccessBlock.UnlockBlock();
+		}
+
+	parseState.nonAudio.ResetByteParser();
+	GNRAISE(err);
+	}
+
+//
+//
+//
+
+#ifdef _DEBUG_SHELL
+//
+//  Debug dump ID3v1 info
+//
+
+void MPEGAudioStreamServer::DebugDumpID3v1Info(void)
+	{
+	if (parseState.nonAudio.info.id3v1FrameAvailable)
+		{
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.id = \"%s\"\n",
+			parseState.nonAudio.info.id3v1Frame.id);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.title = \"%s\"\n",
+			parseState.nonAudio.info.id3v1Frame.title);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.artist = \"%s\"\n",
+			parseState.nonAudio.info.id3v1Frame.artist);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.album = \"%s\"\n",
+			parseState.nonAudio.info.id3v1Frame.album);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.year = \"%s\"\n",
+			parseState.nonAudio.info.id3v1Frame.year);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.comment = \"%s\"\n",
+			parseState.nonAudio.info.id3v1Frame.comment);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.trackNum = 0x%X\n",
+			(int) parseState.nonAudio.info.id3v1Frame.trackNum);
+		pShell->Print("parseState.nonAudio.info.id3v1Frame.genreCode = 0x%X\n",
+			(int) parseState.nonAudio.info.id3v1Frame.genreCode);
+		}
+	else
+		pShell->Print("parseState.nonAudio.info.id3v1FrameAvailable == FALSE\n");
+	}
+
+//
+//  Debug dump parse state
+//
+
+void MPEGAudioStreamServer::DebugDumpParseState(MPEGAudioParseState &parseState)
+	{
+	char		*stateStr[] = {"MP3PS_BEGINNING_OF_FILE",
+									"MP3PS_BEGINNING_FRAME_SEARCH",
+									"MP3PS_AFTER_FIRST_HEADER_BYTE",
+									"MP3PS_AFTER_SECOND_HEADER_BYTE",
+									"MP3PS_AFTER_THIRD_HEADER_BYTE",
+									"MP3PS_BEFORE_CRC_BYTE0", // if CRC not used go straight to "AFTER_HEADER"
+									"MP3PS_BEFORE_CRC_BYTE1", // if CRC not used go straight to "AFTER_HEADER"
+									"MP3PS_AFTER_HEADER",
+									"MP3PS_IN_DATA",
+									"MP3PS_AFTER_DATA" };
+
+	pShell->Print("parseState.state = %s\n", stateStr[parseState.state]);
+	pShell->Print("parseState.dataBytesRead = 0x%lX\n", parseState.dataBytesRead);
+	pShell->Print("parseState.bytesToSkip = 0x%lX\n", parseState.bytesToSkip);
+	pShell->Print("parseState.relativeBlockNum = 0x%lX (unused)\n", parseState.relativeBlockNum);
+	pShell->Print("parseState.currentBlockUnparsedOffset = 0x%lX\n", parseState.currentBlockUnparsedOffset);
+	pShell->Print("parseState.currentFrameOffset = 0x%lX\n", parseState.currentFrameOffset);
+	pShell->Print("parseState.needToCleanUpBlocks = %d\n", (int) parseState.needToCleanUpBlocks);
+	pShell->Print("parseState.currentFrameNum = %ld\n", parseState.currentFrameNum);
+	}
+
+//
+//  Debug dump header info
+//
+
+void MPEGAudioStreamServer::DebugDumpHeaderInfo(MPEGAudioFrameHeader *pHeader)
+	{
+	char	*mpegVerStr[] = {"MPEG_AUDIO_VERSION_2_5",
+								  "MPEG_AUDIO_VERSION_RESERVED",
+								  "MPEG_AUDIO_VERSION_2",
+								  "MPEG_AUDIO_VERSION_1" };
+
+	char *mpegLayerStr[] = {"MPEG_AUDIO_LAYER_1",
+									"MPEG_AUDIO_LAYER_2",
+									"MPEG_AUDIO_LAYER_3",
+									"MPEG_AUDIO_LAYER_RESERVED" };
+
+	char *channelModeStr[] = { "MPEG_AUDIO_MODE_STEREO",
+										"MPEG_AUDIO_MODE_JOINT_STEREO",
+										"MPEG_AUDIO_MODE_DUAL_CHANNEL",
+										"MPEG_AUDIO_MODE_SINGLE_CHANNEL" };
+
+	char *jointStereoModeExtLayerIAndIIStr[] =
+		{	"MPEG_AUDIO_INTENSITY_STEREO_BANDS_4_TO_31",
+			"MPEG_AUDIO_INTENSITY_STEREO_BANDS_8_TO_31",
+			"MPEG_AUDIO_INTENSITY_STEREO_BANDS_12_TO_31",
+			"MPEG_AUDIO_INTENSITY_STEREO_BANDS_16_TO_31" };
+
+	char *emphasisModeStr[] = { "MPEG_AUDIO_EMPHASIS_NONE",
+										 "MPEG_AUDIO_EMPHASIS_50_15_MS",
+										 "MPEG_AUDIO_EMPHASIS_RESERVED",
+										 "MPEG_AUDIO_EMPHASIS_CCIT_J17" };
+
+	pShell->Print(" header data: %02X %02X %02X %02X\n",
+							(int) pHeader->header[0],	(int) pHeader->header[1],
+							(int) pHeader->header[2], (int) pHeader->header[3] );
+
+	pShell->Print(
+		" %s %s\n frameLength=0x%04lX (%ld), padBytes=%d, bitrate=%d, samplerate=%d\n",
+			mpegVerStr[pHeader->mpegVersion], mpegLayerStr[pHeader->mpegLayer - 1],
+			(long) pHeader->frameLength, (long) pHeader->frameLength,
+			(int) pHeader->padBytesSlotSize, (int) pHeader->bitrate, (int) pHeader->sampleRate);
+	pShell->Print(" %s, %s\n",
+		channelModeStr[pHeader->channelMode], emphasisModeStr[pHeader->emphasisMode]);
+	if ((pHeader->channelMode == MPEG_AUDIO_MODE_JOINT_STEREO) &&
+		(pHeader->mpegLayer == MPEG_AUDIO_LAYER_1 || pHeader->mpegLayer == MPEG_AUDIO_LAYER_2))
+		pShell->Print(" %s\n",
+			jointStereoModeExtLayerIAndIIStr[pHeader->modeExtension]);
+	pShell->Print(" bitrateSwitchingInUse=%s, bitReservoirInUse=%s\n",
+		(pHeader->bitReservoirInUse) ? "TRUE" : "FALSE",
+		(pHeader->bitrateSwitchingInUse) ? "TRUE" : "FALSE");
+	pShell->Print(" copyrighted=%s, originalMedia=%s, privateBit=%s\n",
+		(pHeader->copyrighted) ? "TRUE" : "FALSE", (pHeader->originalMedia) ? "TRUE" : "FALSE",
+		(pHeader->privateBit) ? "TRUE" : "FALSE");
+	pShell->Print(" intensityStereo=%s, msStereo=%s\n",
+		(pHeader->intensityStereo) ? "TRUE" : "FALSE", (pHeader->msStereo) ? "TRUE" : "FALSE");
+	}
+
+#endif

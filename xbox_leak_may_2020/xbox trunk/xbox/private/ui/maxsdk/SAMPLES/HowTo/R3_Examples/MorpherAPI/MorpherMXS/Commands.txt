@@ -1,0 +1,140 @@
+/*===========================================================================*\
+ |	Checking for a valid morpher
+\*===========================================================================*/
+
+IsValidMorpherMod <modifier>
+** Returns TRUE if input modifier is a valid Morpher Modifier. FALSE otherwise.
+
+
+
+/*===========================================================================*\
+ |	Refreshing the main UI panels
+\*===========================================================================*/
+
+WM3_RefreshChannelListUI <morpher modifier>
+** Refreshes the channel list panel in the interface
+
+WM3_RefreshChannelParamsUI <morpher modifier>
+** Refreshes the channel parameters panel
+
+
+
+/*===========================================================================*\
+ |	Setting the position of the UI scroll bar and buttons
+\*===========================================================================*/
+
+WM3_SetChannelPos <morpher modifier> <pos>
+** Set the position of the scrollbar on the channel list.
+** 'pos' can be in the range 1 to 91
+
+WM3_SetChannelSel <morpher modifier> <pos>
+** Set which button is chosen on channel list. 
+** 'pos' can be in the range 1 to 10
+
+
+
+/*===========================================================================*\
+ |	Morpher Channel Parameters
+\*===========================================================================*/
+
+WM3_MC_GetName <morpher modifier> <channel index>
+** Retrieves the name of the morpher channel
+
+WM3_MC_HasData <morpher modifier> <channel index>
+** Returns TRUE if the channel has some morpher data in it (Indicator: BLUE)
+
+WM3_MC_HasTarget <morpher modifier> <channel index>
+** Returns TRUE if the channel has an active connection to a scene object
+
+WM3_MC_GetTarget <morpher modifier> <channel index>
+** Returns a pointer to the object in the scene the channel is connected to
+
+WM3_MC_GetValue <morpher modifier> <channel index>
+** Returns the weighting value of the channel
+
+WM3_MC_IsActive <morpher modifier> <channel index>
+** Returns TRUE if the channel is turned on and used in the Morph
+
+WM3_MC_GetUseLimits <morpher modifier> <channel index>
+** Returns TRUE if the 'Use Limits' checkbox is on
+
+WM3_MC_GetLimitMAX <morpher modifier> <channel index>
+** Returns the upper limit for the channel values (only used if 'Use Limits' is on)
+
+WM3_MC_GetLimitMIN <morpher modifier> <channel index>
+** Returns the lower limit for the channel values (only used if 'Use Limits' is on)
+
+WM3_MC_GetUseVertexSel <morpher modifier> <channel index>
+** Returns TRUE if the 'Use Vertex Selection' button is on
+
+WM3_MC_IsValid <morpher modifier> <channel index>
+** Returns TRUE if the channel has not been marked as an invalid channel
+
+WM3_MC_GetMemUse <morpher modifier> <channel index>
+** Returns an estimation of how many bytes this channel takes up in memory
+
+
+/*===========================================================================*\
+ |	Morpher Channel Functions
+ |  You should call WM3_RefreshChannelParamsUI and RefreshChannelListUI
+ |		after using the following, so that that UI panels get updated properly
+\*===========================================================================*/
+
+WM3_MC_SetName <morpher modifier> <channel index> <string name>
+** Sets the name of the channel to be <string name>
+
+WM3_MC_BuildFromNode <morpher modifier> <channel index> <target object>
+** Given the <target object> from the scene, this function initializes the 
+** channel with all necessary data
+
+WM3_MC_Rebuild <morpher modifier> <channel index>
+** Rebuilds optimization and morph data in this channel
+** Use this after changing the channel's target
+
+WM3_MC_Delete <morpher modifier> <channel index>
+** Deletes the channel
+
+WM3_MC_SetValue <morpher modifier> <channel index> <floating point value>
+** Sets the weighted value of the channel
+
+WM3_MC_SetActive <morpher modifier> <channel index> <true/false>
+** Sets wether or not the channel is used in the morph results or not
+
+WM3_MC_SetUseLimits <morpher modifier> <channel index> <true/false>
+** Turns on and off the 'Use Limits' checkbox
+
+WM3_MC_SetLimitMAX <morpher modifier> <channel index> <floating point value>
+** Sets the high limit for the channel's value
+
+WM3_MC_SetLimitMIN <morpher modifier> <channel index> <floating point value>
+** Sets the lower limit for the channel's value
+
+WM3_MC_SetUseVertexSel <morpher modifier> <channel index> <true/false>
+** Sets whether or not to use vertex selection in this channel
+
+
+
+/*===========================================================================*\
+ |	Low-level Morpher Channel operations
+\*===========================================================================*/
+
+WM3_MC_NumPts <morpher modifier> <channel index>
+** The actual number of points in this channel
+
+WM3_MC_NumMPts <morpher modifier> <channel index>
+** The number of 'morphable points' in this channel
+** 'morphable points' are those that are different to the original object
+
+WM3_MC_GetMorphPoint <morpher modifier> <channel index> <index>
+** Gets a Point3 value of the <index> point in the channel
+
+WM3_MC_GetMorphWeight <morpher modifier> <channel index> <index>
+** Gets a floating point value of the <index> weight in the channel
+
+
+/*===========================================================================*\
+ |	Cache Functions - use with care
+\*===========================================================================*/
+
+WM3_RebuildInternalCache
+** Resets the internal object cache, forcing a complete rebuild.

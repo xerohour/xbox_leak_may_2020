@@ -1,0 +1,31 @@
+TARGETNAME=dvdjumpcounter
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=dvdjumpcounter.cpp \
+		xbapp.cpp \
+		xbfont.cpp \
+		xbinput.cpp \
+		xbresource.cpp \
+		xbutil.cpp \
+		xmenu.cpp
+
+INCLUDES=$(SDK_INC_PATH); \
+		 $(BASEDIR)\private\ntos\inc; \
+		 $(BASEDIR)\public\ddk\inc;
+
+
+XE_FLAGS=/TESTID:0x00000001 /TESTNAME:"DVD Jump Counter"
+
+LINKLIBS=	$(XDK_LIB_PATH)\d3d8$(D).lib \
+            $(XDK_LIB_PATH)\d3dx8$(D).lib \
+            $(XDK_LIB_PATH)\xgraphics$(D).lib \
+			$(SDK_LIB_PATH)\xapilib$(D).lib \
+			$(SDK_LIB_PATH)\xnet$(D).lib

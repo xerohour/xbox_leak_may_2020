@@ -1,0 +1,23 @@
+MAJORCOMP=ntos
+MINORCOMP=msvc
+
+TARGETNAME=msvc
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=dll
+DLLENTRY=DxtEntry
+DLLDEF=msvc.def
+
+C_DEFINES=$(C_DEFINES) -DXBOX
+#VCDBG=1
+!include ..\sources.inc
+
+SOURCES=$(SOURCES) \
+    critsect.c \
+    api32.c \
+    tldxt.c \
+    linklist.c
+
+USE_LIBCNTPR=1
+
+LINKLIBS=$(SDK_LIB_PATH)\xbdm.lib

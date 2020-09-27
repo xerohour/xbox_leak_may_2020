@@ -1,0 +1,24 @@
+TARGETNAME=installer
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+NOT_UNICODE=1
+
+INCLUDES = $(DDK_INC_PATH);$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(BASEDIR)\private\ntos\inc;$(INCLUDES)
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:Installer /TESTID:0xFFFFFF00
+
+XNOHARDDISK = 1
+
+SOURCES= \
+    installer.cpp \
+    xbfont.cpp \
+    xbresource.cpp \
+    xbutil.cpp
+
+TARGETLIBS= \
+    $(XDK_LIB_PATH)\d3d8$(D).lib  \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib  \
+    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+

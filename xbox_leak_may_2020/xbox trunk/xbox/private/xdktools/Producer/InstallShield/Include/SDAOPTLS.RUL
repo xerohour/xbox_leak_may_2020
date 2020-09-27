@@ -1,0 +1,170 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdaoptls.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdAskOptionsList      */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*-----------------------------------------------------------------------*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdAskOptionsList                                           */
+ /*                                                                        */
+ /*   Descrip:  This dialog will let user choose different parts of the    */
+ /*             software to install based on the names.                    */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+#define CMPTVIEW_INFO_DISPLAYSIZE 6
+#define CMPTVIEW_INFO_EXCLUSIVE   7
+
+function SdAskOptionsList( szTitle, szMsg, szComponents, nExclusive )
+          STRING  szDlg, szTemp;
+          NUMBER  nId, nTemp, nComponentView;
+          HWND    hwndDlg, hwndButton, hwndListBox;
+          BOOL    bDone;
+        begin
+
+
+           szDlg     = SD_DLG_ASKOPTIONSLIST;
+           nSdDialog = SD_NDLG_ASKOPTIONSLIST1; // represents both dialogs
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdAskOptionsList );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+            endif;
+
+            return nId;
+          endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (nExclusive = EXCLUSIVE) then
+              if (EzDefineDialog( szDlg, "", "", SD_NDLG_ASKOPTIONSLIST2 ) = DLG_ERR) then
+                return -1;
+              endif;
+           else
+              if (EzDefineDialog( szDlg, "", "", SD_NDLG_ASKOPTIONSLIST1 ) = DLG_ERR) then
+                return -1;
+              endif;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+
+                   if (nExclusive = EXCLUSIVE) then
+                      hwndButton = GetDlgItem( hwndDlg, SD_PBUT_SELECTALL );
+                      if (IsWindow( hwndButton )) then
+                        ShowWindow( hwndButton, SW_HIDE );
+                        EnableWindow( hwndButton, FALSE );
+                      endif;
+
+                      hwndButton = GetDlgItem( hwndDlg, SD_PBUT_DESELECTALL );
+                      if (IsWindow( hwndButton )) then
+                        ShowWindow( hwndButton, SW_HIDE );
+                        EnableWindow( hwndButton, FALSE );
+                      endif;
+                   endif;
+
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_STA_MSG, szMsg );
+                   endif;
+
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   nComponentView = SdCreateComponentView( hwndDlg, SD_LISTBOX, szComponents, "" );
+                   if (!nComponentView) then
+                       SdError( -1, "SdAskOptionsList" );
+                       nId = -1;
+                       bDone = TRUE;
+                   endif;
+
+                   ComponentViewSetInfo( nComponentView, CMPTVIEW_INFO_DISPLAYSIZE, FALSE, "");
+                   if (nExclusive = EXCLUSIVE) then
+                       ComponentViewSetInfo( nComponentView, CMPTVIEW_INFO_EXCLUSIVE, TRUE, "");
+                   endif;
+
+                   ComponentViewRefresh( nComponentView, 0 );
+                   
+                   hwndListBox = GetDlgItem( hwndDlg, SD_LISTBOX );
+                   SetFocus( hwndListBox );
+
+
+              case SD_PBUT_SELECTALL:
+                   ComponentViewSelectAll( nComponentView, TRUE );
+
+              case SD_PBUT_DESELECTALL:
+                   ComponentViewSelectAll( nComponentView, FALSE );
+
+              case SD_PBUT_OK:
+
+                   nId   = OK;
+                   bDone = TRUE;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdAskOptionsList" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+           ComponentViewDestroy( nComponentView );
+
+           SdUnInit( );
+
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdAskOptionsList );
+           SilentWriteData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+
+
+

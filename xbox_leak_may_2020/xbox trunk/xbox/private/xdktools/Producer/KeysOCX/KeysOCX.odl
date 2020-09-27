@@ -1,0 +1,70 @@
+// KeysOCX.odl : type library source for ActiveX Control project.
+
+// This file will be processed by the Make Type Library (mktyplib) tool to
+// produce the type library (KeysOCX.tlb) that will become a resource in
+// KeysOCX.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(CDD09F83-E73C-11D0-89AB-00A0C9054129), version(1.0),
+  helpfile("KeysOCX.hlp"),
+  helpstring("KeysOCX ActiveX Control module"),
+  control ]
+library KEYSOCXLib
+{
+	importlib(STDOLE_TLB);
+	importlib(STDTYPE_TLB);
+
+	//  Primary dispatch interface for CKeysOCXCtrl
+
+	[ uuid(CDD09F84-E73C-11D0-89AB-00A0C9054129),
+	  helpstring("Dispatch interface for KeysOCX Control"), hidden ]
+	dispinterface _DKeysOCX
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CKeysOCXCtrl)
+			//}}AFX_ODL_PROP
+
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CKeysOCXCtrl)
+			[id(1)] void SetNoteState(short nKey, BSTR pszName, short nState);
+			//}}AFX_ODL_METHOD
+	};
+
+	//  Event dispatch interface for CKeysOCXCtrl
+
+	[ uuid(CDD09F85-E73C-11D0-89AB-00A0C9054129),
+	  helpstring("Event interface for KeysOCX Control") ]
+	dispinterface _DKeysOCXEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+			// NOTE - ClassWizard will maintain event information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_EVENT(CKeysOCXCtrl)
+			[id(1)] void NoteDown(short nKey);
+			[id(2)] void NoteUp(short nKey);
+			//}}AFX_ODL_EVENT
+	};
+
+	//  Class information for CKeysOCXCtrl
+
+	[ uuid(CDD09F86-E73C-11D0-89AB-00A0C9054129),
+	  helpstring("KeysOCX Control"), control ]
+	coclass KeysOCX
+	{
+		[default] dispinterface _DKeysOCX;
+		[default, source] dispinterface _DKeysOCXEvents;
+	};
+
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

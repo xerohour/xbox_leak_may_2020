@@ -1,0 +1,93 @@
+<job>
+<script language="VBScript">
+'
+' emmang@xbox.com
+'
+Const SCRIPTNAME = "MkSrc"
+Const NUMFUNCS   = 2750
+Const NUMFILES   = 30
+Dim gobjFileSystem, gobjShell, gSourceFile
+
+Main()
+
+Sub Main
+    On Error Resume Next
+	'
+	' create tool objects
+	'
+	Set gobjFileSystem = CreateObject("Scripting.FileSystemObject")
+	Set gobjShell = CreateObject("WScript.Shell")
+
+    Set gSourceFile = gobjFileSystem.CreateTextFile("sources", True)
+    gSourceFile.WriteLine("TARGETNAME = 6751")
+    gSourceFile.WriteLine("PROJNAME   = $(TARGETNAME)")
+    gSourceFile.WriteLine("SOURCES    = \")
+    For i = 1 To NUMFILES
+        gSourceFile.WriteLine("    6751_" & i & ".cpp \")
+    Next
+    gSourceFile.WriteLine("$(TARGETNAME)main.cpp")
+    gSourceFile.WriteLine("TITLEID    = 0xf000$(TARGETNAME)")
+    gSourceFile.WriteLine("")
+    gSourceFile.WriteLine("NTTARGETFILE0 = $(TARGETNAME).dsp")
+    gSourceFile.WriteLine("")
+    gSourceFile.WriteLine("TARGETPATH = obj")
+    gSourceFile.WriteLine("TARGETTYPE = PROGRAM")
+    gSourceFile.WriteLine("UMTYPE     = xboxapp")
+    gSourceFile.Close
+
+    Set gSourceFile = gobjFileSystem.CreateTextFile("6751.dsx", True)
+    gSourceFile.WriteLine("define(SOURCEFILELIST,POUND Begin Source File")
+    For i = 1 To NUMFILES
+        gSourceFile.Write("6751_" & i & ".cpp ")
+    Next
+    gSourceFile.WriteLine(".\6751main.cpp")
+    gSourceFile.WriteLine("POUND End Source File)define(ROOTPATH,..)include(ROOTPATH\template.dst)")
+    gSourceFile.Close
+
+    For i = 1 To NUMFILES
+        CreateSourceFile "6751_" & i, i*NUMFUNCS
+    Next
+
+    Set gSourceFile = gobjFileSystem.CreateTextFile("6751main.cpp", True)
+    For i = 1 To NUMFILES
+        gSourceFile.WriteLine("void file_6751_" & i & "_entry();")
+    Next
+    gSourceFile.WriteLine("void __cdecl main() {")
+    For i = 1 To NUMFILES
+        gSourceFile.WriteLine("    file_6751_" & i & "_entry();")
+    Next
+    gSourceFile.WriteLine("}")
+    gSourceFile.Close
+End Sub
+
+Sub CreateSourceFile(SourceName, StartNumber)
+    Set gSourceFile = gobjFileSystem.CreateTextFile(SourceName & ".cpp", True)
+    For i = StartNumber To StartNumber+NUMFUNCS-1
+        WriteFunction(i)
+        WriteGlobal(i)
+    Next
+
+    gSourceFile.WriteLine("extern void file_" & SourceName & "_entry() {")
+    For i = StartNumber To StartNumber+NUMFUNCS-1
+        gSourceFile.WriteLine("UninitializedGlobal" & i & " = Function" & i & "(InitializedGlobal" & i & ");")
+    Next
+    gSourceFile.WriteLine("}")
+    gSourceFile.Close
+End Sub
+
+Sub WriteFunction(Seed)
+    gSourceFile.WriteLine("int Function" & Seed & "(int arg) { return arg + " & Seed & "; } ")
+End Sub
+
+Sub WriteGlobal(Seed)
+    gSourceFile.WriteLine("int InitializedGlobal" & Seed & " = " & Seed & ";")
+    gSourceFile.WriteLine("int UninitializedGlobal" & Seed & ";")
+    gSourceFile.WriteLine("static int InitializedStatic" & Seed & " = " & Seed & ";")
+    gSourceFile.WriteLine("static int UninitializedStatic" & Seed & ";")
+    gSourceFile.WriteLine("bool UninitializedBool" & Seed & ";")
+    gSourceFile.WriteLine("float UninitializedFloat" & Seed & ";")
+    gSourceFile.WriteLine("double UninitializedDouble" & Seed & ";")
+    gSourceFile.WriteLine("char UninitializedString" & Seed & "[4];")
+End Sub
+</script>
+</job>

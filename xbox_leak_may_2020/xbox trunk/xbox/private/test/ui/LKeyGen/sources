@@ -1,0 +1,32 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+#LINKER_FLAGS=/CALLTREE
+
+USE_MSVCRT=1
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+TARGETNAME=lkeygen
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+INCLUDES= \
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\inc\crypto;
+         
+SOURCES= \
+        lkeygen.cpp \
+	lkeygen.rc
+
+LINKLIBS= \
+     $(BASEDIR)\private\lib\i386\xcrypt.lib \
+         $(BASEDIR)\private\lib\i386\rsa32.lib
+
+TARGETLIBS=
+
+UMTYPE=console
+

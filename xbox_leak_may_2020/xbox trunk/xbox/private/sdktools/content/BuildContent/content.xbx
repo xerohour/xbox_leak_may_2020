@@ -1,0 +1,68 @@
+;
+; Sample Xbox content metadata template
+;
+; Copyright (c) Microsoft Corporation.
+;
+; This sample illustrates the format for a typical metadata file that must
+; accompany a content package
+; 
+
+;
+; This section contains non-localizable properties
+;
+[All]
+
+; [Required] Publisher-defined bitflags to describe content, this can be any 32-bit number
+BitFlags=0xffffffff
+
+; [Optional]
+; Indicates type of offer:
+; 0=Subscription, 1=Content
+OfferingType=1
+
+; [Optional]
+; Indicates how often the offer needs to be refreshed
+; 0=non-terminating, 1=monthly, 2=annually
+OfferFrequency=0
+
+; [Optional]
+; Date this offer becomes valid
+ActivationDate=3/1/2002
+
+; [Optional]
+; Date, if any, this offer expires
+EndDate=2/28/2003
+
+; [Optional]
+; Optional friendly name for this package
+FriendlyName=Sample Content
+
+;
+; This section contains localizable data to description index 0.
+;
+; Description indices can be designed to mean anything and are up to the publisher to define and
+; maintain for that specific title. Description indices may be any 32-bit number and
+; the publisher may define as many description indices as required and they don't have to be
+; sequential. Typically, description indices are used for localization and each index corresponds
+; to a language or a region.
+;
+; In the following example, description index 0 maps to the English language
+;
+[0]
+
+; [Required]
+; Enumeration blob returned by XOnlineOfferingEnumerate for this content
+EnumerationData=f:\content\data\enum.eng.txt
+
+; [Required]
+; Details blob returned by XOnlineOfferingDetails for this content
+DetailsData=f:\content\data\details.eng.txt
+
+;
+; This section contains localizable data to description index 1.
+;
+; In the following example, description index 1 maps to the Japanese language
+;
+[1]
+EnumerationData=f:\content\data\enum.jpn.txt
+DetailsData=f:\content\data\details.jpn.txt

@@ -1,0 +1,15 @@
+TARGETNAME=xvoice$(D)
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+TARGETTYPE=LIBRARY
+UMTYPE=xbox
+INCLUDES=$(INCLUDES);$(BASEDIR)\private\ntos\inc;$(BASEDIR)\private\windows\directx\dsound\codecs\inc
+MSC_WARNING_LEVEL=/W3 /WX
+SOURCES=queuexmo.cpp
+# Make sure the libs get built before we try to do this
+SYNCHRONIZE_DRAIN=1
+OBJLIBFILES=\
+	$(SDK_LIB_PATH)\xhawk.lib \
+	$(SDK_LIB_PATH)\voxcodec$(D).lib \
+	$(SDK_LIB_PATH)\vexmo$(D).lib \
+	$(SDK_LIB_PATH)\vdxmo$(D).lib
+NTTARGETFILES=$(XDK_LIB_PATH)\$(TARGETNAME).lib

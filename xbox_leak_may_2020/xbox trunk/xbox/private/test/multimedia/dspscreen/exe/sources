@@ -1,0 +1,36 @@
+TARGETNAME=dspscreen
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+SYNCHRONIZE_DRAIN=1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od /FAcs
+XNOHARDDISK=1
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFFF0122 /TESTNAME:"DSP Screen Test"
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+		$(PRIVATE_INC_PATH); \
+    $(BASEDIR)\private\test\multimedia\inc
+
+SOURCES= 			 \
+    ..\bitfont.cpp\
+    ..\main.cpp \
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+TARGETLIBS=\
+           $(SDK_LIB_PATH)\testsnd$(D).lib \
+           $(SDK_LIB_PATH)\dspscreen$(D).lib\
+           $(XDK_LIB_PATH)\dsound$(D).lib \
+           $(XDK_LIB_PATH)\d3d8$(D).lib\
+           
+

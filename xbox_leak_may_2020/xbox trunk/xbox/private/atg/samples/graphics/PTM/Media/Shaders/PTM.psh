@@ -1,0 +1,34 @@
+xps.1.1
+
+; 
+; t0 = a0, a1, a2
+; t1 = a3, a4, a5
+; t2 = r, g, b
+;
+; v0 = lu^2, lv^2, lu*lv
+; v1 = lu, lv, 1
+;
+; c0 = b0, b1, b2
+; c1 = b3, b4, b5
+; 
+
+tex t0
+tex t1
+tex t2
+
+; apply bias
+
+add r0.rgb,t0,-c0
+
+add r1.rgb,t1,-c1
+
+; compute polynomial & scale
+
+xdd r0.rgb,r1.rgb,r0,v0_bx2,r1,v1_bx2
+
+add_x2 r0.rgb,r0,r1
+
+; modulate with color
+mul r0.rgb,r0,t2
+
+xfc zero,zero,zero,r0,zero,zero,1-zero

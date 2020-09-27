@@ -1,0 +1,46 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Use Network Source Path, using buttons"
+	Dim tempBuild$, setupPath$
+	Dim xdkpath$
+
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+
+	'
+	' Query user for setup to run
+	'
+	tempBuild = LatestBuild()
+if false then
+	setupPath = ""
+	while setupPath = ""
+		setupPath = Inputbox("Enter Network Path to setup.exe", "Setup testing of network install",DefaultInstallSourceRoot+"\"+tempBuild+"\sdk\setup.exe")
+		if not exists(setupPath) then
+			Msgbox("Path is invalid! Please re-enter")
+			setupPath = ""
+		end if
+	wend
+else
+	setupPath = DefaultInstallSourceRoot+"\"+tempBuild+"\sdk\setup.exe"
+end if
+
+	Install(BuildNumber, false, false, , setupPath)
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

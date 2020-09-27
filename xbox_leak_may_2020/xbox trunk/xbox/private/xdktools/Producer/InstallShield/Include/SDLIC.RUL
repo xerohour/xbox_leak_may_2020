@@ -1,0 +1,140 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdlic.rul                                                 */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdLicense             */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdLicense                                                  */
+ /*                                                                        */
+ /*   Descrip:  This dialog will ask the user to agree with the terms of   */
+ /*             a license agreement.                                       */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdLicense( szTitle, szMsg, szQuestion, szLicenseFile )
+          STRING  szDlg, szTemp, szFinalFile;
+          INT     nId, list, nValue1, nValue2;
+          HWND    hwndDlg;
+          BOOL    bDone;
+        begin
+
+          szDlg     = SD_DLG_LICENSE;
+          nSdDialog = SD_NDLG_LICENSE;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdLicense );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            return nId;
+          endif;
+
+          // Determine license file location. Check path for UNC or disk id
+          szFinalFile = SUPPORTDIR ^ szLicenseFile;
+          GetByte( nValue1, szLicenseFile, 0 );
+          GetByte( nValue2, szLicenseFile, 1 );
+          switch (nValue2)
+          case 58: // colon
+               if ( ((nValue1 >= 'a') && (nValue1 <= 'z')) ||
+                    ((nValue1 >= 'A') && (nValue1 <= 'Z')) ) then
+                  szFinalFile = szLicenseFile; // path contains drive-path-file
+               endif;
+          case 92: // slash
+               if (nValue1 = 92) then
+                  szFinalFile = szLicenseFile; // path is UNC
+               endif;
+          endswitch;
+
+
+          // ensure general initialization is complete
+          if (!bSdInit) then
+             SdInit();
+          endif;
+
+          if (EzDefineDialog( szDlg, "", "", SD_NDLG_LICENSE) = DLG_ERR) then
+             return -1;
+          endif;
+
+          // Loop in dialog until the user selects a standard button
+          bDone = FALSE;
+
+          while (!bDone)
+
+             nId = WaitOnDialog( szDlg );
+
+             switch (nId)
+             case DLG_INIT:
+                  if(szMsg != "") then
+                      SdSetStatic( szDlg, SD_STA_MSG1, szMsg );
+                  endif;
+
+                  if(szQuestion != "") then
+                      SdSetStatic( szDlg, SD_STA_MSG2, szQuestion );
+                  endif;
+
+                  hwndDlg = CmdGetHwndDlg( szDlg );
+                  SdGeneralInit( szDlg, hwndDlg, 0, szSdProduct );
+
+                  if(szTitle != "") then
+                      SetWindowText( hwndDlg, szTitle );
+                  endif;
+
+                  // set agreement multi-line edit field
+                  list = ListCreate( STRINGLIST );
+                  if (!ListReadFromFile( list, szFinalFile )) then
+                     CtrlSetMLEText( szDlg, SD_MULTEDIT_FIELD1, list );
+                  endif;
+                  ListDestroy( list );
+
+             case SD_PBUT_CONTINUE:
+                  nId   = NEXT;
+                  bDone = TRUE;
+
+             case SD_PBUT_YES:
+                  nId   = YES;
+                  bDone = TRUE;
+
+             case BACK:
+                  nId    = BACK;
+                  bDone  = TRUE;
+
+             case DLG_ERR:
+                  SdError( -1, szDlg );
+                  nId   = -1;
+                  bDone = TRUE;
+
+             case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+             default:
+                  // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                  endif;
+             endswitch;
+
+          endwhile;
+
+          EndDialog( szDlg );
+          ReleaseDialog( szDlg );
+
+          SdUnInit();
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdLicense );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+          return nId;
+        end;
+

@@ -1,0 +1,148 @@
+// C++ Wizard IDL (cxxwiz.idl)
+//
+
+/*
+	Created 14Jul98 by FabriceD
+*/
+
+import "oaidl.idl";
+
+interface IDescribeFunctions; // Forward decl
+
+
+// {445A692C-71F6-11d3-9B56-00C04F685DC8}
+cpp_quote("extern \"C\" const __declspec(selectany) GUID CATID_CXXFrameworkProvider = ")
+cpp_quote("{ 0x445a692c, 0x71f6, 0x11d3, { 0x9b, 0x56, 0x0, 0xc0, 0x4f, 0x68, 0x5d, 0xc8 } };")
+
+[helpstring("enum Class Type Flags")]
+typedef enum CxxClassTypeTag
+{
+	ClassTypeAll = 0,
+	ClassTypeMFC = 1,
+	ClassTypeATL = 2
+}	CxxClassType;
+
+[
+	object,
+	uuid(A1F72920-8E60-11d2-AFF9-00C04F8EE20F),
+	helpstring("Provides C++ framework information for VC++ wizards"),
+	pointer_default(unique)
+]
+interface IProvideCXXFramework : IUnknown
+{
+	HRESULT GetOverridesForClassName([in] LPCOLESTR szClassName,
+								[out] IDescribeFunctions **ppDescribeFunctions);
+
+	HRESULT GetMessageHandlersForClassName([in] LPCOLESTR szClassName, [in] IDispatch *pDispClass,
+								[out] IDescribeFunctions **ppDescribeFunctions);
+
+	// uCountMenuID and rgbstrMenuID contain the list of all known menu/command IDs for
+	// the project/class currently selected. The MsgBuilder needs to build
+	// ON_COMMAND and ON_UPDATE_COMMAND_UI messages for each menu/command ID.
+	HRESULT GetCommandHandlersForClassName([in] LPCOLESTR szClassName, [in] IDispatch *pDispClass,
+								[in] LPCOLESTR rgbstrMenuID,
+								[out] IDescribeFunctions **ppDescribeFunctions);
+
+	HRESULT GetEventHandlersForClassName([in] LPCOLESTR szClassName, [in] IDispatch *pDispClass,
+								[in] LPCOLESTR rgbstrID,	// string of control ID
+								[in] LPCOLESTR rgbstrType,	// string of control type (or GUID of ActiveX control)
+								[out] IDescribeFunctions **ppDescribeFunctions);
+
+	HRESULT GetClassNames([in] CxxClassType nClassType, 
+							[out] VARIANT *pvClassNames, 
+							[out] VARIANT *pvHeaderFiles);
+	HRESULT GetClassType([in] LPCOLESTR szClassName, [out] CxxClassType *pnClassType);
+	HRESULT SetSite([in] IUnknown* pUnkServiceProvider);
+	HRESULT SetResourceDLL([in] BSTR bstrDLLPath); // allows msgblder to run outside of VS for testing purposes.
+};
+
+[helpstring("enum Function Type Attributes")]
+typedef enum CxxFuncAccessTag
+{
+	FuncAccessPublic = 1,
+	FuncAccessProtected = 2,
+	FuncAccessPrivate = 3
+} CxxFuncAccess;
+
+[helpstring("enum Function Flags")]
+typedef enum CxxFuncFlagsTag
+{
+	FuncFlagNone = 0,
+	FuncFlagCracked = 1,
+	FuncFlagHeader = 2
+} CxxFuncFlags;
+
+[
+	object,
+	uuid(A77A99A9-736D-11d2-AFEA-00C04F8EE20F),
+	helpstring("Describes framework functions for VC++ wizards"),
+	pointer_default(unique)
+]
+interface IDescribeFunctions : IUnknown
+{
+	HRESULT GetCount([out] DWORD *pdwCount);
+	
+	// Returns the name that will be displayed in the UI
+	// propcat is the property category ID.
+	HRESULT GetDisplayName([in] DWORD dwIndex, [out] BSTR *pbstrDisplayName);
+
+	// GetFunctionName()
+	// Notes: szCommandIDName is used only for command handlers (in which case the ID i.e. ID_FILE_PRINT
+	// is passed in)
+	//		  bNameCanChange tells the UI whether the function name can be changed by the user (ie: ON_WM_CREATE()
+	// requires that the function be called OnCreate(), whereas ON_COMMAND(...) can apply to any function name
+	// -- that name being specified in the Map entry)
+	HRESULT GetFunctionName([in] DWORD dwIndex, [in] CxxFuncFlags flags,
+							[out] BOOL *bNameCanChange, [out] BSTR *pbstrFunctionName);
+
+	HRESULT GetFunctionPrototype([in] DWORD dwIndex, [in] LPCOLESTR szFunctionName,
+								[in] CxxFuncFlags flags, [out] CxxFuncAccess *pFuncAccess, [out] BSTR *pbstrFunctionProto);
+	HRESULT GetFunctionHelpString([in] DWORD dwIndex, [out] BSTR *pbstrFunctionHelpString);
+
+	// The implementation does not include the outer braces. They will be put in by the wizard
+	HRESULT GetFunctionImplementation([in] DWORD dwIndex, [in] LPCOLESTR szClassName,
+								[in] LPCOLESTR szBaseClassName, [in] CxxFuncFlags flags,
+								[out] BSTR *pbstrFunctionImpl);
+
+	// Only relevant for windows messages/commands/events, using attributes.
+	HRESULT GetFunctionAttribute([in] DWORD dwIndex, [in] LPCOLESTR szFunctionName,
+							[in] CxxFuncFlags flags,[out] BSTR *pbstrAttribute, [out] BSTR *pbstrAttrParams);
+
+	HRESULT GetClassAttributeForFuncGroup([in] DWORD dwIndex, [out] BSTR *pbstrClassAttribute, [out] BSTR *pbstrAttrParams);
+
+	// Only relevant for windows messages/commands/events, using Message Maps.
+	HRESULT GetMessageMapItem([in] DWORD dwIndex, [in] LPCOLESTR szFunctionName, [in] CxxFuncFlags flags,
+						[out] BSTR *pbstrMsgMapType, [out] BSTR *pbstrMsgMapItem, [out] BSTR * pbstrAXControlName);
+
+	HRESULT ValidateMapItem([in] DWORD dwIndex, [in] LPCOLESTR szMapItem,
+							[out] BOOL *pbMatch, [out] BSTR *pbstrFuncName);
+	
+	HRESULT MapFunctionToCategory([in] DWORD dwIndex, [out] int* ppropcat);
+	HRESULT GetCategoryName([in] int propcat, [in] LCID lcid, [out] BSTR* pbstrName);
+}
+
+
+// interface IClassHandlerDescription: this interface is implemented by the selection service
+// to talk to the property browser in order to get Overrides/Msg handler/Event(commands & controls)
+// information.
+[
+	object,
+	uuid(A77A99AB-736D-11d2-AFEA-00C04F8EE20F),
+	helpstring("Gets the description objects for Events/Overrides/Msg handlers"),
+	pointer_default(unique)
+]
+interface IGetSelectedDispatches : IUnknown
+{
+	[id(1), helpstring("returns all overrides description")]
+	HRESULT GetOverridesDispatch([out, retval] IDispatch **ppDispatch);
+	[id(2), helpstring("returns all messages description")]
+	HRESULT GetMessageHandlerDispatch([out, retval] IDispatch **ppDispatch);
+	[id(3), helpstring("returns all events description (commands and controls)")]
+	HRESULT GetEventHandlerDispatch([out, retval] IDispatch **ppDispatch);
+	[id(4), helpstring("returns description for controls only (one, if bstrControlName is specified, or all controls if bstrControlName is NULL)")]
+	HRESULT GetControlHandlerDispatch([in,  defaultvalue("")]BSTR bstrControlName,
+		[in,  defaultvalue("")]BSTR bstrControlType,
+		[out, retval] IDispatch **ppDispatch);
+	[id(5), helpstring("returns the dispatch for commands only (one, if bstrCommandName is specified, or all controls if bstrCommandName is NULL)")]
+	HRESULT GetCommandHandlerDispatch([in,  defaultvalue("")]BSTR bstrCommand, [out, retval] IDispatch **ppDispatch);
+}

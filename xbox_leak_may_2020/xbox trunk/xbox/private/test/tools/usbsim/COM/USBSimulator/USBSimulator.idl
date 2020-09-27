@@ -1,0 +1,219 @@
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    USBSimulator.idl
+
+Abstract:
+
+    IDL source for USBSimulator.dll
+
+    This file will be processed by the MIDL tool to produce the type library 
+    (USBSimulator.tlb) and marshalling code.
+
+Author:
+
+    Josh Poley (jpoley)
+
+Revision History:
+
+*****************************************************************************/
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+//
+// IDuke
+//
+[
+object,	uuid(07A81B3A-9F3D-4314-9230-4350DB29B492),	dual,
+helpstring("IDuke Interface"),
+pointer_default(unique)
+]
+	interface IDuke : IDispatch
+	    {
+		[propget, id( 1), helpstring("property deviceName")] HRESULT deviceName([out, retval] BSTR *pVal);
+		[propget, id( 2), helpstring("property IP")] HRESULT IP([out, retval] BSTR *pVal);
+		[propput, id( 2), helpstring("property IP")] HRESULT IP([in] const BSTR newVal);
+		[propget, id( 3), helpstring("property port")] HRESULT port([out, retval] short *pVal);
+		[propput, id( 3), helpstring("property port")] HRESULT port([in] short newVal);
+		[propget, id( 4), helpstring("property record")] HRESULT record([out, retval] BOOL *pVal);
+		[propput, id( 4), helpstring("property record")] HRESULT record([in] BOOL newVal);
+		[propget, id( 5), helpstring("property enumerated")] HRESULT enumerated([out, retval] BOOL *pVal);
+		[propget, id( 6), helpstring("property deviceDescriptor")] HRESULT deviceDescriptor([out, retval] BSTR *pVal);
+		[propput, id( 6), helpstring("property deviceDescriptor")] HRESULT deviceDescriptor([in] BSTR newVal);
+		[propget, id( 8), helpstring("property configurationDescriptor")] HRESULT configurationDescriptor([out, retval] BSTR *pVal);
+		[propput, id( 8), helpstring("property configurationDescriptor")] HRESULT configurationDescriptor([in] BSTR newVal);
+		[propget, id(10), helpstring("property deviceCapabilities")] HRESULT deviceCapabilities([in] BSTR type, [out, retval] BSTR *pVal);
+		[propput, id(10), helpstring("property deviceCapabilities")] HRESULT deviceCapabilities([in] BSTR type, [in] BSTR newVal);
+		[propget, id(11), helpstring("property deviceCapabilitiesLength")] HRESULT deviceCapabilitiesLength(BSTR type, [out, retval] unsigned short *pVal);
+		[propput, id(11), helpstring("property deviceCapabilitiesLength")] HRESULT deviceCapabilitiesLength(BSTR type, [in] unsigned short newVal);
+		[propget, id(12), helpstring("property xidDescriptor")] HRESULT xidDescriptor([out, retval] BSTR *pVal);
+		[propput, id(12), helpstring("property xidDescriptor")] HRESULT xidDescriptor([in] BSTR newVal);
+		[propget, id(13), helpstring("property xidDescriptorLength")] HRESULT xidDescriptorLength([out, retval] unsigned short *pVal);
+		[propput, id(13), helpstring("property xidDescriptorLength")] HRESULT xidDescriptorLength([in] unsigned short newVal);
+		[propget, id(14), helpstring("property xidPacket")] HRESULT xidPacket([out, retval] BSTR *pVal);
+		[propput, id(14), helpstring("property xidPacket")] HRESULT xidPacket([in] BSTR newVal);
+		[propget, id(15), helpstring("property xidPacketLength")] HRESULT xidPacketLength([out, retval] unsigned short *pVal);
+		[propput, id(15), helpstring("property xidPacketLength")] HRESULT xidPacketLength([in] unsigned short newVal);
+		[propget, id(20), helpstring("property buttonDownDelay")] HRESULT buttonDownDelay([out, retval] unsigned short *pVal);
+		[propput, id(20), helpstring("property buttonDownDelay")] HRESULT buttonDownDelay([in] unsigned short newVal);
+		[propget, id(21), helpstring("property buttonUpDelay")] HRESULT buttonUpDelay([out, retval] unsigned short *pVal);
+		[propput, id(21), helpstring("property buttonUpDelay")] HRESULT buttonUpDelay([in] unsigned short newVal);
+		[id(50), helpstring("method Plug")] HRESULT Plug([out, retval] unsigned long *errCode);
+		[id(51), helpstring("method Unplug")] HRESULT Unplug([out, retval] unsigned long *errCode);
+		[id(52), helpstring("method EndpointMode")] HRESULT EndpointMode([in, defaultvalue(1)] short mode);
+		[id(53), helpstring("method Free")] HRESULT Free(void);
+		[id(100), helpstring("method Button")] HRESULT Button([in] const BSTR buttonName);
+		[id(101), helpstring("method SetButtonState")] HRESULT SetButtonState([in] long digital, [in] short analog1, [in] short analog2, [in] short analog3, [in] short analog4, [in] short analog5, [in] short analog6, [in] short analog7, [in] short analog8, [in] short thumbLX, [in] short thumbLY, [in] short thumbRX, [in] short thumbRY);
+	    };
+
+//
+// IMU
+//
+[
+object, uuid(A6648FAF-C5E7-4030-830A-B5F598F5A53E),	dual,
+helpstring("IMU Interface"),
+pointer_default(unique)
+]
+	interface IMU : IDispatch
+	    {
+		[propget, id( 1), helpstring("property deviceName")] HRESULT deviceName([out, retval] BSTR *pVal);
+		[propget, id( 2), helpstring("property IP")] HRESULT IP([out, retval] BSTR *pVal);
+		[propput, id( 2), helpstring("property IP")] HRESULT IP([in] const BSTR newVal);
+		[propget, id( 3), helpstring("property port")] HRESULT port([out, retval] short *pVal);
+		[propput, id( 3), helpstring("property port")] HRESULT port([in] short newVal);
+		[propget, id( 4), helpstring("property record")] HRESULT record([out, retval] BOOL *pVal);
+		[propput, id( 4), helpstring("property record")] HRESULT record([in] BOOL newVal);
+		[propget, id( 5), helpstring("property enumerated")] HRESULT enumerated([out, retval] BOOL *pVal);
+		[id(50), helpstring("method Plug")] HRESULT Plug(void);
+		[id(51), helpstring("method Unplug")] HRESULT Unplug(void);
+		[id(52), helpstring("method EndpointMode")] HRESULT EndpointMode([in, defaultvalue(1)] short mode);
+		[id(53), helpstring("method Free")] HRESULT Free(void);
+		[id(100), helpstring("method SetCapacity")] HRESULT SetCapacity([in] unsigned long numBlocks, [in] unsigned short blockSize, [in, defaultvalue(0)] unsigned short logicalSize);
+		[id(101), helpstring("method LoadMU")] HRESULT LoadMU([in] const BSTR filename, [out, retval] unsigned long *pErr);
+		[id(102), helpstring("method StoreMU")] HRESULT StoreMU([in] const BSTR filename, [out, retval] unsigned long *pErr);
+		[id(103), helpstring("method Unformat")] HRESULT Unformat(void);
+		[id(104), helpstring("method Format")] HRESULT Format(void);
+		[propget, id(105), helpstring("property data")] HRESULT data([in] unsigned long offset, [in] unsigned long length, [out, retval] BSTR *pVal);
+		[propput, id(105), helpstring("property data")] HRESULT data([in] unsigned long offset, [in] unsigned long length, [in] BSTR newVal);
+		[propget, id(106), helpstring("property deviceDescriptor")] HRESULT deviceDescriptor([out, retval] BSTR *pVal);
+		[propput, id(106), helpstring("property deviceDescriptor")] HRESULT deviceDescriptor([in] BSTR newVal);
+		[propget, id(107), helpstring("property configurationDescriptor")] HRESULT configurationDescriptor([out, retval] BSTR *pVal);
+		[propput, id(107), helpstring("property configurationDescriptor")] HRESULT configurationDescriptor([in] BSTR newVal);
+		[id(108), helpstring("method FakeCapacity")] HRESULT FakeCapacity([in] unsigned long numBlocks, [in] unsigned short blockSize, [in, defaultvalue(0)] unsigned short logicalSize);
+	    };
+
+//
+// IHawk
+//
+[
+object,	uuid(9D26C24F-3571-451F-B2C4-2CA38F2A0125),	dual,
+helpstring("IHawk Interface"),
+pointer_default(unique)
+]
+	interface IHawk : IDispatch
+	    {
+		[propget, id( 1), helpstring("property deviceName")] HRESULT deviceName([out, retval] BSTR *pVal);
+		[propget, id( 2), helpstring("property IP")] HRESULT IP([out, retval] BSTR *pVal);
+		[propput, id( 2), helpstring("property IP")] HRESULT IP([in] const BSTR newVal);
+		[propget, id( 3), helpstring("property port")] HRESULT port([out, retval] short *pVal);
+		[propput, id( 3), helpstring("property port")] HRESULT port([in] short newVal);
+		[propget, id( 4), helpstring("property record")] HRESULT record([out, retval] BOOL *pVal);
+		[propput, id( 4), helpstring("property record")] HRESULT record([in] BOOL newVal);
+		[propget, id( 5), helpstring("property enumerated")] HRESULT enumerated([out, retval] BOOL *pVal);
+		[id(50), helpstring("method Plug")] HRESULT Plug(void);
+		[id(51), helpstring("method Unplug")] HRESULT Unplug(void);
+		[id(52), helpstring("method EndpointMode")] HRESULT EndpointMode([in, defaultvalue(1)] short mode);
+		[id(53), helpstring("method Free")] HRESULT Free(void);
+	    };
+
+//
+// ISimulator
+//
+[
+object,	uuid(FE8C0957-2618-4A46-A025-D015AF44FFFC),	dual,
+helpstring("ISimulator Interface"),
+pointer_default(unique)
+]
+	interface ISimulator : IDispatch
+	    {
+		[propget, id(1), helpstring("property logFilename")] HRESULT logFilename([out, retval] BSTR *pVal);
+		[propput, id(1), helpstring("property logFilename")] HRESULT logFilename([in] const BSTR newVal);
+		[id(50), helpstring("method GetVersion")] HRESULT GetVersion([in] const BSTR ipAddr, [out, retval] BSTR *version);
+		[id(51), helpstring("method GetMACAddr")] HRESULT GetMACAddr([in] const BSTR ipAddr, [out, retval] BSTR *macAddr);
+		[id(52), helpstring("method GetUSBPorts")] HRESULT GetUSBPorts([in] const BSTR ipAddr, [out, retval] short *connectedMask);
+		[id(53), helpstring("method Log")] HRESULT Log([in] const BSTR string);
+		[id(54), helpstring("method LogFormat")] HRESULT LogFormat([in, defaultvalue(0)] short format);
+		[id(55), helpstring("method GetErrorDescription")] HRESULT GetErrorDescription([in] unsigned long errCode, [out, retval] BSTR *pDescription);
+		[id(56), helpstring("method GetLastError")] HRESULT GetLastError([out, retval] unsigned long *pVal);
+	    };
+
+
+
+//
+// IDebugger
+//
+[
+object, uuid(ADF213FF-ED17-4BBB-A64B-28303E8B12B1), dual,
+helpstring("IDebugger Interface"),
+pointer_default(unique)
+]
+	interface IDebugger : IDispatch
+	    {
+		[id(1), helpstring("method Connect")] HRESULT Connect([in] const BSTR ipAddress);
+		[id(2), helpstring("method Disconnect")] HRESULT Disconnect(void);
+		[id(3), helpstring("method GetResponse")] HRESULT GetResponse([out, retval] BSTR *pVal);
+		[id(4), helpstring("method SendCommand")] HRESULT SendCommand([in] const BSTR cmd);
+		[id(5), helpstring("method Test")] HRESULT Test();
+		[id(6), helpstring("method SearchForIP")] HRESULT SearchForIP([in] BSTR machineName, [out, retval] BSTR *pVal);
+		[id(7), helpstring("method Test2")] HRESULT Test2([defaultvalue(22)] int val);
+	    };
+
+
+
+
+
+[
+uuid(FA33F7A9-3CDF-4ADF-BBC8-1718F17D391F),
+version(1.0),
+helpstring("USBSimulator 1.0 Type Library")
+]
+library USBSIMULATORLib
+    {
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+    #include "../../inc/consts.h" 
+
+ 	[uuid(30BEA3B3-07EA-451B-89E8-585313166676), helpstring("Duke Class")]
+	coclass Duke
+	    {
+		[default] interface IDuke;
+	    };
+
+	[uuid(4D1F4649-099C-45FB-844D-4684EDC1F539), helpstring("MU Class")]
+	coclass MU
+	    {
+		[default] interface IMU;
+	    };
+
+	[uuid(C8EF9C2A-51A5-46EF-B28A-17EE536C8BA9), helpstring("Hawk Class")]
+	coclass Hawk
+	    {
+		[default] interface IHawk;
+	    };
+
+	[uuid(7E47374A-175E-47D9-A97E-ADD45D5A0F70), helpstring("Simulator Class")]
+	coclass Simulator
+	    {
+		[default] interface ISimulator;
+	    };
+
+	[uuid(1C1F39C9-DCB4-4227-8001-5286D579191A), helpstring("Debugger Class")]
+	coclass Debugger
+	    {
+		[default] interface IDebugger;
+	    };
+    };

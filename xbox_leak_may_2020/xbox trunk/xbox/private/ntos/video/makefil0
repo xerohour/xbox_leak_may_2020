@@ -1,0 +1,45 @@
+!INCLUDE $(NTMAKEENV)\makefile.plt
+SDKINC = $(_NTROOT)\public\sdk\inc
+
+clean: cleansrc inc\dderror.h
+
+cleansrc:
+    -erase inc\dderror.h
+
+inc\dderror.h: $(SDKINC)\winerror.h makefil0
+    type << > inc\dderror.h
+/*++ BUILD Version: ????     Increment this if a change has global effects
+
+$(COPYRIGHT_STRING)
+
+Module Name:
+
+    dderror.h
+
+Abstract:
+
+    This module defines the 32-Bit Windows error codes that are useable by
+    portable kernel drivers.
+
+Revision History:
+
+--*/
+
+#ifndef _DDERROR_
+#define _DDERROR_
+
+/*
+ * This file is a subset of Win32 error codes. Other win32 error codes
+ * are not supported by portable drivers and should not beused.
+ * This #define removes the definitions of all other error codes.
+ */
+
+#define _WINERROR_
+
+<<
+    hextract -o inc\dderror.h -lt dderror -bt begin_dderror end_dderror $(SDKINC)\winerror.h
+    type << >> inc\dderror.h
+
+#endif /* _DDERROR_ */
+
+<<

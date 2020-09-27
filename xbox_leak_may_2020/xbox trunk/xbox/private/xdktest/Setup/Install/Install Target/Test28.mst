@@ -1,0 +1,58 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Updater Setup - Non-ASCII target directory, using buttons"
+	Dim tempDir$
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Create non-ASCII directory
+	'
+	tempDir = "c:\"+chr$(128)+chr$(129)+chr$(130)+chr$(131)+chr$(132)
+	if exists(tempDir, "+d") then
+		rmdir tempDir
+	end if
+	mkdir tempDir
+	if not exists(tempDir, "+d") then
+		FAIL "Unable to create '"+tempDir+"' directory for testing"
+	end if
+	'
+	' Run install
+	'
+	Install(BuildNumber, true, false, , , tempDir)
+	'
+	' Uninstall if the install was sucessful
+	'
+	if IsInstalled then
+		Uninstall
+	end if
+	'
+	' Directory should still exist since it was there in the first place
+	'
+	if NOT exists(tempDir, "+d") then
+		FAIL "Directory '"+tempDir+"' was removed. Previously existing directories should not be removed by uninstall"
+	else
+		rmdir tempDir
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

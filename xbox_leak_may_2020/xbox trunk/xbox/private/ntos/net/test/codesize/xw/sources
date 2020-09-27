@@ -1,0 +1,20 @@
+!include ..\sources.inc
+
+C_DEFINES=$(C_DEFINES) -DXNET_BUILD_LIBXW
+
+INCLUDES=\
+    $(BASEDIR)\private\ntos\net; \
+    $(BASEDIR)\public\wsdk\inc; \
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\inc\crypto; \
+
+UMTYPE=console
+
+TARGETLIBS=\
+    $(WSDK_LIB_PATH)\ntdll.lib \
+    $(WSDK_LIB_PATH)\user32.lib \
+    $(BASEDIR)\private\lib\i386\rsa32.lib \
+    $(BASEDIR)\private\lib\i386\vlan$(D).lib \
+    $(SDK_LIB_PATH)\xnetw$(D).lib \
+

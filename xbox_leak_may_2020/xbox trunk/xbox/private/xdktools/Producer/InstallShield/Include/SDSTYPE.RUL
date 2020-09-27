@@ -1,0 +1,147 @@
+ 
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdstype.rul                                               */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdSetupType           */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdSetupType                                                */
+ /*                                                                        */
+ /*   Descrip:  This dialog will allow user to choose the correct type     */
+ /*             of the installation.                                       */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdSetupType(szTitle, szMsg, svDir, nStyle)
+          STRING  szDlg, svDirLoc, szTemp, szSetupType;
+          NUMBER  nId, nTemp;
+          HWND    hwndDlg;
+          BOOL    bDone;
+        begin
+
+           svDirLoc = svDir;    // make local copy to modify
+
+           szDlg     = SD_DLG_SETUPTYPE;
+           nSdDialog = SD_NDLG_SETUPTYPE;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdSetupType );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "szDir", DATA_STRING, svDir, nTemp );
+            endif;
+
+            return nId;
+          endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_SETUPTYPE ) = DLG_ERR) then
+              return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_STA_MSG, szMsg );
+                   endif;
+
+                   CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   CtrlSetState( szDlg, SD_RADIO_TYPICAL, BUTTON_CHECKED ); // Default as TYPICAL
+
+              case SD_PBUT_CHANGEDIR:
+                   nTemp = MODE;
+                   MODE  = NORMALMODE;
+                   SelectDir( "",
+                              "",
+                              svDirLoc,
+                              TRUE );
+                   CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+                   MODE = nTemp;
+
+              case DLG_ERR:
+                   SdError( -1, "SdSetupType" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              case BACK:
+                   nId   = BACK;
+                   bDone = TRUE;
+
+              case SD_PBUT_CONTINUE:
+                   if( BUTTON_CHECKED = CtrlGetState( szDlg, SD_RADIO_TYPICAL ) ) then
+                       nId = TYPICAL;
+                       szSetupType = "Typical";
+                   elseif( BUTTON_CHECKED = CtrlGetState( szDlg, SD_RADIO_CUSTOM ) ) then
+                       nId = CUSTOM;
+                       szSetupType = "Custom";
+                   elseif( BUTTON_CHECKED = CtrlGetState( szDlg, SD_RADIO_COMPACT ) ) then
+                       nId = COMPACT;
+                       szSetupType = "Compact";
+                   endif;
+
+                   ComponentSetupTypeSet( MEDIA, szSetupType );
+
+                   svDir = svDirLoc;
+                   bDone = TRUE;
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                   elseif ( nId >= 101 && nId <= 199 ) then
+                      bDone = TRUE;
+                   endif;
+                   svDir = svDirLoc;
+
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdSetupType );
+           SilentWriteData( szAppKey, "szDir", DATA_STRING, svDir, 0 );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;

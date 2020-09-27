@@ -1,0 +1,83 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim comp
+dim style
+dim temp
+dim cmap
+sub TLoad
+	set comp = CreateObject("Microsoft.DirectMusicComposer")
+	set style = LoadStyle("Boids2.sty")
+	set temp = LoadSegment("BoidsAA.tpl")
+	set cmap = LoadChordMap("Boids.per")
+end sub
+
+sub TSegmentFromTemplate
+	set seg = comp.ComposeSegmentFromTemplate(style, temp, 1, cmap)
+	seg.Download
+	PlaySegment seg
+end sub
+
+sub TSegmentFromShape
+	set seg = comp.ComposeSegmentFromShape(style, 6, DMUS_SHAPET_PEAKING, 1, True, True, cmap)
+	seg.Download
+	PlaySegment seg
+end sub
+
+sub TTemplateFromShape
+	set tmp = comp.ComposeTemplateFromShape(6, DMUS_SHAPET_FALLING, True, True, 1)
+	set seg = comp.ComposeSegmentFromTemplate(style, tmp, 1, cmap)
+	seg.Download
+	PlaySegment seg
+end sub
+
+sub TChangeChordMap
+	set seg = comp.ComposeSegmentFromShape(style, 6, DMUS_SHAPET_PEAKING, 1, True, True, cmap)
+	set cmap2 = LoadChordMap("mlines1.per")
+	seg.Download
+
+	PlaySegment seg
+	while not IsPlaying(seg)
+	wend
+	while IsPlaying(seg)
+	wend
+
+	PlaySegment seg
+	while not IsPlaying(seg)
+	wend
+	while IsPlaying(seg)
+	wend
+
+	comp.ChangeChordMap seg, True, cmap2
+
+	PlaySegment seg
+	while not IsPlaying(seg)
+	wend
+	while IsPlaying(seg)
+	wend
+
+	PlaySegment seg
+	while not IsPlaying(seg)
+	wend
+	while IsPlaying(seg)
+	wend
+end sub
+
+sub TTransition
+	set seg = LoadSegment("Sample.sgt")
+	set seg2 = comp.ComposeSegmentFromShape(style, 6, DMUS_SHAPET_PEAKING, 1, True, True, cmap)
+	set segT = comp.ComposeTransition(seg, seg2, 768 * 4 * 4, DMUS_COMMANDT_ENDANDINTRO, DMUS_COMPOSEF_MODULATE + DMUS_COMPOSEF_LONG)
+	segT.Download
+	PlaySegment segT
+end sub
+
+sub TAutoTransition
+	set seg = LoadSegment("Sample.sgt")
+	set seg2 = comp.ComposeSegmentFromShape(style, 6, DMUS_SHAPET_LOUD, 1, False, True, cmap)
+	seg.Download
+	seg2.Download
+	PlaySegment seg
+	mt = GetMusicTime()
+	while GetMusicTime() < mt + 768 * 4 * 4
+	wend
+	set segT = comp.AutoTransition(seg2, DMUS_COMMANDT_ENDANDINTRO, DMUS_COMPOSEF_MODULATE + DMUS_COMPOSEF_LONG + DMUS_COMPOSEF_MEASURE)
+end sub

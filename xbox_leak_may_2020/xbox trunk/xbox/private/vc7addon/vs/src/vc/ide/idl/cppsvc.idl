@@ -1,0 +1,84 @@
+import "oaidl.idl";
+import "ocidl.idl";
+import "textmgr.idl";
+/*
+ * Definition for the IVCTextEdit interface. 
+ */
+#include "lexclass.h"
+
+// Service SID GUID
+cpp_quote("extern \"C\" const __declspec(selectany) GUID SID_CPPLangService = { 0xb2f072b0, 0xabc1, 0x11d0, { 0x9d, 0x62, 0x0, 0xc0, 0x4f, 0xd9, 0xdf, 0xd9 } };")
+
+// info for Tools Options C/C++-specific pages
+typedef struct _VCPREFERENCES
+{
+	BOOL				fKRBraces;
+	BOOL				fDisableAutoQuickInfo;	// whether quick info tooltip appears when hovering
+	BOOL                fEnableOutlining;       // whether auto-outlining is on
+	BOOL                fIndentBraces;          // whether to indent opening and closing braces of a construct
+} VCPREFERENCES;
+
+//uuid(b2f072b0-abc1-11d0-9d62-00c04fd9dfd9)
+
+[
+	object,
+	uuid(7861af6a-415a-11d3-8b7e-00c04f7984ea),
+	dual,
+	helpstring("IVCTextEdit Interface"),
+	pointer_default(unique)
+]
+interface IVCTextEdit : IUnknown
+{
+	[id(1), helpstring("method DoSmartIndent")] 
+		HRESULT DoSmartIndent([in] long lLine, [in] long lEndLine, [in] IVsTextLines *pVsTextLines);
+
+	[id(2), helpstring("method DoMatchBraces")] 
+	HRESULT DoMatchBraces([in,out] long *lLine, [in,out] long *lColumn, [in] IVsTextLines *pVsTextLines,
+		[out,retval] BOOL *pbFound);
+	[id(3), helpstring("method GetLangPreferences")]
+	HRESULT GetLangPreferences([out] LANGPREFERENCES *pLangPrefs);
+	[id(4), helpstring("method CppLexLine")]
+	HRESULT CppLexLine ([in] LPCOLESTR ptchLine, [in,out]DWORD *plxs,
+						[out] int *pSize,
+						[out]struct TXTB **rgtxtb);
+	[id(5), helpstring("method CppParseTypeString")]
+	HRESULT CppParseTypeString ([in] LPCOLESTR pszTypeDecl,
+						[out] UINT *pNamePos,
+						[out] UINT *pNameLength);
+	[id(6), helpstring("method OnQuickInfoReady")]
+	HRESULT OnQuickInfoReady([in] TextSpan *pTS, [in] BSTR bstrQuickInfo);
+};
+
+[
+    uuid(7861af6c-415a-11d3-8b7e-00c04f7984ea),
+    version(1.0)
+]
+library CPPServicesLib
+{
+    importlib("stdole.tlb");
+    import"vsshell.idl";
+	[
+		uuid(8c2ea640-abc1-11d0-9d62-00c04fd9dfd9)
+	]
+	coclass CPPLangPackage
+	{
+		interface IVsPackage;
+		interface IServiceProvider;
+	};
+
+	/*
+	 * Pointers to the following code generator objects can be obtained by 
+	 * calling IServiceProvider::QueryService.  The service ID you use is the
+	 * CLSID specified below (example: CLSID_CPPLangService)
+	 */
+
+	[
+		uuid(b2f072b2-abc1-11d0-9d62-00c04fd9dfd9)
+	]
+	coclass CPPLangService
+	{
+		interface IVCTextEdit;
+	};
+};
+
+

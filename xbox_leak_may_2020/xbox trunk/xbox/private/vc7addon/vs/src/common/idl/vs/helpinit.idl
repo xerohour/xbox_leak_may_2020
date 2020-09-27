@@ -1,0 +1,129 @@
+///////////////////////////////////////////////////////////
+//
+//
+// HelpInit.idl -	IVsHelpInit interface definition.
+//					This interface provides member functions
+//					for initializing the IVsHelpSystem.
+//					These commands are for use outside of
+//					the Vegas environment. Use these only
+//					if you are outside of Vegas.
+//
+///////////////////////////////////////////////////////////
+//
+// Imports
+//
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Include the vb param switching code.
+#include "vhsdefs.h"
+
+///////////////////////////////////////////////////////////
+//
+// IVsHelpInit
+//
+//
+
+[
+	object,
+	uuid(854d7ac3-bc3d-11d0-b421-00a0c90f9dc4), //NOTE: This guid is reused in Pkg.rgs. 
+	helpstring("IVsHelpInit Interface"),
+	pointer_default(unique)
+]
+interface IVsHelpInit : IUnknown
+{
+	typedef [v1_enum, public] enum _VHS_INIT_FLAGS
+	{
+		VHS_INIT_PartialPath
+
+	} VHS_INIT_FLAGS ;
+
+
+	[
+		helpstring("Set the owning window. Defaults to the Active window.")
+	]				
+	HRESULT SetOwner([in] const HWND hwndOwner) ;
+
+
+	/*
+		Use this command if you are outside of the Vegas shell. 
+		It will load the satellite DLL for the LCID passed in. 
+		if it can't find the one passed in, it will try the user default,
+		the system default, and then English. So, if you don't know which LCID
+		you want, just pass in 0x0.
+	*/
+	[
+		helpstring("Loads the resources for the help component.")
+	]
+	HRESULT LoadUIResources([in] LCID_TYPE lcidResources) ;
+
+	/*
+		The following command overrides the use of the MSDN Collection.
+		If you are outside of the Vegas environment, and want to use a collection other than
+		the installed MSDN collection. Set this function to the complete path to your collection.
+	*/
+	[
+		helpstring("Sets the pathname to the collection you want to use, if different from MSDN. ")
+	]
+	HRESULT SetCollection([in] LPCOLESTR pszCollectionPathname, [in] INT_TYPE dwReserved);
+
+	/*
+		The following two command are used to customize the behavior of the VHS_Localize
+		flag. The purpose of the VHS_Localize flag is to take the name of a application help/
+		UI help CHM file and build a complete path to the help file by adding the root
+		directory to the help file and the LCID in use. Given
+			c:\Microsoft Studio\common\help
+			1033
+			vj98help.chm
+		VHS_Localize will build.
+			c:\Microsoft Studio\common\help\1033\vjhelp.chm.
+
+		Again, these two commands are for use outside of the Vegas enviroment.
+
+		For VHS_Localize to work, we need to know where the help files are stored. If you
+		do not use this, I'll look in the registry for a key which tells me which directory
+		to use. If I can't find the key.I'll make an educated random guess, starting with 
+			\Program Files\Microsoft Visual Studio\common\help\####.
+		The strategry from there gets more random and less educated.
+
+	*/
+	[
+		helpstring("Set the root directory where help files are installed.")
+	]
+	HRESULT SetApplicationHelpDirectory([in] LPCOLESTR pszHelpDirectory, [in] INT_TYPE dwReserved) ;
+
+	/*
+		See Note above for SetApplicationHelpDirectory.
+
+		If you don't set this, I'll start with the LCID from the LoadUIResources LCID. If that's
+		not successful, I'll attempt UserDefault, SystemDefault, and finally English.
+	*/
+	[
+		helpstring("Sets the LCID of the collection you want to use. ")
+	]
+	HRESULT SetApplicationHelpLCID([in] LCID_TYPE lcidCollection, [in] INT_TYPE dwReserved);
+
+
+
+	/*
+		Set the collection registry root. The MSDN collection is read from the regististry key:
+		HKLM\Software\Microsoft\HTML Help Collections\Developer Collections. Some users of the
+		help syste would like to use a different root.
+		
+		If you would just like to replace "Developer Collections" with another key. Pass an 
+		0x00000001 (VHS_INIT_PartialPath) for the flags parameter. 
+	*/
+	[
+		helpstring("Sets the collection registry root.")
+	]
+	HRESULT SetCollectionRegistryRoot([in] LONG_PTR hKeyStart, [in] LPCOLESTR pszRegistryRoot, [in] long flags) ;
+
+	/*
+		You can specify to display only a partial "subset" of the entire collection.
+			Can only be "VB", "VJ", "VC"
+	*/
+	[
+		helpstring("Sets the current subset.")
+	]
+	HRESULT SetCurrentGlobalSubset([in] LPCOLESTR pszSubsetSpecifier) ;
+};

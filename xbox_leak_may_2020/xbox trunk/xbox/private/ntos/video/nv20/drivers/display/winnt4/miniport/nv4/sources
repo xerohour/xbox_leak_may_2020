@@ -1,0 +1,78 @@
+!include ..\..\..\..\sources.nv
+
+NVCHIP=NV4
+TARGETNAME=$(NVCHIP)_mini
+TARGETTYPE=MINIPORT
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ENDIF
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFDEF NEC_DMT
+ASM_DEFINES=-DNEC_DMT
+C_DEFINES=-DNEC_DMT
+!ENDIF
+
+RMLIBDIR=$(BUILD_TREE)\drivers\resman\arch\nvalloc\winnt4\lib\$(NVCHIP)\*
+
+!IFNDEF NT5
+RMLIBDIR=$(RMLIBDIR)\$(DDKBUILDENV)
+DDK_LIB_PATH=$(BASEDIR)\lib\*\$(DDKBUILDENV)
+TARGETLIBS=$(TARGETPATH)\*\$(DDKBUILDENV)\nv_mini.lib \
+           $(TARGETPATH)\*\$(DDKBUILDENV)\modesetcode.lib \
+           $(TARGETPATH)\*\$(DDKBUILDENV)\vesadata.lib
+!ELSE
+TARGETLIBS=$(TARGETPATH)\*\nv_mini.lib \
+           $(TARGETPATH)\*\modesetcode.lib \
+           $(TARGETPATH)\*\vesadata.lib
+
+!IFDEF NVPE
+TARGETLIBS=$(TARGETLIBS) \
+           $(TARGETPATH)\*\nvpecore.lib
+!ENDIF
+
+!ENDIF
+
+
+TARGETLIBS=$(TARGETLIBS) \
+           $(DDK_LIB_PATH)\videoprt.lib \
+           $(DDK_LIB_PATH)\ntoskrnl.lib \
+           $(DDK_LIB_PATH)\hal.lib      \
+           $(RMLIBDIR)\nvarch.lib       \
+           $(RMLIBDIR)\nvgfx.lib        \
+           $(RMLIBDIR)\nvkernel.lib     \
+           $(RMLIBDIR)\nv04kern.lib     \
+           $(RMLIBDIR)\nv10kern.lib     \
+           $(RMLIBDIR)\nv20kern.lib
+
+INCLUDES=$(BASEDIR)\src\video\inc;$(BASEDIR)\inc\ddk;..\nv_mini;..\..\displays\nv_disp\i386;$(NTMAKEENV);$(BUILD_NVSDK_DIR)\inc
+
+!IFDEF NV_BUILD_INTERNAL
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\common\inc
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\common\vesa
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\resman\kernel\inc\nv10
+!ENDIF
+
+!IFDEF NVPE
+C_DEFINES = $(C_DEFINES) -DNVPE
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\common\VPE\inc
+!ENDIF
+
+C_DEFINES = $(C_DEFINES) -DNV3_HW -DNTMINIPORT -DNVDEPRECATED
+
+INCLUDES=$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);..\nv_mini
+INCLUDES=$(INCLUDES);..\..\displays\nv_disp
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vpe\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vesa
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\resman\kernel\inc\nv10
+
+SOURCES=$(NVCHIP).c nv10.c nvdat.c ddc.c $(NVCHIP).rc

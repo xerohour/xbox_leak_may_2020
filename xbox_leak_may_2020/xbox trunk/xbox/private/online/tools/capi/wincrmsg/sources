@@ -1,0 +1,40 @@
+MAJORCOMP=online
+MINORCOMP=wincrmsg
+
+TARGETNAME=wincrmsg
+TARGETTYPE=LIBRARY
+
+TARGETPATH=$(BASEDIR)\private\online\client\lib
+
+# NOT_UNICODE=1
+
+C_DEFINES=-D_WINDOWS -D_CRYPT32_
+
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=\
+    ..\include;\
+    ..\..\asn1\inc;\
+    $(BASEDIR)\private\online\client\inc;\
+    $(BASEDIR)\private\online\common\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\public\sdk\inc
+
+PRECOMPILED_INCLUDE = global.hxx
+PRECOMPILED_PCH =     global.pch
+PRECOMPILED_OBJ =     global.obj
+
+SOURCES= \
+    msghlpr.cpp \
+    msglen.cpp \
+    msgstrm.cpp \
+    msgasn1.cpp \
+    wincrmsg.cpp \
+    pkcs.c

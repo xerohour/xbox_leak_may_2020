@@ -1,0 +1,940 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>ActiveWire USB Hardware Reference</title>
+</head>
+
+<body>
+
+<h2 align="center">ActiveWire USB<br>
+Hardware Reference</h2>
+
+<h3 align="center">Ver. 0.9 Draft<br>
+May 14th, 1999</h3>
+
+<p align="center">&nbsp;</p>
+
+<p align="center">&nbsp;</p>
+
+<hr width="80%" size="1">
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><big><big><a name="Index">Index</a></big></big></p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <ol>
+        <li><a href="#Introduction">Introduction</a></li>
+        <li><a href="#Hardware Overview">Hardware Overview</a></li>
+        <li><a href="#Header Pins">Header Pins</a><ol>
+            <li><a href="#Header Top view">Top view</a></li>
+            <li><a href="#Header Sort by I/O#">Sort by I/O</a></li>
+          </ol>
+        </li>
+        <li><a href="#Jumper Pins">Jumper Pins</a></li>
+        <li><a href="#ActiveBus">ActiveBus</a></li>
+        <li><a href="#Frequentry Asked Questions">Frequently Asked Questions</a></li>
+        <li><a href="#Specification">Specification</a></li>
+        <li><a href="#Revision History">Revision History</a></li>
+      </ol>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p><br>
+<br>
+<br>
+</p>
+
+<hr width="80%" size="1">
+
+<ol>
+  <li><p align="left"><big><a name="Introduction">Introduction</a></big></p>
+    <p align="left">Thank you purchasing ActiveWire USB board.<br>
+    <br>
+    This referece contains deep inside information of&nbsp; ActiveWire USB hardware.<br>
+    <br>
+    Please refer to the <a href="AwUsb_SwRef.htm">ActiveWire USB Software Reference</a> for
+    information about ActiveWire software.</p>
+    <p align="left"><br>
+    <br>
+    <big><font color="#FF0000"><strong><u>Caution!</u></strong></font></big><br>
+    It is strongly suggested to use extreme precaution of electrostatic discharge when
+    handling the board.</p>
+    <ol>
+      <li><p align="left">Touch conductive grounded surface, such as exposed chassis with power
+        code plugged in to the grounded AC outlet, to dischage your body before touching the
+        board. </p>
+      </li>
+      <li><p align="left">Handle at the edge of the board.&nbsp; Do not touch directly to the pins
+        of components on the board.</p>
+      </li>
+      <li><p align="left">Keep the board in an ESD safe bag when not in use. </p>
+      </li>
+    </ol>
+    <p align="left"><br>
+    <br>
+    </p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><a name="Hardware Overview"><big>Hardware Overview</big></a><br>
+    <br>
+    <ol>
+      <li>Header AB.P1</li>
+      <li>Header AB.P2<br>
+        &nbsp;&nbsp;&nbsp; These headers are interface to the external circuit of the board.<br>
+        &nbsp;&nbsp;&nbsp; Signals on headers include 16bits parallel I/O, Vcc(+5v), GND, and
+        several other signals.<br>
+        &nbsp;&nbsp;&nbsp; See following section, <a href="#Header Pins">4. Header Pins</a>, for
+        more detail.<br>
+        <br>
+        &nbsp;&nbsp;&nbsp; Headers are designed to be used in two ways.<blockquote>
+          <ol>
+            <li>Simple 16bits programmable Input/Output pins<br>
+              &nbsp;&nbsp;&nbsp; When the board is used alone with standard firmware and driver, 16 bits
+              of I/O can be used to interface with external circuit.&nbsp;&nbsp; Each I/O is
+              programmable to input(default) or output.<br>
+              <br>
+            </li>
+            <li>Addressable 8bits Data Input/Output Bus (<a href="#ActiveBus">ActiveBus</a>)<br>
+              &nbsp;&nbsp;&nbsp; When the board is used with ActiveWire Add-on boards, the board should
+              have a protocol implemented to communicate with multiple boards connected to the same
+              headers.<br>
+              &nbsp;&nbsp;&nbsp; ActiveBus is designed as a simple 8bits Data/Address multiplexed bus
+              architecture.&nbsp; See following section, <a href="#ActiveBus">5. ActiveBus</a>, for more
+              detail.</li>
+          </ol>
+        </blockquote>
+        <p>&nbsp;</p>
+      </li>
+      <li>Jumper PWR.J1</li>
+      <li>Jumper CA.J1<br>
+        &nbsp;&nbsp;&nbsp; These jumpers are designed for optional use.<br>
+        &nbsp;&nbsp;&nbsp; Improper use of these jumpers may cause the board to malfunction.<br>
+        &nbsp;&nbsp;&nbsp; It is very important to leave these jumpers <font color="#FF0000"><u><strong>Closed</strong></u></font>
+        for the normal operation of the board.<br>
+        <br>
+        &nbsp;&nbsp;&nbsp; See following section, 5. Jumper Pins, for more detail.<br>
+        <br>
+      </li>
+      <li>USB B Connector<br>
+        &nbsp;&nbsp;&nbsp; An USB A-to-B cable must be used to connect to a Host PC.<br>
+        <br>
+      </li>
+      <li>USB Microcontoroller<br>
+        &nbsp;&nbsp;&nbsp; Core of the ActiveWire USB board.<br>
+        &nbsp;&nbsp;&nbsp; It includes Intel 8051 microcontroller, 8KB RAM, and USB peripheral
+        interface.<br>
+        <br>
+      </li>
+      <li>Electrically erasable and prgrammable read only memroy (EEPROM)<br>
+        &nbsp;&nbsp;&nbsp; EEPROM is used to store ActiveWire USB Vendor ID and Product ID.<br>
+        <br>
+        <big>&nbsp;&nbsp;&nbsp; <font color="#FF0000"><u><strong>Caution!</strong></u></font></big><br>
+        &nbsp;&nbsp;&nbsp;&nbsp; Improper use of EEPROM may cause the board to malfunction.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp; If information written at factory is altered, the operating
+        system will fail to recognized the board, causing problem in running driver software.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp; It is very important <u><font color="#FF0000"><strong>not to
+        alter</strong></font></u> the EEPROM for the normal operation of the board.<br>
+        <br>
+      </li>
+      <li>Programmable Logic Device (PLD)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp; PLD is used to generate signals for ActiveBus.<br>
+        <br>
+      </li>
+    </ol>
+    <p>&nbsp;</p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><big><a name="Header Pins">Header Pins</a><br>
+    </big><br>
+    Following describes signal available at header pins.<br>
+    <br>
+    <br>
+    <ol>
+      <li>Vcc<br>
+        &nbsp;&nbsp;&nbsp; +5v power supplied from USB, or optional external power supply.<br>
+        &nbsp;&nbsp;&nbsp; When connecting external supply, it must be regulated 5v DC.<br>
+        <br>
+      </li>
+      <li>+3.3v<br>
+        &nbsp;&nbsp;&nbsp; +3.3v supply for the USB microcontroller on board.<br>
+        &nbsp;&nbsp;&nbsp; It is available only for a reference.&nbsp;&nbsp; It is not intended to
+        supply current to any external devices.&nbsp;&nbsp; <br>
+        &nbsp;&nbsp;&nbsp; It is recommended to supply from Vcc (+5v) through a voltage regulator
+        if external circuit requires 3.3v supply. <br>
+        <br>
+      </li>
+      <li>GND<br>
+        &nbsp;&nbsp;&nbsp; Ground return to the board.<br>
+        <br>
+      </li>
+      <li>I/O[0..15]<br>
+        &nbsp;&nbsp;&nbsp; Programmable I/O pins of the microcontroller.<br>
+        <br>
+      </li>
+      <li>#Reset<br>
+        &nbsp;&nbsp;&nbsp; Active Low Reset Out from the board to external circuit.<br>
+        &nbsp;&nbsp;&nbsp; Logical Vcc level normally, becomes GND level when the microcontroller
+        has been reset.<br>
+        &nbsp;&nbsp;&nbsp; The microcontroller can be reset by host software through USB.<br>
+        &nbsp;&nbsp;&nbsp; Please not that this is <font color="#FF0000"><u>NOT Input</u></font>
+        to the board.<br>
+        <br>
+      </li>
+      <li>Clock<br>
+        &nbsp;&nbsp;&nbsp; 6MHz ActiveBus clock out.<br>
+        &nbsp;&nbsp;&nbsp; Used to implemented ActiveBus protocol.<br>
+        <br>
+      </li>
+      <li>Clock24<br>
+        &nbsp;&nbsp;&nbsp; 24MHz microcontroller clock out.<br>
+        &nbsp;&nbsp;&nbsp; This is available for reference.<br>
+        <br>
+      </li>
+      <li>SDA/SCL<br>
+        &nbsp;&nbsp;&nbsp; I2C serial bus.<br>
+        &nbsp;&nbsp;&nbsp; Please note that the EEPROM, that contains crutial information for USB
+        protocol (i.e. USB Vendor ID and Product ID), is also connected to these pins.<br>
+        &nbsp;&nbsp;&nbsp; Improper use of these pins may cause the board to malfunction.<br>
+      </li>
+    </ol>
+    <p>&nbsp;</p>
+    <p><br>
+    Following tables show pin layout of each headers.</p>
+    <p>&nbsp;<ol>
+      <li><a name="Header Top view">Top view</a> <br>
+        <table border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="45%">&nbsp;&nbsp;&nbsp;&nbsp; </td>
+            <td width="10%"></td>
+            <td width="45%"></td>
+          </tr>
+          <tr>
+            <td width="45%"><table border="1" width="100%">
+              <tr>
+                <td align="center" width="78">ActiveBus</td>
+                <td align="center" width="78">I/O</td>
+                <td align="center" width="78">Header</td>
+                <td align="center" width="78">pin#</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">Vcc(+5v)</td>
+                <td align="center" width="78">Vcc(+5v)</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">1</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">#16Bit</td>
+                <td align="center" width="78">I/O8</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">3</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">#Busy</td>
+                <td align="center" width="78">I/O10</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">5</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">GND</td>
+                <td align="center" width="78">GND</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">7</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">#Write</td>
+                <td align="center" width="78">-</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">9</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">AD0</td>
+                <td align="center" width="78">I/O0</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">11</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">AD1</td>
+                <td align="center" width="78">I/O1</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">13</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">AD3</td>
+                <td align="center" width="78">I/O3</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">15</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">AD5</td>
+                <td align="center" width="78">I/O5</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">17</td>
+              </tr>
+              <tr>
+                <td align="center" width="78">AD6</td>
+                <td align="center" width="78">I/O6</td>
+                <td align="center" width="78">AB.P1</td>
+                <td align="center" width="78">19</td>
+              </tr>
+            </table>
+            </td>
+            <td width="10%"></td>
+            <td width="45%"><table border="1" width="100%">
+              <tr>
+                <td align="center" width="25%">pin#</td>
+                <td align="center" width="25%">Header</td>
+                <td align="center" width="25%">I/O</td>
+                <td align="center" width="25%">ActiveBus</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">2</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">#Reset</td>
+                <td align="center" width="25%">#Reset</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">4</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">I/O9</td>
+                <td align="center" width="25%">#32Bit</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">6</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">Clock</td>
+                <td align="center" width="25%">Clock</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">8</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">#Read</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">10</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">I/O13</td>
+                <td align="center" width="25%">#Addr</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">12</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">14</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">I/O2</td>
+                <td align="center" width="25%">AD2</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">16</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">I/O4</td>
+                <td align="center" width="25%">AD4</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">18</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">20</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">I/O7</td>
+                <td align="center" width="25%">AD7</td>
+              </tr>
+            </table>
+            </td>
+          </tr>
+          <tr>
+            <td width="45%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td>
+            <td width="10%"></td>
+            <td width="45%"></td>
+          </tr>
+          <tr>
+            <td width="45%"><table border="1" width="100%">
+              <tr>
+                <td align="center" width="25%">ActiveBus</td>
+                <td align="center" width="25%">I/O</td>
+                <td align="center" width="25%">Header</td>
+                <td align="center" width="25%">pin#</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">1</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">SDA</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">3</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">I/O11</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">5</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">7</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">9</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">11</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">13</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">I/O14</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">15</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">Clock24</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">17</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">19</td>
+              </tr>
+            </table>
+            </td>
+            <td width="10%"></td>
+            <td width="45%"><table border="1" width="100%">
+              <tr>
+                <td align="center" width="25%">pin#</td>
+                <td align="center" width="25%">Header</td>
+                <td align="center" width="25%">I/O</td>
+                <td align="center" width="25%">ActiveBus</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">2</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">4</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">SCL</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">6</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">I/O12</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">8</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">10</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">12</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">14</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">16</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">I/O15</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">18</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">20</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+              </tr>
+            </table>
+            </td>
+          </tr>
+        </table>
+        <p align="left"><br>
+        The symbol&nbsp;&nbsp; '-'&nbsp; denotes that it is not used and reserved for future use.<br>
+        </p>
+        <p align="center"><br>
+        <a href="#Index"><small>Back to Index</small></a><br>
+        </p>
+        <p><br>
+        </p>
+      </li>
+      <li><a name="Header Sort by I/O#">Sort by I/O</a><br>
+        <table border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td><table border="0" cellspacing="0" cellpadding="0" width="537">
+              <tr>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp; </td>
+              </tr>
+            </table>
+            <table border="1">
+              <tr>
+                <td align="center" width="25%">I/O</td>
+                <td align="center" width="25%">ActiveBus</td>
+                <td align="center" width="25%">Header</td>
+                <td align="center" width="25%">pin#</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">1</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">12</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">1</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">Vcc(+5v)</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">12</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">&nbsp;&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O0</td>
+                <td align="center" width="25%">AD0</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">11</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O1</td>
+                <td align="center" width="25%">AD1</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">13</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O2</td>
+                <td align="center" width="25%">AD2</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">14</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O3</td>
+                <td align="center" width="25%">AD3</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">15</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O4</td>
+                <td align="center" width="25%">AD4</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">16</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O5</td>
+                <td align="center" width="25%">AD5</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">17</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O6</td>
+                <td align="center" width="25%">AD6</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">19</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O7</td>
+                <td align="center" width="25%">AD7</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">20</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O8</td>
+                <td align="center" width="25%">#16Bit</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">3</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O9</td>
+                <td align="center" width="25%">#32Bit</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">4</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O10</td>
+                <td align="center" width="25%">#Busy</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">5</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O11</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">5</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O12</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">6</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O13</td>
+                <td align="center" width="25%">#Addr</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">10</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O14</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">15</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">I/O15</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">16</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">&nbsp;&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">7</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">18</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">7</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">GND</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">18</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">&nbsp;&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">#Reset</td>
+                <td align="center" width="25%">#Reset</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">2</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">SDA</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">3</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">SCL</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">4</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Clock(6MHz)</td>
+                <td align="center" width="25%">Clock(6MHz)</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">6</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">Clock24(24MHz)</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">17</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">#Write</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">9</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">#Read</td>
+                <td align="center" width="25%">AB.P1</td>
+                <td align="center" width="25%">8</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">&nbsp;&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+                <td align="center" width="25%">&nbsp; </td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">8</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">9</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">10</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">11</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">13</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">14</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">19</td>
+              </tr>
+              <tr>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">-</td>
+                <td align="center" width="25%">AB.P2</td>
+                <td align="center" width="25%">20</td>
+              </tr>
+            </table>
+            </td>
+          </tr>
+        </table>
+      </li>
+    </ol>
+    <p><br>
+    The symbol&nbsp;&nbsp; '-'&nbsp; denotes that it is not used and reserved for future use.<br>
+    </p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><big><a name="Jumper Pins">Jumper Pins</a><br>
+    </big><br>
+    There are 2 jumper pins on the board.<br>
+    Both are critical for the board functionality.<br>
+    Improper use of these pins may cause the board to malfunction.<br>
+    Unless absolutly necessary, leave these jumpers <u><font color="#FF0000"><strong>Closed</strong></font></u>.
+    <p>&nbsp;<ol>
+      <li>Jumper PWR.J1<br>
+        &nbsp;&nbsp;&nbsp; This jumper is located in between USB Bus Power (+5v) and Vcc (+5v) of
+        the board.<br>
+        &nbsp;&nbsp;&nbsp; Removing the shunt isolates USB Bus Power and the Vcc, causing power
+        supply of the board.<br>
+        &nbsp;&nbsp;&nbsp; This may be useful when external 5v DC power supply is connected to one
+        of header pins.<br>
+        <br>
+      </li>
+      <li>Jumper CA.J1<br>
+        &nbsp;&nbsp;&nbsp; This jumper is located in between Serial Data In/Out of on-board EEPROM
+        and Serial Data Out/In of the USB microcontroller.<br>
+        &nbsp;&nbsp;&nbsp; Removing the shunt isolates the EEPROM and the microcontroller,
+        resulting the microcontroller to use silicon chip hardwired default Vendor ID and Product
+        ID.<br>
+        &nbsp;&nbsp;&nbsp; This may be useful in some special occasion that it is necessary to
+        bring the board in a known USB Vendor ID and Product ID, such as when accidentally erased
+        the factory programmed EEPROM.<br>
+        &nbsp;&nbsp;&nbsp; Refer to the <a href="AwUsb_SWRef.html">Software Reference</a> for more
+        detail.</li>
+    </ol>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><big><a name="ActiveBus">ActiveBus</a><br>
+    </big><br>
+    Detail of ActiveBus will be published in a separate document.<br>
+    <br>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><big><a name="Frequentry Asked Questions">Frequently Asked Questions</a><br>
+    </big><br>
+    <br>
+    <br>
+    <br>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><a name="Specification"><big>Specification</big></a><br>
+    <br>
+    <ol>
+      <li>Dimensions<ul>
+          <li>Size 3.3&quot;x1.9&quot; </li>
+          <li>Max height 0.5&quot; </li>
+          <li>Weight&nbsp; 0.9 oz. (25g)</li>
+          <li>Mounting dimension 3.0&quot;x1.6&quot; </li>
+          <li>Mounting hole diameter 0.14&quot; (for #4, #6 or M3 screws)</li>
+        </ul>
+        <p><br>
+        </p>
+      </li>
+      <li>Speed <ul>
+          <li>12 Mbps peak speed </li>
+          <li>Fully compatible with USB specification ver.1.0</li>
+        </ul>
+        <p><br>
+        </p>
+      </li>
+      <li>I/O pins<ul>
+          <li>3.3v CMOS logic, 5v TTL level tolerant</li>
+          <li>1.6mA sink or source</li>
+        </ul>
+        <p><br>
+        </p>
+      </li>
+      <li>Power<ul>
+          <li>DC 5v 100mA peak supplied from USB</li>
+          <li>DC 5v 300mA Max. supply from USB avaiable to external circuit</li>
+          <li>Optional DC 5v external supply to header pin. (remove jumper PWR.J1 when using external
+            power)</li>
+        </ul>
+        <p><br>
+        </p>
+      </li>
+    </ol>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+  <li><big><a name="Revision History">Revision History</a></big><p>&nbsp;</p>
+    <p align="center"><small><a href="#Index">Back to Index</a><br>
+    </small></p>
+    <hr width="80%" size="1">
+  </li>
+</ol>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+</body>
+</html>

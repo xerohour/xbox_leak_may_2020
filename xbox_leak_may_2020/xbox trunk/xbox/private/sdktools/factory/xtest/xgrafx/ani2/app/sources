@@ -1,0 +1,26 @@
+TARGETNAME=Bootscreen
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+NOT_UNICODE=1
+
+# USE_LIBCNTPR = 1
+
+C_DEFINES=$(C_DEFINES) /DBINARY_RESOURCE /DFINAL_BUILD
+
+INCLUDES=$(BASEDIR)\private\atg\samples\common\include;$(BASEDIR)\public\xdk\inc;$(BASEDIR)\private\ntos\inc;$(INCLUDES);$(BASEDIR)\private\inc;$(BASEDIR)\public\sdk\inc
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0x00112233 /TESTNAME:"Xbox Startup Sequence" /INITFLAGS:0x00000000 \
+                       /INSERTFILE:..\checksum.log,checksum.log,n
+
+LINKLIBS   = \
+             $(SDK_LIB_PATH)\d3d8$(D).lib \
+             $(SDK_LIB_PATH)\xgraphics$(D).lib\
+             $(SDK_LIB_PATH)\dsound$(D).lib
+
+!include ..\sources.inc
+
+SOURCES=$(SOURCES) \
+        bootsound.cpp\
+        xbinput.cpp

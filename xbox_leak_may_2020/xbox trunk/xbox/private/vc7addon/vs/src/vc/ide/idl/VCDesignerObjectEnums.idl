@@ -1,0 +1,69 @@
+// VCDesignerObjectEnums.idl
+//
+
+// Common Enumerations & Constants
+//
+
+#pragma once
+
+typedef 
+[
+	helpstring("enum DOType")
+]
+enum DOType
+{
+	doTypeInvalid = -1,
+	doTypeAttribute = 0,
+	doTypeBase,
+	doTypeClass,
+	doTypeEnum,
+	doTypeEnumItem,
+	doTypeInterface,
+	doTypeMacro,
+	doTypeMap,
+	doTypeMapItem,
+	doTypeMethod,
+	doTypeNamespace,
+	doTypeParameter,
+	doTypeProject,
+	doTypeStruct,
+	doTypeTypedef,
+	doTypeTypeReference,
+	doTypeUnion,
+	doTypeVariable,
+	doTypeInclude,
+	doTypeImport,
+	doTypeIDLImport,
+	doTypeIDLImportLib,
+	doTypeIDLCoClass,
+	doTypeIDLLibrary,
+	doTypeWorkspace,
+	doTypeCollection,
+	doTypeAttributeArgument,
+	doTypeImplementedInterface
+} DOType;
+
+typedef 
+[
+	helpstring("enum DONavigate")
+]
+enum DONavigate
+{
+	doNavigateDeclaration,
+	doNavigateDefinition
+
+} DONavigate;
+
+typedef [helpstring("Add Position")]
+enum DOAddPos
+{
+	[helpstring("Add to the pos specific to th parent DO")]		doAddPosDefault=-4, //usually the same as doAddPosEnd, but may be different for some DOs
+	[helpstring("Add to the end of parent's DO body defn")]		doAddPosEnd   = -3, //example end of the file in case we'are adding to FileCodeModel
+	[helpstring("Add to the start of parent's DO body defn")]	doAddPosStart = -2, //example begining of the file in case we'are adding to FileCodeModel
+	[helpstring("Add after the last sibling within parent")]	doAddPosAfter = -1, //same as position="at the end"
+	[helpstring("Add before the first sibling within parent")]	doAddPosBefore=  0, //same as Position=0
+//TODO: currently not supported in CodeWizardService, (or behaving as doAddPosAfter/doAddPosBefore), make it supported
+	[helpstring("Add after the last sibling of the kind")]		doAddPosAfterGroup =-6, //ex. within group of methods children of same parent class and/or having the same access
+	[helpstring("Add berore the first sibling of the kind")]	doAddPosBeforeGroup=-5, //same as above
+} DOAddPos;
+

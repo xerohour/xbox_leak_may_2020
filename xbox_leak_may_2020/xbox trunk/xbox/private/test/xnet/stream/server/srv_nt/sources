@@ -1,0 +1,43 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+
+!include ..\sources.inc
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE
+
+TARGETNAME=xnetstream_nt
+TARGETTYPE=DYNLINK
+
+DLLDEF=..\xnetstream_nt.def
+DLLENTRY=DllMain
+
+UMTYPE=windows
+
+USE_NOLIBS=1
+
+TARGETLIBS= \
+    $(BASEDIR)\private\test\lib\*\xmem.lib       \
+    $(BASEDIR)\private\test\lib\*\netsync_nt.lib \
+    $(LIBRARY_PATH)\kernel32.lib                 \
+    $(LIBRARY_PATH)\ntdll.lib                    \
+    $(LIBRARY_PATH)\msvcrt.lib                   \
+    $(LIBRARY_PATH)\ws2_32.lib                   \
+
+SOURCES=$(SOURCES) \
+    stream.rc      \

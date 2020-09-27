@@ -1,0 +1,210 @@
+// VsdDeploy.idl : IDL source for 
+//
+
+
+interface IVsdDeployable;
+interface IVsdDeploymentManager;
+interface IVsdDeployableDeployFireEvent;
+interface IVsdDeployableTemplate;
+interface IVsdBuildManager;
+interface IVsdValidationManager;
+interface IVsdDeploymentManager;
+interface IVsdFile;
+
+typedef
+[
+	uuid(5456591f-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeploymentManager")
+]
+enum DISPIDs_IVsdDeploymentManager
+{
+	[helpstring("DISPID_IVsdDeploymentManager_Deploy")] DISPID_IVsdDeploymentManager_Deploy					= 1,
+	[helpstring("DISPID_IVsdDeploymentManager_Rollback")] DISPID_IVsdDeploymentManager_Rollback				= 2,
+	[helpstring("DISPID_IVsdDeploymentManager_Commit")] DISPID_IVsdDeploymentManager_Commit					= 3,
+	[helpstring("DISPID_IVsdDeploymentManager_Cancel")] DISPID_IVsdDeploymentManager_Cancel					= 4,
+} DISPIDs_IVsdDeploymentManager;
+
+typedef
+[
+	uuid(71a2222d-96e8-493c-a9cd-863ebf5a9003),
+	helpstring("DISPIDs_IVsdMachineUrlAssistant")
+]
+enum DISPIDs_IVsdMachineUrlAssistant
+{
+	[helpstring("DISPID_IVsdMachineUrlAssistant_GetMachineNameAndURL")] DISPID_IVsdMachineUrlAssistant_GetMachineNameAndURL	= 1,
+} DISPIDs_IVsdMachineUrlAssistant;
+
+
+typedef
+[
+	uuid(54565920-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableDeployFireEvent")
+]
+enum DISPIDs_IVsdDeployableDeployFireEvent
+{
+	[helpstring("DISPID_IVsdDeployableDeployFireEvent_FireOnDeployStart")] DISPID_IVsdDeployableDeployFireEvent_FireOnDeployStart	= 1,
+	[helpstring("DISPID_IVsdDeployableDeployFireEvent_FireOnDeployError")] DISPID_IVsdDeployableDeployFireEvent_FireOnDeployError	= 2,
+	[helpstring("DISPID_IVsdDeployableDeployFireEvent_FireOnDeployStatus")] DISPID_IVsdDeployableDeployFireEvent_FireOnDeployStatus	= 3,
+	[helpstring("DISPID_IVsdDeployableDeployFireEvent_FireOnDeployEnd")] DISPID_IVsdDeployableDeployFireEvent_FireOnDeployEnd		= 4,
+} DISPIDs_IVsdDeployableDeployFireEvent;
+
+typedef
+[
+	uuid(54565921-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableDeployEvent")
+]
+enum DISPIDs_IVsdDeployableDeployEvent
+{
+	[helpstring("DISPID_IVsdDeployableDeployEvent_OnDeployStart")] DISPID_IVsdDeployableDeployEvent_OnDeployStart	= 1,
+	[helpstring("DISPID_IVsdDeployableDeployEvent_OnDeployError")] DISPID_IVsdDeployableDeployEvent_OnDeployError	= 2,
+	[helpstring("DISPID_IVsdDeployableDeployEvent_OnDeployStatus")] DISPID_IVsdDeployableDeployEvent_OnDeployStatus	= 3,
+	[helpstring("DISPID_IVsdDeployableDeployEvent_OnDeployEnd")] DISPID_IVsdDeployableDeployEvent_OnDeployEnd		= 4,
+} DISPIDs_IVsdDeployableDeployEvent;
+
+typedef
+[
+	uuid(54565959-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeploymentManagerFireEvent")
+]
+enum DISPIDs_IVsdDeploymentManagerFireEvent
+{
+	[helpstring("DISPID_IVsdDeploymentManagerFireEvent_FireOnDeployError")] DISPID_IVsdDeploymentManagerFireEvent_FireOnDeployError	= 2,
+	[helpstring("DISPID_IVsdDeploymentManagerFireEvent_FireOnDeployStatus")] DISPID_IVsdDeploymentManagerFireEvent_FireOnDeployStatus	= 3,
+} DISPIDs_IVsdDeploymentManagerFireEvent;
+
+typedef
+[
+	uuid(5456595a-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdMsiDeploymentManager")
+]
+enum DISPIDs_IVsdMsiDeploymentManager
+{
+	[helpstring("DISPID_IVsdMsiDeploymentManager_TargetMachine")] DISPID_IVsdMsiDeploymentManager_TargetMachine		= 1,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_TargetFolder")] DISPID_IVsdMsiDeploymentManager_TargetFolder		= 2,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_AllowReboot")] DISPID_IVsdMsiDeploymentManager_AllowReboot			= 3,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_Arguments")] DISPID_IVsdMsiDeploymentManager_Arguments				= 4,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_EnableLogging")] DISPID_IVsdMsiDeploymentManager_EnableLogging		= 5,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_Log")] DISPID_IVsdMsiDeploymentManager_Log							= 6,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_MsiFile")] DISPID_IVsdMsiDeploymentManager_MsiFile					= 7,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_MsiProductCode")] DISPID_IVsdMsiDeploymentManager_MsiProductCode	= 8,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_AllowArguments")] DISPID_IVsdMsiDeploymentManager_AllowArguments	= 9,
+	[helpstring("DISPID_IVsdMsiDeploymentManager_InstallAllUsers")] DISPID_IVsdMsiDeploymentManager_InstallAllUsers	= 10,
+} DISPIDs_IVsdMsiDeploymentManager;
+
+typedef
+[
+	uuid(5456595b-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableTemplate")
+]
+enum DISPIDs_IVsdDeployableTemplate
+{
+	[helpstring("DISPID_IVsdDeployableTemplate_Deployable")] DISPID_IVsdDeployableTemplate_Deployable				= 1,
+	[helpstring("DISPID_IVsdDeployableTemplate_SetDeployable")] DISPID_IVsdDeployableTemplate_SetDeployable			= 2,
+	[helpstring("DISPID_IVsdDeployableTemplate_Apply")] DISPID_IVsdDeployableTemplate_Apply							= 3,
+} DISPIDs_IVsdDeployableTemplate;
+
+// interfaces
+[
+object,
+uuid(54565922-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeploymentManager : IDispatch
+{
+	[id(DISPID_IVsdDeploymentManager_Deploy), helpstring("method Deploy")] HRESULT Deploy([in]IVsdDeployable *Deployable);
+	[id(DISPID_IVsdDeploymentManager_Rollback), helpstring("method Rollback")] HRESULT Rollback();
+	[id(DISPID_IVsdDeploymentManager_Commit), helpstring("method Commit")] HRESULT Commit();
+	[id(DISPID_IVsdDeploymentManager_Cancel), helpstring("method Cancel")] HRESULT Cancel();
+}
+
+
+[
+object,
+uuid(71a2222e-96e8-493c-a9cd-863ebf5a9003),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMachineUrlAssistant : IDispatch
+{
+	[id(DISPID_IVsdMachineUrlAssistant_GetMachineNameAndURL), helpstring("method GetMachineNameAndURL")] HRESULT GetMachineNameAndURL([in]LPCOLESTR szKey,[out]BSTR *pbstrMachineName,[out]BSTR *pbstrURL);
+}
+
+[
+object,
+uuid(54565923-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdDeployableDeployFireEvent : IDispatch
+{
+	[id(DISPID_IVsdDeployableDeployFireEvent_FireOnDeployStart), helpstring("method FireOnDeployStart")] HRESULT FireOnDeployStart([in]IVsdDeploymentManager *DeploymentManager);
+	[id(DISPID_IVsdDeployableDeployFireEvent_FireOnDeployError), helpstring("method FireOnDeployError")] HRESULT FireOnDeployError([in]IVsdDeploymentManager *DeploymentManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long HelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableDeployFireEvent_FireOnDeployStatus), helpstring("method FireOnDeployStatus")] HRESULT FireOnDeployStatus([in]IVsdDeploymentManager *DeploymentManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]BSTR Message, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableDeployFireEvent_FireOnDeployEnd), helpstring("method FireOnDeployEnd")] HRESULT FireOnDeployEnd([in]IVsdDeploymentManager *DeploymentManager);
+}
+
+[
+object,
+uuid(54565924-dbfb-11d2-898d-0000f8064ebb),
+oleautomation,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeployableDeployEvent : IDispatch
+{
+	[id(DISPID_IVsdDeployableDeployEvent_OnDeployStart), helpstring("method OnDeployStart")] HRESULT OnDeployStart([in]IVsdDeploymentManager *DeploymentManager);
+	[id(DISPID_IVsdDeployableDeployEvent_OnDeployError), helpstring("method OnDeployError")] HRESULT OnDeployError([in]IVsdDeploymentManager *DeploymentManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long HelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableDeployEvent_OnDeployStatus), helpstring("method OnDeployStatus")] HRESULT OnDeployStatus([in]IVsdDeploymentManager *DeploymentManager, [in]IDispatch *EventObject, [in]DISPID ID, [in]BSTR DisplayName, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeployableDeployEvent_OnDeployEnd), helpstring("method OnDeployEnd")] HRESULT OnDeployEnd([in]IVsdDeploymentManager *DeploymentManager);
+}
+
+[
+object,
+uuid(5456595f-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeploymentManagerFireEvent : IDispatch
+{
+	[id(DISPID_IVsdDeploymentManagerFireEvent_FireOnDeployError), helpstring("method FireOnDeployError")] HRESULT FireOnDeployError([in]IDispatch *EventObject, [in]DISPID ID, [in]long Error, [in]VSTASKPRIORITY Priority, [in]BSTR Message, [in]long HelpContext, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdDeploymentManagerFireEvent_FireOnDeployStatus), helpstring("method FireOnDeployStatus")] HRESULT FireOnDeployStatus([in]IDispatch *EventObject, [in]DISPID ID, [in]BSTR Message, [out]VARIANT_BOOL *Continue);
+}
+
+
+[
+object,
+uuid(54565960-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiDeploymentManager : IDispatch
+{
+	[propget, id(DISPID_IVsdMsiDeploymentManager_TargetMachine), helpstring("property TargetMachine")] HRESULT TargetMachine([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_TargetMachine), helpstring("property TargetMachine")] HRESULT TargetMachine([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_TargetFolder), helpstring("property TargetFolder")] HRESULT TargetFolder([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_TargetFolder), helpstring("property TargetFolder")] HRESULT TargetFolder([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_AllowReboot), helpstring("property AllowReboot")] HRESULT AllowReboot([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_AllowReboot), helpstring("property AllowReboot")] HRESULT AllowReboot([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_Arguments), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_Arguments), helpstring("property Arguments")] HRESULT Arguments([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_EnableLogging), helpstring("property EnableLogging")] HRESULT EnableLogging([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_EnableLogging), helpstring("property EnableLogging")] HRESULT EnableLogging([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_Log), helpstring("property Log")] HRESULT Log([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_Log), helpstring("property Log")] HRESULT Log([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_MsiFile), helpstring("property MsiFile")] HRESULT MsiFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_MsiFile), helpstring("property MsiFile")] HRESULT MsiFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_MsiProductCode), helpstring("property MsiProductCode")] HRESULT MsiProductCode([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_MsiProductCode), helpstring("property MsiProductCode")] HRESULT MsiProductCode([in] BSTR Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_AllowArguments), helpstring("property AllowArguments")] HRESULT AllowArguments([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_AllowArguments), helpstring("property AllowArguments")] HRESULT AllowArguments([in] VARIANT_BOOL Val);
+	[propget, id(DISPID_IVsdMsiDeploymentManager_InstallAllUsers), helpstring("property InstallAllUsers")] HRESULT InstallAllUsers([out, retval] VARIANT_BOOL *pVal);
+	[propput, id(DISPID_IVsdMsiDeploymentManager_InstallAllUsers), helpstring("property InstallAllUsers")] HRESULT InstallAllUsers([in] VARIANT_BOOL Val);
+}
+

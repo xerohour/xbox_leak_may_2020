@@ -1,0 +1,72 @@
+!IF 0
+
+Copyright (c) 2001-2002 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    James Dooley (JDooley) 29-Nov-2001
+
+!ENDIF
+
+!include ..\producer.inc
+
+TARGETNAME=dmime
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+
+UMTYPE=windows
+DLLDEF=dmime.def 
+DLLENTRY=_DllMainCRTStartup
+
+PRECOMPILED_INCLUDE=
+PRECOMPILED_CXX=
+
+TARGETLIBS=$(TARGETLIBS) \
+    $(WSDK_LIB_PATH)\dsound.lib \
+    $(WSDK_LIB_PATH)\dmoguids.lib
+
+SYNCHRONIZE_DRAIN = 1
+SYNCHRONIZE_BLOCK = 1
+
+SOURCES=\
+AList.cpp \
+audpath.cpp \
+CurveTrk.cpp \
+debug.cpp \
+DMGraph.cpp \
+dmhall.cpp \
+dmime.rc \
+dmperf.cpp \
+dmprfdll.cpp \
+DMSegObj.cpp \
+DMSStObj.cpp \
+dmstrm.cpp \
+lyrictrk.cpp \
+marktrk.cpp \
+MIDIFile.cpp \
+mutx.cpp \
+oledll.cpp \
+paramtrk.cpp \
+pchmap.cpp \
+queue.cpp \
+segtrtrk.cpp \
+SeqTrack.cpp \
+smartref.cpp \
+song.cpp \
+SysExTrk.cpp \
+TempoTrk.cpp \
+trackhelp.cpp \
+TSigTrk.cpp \
+WavTrack.cpp \

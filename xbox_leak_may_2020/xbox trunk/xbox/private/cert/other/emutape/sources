@@ -1,0 +1,28 @@
+TARGETNAME=emutape
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+
+INCLUDES=$(BASEDIR)\private\cert\lib;$(BASEDIR)\private\xdktools\gamedisc\inc
+
+LINKLIBS=\
+    $(BASEDIR)\private\lib\*\emucore.lib \
+    $(BASEDIR)\private\xdktools\gamedisc\amc\amcmsemuapi.lib \
+    $(BASEDIR)\private\lib\*\certutil.lib \
+    $(BASEDIR)\private\lib\*\xcrypt.lib \
+    $(BASEDIR)\private\lib\*\rsa32.lib \
+    $(WSDK_LIB_PATH)\ole32.lib \
+    $(WSDK_LIB_PATH)\oleaut32.lib \
+    $(WSDK_LIB_PATH)\msxml3.lib
+
+SOURCES= \
+    emutape.cpp \
+    emutape.rc
+
+USE_MSVCRT=1
+USE_ATL=1
+ATL_VER=30
+
+PRECOMPILED_INCLUDE=emutape.h
+PRECOMPILED_CXX=1
+PRECOMPILED_OBJ=precomp.obj

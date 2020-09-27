@@ -1,0 +1,550 @@
+// VCWiz.idl : IDL source for VCWiz.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (VCWiz.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#include "vsextbs.h"
+#include "vsextid.h"
+#include "olectl.h"
+
+#include "VCCodeModelsEnums.idl"
+
+cpp_quote("extern \"C\" const __declspec(selectany) GUID LIBID_VCWIZLib = { 0x22C6554E, 0xE091, 0x11d2, { 0x89, 0xCB, 0x00, 0xC0, 0x4F, 0x72, 0xDA, 0xF2 } };")
+
+[
+	uuid(22C6554E-E091-11D2-89CB-00C04F72DAF2),
+	version(1.0),
+	helpstring("VCWiz 1.0 Type Library")
+]
+library VCWIZLib
+{
+	importlib("stdole2.tlb");
+	importlib("DTE.tlb");
+
+	typedef enum eFormat
+	{
+		Format1,
+		Format2,
+		Format3,
+
+	} eFormat;
+
+	typedef enum eInterfaceType
+	{
+		einterfaceDual,
+		einterfaceCustom,
+		einterfaceDispinterface,
+
+	} eInterfaceType;
+	
+// REVIEW: Change to DWORD flags
+	typedef enum eParamAttr
+	{
+		eparamIn,
+		eparamOut,
+		eparamInOut,
+		eparamOutRetval,
+
+	} eParamAttr;
+
+#define VARIANT_TRUE -1
+
+	[
+		object, 
+		dual,
+		uuid(B5B21F1F-DBCD-11D2-89CA-00C04F72DAF2),
+		helpstring("IVCWizCtlUI Interface"),
+		pointer_default(unique)
+	]
+	interface IVCWizCtlUI : IDispatch
+	{
+		[propget, helpstring("property dte")] HRESULT dte([out, retval] IDispatch** ppDispDTE);
+		HRESULT SetDefaults([in] IDispatch* pdispDocument);
+		HRESULT Load([in] IDispatch* pdispDocument);
+		HRESULT Next([in] IDispatch* pdispDocument, [in] VARIANT var, [in, optional] BSTR bstrFrame, [in, defaultvalue((VARIANT_BOOL)0xffff)] VARIANT_BOOL bUpdate);
+		HRESULT Finish([in] IDispatch* pdispDocument, [in] VARIANT var);
+		HRESULT GetConnectionString([in] VARIANT_BOOL bUseOLEDB, [out, retval] BSTR *pbstrConnectString);
+		HRESULT SelectDataSource([out, retval] BSTR *pbstrConnectString);
+		HRESULT SelectODBCDatabase([out, retval] BSTR *pbstrConnectString);
+		HRESULT Navigate([in] BSTR bstrPage, [in, optional] BSTR bstrFrame);
+		HRESULT ShowWiz();
+		HRESULT AddSymbol([in] BSTR bstrSymbol, [in] VARIANT varValue, [in, defaultvalue((VARIANT_BOOL)0)] VARIANT_BOOL bDisabled);
+		HRESULT RemoveSymbol([in] BSTR bstrSymbol);
+		HRESULT FindSymbol([in] BSTR bstrSymbol, [out, retval] VARIANT* pvar);
+		HRESULT RenderTemplate([in] BSTR bstrTemplateFile, [in] BSTR bstrTargetFile,
+			[in, defaultvalue((VARIANT_BOOL)0)] VARIANT_BOOL bDontProcess,
+			[in, defaultvalue((VARIANT_BOOL)0)] VARIANT_BOOL bOverwrite);
+		HRESULT RenderTemplateToString([in] BSTR bstrTemplateFile, [out, retval] BSTR* pbstrOutput);
+		HRESULT OnHelp([in] BSTR bstrKeyword);
+
+		HRESULT YesNoAlert([in] BSTR bstrMessage, [out, retval] VARIANT_BOOL* pbYes);
+		HRESULT OkCancelAlert([in] BSTR bstrMessage, [out, retval]VARIANT_BOOL* pbYes);
+
+		HRESULT IsSymbolDisabled([in] BSTR bstrSymbol, [out, retval] VARIANT_BOOL* pbDisabled);
+		HRESULT IsValidProgID([in] VARIANT varValue, [out, retval] VARIANT_BOOL* pbValid);
+		HRESULT IsValidNumericValue([in] VARIANT varValue, [out, retval] VARIANT_BOOL* pbValid);
+		HRESULT CreateGuid([out, retval] BSTR* pbstrGuid);
+		HRESULT FormatGuid([in] BSTR bstrGuid, [in] eFormat Format, [out, retval] BSTR* pbstrFormattedGuid);
+		HRESULT GetConsumerClass([in, optional] BSTR bstrClassName, [in, optional, defaultvalue(-1)] VARIANT_BOOL bAttributed, [in, optional, defaultvalue(0)] VARIANT_BOOL bCommand, [in, optional, defaultvalue(0)] VARIANT_BOOL bChange, [in, optional, defaultvalue(0)] VARIANT_BOOL bInsert, [in, optional, defaultvalue(0)] VARIANT_BOOL bDelete, [out, retval] BSTR* pbstrClass);
+		HRESULT GetODBCConsumerClassDecl([in, optional, defaultvalue(1)] VARIANT_BOOL bBindAllColumns, [in, optional, defaultvalue(0)] VARIANT_BOOL bSnapshot, [in, optional] BSTR bstrClassName, [out, retval] BSTR* pbstrClassDecl );
+		HRESULT GetODBCConsumerClassImpl([out, retval] BSTR* pbstrClassImpl);
+		HRESULT GetAppID([out, retval] BSTR* pbstrAppID);
+		HRESULT GetDialogIds([out, retval] BSTR* pbstrIds);
+		HRESULT GetDialogControlsAndTypes([in] BSTR bstrDialogId, [out, retval] VARIANT *pbstrControlsAndTypes);
+		HRESULT GetActiveXControlTypeLib([in] BSTR bstrControlGuid, [out, retval] BSTR* pbstrTypeLib);
+		HRESULT ConvertAnsiToOEM([in] BSTR bstrAnsi, [out, retval] BSTR* pbstrOEM);
+
+		// OBSOLETE : wizard.external.ValidateMember
+		//
+		// Code Wizards, use
+		//
+		// wizard.external.ParentObject.ValidateMember("CFoo")
+		// 
+		// App Wizards, use
+		//
+		// wizard.external.DTE.VCLanguageManager.ValidateIdentifier("CFoo") &&
+		// !wizard.external.DTE.VCLanguageManager.IsReservedName("CFoo")
+		//
+		//HRESULT ValidateMember([in] BSTR bstrName,
+		//	[in] enum vsCMElement AddedKind,
+		//	[in, defaultvalue("")] BSTR bstrType,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+
+		// OBSOLETE : wizard.external.ValidateParameterNames
+		//
+		// Use,
+		//
+		// wizard.external.DTE.VCLanguageManager.ValidateParameterNames()
+		//
+		//HRESULT ValidateParameterNames([in] BSTR bstrName,
+		//	[in] BSTR bstrParams,
+		//	[in] enum vsCMElement Kind,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+
+		// OBSOLETE : wizard.external.ValidateCodeElementName
+		//
+		// Code Wizards, Use
+		//
+		// wizard.external.ParentObject.ValidateMember(...)
+		//
+		// App Wizards, Use 
+		//
+		// wizard.external.DTE.VCLanguageManager.ValidateIdentifier("CFoo")
+		//
+		//HRESULT ValidateCodeElementName(BSTR bstrName, 
+		//	[in, defaultvalue(0)] enum vsCMElement AddedKind,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+
+		// OBSOLETE : wizard.external.IsValidID
+		//
+		// Use
+		//
+		// wizard.external.CodeModel.IsValidID(...)
+		//
+		//HRESULT IsValidID([in] BSTR bstrName,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+
+		// OBSOLETE : wizard.external.ValidateType
+		//
+		// Use
+		//
+		// wizard.external.DTE.VCLanguageManager.ValidateType(...)
+		//
+		//HRESULT ValidateType([in]BSTR bstrTypeName,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+
+		// OBSOLETE : wizard.external.ValidateQualifiedName
+		//
+		// Use
+		//
+		// wizard.external.DTE.VCLanguageManager.ValidateQualifiedName(...)
+		//
+		//HRESULT ValidateQualifiedName([in]BSTR bstrName,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+
+		// OBSOLETE : ValidateFile
+		//
+		// Use
+		//
+		// Code Wizards, use
+		//
+		// common.js : ValidateAndEnsureInProject("Foo.h", eFileType)
+		// 
+		// App Wizards, use
+		//
+		// wizard.external.DTE.VCLanguageManager.ValidateFileName("Foo.h", eFileType)
+		//
+		//HRESULT ValidateFile([in]BSTR bstrName,
+		//	[in,optional, defaultvalue(vsCMValidateFileExtCpp)]enum vsCMValidateFileExtension eFileType,
+		//	[out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+		HRESULT SetErrorInfo(
+            [in] BSTR bstrDescription,
+            [in, optional, defaultvalue(0)] ULONG ulHRESULT,
+            [in, optional, defaultvalue(0)] DWORD dwReserved, //must be 0
+            [in, optional, defaultvalue(NULL)] BSTR bstrHelpKeyword, //keyword to attach to a help button on the message box
+            [in, optional, defaultvalue(NULL)] BSTR bstrSource);
+  		HRESULT ReportError([in,optional,defaultvalue("")] BSTR bstrErrorMsg, [in,optional,defaultvalue(0)] VARIANT_BOOL bConcatExisting);
+		HRESULT CreateWebTargetFolder([out, retval] IDispatch **ppWebTargetFolder);
+		HRESULT GetSubFolderByName ([in] IDispatch *pDeployFolder, [in] BSTR pbstrFolderName, [out, retval] IDispatch **ppWebFolder);
+		HRESULT AddDebugSymbols ([in] IDispatch *pDeployable, [in] IDispatch *pProject, [out, retval] IDispatch **ppBuiltOutput);
+		HRESULT AddBuiltOutput([in] IDispatch *pDeployable, [in] IDispatch *pProject, [out, retval] IDispatch **ppProjectOutputGroup);
+		HRESULT SetRemoteMachine([in] IDispatch *pDeployable, [in] BSTR bstrRemoteMachine);
+		HRESULT PreShowWizard();		
+		HRESULT GetURLViaDlg([in] BSTR bstrDlgTitle, [in] BSTR bstrStaticLabel, [out,retval] BSTR *pbstrURL);
+		HRESULT GetOpenFileNameViaDlg(
+			[in] BSTR bstrDlgTitle,
+			[in] BSTR bstrInitialDir,
+			[in] BSTR bstrFilter,
+			[in] BSTR bstrFileName,
+			[out, retval] BSTR* pbstrFileName);
+		HRESULT DoesFileExist([in] BSTR bstrFileName, [out, retval] VARIANT_BOOL *pbExist);
+		HRESULT GetDefaultWebTargetFolder([in] IDispatch *pDeployable, [out, retval] IDispatch **ppWebTargetFolder);
+		HRESULT AddDeploymentContent([in] IDispatch *pDeployable, [in] IDispatch *pProject, [out, retval] IDispatch **ppProjectOutputGroup);
+		HRESULT GenerateNextDefaultProjectName([in] BSTR bstrBaseName, [in] BSTR bstrLocation, [out, retval] BSTR *pbstrProjectName);
+		HRESULT CanCreateNewProjectAtLocation([in] VARIANT_BOOL fCreateNewSolution, [in] BSTR bstrFullProjectFilePath, [in] VARIANT_BOOL fDeleteDirectory, [out, retval] VARIANT_BOOL *pfCanCreate);
+		HRESULT GetDirectoryViaBrowseDlg(
+			[in] BSTR bstrDlgTitle,
+			[in] BSTR bstrInitialDir,
+			[out, retval] BSTR *bstrDirectory);
+		HRESULT ValidateCSharpIdentifier([in] BSTR bstrName, [in, optional, defaultvalue(-1)] VARIANT_BOOL bReportError, [out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+		HRESULT ValidateCSharpFile([in]BSTR bstrName, [out, retval] VARIANT_BOOL* pbValid);
+		HRESULT ValidateCSharpNamespace([in] BSTR bstrNamespace, [out, retval] VARIANT_BOOL*pbValid);
+		HRESULT ValidateCSharpClass([in] BSTR bstrNamespace, [in] BSTR bstrClass, [out, retval] VARIANT_BOOL*pbValid);
+		HRESULT ValidateCLRIdentifier([in] BSTR bstrName, [in, optional, defaultvalue(-1)] VARIANT_BOOL bReportError, [out, retval, defaultvalue(0)] VARIANT_BOOL* pbValid);
+		
+		[propget, helpstring("context object kind")] HRESULT ParentKind([out, retval] VARIANT* pCodeEltKind);
+		[propput, hidden, restricted, helpstring("project object")] HRESULT ProjectObject([in] IDispatch *pProject);
+		[propget, helpstring("project object")] HRESULT ProjectObject([out,retval] IDispatch **ppProject);
+		[propput, hidden, restricted, helpstring("context object")] HRESULT ParentObject([in] IDispatch *pObject);
+		[propget, helpstring("project object")] HRESULT ParentObject([out,retval] IDispatch **ppObject);
+		[propget, helpstring("Available Type Libraries")] HRESULT TypeLibs([out,retval] IDispatch **ppTypeLibs);
+		[propget] HRESULT FileTypeLibs([in, optional, defaultvalue("")] BSTR bstrFileName, [out,retval] IDispatch **ppTypeLibs);
+		[propget, helpstring("Registered ActiveX Controls")] HRESULT ActiveXControls([out,retval] IDispatch **ppControls);
+		[propget, nonbrowsable, helpstring("resource helper object")] HRESULT ResourceHelper([out, retval] IDispatch **ppVal);
+		HRESULT CppParseTypeString ([in] BSTR bstrTypeDecl,[out,retval] VARIANT *pNameLengthPos);
+		HRESULT IsWebTierProject([in] IDispatch *pProject, [out,retval] VARIANT_BOOL *pbWebTier);
+		HRESULT GetRemoteMachine([in] IDispatch *pDeployable, [in] BSTR bstrCfg, [out, retval] BSTR *pbstrRemoteMachine);
+		HRESULT GetProcessName([out,retval] BSTR *pbstrProcessName);
+		HRESULT GetLangFromLCID([in] DWORD dwLCID, [out,retval] BSTR *pbstrLanguage);
+		HRESULT GetLangAbbrevFromLCID([in] DWORD dwLCID, [out,retval] BSTR *pbstrLangAbbrev);
+		HRESULT GetCodePageFromLCID([in] DWORD dwLCID, [out,retval] BSTR *pbstrCodePage);
+		HRESULT GetPrimaryLangIdFromLCID([in] DWORD dwLCID, [out,retval] BSTR *pbstrPrimaryLangId);
+		HRESULT GetSubLangIdFromLCID([in] DWORD dwLCID, [out,retval] BSTR *pbstrSubLangId);
+		HRESULT GetInstalledLangs([out,retval] BSTR *pbstrInstalledLangs);
+		HRESULT GetSystemLCID([out,retval] DWORD *pdwSystemLCID);
+		HRESULT GetHostLocale([out, retval] DWORD *pdwHostLocale);
+		HRESULT SetDeploymentAppMappings([in] IDispatch *pWebTargetFolder, 
+		                                 [in] IDispatch *pExecutable,
+		                                 [in] BSTR bstrExtension,
+		                                 [in] BSTR bstrVerbs);
+		HRESULT GetComputerName([out, retval] BSTR *pbstrMachineName);
+		//interface to the message builder description
+		HRESULT GetClassCommandHandlerDesc([in] IDispatch *pDispClass, [in] BSTR bstrCommandName,
+										[in, optional, defaultvalue("")] BSTR bstrControlType,
+										[out, retval] IDispatch **ppDispatch);
+		HRESULT GetCommandCount([in] IDispatch *pDispDesc, [out, retval] VARIANT *pCount);
+		HRESULT GetCommandName ([in] IDispatch *pDispDesc, [in] VARIANT memid, [out, retval] BSTR *pBstrName);
+		HRESULT GetCommandDocumentation([in] IDispatch *pDispDesc, [in] VARIANT memid, [out, retval] BSTR *pBstrDocString);
+		HRESULT GetCommandHandlerString([in] IDispatch *pDispDesc, [in] VARIANT memid, [out, retval] BSTR *pBstr);
+		HRESULT CommandHandlerExists   ([in] IDispatch *pDispDesc, [in] VARIANT memid, [out, retval] VARIANT_BOOL *pvarResult);
+	    HRESULT NavigateToCommandHandler([in] IDispatch *pDispDesc, [in] VARIANT memid, [in, optional,defaultvalue("")] BSTR bstrName);
+	};
+
+	[
+		object,
+		uuid(EBD8BF28-8738-46cc-A062-FFCA256B1AF1),
+		dual,
+		helpstring("ICollection Interface"),
+		pointer_default(unique)
+	]
+	interface ICollection : IDispatch
+	{
+		[propget, helpstring("Returns number of items in collection.")] HRESULT Count([out, retval] VARIANT* pretval);
+		[id(DISPID_VALUE)] HRESULT item([in] VARIANT varItem, [out, retval] IDispatch** ppIDispatch);
+		HRESULT AddItem([in] IDispatch* pIDispatch);
+		HRESULT AddAt([in] IDispatch* pIDispatch, VARIANT position);
+		[propget, restricted, id(DISPID_NEWENUM), helpstring("returns an enumerator for the collection.")] HRESULT _NewEnum([out, retval] IUnknown** retval);
+	};
+
+	[
+		object,
+		uuid(0DD431E6-F528-4c6d-AB42-2E2FBD9A5124),
+		dual,
+		helpstring("ITypeLibInfo Interface"),
+		pointer_default(unique)
+	]
+	interface ITypeLibInfo : IDispatch
+	{
+		[propget, helpstring("Type Library Name")]							HRESULT Name		([out, retval] BSTR* pbstrName);
+		[propput, restricted, helpstring("Type Library Name")]				HRESULT Name		([in] BSTR bstrName);
+		[propget, helpstring("Type Library Location")]						HRESULT Location	([out, retval] BSTR* pbstrLocation);
+		[propput, restricted, helpstring("Type Library Location")]			HRESULT Location	([in] BSTR bstrLocation);
+		[propget, helpstring("Type Library Version")]						HRESULT Version		([out, retval] BSTR* pbstrVersion);
+		[propput, restricted, helpstring("Type Library Version")]			HRESULT Version		([in] BSTR bstrVersion);
+		[propget, helpstring("Type Library Major Version")]					HRESULT MajorVersion([out, retval] DWORD* pdwMajorVersion);
+		[propput, restricted, helpstring("Type Library Major Version")]		HRESULT MajorVersion([in] DWORD dwMajorVersion);
+		[propget, helpstring("Type Library Minor Version")]					HRESULT MinorVersion([out, retval] DWORD* pdwMinorVersion);
+		[propput, restricted, helpstring("Type Library Minor Version")]		HRESULT MinorVersion([in] DWORD dwMinorVersion);
+		[propget, helpstring("Type Library Guid")]							HRESULT Guid		([out, retval] BSTR* pbstrGuid);
+		[propput, restricted, helpstring("Type Library Guid")]				HRESULT Guid		([in] BSTR bstrGuid);
+		[propget, restricted, hidden, helpstring("TypeInfo Collection")]	HRESULT TypeInfos	([out, retval] IDispatch** ppDispatch);
+		[propget, helpstring("Enums Collection")]							HRESULT Enums		([out, retval] IDispatch** ppDispatch);
+		[propget, helpstring("Interfaces Collection")]						HRESULT Interfaces	([out, retval] IDispatch** ppDispatch);
+		[propget, helpstring("Coclasses Collection")]						HRESULT Coclasses	([out, retval] IDispatch** ppDispatch);
+		[propget, helpstring("Type Library LIBID")]							HRESULT LIBID		([out, retval] BSTR* pbstrLIBID);
+		[helpstring("Is it ActiveX Control description")]			        HRESULT IsControl	([out, retval] VARIANT_BOOL *pbContorl);
+	};
+
+	[
+		object,
+		uuid(BBD362EB-1378-49ab-84A4-8F4D2A1F3198),
+		dual,
+		helpstring("_ITypeInfo Interface"),
+		pointer_default(unique)
+	]
+	interface _ITypeInfo : IDispatch
+	{
+		[propget, restricted, hidden, helpstring("Type Info")]				HRESULT TypeInfo	([out, retval] ITypeInfo** ppTypeInfo);
+		[propput, restricted, hidden, helpstring("Type Info")]				HRESULT TypeInfo	([in] ITypeInfo* pTypeInfo);
+		[propget, restricted, hidden, helpstring("Interfaces Collection")]	HRESULT Interfaces	([out, retval] IDispatch** ppDispatch);
+	};
+
+	[
+		object,
+		uuid(2B001CCB-1B88-4F8F-8EBF-14F61764C133),
+		dual,
+		helpstring("IInterfaceInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IInterfaceInfo : IDispatch
+	{
+		[propget, helpstring("Interface Name")]				HRESULT Name			([out, retval] BSTR* pbstrName);
+		[propget, helpstring("Guid")]						HRESULT Guid			([out, retval] BSTR* pbstrGuid);
+		[propget, helpstring("Interface Type")]				HRESULT Type			([out, retval] eInterfaceType* ptype);
+		[propget, helpstring("Source")]						HRESULT Source			([out, retval] VARIANT_BOOL* pbSource);
+		[propget, helpstring("Default")]					HRESULT Default			([out, retval] VARIANT_BOOL* pbDefault);
+		[propget, helpstring("Functions Collection")]		HRESULT Functions		([out, retval] IDispatch** ppDispatch);
+		[propget, helpstring("Properties Collection")]		HRESULT Properties		([out, retval] IDispatch** ppDispatch);
+		[propget, helpstring("Base Interface")]				HRESULT Base			([out, retval] BSTR* pbstrBaseName);
+		[propget, helpstring("Interface Active Type")]		HRESULT ActiveType		([out, retval] eInterfaceType* ptype);
+		[propput, helpstring("Interface Active Type")]		HRESULT ActiveType		([in] eInterfaceType type);
+		[propget, helpstring("Derives from IDispatch")]		HRESULT IsDispatchable	([out, retval] VARIANT_BOOL * pIsDispatchable);
+	};
+
+	[
+		object,
+		uuid(5C6D01F5-BF80-4f49-8B4D-15CAC3B541E9),
+		dual,
+		helpstring("IFuncInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IFuncInfo : IDispatch
+	{
+		[propget, helpstring("Calling Convension")]				HRESULT CallConv	([out, retval] BSTR* pbstrCallConv);
+		[propput, restricted, helpstring("Calling Convension")] HRESULT CallConv	([in] BSTR bstrName);
+		[propget, helpstring("Name")]							HRESULT Name		([out, retval] BSTR* pbstrName);
+		[propput, restricted, helpstring("Name")]				HRESULT Name		([in] BSTR bstrName);
+		[propget, helpstring("Type String")]					HRESULT TypeString	([out, retval] BSTR* pbstrTypeString);
+		[propput, restricted, helpstring("Type String")]		HRESULT TypeString	([in] BSTR bstrTypeString);
+		[propget, helpstring("Dispatch ID")]					HRESULT DispID		([out, retval] BSTR* pbstrDispID);
+		[propput, restricted, helpstring("Dispatch ID")]		HRESULT DispID		([in] BSTR bstrDispID);
+		[propget, helpstring("Function Body")]					HRESULT BodyText	([out, retval] BSTR* pbstrBodyText);
+		[propput, restricted, helpstring("Function Body")]		HRESULT BodyText	([in] BSTR bstrBodyText);
+		[propget, helpstring("Help String")]					HRESULT HelpString	([out, retval] BSTR* pbstrHelpString);
+		[propput, restricted, helpstring("Help String")]		HRESULT HelpString	([in] BSTR bstrHelpString);
+		[propget, helpstring("Raw Name")]						HRESULT RawName		([out, retval] BSTR* pbstrRawName);
+		[propput, restricted, helpstring("Raw Name")]			HRESULT RawName		([in] BSTR bstrRawName);
+		[propget, helpstring("Invoke Kind")]					HRESULT InvokeKind	([out, retval] BSTR* pbstrInvokeKind);
+		[propput, restricted, helpstring("Invoke Kind")]		HRESULT InvokeKind	([in] BSTR bstrInvokeKind);
+		[propget, helpstring("Return Type")]					HRESULT ReturnType	([out, retval] BSTR* pbstrReturnType);
+		[propput, restricted, helpstring("Return Type")]		HRESULT ReturnType	([in] BSTR bstrReturnType);
+		[propget, helpstring("Param Text")]						HRESULT ParamText	([out, retval] BSTR* pbstrText);
+		[propput, restricted, helpstring("Param Text")]			HRESULT ParamText	([in] BSTR bstrText);
+		[propget, helpstring("Parameters Collection")]			HRESULT Parameters	([out, retval] IDispatch** ppDispatch);
+	};
+
+	[
+		object,
+		uuid(E9B22EAD-C474-4e60-8143-62BC4653604D),
+		dual,
+		helpstring("IVarInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IVarInfo : IDispatch
+	{
+		[propget, helpstring("Name")]							HRESULT Name		([out, retval] BSTR* pbstrName);
+		[propput, restricted, helpstring("Name")]				HRESULT Name		([in] BSTR bstrName);
+		[propget, helpstring("Type")]							HRESULT Type		([out, retval] BSTR* pbstrType);
+		[propput, restricted, helpstring("Type")	]			HRESULT Type		([in] BSTR bstrType);
+		[propget, helpstring("Variant Type")]					HRESULT VariantType	([out, retval] BSTR* pbstrVariantType);
+		[propput, restricted, helpstring("Variant Type")]		HRESULT VariantType	([in] BSTR bstrVariantType);
+		[propget, helpstring("VTS Type")]					HRESULT VTSType	    ([out, retval] BSTR* pbstrVTSType);
+		[propput, restricted, helpstring("VTS Type")]		HRESULT VTSType	    ([in] BSTR bstrVTSType);
+		[propget, helpstring("Dispatch ID")]					HRESULT DispID		([out, retval] BSTR* pbstrDispID);
+		[propput, restricted, helpstring("Dispatch ID")]		HRESULT DispID		([in] BSTR bstrDispID);
+		[propget, helpstring("Help String")]					HRESULT HelpString	([out, retval] BSTR* pbstrHelpString);
+		[propput, restricted, helpstring("Help String")]		HRESULT HelpString	([in] BSTR bstrHelpString);
+	};
+
+	[
+		object,
+		uuid(687668DA-A151-48a4-ABCA-2D2CFF512552),
+		dual,
+		helpstring("IParamInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IParamInfo : IDispatch
+	{
+		[propget, helpstring("Name")]							HRESULT Name		([out, retval] BSTR* pbstrName);
+		[propput, restricted, helpstring("Name")]				HRESULT Name		([in] BSTR bstrName);
+		[propget, helpstring("TypeString")]						HRESULT TypeString	([out, retval] BSTR* pbstrTypeString);
+		[propput, restricted, helpstring("Type String")]		HRESULT TypeString	([in] BSTR bstrTypeString);
+		[propget, helpstring("Param VariantType")]				HRESULT VariantType	([out, retval] BSTR* pbstrVariantType);
+		[propput, restricted, helpstring("Param VariantType")]	HRESULT VariantType	([in] BSTR bstrVariantType);
+		[propget, helpstring("Param VTS Type")]				HRESULT VTSType	    ([out, retval] BSTR* pbstrVTSType);
+		[propput, restricted, helpstring("Param VTS Type")]	HRESULT VTSType	    ([in] BSTR bstrVTSType);
+		[propget, helpstring("Param Attribute")]				HRESULT Attribute	([out, retval] eParamAttr* pParamAttr);
+		[propput, restricted, helpstring("Param Attribute")]	HRESULT Attribute	([in] eParamAttr ParamAttr);
+	};
+
+	[
+		object,
+		uuid(687668DB-A151-48a4-ABCA-2D2CFF512552),
+		dual,
+		helpstring("IEnumInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IEnumInfo : IDispatch
+	{
+		[propget, helpstring("Name")]							HRESULT Name ([out, retval] BSTR* pbstrName);
+		[propget, helpstring("Body")]							HRESULT Body ([out, retval] BSTR* pbstrBody);
+	};
+
+	[
+		object,
+		uuid(FECFB215-8FB2-4188-939D-A1F2C97729D4),
+		dual,
+		helpstring("ICoclassInfo Interface"),
+		pointer_default(unique)
+	]
+	interface ICoclassInfo : IDispatch
+	{
+		[propget, helpstring("Name")]					HRESULT Name			([out, retval] BSTR* pbstrName);
+		[propget, helpstring("Guid")]					HRESULT Guid			([out, retval] BSTR* pbstrGuid);
+		[propget, helpstring("Interfaces Collection")]	HRESULT Interfaces		([out, retval] IDispatch** ppDispatch);
+	};
+
+	[
+		object,
+		uuid(D29CD102-E6DD-42c0-924E-E86177BF0FF8),
+		dual,
+		helpstring("IControl Interface"),
+		pointer_default(unique)
+	]
+	interface IControl : IDispatch
+	{
+		[propget, helpstring("Name")]								HRESULT Name		([out, retval] BSTR* pbstrName);
+		[propput, restricted, helpstring("Name")]					HRESULT Name		([in] BSTR bstrName);
+		[propget, helpstring("Location")]							HRESULT Location	([out, retval] BSTR* pbstrLocation);
+		[propput, restricted, helpstring("Location")]				HRESULT Location	([in] BSTR bstrLocation);
+		[propget, helpstring("TypeLib")]							HRESULT TypeLib		([out, retval] IDispatch** ppDispatch);
+		[propput, restricted, helpstring("TypeLib")]				HRESULT TypeLib		([in] IDispatch* pDispatch);
+		[propget, helpstring("Guid")]								HRESULT Guid		([out, retval] BSTR* pbstrGuid);
+		[propput, restricted, helpstring("Guid")]					HRESULT Guid		([in] BSTR bstrGuid);
+		[propget, helpstring("CoClass")]							HRESULT CoClass		([out, retval] BSTR* pbstrCoClass);
+		[propput, restricted, helpstring("CoClass")]				HRESULT CoClass		([in] BSTR bstrCoClass);
+		[propget, restricted, hidden, helpstring("TypeInfo")]		HRESULT TypeInfo	([out, retval] ITypeInfo** ppTypeInfo);
+		[propput, restricted, hidden, helpstring("TypeInfo")]		HRESULT TypeInfo	([in] ITypeInfo* pTypeInfo);
+		[propget, helpstring("Type Library Version")]				HRESULT Version		([out, retval] BSTR* pbstrVersion);
+		[propput, restricted, helpstring("Type Library Version")]	HRESULT Version		([in] BSTR bstrVersion);
+		[propget, helpstring("Interfaces Collection")]				HRESULT Interfaces	([out, retval] IDispatch** ppDispatch);
+	};
+
+
+
+	[
+		uuid(476424C0-1D05-40c4-A39E-5594258DCCD9),
+		helpstring("_IDispWizComboEvents Interface")
+	]
+	dispinterface _IDispWizComboEvents
+	{
+		properties:
+		methods:
+		[id(1), helpstring("method Change")] HRESULT Change();
+		[id(DISPID_KEYDOWN), helpstring("method KeyDown")] HRESULT KeyDown(short nKeyCode);
+	};
+
+	[
+		object,
+		uuid(B28AE255-A530-4EAC-8D1F-443CAF5D7FD0),
+		dual,
+		helpstring("IWizCombo Interface"),
+		pointer_default(unique)
+	]
+	interface IWizCombo : IDispatch
+	{
+		HRESULT AddItem([in] BSTR bstrItem);
+		HRESULT RemoveItem([in] int nIndex);
+		HRESULT InsertItem([in] BSTR bstrItem, [in] int nIndex);
+		HRESULT focus();
+		HRESULT Clear();
+
+		[propput, id(DISPID_VALUE)] HRESULT Value([in] BSTR bstrValue);
+		[propget, id(DISPID_VALUE)] HRESULT Value([out, retval] BSTR* pbstrValue);
+		[propget] HRESULT Count([out, retval] int* pnCount);
+		[propget] HRESULT Item([in] int nIndex, [out, retval] BSTR* pbstrItem);
+		[propget] HRESULT SelectedItem([out, retval] BSTR* pbstrSelectedItem);
+		[propput] HRESULT ListIndex([in] int nIndex);
+		[propget] HRESULT ListIndex([out, retval] int* pnIndex);
+		[propput] HRESULT Enabled([in] VARIANT_BOOL bEnabled);
+		[propget] HRESULT Enabled([out, retval] VARIANT_BOOL* pbEnabled);
+	};
+
+	[
+		uuid(40C48F63-84B8-469a-9CE4-87D258705362),
+		helpstring("TypeLibCollection Class")
+	]
+	coclass TypeLibCollection
+	{
+		[default] interface ICollection;
+	};
+	[
+		uuid(08C69DEA-5383-477a-AEB9-49F5A4182FE6),
+		helpstring("ControlCollection Class")
+	]
+	coclass ControlCollection
+	{
+		[default] interface ICollection;
+	};
+
+	[
+		uuid(F2A8BD47-E150-11d2-89CB-00C04F72DAF2),
+		helpstring("VSWizard Class")
+	]
+	coclass VsWizard
+	{
+		[default] interface IDTWizard;
+	};
+
+	[
+		uuid(B5B21F1E-DBCD-11D2-89CA-00C04F72DAF2),
+		helpstring("VCWizCtl Class")
+	]
+	coclass VCWizCtl
+	{
+		[default] interface IVCWizCtlUI;
+	};
+	[
+		uuid(B4455841-B9A9-441C-B069-A7B98884E2FB),
+		helpstring("WizCombo Class")
+	]
+	coclass WizCombo
+	{
+		[default] interface IWizCombo;
+		[default, source] dispinterface _IDispWizComboEvents;
+	};
+};

@@ -1,0 +1,72 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+         $(PRIVATE_INC_PATH); \
+         $(BASEDIR)\private\inc\crypto; \
+         $(BASEDIR)\private\ntos\bootx\inc; \
+         $(BASEDIR)\private\ntos\bootx\bldr32\$(TARGET_DIRECTORY); \
+         $(BASEDIR)\private\ntos\xapi\inc; \
+		 $(BASEDIR)\public\ddk\inc
+
+ 			$(TESTLIBS)\harnesslib.lib \
+			$(TESTLIBS)\xtestlib.lib \
+			$(TESTLIBS)\xnetref$(D).lib \
+			$(TESTLIBS)\xlog.lib \
+			$(TESTLIBS)\ghprof.lib \
+			$(TESTLIBS)\netsync.lib \
+			$(TESTLIBS)\xlogconio.lib
+
+
+
+!ENDIF
+
+
+TARGETNAME=hdrw
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=hdrw.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(SDK_INC_PATH);
+
+
+XE_FLAGS=/TESTID:0x00000001 /TESTNAME:"HD RW"
+
+LINKLIBS=	$(XDK_LIB_PATH)\d3d8$(D).lib \
+            $(XDK_LIB_PATH)\d3dx8$(D).lib \
+            $(XDK_LIB_PATH)\xgraphics$(D).lib \
+			$(SDK_LIB_PATH)\xapilib$(D).lib \
+			$(SDK_LIB_PATH)\xnet$(D).lib \
+			$(TESTLIBS)\xtestlib.lib \
+			$(TESTLIBS)\dxconio.lib

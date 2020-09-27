@@ -1,0 +1,194 @@
+///*M*
+// INTEL CORPORATION PROPRIETARY INFORMATION
+// This software is supplied under the terms of a licence agreement or
+// nondisclosure agreement with Intel Corporation and may not be copied
+// or disclosed except in accordance with the terms of that agreement.
+// Copyright (c) 1997 Intel Corporation. All Rights Reserved.
+//
+// Filename : IRTPDmux.idl
+// Purpose  : Defines the interfaces exposed by the RTP Demux Filter.
+// Contents : IEnumSSRCs interface specification.
+//            IIntelRTPDemuxFilter interface specification.
+//*M*/
+
+import "oaidl.idl";
+import "strmif.idl"; 
+
+//*I*
+//  Name    : IEnumSSRCs
+//  Purpose : Defines this interface, which is used to query over the
+//            list of SSRCs the RTP Demux filter is currently tracking.
+//            
+//  Context : This interface is returned by IRTPDemuxFilter::EnumSSRCs()
+//            and is based on IEnumXXXX.
+//*I*/
+[
+    object,
+    uuid(40CC70E8-6FC4-11d0-9CCF-00A0C9081C19),
+    pointer_default(unique)
+]
+interface IEnumSSRCs : IUnknown {
+
+    HRESULT Next(
+        [in] ULONG cSSRCs,                      // place this many pins...
+        [out, size_is(cSSRCs)] DWORD *pdwSSRCs, // ...in this array
+        [out] ULONG * pcFetched                 // actual count passed
+    );
+
+    HRESULT Skip(
+        [in] ULONG cSSRCs);
+
+    HRESULT Reset(void);
+
+    HRESULT Clone(
+        [out] IEnumSSRCs **ppEnum
+    );
+} // Interface IEnumSSRCs
+
+
+//*I*
+//  Name    : IRTPDemuxFilter
+//  Purpose : Defines this interface, which is used to initialize and
+//            control the Intel RTP Demux filter. Includes methods to control
+//            the mapping of SSRCs to pins and to set pin media types.
+//  Context : This interface is implemented by the RTP Demux filter,
+//            and must be used by the app for both filter setup (pre-
+//            connection to other filtes) and on-the-fly control.
+//*I*/
+[
+    object,
+    uuid(38F64CF0-A084-11d0-9CF3-00A0C9081C19),
+    helpstring("Intel IRTPDemuxFilter Interface"),
+    pointer_default(unique)
+]
+interface IRTPDemuxFilter : IUnknown {
+    // Returns an SSRC enumerator, used by the app to see what SSRCs
+    // the RTP Demux filter currently knows about and what it is 2doing
+    // with them.
+    HRESULT EnumSSRCs(
+        [out] IEnumSSRCs    **ppIEnumSSRCs);
+
+    // Returns all the information available for a particular output pin.
+    HRESULT GetPinInfo(
+        [in]  IPin          *pIPin,     // Pointer to the IPin interface of an
+                                        // output pin of this filter.
+        [out] DWORD         *pdwSSRC,   // Pointer to a DWORD to store the SSRC of
+                                        // the stream currently mapped to this pin.
+                                        // A value of 0 indicates that this pin is
+                                        // not mapped to any stream.
+        [out] BYTE          *pbPT,      // Pointer to a BYTE in which the current
+                                        // PT value being accepted by this pin
+                                        // is placed.
+        [out] BOOL          *pbAutoMapping, // Pointer to a boolean indicating
+                                        // whether this is an automapping pin.
+        [out] DWORD         *pdwTimeout); // Pointer toa DWORD which indicates
+                                        // how many milliseconds may pass for
+                                        // a SSRC before it is considered stale
+                                        // and may automatically be replaced
+                                        // by a fresh SSRC. If pbAutoMapping is
+                                        // FALSE, then this parameter will
+                                        // always be set to zero.
+
+    // This method is used to retrieve information about a particular SSRC which is
+    // available to the RTP Demux filter. This includes the PT value of the SSRC and
+    // what pin, if any, it is currently being delivered on.
+    HRESULT GetSSRCInfo(
+        [in]  DWORD         dwSSRC,     // The SSRC which information is being requested for.
+        [out] BYTE          *pbPT,      // Current PT value is returned here.
+        [out] IPin          **ppIPin);  // Current pin which the indicated SSRC is mapped
+                                        // to. If not mapped to any pin, this is NULL.
+
+    // This method is used to configure the SSRC which will be delivered on a 
+    // particular pin. This method may be called for any output pin of the RTP Demux
+    // filter at any time. If a pin previously had an SSRC mapped to it, the new SSRC
+    // value will override it, causing the previously mapped SSRC to no longer be
+    // rendered.
+    HRESULT MapSSRCToPin(
+        [in]  DWORD         dwSSRC,     // SSRC of the stream to output on this pin.
+        [in]  IPin          *pIPin);    // Pointer to an IPin interface to map the
+                                        // indicated SSRC to. If NULL, the SSRC will
+                                        // be mapped to the first available (unmapped)
+                                        // pin whose subtype matches the PT of the SSRC 
+                                        // in question.
+
+    // This method is used to configure how many output pins will be exposed by the
+    // RTP Demux filter. This method may only be called while this filter is in
+    // a stopped state.
+    HRESULT SetPinCount(
+        [in]  DWORD         dwPinCount);// The number of output pins that this filter
+                                        // should expose. If this value is less than the
+                                        // current number of output pins, then available
+                                        // (unmapped) output pins will be removed. If this
+                                        // value is greated than the current number of
+                                        // output pins, new pins will be allocated.
+
+    // This method is used to configure the payload type accepted and the minor 
+    // media type exposed by a particular output pin of the RTP Demux filter.
+    // The major type for all output pins of the RTP Demux filter is
+    // always defiend to be RTP_Single_Stream. This method may only be called on
+    // pins which are currently not connected.
+    HRESULT SetPinTypeInfo(
+        [in]  IPin          *pIPin,     // The pin to change the subtype of.
+        [in]  BYTE          bPT,        // Expected payload type for this pin.
+        [in]  GUID          gMinorType);// Minor type to assign to indicated pin. This
+                                        // must be a legal value matching one of the
+                                        // entries on the list of valid ActiveMovie RTP
+                                        // minor types specified in [AMRTP], or GUID_NULL
+                                        // if bPT contains the value of a well know RTP
+                                        // PT specification.
+
+    // This method is used to activate automatic mapping for a pin. A pin which
+    // has been set for automatic mapping will be assigned the first unmapped
+    // SSRC which is delivered to the RTP Demux filter which matches the minor
+    // type of the pin. Pins in this mode will continue to render that SSRC until
+    // the timeout value indicated in SetPinSourceTimeout() passes without reception
+    // of any more RTP packets, at which time the SSRC will be unmapped and the pin will 
+    // map the next available packet.
+    HRESULT SetPinMode(
+        [in]  IPin          *pIPin,     // Pointer to the IPin interface of an
+                                        // output pin of this filter.
+        [in]  BOOL          bAutomatic);// Specifies whether this pin should be
+                                        // in automatic mapping mode or not.
+
+    // This method is used to set the amount of time that must pass before a
+    // stream associated with a particular pin will be unmapped. This method
+    // may be called for any output pin of the RTP Demux filter at any time.
+    HRESULT SetPinSourceTimeout(
+        [in]  IPin          *pIPin,     // Pointer to the IPin interface of an
+                                        // output pin of this filter.
+        [in]  DWORD         dwMilliseconds); // The amount of time, in milliseconds
+                                        // that will be allowed to elapse after the
+                                        // last RTP packet from a particular source has
+                                        // been delivered through this pin before the source
+                                        // is unmapped. A value of INFINITE, as defined in
+                                        // WINBASE.H, means that a particular stream will
+                                        // remain mapped to a pin until the pin is
+                                        // destroyed, the stream PT value cahnges, or the
+                                        // application manually changes the stream
+                                        // association. This value must be at least 100ms,
+                                        // as the clock mechanisms available in Windows
+                                        // have sufficient jitter such that finer granularity
+                                        // timeouts are not feasible.
+
+    // This method may be used to unmap any stream that is currently mapped to
+    // a particular pin.
+    HRESULT UnmapPin(
+        [in]  IPin          *pIPin,     // The pin to unmap.
+        [out] DWORD         *pdwSSRC);  // Upon success, the SSRC which had previously been
+                                        // mapped to this pin is placed in pdwSSRC as a
+                                        // return value. Upon failure, this value is set
+                                        // to NULL.
+
+    // This method is used to unmap a particular SSRC from the pin it is
+    // being delivered on.
+    HRESULT UnmapSSRC(
+        [in]  DWORD         dwSSRC,     // SSRC value to be unmapped.
+        [out] IPin          **ppIPin);  // Pin which this SSRC had been mapped to.
+
+    HRESULT GetDemuxID(
+        [out] DWORD         *pdwID);    // Each demux has a unique ID
+}; // interface IRTPDemuxFilter
+
+cpp_quote("EXTERN_C const CLSID CLSID_IntelRTPDemux;")
+cpp_quote("EXTERN_C const CLSID CLSID_IntelRTPDemuxPropertyPage;")
+                    

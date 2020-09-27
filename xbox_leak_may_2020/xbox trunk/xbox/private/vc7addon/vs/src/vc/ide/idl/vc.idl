@@ -1,0 +1,72 @@
+// vc.idl : IDL source for vc.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (vc.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+import "vsshell.idl";
+
+//----------------------------------------------------------------------
+// IVCPackage_DEATH properties
+//----------------------------------------------------------------------
+[
+	object,
+	uuid(64BA8A6F-A7CC-11D0-A4EE-00A0C90A6332),
+	dual,
+	helpstring("IVCPackage_DEATH Interface"),
+	pointer_default(unique)
+]
+interface IVCPackage_DEATH : IDispatch
+{
+
+};
+
+
+[
+	uuid(95307AC1-DBAF-11d0-92E2-00A0C9138C45),
+	version(1.0),
+	pointer_default(unique)
+]
+interface IVCNotificationEvents : IUnknown
+{
+  HRESULT OnNotify([in] DWORD dwID, [in] DWORD dwHint);
+};
+
+
+[
+	uuid(95307AC0-DBAF-11d0-92E2-00A0C9138C45),
+	version(1.0),
+	pointer_default(unique)
+]
+interface IVCNotificationSource : IUnknown
+{
+  HRESULT Advise([in] IVCNotificationEvents *pEventSink, [out] DWORD *pdwCookie);
+  HRESULT Unadvise([in] DWORD dwCookie);
+  HRESULT Broadcast([in] DWORD dwID, [in] DWORD dwHint);
+};
+
+cpp_quote("#define CLSID_VCProject CLSID_VCPackage")
+
+[
+	uuid(64BA8A62-A7CC-11D0-A4EE-00A0C90A6332),
+	version(1.0),
+	helpstring("vc 1.0 Type Library")
+]
+library VCLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(1B027A40-8F43-11D0-8D11-00A0C91BC942),
+		helpstring("VCPackage Class")
+	]
+	coclass VCPackage
+	{
+		[default] interface IVsPackage;
+	};
+};
+

@@ -1,0 +1,62 @@
+; layered fog - work in progress.
+; various methods to do this...
+#include "fog.h"
+
+#define R_NORMAL r1
+#define R_HALF_VECTOR r8
+#define R_DIFFUSE r5
+#define R_SPECULAR r6
+#define R_POS_WORLD r9
+#define R_TEMP r10
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+dp4 R_POS_WORLD.x, v0, c[CV_WORLD_0]
+dp4 R_POS_WORLD.y, v0, c[CV_WORLD_1]
+dp4 R_POS_WORLD.z, v0, c[CV_WORLD_2]
+dp4 R_POS_WORLD.w, v0, c[CV_WORLD_3]
+
+; Transform normal to eye space
+dp3 R_NORMAL.x, v1, c[CV_WORLDVIEWIT_0]
+dp3 R_NORMAL.y, v1, c[CV_WORLDVIEWIT_1]
+dp3 R_NORMAL.z, v1, c[CV_WORLDVIEWIT_2]
+
+mov oT0.xy, v2
+
+; Get height from floor
+add R_TEMP.y, R_POS_WORLD.y, c[CV_FOG_SCALE].x
+mul R_TEMP.y, R_TEMP.y, c[CV_FOG_SCALE].y
+mov oT1.y, R_TEMP.y
+
+; Get range
+mov R_POS_WORLD.y, c[CV_ZERO].y
+add R_POS_WORLD, R_POS_WORLD, -c[CV_WORLD_EYE];
+dp3 R_POS_WORLD, R_POS_WORLD, R_POS_WORLD
+rsq R_POS_WORLD.w, R_POS_WORLD.w
+rcp R_POS_WORLD.w, R_POS_WORLD.w
+mul oT1.x, R_POS_WORLD.w, c[CV_FOG_SCALE].z
+
+; Normalize transformed normal
+dp3 R_NORMAL.w, R_NORMAL, R_NORMAL
+rsq R_NORMAL.w, R_NORMAL.w												
+mul R_NORMAL, R_NORMAL, R_NORMAL.w	
+
+; Dot normal with light vector
+; This is the intensity of the diffuse component
+dp3 r3.x, R_NORMAL, c[CV_LIGHT1_DIRECTION]
+max r3.x, c[CV_ZERO].x, r3.x
+
+; add the (ambient color * ambient light color * ambient intensity(1) )
+mov R_DIFFUSE, c[CV_LIGHT1_AMBIENT]
+
+; add the (diffuse color * diffuse light color * diffuse intensity(R4.y))
+mad oD0, r3.x, c[CV_LIGHT1_DIFFUSE], R_DIFFUSE
+
+
+

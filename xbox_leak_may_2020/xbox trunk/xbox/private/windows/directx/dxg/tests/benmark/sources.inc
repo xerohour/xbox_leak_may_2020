@@ -1,0 +1,7 @@
+TARGETNAME=BenMark
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+SOURCES= \
+    benmark5.cpp
+

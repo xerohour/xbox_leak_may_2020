@@ -1,0 +1,248 @@
+<TD valign="top" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</TD><Td><H2>Bridging the Content-Coding Gap:
+An Introduction to DirectX Audio Scripting 
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+
+<H3>Introduction</H3>
+<P>When developing audio content for a technical medium such as a console, one of the greatest challenges is the communication barrier inherent between the more technically savvy developer and the more creatively aware content creator. This barrier often leads to several challenges in the process of doing sound effects, ambience, and music for a game:<BR>
+<OL>
+<LI>The composers can't easily tweak their implementations.</LI><BR><BR>
+<LI>Implementations are rarely nailed off the bat (and the cycle of create/listen/edit is slow).</LI><BR><BR>
+<LI>Implementations can be affected by what's easiest to program, rather than what artistically makes for the most effective solution.</LI>
+</OL></P>
+<P>Microsoft&#174; DirectX&#174; Audio scripting attempts to give a basic functional solution to the above problem by giving the composer the ability to dictate audio behavior (rather than just content) based on triggers called by the developer. This paper presents a basic introduction to some of the features of DirectX Audio scripting, focusing on the composer/sound designer's point of view.</P>
+
+<H3>DirectX Audio Scripting in a Nutshell</H3>
+<P>DirectX Audio scripting is a way to place control of audio behavior in the hands of the composer/sound designer. Using DirectMusic Producer, the scripter writes script routines using AudioVBScript, a language based on a subset of Microsoft&#174; Visual Basic&#174; Scripting Edition functionality.<sup><font size:"9">1</font></sup> From the developers' point of view, they are just calling (triggering) script routines or updating/reading script variables. DirectX Audio scripting runs on top of Microsoft&#174; DirectMusic&#174;, though you do not need to use any of the variability features of DirectMusic to use scripting. DirectX Audio scripting can be used for an audio design as simple as playing a sound effect wave file or as elaborate as orchestrating a dynamic, variable musical score. Scripted content can run in conjunction with developer-controlled content, and dialog can be used while other audio content is playing.</P>
+
+<H3>The Basic Scenario: Play a Wave</H3>
+<P>So let's get started. First off, fire up DirectMusic Producer if it isn't already running.</P>
+<OL>
+<LI>Create a new project. (Click <B>File</B> on the menu bar, then click <B>New</B>, and click <B>Project</B>.) I named mine "Dialog."</LI><BR><BR>
+<LI>Insert a wave file into the project. (Click <B>File</B> on the menu bar, click <B>Insert Files into Project&#8230;</B>, then navigate in the dialog to your wave file.) You now get a .wvp file, which is just a wave file with some extra editing information (called a design-time file).<sup><font size:"9">2</font></sup><BR><BR>
+<IMG src="/content/img/bridging_fig1.gif">
+</LI><BR><BR>
+<LI>Create a new script file. (Click <B>File</B> on the menu bar, then click <B>New</B>, and click <B>Script</B>.)</LI><BR><BR>
+<LI>For the script to be able to use the wave file, it needs to be told about the wave file. Expand the Script Content folder by double clicking on it (or clicking the plus sign next to it) and then drag the wave file into the script's Reference Runtime folder. (If we wanted the wave to be packed up [embedded] into the script file when it is runtime saved, we could put it in the Embed Runtime folder instead.)<BR><BR>
+<IMG src="/content/img/bridging_fig2.gif"></LI><BR><BR>
+<LI>Double click the Script1 node or the script icon to its left to open the Script Designer window.</LI><BR><BR>
+<LI>Now we'll type the following into the left part of the window (the part titled <B>Source</B>):
+<PRE STYLE="FONT-FACE:COURIER; FONT-SIZE:12">	
+     sub PlayMe
+         hello.play
+     end sub
+</PRE></LI>
+</OL>
+<P>If the wave you dragged into the script was named something other than "hello," you should replace "hello.play" with "[your wave's name].play". When we click away (or click the <B>Refresh</B> button), "PlayMe" will appear in the top right window (if it doesn't, check for typos). </P>
+<IMG src="/content/img/bridging_fig3.gif"><BR><BR>
+<P>We've just created our very first routine! You can test it by double-clicking the routine name in the top right window. You should hear your wave play once. If the wave is long, you might want to be able to stop it too. You can stop it using something like the following routine:</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub StopMe
+         hello.stop
+     end sub
+</PRE>
+<P>Note that double clicking these in the <B>Routines</B> window is the equivalent to what the developer will be doing: they will simply be triggering the routine named "PlayMe" or the routine named "StopMe." You can edit the routines all you want, and nothing will change from the developer's point of view.</P>
+<H3>Debugging Content: The Message Window</H3>
+<P>Having trouble getting your routine names to appear in the top right window? DirectMusic Producer provides a debugging "console" through the <B>Message Window</B> that can help explain why a script isn't working. Open it from the <B>Add-Ins</B> menu.</P>
+<IMG src="/content/img/bridging_fig4.gif"><BR><BR>
+<P>When this window is open, any time a script is refreshed (by either typing and then clicking outside of the edit area, or by clicking the <B>Refresh</B> button), error messages will appear in this window. For instance, if I typed the following routine:</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub Play Me
+         hello.play
+     end sub
+</PRE>
+<P>the resulting error in the <B>Message Window</B> would look like this:</P>
+<IMG src="/content/img/bridging_fig5.gif"><BR><BR>
+<P>In this particular case, I put a space between "Play" and "Me" in the subroutine name. Spaces are not allowed within the name, so an error message was displayed. By moving the cursor within the <B>Source</B> text area, I could find exactly where line 1 column 10 is by watching the status toolbar at bottom right corner of the main DirectMusic Producer window.</P>
+<IMG src="/content/img/bridging_fig6.gif"><BR><BR>
+<P>If I then make the correction and click the <B>Refresh</B> button, no further error messages will be displayed in the <B>Message Window</B>. You can clear the window at any time by clicking <B>Messages</B>, then <B>Clear</B> in the <B>Message Window</B> drop-down menu.</P>
+<H3>Playing and Stopping a Segment</H3>
+<P>Segments, the basic building blocks for DirectMusic-based content, can be played in exactly the same manner as waves. After creating the segment along with any other files it needs to play (which might include one or more DLS collections or other content, described in separate white papers on this Web site), just drag the segment into the script's Embed Runtime or Reference Runtime folder.</P>
+<IMG src="/content/img/bridging_fig7.gif"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>Dragging a segment into a script so that it knows how to play it.</I></P>
+<P>We can set up a pair of routines similar to those we created for the wave (but make sure the routine names are unique).</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub PlayBackgroundMusic
+         town.play
+     end sub
+
+     sub StopBackgroundMusic
+         town.stop
+     end sub
+</PRE>
+
+<H3>Using Parameters (Or, Making the Music More Musical)</H3>
+<P>For authored segments,<sup><font size:"9">3</font></sup> we might want to make musically stronger decisions about when and how the music stops, rather than just cutting it short. Say, for instance, we want to stop this segment at the next downbeat. DirectMusic gives strong support for this kind of behavior, and it is exposed in AudioVBScript through the first optional parameter for the play and stop methods.</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub StopBackgroundMusic
+         town.stop AtMeasure
+     end sub
+</PRE>
+<P>This routine will now stop the segment at the next downbeat after the routine was called. There are similar flags for other boundary types: AtImmediate, AtGrid, AtBeat,  and several others.</P>
+<P>Another common scenario is to play some kind of an ending that gets us from this segment to another piece of music (or silence). Let's assume we've authored an ending piece of music in a separate segment called TownEnd.sgp. Now let's create a script routine that plays this ending segment on the next beat, then stops when the ending segment is finished.</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub EndBackgroundMusic
+         TownEnd.play AtBeat 
+     end sub
+</PRE>
+<P>Remember that in DirectMusic, only one primary segment can be playing at a time; playing another primary segment will stop and replace any previously playing primary segment. So telling the program to play TownEnd would implicitly stop Town on the next beat. When TownEnd is completed, the performance will go silent.</P>
+
+<H3>Secondary Segments: Layering Sounds</H3>
+<P>Odds are that more than a single piece of content will be heard at the same time: you might have a segment that's your background music, another that is your ambience, and one or more sound effects that all need to play at the same time. This is where secondary segments come into play. You can layer as many secondary segments as you want over the single primary segment, the only limitation being that the performance can have only one active tempo at a time.<sup><font size:"9">4</font></sup> And starting a new primary segment (stopping the old one) does not affect currently playing secondary segments.</P>
+<P>To play a segment as a secondary segment, just use the IsSecondary flag. FYI, not using the IsSecondary (or IsControl<sup><font size:"9">5</font></sup>) flag will play a segment as a primary segment:</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub SayHello
+         hello.play IsSecondary
+     end sub
+</PRE>
+<P>You can also mix and match between boundary flags and control flags, which is accomplished by "adding" them (place a plus sign between them). For instance, let's have the character wait to say hello until we get to an opportune moment in the underscore. To do this, we'll place one or more markers in a marker track in the primary segment (that is, the music). We'll then instruct the routine to wait for the next marker in the primary segment:</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub WaitToSayHello
+         hello.play IsSecondary + AtMarker
+     end sub
+</PRE>
+<P>Again, because it is a secondary segment, "Hello" will play without disrupting our primary segment (musical score).</P>
+
+<H3>Object Names (Or, Do I Really Need to Type All of This?)</H3>
+<P>By the way, you might be wondering if you're stuck with the name of your original segment or wave file. For instance, if I have a wave called BigBossCackleLoudly, do I really need to use that long name in my script? The answer is no, you can rename the script reference without affecting the source wave. To do this, just right click on the object in the script's Embed Runtime or Reference Runtime folder, and click <B>Change Content Identifier&#8230;</B> in the shortcut menu. You can then edit the name that the script uses for this object. Remember that if you do this after the fact, you will have to go back through the actual text of your script and replace any references you'd made to the previous name.</P>
+<IMG src="/content/img/bridging_fig8.gif">
+<H3>A Basic Scenario: Music, Sound Effects, and Dialog</H3>
+<P>Let's put all of these concepts together to create a basic script. Let's have two different pieces of background music that can transition to each other, be started, and be stopped (on a musically appropriate boundary). We'll have sound effects and dialog snippets that can be fired off on top of this music. Remember that all of this is abstracted from the programmer, so the underlying content could be whatever we want: waves, segments using wave tracks with variations, segments using MIDI + DLS playback, and so on.</P>
+<P><B>The Setup:</B> We start by playing a low level score. When a specific character enters the room, have him challenge the player to a duel. We then ramp up the music to a higher intensity score. After a prolonged swordfight, our character is victorious, and the opponent reveals a secret with his last breath. The music then comes back down to a lower intensity.</P>
+<P><B>Content:</B> Again, the actual content here can be swapped out with something more appropriate to your title. I've assumed that the name the script references will be everything to the left of the extension (that is, for ambient.sgp, the script will be using "ambient"), though as discussed above, you can rename these references if you wish.
+<UL>
+<LI>Music: We'll have a segment called ambient.sgp and another called swordfight.sgp. We'll also have a pair of short transition segments, one called transition_up.sgp (which goes from ambient to swordfight) and another called transition_down.sgp (which goes from the swordfight back to ambient).</LI><BR><BR>
+<LI>Dialog: We'll have two wave files, one that says "I challenge you to a duel" (challenge.wvp), and another that the opponent says once he's mortally wounded (tell_secret.wvp).</LI><BR><BR>
+<LI>Sound effects: We'll have a sword-drawing noise (sword_draw.wav), sword-clashing noises (clash.sgp, a segment with a wave track that chooses between several variations of sword clanging sound effects), and a variable damage noise (damage.sgp).</LI>
+</UL></P>
+<P><B>Triggers:</B> We should establish with our developer what specific triggers he/she will call. Based on the above scenario, these should do the trick. Descriptions help the developer have some idea of what the expected behavior should be:
+<UL>
+<LI>EnterScene: called when we first enter the scene. Start up the music.</LI><BR><BR>
+<LI>DuelerEnters: have him greet our character and challenge us to a duel.</LI><BR><BR>
+<LI>BeginFight: when we accept the duel, change the music and trigger sword-drawing sound effect.</LI><BR><BR>
+<LI>SwordClash: call this every time the swords come into contact.</LI><BR><BR>
+<LI>SwordDamage: call this every time a dueler scores a hit on their opponent.</LI><BR><BR>
+<LI>EndFight: have the dueler divulge his secret, and drop the music back down.</LI><BR><BR>
+<LI>ExitScene: called when we leave the scene. Stop the music.</LI>
+</UL></P>
+<P><B>The Script:</B> We start by dragging each of our source files into the script's Embed Runtime container. (For this example, I'm going to assume the developer just wants to have to worry about loading the script, and doesn't mind if the rest of the content is loaded along with it.)</P>
+<IMG src="/content/img/bridging_fig9.gif"><BR><BR>
+<P>We then create routines for each of the triggers we outlined above. FYI, any text to the right of an apostrophe (') is considered comments and is ignored by the script engine. This often makes scripts more readable, especially if you revisit them much later.</P>
+<PRE STYLE="FONT-SIZE:12">
+     sub EnterScene
+         'Called when we first enter the scene. Start up the music.
+         ambient.play
+         'play as primary segment
+     end sub
+
+     sub DuelerEnters
+         'Have him greet and challenge to a duel
+         challenge.play IsSecondary
+     end sub
+
+     sub BeginFight
+         'When we accept the duel, change the music and trigger the		
+         'sword-drawing sound effect.
+
+         sword_draw.play IsSecondary + AtImmediate
+         'play the sound effect
+
+         transition_up.play AtMeasure
+         'go to our transition segment at the end of the
+         'next measure of the ambient music
+
+         swordfight.play AtFinish
+         '...then when the transition is done playing,
+         'play the swordfight music
+     end sub
+
+     sub SwordClash
+         'Call this every time the swords come into contact
+         clash.play IsSecondary + AtImmediate
+     end sub
+
+     sub SwordDamage
+         'Call this every time a dueler scores a hit on their 
+         'opponent
+         damage.play IsSecondary + AtImmediate
+     end sub
+
+     sub EndFight
+         'Have the dueler divulge his secret;
+         'meanwhile, drop the music back down
+         tell_secret.play IsSecondary
+
+         transition_down.play AtBeat
+         'this will replace the current primary segment (swordfight)
+         ambient.play AtFinish
+     end sub
+
+     sub ExitScene
+         'Stop the music
+         ambient.stop AtMeasure
+         'Note that we're assuming the character will only be allowed 
+         'to exit the scene when the ambient music is playing;
+         'if they could exit at any time, we should either keep track
+         'of what segment is currently playing (PlayingSegment 
+         'object), or stop all of the segments that could currently 
+         'be playing.
+      end sub
+	</PRE>
+
+<H3>More Advanced Topics</H3>
+<P>This is really the tip of the iceberg as far as DirectX Audio scripting is concerned. But there really is a lot that can be done simply from playing and stopping pieces of content, as a lot of the power is in the content itself. Other areas to check out:</P>
+<P><B>Segment.play parameters:</B> Actually four different parameters can be passed to this method. We only touched on the first one here, but you can also specify the audiopath<sup><font size:"9">6</font></sup> to play this content on, a segment to play before playing this segment (manually accomplished in our examples with two calls to "play"), or a PlayingSegment object to play this segment relative to (and/or replace). The last will come into play in an upcoming white paper discussing scripting solutions for dialog concatenation.</P>
+<P><B>Audiopaths:</B> What if when you exited the scene in the scenario above, you actually wanted the music to do a five-second fade-out? You can fade all of the performance channels of an audiopath in or out over time using the <B>Audiopath.SetVolume</B> scripting method on an active audiopath. You can also fade the volume of the entire performance (all performance channels) in or out using the <B>SetMasterVolume</B> method.</P>
+<P><B>Variables:</B> You can pass information back and forth with your developer (or keep track of values yourself) by using variables. This will be detailed in later white papers, but look at the scripting demo in the DirectMusic Producer demo project for one example of this.</P>
+<P><B>Scripted randomization:</B> AudioVBScript has a <B>Rand</B> function that can return a random number. So you can set up cases where, for instance, one out of five random segments is played when a trigger is reached. This is in addition to the flexibility of being able to author the segments themselves with variable content that never plays the same twice.</P>
+<P><B>Self-modifying music:</B> Segments can have script tracks, which trigger a script routine at specific times during playback. This can be used to create "self-modifying" music, or music that changes without any developer-authored code based on variables, game states, or pure randomization.</P>
+<P>For more information about DirectX Audio scripting, please consult the "Scripting Reference" section of the DirectMusic Producer help document or the xds.xbox.com DirectMusic FAQ, or send an e-mail message to <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<P></P>
+<P></P>
+<BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;A full reference to the AudioVBScript language can be found in the DirectMusic Producer documentation, under the help topic "Script Language."<BR><BR>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;See the white paper "<A HREF ="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_contentdelivery.htm">Delivering the Goods: File Management Tricks and Tips</A>" for more details on the differences between design-time and run-time files, as well as how to deliver content.<BR><BR>
+<P style="font-size:12"><SUP>3</SUP>&nbsp;Under the hood, DirectMusic actually converts wave files into segments before playing them. However, musical information, such as bar boundaries, is not automatically calculated for these files. To use a wave file with musical information, you should place it into a segment with a wave track.<BR><BR>
+<P style="font-size:12"><SUP>4</SUP>&nbsp;Wave-based content can circumvent this limitation by using Clock-time segments and/or tracks. See the "Clock Time in a Wave Track" topic of the DirectMusic Producer help document for a brief discussion.<BR><BR>
+<P style="font-size:12"><SUP>5</SUP>&nbsp;For a discussion of controlling segments, see the <A HREF ="/BPProgInfo.asp?Page=content/xbox_faq_dmp_questions.htm">DirectMusic Producer</A> FAQ on this Web site.<BR><BR>
+<P style="font-size:12"><SUP>6</SUP>&nbsp;For a discussion about audiopaths, see the white paper entitled "<A HREF ="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_audiopathconfig.htm">Working the Metal: Audiopath Configurations and the Xbox Media Communications Processor</A>."
+<BR>
+<BR>
+<SMALL>Wednesday, March 7, 2001</SMALL>
+
+
+
+</TD>
+
+
+
+
+
+	

@@ -1,0 +1,492 @@
+//
+// PkgMgr.idl : IDL source for package manager
+//
+
+
+// forward definitions
+interface ICodeStoreDBEntry;
+interface IEnumJavaPackage;
+interface IEnumJavaFile;
+interface IJavaPackage;
+interface IJavaFile;
+interface IBeanInfo;
+interface IEnumBeanInfo;
+interface IClassPathElement;
+interface IEnumClassPathElement;
+interface IJavaFileContainer;
+interface IEnumJavaFileContainer;
+interface IJavaPackageManager;
+interface IJavaPackageManager2;
+
+import "oaidl.idl";
+
+// Error Codes
+
+cpp_quote("//")
+cpp_quote("// error codes") 
+cpp_quote("//") 
+cpp_quote("") 
+cpp_quote("// Errors returned by IClassPathElement::Lock/Unlock/GetLockCount") 
+cpp_quote("") 
+cpp_quote("#define JPM_E_LOCKINGNOTSUPPORTED  MAKE_HRESULT(1,FACILITY_ITF,0x100)") 
+cpp_quote("") 
+
+#ifndef LPCBYTE
+typedef const BYTE * LPCBYTE;
+#endif
+
+typedef enum 
+{
+    JPMPII_SYSTEMCLASS = 0,
+    JPMPII_NONSYSTEMCLASS = 1,
+    JPMPII_NEEDSTRUSTEDSOURCE = 2,
+    JPMPII_STOCK_CLASS = 4,
+    ALL_JPMPII_FLAGS = (JPMPII_SYSTEMCLASS | JPMPII_NONSYSTEMCLASS | JPMPII_NEEDSTRUSTEDSOURCE | JPMPII_STOCK_CLASS)
+} 
+JPMPII_FLAGS;
+
+typedef enum 
+{
+    JPMINST_NOVERSIONCHECK = 1,
+    JPMINST_NOSIGNERCHECK = 2,
+    JPMINST_AUTODETECTPACKAGES = 4,
+    JPMINST_DELETEINPUTFILE = 8,
+    JPMINST_UPDATEIFVERSIONSEQUAL = 16,
+    JPMINST_WARNIFINSTALLINGOVERNEWER = 32,
+	JPMINST_THROUGH_RUNDLL = 64,
+    ALL_JPMINST_FLAGS = (JPMINST_NOVERSIONCHECK | JPMINST_NOSIGNERCHECK | JPMINST_AUTODETECTPACKAGES | JPMINST_DELETEINPUTFILE | JPMINST_UPDATEIFVERSIONSEQUAL | JPMINST_WARNIFINSTALLINGOVERNEWER | JPMINST_THROUGH_RUNDLL)
+} 
+JPMINST_FLAGS;
+
+typedef enum 
+{
+    JPMINST_CAB = 0,
+    JPMINST_ZIP = 1,
+    JPMINST_JAR = 2,
+    JPMINST_CCF = 3
+} 
+JPMINST_FILETYPES;
+
+typedef struct tagPACKAGEINSTALLINFO
+{
+    DWORD         cbStruct;            // size of this structure
+    LPCOLESTR     pszPackageName;      // required (unless JPMINST_AUTODETECTPACKAGES was specified)
+    DWORD         dwVersionMS;         // required
+    DWORD         dwVersionLS;         // required
+    DWORD         dwFlags;             // combination of JPMPII_FLAGS
+    LPCOLESTR     pszCodebaseURL;      // optional (can be NULL)
+    LPCOLESTR     pszDistributionUnit; // optional (can be NULL)
+    LPUNKNOWN     pUnknown;            // IUnknown of manifest XML element (optional)
+    HRESULT       result;              // OUT field with result code
+} 
+PACKAGEINSTALLINFO;
+
+typedef [unique] PACKAGEINSTALLINFO * LPPACKAGEINSTALLINFO;
+typedef [unique] const PACKAGEINSTALLINFO * LPCPACKAGEINSTALLINFO;
+
+typedef struct tagPACKAGESECURITYINFO
+{
+    DWORD         cbStruct;
+    LPCBYTE       pCapabilities;
+    DWORD         cbCapabilities;
+    LPCBYTE       pSigner;
+    DWORD         cbSigner;
+    BOOL          fAllPermissions;
+} 
+PACKAGESECURITYINFO;
+
+typedef [unique] const PACKAGESECURITYINFO * LPCPACKAGESECURITYINFO;
+
+[
+    uuid(DF3D9C20-AB4E-11d0-A732-00A0C9082637),
+    version(1.0),
+    helpstring("Java Package Manager")
+]
+library JPKGMGR
+{
+    importlib("stdole32.tlb");
+
+    [
+        object,
+        uuid(D2073C42-AB4F-11d0-A732-00A0C9082637),
+        pointer_default(unique)
+    ]
+    interface IEnumCodeStoreDBEntry : IUnknown
+    {
+
+        typedef [unique] IEnumCodeStoreDBEntry *LPENUMCODESTOREDBENTRY;
+
+        HRESULT Next([in] ULONG celt,
+            [out, size_is(celt), length_is(*pceltFetched)]
+            ICodeStoreDBEntry **rgelt,
+            [out] ULONG *pceltFetched);
+
+        HRESULT Skip(
+            [in] ULONG celt);
+
+        HRESULT Reset();
+
+        HRESULT Clone([out] IEnumCodeStoreDBEntry **ppenum);
+    }
+
+    typedef enum 
+    {
+        CRF_REMOVECHILDREN = 1,
+        CRF_REMOVEVALUESONLY = 2,
+        CRF_REMOVEEMPTYPARENTSALSO = 4
+    } 
+    CSDB_REMOVE_FLAGS;
+
+    typedef enum 
+    {
+        CGF_FULLYQUALIFIED = 1,
+    } 
+    CSDB_GETNAME_FLAGS;
+
+    [
+        object,
+        uuid(D2073C40-AB4F-11d0-A732-00A0C9082637),
+        helpstring("ICodeStoreDBEntry Interface"),
+        pointer_default(unique)
+    ]
+    interface ICodeStoreDBEntry : IUnknown
+    {
+        HRESULT GetName([in] DWORD dwFlags, [out, retval] BSTR * pbstrName);
+        HRESULT CreateChild([in] LPCOLESTR pszName,
+                            [out,retval] ICodeStoreDBEntry ** ppEntry);
+        HRESULT RemoveChild([in] LPCOLESTR pszName,DWORD dwFlags);
+        HRESULT GetChild([in] LPCOLESTR pszName,
+                            [out,retval] ICodeStoreDBEntry ** ppEntry);
+        HRESULT EnumChildren([out,retval] IEnumCodeStoreDBEntry ** ppEntry);
+        HRESULT GetParent([out,retval] ICodeStoreDBEntry ** ppParent);
+        HRESULT GetProperty([in] LPCOLESTR pszName,
+                            [out,retval] VARIANT * pvarProperty);
+        HRESULT SetProperty([in] LPCOLESTR pszName,
+                            [out,retval] VARIANT * pvarProperty);
+        HRESULT DeleteProperty([in] LPCOLESTR pszName);
+        HRESULT GetDWORDPropertyA([in] LPCSTR pszName, [out] DWORD *pVal);
+        HRESULT SetDWORDPropertyA([in] LPCSTR pszName, [in] DWORD dwVal);
+        HRESULT GetStringPropertyA([in] LPCSTR pszName, [out] LPSTR pszVal, [in] DWORD cbVal);
+        HRESULT SetStringPropertyA([in] LPCSTR pszName, [in] LPCSTR pszVal);
+        HRESULT GetBinaryPropertyA([in] LPCSTR pszName, [out] BYTE *pVal, [in] DWORD cbVal);
+        HRESULT SetBinaryPropertyA([in] LPCSTR pszName, [in] LPCBYTE pVal, [in] DWORD cbVal);
+    }
+
+
+    [
+        object,
+        uuid(DF3D9C22-AB4E-11d0-A732-00A0C9082637),
+        helpstring("ICodeStoreDB Interface"),
+        pointer_default(unique)
+    ]
+    interface ICodeStoreDB : IUnknown
+    {
+
+        HRESULT CreateEntry([in] LPCOLESTR pszName,
+                            [out,retval] ICodeStoreDBEntry ** ppEntry);
+        HRESULT RemoveEntry([in] LPCOLESTR pszName, DWORD dwFlags);
+        HRESULT GetEntry([in] LPCOLESTR pszName,
+                            [out,retval] ICodeStoreDBEntry ** ppEntry);
+
+        HRESULT EnumRootEntries([out,retval] IEnumCodeStoreDBEntry ** ppEntry);
+    }
+
+    typedef enum 
+    {
+        JPMFI_NEEDS_TRUSTED_SOURCE = 0x01,
+        JPMFI_IS_STREAM            = 0x02,
+        JPMFI_IS_PE_NATIVE         = 0x08,
+        JPMFI_FROM_PKG_DATABASE    = 0x10,
+        JPMFI_FROM_CLASSPATH       = 0x20,
+        JPMFI_STOCK_CLASS          = 0x40
+    } 
+    JPM_FILEINFO_FLAGS;
+
+    typedef enum 
+    {
+        JPMGFN_SIMPLE = 1,
+        JPMGFN_FULLYQUALIFIED = 2,
+        JPMGFN_LOCALFILEPATH = 3
+    } 
+    JPM_GETFILENAME_TYPE;
+
+    [
+        uuid(DF3D9C23-AB4E-11d0-A732-00A0C9082637)
+    ]
+    coclass CLSID_CodeStoreDB
+    {
+        [default] interface ICodeStoreDB;
+    };
+
+    [
+        object,
+        uuid(D2073C43-AB4F-11d0-A732-00A0C9082637),
+        helpstring("IJavaPackageManager interface"),
+        pointer_default(unique)
+    ]
+    interface IJavaPackageManager : IUnknown
+    {
+        HRESULT InstallPackage([in] LPCOLESTR pszFileName,[in] LPCOLESTR pszNamespace, [in] DWORD dwFileType,
+            [in,out] LPPACKAGEINSTALLINFO pPackageInfo,[in] UINT cPackages,[in] DWORD dwFlags,
+            [in] LPCPACKAGESECURITYINFO pSecurityInfo);
+        HRESULT UninstallPackage([in] LPCOLESTR pszPackageName, [in] LPCOLESTR pszNamespace, [in] DWORD dwFlags);
+        HRESULT EnumPackages([in] LPCOLESTR pszNamespace, [out,retval] IEnumJavaPackage ** ppEnum);
+        HRESULT GetPackage([in] LPCOLESTR pszPackageName, [in] LPCOLESTR pszNamespace, [out,retval]
+            IJavaPackage ** ppPackage);
+        HRESULT GetFile([in] LPCOLESTR pszFileName,[in] LPCOLESTR pszNamespace, [in] DWORD dwFlags, [out] IJavaFile ** ppFile);
+        HRESULT GetExplicitClassPath([out] BSTR * pbstrPath);
+        HRESULT SetExplicitClassPath([in] LPCOLESTR pszPath,[in] BOOL fAppend);
+        HRESULT SetCurrentDirectory([in] LPCOLESTR pszDir);       
+		HRESULT EnumBeans([in] LPCOLESTR pszNamespace, [out] IEnumBeanInfo **ppEnum);
+        HRESULT EnumPackageFiles([in] LPCOLESTR pszPackageName, [in] LPCOLESTR pszNamespace,[in] DWORD dwFlags,[out, retval] IEnumJavaFile ** ppEnum);
+    }
+
+    [
+        object,
+        uuid(3D1D4C60-3F32-11d1-A733-00C04FD79B94),
+        helpstring("IJavaPackageManager2 interface"),
+        pointer_default(unique)
+    ]
+    interface IJavaPackageManager2 : IJavaPackageManager
+    {
+        HRESULT EnumClassPathElements([in] LPCOLESTR pszNamespace,[in] DWORD dwFlags, [out] IEnumClassPathElement ** ppEnum);
+        HRESULT CreateClassPathElement ([in] LPCOLESTR pszName,[out] IClassPathElement **ppElement);
+    }
+    
+    [
+        object,
+        uuid(4D6007E3-0306-11d1-98C9-00C04FB609B9),
+        pointer_default(unique)
+    ]
+	interface IBeanInfo : IUnknown
+	{
+		HRESULT GetFullyQualifiedClassName([out] BSTR *pbstrName);
+	}
+
+    [
+        object,
+        uuid(4D6007E2-0306-11d1-98C9-00C04FB609B9),
+        pointer_default(unique)
+    ]
+    interface IEnumBeanInfo : IUnknown
+    {
+        typedef [unique] IEnumBeanInfo *LPENUMBEANINFO;
+
+        HRESULT Next([in] ULONG celt,
+            [out, size_is(celt), length_is(*pceltFetched)]
+            IBeanInfo **rgelt,
+            [out] ULONG *pceltFetched);
+
+        HRESULT Skip(
+            [in] ULONG celt);
+
+        HRESULT Reset();
+
+        HRESULT Clone([out] IEnumCodeStoreDBEntry **ppenum);
+    }
+
+    [
+        object,
+        uuid(D2073C46-AB4F-11d0-A732-00A0C9082637),
+        pointer_default(unique)
+    ]
+    interface IJavaPackage : IUnknown
+    {
+        typedef [unique] IJavaPackage *LPJAVAPACKAGE;
+    
+        HRESULT GetPackageName([out] BSTR * pbstrName);
+        HRESULT GetVersion([out] DWORD * pdwVersionMS, [out] DWORD * pdwVersionLS);
+        HRESULT GetFilePath([out] BSTR * pbstrPath);
+        HRESULT IsSystemClass([out] BOOL * pfIsSystemClass);
+        HRESULT NeedsTrustedSource([out] BOOL * pfNeedsTrustedSource);
+        HRESULT GetCapabilities([out] LPCBYTE * ppCapabilities, [out] DWORD * pcbCapabilities);
+        HRESULT GetSigner([out] LPCBYTE * ppSigner, [out] DWORD * pcbSigner);
+        HRESULT GetDatabaseEntry([out] ICodeStoreDBEntry ** ppEntry);
+        HRESULT IsPENative(BOOL * pfNative);
+
+        HRESULT GetFilePathA([out] LPSTR pszPath,[in] DWORD cbPath);
+		HRESULT EnumBeans([out] IEnumBeanInfo **ppEnum);
+    }   
+
+
+    [                                     
+        object,
+        uuid(F79E6FA1-86A0-11d1-811E-00C04FB92687),
+        pointer_default(unique)
+    ]
+    interface IJavaPackage2 : IJavaPackage
+    {
+        typedef [unique] IJavaPackage2 *LPJAVAPACKAGE2;
+    
+        HRESULT GetStringProperty([in] LPSTR pszPropName, [out] BSTR *pbstrVal);
+        HRESULT GetBinaryProperty([in] LPSTR pszPropName, [out] BYTE **ppVal, [out] DWORD *pcbVal);
+    }   
+
+    [
+        object,
+        uuid(D2073C47-AB4F-11d0-A732-00A0C9082637),
+        pointer_default(unique)
+    ]
+    interface ICreateJavaPackageMgr : IUnknown
+    {
+        HRESULT GetPackageManager([out] IJavaPackageManager ** ppPackageMgr);
+    }
+
+    [
+        object,
+        uuid(D2073C48-AB4F-11d0-A732-00A0C9082637),
+        pointer_default(unique)
+    ]
+    interface IJavaFile : IUnknown
+    {
+        typedef [unique] IJavaFile *LPJAVAFILE;
+    
+        HRESULT GetName([in] DWORD dwType,[out] BSTR * pbstrName);
+        HRESULT GetNameA([in] DWORD dwType,[out] LPSTR pszName,[in] DWORD cbName);
+        DWORD   GetFlags();     // one of JPMFI_xxx
+        HRESULT GetFileStream([out] IStream ** ppStream);
+        HRESULT GetPENativePath([out] BSTR * pbstrPath);
+        HRESULT GetPENativePathA([out] LPSTR pszPath, [in] DWORD cbPath);
+        HRESULT GetTimestamp([out] FILETIME * pTimestamp);
+    }
+
+    [
+        object,
+        uuid(D2073C45-AB4F-11d0-A732-00A0C9082637),
+        pointer_default(unique)
+    ]
+    interface IEnumJavaPackage : IUnknown
+    {
+        typedef [unique] IEnumJavaPackage *LPENUMJAVAPACKAGE;
+	
+        HRESULT Next([in] ULONG celt,
+            [out, size_is(celt), length_is(*pceltFetched)]
+            IJavaPackage **rgelt,
+            [out] ULONG *pceltFetched);
+        HRESULT Skip(
+            [in] ULONG celt);
+        HRESULT Reset();
+        HRESULT Clone([out] IEnumJavaPackage **ppenum);
+    }
+    
+    [
+        object,
+        uuid(D2073C49-AB4F-11d0-A732-00A0C9082637),
+        pointer_default(unique)
+    ]
+    interface IEnumJavaFile : IUnknown
+    {
+
+        typedef [unique] IEnumJavaFile *LPENUMJAVAFILE;
+
+        HRESULT Next([in] ULONG celt,
+            [out, size_is(celt), length_is(*pceltFetched)]
+            IJavaFile **rgelt,
+            [out] ULONG *pceltFetched);
+
+        HRESULT Skip(
+            [in] ULONG celt);
+
+        HRESULT Reset();
+
+        HRESULT Clone([out] IEnumJavaFile **ppenum);
+    }
+
+    typedef enum
+    {
+        CPE_DIRECTORY   = 0x0001,   // Element is a file system directory
+        CPE_CURRENTDIR  = 0x0002,   // Element is the current directory (".")
+    } 
+    CPELEMENTFLAGS;
+
+    typedef enum
+    {
+        CPET_DIRECTORY = 0x0001,
+        CPET_ZIPFILE = 0x0002,
+        CPET_DLL = 0x0003,
+        CPET_JPMDATABASE = 0x0004
+    } 
+    CPELEMENTTYPES;
+
+    [
+        object,
+        uuid(3D1D4C61-3F32-11d1-A733-00C04FD79B94),
+        helpstring("IClassPathElement interface"),
+        pointer_default(unique)
+    ]
+    interface IClassPathElement : IUnknown
+    {
+        typedef [unique] IClassPathElement *LPCLASSPATHELEMENT;
+    
+        HRESULT GetType([out] DWORD * pdwType);
+        HRESULT GetFlags([out] DWORD * pdwFlags);
+        HRESULT GetElementName([out] BSTR * pbstrName);
+        HRESULT GetRootContainer ([out] IJavaFileContainer **ppContainer);
+        HRESULT Lock([out] int *pLockCount);
+        HRESULT Unlock([out] int *pLockCount);
+        HRESULT GetLockCount([out] int *pLockCount);
+    }
+
+    [
+        object,
+        uuid(3D1D4C65-3F32-11d1-A733-00C04FD79B94),
+        pointer_default(unique)
+    ]
+    interface IEnumClassPathElement : IUnknown
+    {
+        typedef [unique] IEnumClassPathElement *LPENUMCLASSPATHELEMENT;
+	
+        HRESULT Next([in] ULONG celt,
+            [out, size_is(celt), length_is(*pceltFetched)]
+            IClassPathElement **rgelt,
+            [out] ULONG *pceltFetched);
+        HRESULT Skip(
+            [in] ULONG celt);
+        HRESULT Reset();
+        HRESULT Clone([out] IEnumClassPathElement **ppenum);
+    }
+
+    [
+        object,
+        uuid(297982B3-39B8-11d1-A943-00A0C921A4D2),
+        pointer_default(unique)
+    ]
+    interface IJavaFileContainer : IUnknown
+    {
+        typedef [unique] IJavaFileContainer *LPJAVAFILECONTAINER;
+    
+        HRESULT GetName ([out] BSTR *pbstrName);
+        HRESULT GetChecksum ([out] DWORD * pdwChecksum);      
+        HRESULT GetFile([in] LPCOLESTR pszFileName, [in] DWORD dwFlags, [out] IJavaFile ** ppFile);
+        HRESULT EnumFiles ([out] IEnumJavaFile **ppFile);
+        HRESULT EnumContainers ([out] IEnumJavaFileContainer **ppEnum);
+    }
+
+    [
+        object,
+        uuid(297982B2-39B8-11d1-A943-00A0C921A4D2),
+        pointer_default(unique)
+    ]
+    interface IEnumJavaFileContainer : IUnknown
+    {
+        typedef [unique] IEnumJavaFileContainer *LPENUMJAVAFILECONTAINER;
+	
+        HRESULT Next([in] ULONG celt,
+            [out, size_is(celt), length_is(*pceltFetched)]
+            IJavaFileContainer **rgelt,
+            [out] ULONG *pceltFetched);
+        HRESULT Skip(
+            [in] ULONG celt);
+        HRESULT Reset();
+        HRESULT Clone([out] IEnumJavaFileContainer **ppenum);
+    }
+
+    [
+        uuid(D2073C44-AB4F-11d0-A732-00A0C9082637)
+    ]
+    coclass CLSID_JavaPackageManager
+    {
+        [default] interface IJavaPackageManager;
+    };
+
+};

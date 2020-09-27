@@ -1,0 +1,42 @@
+TARGETNAME=nvgfx
+
+TARGETPATH=..\..\lib\nv4
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(BASEDIR)\lib
+!ELSE
+TARGETPATH=$(TARGETPATH)
+!ENDIF
+
+TARGETTYPE=LIBRARY
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+INCLUDES=..\..\inc;..\..\ddk\inc;..\..\sdk\inc;..\..\..\common\inc;..\..\..\..\..\kernel\inc;$(BASEDIR)\src\video\inc
+
+!IFDEF NT5
+INCLUDES=$(INCLUDES);$(BASEDIR)\inc\ddk
+!ENDIF
+
+!IFDEF NV_BUILD_INTERNAL
+INCLUDES=$(INCLUDES);$(BUILD_NVSDK_DIR)\nv4\inc;$(BUILD_NVSDK_DIR)\inc
+!ENDIF
+
+C_DEFINES=-DNV4_HW -DHW_CURSOR -DDIRECT_DRAW -DUSE_GUI -DNTRM -DRM20 -DNVDEPRECATED
+# pick up any extra defines from environment
+C_DEFINES=$(C_DEFINES) $(RM_EXTRA_C_DEFINES)
+
+!IF ("$(NTDEBUG)" != "") && ("$(NTDEBUG)" != "ntsdnodbg")
+C_DEFINES=$(C_DEFINES) -DDEBUG $(RM_EXTRA_C_DEBUG_DEFINES)
+!ENDIF
+
+SOURCES=                \
+        os.c            \
+        osinit.c        \
+        osvp.c          \
+        osapi.c         \
+        smp.c
+

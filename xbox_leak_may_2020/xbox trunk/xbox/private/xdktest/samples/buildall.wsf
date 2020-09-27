@@ -1,0 +1,182 @@
+<job>
+<script language="VBScript" src="common.vbs"/>
+<script language="VBScript">
+'
+' BuildAll - builds all projects from the VC++ IDE using automation
+' emmang@xbox.com, dmooney@xbox.com, a-robro@microsoft.com
+'
+Dim gstrBuildErrors, gstrBuildWarnings, gRebuild, gPause
+Const SCRIPTNAME = "BuildAll"
+
+Main()
+
+Sub Main()
+    On Error Resume Next
+
+    If Not Init() Then
+        Exit Sub
+    End If
+
+    gstrBuildErrors = ""
+    gstrBuildWarnings = ""
+    '
+    ' run MsDev for a few seconds
+    '
+    'gobjShell.Run Chr(34) & gstrMsdevInstall & Chr(34)
+    'WScript.Sleep 3000
+    'gobjShell.SendKeys "{esc}%{f4}"
+    'WScript.Sleep 100
+
+    '
+    ' get options from user
+    '
+    gRebuild = gobjShell.PopUp( _
+            "Do a Rebuild All?" & vbCrLf & _
+            "(5 second timeout => NO)", _
+            5, SCRIPTNAME, (32 + 4))
+    gPause = gobjShell.PopUp( _
+            "Pause to review build errors and warnings?" & vbCrLf & _
+            "(5 second timeout => NO)", _
+            5, SCRIPTNAME, (32 + 4))
+
+    ProcessSubdirs(gstrXDKInstall)
+
+    If (gstrBuildErrors <> "") Then
+        WScript.Echo "The following projects had errors:" & vbCrLf _
+                & gstrBuildErrors
+    Else
+        WScript.Echo "All projects compiled without errors"
+    End If
+
+    If (gstrBuildWarnings <> "") Then
+        WScript.Echo "The following projects had warnings:" & vbCrLf _
+                & gstrBuildWarnings
+    Else
+        WScript.Echo "All projects compiled without warnings"
+    End If
+End Sub
+
+
+'
+' this is global in case I ever want to try hooking up
+' to the Msdev Application events
+'
+Dim gobjMsdevApp
+Sub ProcessSingleFile(objFile)
+    Dim strExt
+
+    On Error Resume Next
+    strExt = lcase(gobjFileSystem.GetExtensionName(objFile.Path))
+    If (strExt <> "dsp") Then
+        Exit Sub
+    End If
+
+    Set gobjMsdevApp = CreateObject("MSDev.Application")
+    gobjMsdevApp.Visible = True
+    gobjMsdevApp.Documents.CloseAll
+    gobjMsdevApp.Documents.Open objFile.Path
+
+    If Instr(1, objFile.Path, "\Samples\Xbox", 1) > 0 Then
+        SetCopyPath(gobjFileSystem.GetBaseName(objFile.Path))
+        SetImageTitleName(gobjFileSystem.GetBaseName(objFile.Path))
+    End If
+
+    BuildEveryConfiguration
+    gobjMsdevApp.Quit
+End Sub
+
+
+' copied from MSDN
+Sub BuildEveryConfiguration
+	Dim proj, projCol
+	Dim config, configCol
+	Dim numProjects, numConfigs, i, j
+
+    On Error Resume Next
+	Set projCol = gobjMsdevApp.Projects
+	numProjects = projCol.Count
+	For i = 1 To numProjects
+		Set proj = projCol(i)
+		If proj.Type = "Build" Then
+			Set configCol = proj.Configurations
+			numConfigs = configCol.Count
+			For j = 1 to numConfigs
+				Set config = configCol(j)
+
+                If (gRebuild = 6) Then
+				    gobjMsdevApp.RebuildAll config
+				Else
+				    gobjMsdevApp.Build config
+				End If
+
+				If (gobjMsdevApp.Errors > 0) Then
+					gstrBuildErrors = gstrBuildErrors & config.Name & vbCrLf
+				Elseif (gobjMsdevApp.Warnings > 0) Then
+					gstrBuildWarnings = gstrBuildWarnings & config.Name & vbCrLf
+				End If
+
+				If ((gobjMsdevApp.Errors > 0 or gobjMsdevApp.Warnings > 0) and gPause = 6) Then
+					WScript.Echo "Click Ok to continue"
+					gPause = gobjShell.PopUp( _
+                        "Continue to pause for build errors and warnings?" & _
+                        vbCrLf & "(5 second timeout => NO)", 5, SCRIPTNAME, _
+                        (32 + 4))
+				End If
+			Next
+		End If
+	Next
+End Sub
+
+
+Sub SetCopyPath(strBaseName)
+    WScript.Sleep 250
+    ' Alt-F7 (invoke Project Settings dialog) doesn't work
+    ' if user is set to Visual C++ 2.0 hotkey mapping
+    ' gobjShell.SendKeys "%{f7}"
+    gobjShell.SendKeys "%ps"
+    WScript.Sleep 250
+    gobjShell.SendKeys "%s"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{down}{down}{down}{down}{down}{down}{down}{down}{down}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{tab}{tab}{tab}{tab}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{right}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "%n"
+    WScript.Sleep 250
+    gobjShell.SendKeys "e:\samples\" & strBaseName & "\" & strBaseName & ".xbe"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{tab}{enter}"
+    WScript.Sleep 250
+End Sub
+
+
+Sub SetImageTitleName(strBaseName)
+    WScript.Sleep 250
+    ' Alt-F7 (invoke Project Settings dialog) doesn't work
+    ' if user is set to Visual C++ 2.0 hotkey mapping
+    ' gobjShell.SendKeys "%{f7}"
+    gobjShell.SendKeys "%ps"
+    WScript.Sleep 250
+    gobjShell.SendKeys "%s"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{down}{down}{down}{down}{down}{down}{down}{down}{down}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{tab}{tab}{tab}{tab}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{right}{right}{right}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "%y"
+    WScript.Sleep 250
+    gobjShell.SendKeys "{down}"
+    WScript.Sleep 250
+    gobjShell.SendKeys "%t"
+    WScript.Sleep 250
+    gobjShell.SendKeys strBaseName & " " & Now
+    WScript.Sleep 250
+    gobjShell.SendKeys "{enter}"
+    WScript.Sleep 250
+End Sub
+</script>
+</job>

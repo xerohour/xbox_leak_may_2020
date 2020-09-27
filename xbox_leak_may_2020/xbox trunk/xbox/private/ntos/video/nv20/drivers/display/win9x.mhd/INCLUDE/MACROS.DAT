@@ -1,0 +1,921 @@
+;==============================================================================
+;
+;       Copyright (C) 1998 Nvidia Coporation
+;
+;       File:           macros.dat
+;
+;       Purpose:        This file contains macros for common assembly needs.
+;
+;==============================================================================
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Model support macros and equates. In Windows, there are 3 primary spaces:
+; 1) RING3SEGSPACE      = 16bit space (display driver space)
+; 2) RING3FLATSPACE = ring 3 32bit space -- began in Windows 95
+; 3) RING0FLATSPACE = ring 0 32bit space -- VxD space
+
+RING3SEGSPACE   TEXTEQU <0>
+RING3FLATSPACE  TEXTEQU <1>
+RING0FLATSPACE  TEXTEQU <2>
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;       The following are standard size equates
+
+BYTESIZE        = 1
+WORDSIZE        = 2
+DWORDSIZE       = 4
+FWORDSIZE       = 6
+QWORDSIZE       = 8
+NFP16   TYPEDEF NEAR16 PTR
+NFP32   TYPEDEF NEAR32 PTR
+FFP16   TYPEDEF FAR16  PTR
+FFP32   TYPEDEF FAR32  PTR
+
+;       The following are the MASM 6.X defined OPATTR equates
+
+ATTR_CODE_LABEL                         =       01H
+ATTR_MEM_EXPR_OR_RELOC_DATA_LABEL       =       02H
+ATTR_IMMED_EXPR                         =       04H
+ATTR_DIRECT_MEM_ADDR                    =       08H
+ATTR_REG_EXPR                           =       10H
+ATTR_NOERROR                            =       20H
+ATTR_SS_REL_MEM_EXPR                    =       40H
+ATTR_EXT_LABEL                          =       80H
+
+; I need these for use in some of the macros
+DIST_NONE       = 0
+DIST_NEAR16     = 2
+DIST_FAR16      = 3
+DIST_NEAR32     = 4
+DIST_FAR32      = 5
+
+; For breaking at the entry points to functions
+IFDEF  (DEBUG)
+    IF      (DEBUG GT 1)
+       BREAK_AT_DRIVER_ENTRY_POINTS    TEXTEQU <1>
+    ELSE
+       BREAK_AT_DRIVER_ENTRY_POINTS    TEXTEQU <0>
+    ENDIF
+ENDIF
+
+ENTRY_BREAK     MACRO
+    LOCAL  SkipIt, SkiptIt1
+
+    IF  DEBUGGE(1)
+        IFDEF  BREAK_AT_DRIVER_ENTRY_POINTS
+            IF  (BREAK_AT_DRIVER_ENTRY_POINTS NE 0)
+                IF      (@WordSize EQ 2)
+                        cmp     cs:[wBreak16],0
+                        je      SkipIt
+                        int     3
+SkipIt:
+                ELSE
+                        cmp     cs:[wBreak32],0
+                        je      SkipIt1
+                        int     3
+SkipIt1:
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDIF
+ENDM
+
+; This allows an override for the base pointer size for 16 bit code
+IFDEF   USE_EBP
+        IFB     USE_EBP
+                USE_EBP         EQU             0
+        ELSE
+;               IFDIF   <USE_EBP>,<1>
+                IF      USE_EBP NE 1
+                        USE_EBP         EQU             0
+                ENDIF
+        ENDIF
+ELSE
+        USE_EBP         EQU             0
+ENDIF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Segment declarations
+
+; Let's get these defined now, so we can check them without causing an error.
+SEGMENT_IS_OPEN         = 0
+InsideFunction          = 0
+
+; This macro expands differently depending upon the space you are
+; assembling for.
+; RING3SEGSPACE
+;       segname         - whatever you wish the segname to be
+;       segtype         - USE16 or USE32
+;       segclass        - Must be "CODE" or "DATA"
+;
+; RING3FLATSPACE
+;       segname         - whatever you wish the segname to be
+;       segtype         - ignored and forced to USE32
+;       segclass        - Must be "CODE" or "DATA"
+;
+; RING0FLATSPACE
+;       segname         - ignored
+;       segtype         - ignored
+;       segclass        - Must be "CODE" or "DATA". The OPENSEG macro will
+;                                 simply invoke the VxD_LOCKED_CODE_SEG macro if
+;                                 the class is "CODE" and the VxD_LOCKED_DATA_SEG
+;                                 macro if the class is "DATA".
+
+OPENSEG         MACRO   segname, segtype, segclass
+IF              (CODE_SPACE EQ RING3SEGSPACE)
+&segname        SEGMENT PARA    &segtype        PUBLIC  '&segclass'
+OPEN_SEGMENT_NAME       TEXTEQU @CatStr(segname)
+ELSEIF  (CODE_SPACE EQ RING3FLATSPACE)
+&segname        SEGMENT PARA    USE32           PUBLIC  '&segclass'
+OPEN_SEGMENT_NAME       TEXTEQU @CatStr(segname)
+ELSE
+IFIDNI          <segclass>,<CODE>
+VxD_LOCKED_CODE_SEG
+OPEN_SEGMENT_NAME       TEXTEQU <CODE>
+ELSEIFIDN       <segclass>,<DATA>
+VxD_LOCKED_DATA_SEG
+OPEN_SEGMENT_NAME       TEXTEQU <DATA>
+ELSE
+echo    Bad seg class argument in OPENSEG macro
+.err
+ENDIF
+ENDIF
+SEGMENT_IS_OPEN         = SEGMENT_IS_OPEN + 1
+ENDM
+
+; This macro is the complement to the OPENSEG macro. It will close
+; the currently open segment. The argument is optional -- if you
+; specify it, then the macro will verify that the segment you are
+; closing is the one that is currently open.
+CLOSESEG        MACRO   segname
+IF      (SEGMENT_IS_OPEN EQ 0)
+echo CLOSESEG called and there is no segment currently open
+.err
+ENDIF
+
+IFNB    <segname>
+IFDIFI  <segname>,OPEN_SEGMENT_NAME
+echo CLOSESEG is closing a different segment than is currently open
+.err
+ENDIF
+ENDIF
+
+IF              (CODE_SPACE EQ RING3SEGSPACE)
+OPEN_SEGMENT_NAME       ENDS
+ELSEIF  (CODE_SPACE EQ RING3FLATSPACE)
+OPEN_SEGMENT_NAME       ENDS
+ELSE
+IFIDNI          <segclass>,<CODE>
+VxD_LOCKED_CODE_ENDS
+ELSEIFIDN       <segclass>,<DATA>
+VxD_LOCKED_DATA_ENDS
+ELSE
+echo    Bad seg class argument in OPENSEG macro
+.err
+ENDIF
+ENDIF
+SEGMENT_IS_OPEN         = SEGMENT_IS_OPEN - 1
+OPEN_SEGMENT_NAME       TEXTEQU <>
+ENDM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; The DECPROC (DEClare PROCedure) macro is simple, but handles all the
+; cases. This macro can be used like an extern statement in C (or
+; EXTERNDEF in assembly) to just inform the current file of an external
+; function. It can also be used in conjunction with the PARMX, LOCALX,
+; OPENPROC and CLOSEPROC macros defined elsewhere in this file to bracket
+; a real procedure. The invocation looks something like:
+;
+; DECPROC       MyFunc, PASCAL, FRAME, NEAR
+;
+; 1) name       the name of the procedure. This name is modified according
+;                       to the Microsoft compiler standard for ease of linking with
+;                       higher level languages. The modifications are described below.
+;
+; 2) type       Can be either 'C', "PASCAL", or "STANDARD". The type
+;                       determines the parameter order and who clears the arguments
+;                       from the stack. It also influences the function name as
+;                       described below.
+;                       PASCAL is left to right parameter pushing and callee clears stack.
+;                       C is right to left parameter pushing and caller clears stack
+;                       STANDARD is right to left parameter pushing and callee clears stack
+;
+; 3) frame      This argument can assume many different values. The options are:
+;
+;                       a)      "Frame" -- This will force the OPENPROC macro to generate
+;                               code for a procedure frame allowing you to define parameters
+;                               and have local variables via the PARM and LOCAL macros. The
+;                               different code spaces cause different prologue code to be
+;                               generated as follows:
+;
+;                               RING3SEGSPACE in a USE16 segment will generate the code below
+;                               and your locals and parameters will be referenced to [bp + nn].
+;                               push    bp
+;                               mov     bp,sp
+;
+;                               RING3SEGSPACE in a USE32 segment will generate the code below
+;                               and your locals and parameters will be referenced to [ebp + nn].
+;                               push    ebp
+;                               movzx   ebp,sp
+;
+;                               RING3FLATSPACE and RING0FLATSPACE will generate the code below
+;                               and your locals and parameters will be referenced to [ebp + nn].
+;                               push    ebp
+;                               mov     ebp,esp
+;
+;                       b)      "ShareFrameNear16", "ShareFrameNear32", "ShareFrameFar16",
+;                               "ShareFrameFar32" -- All these allow you to define parameters
+;                               and locals via the PARM and LOCAL macros, however, no stack
+;                               frame setup code is generated. You can use these for routines
+;                               which are called from a main routine which creates a stack
+;                               frame. Use the one that corresponds to the distance of the
+;                               main routine so that the parameters and locals will be
+;                               referenced at the correct stack offsets. NOTE: These four
+;                               identifiers only apply in RING3SEGSPACE. In RING3FLATSPACE
+;                               or RING0FLATSPACE, any shared frame routine is considered
+;                               to be ShareFrameNear32 since in flat space everything is
+;                               NEAR32.
+;
+;                       c)      "NoFrame" -- no stack setup code will be generated. The
+;                               PARMX and LOCALX macros will generate an error if they
+;                               are used in a procedure that does not have a frame.
+;
+; 4) dist       this only applies if the segment is in the RING3SEGSPACE space.
+;                       The argument can be NEAR, FAR, NEAR16, FAR16, NEAR32, FAR32.
+;                       If the current open segment is RING3FLATSPACE or RING0FLATSPACE
+;                       then this argument is ignored and the distance is always NEAR32.
+;
+; name modifications - According to the Misrosoft way of doing things:
+;
+;       PASCAL          - name is unchanged
+;       C                       - an underscore is pre-pended to the name
+;       STANDARD        - an underscore is pre-pended to the name and an @ sign
+;                                 followed by the number of arguments x 4 is appended to
+;                                 the end of name. e.g. MyFunc(BYTE bParm1, DWORD dwParm2)
+;                                 would result in a function name of _MyFunc@8. Also
+;                                 MyFunc(BYTE b1, DWORD dw2, LPBYTE p2) would result in
+;                                 a function name of _MyFunc@12. etc.
+;                                 Note that STANDARD does not exist in RING3SEGSPACE
+
+DECPROC MACRO   name, type, frame, dist, dbglog
+        FunctionTypePascal              = 0
+        FunctionTypeC                   = 0
+        FunctionTypeStandard            = 0
+        FunctionOwnsFrame               = 0
+        FunctionSharesFrame             = 0
+        FunctionFrameDist               = 0
+        DebugLog                        = 0
+        ParmBaseOffsetInit              = 0
+        MOVSP                           TEXTEQU <mov>
+
+
+        IFDEF   DEBUG
+                IF      (DEBUG EQ 1)
+                       IFNB     <dbglog>
+                                IFIDNI  <dbglog>,<LOGON>
+                                       DebugLog         = 1
+                                ELSE
+                                        DebugLog        = 0
+                                ENDIF
+                       ELSE
+                                DebugLog        = 0
+                       ENDIF
+                ELSE
+                       IFNB     <dbglog>
+                                IFIDNI  <dbglog>,<LOGOFF>
+                                        DebugLog        = 0
+                                ELSE
+                                        DebugLog        = 1
+                                ENDIF
+                       ELSE
+                                DebugLog        = 1
+                       ENDIF
+                ENDIF
+        ENDIF
+
+        IFNB    <dbglog>
+                IFIDNI  <dbglog>,<LOGON>
+                        DebugLog = 1
+                ENDIF
+        ENDIF
+
+        IF      (SEGMENT_IS_OPEN EQ 0)
+                echo Cannot invoke DECPROC unless a segment is open.
+                .err
+        ENDIF
+
+        ;; Deal with the function name
+        FunctionName            TEXTEQU <&name>
+
+        ;; Deal with the function type
+        IFIDNI          <type>,<PASCAL>
+                FunctionTypePascal = 1
+        ELSEIFIDNI      <type>,<C>
+                FunctionTypeC = 1
+        ELSEIFIDNI      <type>,<STANDARD>
+                FunctionTypeStandard = 1
+        ELSE
+                echo Bad type argument to macro DECPROC
+                .err
+        ENDIF
+
+        ;; Deal with the distance now
+        IFIDNI          <dist>,<NEAR16>
+                FunctionPseudoDist      TEXTEQU <NEAR>
+                FunctionSizeDist        = DIST_NEAR16
+                ParmBaseOffsetInit      = 2
+        ELSEIFIDNI      <dist>,<NEAR32>
+                FunctionPseudoDist      TEXTEQU <NEAR>
+                FunctionSizeDist        = DIST_NEAR32
+                ParmBaseOffsetInit      = 4
+        ELSEIFIDNI      <dist>,<FAR16>
+                FunctionPseudoDist      TEXTEQU <FAR>
+                FunctionSizeDist        = DIST_FAR16
+                ParmBaseOffsetInit      = 4
+        ELSEIFIDNI      <dist>,<FAR32>
+                FunctionPseudoDist      TEXTEQU <FAR>
+                FunctionSizeDist        = DIST_FAR32
+                ParmBaseOffsetInit      = 8
+        ELSEIFIDNI      <dist>,<NEAR>
+                IF      (@WordSize EQ 2)
+                        FunctionPseudoDist      TEXTEQU <NEAR>
+                        FunctionSizeDist        = DIST_NEAR16
+                        ParmBaseOffsetInit      = 2
+                ELSE
+                        FunctionPseudoDist      TEXTEQU <NEAR>
+                        FunctionSizeDist        = DIST_NEAR32
+                        ParmBaseOffsetInit      = 4
+                ENDIF
+        ELSEIFIDNI      <dist>,<FAR>
+                IF      (@WordSize EQ 2)
+                        FunctionPseudoDist      TEXTEQU <FAR>
+                        FunctionSizeDist        = DIST_FAR16
+                        ParmBaseOffsetInit      = 4
+                ELSE
+                        FunctionPseudoDist      TEXTEQU <FAR>
+                        FunctionSizeDist        = DIST_FAR32
+                        ParmBaseOffsetInit      = 8
+                ENDIF
+        ELSE
+                echo Bad dist argument to macro DECPROC
+                .err
+        ENDIF
+
+        ;; Deal with the function frame
+        IFIDNI          <frame>,<Frame>
+                FunctionOwnsFrame       = 1
+                FunctionFrameDist       = FunctionSizeDist
+        ELSEIFIDNI      <frame>,<ShareFrameNear16>
+                FunctionSharesFrame     = 1
+                FunctionFrameDist       = DIST_NEAR16
+                ParmBaseOffsetInit      = 2
+        ELSEIFIDNI      <frame>,<ShareFrameNear32>
+                FunctionSharesFrame     = 1
+                FunctionFrameDist       = DIST_NEAR32
+                ParmBaseOffsetInit      = 4
+        ELSEIFIDNI      <frame>,<ShareFrameFar16>
+                FunctionSharesFrame     = 1
+                FunctionFrameDist       = DIST_FAR16
+                ParmBaseOffsetInit      = 4
+        ELSEIFIDNI      <frame>,<ShareFrameFar32>
+                FunctionSharesFrame     = 1
+                FunctionFrameDist       = DIST_FAR32
+                ParmBaseOffsetInit      = 8
+        ELSEIFIDNI      <frame>,<NoFrame>
+                FunctionFrameDist       = DIST_NONE
+        ELSE
+                echo Bad frame argument to macro DECPROC
+                .err
+        ENDIF
+
+        ;; Create the variables which specify the base of the offsets to
+        ;; the stack args/locals. These depend upon the frame distance
+        IF      (CODE_SPACE EQ RING3SEGSPACE)
+                STACKPTR                        TEXTEQU <sp>
+
+                ;; This allows an override for 16 bit code
+                IF      USE_EBP EQ 1
+                        FRAMEPTR                TEXTEQU <ebp>
+                        MOVSP                   TEXTEQU <movzx>
+                        ParmBaseOffsetInit      = ParmBaseOffsetInit + 4
+                ELSEIF  (@WordSize EQ 2)
+                        FRAMEPTR                TEXTEQU <bp>
+                        ParmBaseOffsetInit      = ParmBaseOffsetInit + 2
+                ELSE
+                        FRAMEPTR                TEXTEQU <ebp>
+                        MOVSP                   TEXTEQU <movzx>
+                        ParmBaseOffsetInit      = ParmBaseOffsetInit + 4
+                ENDIF
+        ELSE
+                STACKPTR                TEXTEQU <esp>
+                FRAMEPTR                TEXTEQU <ebp>
+                FunctionPseudoDist      TEXTEQU <NEAR32>
+                FunctionSizeDist        TEXTEQU <4>
+                FunctionFrameDist       = DIST_NEAR32
+                ParmBaseOffsetInit      = 8
+        ENDIF
+
+        IFDIFI  <frame>,<NoFrame>
+            ParmBaseOffset                  = ParmBaseOffsetInit
+            ParmReverseOffset               = 0
+            ParmCount                       = 0
+            ParmIndexOffset                 = 0
+            LocalOffset                     = 0
+        ENDIF
+
+        EXTERNDEF       FunctionName:&dist
+ENDM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; The OPENPROC (OPEN PROCedure) macro is to be used in conjunction with
+; the DEPROC and CLOSEPROC macros, as well as possibly the PARMX and
+; LOCALX macros for defining parameters and local variables for the
+; procedure. Typically these macros are used as follows:
+;
+; DECPROC       MyFunc, PASCAL, FRAME, NEAR
+; PARMD dwSomeDwordVariable
+; PARMW wSomeWordVariable
+; ...
+; LOCALD  dwSomeLocalDword
+; LOCALW  wSomeLocalWord
+; ...
+; OPENPROC
+;               Put your code here
+; CLOSEPROC
+;
+; The most recent DECPROC invocation defines a procedure name, type,
+; frame etc. OPENPROC opens the procedure and generates some frame
+; creation code if specified by DECPROC. The code in the body of the
+; function is executed and then CLOSEPROC will generate the code to
+; restore the frame ptrs, clean the stack appropriately and return.
+;
+; STOPPROC is very similar to CLOSEPROC except that the return
+; instruction is not generated. STOPPROC can be used when you want to
+; punt to another routine with the same parameters. STOPPROC will
+; cleanup and restore the frame ptr and then you can place a jmp
+; instruction just after the STOPPROC to go to another procedure
+; with the same arguments.
+
+OPENPROC        MACRO
+        LOCAL   TS
+
+;;      IF      (InsideFunction EQ 1)
+;;              echo OPENPROC macro invoked and we are already inside a function
+;;              .err
+;;      ENDIF
+
+        InsideFunction = 1
+
+        IF      (FunctionTypePascal EQ 1)
+                ModifiedFunctionName    TEXTEQU @CatStr(%FunctionName)
+        ELSEIF  (FunctionTypeC EQ 1)
+                ModifiedFunctionName    TEXTEQU @CatStr(<_>, %FunctionName)
+        ELSEIF  (FunctionTypeStandard EQ 1)
+                TS = ParmCount * 4
+                ModifiedFunctionName    TEXTEQU @CatStr(<_>, %FunctionName, <@>, %TS)
+        ENDIF
+
+        ;; Do this so that an EXTERNDEF to the function name will work.
+        ;; Otherwise, for STANDARD calls, EXTERNDEF would have to know
+        ;; how many parameters there are to the function, which may not
+        ;; always be convenient.
+        IF      (FunctionTypePascal EQ 0)
+                PUBLIC  FunctionName
+                FunctionName LABEL FunctionPseudoDist
+        ENDIF
+
+        PUBLIC  ModifiedFunctionName
+        ModifiedFunctionName    PROC    FunctionPseudoDist
+
+        IFDEF DEBUG
+           IF   (DebugLog NE 0)
+                   DEBUGPRINT @CatStr(<Entering >, %FunctionName)
+           ENDIF
+        ENDIF
+
+        ENTRY_BREAK
+
+        IF      (FunctionOwnsFrame EQ 1)
+                push    FRAMEPTR
+                MOVSP   FRAMEPTR,STACKPTR
+                IF      (LocalOffset NE 0)
+                        sub     STACKPTR,LocalOffset
+                ENDIF
+        ENDIF
+ENDM
+
+STOPPROC        MACRO
+        IF      (InsideFunction NE 1)
+                echo STOPPROC macro invoked with no matching OPENPROC
+                .err
+        ENDIF
+
+        IF      (FunctionOwnsFrame EQ 1)
+                IF      (CODE_SPACE EQ RING3SEGSPACE)
+                        mov sp,bp
+                ELSE
+                        mov esp,ebp
+                ENDIF
+                pop     FRAMEPTR
+        ENDIF
+ENDM
+
+CLOSEPROC       MACRO
+        IF      (InsideFunction NE 1)
+                echo CLOSEPROC macro invoked with no matching OPENPROC
+                .err
+        ENDIF
+
+        STOPPROC
+
+        IF      ((FunctionSizeDist AND @WordSize) EQ 0)
+                DB      66H
+        ENDIF
+
+        IF (FunctionOwnsFrame NE 0)
+                IF      ((FunctionTypePascal EQ 1) OR (FunctionTypeStandard EQ 1))
+                        IF      (FunctionSizeDist AND 1)
+                                retf    ParmIndexOffset
+                        ELSE
+                                ret     ParmIndexOffset
+                        ENDIF
+                ELSE
+                        IF      (FunctionSizeDist AND 1)
+                                retf
+                        ELSE
+                                ret
+                        ENDIF
+                ENDIF
+        ELSE
+                IF      (FunctionSizeDist AND 1)
+                        retf
+                ELSE
+                        ret
+                ENDIF
+        ENDIF
+
+        ModifiedFunctionName    ENDP
+        InsideFunction = 0
+ENDM
+
+ENDPROC    MACRO
+        ModifiedFunctionName    ENDP
+        InsideFunction = 0
+ENDM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; PARMX macros for generating arguments to routines.
+; You use the PARMX macros in between a DECPROC macro and an OPENPROC
+; macro. The PARMX macros should be used to declare parameters in the
+; order the parameters would appear (left to right) if the function
+; were called from higher level language like C. For example
+;
+; int STDCALL MyFunc(DWORD dwA, WORD wB, LPSTUFF lpData)
+;
+; would appear as
+;
+; DECPROC       MyFunc, STANDARD, FRAME, NEAR
+; PARMD dwA
+; PARMW wB
+; PARMV lpData,LPSTUFF
+; OPENPROC
+; ....
+;
+; As you know, the parameters are pushed in different orders for
+; PASCAL and C or STANDARD call. However, the DECPROC and PARMX
+; macros handle all this for you. You do not need to reverse the
+; order of the PARMX macros for the different calling conventions.
+; Always use the PARMX macros to list the parameters from left to
+; right as they appear in a higher level language call.
+;
+; PARMB parm            declares a byte parameter called parm. Regardless
+;                                       of whether you are running in RING3SEGSPACE,
+;                                       RING3FLATSPACE, or RING0FLATSPACE, the byte
+;                                       parameter will be equated to the low byte of:
+;                                       1) a WORD location on the stack if the current
+;                                          code segment is USE16
+;                                       2) a DWORD location on the stack if the current
+;                                          code segment is USE32 or FLAT space
+;
+; PARMW parm            declares a word parameter called parm. If you
+;                                       are running in a USE32 code segment or FLAT
+;                                       space then the word parameter is equated to the
+;                                       low word of a DWORD location on the stack;
+;                                       otherwise this just equates directly to a WORD
+;                                       stack location.
+;
+; PARMD parm            declares a DWORD parameter called parm.
+;
+; PARMV parm,ptype      declares a parameter parm of type ptype. The amount
+;                                       of space this takes is SIZE ptype. parm is equated
+;                                       to the location of the base of this area. This
+;                                       allows you to pass and accept structures on the stack.
+;
+; PARMS parm,space      declares a parameter parm that takes up space bytes.
+;                                       This is in case you wish to pass a constant array
+;                                       on the stack. For example, you can pass an array
+;                                       of 256 bytes as PARMS MyArray,100H. In this case,
+;                                       the parameter is always set to be of type "byte".
+
+PARMX  MACRO   parm,TypePtr,ByteCount
+       LOCAL   TSO
+
+       IF      ((FunctionOwnsFrame EQ 0) AND (FunctionSharesFrame EQ 0))
+               echo PARMX macro invoked and current function does not own or share a frame
+               .err
+       ENDIF
+
+       IF      (FunctionTypePascal EQ 1)
+               ParmReverseOffset = ParmReverseOffset + ByteCount
+               parm    TEXTEQU @CatStr(<(&TypePtr ptr ss:[FRAMEPTR + ParmBaseOffset + ParmIndexOffset - >, %ParmReverseOffset, <])>)
+       ELSE
+               TS0 = ParmBaseOffset + ParmIndexOffset
+               parm    TEXTEQU @CatStr(<(&TypePtr ptr ss:[FRAMEPTR + >, %TS0, <])>)
+       ENDIF
+
+       ParmCount = ParmCount + 1
+       ParmIndexOffset = ParmIndexOffset + ByteCount
+
+       IF      (ParmIndexOffset AND 1)
+               ParmIndexOffset = ParmIndexOffset + 1
+       ENDIF
+ENDM
+
+PARMB  MACRO   parm
+       PARMX   parm,byte,2
+ENDM
+
+PARMW  MACRO   parm
+       PARMX   parm,word,2
+ENDM
+
+PARMD  MACRO   parm
+       PARMX   parm,dword,4
+ENDM
+
+PARMV  MACRO   parm,ptype
+       LOCAL   TS1
+
+       TS1 TEXTEQU @CatStr(% SIZE ptype)
+       PARMX   parm,ptype,TS1
+ENDM
+
+PARMS  MACRO   parm,space
+       PARMX   parm,byte,space
+ENDM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; LOCALX macros for generating locals for routines.
+; You use the LOCALX macros in between a DECPROC macro and an OPENPROC
+; macro. The LOCALX macros should be used to declare local variables
+; as shown in the following example.
+;
+; DECPROC       MyFunc, STANDARD, FRAME, NEAR
+; PARMD         dwA
+; PARMW         wB
+; PARMV         lpData,LPSTUFF
+; LOCALD        dwLocal1
+; LOCALW        wLocal2
+; LOCALB        byLocal3
+; OPENPROC
+; ....
+;
+; LOCALB locl           declares a byte local called locl. Regardless
+;                                       of whether you are running in RING3SEGSPACE,
+;                                       RING3FLATSPACE, or RING0FLATSPACE, the byte
+;                                       local will be equated to the low byte of:
+;                                       1) a WORD location on the stack if the current
+;                                          code segment is USE16
+;                                       2) a DWORD location on the stack if the current
+;                                          code segment is USE32 or FLAT space
+;
+; LOCALW parm           declares a byte local called locl. If you
+;                                       are running in a USE32 code segment or FLAT
+;                                       space then the word local is equated to the
+;                                       low word of a DWORD location on the stack;
+;                                       otherwise this just equates directly to a WORD
+;                                       stack location.
+;
+; LOCALD locl           declares a DWORD local called locl
+;
+; LOCALV locl,ptype declares a local variable of type ptype. The amount
+;                                       of space this takes is SIZE ptype. locl is equated
+;                                       to the location of the base of this area. This
+;                                       allows you to define local structures on the stack.
+;
+; LOCALS locl,space declares a local variable that takes up space bytes.
+;                                       This is in case you wish to define a constant array
+;                                       on the stack. For example, you can define an array
+;                                       of 256 bytes as LOCALS MyArray,100H. The variable
+;                                       locl is set to be of type "byte".
+
+LOCALX MACRO   var,TypePtr,ByteCount
+       LOCAL   TSO
+
+       IF      ((FunctionOwnsFrame EQ 0) AND (FunctionSharesFrame EQ 0))
+               echo LOCALX macro invoked and current function does not own or share a frame
+               .err
+       ENDIF
+
+       LocalOffset = LocalOffset + ByteCount
+
+       IF      (LocalOffset AND 1)
+               LocalOffset = LocalOffset + 1
+       ENDIF
+
+       var TEXTEQU @CatStr(<(&TypePtr ptr ss:[FRAMEPTR - >, %LocalOffset, <])>)
+ENDM
+
+LOCALB MACRO   var
+       LOCALX  var,byte,2
+ENDM
+
+LOCALW MACRO   var
+       LOCALX  var,word,2
+ENDM
+
+LOCALD MACRO   var
+       LOCALX  var,dword,4
+ENDM
+
+LOCALV MACRO   var,ptype
+       LOCAL   TS1
+
+       TS1 TEXTEQU @CatStr(% SIZE ptype)
+       LOCALX  var,ptype,TS1
+ENDM
+
+LOCALR4    MACRO   var
+       LOCALX  var,REAL4,4
+ENDM
+
+LOCALR8    MACRO   var
+       LOCALX  var,REAL8,4
+ENDM
+
+LOCALS MACRO   var, space
+       LOCALX  var,byte,space
+ENDM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+PUSHR  MACRO   r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14
+       IFNB    <r0>
+               IFIDNI          <r0>,<alld>
+                       pushad
+               ELSEIFIDN       <r0>,<allw>
+                       pusha
+               ELSEIFIDNI      <r0>,<all>
+                       IF      @WordSize EQ 2
+                               pusha
+                       ELSE
+                               pushad
+                       ENDIF
+               ELSE
+                       push    r0
+               ENDIF
+               PUSHR   r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14
+       ENDIF
+ENDM
+
+POPR   MACRO   r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14
+       IFNB    <r0>
+               POPR    r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14
+               IFIDNI          <r0>,<alld>
+                       popad
+               ELSEIFIDN       <r0>,<allw>
+                       popa
+               ELSEIFIDNI      <r0>,<all>
+                       IF      @WordSize EQ 2
+                               popa
+                       ELSE
+                               popad
+                       ENDIF
+               ELSE
+                       pop r0
+               ENDIF
+       ENDIF
+ENDM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Debugging support macros
+
+; This macro will return true if the variable DEBUG is greater than or
+; equal to a specified value. Hence, you can have different levels of
+; debug builds.
+DEBUGGE MACRO   lev:REQ
+        IFDEF   DEBUG
+                IF      DEBUG GE lev
+                        EXITM <1>
+                ELSE
+                        EXITM <0>
+                ENDIF
+        ELSE
+                EXITM <0>
+        ENDIF
+ENDM
+
+
+DEBUGPRINT      MACRO   str
+        LOCAL   Addr1,SkipIt,NoLog,MyLab
+
+IFDEF   DEBUG
+    IFDEF  DEBUGINDEX
+       DEBUGINDEX = DEBUGINDEX + 1
+    ELSE
+       DEBUGINDEX = 0
+    ENDIF
+
+;; The assembler allows nested segments. Open the segment where the
+;; logging strings will be stored.
+_DATA  SEGMENT PARA USE16   PUBLIC  'DATA'
+ThisFile   TEXTEQU  @FileName
+MyLab      TEXTEQU  @CatStr(%ThisFile, <_DebugLabel>, %DEBUGINDEX)
+PUBLIC MyLab
+MyLab  DB  @CatStr(<!">, <NVDISP: >, str, <!">),13,10,0
+_DATA  ENDS
+
+    push   SEG MyLab
+    push   OFFSET MyLab
+    call   GENERIC_OutputDebugString
+ENDIF
+ENDM
+
+IFDEF  DEBUG
+DEBUGINT3  MACRO
+    int    3
+ENDM
+ELSE
+DEBUGINT3  MACRO
+ENDM
+ENDIF
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; A couple macros that I need when writing code in a USE32 code segment
+; in RING3SEGSPACE.
+
+PUSHSREG        MACRO   sreg
+        IF      (@WordSize EQ 4)
+                DB      66H
+        ENDIF
+
+        push    sreg
+ENDM
+
+RETFAR16        MACRO   cbytes
+        IF      (@WordSize EQ 4)
+                DB      66H
+        ENDIF
+
+        IFNB    <cbytes>
+                retf    cbytes
+        ELSE
+                retf
+        ENDIF
+ENDM
+
+CALLFAR16       MACRO   dstlab
+        IF      (@WordSize EQ 4)
+            DB     066H, 9AH
+            DD     OFFSET dstlab
+            org $ - 2
+            DD     SEG dstlab
+            org $ - 2
+        ELSE
+            CALL   FAR PTR dstlab
+        ENDIF
+ENDM
+
+RETFAR32        MACRO   cbytes
+        IF      (@WordSize EQ 2)
+                DB      66H
+        ENDIF
+
+        IFNB    <cbytes>
+                retf    cbytes
+        ELSE
+                retf
+        ENDIF
+ENDM
+
+POPNEAR MACRO
+        add     sp, @WordSize
+ENDM
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+

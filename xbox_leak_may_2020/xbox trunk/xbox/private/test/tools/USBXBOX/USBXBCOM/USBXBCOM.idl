@@ -1,0 +1,68 @@
+// USBXBCOM.idl : IDL source for USBXBCOM.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (USBXBCOM.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+#include "olectl.h"
+	
+
+	[
+		object,
+		uuid(35C17BCD-1431-4CD6-B060-8492BBE9E118),
+		dual,
+		helpstring("IUSBXBCtl Interface"),
+		pointer_default(unique)
+	]
+	interface IUSBXBCtl : IDispatch
+	{
+		[propget, id(1), helpstring("property LastXError")] HRESULT LastXError([out, retval] int *pVal);
+		[id(2), helpstring("method Reset")] HRESULT Reset([in] UCHAR Port,[in] UCHAR Slot, [in, defaultvalue(0)] UCHAR interfacenumber, [out,retval] UCHAR * ucReturn);
+		[id(3), helpstring("method In")] HRESULT In([in] UCHAR Port,[in] UCHAR Slot, [in, defaultvalue(0)] UCHAR interfacenumber, UCHAR Endpoint,UCHAR Format, [out,retval] BSTR * pbsRet);
+		[id(4), helpstring("method Out")] HRESULT Out([in] UCHAR Port,[in] UCHAR Slot, [in, defaultvalue(0)] UCHAR interfacenumber, UCHAR Endpoint, UCHAR pid, BSTR * pData, int iDataSize, [out, retval] UCHAR * ReturnValue );
+		[id(5), helpstring("method Setup")] HRESULT Setup([in] UCHAR Port,[in] UCHAR Slot,[in, defaultvalue(0)]  UCHAR interfacenumber, UCHAR Endpoint, BSTR * pData, [out, retval] UCHAR * pRetVal);
+		[propget, id(6), helpstring("property TimeoutValue")] HRESULT TimeoutValue([out, retval] short *pVal);
+		[propput, id(6), helpstring("property TimeoutValue")] HRESULT TimeoutValue([in] short newVal);
+		[id(7), helpstring("method SetUsbTimeout")] HRESULT SetUsbTimeout([in]ULONG ulTimeout, [out,retval] UCHAR * ucReturn);
+		[id(8), helpstring("method EnableEvents")] HRESULT EnableEvents([in] UCHAR bEventMask);
+		[id(9), helpstring("method InArray")] HRESULT InArray([in] UCHAR Port, [in] UCHAR Slot, [in] UCHAR Interface, [out] SAFEARRAY(UCHAR)  ByteArray);
+		[id(10), helpstring("method RefreshConfiguration")] HRESULT RefreshConfiguration([out, retval] UCHAR *pVal);
+	};
+
+[
+	uuid(1EE0441E-E583-4F68-A344-0063F0D21338),
+	version(1.0),
+	helpstring("USBXBCOM 1.0 Library")
+]
+library USBXBCOMLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(AAD6A4FC-1F9C-4665-B075-5A87CCBDCB1E),
+		helpstring("_IUSBXBCtlEvents Interface")
+	]
+	dispinterface _IUSBXBCtlEvents
+	{
+		properties:
+		methods:
+		[id(1), helpstring("method InsertionEvent")] void InsertionEvent([in] UCHAR bPort, [in] UCHAR bSlot, [in] UCHAR bInterfaceNumber);
+		[id(2), helpstring("method RemovalEvent")] void RemovalEvent([in] UCHAR Port, [in] UCHAR Slot, [in] UCHAR InterfaceNumber);
+		[id(3), helpstring("method XBOXEvent")] void XBOXEvent([in] UCHAR EventType,[in] UCHAR Port, [in] UCHAR Slot, [in] UCHAR InterfaceNumber);
+	};
+
+
+	[
+		uuid(11ACB94D-4C05-4E52-9B35-84D6D60C2386),
+		helpstring("USBXBCtl Class")
+	]
+	coclass USBXBCtl
+	{
+		[default] interface IUSBXBCtl;
+		[default, source] dispinterface _IUSBXBCtlEvents;
+	};
+};
+

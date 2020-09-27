@@ -1,0 +1,113 @@
+TARGETNAME = XODashLib
+PROJNAME   = XODashLib
+TARGETPATH = obj
+TARGETTYPE=LIBRARY
+UMTYPE     = xboxapp
+				
+TITLEID    = 0xffff0000
+
+
+USE_NATIVE_EH=1
+USE_STL = 1
+
+XNOHARDDISK=1
+XE_FLAGS=\
+        $(XE_FLAGS) /TESTID:0xFFFE0000 /TESTRATINGS:0xFFFFFFFF \
+        /TESTMEDIATYPES:1 /TESTREGION:0xFFFFFFFF \
+        "/TESTNAME:$(PROJNAME)" INITFLAGS:0x00000000 /LIMITMEM \
+
+
+
+USE_LIBCMT=1
+USEPDB		= 1
+NTDEBUGTYPE=both
+
+
+
+INCLUDES   = $(INCLUDES); \
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+        $(BASEDIR)\private\ntos\inc; \
+        $(BASEDIR)\private\ntos\xapi\inc; \
+	$(BASEDIR)\private\online; \
+	$(BASEDIR)\private\ntos\net; \
+        $(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+
+		
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj
+          
+ 
+SOURCES_CORE=\
+	utilities.cpp\
+        xbinput.cpp \
+        xbutil.cpp \
+	xbStopWatch.cpp \
+	PrimitiveScene.cpp \
+        MsgDialog.cpp  \
+
+SOURCES_FILE=\
+	xip.cpp\
+        fileUtil.cpp \
+		file.cpp\
+		inifile.cpp\
+
+
+
+SOURCES_GRAPHICS=\
+		camera.cpp \
+		falloff.cpp \
+		tgl.cpp \
+		SmartObject.cpp \
+		Button.cpp\
+			ListBox.cpp \
+			Spinner.cpp \
+		Texture.cpp \
+		TextureCache.cpp \
+		Material.cpp \
+		MaterialLibrary.cpp \
+
+
+
+SOURCES_AUIDO=\
+		Audio.cpp \
+		AudioPump.cpp \
+		cdda.cpp \
+		ntiosvc.cpp \
+		xcdplay.cpp \
+		DSoundManager.cpp \
+		DiscType.cpp \
+
+
+SOURCES_TEXT=\
+		Text.cpp \
+		Locale.cpp \
+		Translator.cpp \
+                StringObj.cpp \
+		Font.cpp \
+		Date.cpp \
+
+SOURCES_SMART_OBJ=\
+		Button.cpp \
+                Texture.cpp \
+                TextureCache.cpp \
+                ListBox.cpp \
+
+
+SOURCES_NTS=\
+		NetConfig.cpp \
+
+SOURCES=$(SOURCES_CORE) \
+        $(SOURCES_GRAPHICS) \
+        $(SOURCES_FILE) \
+        $(SOURCES_TEXT) \
+        $(SOURCES_SMART_OBJ) \
+	$(SOURCES_NTS)   \
+	$(SOURCES_AUIDO) \ 
+
+	
+
+

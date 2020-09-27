@@ -1,0 +1,26 @@
+;------------------------------------------------------------------------------
+; Channel shader maps texture 0 to red, texture 1 to green,
+; texture 2 to blue, and texture 3 to alpha.
+;
+; Copyright (C) 2001 Microsoft Corporation
+; All rights reserved.
+;------------------------------------------------------------------------------
+ps.1.0
+
+; channel multipliers
+def c0, 1.f, 0.f, 0.f, 0.f 
+def c1, 0.f, 1.f, 0.f, 0.f 
+def c2, 0.f, 0.f, 1.f, 0.f 
+def c3, 0.f, 0.f, 0.f, 1.f 
+
+; source textures
+tex t0	; only red channel is used
+tex t1	; only green channel is used
+tex t2  ; only blue channel is used
+tex t3  ; only alpha channel is used
+
+; select r g b a by multiplication
+mul r0, t0, c0
+mad r0, t1, c1, r0
+mad r0, t2, c2, r0
+mad r0, t3, c3, r0

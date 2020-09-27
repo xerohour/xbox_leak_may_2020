@@ -1,0 +1,67 @@
+!IF 0
+
+Copyright (c) 2001-2002 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    James Dooley (JDooley) 29-Nov-2001
+
+!ENDIF
+
+!include ..\producer.inc
+
+TARGETNAME=xboxsynth
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+NOT_UNICODE=
+
+UMTYPE=windows
+DLLDEF=dmsynth.def 
+DLLENTRY=_DllMainCRTStartup
+
+PRECOMPILED_INCLUDE=
+PRECOMPILED_CXX=
+
+C_DEFINES = $(C_DEFINES) -DMMX_ENABLED=1 -DREVERB_ENABLED=1 -D_DMUSIC_USER_MODE_=1
+
+INCLUDES=$(INCLUDES);   \
+    $(DMPROOT)\XboxSynth\Shared; \
+    $(BASEDIR)\public\wddk\inc; \
+    $(BASEDIR)\public\wddk\inc\ddk; \
+
+TARGETLIBS=$(TARGETLIBS) \
+    $(WSDK_LIB_PATH)\dsound.lib \
+    $(WSDK_LIB_PATH)\dmoguids.lib \
+    $(DMPROOT)\Libs\Release\xboxdbg.lib \
+
+SOURCES=\
+dmsynth.rc \
+clist.cpp \
+control.cpp \
+csynth.cpp \
+debug.cpp \
+dmsynth.cpp \
+guids.cpp \
+instr.cpp \
+midi.cpp \
+mix.cpp \
+mixmulti.cpp \
+mmx.cpp \
+oledll.cpp \
+opnew.cpp \
+plclock.cpp \
+SVerb.c \
+umsynth.cpp \
+voice.cpp

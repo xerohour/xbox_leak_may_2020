@@ -1,0 +1,50 @@
+/*** brkpt.hmd - internal header file for breakpoint handler
+*
+*   Copyright <C> 1989, Microsoft Corporation
+*
+*   Purpose:
+*
+*   Revision History:
+*
+*
+*************************************************************************/
+
+#define BPFIELDCNT	5
+#define BPCODEADDR  0
+#define BPDATAADDR  1
+#define BPLENGTH    2
+#define BPPASSCNT   3
+#define BPOPTCMD    4
+
+#define BPSTNORMAL	0
+#define BPSTCALLBACK	1
+
+// Callback function messages
+#define BPFNHIT 	1   // Called when the breakpoint is hit. The
+						// return value is a breakpoint status
+#define BPFNDISPLAY	2   // Called when the breakpoint text is needed
+						// The text is returned in the far buffer
+#define BPFNMODIFY	3   // Called when modify is selected in the
+						// breakpoints menu
+
+#define BPNOPAND    0xFFFF
+#define BPNOPOR     0
+#define BPGETOFF(a,b) ((unsigned) (&((a *) 0)->b))
+
+// variables global to brkpt modules
+extern PBPI	pbpiFirst;
+extern PBPI	pbpiLast;
+extern int	fBPCCInExe;
+
+// internal breakpoint routines
+char FAR * PASCAL	BPGetBpCmd(HBPI, int, EBPT FAR *, char FAR *, unsigned short);
+char FAR * PASCAL	BPGetDataExpr(HBPI, char FAR *, int, unsigned short);
+EESTATUS PASCAL     BPMkDPI(char FAR *, PCXF, LPDPI, LPDPF);
+EESTATUS PASCAL 	BPADDRFromTM( PHTM, unsigned short FAR *, PADDR );
+void PASCAL			BPEnableFar(HBPI);
+void PASCAL			BPDisableFar(HBPI);
+EESTATUS PASCAL     BPTracePoint (LPDPI,LPDPF, PTI, PCXTL, PCXF, BOOL, BOOL );
+EESTATUS            BPParseLineNumber(LPPBP lpPbp);
+
+XOSD SetBreakPoint ( HPID, HTID, BOOL, BOOL, LPADDR, BOOL, BPNS, BOOL, DWORD, DWORD );
+BPNS BpnsFromLpbpi ( LPBPI );

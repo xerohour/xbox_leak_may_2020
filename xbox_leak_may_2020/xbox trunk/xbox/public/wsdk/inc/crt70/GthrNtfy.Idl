@@ -1,0 +1,36 @@
+//+-----------------------------------------------
+//
+//	Microsoft Site Server v3.00
+//  Copyright (C) 1997-1999 Microsoft Corporation.  All rights reserved.
+//
+//	File:		gthrntfy.idl
+//
+//	Contents:	IGatherNotify interface
+//
+//+-----------------------------------------------
+
+[
+	object,
+	uuid(0b63e376-9ccc-11d0-bcdb-00805fccce04),
+	pointer_default(unique),
+	dual,
+	public,
+	helpstring("Gatherer Notification Interface")
+]
+interface IGatherNotify: IDispatch
+{
+	import "oaidl.idl";
+
+	typedef enum TagChangeAdviseCodes
+	{
+		GTHR_CA_ADD,
+		GTHR_CA_DELETE,
+		GTHR_CA_MODIFY
+	} ChangeAdviseCodes;
+
+	HRESULT Init([in] BSTR bstrSourceName);
+
+	HRESULT OnDataChange([in] LONG eChangeAdvise, 
+						[in] BSTR bstrPhysicalAddress,
+						[in, optional] BSTR bstrLogicalAddress);
+};

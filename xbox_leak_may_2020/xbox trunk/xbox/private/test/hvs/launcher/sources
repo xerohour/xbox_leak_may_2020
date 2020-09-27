@@ -1,0 +1,61 @@
+TARGETNAME=HVSLaunch
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+XE_FLAGS=$(XE_FLAGS) /TESTID:0x48570000 /TESTRATINGS:0xFFFFFFFF /TESTNAME:"HVS Launcher" /INITFLAGS:0x00000000 /TITLEIMAGE:"titleimage.xbx" /DEFAULTSAVEIMAGE:"defsave.xbx"
+
+XDBG_COMPILE_LEVEL=5
+
+INCLUDES = \
+	$(PRIVATE_INC_PATH); \
+    $(SDK_INC_PATH); \
+	$(BASEDIR)\private\ntos\inc; \
+	$(BASEDIR)\private\test\hvs\utils; \
+	$(BASEDIR)\private\test\ui\tools\inc
+
+LINKLIBS = \
+    $(LIBRARY_PATH)\xbdm.lib \
+    $(SDK_LIB_PATH)\xboxkrnl.lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib \
+    $(LIBRARY_PATH)\xgraphics$(D).lib \
+	$(BASEDIR)\private\test\lib\*\hvsUtil.lib \
+	$(BASEDIR)\private\test\ui\tools\obj\*\images.lib \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+	$(BASEDIR)\private\test\ui\tools\obj\*\usbmanager.lib
+
+SOURCES=\
+	flashutils.cpp \
+	rommenu.cpp \
+	hvslfunctions.cpp \
+	memoryunit.cpp \
+	xitem.cpp \
+	xbeinfo.cpp \
+	testconfig.cpp \
+	screenitem.cpp \
+	screenitems.cpp \
+	configitems.cpp \
+	menuscreen.cpp \
+	xfontfuncs.cpp \
+	polyobject.cpp \
+	udtexture.cpp \
+	testconfigmenu.cpp \
+	messagemenu.cpp \
+	choosesavemenu.cpp \
+	resultsmenu.cpp \
+	key.cpp \
+	helpmenu.cpp \
+	keypadmenu.cpp \
+	keyboardmenu.cpp \
+	yesnomenu.cpp \
+	memareaselectmenu.cpp \
+	xbelist.cpp \
+	indtests.cpp \
+	hvslauncher.cpp
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_CXX=1

@@ -1,0 +1,29 @@
+TARGETNAME=cstest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+
+INCLUDES=\
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\private\online\common\inc;\
+    $(BASEDIR)\private\online\client\inc;\
+    $(BASEDIR)\private\online\client\async\inc;\
+
+SOURCES=\
+    xmain.c
+
+TARGETLIBS=\
+    $(BASEDIR)\private\lib\*\xcrypt.lib \
+    $(BASEDIR)\private\lib\*\rsa32.lib \
+    $(LIBRARY_PATH)\xnet$(D).lib
+    

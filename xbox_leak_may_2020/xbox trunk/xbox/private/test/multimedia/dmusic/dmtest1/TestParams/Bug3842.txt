@@ -1,0 +1,37 @@
+[TestList]
+dmtest1                           ;DMusic tests
+
+[DMTest1]
+
+ThreadStackSize=0x10000
+
+Wait  =0
+BVT   =1
+Valid =0
+Invalid = 0
+Fatal =0
+Perf  =0
+Stress = 1
+WaitAtTestEnd   =1
+InitPerformance = Once
+LocalLogLevel        =2
+DoWorkFrequency =30
+
+MaxTestOmit=20
+
+;4302 DMusic: Creating 600-700 inactive audiopaths hangs app
+TestOmit0001=AudioPath_Activate_Valid_Many
+
+;3976 DMusic: Need to implement methods on buffers obtained from *::GetObjectInPath (CBuffer class)
+TestOmit0002=AudioPath_GetObjectInPath_Valid_SimplyGetBuffer
+
+;3514	DMusic: AudioPath::SetPitch and SegState::SetPitch are exposed but not implemented
+;TestOmit0003=AudioPath_SetPitch_Valid_Ramp
+
+
+;3802	DMusic: Loading a script for the 127th time fails (memory leak)
+TestOmit0004=Loader_LoadObjectFromFile_Valid
+
+;???
+TestOmit0005=Loader_CollectGarbage_Valid
+

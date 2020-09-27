@@ -1,0 +1,68 @@
+; Distorts vertices in eye-space to give a fish-eye lens effect
+; See: http://www-cad.eecs.berkley.edu/Respep/Research/interact/playpen/fish
+
+#include "trees.h"
+
+#define R_EYE_POSITION r0
+#define XYZW_FACTOR_K y
+#define XYZW_FACTOR_K_PLUS_1 z
+#define XYZW_MAX_XZRATIO x
+#define XYZW_ONE w
+
+#define R_SCRATCH r8
+
+vs.1.0
+
+; Transform position to eye space
+dp4 R_EYE_POSITION.x, v0, c[CV_WORLDVIEW_0]
+dp4 R_EYE_POSITION.y, v0, c[CV_WORLDVIEW_1]
+dp4 R_EYE_POSITION.z, v0, c[CV_WORLDVIEW_2]
+dp4 R_EYE_POSITION.w, v0, c[CV_WORLDVIEW_3]
+
+; Start fish-eye calculation
+; w = (1/d) / maxd w is now the normalized distance
+mov R_SCRATCH, R_EYE_POSITION
+mov R_SCRATCH.z, c[CV_ZERO].z
+dp3 R_SCRATCH.x, R_SCRATCH, R_SCRATCH
+rsq R_SCRATCH.x, R_SCRATCH.x
+
+mul R_SCRATCH.x, R_EYE_POSITION.z, R_SCRATCH.x
+rcp R_SCRATCH.x, R_SCRATCH.x
+mul R_SCRATCH.x, R_SCRATCH.x, c[CV_FISHEYEINFO].XYZW_MAX_XZRATIO
+
+; Get k = Abs(x) for the distortion calculation
+max R_SCRATCH.x, R_SCRATCH.x, -R_SCRATCH.x
+
+; Calculate 1 / input
+rcp r5.w, R_SCRATCH.x
+
+; Translation factor
+; 1 / (xk + 1)
+mov R_SCRATCH.y, c[CV_FISHEYEINFO].XYZW_ONE
+mad r5.y, R_SCRATCH.x, c[CV_FISHEYEINFO].XYZW_FACTOR_K, R_SCRATCH.y
+rcp r5.y, r5.y
+
+; (k+1)x
+mul r5.x, R_SCRATCH.x, c[CV_FISHEYEINFO].XYZW_FACTOR_K_PLUS_1
+
+; f = (k + 1)x / (kx + 1)
+mul r5.y, r5.x, r5.y
+
+; r5.y = output r5.w = 1 / input
+; New Position = (output / input) * Original Position
+mul r5.x, r5.y, r5.w
+
+; Scale the existing x and y
+mul R_EYE_POSITION.xy, R_EYE_POSITION, r5.x
+
+; Transform position to clip space and output it
+dp4 oPos.x, R_EYE_POSITION, c[CV_PROJ_0]
+dp4 oPos.y, R_EYE_POSITION, c[CV_PROJ_1]
+dp4 oPos.z, R_EYE_POSITION, c[CV_PROJ_2]
+dp4 oPos.w, R_EYE_POSITION, c[CV_PROJ_3]
+
+; Draw using supplied tree color
+mov oD0.xyzw, v2
+
+mov oT0.xy, v2
+

@@ -1,0 +1,337 @@
+/***
+*VBAEXT.ODL
+*
+*  Copyright (C) 1995-7, Microsoft Corporation.  All Rights Reserved.
+*  Information Contained Herein Is Proprietary and Confidential.
+*
+*Purpose:
+*
+*       Defines the object model exposed by VBA.
+*
+*Revision History:
+*
+*       28-Sep-95 JosephF:   Created.
+*
+*****************************************************************************/
+// #include "obguid.h"
+
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// SEE COMMENTS IN VBIDE.ODL ABOUT HELP IDs AND HELPSTRINGS!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+typedef [HELP(vbext_ProcKind)] enum {
+    [HELP(vbext_ProcKind_vbext_pk_Proc)]  vbext_pk_Proc = 0,
+    [HELP(vbext_ProcKind_vbext_pk_Let)]	  vbext_pk_Let  = 1,
+    [HELP(vbext_ProcKind_vbext_pk_Set)]	  vbext_pk_Set  = 2,
+    [HELP(vbext_ProcKind_vbext_pk_Get)]	  vbext_pk_Get  = 3,
+} vbext_ProcKind;
+
+
+
+[ dual, hidden, nonextensible, 
+uuid(0002E16D-0000-0000-C000-000000000046),
+HELP(vbext_CodeModule) ]
+interface _CodeModule : IDispatch
+{
+
+    // parant and VBE
+    [propget, HELP(vbext_CodeModule_Parent)] HRESULT Parent([out, retval] VBComponent **retval);
+    [propget, HELP(vbext_CodeModule_VBE)] HRESULT VBEOBJ ([out, retval] VBEOBJ **retval);
+	
+	// name
+    [propget, id(0), hidden] HRESULT Name([out, retval] BSTR *pbstrName);
+    [propput, id(0), hidden] HRESULT Name([in] BSTR bstrName);
+	     
+	// AddFromString
+	[HELP(vbext_CodeModule_AddFromString)] HRESULT AddFromString([in] BSTR String);    
+
+	// AddFromFile
+	[HELP(vbext_CodeModule_AddFromFile)] HRESULT AddFromFile([in] BSTR FileName);    
+
+	// Line
+	[propget, HELP(vbext_CodeModule_Lines)] HRESULT Lines([in] long StartLine, [in] long Count, [out, retval] BSTR *String);
+
+	// CountOfLines
+	[propget, HELP(vbext_CodeModule_CountOfLines)] HRESULT CountOfLines([out, retval] long *CountOfLines);
+
+    //InsertLine
+    [HELP(vbext_CodeModule_InsertLines)] HRESULT InsertLines([in] long Line, [in] BSTR String);    
+
+	//DeleteLine
+    [HELP(vbext_CodeModule_DeleteLines)] HRESULT DeleteLines([in] long StartLine, [in, defaultvalue(1)] long Count);     // Undone: Count is optional
+
+	//ReplaceLine
+    [HELP(vbext_CodeModule_ReplaceLine)] HRESULT ReplaceLine([in] long Line, [in] BSTR String); 
+
+    //ProcStartLine
+    [propget, HELP(vbext_CodeModule_ProcStartLine)] HRESULT ProcStartLine([in] BSTR ProcName, [in] vbext_ProcKind ProcKind, [out, retval] long *ProcStartLine);
+
+    //ProcCountLines
+    [propget, HELP(vbext_CodeModule_ProcCountLines)] HRESULT ProcCountLines([in] BSTR ProcName, [in] vbext_ProcKind ProcKind, [out, retval] long *ProcCountLines);
+
+	//ProcBodyLine
+    [propget, HELP(vbext_CodeModule_ProcBodyLine)] HRESULT ProcBodyLine([in] BSTR ProcName, [in] vbext_ProcKind ProcKind, [out, retval] long *ProcBodyLine);
+
+	//ProcOfLine
+    [propget, HELP(vbext_CodeModule_ProcOfLine)] HRESULT ProcOfLine([in] long line, [out] vbext_ProcKind *ProcKind, [out, retval] bstr *pbstrName);
+
+	//DeclCountOfLines
+    [propget, HELP(vbext_CodeModule_CountOfDeclarationLines)] HRESULT CountOfDeclarationLines([out, retval] LONG *pDeclCountOfLines);
+   
+	//CreateEventProc
+	[HELP(vbext_CodeModule_CreateEventProc)] HRESULT CreateEventProc([in] BSTR EventName, [in] BSTR ObjectName, [out, retval] long *line); 
+
+	//Search
+	[HELP(vbext_CodeModule_Find)]
+	HRESULT Find(	[in]  BSTR Target, 
+					[in, out] long *StartLine, 
+					[in, out] long *StartColumn, 
+					[in, out] long *EndLine, 
+					[in, out] long *EndColumn, 
+					[in, defaultvalue(0)]  Boolean WholeWord,
+					[in, defaultvalue(0)]  Boolean MatchCase,
+					[in, defaultvalue(0)]  Boolean PatternSearch,
+					[out,retval] Boolean *pfFound); 
+
+
+    //GetCodePane
+	[propget, HELP(vbext_CodeModule_CodePane)] 
+	HRESULT CodePane([out, retval] CodePane **CodePane); 
+
+
+};
+
+
+[
+uuid(0002E16F-0000-0000-C000-000000000046)
+]
+coclass CodeModule
+{
+    [default]
+    interface _CodeModule;
+};
+
+
+
+[ dual, nonextensible, 
+uuid(0002E171-0000-0000-C000-000000000046),
+HELP(vbext_CodePanes) ]
+interface _CodePanes : IDispatch
+{
+
+    // parant and VBE
+	[propget, HELP(vbext_CodePanes_Parent)] HRESULT Parent([out, retval] VBEOBJ **retval);
+    [propget, HELP(vbext_CodePanes_VBE)] HRESULT VBEOBJ([out, retval] VBEOBJ **retval);
+
+    //Collection methods
+
+    [id(0), HELP(vbext_CodePanes_Item)] HRESULT Item([in] VARIANT index, [out, retval] CodePane **CodePane);
+
+    [propget, HELP(vbext_CodePanes_Count)] HRESULT Count([out, retval] long *Count);
+
+    [id(0xFFFFFFFC)] HRESULT _NewEnum([out, retval] IUnknown **ppenum);
+
+	[propget, hidden] HRESULT Current([out, retval] CodePane **CodePane);
+    [propput, hidden] HRESULT Current([in] CodePane *CodePane);
+
+};
+
+
+[
+uuid(0002E173-0000-0000-C000-000000000046)
+]
+coclass CodePanes
+{
+    [default]
+    interface _CodePanes;
+};
+
+
+typedef [HELP(vbext_cv_CodePaneview)] enum {
+  [HELP(vbext_cv_CodePaneview_ProcedureView)]	vbext_cv_ProcedureView  = 0,
+  [HELP(vbext_cv_CodePaneview_FullModuleView)]	vbext_cv_FullModuleView = 1,
+} vbext_CodePaneview;
+
+
+
+[ dual, nonextensible, 
+uuid(0002E175-0000-0000-C000-000000000046),
+HELP(vbext_CodePane) ]
+interface _CodePane : IDispatch
+{
+
+	// parant and VBE
+	[propget, HELP(vbext_CodePane_Collection)] HRESULT Collection([out, retval] CodePanes **retval);
+    [propget, HELP(vbext_CodePane_VBE)] HRESULT VBEOBJ([out, retval] VBEOBJ **retval);
+
+
+    //Window
+    [propget, HELP(vbext_CodePane_Window)] HRESULT Window([out, retval] Window **retval);
+   
+	//GetSelection
+	[HELP(vbext_CodePane_GetSelection)] HRESULT GetSelection( [out] long *StartLine,
+						  [out] long *StartColumn,
+						  [out] long *EndLine,
+						  [out] long *EndColumn);    
+
+    //SetSelection
+	[HELP(vbext_CodePane_SetSelection)] HRESULT SetSelection( [in] long StartLine,
+						  [in] long StartColumn,
+						  [in] long EndLine,
+						  [in] long EndColumn);    
+ 
+ 
+    // TopLine
+	[propget, HELP(vbext_CodePane_TopLine)] HRESULT TopLine([out, retval] long *TopLine);
+	[propput, HELP(vbext_CodePane_TopLine)] HRESULT TopLine([in] long  TopLine);
+    
+    // CountOfVisibleLines
+	[propget, HELP(vbext_CodePane_CountOfVisibleLines)] HRESULT CountOfVisibleLines([out, retval] long *CountOfVisibleLines);    
+    
+    //VBAModule
+	[propget, HELP(vbext_CodePane_CodeModule)] HRESULT CodeModule([out, retval] CodeModule **CodeModule);            
+
+#if 0
+    //IsVisible 
+	[propget] HRESULT IsVisible([out, retval] long *fIsVisible);
+#endif  // 0
+	
+    // Show
+	[HELP(vbext_CodePane_Show)] HRESULT Show();    
+
+	// CodePaneView
+	[propget, HELP(vbext_CodePane_CodePaneView)] HRESULT CodePaneView([out, retval] vbext_CodePaneview *pCodePaneview);            
+    	            
+
+};
+
+[
+uuid(0002E177-0000-0000-C000-000000000046)
+]
+coclass CodePane
+{
+    [default]
+    interface _CodePane;
+};
+
+
+
+[ dual, nonextensible, 
+uuid(0002E179-0000-0000-C000-000000000046),
+hidden, HELP(vbext_References)]
+interface _References  : IDispatch
+{
+
+    // parant and VBE
+	[propget, HELP(vbext_References_Parent)] HRESULT Parent([out, retval] VBProject **retval);
+    [propget, HELP(vbext_References_VBE)] HRESULT VBEOBJ([out, retval] VBEOBJ **retval);
+
+    //Collection methods
+
+    [id(0), HELP(vbext_References_Item)] HRESULT Item([in] VARIANT index, [out, retval] Reference **Reference);
+
+    [propget, HELP(vbext_References_Count)] HRESULT Count([out, retval] long *Count);
+
+    [id(0xFFFFFFFC)] HRESULT _NewEnum([out, retval] IUnknown **ppenum);
+
+    [HELP(vbext_References_AddFromGuid)] HRESULT AddFromGuid( [in] BSTR Guid,
+                            [in] long Major,
+			                [in] long Minor,
+		                    [out, retval] Reference **Reference);
+
+    [HELP(vbext_References_AddFromFile)] HRESULT AddFromFile([in] BSTR FileName,
+    		               [out, retval] Reference **Reference);
+
+    [HELP(vbext_References_Remove)] HRESULT Remove([in] Reference *Reference);
+
+
+};
+
+
+typedef [HELP(vbext_RefKind)] enum {
+    [HELP(vbext_RefKind_vbext_rk_TypeLib)] vbext_rk_TypeLib  = 0,
+    [HELP(vbext_RefKind_vbext_rk_Project)] vbext_rk_Project  = 1,    
+} vbext_RefKind;
+
+
+
+[ dual, nonextensible, 
+uuid(0002E17D-0000-0000-C000-000000000046),
+HELP(vbext_Reference) ]
+interface Reference : IDispatch
+{
+
+	// parant and VBE
+	[propget, HELP(vbext_Reference_Collection)] HRESULT Collection([out, retval] References **retval);
+
+    [propget, HELP(vbext_Reference_VBE)] HRESULT VBEOBJ([out, retval] VBEOBJ _far * _far * lppaReturn);
+
+    // Name
+    [propget, HELP(vbext_Reference_Name)] HRESULT Name([out, retval] BSTR *pbstrName);
+    
+    //Guid
+    [propget, HELP(vbext_Reference_Guid)] HRESULT Guid([out, retval] BSTR  *pbstrGuid);
+    
+    //Major
+    [propget, HELP(vbext_Reference_Major)] HRESULT Major([out, retval] long *pMajor);
+
+    //Major
+    [propget, HELP(vbext_Reference_Minor)] HRESULT Minor([out, retval] long *pMinor);
+
+    // location
+    [propget, HELP(vbext_Reference_FullPath)] HRESULT FullPath([out, retval] BSTR *pbstrLocation);
+
+    // IsDefault
+	[propget, HELP(vbext_Reference_BuiltIn)] HRESULT BuiltIn([out, retval] boolean *pfIsDefault);
+
+    // IsBroken
+	[propget, HELP(vbext_Reference_IsBroken)] HRESULT IsBroken([out, retval] boolean *pfIsBroken);
+    
+    // Type
+    [propget, HELP(vbext_Reference_Type)] HRESULT Type([out, retval] vbext_RefKind *pKind);
+
+	// Description
+	[propget,  HELP(vbext_Reference_Description)] HRESULT Description([out, retval] BSTR *pbstrName);
+    
+};
+
+
+
+#define DISPID_RefsAdded	0
+#define DISPID_RefsRemoved  1
+
+[nonextensible,
+	uuid(0002E19A-0000-0000-C000-000000000046), 
+
+hidden, HELP(vbext_References)]
+dispinterface _dispReferences_Events
+{
+properties:
+methods:
+    [id(DISPID_RefsAdded), HELP(vbext_References_evtItemAdded)]
+    void ItemAdded(Reference *Reference);   
+    [id(DISPID_RefsRemoved), HELP(vbext_References_evtItemRemoved)]
+    void ItemRemoved(Reference *Reference); 
+};
+
+
+[
+uuid(0002E17B-0000-0000-C000-000000000046),
+HELP(vbext_References)]
+coclass References
+{
+    [default]
+    interface _References;
+
+    [default, source]
+    dispinterface _dispReferences_Events;
+
+};
+
+
+#ifdef VBETEMP
+#define VBE 1
+#endif  // VBETEMP
+

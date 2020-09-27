@@ -1,0 +1,23 @@
+TARGETNAME=all
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+
+TEST_LIB_PATH = $(BASEDIR)\private\test\lib\i386
+
+
+SYNCHRONIZE_DRAIN = 1
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+TARGETLIBS=\
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\*\xnetrefi$(D).lib \
+    $(LIBRARY_PATH)\xneti$(D).lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib \
+    $(LIBRARY_PATH)\xgraphics$(D).lib \
+    $(TEST_LIB_PATH)\xlog.lib \
+
+!include ..\sources.inc

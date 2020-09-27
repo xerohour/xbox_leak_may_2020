@@ -1,0 +1,42 @@
+////////////////////////////////////////////////////////////////////////////////
+// IDEREC.IDL
+//
+// Interfaces for recording macros on the Document interface
+////////////////////////////////////////////////////////////////////////////////
+
+import "oleidl.idl";
+import "dte.idl";
+
+cpp_quote("#define SID_SVsShellMacroHelper IID_IVsShellMacroHelper")
+
+[
+  uuid(B4C91A83-6489-11d2-BA74-00C04F79F802)
+]
+interface IVsShellMacroHelper : IUnknown
+{
+  // windows
+
+  HRESULT SetWindowsContextHwnd(HWND hwnd);
+  HRESULT SetWindowsContextWindow(Window *pwindow);
+
+  // window
+
+  HRESULT RecordDocumentWindowClose();
+  HRESULT RecordToolWindowClose(BOOL fCloseLinkedTabsIfApplicable);
+  HRESULT RecordWindowActivate(BOOL fCoalescePrevious, BOOL fAllowLaterCoalescing);
+
+  // document
+
+  HRESULT RecordDocumentClose();
+
+  HRESULT PermitDocumentSave(BOOL fPermitted);
+  HRESULT RecordDocumentSave(LPCOLESTR pwszFileName);
+
+  HRESULT PermitOpenDocument(BOOL fPermitted);
+  HRESULT RecordOpenDocument(LPCOLESTR pwszFileName);
+
+  HRESULT GetActiveWindowForMacro(Window **ppwindow);
+  HRESULT SetActiveWindowForMacro(IUnknown *pVsWindowFrame);
+
+  HRESULT RecordSpecificToolWindowClose(REFGUID guidPersistenceSlot);
+}

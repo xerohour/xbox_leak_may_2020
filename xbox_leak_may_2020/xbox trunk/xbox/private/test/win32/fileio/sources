@@ -1,0 +1,77 @@
+!IF 0
+
+Copyright (c) 1989-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    XBox
+
+Revision History:
+
+!ENDIF
+
+#
+# IceCAP properties
+#
+#USE_ICECAP4=1
+#LINKER_FLAGS=/DEBUGTYPE:FIXUP
+
+MAJORCOMP=xboxtest
+MINORCOMP=fileio
+
+TARGETNAME=fileio
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+
+SOURCES=\
+    fileio.cpp \
+    utils.cpp \
+    CopyFile.cpp \
+    CopyFileEx.cpp \
+    CreateDirectory.cpp \
+    CreateFile.cpp \
+    DeleteFile.cpp \
+    FindFile.cpp \
+    FlushFileBuffers.cpp \
+    GetDiskFreeSpaceEx.cpp \
+    GetFileInformationByHandle.cpp \
+    GetFileSize.cpp \
+    GetSetFileAttributes.cpp \
+    GetSetFileTime.cpp \
+    GetVolumeInformation.cpp \
+    MoveFile.cpp \
+    MoveFileWithProgress.cpp \
+    ReadWriteFile.cpp \
+    ReadWriteFileEx.cpp \
+    ReadWriteFileGatherScatter.cpp \
+    RemoveDirectory.cpp \
+    SetEndOfFile.cpp \
+    SetFilePointer.cpp \
+    SetFilePointerEx.cpp \
+    DVDRead.cpp \
+    HardDriveFull.cpp
+
+INCLUDES=\
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\test\inc
+
+#
+# Precompiled Header
+#
+PRECOMPILED_INCLUDE = stdafx.h
+PRECOMPILED_PCH = stdafx.pch
+PRECOMPILED_OBJ = stdafx.obj
+PRECOMPILED_CXX = 1
+

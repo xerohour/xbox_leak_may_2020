@@ -1,0 +1,19 @@
+TARGETNAME=MU
+TARGETTYPE=LIBRARY
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+INCLUDES= ..\inc;$(BASEDIR)\private\ntos\inc;$(BASEDIR)\public\ddk\inc;
+
+!ifdef DEBUG_USB
+USER_C_FLAGS=/FAcs
+!endif
+
+!if !$(FREEBUILD)
+C_DEFINES=/DMU_DIAGNOSTIC_IOCTLS
+!endif
+
+MSC_WARNING_LEVEL=/W4
+
+SOURCES=mu.cpp\
+	disk.cpp\
+	mrb.cpp

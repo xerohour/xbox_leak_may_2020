@@ -1,0 +1,52 @@
+// setupstr.idl : IDL source for setupstr.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (setupstr.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+cpp_quote("DEFINE_GUID(IID_ISetupStore, 0x9CB46565, 0xDDFA, 0x11D0, 0x9B, 0xD7, 0x00, 0xC0, 0x4F, 0xC2, 0xE0, 0xD3);")
+
+cpp_quote("DEFINE_GUID(CLSID_SetupStore, 0x9CB46566, 0xDDFA, 0x11D0, 0x9B, 0xD7, 0x00, 0xC0, 0x4F, 0xC2, 0xE0, 0xD3);")
+
+cpp_quote("DEFINE_GUID(LIBID_SETUPSTRLib, 0x9CB46558, 0xDDFA, 0x11D0, 0x9B, 0xD7, 0x00, 0xC0, 0x4F, 0xC2, 0xE0, 0xD3);")
+
+	[
+		object,
+		uuid(9CB46565-DDFA-11D0-9BD7-00C04FC2E0D3),
+		dual,
+		helpstring("ISetupStore Interface"),
+		pointer_default(unique)
+	]
+	interface ISetupStore : IDispatch
+	{
+		[id(1), helpstring("method CreateSQLDB")] HRESULT CreateSQLDB([in] BSTR bstrServerName, [in] BSTR bstrDatabaseName, [in] BSTR bstrDirectoryName, [in] BSTR bstrDBUserName, [in] BSTR bstrDBPassword, [in] BSTR bstrSuperDSPassword, [in] BOOLEAN fUseU2Security);
+		[id(2), helpstring("method CreateJetDB")] HRESULT CreateJetDB([in] BSTR bstrFileName, [in] BSTR bstrDirectoryName, [in] BSTR bstrDBUserName, [in] BSTR bstrDBPassword, [in] BSTR bstrSuperDSPassword, [in] BOOLEAN fUseU2Security);
+		[id(3), helpstring("method CreatePartition")] HRESULT CreatePartition([in] BSTR bstrServerName, [in] BSTR bstrDatabaseName, [in] BSTR bstrDBUserName, [in] BSTR bstrDBPassword);
+		[id(4), helpstring("method SetDirectoryPropertiesPage")] HRESULT SetDirectoryPropertiesPage([in] long lInstanceId, [in] BSTR szRealm, [in] BSTR szDnPrefix);
+		[id(5), helpstring("method ValidateJetFileName")] HRESULT ValidateJetFileName([in] BSTR bstrFileName, [in] BOOL fWantNew, [out, retval] BOOL *pfValid);
+		[id(6), helpstring("method GenerateJetFileName")] HRESULT GenerateJetFileName([in] DWORD dwID, [out, retval] BSTR *pbstrFileName);
+		[id(7), helpstring("method LocalPathToFullPath")] HRESULT LocalPathToFullPath([in] BSTR bstrLocal, [out, retval] BSTR *pbstrFull);
+		[id(8), helpstring("method GetDriveInformation")] HRESULT GetDriveInformation([in] BSTR bstrPath, [out, retval] DWORD *pdwdt);
+	};
+[
+	uuid(9CB46558-DDFA-11D0-9BD7-00C04FC2E0D3),
+	version(1.0),
+	helpstring("setupstr 1.0 Type Library")
+]
+library SETUPSTRLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(9CB46566-DDFA-11D0-9BD7-00C04FC2E0D3),
+		helpstring("SetupStore Class")
+	]
+	coclass SetupStore
+	{
+		[default] interface ISetupStore;
+	};
+};

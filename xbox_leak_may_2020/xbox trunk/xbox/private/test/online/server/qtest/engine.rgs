@@ -1,0 +1,26 @@
+HKCR
+{
+	Qtest.engine.1 = s 'engine Class'
+	{
+		CLSID = s '{49796A3E-3EAA-4B51-AD59-DE594206FAB4}'
+	}
+	Qtest.engine = s 'engine Class'
+	{
+		CLSID = s '{49796A3E-3EAA-4B51-AD59-DE594206FAB4}'
+		CurVer = s 'Qtest.engine.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {49796A3E-3EAA-4B51-AD59-DE594206FAB4} = s 'engine Class'
+		{
+			ProgID = s 'Qtest.engine.1'
+			VersionIndependentProgID = s 'Qtest.engine'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Free'
+			}
+			'TypeLib' = s '{C62BD187-6131-43E7-A5F7-8D506704E120}'
+		}
+	}
+}

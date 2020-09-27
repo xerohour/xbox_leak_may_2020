@@ -1,0 +1,25 @@
+TARGETNAME=rngtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+SYNCRHONIZE_DRAIN=1
+
+# warning LNK4049: locally defined symbol XXX imported
+# warning LNK4217: locally defined symbol XXX imported in function XXX
+# LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+LINKER_FLAGS=$(LINKER_FLAGS) /MAP
+
+INCLUDES=\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+
+SOURCES=\
+    rngtestmain.cpp
+
+TARGETLIBS=\
+    $(BASEDIR)\public\sdk\lib\i386\xnet$(D).lib
+
+

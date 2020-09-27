@@ -1,0 +1,94 @@
+# Make file for building with the MPW command line tools for CodeWarrior Pro 5
+
+### Target name
+
+TARGETFILE		=	qdregions.lib
+
+### Compiler and link tools
+
+CC				=	mwcppc
+LD				=	mwlinkppc
+CC68K			=	mwc68k
+LD68K			=	mwlink68k
+
+### Debug options
+
+!ifdef {DEBUG}	# DEBUG was defined on the make command line, include symbols and debug code and don't optimize
+
+DEBUGINFO		=	-sym full		# Generate debugging information with full path names
+DEBUGCODE		=	-d DEBUG_BUILD=1	# Generate debugging code and diagnostic output
+MACSBUGPPCSYMS	=	-tb on			# Generate inline traceback tables (includes MacsBug symbols)
+MACSBUG68KSYMS	=	-mbg full -b	# Generate MacsBug symbols, always use A6 stack frames, PC-relative strings
+OPTINFO			=	-opt off		# No code optimization makes easier debugs
+LDOPTINFO		=	-collapsereloads off	# Don't collapse unused TOC-reload slots after procedure calls
+
+!else			# DEBUG wasn't defined, build fully-optimized code with no debug code or symbols
+
+DEBUGINFO		=	-sym off		# Don't generate debugging information
+DEBUGCODE		=	-d DEBUG_BUILD=0	# Don't generate any debugging code or diagnostic output
+MACSBUGPPCSYMS	=	-tb off			# Don't generate traceback tables (and MacsBug symbols)
+MACSBUG68KSYMS	=	-mbg off		# Don't generate MacsBug symbols
+OPTINFO			=	-opt l4,size	# Full optimization, favor smaller code
+LDOPTINFO		=	-collapsereloads on	# Collapse unused TOC-reload slots after procedure calls
+
+!endif
+
+### Include paths
+
+INCLUDES		=	-i :	# The current working directory is start of the include paths	¶
+					-i-		# This means all following paths are for system includes <...>	¶
+
+### Compiler and link options
+
+ERRORINFO		=	-maxerrors 20	# Don't spit out unlimited errors
+LANGINFO		=	-dialect c -proto strict -warnings all,noimplicitconv
+CCOPTIONS		=	{DEBUGINFO} {DEBUGCODE} {MACSBUGPPCSYMS} {OPTINFO} {ERRORINFO} {LANGINFO} {INCLUDES}
+LDOPTIONS		=	{DEBUGINFO} {MACSBUGPPCSYMS} {LDOPTINFO}
+CC68KOPTIONS	=	{DEBUGINFO} {DEBUGCODE} {MACSBUG68KSYMS} {OPTINFO} {ERRORINFO} {LANGINFO} {INCLUDES}
+LD68KOPTIONS	=	{DEBUGINFO}
+
+### Source files
+
+SRCDIR			=	:	# Assumes our sources are in this directory (same as the makefile)
+MAKEFILE		=	Makefile.macos9		# This makefile
+
+### Object files
+
+OBJDIR			=	:obj:
+OBJFILES		=	{OBJDIR}regionparse.c.o			¶
+					{OBJDIR}debug.c.o
+					# It's OK to always link in debug.c.o, since it compiles to an empty file if debugging is disabled
+
+### Libraries
+
+LIBFILES		=	
+
+
+### Default build rules
+
+{OBJDIR}	Ä	{SRCDIR}		# Set the directory mapping between sources and objects
+
+.c.o		Ä	.c {MAKEFILE}	# This is the default compiling rule
+	{CC} {depDir}{default}.c -o {targDir}{default}.c.o {CCOPTIONS}
+
+### Top-level build rules
+
+all		Ä	{TARGETFILE}
+
+clean	Ä
+	delete -y -i {TARGETFILE} {OBJDIR}	# Delete the target, object directory, and its contents, ignore errors
+
+{TARGETFILE}	Ä	HASOBJDIR {OBJFILES} {MAKEFILE}
+	{LD} {LDOPTIONS} -xm library -o {Targ} {OBJFILES}
+
+HASOBJDIR	Ä
+    newfolder {OBJDIR} · Dev:Null || set Status 0	# Create the object directory, ignore errors
+
+### Source dependencies
+
+regionparse.c.o	Ä		¶
+		regionparse.h	¶
+		debug.h
+
+debug.c.o	Ä			¶
+		debug.h

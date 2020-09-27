@@ -1,0 +1,35 @@
+TARGETNAME=getposition
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+LINK_DSSTDFX = 1
+USE_STL = 1
+
+SYNCHRONIZE_DRAIN=1
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+		$(PRIVATE_INC_PATH); \
+    $(BASEDIR)\private\test\multimedia\inc
+
+SOURCES= 			 \
+		..\main.cpp 
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTNAME:"GetPosition Repro"
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\dsound$(D).lib \
+    $(LIBRARY_PATH)\xapilib$(D).lib \
+    $(LIBRARY_PATH)\xnet$(D).lib \
+    $(LIBRARY_PATH)\xboxkrnl.lib \
+    $(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xnetrefi$(D).lib

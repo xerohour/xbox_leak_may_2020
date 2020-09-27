@@ -1,0 +1,17 @@
+xvsw.1.0
+; A test read/write vertex shader
+
+#include "shaderDefs.h"
+
+; transform vertex position
+
+m4x4	oPos, v0, c[WPVMATRIX]
+
+; calculate color
+mov r0,c[COLOR]
+add r0.xyz,r0,c[COLORINC]
+sge r1.xyz,r0,c[ALLONES]    ;Wrap the color's components back to the range 0..1.0
+add r0.xyz,r0,-r1
+mov c[COLOR].xyz,r0         ;write back to constant register, for the next vertex to use
+mov oD0, r0
+

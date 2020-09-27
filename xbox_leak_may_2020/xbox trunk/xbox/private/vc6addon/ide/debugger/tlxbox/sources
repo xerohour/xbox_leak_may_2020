@@ -1,0 +1,62 @@
+!include ..\sources.inc
+
+386_STDCALL=1
+USE_NATIVE_EH=0
+USE_MSVCRT=1
+#USE_NOLIBS=1
+
+MAJORCOMP=windbg
+MINORCOMP=dm
+
+!if $(FREEBUILD)
+TARGETNAME=tlxbox
+!else
+TARGETNAME=tlxboxd
+!endif
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=dll
+DLLENTRY=DmDllMain
+DLLDEF=tlxbox.def
+UMTYPE=windows
+
+INCLUDES=   ..;                             \
+            $(DEBUGGER_ROOT)\include;       \
+            $(DEBUGGER_ROOT)\od\include;    \
+            $(DEBUG_INCLUDES);              \
+            $(VCPUBLIC)\nonship\inc\nt
+
+SOURCES= \
+    dmxbox.c    \
+    bp.c        \
+    dmx32.c     \
+    event.c     \
+    funccall.c  \
+    procem.c    \
+    step.c      \
+    util.c      \
+    walk.c      \
+    i386mach.c  \
+    i386thnk.c \
+    xassert.c \
+    tlsetup.cpp \
+    tlutil.cpp \
+    tlxbox.rc \
+    tllp.cpp
+
+TARGETLIBS= \
+    $(BASEDIR)\public\sdk\lib\*\xboxdbg.lib \
+    $(LIBRARY_PATH)\user32.lib \
+    $(LIBRARY_PATH)\kernel32.lib \
+    $(LIBRARY_PATH)\advapi32.lib
+
+C_DEFINES=$(C_DEFINES) -DWORDLONG=ULONGLONG -DDOLPHIN -DWOW -DTARGET_i386 \
+    -DTARGET32 -DHOST32 -DOSDEBUG4
+
+CONDITIONAL_INCLUDES=odp.h win32dm.h
+
+LINKER_FLAGS=$(LINKER_FLAGS) /map
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=precomp.obj

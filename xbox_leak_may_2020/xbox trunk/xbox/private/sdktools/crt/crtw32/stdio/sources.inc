@@ -1,0 +1,8 @@
+MAJORCOMP=crt
+MINORCOMP=stdio
+
+TARGETNAME=stdio
+
+!INCLUDE ..\..\crt32.inc
+
+NTTARGETFILE1=

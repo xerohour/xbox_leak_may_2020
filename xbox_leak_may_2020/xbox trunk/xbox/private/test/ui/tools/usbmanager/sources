@@ -1,0 +1,43 @@
+!IF 0
+
+Copyright (c) 2001  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=XShell
+MINORCOMP=USB
+
+TARGETNAME=usbmanager
+TARGETTYPE=LIBRARY
+UMTYPE=xbox
+
+TARGETPATH=..\obj
+INCLUDES=\
+    ..\inc; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\xapi\inc; \
+
+! IF DEFINED(_XBOXTEST)
+C_DEFINES = $(C_DEFINES) -D_XBOXTEST=1
+! ENDIF
+
+C_DEFINES=$(C_DEFINES) -D_XAPI_
+MSC_WARNING_LEVEL=/W3 /WX
+
+SOURCES=usbmanager.cpp
+
+PRECOMPILED_INCLUDE=usbpch.h
+PRECOMPILED_PCH=usbpch.pch
+PRECOMPILED_OBJ=usbpch.obj
+

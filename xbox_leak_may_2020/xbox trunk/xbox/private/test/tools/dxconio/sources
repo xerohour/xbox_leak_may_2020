@@ -1,0 +1,34 @@
+TARGETNAME=dxconio
+TARGETTYPE=LIBRARY
+TARGETPATH=$(BASEDIR)\private\test\lib
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\ke;  \
+    $(BASEDIR)\private\ntos\ex;  \
+
+TARGETLIBS=\
+    $(TARGETLIBS) \
+    $(SDK_LIB_PATH)\uuid.lib \
+    $(SDK_LIB_PATH)\dxguid.lib \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(SDK_LIB_PATH)\xid.lib \
+    $(LIBRARY_PATH)\xnet$(D).lib \
+    $(SDK_LIB_PATH)\libcmt$(D).lib \
+    $(SDK_LIB_PATH)\d3d8$(D).lib \
+    $(SDK_LIB_PATH)\d3dx8$(D).lib
+
+SOURCES=\
+    conio.cpp   \
+    d3denum.cpp \
+    d3dinit.cpp \
+    fontmap.cpp \
+    main.cpp    \
+    noise.cpp   \
+    texture.cpp \
+    util.cpp    \
+    conio.rc
+
+C_DEFINES=$(C_DEFINES) -DUNDER_XBOX -DUNICODE -D_UNICODE

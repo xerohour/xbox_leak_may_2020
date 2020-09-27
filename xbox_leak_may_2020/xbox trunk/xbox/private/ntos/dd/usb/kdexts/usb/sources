@@ -1,0 +1,35 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1999 - 2000
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=USBKDX
+TARGETTYPE=DYNLINK
+TARGETPATH=obj
+
+TARGETLIBS=\
+    $(SDK_LIB_PATH)\kernel32.lib
+
+INCLUDES=\
+    ..\..\inc; \
+    ..\..\xid; \
+    ..\..\usbhub; \
+    ..\..\usbd; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\public\ddk\inc
+
+SOURCES=\
+    usbkdx.cpp \
+    usbkdx.rc
+
+UMTYPE=windows
+DLLDEF=$(O)\usbkdx.def
+
+
+DLLENTRY=_DllMainCRTStartup
+

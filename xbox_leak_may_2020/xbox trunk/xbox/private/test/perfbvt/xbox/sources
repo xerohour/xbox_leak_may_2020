@@ -1,0 +1,29 @@
+TARGETNAME=perfbvt
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+SOURCES=\
+    perfbvt.cpp \
+    memtests.cpp \
+    diskperf.cpp \
+    netperf.cpp \
+    d3dperf.cpp
+
+UMTYPE=xboxapp
+LINKLIBS=\
+    $(SDK_LIB_PATH)\xnet$(D).lib \
+    $(SDK_LIB_PATH)\d3d8$(D).lib
+
+!ifdef PERFBVT_SERVER
+C_DEFINES=$(C_DEFINES) -DPERFBVT_SERVER=\"$(PERFBVT_SERVER)\"
+!elseif "$(COMPUTERNAME)" == "DAVIDXU"
+C_DEFINES=$(C_DEFINES) -DPERFBVT_SERVER=\"157.56.11.103\"
+!endif
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_PCH=precomp.pch
+PRECOMPILED_OBJ=$(TARGETNAME)pre.obj
+PRECOMPILED_CXX=1
+
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:"Perf BVT Tests"
+

@@ -1,0 +1,60 @@
+"Portable" version of the devinit code for use outside the resource
+manager, on non-Windows OS's, and by external customers.
+
+A complete "portable" release (NV4 and later) consists of
+
+    devinit.c
+        copied from ../
+    devinit.h
+        copied from ../../inc
+    nv4_ref.h
+        copied from ../../inc/nv4
+    nv_ref.h
+        copied from ../../inc
+    initcode.h
+        Currently initcode.h is maintained by hand from nvinit.inc.
+        The perl script NVgeninit.pl can generate that file from
+        nvinit.inc.  Unfortunately nvinit.inc references a few
+        #defines that are not defined in resman's view of the universe
+        so until those are fixed we'll use the hand coded version.
+    nv_portable.h
+        Includes basic typedefs and #defines extracted
+        from various places in our src tree.  It is believed
+        these typedef's and #defines are stable and making
+        a copy of them will not be a problem in practice.
+    nv_local.h
+        nv_local.h is a placeholder for OS-specific #defines for
+        REG_WR2() and DBG_PRINT_STR() type things.
+    Makefile.portable
+        Example makefile that lists #defines for compilation.
+        
+
+To use this code, the macros/routines
+
+    REG_WR32(), REG_RD32(), REG_WR08(), REG_RD08(),
+    PRMCIO_REG_WR32(), PRMCIO_REG_RD32(),
+    CRTC_WR(), CRTC_RD()
+    
+need to be defined in nv_local.h; see below for a snapshot of their Nvidia
+values for reference.
+
+TODO:
+    make a script or Makefile to grunge nvinit.inc using NVgeninit.pl
+    "" to bundle up a "customer" release.
+
+-------------------------------------------
+
+#define REG_WR32(a,d)   (HwDeviceExtension->NvRegisterBase)->Reg032[(a)/4]=(U032)(d)
+#define REG_RD32(a)     (HwDeviceExtension->NvRegisterBase)->Reg032[(a)/4]
+#define REG_WR08(a,d)   (HwDeviceExtension->NvRegisterBase)->Reg008[(a)]  =(U008)(d)
+#define REG_RD08(a)     (HwDeviceExtension->NvRegisterBase)->Reg008[(a)]
+
+
+#define PRMCIO_REG_WR32(b,o,d)   (b)->Reg032[((o)-DEVICE_BASE(NV_PRMCIO))/4]=(U032)(d)
+#define PRMCIO_REG_RD32(b,o)     (b)->Reg032[((o)-DEVICE_BASE(NV_PRMCIO))/4]
+
+#define CRTC_WR(i,d)    {PRMCIO_REG_WR08(PRMCIO_Base,NV_PRMCIO_CRX__COLOR, (i) & 0x3F);\
+                        PRMCIO_REG_WR08(PRMCIO_Base,NV_PRMCIO_CR__COLOR, (d));}
+#define CRTC_RD(i,d)    {PRMCIO_REG_WR08(PRMCIO_Base,NV_PRMCIO_CRX__COLOR, (i) & 0x3F);\
+                        (d) = PRMCIO_REG_RD08(PRMCIO_Base,NV_PRMCIO_CR__COLOR);}
+

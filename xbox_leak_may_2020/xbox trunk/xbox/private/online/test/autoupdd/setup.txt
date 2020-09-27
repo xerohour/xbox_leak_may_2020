@@ -1,0 +1,116 @@
+
+Instructions on setting up a DVD TITLE autoupdate test with autoupdd.xbe (using the DEVKIT HD to emulate a DVD):
+
+Prerequisites:
+- autoupdd.xbe (online\test\autoupdd)
+- v2title.xbe (online\test\v2app\v2title)
+- BuildDigest.exe (sdktools\content\builddigest)
+
+Instructions:
+
+PC:
+- On your PC, create an update image directory (e.g. c:\$u) and copy a number of files and directories into the directory. These files will be installed as part of the update.
+- Copy v2title.xbe into c:\$u, and rename it to default.xbe.
+- With c:\$u as your current directory, run BuildDigest.exe on your PC using the following command line:
+	BuildDigest -r c:\$u 54455354544553545445535454455354 00000000 2 0 *.*
+  The key should work for all XBEs built for Devkits.
+
+Xbox:
+- Create the xc:\devkit\autoupdd directory on your Xbox.
+- Build and copy autoupdd.xbe to your Xbox, i.e. xc:\devkit\autoupdd\autoupdd.xbe
+- Copy tahoma.ttf into xc:\TDATA\00000000. If the directory does not exist, create it.
+- Create the following directory on your Xbox: xc:\devkit\autoupdd\$u\00000000
+- Copy everything under c:\$u\ into xc:\devkit\autoupdd\$u\00000000\
+
+Once you have done the above, you can launch DVD_Autoupdate from your launcher (preferably with i386kd attached so that you catch any RIPs). You will see the installation progress of the update. After the update is installed, a message will tell you to reboot the system.
+
+Reboot as you are told, and launch the DVD_Autoupdate app again from the launcher. This time, instead of installing the update again, a message [should] show up telling you DVD Title autoupdate worked. In the kd output, you should see the following traces:
+
+Xbox image loaded: \Device\Harddisk0\Partition1\Devkit\autoupdd\default.xbe
+...
+Xbox image loaded: \Device\Harddisk0\Partition1\TDATA\00000000\$u\default.xbe
+
+The first line tells you that xc:\devkit\autoupdd\default.xbe was loaded. The second message tells you that  xc:\devkit\autoupdd\default.xbe had detected the updated XBE and caused the system to reboot into t:\$u\default.xbe (which was actually v2title.xbe).
+
+If for any reason the update failed or you want to test it again, the following steps tell you how to cleanup.
+
+Cleanup:
+- Delete the xc:\TDATA\00000000\$u directory
+
+* Testing with a DVD/CD-RW/DVD Enumlator:
+
+If you want to test this using a DVD/CD-RW or DVD emulator, follow the same set of steps above, but use xd:\$u\00000000\ (xd: is assigned to the DVD) instead of xc:\devkit\autoupdd\$u\00000000 as the root directory of your update files. Make sure you copy autoupdd.xbe to d:\ and name it d:\default.xbe. Boot from the DVD.
+
+* Testing on RETAIL boxes:
+
+You will need a retail-signed version of autoupdd.xbe to test this on RETAIL boxes.
+
+* Testing on RETAIL boxes with real titles:
+
+You will need to run BuildDigest with the RETAIL signature key of the title.
+
+
+===============================================================================================
+
+Instructions for setting up a DVD Dash Autoupdate test with autoupdd.xbe (Using the DEVKIT HD to emulate a DVD):
+
+NOTE: Running DVD Dash update is very dangerous and will require a recovery if not all the steps are followed correctly, or if the application fails. Please be prepared to recover you box if you try to test Dash autoupdate. In addition, be warned that even if the test succeeds, your XDK launcher will be replaced and unusable.
+
+Prerequisites:
+- autoupdd.xbe (online\test\autoupdd)
+- v2dash.xbe (online\test\v2app\v2dash)
+- switcher.xbe (online\test\v2app\switcher)
+- BuildDigest.exe (sdktools\content\builddigest)
+
+Instructions:
+
+PC:
+- On your PC, create an update image directory (e.g. c:\$d). This will be the dash update root.
+- Create a '$' subdirectory under c:\$d\ (i.e. d:\$d\$\), and copy a number of files and directories into that directory. These files will be installed as part of the update.
+- Copy v2dash.xbe into c:\$d\$\ directory, and call it xshell.xbe.
+- Copy switcher.xbe into the c:\$d\ directory, and call it xshell.xbe.
+- With c:\$d\$\ as your current directory, run BuildDigest.exe on your PC using the following command line:
+	BuildDigest -r c:\$d\$ 54455354544553545445535454455354 fffe0000 2 0 *.*
+  The key should work for all Devkits.
+
+Xbox:
+- Create the xc:\devkit\autoupdd directory on your Xbox.
+- Build and copy autoupdd.xbe to your Xbox, i.e. xc:\devkit\autoupdd\autoupdd.xbe
+- Copy tahoma.ttf into xc:\TDATA\00000000. If the directory does not exist, create it.
+- Copy tahoma.ttf into xc:\TDATA\fffe0000. If the directory does not exist, create it.
+- Create the following directory on your Xbox: xc:\devkit\autoupdd\$u\fffe0000
+- Copy everything under c:\$d\ into xc:\devkit\autoupdd\$u\fffe0000\
+
+Once you have done the above, you can launch DVD_Autoupdate from your launcher (preferably with i386kd attached so that you catch any RIPs). You will see a blank screen while the update files are being copied (standard Dash update UI will be inserted there). If you have a Debug build, you will see two traces indicating the beginning and completion of the Dash update process in the kd spew.
+
+You will be asked to reboot at the end. Reboot as you are told, this time, instead of seeing the XDK launcher, you [should] see a screen message telling you that the DVD Dash autoupdate worked. In the kd output, you should see the following traces:
+
+Xbox image loaded: \Device\Harddisk0\Partition2\xshell.xbe
+...
+Xbox image loaded: \Device\Harddisk0\Partition2\$0\xshell.xbe
+
+The first line tells you that \Device\Harddisk0\Partition2\xshell.xbe (our replacement of the XDK launcher, which we call switcher.xbe) was loaded. The second message tells you that the switcher had caused the system to reboot into \Device\Harddisk0\Partition2\$0\xshell.xbe (which is v2dash.xbe).
+
+* Testing both Dash and Title Autoupdate in tandem:
+
+YOu can test both features together -- just follow both sets of instructions. When you launch the DVD_Autoupdate app, the dash update should happen silently, followed by the progress indicator showing the title update happening. The same reboot message will appear at the end. Note that if you reboot, there will be no XDK launcher, and you should jump right into the 'updated' dash directly.
+
+* Cleanup:
+
+If for any reason you would like to restore the XDK launcher or revert the system, you must recover. However, on a successful update, you should still be able to launch applications from a debugger, and use the Xbox neighborhood to manage you XDK, except all UI associated with the dash will no longer be available.
+
+* Testing with a DVD/CD-RW/DVD Enumlator:
+
+If you want to test this using a DVD/CD-RW or DVD emulator, follow the same set of steps above, but use xd:\$u\fffe0000\ (xd: is assigned to the DVD) instead of xc:\devkit\autoupdd\$u\fffe0000 as the root directory of your update files. Make sure you copy autoupdd.xbe to d:\ and name it d:\default.xbe. Boot from the DVD.
+
+* Testing on RETAIL boxes:
+
+You will need a retail-signed version of autoupdd.xbe to test this on RETAIL boxes. Also, you will need a retail signed version of switcher.xbe and v2dash.xbe, and replace all instances of xshell.xbe with xboxdash.xbe.
+
+* Testing on RETAIL boxes with real titles:
+
+You will need to run BuildDigest with the RETAIL signature key of the dash.
+
+* How do I get my dash functionality back?
+
+You can rebuild the dash with a version number > 1, and copy the dash files into c:\$d\$\, in which case the switcher will launch your dash instead. I personally have not tried it but it should work.

@@ -1,0 +1,31 @@
+TARGETNAME=authtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:$(TARGETNAME) /TESTID:1234
+
+USE_LIBCMT=1
+
+SYNCRHONIZE_DRAIN=1
+
+# warning LNK4049: locally defined symbol XXX imported
+# warning LNK4217: locally defined symbol XXX imported in function XXX
+LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+
+INCLUDES=\
+    $(BASEDIR)\private\online;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\public\sdk\inc;\
+    $(BASEDIR)\private\ntos\net;\
+    $(BASEDIR)\private\online\tools\onlineaccounts\inc
+
+SOURCES=\
+    xauthtest.cpp
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\xonline$(D).lib \
+    $(SDK_LIB_PATH)\onlineaccounts$(D).lib
+    

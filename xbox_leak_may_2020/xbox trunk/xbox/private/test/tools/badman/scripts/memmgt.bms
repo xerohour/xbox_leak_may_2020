@@ -1,0 +1,352 @@
+/*++
+
+Copyright (c) 2000  Microsoft Corporation
+
+Module Name:
+
+    memmgt.bms
+
+Abstract:
+
+    Script file for badman test engine. This script contains list of
+    various memory allocation APIs exported from XAPI
+
+Author:
+
+    Sakphong Chanbai (schanbai) 01-Apr-2000
+
+Environment:
+
+    XBox
+
+Revision History:
+
+--*/
+
+module   : xapi
+
+HANDLE GlobalAlloc(DWORD dwFlags,DWORD dwBytes) = 0
+
+  dwFlags:
+    Good: DWORD_VALID_GLOBALALLOC_FLAGS
+     Bad: DWORD_VALID_AND_SPURIOUS_GLOBALALLOC_FLAGS
+
+  dwBytes:
+    Good: DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_ZERO
+          DWORD_THREE_GIG
+          DWORD_MINUS_ONE
+
+LPVOID GlobalFree(HANDLE hMem) = hMem
+
+  hMem:
+    Good: HANDLE_UNLOCKED_GMEM_BLOCK
+          HANDLE_LOCKED_GMEM_BLOCK
+	      HANDLE_NONDISCARDABLE_GMEM_BLOCK
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+HANDLE GlobalHandle(LPSTR lpMem) = 0
+
+  lpMem:
+    Good: LPSTR_BASE_VALID_GMEM_BLOCK
+    Bad:  /* REVIEW: No bad parameter for GlobalHandle, it returns whatever you passed in */
+
+LPSTR GlobalLock(HANDLE hMem) = 0
+
+  hMem:
+    Good: HANDLE_UNLOCKED_GMEM_BLOCK
+          HANDLE_LOCKED_GMEM_BLOCK
+          HANDLE_NONDISCARDABLE_GMEM_BLOCK
+    Bad:  HANDLE_INVALID
+
+HANDLE GlobalReAlloc(HANDLE hMem, DWORD dwBytes, DWORD dwFlags) = 0
+
+  hMem:
+    Good: HANDLE_UNLOCKED_GMEM_BLOCK
+          HANDLE_LOCKED_GMEM_BLOCK
+	      HANDLE_DISCARDED_GMEM_BLOCK
+          HANDLE_NONDISCARDABLE_GMEM_BLOCK
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+  dwBytes:
+    Good: DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_THREE_GIG
+          DWORD_MINUS_ONE
+
+  dwFlags:
+    Good: DWORD_VALID_GLOBALREALLOC_FLAGS
+     Bad: DWORD_INVALID_GLOBALREALLOC_FLAGS
+          DWORD_SPURIOUS_GLOBALREALLOC_FLAGS
+          DWORD_VALID_AND_SPURIOUS_GLOBALREALLOC_FLAGS
+
+DWORD GlobalSize(HANDLE hMem) = 0
+
+  hMem:
+    Good: HANDLE_UNLOCKED_GMEM_BLOCK
+          HANDLE_LOCKED_GMEM_BLOCK
+          HANDLE_NONDISCARDABLE_GMEM_BLOCK
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+BOOL GlobalUnlock(HANDLE hMem) = 0
+
+  hMem:
+    Good: HANDLE_LOCKED_GMEM_BLOCK
+    Bad:  /* REVIEW: No bad parameter for LocalUnlock, it always returns TRUE */
+
+HANDLE LocalAlloc(DWORD dwFlags,DWORD dwBytes) = 0
+
+  dwFlags:
+    Good: DWORD_VALID_LOCALALLOC_FLAGS
+     Bad: DWORD_VALID_AND_SPURIOUS_LOCALALLOC_FLAGS
+
+  dwBytes:
+    Good: DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_THREE_GIG
+
+LPVOID LocalFree(HANDLE hMem) = hMem
+
+  hMem:
+    Good: HANDLE_UNLOCKED_LMEM_BLOCK
+          HANDLE_LOCKED_LMEM_BLOCK
+    	  HANDLE_NONDISCARDABLE_LMEM_BLOCK
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+HANDLE LocalHandle(LPSTR lpMem) = 0
+
+  lpMem:
+    Good: LPSTR_BASE_VALID_LMEM_BLOCK
+    Bad:  /* REVIEW: No bad parameter for LocalHandle, it returns whatever you passed in */
+
+LPSTR LocalLock(HANDLE hMem) = 0
+
+  hMem:
+    Good: HANDLE_UNLOCKED_LMEM_BLOCK
+          HANDLE_LOCKED_LMEM_BLOCK
+    	  HANDLE_NONDISCARDABLE_LMEM_BLOCK
+    Bad:  /* REVIEW: No bad parameter for LocalLock, it returns whatever you passed in */
+
+HANDLE LocalReAlloc(HANDLE hMem, DWORD dwBytes, DWORD dwFlags) = 0
+
+  hMem:
+    Good: HANDLE_UNLOCKED_LMEM_BLOCK
+          HANDLE_LOCKED_LMEM_BLOCK
+    	  HANDLE_NONDISCARDABLE_LMEM_BLOCK
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+  dwBytes:
+    Good: DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_THREE_GIG
+          DWORD_MINUS_ONE
+
+  dwFlags:
+    Good: DWORD_VALID_LOCALREALLOC_FLAGS
+     Bad: DWORD_INVALID_LOCALREALLOC_FLAGS
+          DWORD_SPURIOUS_LOCALREALLOC_FLAGS
+          DWORD_VALID_AND_SPURIOUS_LOCALREALLOC_FLAGS
+
+DWORD LocalSize(HANDLE hMem) = 0
+
+  hMem:
+    Good: HANDLE_UNLOCKED_LMEM_BLOCK
+          HANDLE_LOCKED_LMEM_BLOCK
+    	  HANDLE_NONDISCARDABLE_LMEM_BLOCK
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+BOOL LocalUnlock(HANDLE hMem) = 0
+
+  hMem:
+    Good: HANDLE_LOCKED_LMEM_BLOCK
+    Bad:  /* REVIEW: No bad parameter for LocalUnlock, it always returns TRUE */
+
+LPSTR HeapAlloc(HANDLE hHeap,DWORD dwFlags,DWORD cbAlloc) = NULL
+
+  hHeap:
+    Good: HANDLE_PROCESS_HEAP
+          HANDLE_GROWABLE_HEAP
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+  dwFlags:
+    Good: DWORD_HEAP_SERIALIZE_FLAG
+    Bad:  DWORD_HEAP_BADSERFLAG
+
+  cbAlloc:
+    Good: DWORD_ONE
+          DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_THREE_GIG
+          DWORD_ZERO
+          DWORD_MINUS_ONE
+
+HANDLE HeapCreate(DWORD fdwHeap, DWORD cbInitial, DWORD cbMaximum) = NULL
+
+  fdwHeap:
+    Good: DWORD_HEAP_SERIALIZE_FLAG
+     Bad: DWORD_HEAP_BADSERFLAG
+
+  cbInitial:
+    Good: DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_THREE_GIG
+          DWORD_MINUS_ONE
+
+  cbMaximum:
+    Good: DWORD_ZERO
+     Bad: DWORD_THREE_GIG DWORD_MINUS_ONE
+
+BOOL HeapDestroy(HANDLE hHeap) = FALSE
+
+  hHeap:
+    Good: HANDLE_GROWABLE_HEAP
+          HANDLE_32K_HEAP
+    	  HANDLE_UNGROWABLE_FILLED_HEAP
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+BOOL HeapFree(HANDLE hHeap,DWORD dwFlags,LPSTR lpMem) = FALSE
+
+  hHeap:
+    Good: HANDLE_GROWABLE_HEAP
+          HANDLE_32K_HEAP
+          HANDLE_UNGROWABLE_FILLED_HEAP
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+  dwFlags:
+    Good: DWORD_HEAP_SERIALIZE_FLAG
+    Bad:  DWORD_HEAP_BADSERFLAG
+
+  lpMem:
+    Good: LPSTR_VALID_HEAP_BLOCK
+    Bad:  LPSTR_RANDOM
+          LPSTR_NULL
+          LPSTR_MINUS_ONE
+          LPSTR_DESTROYED_HEAP_BLOCK
+          LPSTR_FREED_HEAP_BLOCK
+
+DWORD HeapSize(HANDLE hHeap,DWORD dwFlags,LPSTR lpMem) = 0
+
+  hHeap:
+    Good: HANDLE_GROWABLE_HEAP
+          HANDLE_32K_HEAP
+    	  HANDLE_UNGROWABLE_FILLED_HEAP
+    Bad:  HANDLE_NULL
+          HANDLE_RANDOM
+          HANDLE_INVALID
+
+  dwFlags:
+    Good: DWORD_HEAP_SERIALIZE_FLAG
+    Bad:  DWORD_HEAP_BADSERFLAG
+
+  lpMem:
+    Good: LPSTR_VALID_HEAP_BLOCK
+    Bad:  LPSTR_RANDOM
+          LPSTR_NULL
+          LPSTR_MINUS_ONE
+          LPSTR_DESTROYED_HEAP_BLOCK
+          LPSTR_FREED_HEAP_BLOCK
+
+LPVOID VirtualAlloc(LPVOID lpAddress, DWORD dwSize,
+            	    DWORD dwAllocationType, DWORD dwProtect) = NULL
+  lpAddress:
+    Good: LPVOID_NULL
+    Omit:
+
+  dwSize:
+    Good: DWORD_ONE
+          DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_32MB
+     Bad: DWORD_ZERO
+          DWORD_THREE_GIG
+
+  dwAllocationType:
+    Good: DWORD_VMEM_COMMIT_FLAG
+          DWORD_VMEM_RESERVE_FLAG
+     Bad: DWORD_VMEM_BADALLOCFLAG
+
+  dwProtect:
+    Good: DWORD_VMEM_READWRITE_FLAG
+     Bad: DWORD_INVALID_VMEM_PROT
+
+BOOL VirtualFree(LPVOID lpAddress, DWORD dwSize,
+	        	 DWORD dwFreeType) = FALSE
+  lpAddress:
+    Good: LPVOID_REGION_BEG_V_ADDR
+    Omit:
+
+  dwSize:
+    Good: DWORD_ZERO
+     Bad: DWORD_ONE_K
+          DWORD_ONE_MEG
+          DWORD_THREE_GIG
+
+  dwFreeType:
+    Good: DWORD_VMEM_RELEASE_FLAG
+     Bad: DWORD_VMEM_INVAL_FREETYPE
+
+BOOL VirtualProtect(LPVOID lpAddress, DWORD dwSize,
+	                DWORD dwNewProtect, PDWORD lpdwOldProtect) = FALSE
+
+  lpAddress:
+    Good: LPVOID_REGION_BEG_V_ADDR
+          LPVOID_NONALIGNED_V_ADDR
+    	  LPVOID_UNLOCKED_V_ADDR
+          LPVOID_LOCKED_V_ADDR
+    Omit: LPVOID_ALIGNED_V_ADDR
+
+  dwSize:
+    Good: DWORD_ONE
+          DWORD_ONE_K
+     Bad: DWORD_MINUS_ONE
+          DWORD_ONE_MEG
+          DWORD_THREE_GIG
+          DWORD_ZERO
+
+  dwNewProtect:
+    Good: DWORD_VMEM_READWRITE_FLAG
+     Bad: DWORD_INVALID_VMEM_PROT
+
+  lpdwOldProtect:
+    Good: PDWORD_VALID_0 PDWORD_BUFFER
+     Bad: PDWORD_NULL
+
+DWORD VirtualQuery(LPVOID lpAddress,
+        		   PMEMORY_BASIC_INFORMATION lpBuffer,
+		           DWORD dwLength) = 0
+  lpAddress:
+    Good: LPVOID_REGION_BEG_V_ADDR
+    Omit: LPVOID_ALIGNED_V_ADDR
+
+  lpBuffer:
+    Good: PMEMORY_BASIC_INFORMATION_BUFFER
+    Omit:
+
+  dwLength:
+    Good: DWORD_VMEM_INFOSIZE
+     Bad: DWORD_ZERO

@@ -1,0 +1,34 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+TARGETNAME=wrapper
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=windows
+
+SOURCES=wrapper.cpp
+DLLDEF=$(O)\wrapper.def
+
+NO_BINPLACE=1
+USE_NOLIBS=1
+
+SYNCHRONIZE_BLOCK=1
+NOLINK=1
+
+!IF DEFINED(SILVER)
+C_DEFINES=$(C_DEFINES) -DSILVER=1
+!ENDIF

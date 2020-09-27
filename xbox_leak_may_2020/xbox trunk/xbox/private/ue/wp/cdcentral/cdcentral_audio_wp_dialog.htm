@@ -1,0 +1,216 @@
+<TD valign="top" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</TD><td><H2>Talking the Talk:<BR>
+DirectX Audio Scripting Solutions for Dialog Scenarios
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>One of the challenges for content creators is how to handle dialog. In many instances, giving completed wave files to the developer is fine. But when you get into concatenated content (for example, "Welcome to this game between team X and team Y"), you have to depend on the developer to play the right files in the right order at the right time. Worse, when your title is localized, some of the content will need to be swapped out, meaning your localization team may need to go back through the code and find each instance to change it manually. And what if the producer comes back and wants to change the sentence structure, or if the grammatical order of content changes based on language or creative changes? This is an area where Microsoft&#174; DirectX&#174; Audio scripting<sup><font size:"9">1</font></sup> can be used as a solution, keeping the behavior of the content in the content creator's hands and allowing changes to be "slipstreamed" in without having to recompile the game.</P>
+
+<H3>Dialog Concatenation: Conditional Phrases</H3>
+
+<P>We covered basic wave (and DirectMusic segment) playback in the "Bridging the Content-Coding Gap" white paper. Now let's move onto something more interesting: stringing together several dialog fragments to make a sentence. Remember that DirectX Audio scripting keeps this in the hands of the sound designer: making a comment variable or re-recording some dialog does not affect the developer or the game code.</P>
+
+<P>Let's start with a basic scenario-namely, greeting characters as they enter the room. We've already recorded the dialog snippet "Hello," as well as separate wave files with the names of all of the characters that might enter the room ("Jack," "Jill," and "Joe," just to keep it simple).</P>
+<P>For this example, I'm going to assume that each of the above names is the name of a wave file (that is, "Hello.wav," "Jack.wav," and so on) as well as the object name to use in my script. So after adding the waves to my project and dragging them into the script file I've created, my project tree in Microsoft&#174; DirectMusic&#174; Producer looks like this:</P>
+<IMG src="/content/img/dialog_fig1.gif"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;T<I>he project tree with all the waves and the script for this scenario.</I></P>
+
+<P>Now we have a choice to make in our implementation. Either:<BR><BR>
+<OL>
+<LI>The developer can figure out who entered the room and call an appropriate trigger ("SayHelloToJack", "SayHelloToJill", and so on), or</LI><BR><BR>
+<LI>The developer can notify the script as to who entered the room (via a variable) and call a more generic ("SayHello") trigger.</LI>
+</OL></P>
+<P>The first option is slightly more work for both the developer and the scripter&#8212;if a new character is decided upon, a new trigger will have to be introduced. The second option gives the potential for more work for the scripter, as well as some potential issues that we'll talk about in a moment. For now, I'll show the code for both.</P>
+
+<H3>Option 1: Basic Trigger-Based Conditional Phrases</H3>
+<PRE style="font-face:courier; font-size:12">
+     Sub SayHelloToJack
+         Hello.play
+         Jack.play AtFinish
+     End sub
+
+     Sub SayHelloToJill
+         Hello.play
+         Jill.play AtFinish	
+     End sub
+
+     Sub SayHelloToJoe
+         Hello.play
+         Joe.play AtFinish
+     End sub
+</PRE>
+<P>We play the "Hello" wave and then instruct the specific name to play AtFinish (when the previous wave completes). We could string a bunch of waves together (effectively queuing them up) by using this flag several times. For instance:</P>
+<PRE style="font-face:courier; font-size:12">
+     Sub SayHelloToJohnDoe
+         Hello.play
+         John.play AtFinish
+         Doe.play AtFinish
+     End sub
+</PRE>
+<P>Assuming we had waves for "John" and "Doe," this trigger would result in the script saying "Hello John Doe."</P>
+
+<H3>Option 2: Variables with Trigger-Based Conditional Phrases</H3>
+<P>Rather than the above solution, which could easily create rather large scripts and become a significant code maintenance issue for the sound designer, you might consider using variables. DirectX Audio scripting can use these values as set by a previous routine or by the developer. There will still have to be communication with the developer ahead of time to make sure the variable is kept updated and triggers are hit at the appropriate time, but additions are as straightforward as adding a wave and several statements, and the effect on the developer is minimal.</P>
+<P>For the scenario we're handling here, we agree with the developer that when a character enters the room, they will set a variable (we'll call it CharacterID) to a value corresponding to which character entered, and then trigger a generic "SayHello" routine.</P>
+<P>The script will initially look something like this. Remember that lines beginning with an apostrophe (') are comments to improve readability and have no effect on code.</P>
+
+<PRE style="font-face:courier; font-size:12">
+     dim CharacterID
+     'a variable, which is declared ("dim"-ed) outside of any routine
+     'We're assuming that if the value is 1, Jack entered the room; '2=Jane; 3=Joe 
+
+     Sub SayHello
+         Hello.Play
+         If (CharacterID = 1) then
+             Jack.Play AtFinish
+         ElseIf (CharacterID = 2) then
+             Jane.Play AtFinish
+         ElseIf (CharacterID = 3) then
+             Joe.Play AtFinish
+         Else
+             Trace "Error - Character ID unknown"
+         End if
+     End sub
+</PRE>
+<P>This introduces us to a few more important scripting topics. If, ElseIf, Else, and End If are the keywords for conditional statements in DirectX Audio scripting. You check the value of one or more variables, then perform a behavior based on those values.<sup><font size:"9">2</font></sup> </P>
+<P>We also introduced a tool that can aid with debugging by incorporating the Trace statement into our script. If the CharacterID is anything other than 1, 2, or 3, we will send a special performance message with this debug string in it. DirectMusic Producer displays these trace statements in its <B>Message Window.</B> A title could choose similarly to "listen" for these statements to aid in debugging. Of course, for the above script example, you would hear "Hello" but no name for this case, so you might notice from this that the variable was set to an unknown value.
+<BR><BR><IMG src="/content/img/dialog_fig2.gif"></P>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>What the DirectMusic Producer <B>Message Window</B> displays if the CharacterID is anything besides 1, 2, or 3 in the above scenario).</I></P>
+
+<H3>Playing and Queuing Primary vs. Secondary Segments</H3>
+<P>Remember that a key concept of DirectMusic is that only one primary segment can be playing at a time, with as many secondary segments layered on top of it as you wish. Playing a segment as a primary segment will therefore stop and replace any previously playing primary segment, without disturbing secondary segments.</P>
+<P>This brings up an interesting problem with the above scripting examples. If two people entered the room at roughly the same time, the trigger from one entering would start saying hello, then the trigger from the other would interrupt it. In some cases this is desirable, but in others you might want to hear several different pieces of dialog (or other content, such as sound effects) at the same time. In such cases, you will probably want to start using secondary segments via the IsSecondary flag. An added complexity is that queued segments by default play relative to the primary segment. Because you want them to play relative to each other (secondary segments), we'll need to start keeping track of these playing segments, which are aptly called PlayingSegment objects.</P>
+<P>Going back to our first scenario, let's say hello to Jack using secondary segments. Again, if the DirectMusic performance has other sound effects or music playing at the same time, they will not be interrupted by this trigger.</P>
+<PRE style="font-face:courier; font-size:12">
+     Sub SayHelloToJack
+         Set PlayingSeg1 = Hello.play (IsSecondary)
+         'Play the wave "Hello" as a secondary segment.
+         'Keep track of this secondary segment in a
+         'PlayingSegment object called "PlayingSeg1"
+
+         Jack.play IsSecondary + AtFinish, nothing, nothing, PlayingSeg1
+         'Queue "Jack" to play as a secondary segment,
+         'at the end of PlayingSeg1 (which is our "Hello" wave)
+     End sub
+</PRE>
+<P>You'll notice several changes here compared to the original routine.<BR><BR>
+<OL>
+<LI>We're using a PlayingSegment object, which I've named PlayingSeg1 (you could name it whatever you wish), to keep track of the current secondary segment to queue after.</LI><BR><BR>
+<LI>AudioVBScript semantics - when an object is used to the right of an equal sign, all of its parameters must be placed in parentheses. This is optional when there's no equal sign.</LI><BR><BR>
+<LI>We're now using an additional parameter on the <B>Play</B> method. As one of the most flexible methods in AudioVBScript, a language based on a subset of Microsoft&#174; Visual Basic&#174; Scripting Edition functionality, <B>Play</B> actually has four different parameters you can set.<sup><font size:"9">3</font></sup></LI><BR><BR>
+<OL TYPE="a">
+<LI><I>Flags</I> - the most commonly used parameter, for setting boundary (AtMeasure, AtBeat, and so on), whether the segment is secondary (IsSecondary), or not.</LI><BR><BR>
+<LI><I>Audiopath</I> - a specific path through the audio hardware (which may include real-time effects, submixing, or other effects) to play this segment on.<sup><font size:"9">4</font></sup></LI><BR><BR>
+<LI><I>Transition Segment</I> - a segment to use as a transition from the currently playing segment before playing this segment.</LI><BR><BR>
+<LI><I>From PlayingSegment</I> - the PlayingSegment to play this segment relative to and replace. In this case, we want to say "Jack" right after we say "Hello."</LI></OL>
+</OL></P>
+
+<P>We're actually only using Flags and From PlayingSegment for this example, so the other parameters were left as nothing in the script example. Setting a parameter to the keyword "nothing" or leaving it blank will cause the default value for that parameter to be used:</P>
+<PRE style="font-face:courier; font-size:12">
+     Jack.play IsSecondary + AtFinish, nothing, nothing, PlayingSeg1
+     Jack.play IsSecondary + AtFinish, , , PlayingSeg1
+</PRE>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>These two calls are equivalent. They will play "Jack" on the default audiopath, and they will not use a transition segment.</I> </P>
+<P>For the sake of space, I'll refrain from typing "nothing" from now on and just leave the parameters blank; that's what those extra commas indicate. Going back to the idea of chaining together more than two waves into a dialog fragment, we'll get something that looks like this:</P>
+<PRE style="font-face:courier; font-size:12">
+     Sub SayHelloToJohnDoe
+         Set Pseg1 = Hello.play (IsSecondary)
+         Set Pseg1 = John.play (IsSecondary + AtFinish, , , Pseg1)
+         Set Pseg1 = Doe.play (IsSecondary + AtFinish, , , Pseg1)
+     End sub
+</PRE>
+
+<P>Again, this will queue three waves to form the sentence "Hello John Doe." All of the waves will be played as secondary segments. As a final example on this topic, we'll take the more generic "SayHello" routine from option 2 and make it use secondary segments:</P>
+<PRE style="font-face:courier; font-size:12">
+     dim CharacterID
+     'If we want to be able to keep track of the PlayingSegment object,
+     'we should "dim" it here as well. However, since it's only being
+     'used within a single routine, we'll just keep it locally declared
+     '(no dim statement).
+
+     Sub SayHello
+         Set Pseg1 = Hello.Play (IsSecondary)
+         If (CharacterID = 1) then
+		    Set Pseg1 = Jack.Play (IsSecondary + AtFinish, , , Pseg1)
+         ElseIf (CharacterID = 2) then
+		    Set Pseg1 = Jane.Play (IsSecondary + AtFinish, , , Pseg1)
+         ElseIf (CharacterID = 3) then
+		    Set Pseg1 = Joe.Play (IsSecondary + AtFinish, , , Pseg1)
+         Else
+            Trace "Error - Character ID unknown"
+         End if
+     End sub
+</PRE>
+
+<H3>Scripting and Pauses in Dialog</H3>
+<P>Note that natural speaking pauses between dialog fragments should generally be built into the content itself; if you're cutting up dialog, you should leave in any pauses. Alternatively, you can author "blank" segments (with no note or wave data) of any length that you want, and queue them between dialog fragments to add additional pauses. DirectX Audio script routines are meant to execute rapidly and therefore do not have the functionality to "pause" in the midst of a routine.</P>
+
+<H3>Audio Localization Using Scripting</H3>
+<P>Using the concepts we've covered so far, we should be able to supply multiple languages of content or swap out content in the localized version of a product. One very easy way would be to agree with the developer on a variable that will keep track of the game's language. Presumably this won't change frequently during playback, but even if it does, the script just checks the variable's value before playing content.</P>
+<P>For the sake of simplicity, we'll only say hello. But everything that's been applied above could be used to shuffle sentence structure or to swap out entire dialog fragments based on language.</P>
+<PRE style="font-face:courier; font-size:12">
+     Dim LanguageSetting
+     '1=English, 2=Spanish, 3=French
+
+     Sub SayHello_Localized
+         If LanguageSetting = 1 then
+              Hello.play
+              '(could have other waves to queue to play here,
+              'like name, follow-up English dialog, etc.)
+         ElseIf LanguageSetting = 2 then
+              Hola.play
+         ElseIf LanguageSetting = 3 then
+              Bonjour.play
+         Else
+              Trace "Error - unknown language setting"
+         End if
+     End sub
+</PRE>
+
+
+<H3>Other Resources</H3>
+<P>The Scripting Reference section of the DirectMusic Producer help documentation gives full details on the DirectX Audio scripting language. You might also check out the baseball scripting sample supplied with the Xbox Development Kit (and supplied with the DirectX 8 SDK). You can actually import that script into DirectMusic Producer by inserting it in a project and look at the source code that was used. Many of the concepts above were applied, including dialog concatenation, and variables influencing dialog.</P>
+<P>For more information about DirectX Audio scripting, please consult the "Scripting Reference" section of the DirectMusic Producer help document or the xds.xbox.com DirectMusic FAQ, or send an e-mail message to <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;See the white paper "<A HREF ="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_bridging.htm">Bridging the Content-Coding Gap: An Introduction to DirectX Audio Scripting</A>" for more basic playback, as well as using it with DirectMusic content.
+<P style="font-size:12"><SUP>2</SUP>&nbsp;As a subset of Microsoft&#174; Visual Basic&#174; Scripting Edition (VBScript), AudioVBScript's behavior in regard to these keywords is identical to that of VBScript. For a more detailed description of their functions in the language, see the VBScript reference guide at <A HREF=" http://msdn.microsoft.com/scripting/default.htm?/scripting/vbscript/default.htm">http://msdn.microsoft.com/scripting/default.htm?/scripting/vbscript/default.htm</A>.
+<P style="font-size:12"><SUP>3</SUP>&nbsp;The full specification for the parameters can be found in the "Segment.Play" topic of the DirectMusic Producer help file.
+<P style="font-size:12"><SUP>4</SUP>&nbsp;See the white paper "<A HREF ="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_audiopathconfig.htm">Working the Metal: Audiopath Configurations and the Xbox Media Communications Processor</A>" for more information about audiopaths and audiopath configuration files.
+<BR><BR>
+<SMALL>Thursday, March 15, 2001</SMALL>
+
+
+
+</TD>
+
+
+
+
+
+	

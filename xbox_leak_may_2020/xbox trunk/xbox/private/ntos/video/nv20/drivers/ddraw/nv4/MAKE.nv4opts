@@ -1,0 +1,68 @@
+#
+# Copyright (c) 1998, NVIDIA Corporation.  All rights reserved.
+#
+# MAKE.nv4opts
+#
+# Specify options specific to NV4
+#
+# The following may be optionally defined:
+#
+#       NO_FASTLOOPS   : compile without fast loops
+#       NO_TEX2        : compile with old texture manager code
+#       LOCUTUS        : compile with profiling
+#       NV_DISASM      : compile with push buffer disassembling code
+#       NV_NULL_DRIVER : compile a null driver
+#       NV_T_AND_L     : compile a T&L driver
+#
+# This file is included by MAKE.d3dopts
+#
+
+
+#--------------------------------------------------------------------
+#                     C H I P   O P T I O N S
+#--------------------------------------------------------------------
+
+NVOPT    = -DNV4 -DNVARCH=0x4
+
+
+#--------------------------------------------------------------------
+#                       D 3 D   O P T I O N S
+#--------------------------------------------------------------------
+
+# Defaults
+
+D3DOPT = -DOLDOVERLAY
+!if "$(OLDDRV)" == "1"
+D3DOPT = -DOLDDRV $(D3DOPT)
+!endif
+
+# set flags as appropriate and define MOPT to pass these options down
+# on recursive calls to nmake since nmake is seemingly too stupid to provide
+# any built-in utility for doing this.
+
+!ifdef LOCUTUS
+MOPT   = $(MOPT) LOCUTUS=
+D3DOPT = $(D3DOPT) -DNV_PROFILE
+!endif
+
+!ifdef NV_DISASM
+MOPT   = $(MOPT) NV_DISASM=
+D3DOPT = $(D3DOPT) -DNV_DISASM
+!endif
+
+!ifdef NV_NULL_DRIVER
+MOPT   = $(MOPT) NV_NULL_DRIVER=
+D3DOPT = $(D3DOPT) -DNV_NULL_DRIVER
+!endif
+
+!ifdef NV_T_AND_L
+MOPT = $(MOPT) NV_T_AND_L=
+D3DOPT = $(D3DOPT) -DNV_T_AND_L -DDIRECT3D_VERSION=0x0700
+!else
+D3DOPT = $(D3DOPT)
+!endif
+
+!ifdef VTUNE_SUPPORT
+MOPT   = $(MOPT) VTUNE_SUPPORT=
+D3DOPT = $(D3DOPT) -DVTUNE_SUPPORT
+!endif

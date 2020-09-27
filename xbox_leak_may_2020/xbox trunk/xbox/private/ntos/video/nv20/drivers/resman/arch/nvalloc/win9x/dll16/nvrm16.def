@@ -1,0 +1,71 @@
+LIBRARY NVARCH16
+EXETYPE WINDOWS
+PROTMODE
+
+DESCRIPTION 'NVidia 16-bit API DLL'
+
+CODE    PRELOAD MOVEABLE NONDISCARDABLE
+DATA    PRELOAD MOVEABLE SINGLE
+
+HEAPSIZE   2048
+
+SEGMENTS
+    _TEXT PRELOAD FIXED SHARED 
+    _DATA PRELOAD FIXED SHARED 
+    _BSS PRELOAD FIXED SHARED
+
+EXPORTS     WEP                                       @1 RESIDENTNAME
+            NvSysDispatch                             @3 RESIDENTNAME
+            NvSysNotifyCallback                       @4
+            NvSysIpcCallback                          @5
+            NVSysSetCursor                            @7
+            NvSysMoveCursor                           @8
+            NvSysGetScreenInfo                        @9
+            NvSysGetRamInfo                           @12
+            NvSysAllocPages                           @16
+            NvSysFreePages                            @17
+            NvSysGetBufferInfo                        @23
+            NvConfigGet                               @25
+            NvConfigSet                               @26
+            NvConfigUpdate                            @27
+            NvConfigVersion                           @28
+            NvConfigVga                               @29
+            NvSysSetCursorImage                       @35
+            NvSysMoveCursorMulti                      @36
+            NvSysSetCursorImageMulti                  @37
+            NvSysUpdateImageOffsetFormat              @38
+            DllEntryPoint                             @40 RESIDENTNAME
+            THK_ThunkData16                           @41 RESIDENTNAME
+            NvSysGetHardwarePointers                  @50
+            NvDeviceBaseGet                           @51
+            NvDeviceLimitGet                          @52
+            NvDeviceSelectorGet                       @53
+            NvSysGetCurrentBufferFlatPointer          @54
+            NvSysGetCursorEmulatePosPointers          @72
+            NvSysDisplayModeHook                      @90
+            NvSysLockPages                            @100
+            NvSysUnlockPages                          @101
+            NvSysDriverConnect                        @102
+            NvSysDriverDisConnect                     @103
+            NvSysClearScreen                          @200
+            NvSysRegisterDisplayDriver                @201
+            NvIoControl                               @299
+            Arch_Nv01Free                             @300
+            Arch_Nv01AllocRoot                        @301
+            Arch_Nv01AllocMemory                      @302
+            Arch_Nv01AllocContextDma                  @303
+            Arch_Nv01AllocChannelPio                  @304
+            Arch_Nv01AllocObject                      @305
+            Arch_Nv01AllocDevice                      @306
+            Arch_Nv01AllocChannelDma                  @307
+            Arch_Nv03DmaFlowControl                   @308
+            Arch_Nv01Interrupt                        @309
+            Arch_Nv01AllocEvent                       @310
+            Arch_NvI2CAccess                          @311
+            Arch_Nv04ConfigGetEx                      @312
+            Arch_Nv04ConfigSetEx                      @313
+            Arch_Nv04Alloc                            @314
+
+IMPORTS
+            C16ThkSL01              = KERNEL.631
+            ThunkConnect16          = KERNEL.651

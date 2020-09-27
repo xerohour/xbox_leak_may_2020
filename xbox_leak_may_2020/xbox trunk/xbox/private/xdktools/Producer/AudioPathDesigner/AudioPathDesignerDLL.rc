@@ -1,0 +1,959 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\DlgAddPChannel.rc""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "AUDIOPATHDESIGNER.OCX\0"
+#define VERSIONDESCRIPTION          "AudiopathDesigner ActiveX Control Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "AudiopathDesigner ActiveX Control Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "AUDIOPATHDESIGNER.OCX\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ABOUTDLL            ICON    DISCARDABLE     "Res\\AboutDLL.ico"
+IDR_AUDIOPATH_DOCTYPE   ICON    DISCARDABLE     "Res\\AudioPathNode.ico"
+IDI_AUDIOPATH_DOCTYPE_SEL ICON    DISCARDABLE     "Res\\AudioPathNodeSel.ico"
+IDI_AUDIOPATHREF_SEL    ICON    DISCARDABLE     "Res\\AudioPathRefNodeSel.ico"
+IDI_AUDIOPATHREF        ICON    DISCARDABLE     "Res\\AudioPathRefNode.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_AUDIOPATH           BITMAP  DISCARDABLE     "Res\\AudioPathCtl.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TAB_AUDIOPATH_AUDIOPATH DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Audiopath"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Name",IDC_STATIC,7,7,20,8
+    EDITTEXT        IDC_NAME,42,5,205,12,ES_AUTOHSCROLL
+    CONTROL         "11 kHz",IDC_11,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE | WS_DISABLED | WS_TABSTOP,14,41,39,10
+    CONTROL         "22 kHz",IDC_22,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE | WS_DISABLED,14,52,39,10
+    CONTROL         "44 kHz",IDC_44,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE | WS_DISABLED,14,63,39,10
+    CONTROL         "48 kHz",IDC_48,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE | WS_DISABLED,14,74,39,10
+    GROUPBOX        "Sample Rate",IDC_STATIC,7,30,56,57,NOT WS_VISIBLE | 
+                    WS_DISABLED
+END
+
+IDD_ABOUTBOX_AUDIOPATH DIALOG DISCARDABLE  0, 0, 229, 62
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Audiopath Designer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_ABOUTDLL,IDC_STATIC,11,17,20,20
+    LTEXT           "",IDC_FILE_VERSION,40,10,143,8,SS_NOPREFIX
+    LTEXT           "Copyright © 1998-2001 Microsoft Corporation.",
+                    IDC_STATIC,40,25,147,8
+    DEFPUSHBUTTON   "OK",IDOK,190,7,32,14,WS_GROUP
+    LTEXT           "All rights reserved.",IDC_STATIC,40,40,119,8
+END
+
+IDD_DLG_AUDIOPATH DIALOGEX 0, 0, 501, 192
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS
+EXSTYLE WS_EX_ACCEPTFILES
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "List1",IDC_TREE_PCHANNELS,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_EDITLABELS | 
+                    LVS_OWNERDRAWFIXED | LVS_NOSORTHEADER | WS_TABSTOP,0,0,
+                    501,191
+END
+
+IDD_DLG_GUID DIALOG DISCARDABLE  0, 0, 230, 49
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Guid"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,173,28,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,116,28,50,14
+    EDITTEXT        IDC_EDIT_GUID,7,7,216,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Create New GUID",IDC_NEW_GUID,7,28,100,14
+END
+
+IDD_TAB_AUDIOPATH_INFO DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Subject:",IDC_STATIC,3,7,32,10
+    EDITTEXT        IDC_SUBJECT,42,5,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Author:",IDC_STATIC,3,23,32,10
+    EDITTEXT        IDC_AUTHOR,42,21,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Copyright:",IDC_STATIC,3,39,32,10
+    EDITTEXT        IDC_COPYRIGHT,42,37,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Version:",IDC_STATIC,3,72,66,10
+    EDITTEXT        IDC_VERSION_1,72,70,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_2,96,70,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_3,120,70,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_4,144,70,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "&Edit GUID...",IDC_EDIT_GUID,196,68,50,14
+END
+
+IDD_DLG_EFFECTLIST DIALOG DISCARDABLE  0, 0, 173, 216
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST_EFFECTS,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SORTASCENDING | 
+                    LVS_OWNERDRAWFIXED | LVS_NOSORTHEADER | WS_TABSTOP,0,0,
+                    173,215
+END
+
+IDD_TAB_EFFECT DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Effect Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Effect Type",IDC_STATIC,7,7,116,31
+    EDITTEXT        IDC_EDIT_TYPE,13,18,103,12,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Instance &name",IDC_STATIC,137,7,106,31
+    EDITTEXT        IDC_EDIT_CUSTOMNAME,141,18,96,12,ES_AUTOHSCROLL
+    GROUPBOX        "Effect Settings",IDC_STATIC,7,42,85,61
+    PUSHBUTTON      "&Edit Effect Properties",IDC_BUTTON_EDIT_PROPERTIES,12,
+                    51,75,14
+    CONTROL         "Always &Process in Software",IDC_CHECK_SOFTWARE,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,16,71,67,20
+    GROUPBOX        "&Send",IDC_STATIC_SEND,96,55,147,48
+    COMBOBOX        IDC_COMBO_SEND,100,65,139,83,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Edit &GUID",IDC_BUTTON_SEND_GUID,144,84,50,14
+END
+
+IDD_TAB_MIXGROUP DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Mix Group Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Mix group name",IDC_STATIC,7,4,106,31
+    EDITTEXT        IDC_EDIT_MIXGROUP_NAME,11,15,96,12,ES_AUTOHSCROLL
+    GROUPBOX        "Synthesizer",ID_STATIC_SYNTH,7,36,236,71
+    COMBOBOX        IDC_COMBO_SYNTH,13,46,224,52,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Note: Not all synths support all audiopath features (e.g. effects).  Selecting specific hardware is useful in authoring scenarios but ""Default Synth"" is generally recommended for content redistributed on other machines.",
+                    IDC_STATIC,13,63,140,43
+    PUSHBUTTON      "Edit Synth Properties",IDC_BUTTON_SYNTH,161,64,76,14
+END
+
+IDD_DLG_INSERT_EFFECT DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Insert New Effect"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,7,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,74,50,14
+    LTEXT           "Base on existing effect:",IDC_STATIC,7,6,74,8
+    COMBOBOX        IDC_COMBO_EFFECT,7,17,172,80,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Instance name:",IDC_STATIC,7,35,50,8
+    EDITTEXT        IDC_EDIT_INSTANCE,7,46,108,12,ES_AUTOHSCROLL
+END
+
+IDD_DLG_SYNTH DIALOG DISCARDABLE  0, 0, 243, 82
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Synth Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Synth Name:",IDC_STATIC,7,9,42,8
+    EDITTEXT        IDC_EDIT_SYNTH_NAME,69,7,94,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "&Voices Allocated:",IDC_STATIC,7,26,56,8
+    EDITTEXT        IDC_EDIT_VOICES,69,24,32,12,ES_AUTOHSCROLL | 
+                    ES_WANTRETURN | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_VOICES,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,96,23,11,14
+    CONTROL         "Enable &reverb",IDC_CHECK_REVERB,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,43,60,10
+    CONTROL         "Enable &chorus",IDC_CHECK_CHORUS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,70,43,61,10
+    GROUPBOX        "Sample Rate",IDC_STATIC,177,7,59,59
+    CONTROL         "&11 kHz",IDC_11,"Button",BS_AUTORADIOBUTTON | 
+                    WS_TABSTOP,184,18,39,10
+    CONTROL         "&22 kHz",IDC_22,"Button",BS_AUTORADIOBUTTON,184,29,39,
+                    10
+    CONTROL         "&44 kHz",IDC_44,"Button",BS_AUTORADIOBUTTON,184,40,39,
+                    10
+    CONTROL         "4&8 kHz",IDC_48,"Button",BS_AUTORADIOBUTTON,184,51,39,
+                    10
+    DEFPUSHBUTTON   "&OK",IDOK,7,61,50,14
+    PUSHBUTTON      "C&ancel",IDCANCEL,91,61,50,14
+    CONTROL         "Download GM",IDC_CHECK_DOWNLOAD_GM,"Button",
+                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_DISABLED | 
+                    WS_TABSTOP,109,25,61,10
+END
+
+IDD_TAB_BUFFER DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Buffer Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Predefined buffer",IDC_STATIC,6,6,129,45
+    CONTROL         "&Use standard buffer",IDC_CHECK_PREDEFINED,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,18,78,10
+    COMBOBOX        IDC_COMBO_STANDARD_BUFFER,13,32,115,72,CBS_DROPDOWNLIST | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Share buffer with other audiopaths",IDC_CHECK_SHARE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,57,124,10
+    LTEXT           "&Channels:",IDC_STATIC,8,75,32,8
+    EDITTEXT        IDC_EDIT_CHANNELS,44,73,28,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN_CHANNELS,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_DISABLED,68,73,11,
+                    13
+    PUSHBUTTON      "Edit &GUID",IDC_BUTTON_GUID,86,72,49,14
+    CONTROL         "Enable &Doppler Effect/SetFrequency",IDC_CHECK_DOPPLER,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,93,133,10
+    GROUPBOX        "",IDC_STATIC,142,6,105,71
+    GROUPBOX        "",IDC_STATIC,142,78,54,28
+    CONTROL         "Enable &3D Control",IDC_RADIO_CTRL3D,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,146,6,73,10
+    CONTROL         "&Pan",IDC_RADIO_PAN,"Button",BS_AUTORADIOBUTTON,144,78,
+                    29,10
+    PUSHBUTTON      "3D Position",IDC_BUTTON_3D_POS,146,17,45,14,WS_DISABLED
+    CONTROL         "&Mute at maximum distance",
+                    IDC_CHECK_MUTE3DATMAXDISTANCE,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,146,33,99,10
+    LTEXT           "&Algorithm:",IDC_STATIC,146,46,32,8
+    COMBOBOX        IDC_COMBO_3DAlg,146,57,79,61,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Local Focus",IDC_RADIO_LOCALFOCUS,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE | WS_DISABLED | 
+                    WS_GROUP | WS_TABSTOP,86,80,55,10
+    CONTROL         "Sticky &Focus",IDC_RADIO_STICKYFOCUS,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE | WS_DISABLED,86,90,
+                    57,10
+    CONTROL         "Global Focus",IDC_RADIO_GLOBALFOCUS,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE | WS_DISABLED,86,100,
+                    57,10
+    EDITTEXT        IDC_EDIT_PAN,148,89,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_PAN,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,183,88,10,14
+    LTEXT           "&Volume",IDC_STATIC,202,78,24,8
+    EDITTEXT        IDC_EDIT_VOLUME,202,89,40,12,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SPIN_VOLUME,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,234,89,10,14
+END
+
+IDD_DLG_ADD_BUSES DIALOG DISCARDABLE  0, 0, 291, 143
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add/Remove Buses"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Buses available from synth:",IDC_STATIC,7,7,86,8
+    LISTBOX         IDC_LIST_BUS_AVAILBLE,7,21,80,115,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Add >>",IDC_BUTTON_ADD,93,27,50,14
+    PUSHBUTTON      "<< &Remove",IDC_BUTTON_REMOVE,93,49,50,14
+    PUSHBUTTON      "R&eset",IDC_BUTTON_RESET,93,122,50,14
+    LTEXT           "Buses in u&se:",IDC_STATIC,147,7,43,8
+    LISTBOX         IDC_LIST_BUS_INUSE,147,21,80,115,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "&OK",IDOK,234,7,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,234,24,50,14
+    PUSHBUTTON      "Move &Up",IDC_BUTTON_UP,234,49,50,14,NOT WS_VISIBLE
+    PUSHBUTTON      "Move &Down",IDC_BUTTON_DOWN,234,68,50,14,NOT WS_VISIBLE
+END
+
+IDD_DLG_3D_POS DIALOG DISCARDABLE  0, 0, 363, 121
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "3D Parameters"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "3D Position",IDC_STATIC,7,7,85,61
+    LTEXT           "X",IDC_STATIC,13,19,8,8
+    EDITTEXT        IDC_EDIT_XPOS,29,17,56,12,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,13,35,8,8
+    EDITTEXT        IDC_EDIT_YPOS,29,33,56,12,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,13,51,8,8
+    EDITTEXT        IDC_EDIT_ZPOS,29,49,56,12,ES_AUTOHSCROLL
+    GROUPBOX        "3D Velocity",IDC_STATIC,97,7,80,61
+    LTEXT           "X",IDC_STATIC,103,19,8,8
+    EDITTEXT        IDC_EDIT_XVEL,115,17,56,12,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,103,35,8,8
+    EDITTEXT        IDC_EDIT_YVEL,115,34,56,12,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,103,51,8,8
+    EDITTEXT        IDC_EDIT_ZVEL,115,50,56,12,ES_AUTOHSCROLL
+    GROUPBOX        "Distance",IDC_STATIC,7,73,100,40
+    LTEXT           "Minimum",IDC_STATIC,12,84,28,8
+    EDITTEXT        IDC_EDIT_MIN_DISTANCE,47,82,56,12,ES_AUTOHSCROLL
+    LTEXT           "Maximum",IDC_STATIC,12,98,30,8
+    EDITTEXT        IDC_EDIT_MAX_DISTANCE,47,96,56,12,ES_AUTOHSCROLL
+    GROUPBOX        "Mode",IDC_STATIC,110,82,73,31
+    COMBOBOX        IDC_COMBO_MODE,114,94,65,55,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Cone Angles",IDC_STATIC,183,7,89,41
+    LTEXT           "Inside",IDC_STATIC,190,18,20,8
+    EDITTEXT        IDC_EDIT_CONE_INSIDE,223,16,40,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "Outside",IDC_STATIC,190,32,25,8
+    EDITTEXT        IDC_EDIT_CONE_OUTSIDE,223,30,40,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    GROUPBOX        "Cone Outside Volume",IDC_STATIC,184,51,88,29
+    EDITTEXT        IDC_EDIT_CONE_VOLUME,208,63,40,12,ES_AUTOHSCROLL
+    GROUPBOX        "Cone Orientation",IDC_STATIC,276,7,80,61
+    LTEXT           "X",IDC_STATIC,281,19,8,8
+    EDITTEXT        IDC_EDIT_XCONE,291,18,56,12,ES_AUTOHSCROLL
+    LTEXT           "Y",IDC_STATIC,281,38,8,8
+    EDITTEXT        IDC_EDIT_YCONE,291,34,56,12,ES_AUTOHSCROLL
+    LTEXT           "Z",IDC_STATIC,281,54,8,8
+    EDITTEXT        IDC_EDIT_ZCONE,291,50,56,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,246,100,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,306,100,50,14
+END
+
+IDD_NEW_AUDIOPATH DIALOG DISCARDABLE  0, 0, 255, 178
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "New Audiopath"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "&Create an empty audiopath",IDC_NEW_AUDIOPATH,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,7,10,101,10
+    CONTROL         "Create a new audiopath based on an &existing audiopath",
+                    IDC_EXISTING_AUDIOPATH,"Button",BS_AUTORADIOBUTTON | 
+                    BS_MULTILINE,7,24,129,20
+    LISTBOX         IDC_AUDIOPATH_LIST,15,47,233,124,LBS_SORT | WS_VSCROLL | 
+                    WS_GROUP | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,198,7,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,198,24,50,14
+END
+
+IDD_OLE_PROPPAGE_LARGE DIALOG DISCARDABLE  0, 0, 267, 166
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_DLG_SEND_PROPERTIES DIALOG DISCARDABLE  0, 0, 238, 101
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Send: Send"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Send volume level:",IDC_STATIC,25,41,61,8
+    EDITTEXT        IDC_EDIT_VOLUME,95,40,40,12,ES_AUTOHSCROLL
+    LTEXT           "1/100ths of a dB",IDC_STATIC,147,42,54,8
+    CONTROL         "Tab1",IDC_TAB1,"SysTabControl32",0x0,4,4,230,75
+    DEFPUSHBUTTON   "OK",IDOK,130,83,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,184,83,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TAB_AUDIOPATH_AUDIOPATH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_ABOUTBOX_AUDIOPATH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_DLG_GUID, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+
+    IDD_TAB_AUDIOPATH_INFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_EFFECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_MIXGROUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+    END
+
+    IDD_DLG_INSERT_EFFECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_DLG_SYNTH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
+
+    IDD_DLG_ADD_BUSES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 284
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 136
+    END
+
+    IDD_DLG_3D_POS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 356
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_NEW_AUDIOPATH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 248
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 171
+    END
+
+    IDD_OLE_PROPPAGE_LARGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 260
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
+    END
+
+    IDD_DLG_SEND_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 234
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 97
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_AUDIOPATH_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "New Toolgraph",               IDM_NEW_TOOLGRAPH
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t",                        IDM_CUT
+        MENUITEM "&Copy",                       IDM_COPY
+        MENUITEM "&Paste",                      IDM_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "&Delete",                     IDM_DELETE
+        MENUITEM "R&ename...",                  IDM_RENAME
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties",                 IDM_PROPERTIES
+    END
+END
+
+IDR_AUDIOPATH_EDITOR MENU DISCARDABLE 
+BEGIN
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM "&Redo\tCtrl+Y",               ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE
+        MENUITEM "Select &All\tCtrl+A",         ID_EDIT_SELECT_ALL
+    END
+    MENUITEM SEPARATOR
+    MENUITEM SEPARATOR
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents",                   IDM_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About Audiopath Designer...", ID_APP_ABOUT
+    END
+END
+
+IDM_AUDIOPATHREF_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Properties",                  32775
+    END
+END
+
+IDM_PCHANNELTREE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Cu&t Mix Group(s)\tCtrl+X",   ID_EDIT_CUT
+        MENUITEM "&Copy Mix Group(s)\tCtrl+C",  ID_EDIT_COPY
+        MENUITEM "&Paste Mix Group(s)\tCtrl+V", ID_EDIT_PASTE
+        MENUITEM "&Insert Mix Group\tIns",      ID_EDIT_INSERT_MIXGROUP
+        MENUITEM "&Delete Mix Group(s)\tDel",   ID_EDIT_DELETE
+        MENUITEM "Select &All Mix Groups\tCtrl+A", ID_EDIT_SELECT_ALL
+        MENUITEM "Add/R&emove PChannels",       ID_EDIT_INSERT
+        MENUITEM "Insert En&v Reverb",          ID_EDIT_INSERT_ENV_REVERB
+        MENUITEM "P&roperties\tF11",            ID_EDIT_MIXGROUP_PROPERTIES
+    END
+END
+
+IDM_EFFECTLIST_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "Cu&t Effect(s)\tCtrl+X",      ID_EDIT_EFFECT_CUT
+        MENUITEM "&Copy Effect(s)\tCtrl+C",     ID_EDIT_EFFECT_COPY
+        MENUITEM "&Paste Effect(s)\tCtrl+V",    ID_EDIT_EFFECT_PASTE
+        MENUITEM "&Insert Effect\tIns",         ID_EDIT_EFFECT_INSERT
+        MENUITEM "Insert &Send",                ID_EDIT_SEND_EFFECT_INSERT
+        MENUITEM "&Delete Effect(s)\tDel",      ID_EDIT_EFFECT_DELETE
+        MENUITEM "Select &All Effects\tCtrl+A", ID_EDIT_EFFECT_SELECT_ALL
+        MENUITEM "P&roperties\tF11",            ID_EDIT_EFFECT_PROPERTIES
+    END
+END
+
+IDM_AUDIOBUS_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "&Add/Remove Buses",           ID_EDIT_BUS_ADDREMOVE
+        MENUITEM "&Insert Buffer",              ID_EDIT_BUFFER_INSERT
+        MENUITEM "&Delete Buffer\tDel",         ID_EDIT_BUFFER_DELETE
+        MENUITEM "P&roperties\tF11",            ID_EDIT_BUS_PROPERTIES
+    END
+END
+
+IDM_AUDIOPATH_DOCROOT_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "New Toolgraph",               IDM_NEW_TOOLGRAPH
+        MENUITEM SEPARATOR
+        MENUITEM "Rename...",                   IDM_RENAME
+        MENUITEM SEPARATOR
+        MENUITEM "Properties",                  IDM_PROPERTIES
+    END
+END
+
+IDM_EFFECTPALETTE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "&Copy Effect(s)\tCtrl+C",     ID_EDIT_EFFECT_COPY
+        MENUITEM "Select &All Effects\tCtrl+A", ID_EDIT_EFFECT_SELECT_ALL
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_SPLITTER            CURSOR  DISCARDABLE     "Res\\Splith.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_AUDIOPATH_ACCELS ACCELERATORS DISCARDABLE 
+BEGIN
+    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
+    VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DLG_3D_POS DLGINIT
+BEGIN
+    IDC_COMBO_MODE, 0x403, 7, 0
+0x6f4e, 0x6d72, 0x6c61, "\000" 
+    IDC_COMBO_MODE, 0x403, 14, 0
+0x6548, 0x6461, 0x5220, 0x6c65, 0x7461, 0x7669, 0x0065, 
+    IDC_COMBO_MODE, 0x403, 8, 0
+0x6944, 0x6173, 0x6c62, 0x0065, 
+    0
+END
+
+IDD_TAB_BUFFER DLGINIT
+BEGIN
+    IDC_COMBO_3DAlg, 0x403, 18, 0
+0x6948, 0x6867, 0x5120, 0x6175, 0x696c, 0x7974, 0x4820, 0x5452, 0x0046, 
+
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_AUDIOPATH           "Audiopath Control"
+    IDS_AUDIOPATH_PPG       "Audiopath Property Page"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_AUDIOPATH_PPG_CAPTION "General"
+    IDS_AUDIOPATH_COMPONENT_NAME "Audiopath Designer"
+    IDS_HELP_FILE_EXT       ".chm"
+    IDS_ERR_INVALIDARG      "IDMUSProdComponent::Initialize() received invalid arguments."
+    IDR_AUDIOPATH_DOCTYPE   "\nAudiopath\nAudiopath\nAudiopath Files (*.aud;*.aup)\n.aud;.aup\nDirectMusic.Audiopath\nDirectMusic Audiopath"
+    IDS_ERR_REGISTER_CF     "Cannot register clipboard formats."
+    IDS_ERR_ADD_CLIPFORMAT  "Cannot register Audiopath file's clipboard format with Framework."
+    IDS_ERR_ADD_IMAGELIST   "Cannot add Project Tree images to Framework."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Audiopath Designer"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_MEMORY          "Out of Memory."
+    IDS_ERR_ADD_DOCTYPE     "Cannot register file type with Framework."
+    IDS_ERR_MISSING_CONDUCTOR "Conductor initialization failed."
+    IDS_AUDIOPATH_TEXT      "Audiopath"
+    IDS_AUDIOPATH_VERSION_TEXT "Audiopath Designer Version %1"
+    IDS_NO_AUDIOPATH        "No Audiopath"
+    IDS_UNDO_AUDIOPATH_NAME "Audiopath Name"
+    IDS_UNDO_AUDIOPATH_GUID "Audiopath GUID"
+    IDS_ZERO_BUSES          "Please add at least one bus before closing this dialog box."
+    IDS_UNDO                "&Undo"
+    IDS_UNDO_ACCEL          "\tCtrl+Z"
+    IDS_REDO                "&Redo"
+    IDS_REDO_ACCEL          "\tCtrl+Y"
+    IDS_ERR_MISSING_DX8     "Unable to find a DirectX 8.0 Performance object."
+    IDS_UNDO_AUDIOPATH_AUTHOR "Audiopath Author"
+    IDS_UNDO_AUDIOPATH_COPYRIGHT "Audiopath Copyright"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_AUDIOPATH_SUBJECT "Audiopath Subject"
+    IDS_UNDO_AUDIOPATH_VERSION "Audiopath Version"
+    IDS_AUDIOPATH_OBJECT_TEXT "Audiopath"
+    IDS_DEFAULT_MIXGROUP_NAME "Mix Group"
+    IDS_DEFAULT_PORT_CUSTOMNAME "Default"
+    IDS_UNDO_DROP_PCHANNELS "Insert PChannel(s)"
+    IDS_UNDO_DROP_EFFECTS   "Insert Effect(s)"
+    IDS_UNDO_INSERT_PCHANNELS "Insert PChannel(s)"
+    IDS_UNDO_CUT_PCHANNELS  "Cut PChannel(s);"
+    IDS_UNDO_DELETE_PCHANNELS "Delete PChannel(s)"
+    IDS_UNDO_INSERT_MIXGROUP "Insert Mix Group"
+    IDS_UNDO_EFFECT_NAME    "Change Effect Name"
+    IDS_UNDO_EFFECT_FLAGS   "Change Effect Flags"
+    IDS_UNDO_EFFECT_DATA    "Change Effect Settings"
+    IDS_UNDO_MIXGROUP_NAME  "Change Mix Group Name"
+    IDS_UNDO_MIXGROUP_SYNTH "Change Mix Group Synth Settings"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_INSERT          "Insert PChannel(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_INSERT_MIX      "Insert Mix Group"
+    ID_EDIT_INSERT_MIXGROUP "Insert new mix group"
+    ID_AUDIOBUS_SPLIT       "Split the selected bus into its components buses."
+    ID_SYNTH_CREATE         "Create a new instance of a synth."
+    ID_EDIT_EFFECT_CUT      "Cut effect(s) to the clipboard"
+    ID_EDIT_EFFECT_COPY     "Copy effect(s) to the clipboard"
+    ID_EDIT_EFFECT_PASTE    "Paste effect(s) from the clipboard"
+    ID_EDIT_DELETE          "Delete PChannel(s)"
+    ID_EDIT_EFFECT_INSERT   "Insert new effect"
+    ID_EDIT_EFFECT_DELETE   "Delete effect(s)"
+    ID_EDIT_EFFECT_SELECT_ALL "Select all effects"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_COPY            "Copy PChannel(s) to the clipboard"
+    ID_EDIT_CUT             "Cut PChannel(s) to the clipboard"
+    ID_EDIT_PASTE           "Paste PChannel(s) from the clipboard"
+    ID_EDIT_SELECT_ALL      "Select all PChannels"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_INSERT_EFFECT_LIST  "%1 : %2"
+    IDS_UNDO_INSERT_EFFECT  "Insert Effect"
+    IDS_EFFECTLIST_EFFECT_TYPE "Effect Palette"
+    IDS_EFFECT_TEXT         "Effect"
+    IDS_DEFAULT_SYNTH_NAME  "Default"
+    IDS_UNKNOWN_SYNTH_NAME  "Unknown"
+    IDS_UNDO_ADDREMOVE_PCHANNELS "Add/Remove PChannel(s)"
+    IDS_ERR_EFFECT_INUSE    "Unable to delete an effect that is used by a Mix Group."
+    IDS_ERR_EFFECT_DEFAULT_DELETE "The default effect may not be removed."
+    IDS_UNDO_DEFAULT_SAMPLERATE "Change default sample rate."
+    IDS_UNDO_STANDARD_BUFFER_TYPE "Change Standard Buffer Type"
+    IDS_UNDO_BUFFER_SETTINGS "Change Buffer Settings"
+    IDS_BUFFER_REVERB       "Standard Reverb"
+    IDS_BUFFER_ENVREVERB    "Standard Env. Reverb"
+    IDS_BUFFER_MONO         "Standard Mono"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUSID0              "Left"
+    IDS_BUSID1              "Right"
+    IDS_BUSID2              "Front Center"
+    IDS_BUSID3              "Low Freq"
+    IDS_BUSID4              "Back Left"
+    IDS_BUSID5              "Back Right"
+    IDS_BUSID6              "Left of Center"
+    IDS_BUSID7              "Right of Center"
+    IDS_BUSID8              "Back Center"
+    IDS_BUSID9              "Side Left"
+    IDS_BUSID10             "Side Right"
+    IDS_BUSID11             "Top Center"
+    IDS_BUSID12             "Top Front Left"
+    IDS_BUSID13             "Top Front Center"
+    IDS_BUSID14             "Top Front Right"
+    IDS_BUSID15             "Top Back Left"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUSID16             "Top Back Center"
+    IDS_BUSID17             "Top Back Right"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUSID64             "Reverb Send"
+    IDS_BUSID65             "Chorus Send"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUSID512            "Mono"
+    IDS_BUSID513            "Mono"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUFFER_STEREO       "Standard Stereo"
+    IDS_UNDO_DELETE_EFFECT  "Delete Effect(s)"
+    IDS_3DALG_DEFAULT       "Default"
+    IDS_3DALG_NO_VIRTUALIZATION "No virtualization"
+    IDS_3DALG_HRTF_FULL     "High quality HRTF"
+    IDS_3DALG_HRTF_LIGHT    "Fast HRTF"
+    IDS_UNDO_BUFFER_3DALGORITHM "Change 3D Algorithm"
+    IDS_ERR_MISSING_TOOLGRAPH_DESIGNER 
+                            "Toolgraph Designer initialization failed."
+    IDS_UNDO_BUFFER_3DPOSITION "Change 3D Position"
+    IDS_UNDO_INSERT_BUFFER  "Insert Buffer"
+    IDS_UNDO_DELETE_BUFFER  "Delete Buffer"
+    IDS_UNDO_ADDREMOVE_BUSES "Add/Remove Buses"
+    IDS_BUFFER_3D_DRY       "Standard 3D (Dry)"
+    IDS_PPG_BUFFER_ENV_REVERB "Environmental Reverb"
+    IDS_PPG_BUFFER_REVERB   "Reverb"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUSID_REV_STEREO    "Reverse Stereo (R+L)"
+    IDS_BUFFER_NONE         "None"
+    IDS_BUSID_STANDARD      "Default"
+    IDS_BUFFER_USER_DEFINED "User Defined"
+    IDS_BUSID_MULTIPLE      "Multiple"
+    IDS_BUSID_STEREO        "Stereo (L+R)"
+    IDS_BUSID_NONE          "None"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PPG_BUFFER_3D_DRY   "3D (Dry)"
+    IDS_PPG_BUFFER_MONO     "Mono"
+    IDS_PPG_BUFFER_STEREO   "Stereo"
+    IDS_UNDO_BUFFER_CHANNELS "Change Buffer Channel Count"
+    IDS_UNDO_BUFFER_GUID    "Change Buffer GUID"
+    IDS_BUFFER_UNSUPPORTED  "Unsupported"
+    IDS_ERR_CANT_EDIT_SYNTH "Unable to edit parameters for this synth within an audiopath.\nGlobal parameters may be set by using the MIDI/Performance Options button in the Transport Options Toolbar."
+    IDS_TOOLGRAPH_TEXT      "Toolgraph"
+    IDS_MIXGROUP_COLUMN     "Mix Group"
+    IDS_BUFFER_COLUMN       "Buffer"
+    IDS_BUS_COLUMN          "Bus"
+    IDS_EFFECTS_COLUMN      "Effects List"
+    IDS_DEFAULT_PORT        "Default Synth"
+    IDS_APATH_MUSIC         "Standard Stereo & Reverb"
+    IDS_MIXGROUP_TEXT       "Mix Group"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SEND_EXTENAL        " (Ext)"
+    IDS_APATH_3D_DRY        "Standard 3D (Dry)"
+    IDS_APATH_MONO          "Standard Mono"
+    IDS_APATH_STEREO        "Standard Stereo"
+    IDS_UNDO_EFFECT_SEND    "Change Send"
+    IDS_SEND_OTHER          "Other..."
+    IDS_SEND_TEXT           "Send"
+    IDS_UNDO_BUFFER_PAN     "Change Buffer Pan"
+    IDS_UNDO_BUFFER_VOLUME  "Change Buffer Volume"
+    IDS_BUFFER_TEXT         "Buffer"
+    IDS_PAN_LEFT            "L"
+    IDS_PAN_RIGHT           "R"
+    IDS_PAN_MID             "Mid"
+    IDS_MINUS_TEXT          "-"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\DlgAddPChannel.rc"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

@@ -1,0 +1,32 @@
+TARGETNAME=vigil
+TARGETTYPE=PROGRAM
+TARGETPATH=obj
+UMTYPE=xboxapp
+UMENTRY=wWinMainCRTStartup
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\xgraphics$(D).lib
+
+SOURCES=\
+    vigil.cpp
+
+XE_FLAGS = $(XE_FLAGS) /TESTNAME:"Vigil" /LIMITMEM \
+                       /INSERTFILE:crc_debug.log,crc_debug.log,n \
+                       /INSERTFILE:crc_retail.log,crc_retail.log,n
+
+!if defined(VIGILVERBOSE)
+C_DEFINES=$(C_DEFINES) -DVIGILVERBOSE
+!endif
+
+!if defined(VIGILNORESOURCECHECK)
+C_DEFINES=$(C_DEFINES) -DVIGILNORESOURCECHECK
+!endif
+
+!if defined(VIGILNOTEXTUREWRITES)
+C_DEFINES=$(C_DEFINES) -DVIGILNOTEXTUREWRITES
+!endif
+
+!if defined(VIGILGENERATECRCS)
+C_DEFINES=$(C_DEFINES) -DVIGILGENERATECRCS
+!endif

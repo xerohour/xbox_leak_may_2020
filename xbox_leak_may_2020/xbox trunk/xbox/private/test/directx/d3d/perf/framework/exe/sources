@@ -1,0 +1,28 @@
+TARGETNAME=framework
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc
+
+TARGETLIBS =        $(LIBRARY_PATH)\dsound$(D).lib \
+		$(LIBRARY_PATH)\d3d8$(D).lib	\
+		$(LIBRARY_PATH)\d3dx8$(D).lib	\
+		$(LIBRARY_PATH)\xgraphics$(D).lib	\
+		$(BASEDIR)\private\test\lib\i386\xtestlib.lib	\
+
+SOURCES= 			                                       \
+    ..\framework.cpp							\
+	..\test.cpp							\
+	..\benmark5.cpp							\
+	..\fillrate.cpp							\
+	..\fsaa.cpp							\
+	..\bitfont.cpp							\
+	..\ini.cpp							\
+	..\utils.cpp

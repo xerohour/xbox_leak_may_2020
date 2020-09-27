@@ -1,0 +1,50 @@
+!IF 0
+
+Copyright (c) 1989-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    XBox
+
+Revision History:
+
+!ENDIF
+
+
+MAJORCOMP=xboxtest
+MINORCOMP=USBSimLib
+
+TARGETNAME=usbsim
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+MSC_WARNING_LEVEL=/W3 /WX
+
+SOURCES=\
+    CWorkerThread.cpp \
+    usbsimulator.cpp \
+    usbdevice.cpp \
+    XidDevice.cpp \
+    BulkDevice.cpp \
+    IsocDevice.cpp \
+    utils.cpp
+
+INCLUDES=\
+    ..\inc; \
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\inc; \
+    $(BASEDIR)\private\inc\crypto; \
+    $(BASEDIR)\private\ntos\xapi\inc; \
+    $(BASEDIR)\private\test\inc
+

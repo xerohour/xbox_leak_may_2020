@@ -1,0 +1,22 @@
+MAJORCOMP=ntos
+MINORCOMP=xprofile
+
+TARGETNAME=xprofile
+TARGETPATH=$(BASEDIR)\private\ntos\obj
+TARGETTYPE=LIBRARY
+
+SOURCES=xprofile.c xbbt.cpp
+
+C_DEFINES=$(C_DEFINES) -D_NTSYSTEM_
+INCLUDES=$(BASEDIR)\private\ntos\inc
+MSC_WARNING_LEVEL=/W3 /WX
+
+# We have to build xprofile.c in a separate directory
+# without /fastcap compiler option. Otherwise, we'll
+# end up profiling our own private profile functions.
+
+PERFFLAGS=
+
+!ifdef _XBOX_ENABLE_BBT
+C_DEFINES=$(C_DEFINES) -D_XBOX_ENABLE_BBT
+!endif

@@ -1,0 +1,43 @@
+///////////////////////////////////////////////////////////
+//
+//
+// help.idl : IDL source for help.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (help.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(854d7ac7-bc3d-11d0-b421-00a0c90f9dc4),
+	version(1.0),
+	helpstring("Visual Studio Help System Package 1.0 Type Library")
+]
+library VsHelpPackage
+{
+
+	// Import the required stuff.
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	// Import the shell interfaces.
+	importlib("textmgr.tlb");
+	importlib("vsshell.tlb");
+
+	///////////////////////////////////////////////////////
+	//
+	// HelpPackage Component
+	//
+	[
+		uuid(854d7ac8-bc3d-11d0-b421-00a0c90f9dc4),
+		helpstring("HelpPackage Class")
+	]
+	coclass VsHelpPackage
+	{
+		[default] interface IVsPackage;
+	};
+
+
+};

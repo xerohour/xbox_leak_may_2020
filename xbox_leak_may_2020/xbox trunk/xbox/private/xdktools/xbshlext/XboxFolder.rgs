@@ -1,0 +1,99 @@
+HKCR
+{
+	Shellext.XboxFolder.1 = s 'Xbox Neighborhood'
+	{
+		CLSID = s '{DB15FEDD-96B8-4DA9-97E0-7E5CCA05CC44}'
+	}
+	Shellext.XboxFolder = s 'Xbox Neighborhood'
+	{
+		CLSID = s '{DB15FEDD-96B8-4DA9-97E0-7E5CCA05CC44}'
+		CurVer = s 'Shellext.XboxFolder.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {DB15FEDD-96B8-4DA9-97E0-7E5CCA05CC44} = s 'Xbox Neighborhood'
+		{
+			ProgID = s 'Shellext.XboxFolder.1'
+			VersionIndependentProgID = s 'Shellext.XboxFolder'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			DefaultIcon = s '%MODULE%,13'
+			ShellFolder = s ''
+			{
+				val Attributes = b '040000A0'
+			}
+			shellex
+			{
+				ExtShellFolderViews
+				{
+				  {5984FFE0-28D4-11CF-AE66-08002B2E1262}
+				  {
+					val PersistMoniker = s 'file://%XBOX_HTT_PATH%'
+				  }
+				}
+			}
+		}
+	}
+	ForceRemove xbox = s 'URL:Xbox Namespace Extension'
+	{
+		val 'URL Protocol' = s ''
+		Shell
+		{
+			Open
+			{
+		        Command = s '"%RUNDLLPATH%" "%MODULE%",LaunchExplorer %FIRST_ARG%'
+			}
+		}
+	}
+}
+
+HKLM
+{
+	NoRemove Software
+	{
+		NoRemove Microsoft
+		{
+			NoRemove Windows
+			{
+				NoRemove CurrentVersion
+				{
+					NoRemove Explorer
+					{
+						NoRemove Desktop
+						{
+							NoRemove NameSpace
+							{
+								{DB15FEDD-96B8-4DA9-97E0-7E5CCA05CC44} = s 'Xbox Namespace Shell Extension'
+							}
+						}
+					}
+					NoRemove 'Shell Extensions'
+					{
+						NoRemove Approved
+						{
+							val {DB15FEDD-96B8-4DA9-97E0-7E5CCA05CC44} = s 'Xbox Namespace Shell Extension'
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+HKCU
+{
+	NoRemove Software
+	{
+		NoRemove Microsoft
+		{
+			NoRemove XboxSDK
+			{
+				xbshlext
+				{
+				}
+			}
+		}
+	}
+}

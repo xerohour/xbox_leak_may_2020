@@ -1,0 +1,344 @@
+example.c:   free(info_ptr->palette);
+png.c:   if (info_ptr->text != NULL)
+png.c:      for (i = 0; i < info_ptr->num_text; i++)
+png.c:         png_free(png_ptr, info_ptr->text[i].key);
+png.c:      png_free(png_ptr, info_ptr->text);
+png.c:   png_free(png_ptr, info_ptr->pcal_purpose);
+png.c:   png_free(png_ptr, info_ptr->pcal_units);
+png.c:   if (info_ptr->pcal_params != NULL)
+png.c:      for (i = 0; i < (int)info_ptr->pcal_nparams; i++)
+png.c:         png_free(png_ptr, info_ptr->pcal_params[i]);
+png.c:      png_free(png_ptr, info_ptr->pcal_params);
+pngget.c:      return(info_ptr->valid & flag);
+pngget.c:      return(info_ptr->rowbytes);
+pngget.c:      return info_ptr->width;
+pngget.c:      return info_ptr->height;
+pngget.c:      return info_ptr->bit_depth;
+pngget.c:      return info_ptr->color_type;
+pngget.c:      return info_ptr->filter_type;
+pngget.c:      return info_ptr->interlace_type;
+pngget.c:      return info_ptr->compression_type;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_pHYs))
+pngget.c:      if(info_ptr->phys_unit_type != PNG_RESOLUTION_METER)
+pngget.c:      else return (info_ptr->x_pixels_per_unit);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_pHYs))
+pngget.c:      if(info_ptr->phys_unit_type != PNG_RESOLUTION_METER)
+pngget.c:      else return (info_ptr->y_pixels_per_unit);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_pHYs))
+pngget.c:      if(info_ptr->phys_unit_type != PNG_RESOLUTION_METER ||
+pngget.c:         info_ptr->x_pixels_per_unit != info_ptr->y_pixels_per_unit)
+pngget.c:      else return (info_ptr->x_pixels_per_unit);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_pHYs))
+pngget.c:      if (info_ptr->x_pixels_per_unit == 0)
+pngget.c:         return ((float)info_ptr->y_pixels_per_unit
+pngget.c:            /(float)info_ptr->x_pixels_per_unit);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_oFFs))
+pngget.c:      if(info_ptr->offset_unit_type != PNG_OFFSET_MICROMETER)
+pngget.c:      else return (info_ptr->x_offset);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_oFFs))
+pngget.c:      if(info_ptr->offset_unit_type != PNG_OFFSET_MICROMETER)
+pngget.c:      else return (info_ptr->y_offset);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_oFFs))
+pngget.c:      if(info_ptr->offset_unit_type != PNG_OFFSET_PIXEL)
+pngget.c:      else return (info_ptr->x_offset);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_oFFs))
+pngget.c:      if(info_ptr->offset_unit_type != PNG_OFFSET_PIXEL)
+pngget.c:      else return (info_ptr->y_offset);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_pHYs)
+pngget.c:         *res_x = info_ptr->x_pixels_per_unit;
+pngget.c:         *res_y = info_ptr->y_pixels_per_unit;
+pngget.c:         *unit_type = (int)info_ptr->phys_unit_type;
+pngget.c:      return(info_ptr->channels);
+pngget.c:      return(info_ptr->signature);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_bKGD)
+pngget.c:      *background = &(info_ptr->background);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_cHRM))
+pngget.c:         *white_x = (double)info_ptr->x_white;
+pngget.c:         *white_y = (double)info_ptr->y_white;
+pngget.c:         *red_x = (double)info_ptr->x_red;
+pngget.c:         *red_y = (double)info_ptr->y_red;
+pngget.c:         *green_x = (double)info_ptr->x_green;
+pngget.c:         *green_y = (double)info_ptr->y_green;
+pngget.c:         *blue_x = (double)info_ptr->x_blue;
+pngget.c:         *blue_y = (double)info_ptr->y_blue;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_gAMA)
+pngget.c:      *file_gamma = (double)info_ptr->gamma;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_sRGB)
+pngget.c:      *file_srgb_intent = (int)info_ptr->srgb_intent;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_hIST)
+pngget.c:      *hist = info_ptr->hist;
+pngget.c:      *width = info_ptr->width;
+pngget.c:      *height = info_ptr->height;
+pngget.c:      *bit_depth = info_ptr->bit_depth;
+pngget.c:      *color_type = info_ptr->color_type;
+pngget.c:         *compression_type = info_ptr->compression_type;
+pngget.c:         *filter_type = info_ptr->filter_type;
+pngget.c:         *interlace_type = info_ptr->interlace_type;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && (info_ptr->valid & PNG_INFO_oFFs)
+pngget.c:      *offset_x = info_ptr->x_offset;
+pngget.c:      *offset_y = info_ptr->y_offset;
+pngget.c:      *unit_type = (int)info_ptr->offset_unit_type;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_pCAL &&
+pngget.c:      *purpose = info_ptr->pcal_purpose;
+pngget.c:      *X0 = info_ptr->pcal_X0;
+pngget.c:      *X1 = info_ptr->pcal_X1;
+pngget.c:      *type = (int)info_ptr->pcal_type;
+pngget.c:      *nparams = (int)info_ptr->pcal_nparams;
+pngget.c:      *units = info_ptr->pcal_units;
+pngget.c:      *params = info_ptr->pcal_params;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_pHYs)
+pngget.c:         *res_x = info_ptr->x_pixels_per_unit;
+pngget.c:         *res_y = info_ptr->y_pixels_per_unit;
+pngget.c:         *unit_type = (int)info_ptr->phys_unit_type;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_PLTE &&
+pngget.c:      *palette = info_ptr->palette;
+pngget.c:      *num_palette = info_ptr->num_palette;
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_sBIT &&
+pngget.c:      *sig_bit = &(info_ptr->sig_bit);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->num_text > 0)
+pngget.c:         *text_ptr = info_ptr->text;
+pngget.c:         *num_text = info_ptr->num_text;
+pngget.c:      return ((png_uint_32)info_ptr->num_text);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_tIME &&
+pngget.c:      *mod_time = &(info_ptr->mod_time);
+pngget.c:   if (png_ptr != NULL && info_ptr != NULL && info_ptr->valid & PNG_INFO_tRNS)
+pngget.c:      if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+pngget.c:             *trans = info_ptr->trans;
+pngget.c:             *trans_values = &(info_ptr->trans_values);
+pngget.c:      else /* if (info_ptr->color_type != PNG_COLOR_TYPE_PALETTE) */
+pngget.c:             *trans_values = &(info_ptr->trans_values);
+pngget.c:         *num_trans = info_ptr->num_trans;
+pngpread.c:   png_push_fill_buffer(png_ptr, &(info_ptr->signature[num_checked]),
+pngpread.c:   if (png_sig_cmp(info_ptr->signature, num_checked, num_to_check))
+pngpread.c:          png_sig_cmp(info_ptr->signature, num_checked, num_to_check - 4))
+pngread.c:      png_read_data(png_ptr, &(info_ptr->signature[num_checked]), num_to_check);
+pngread.c:      if (png_sig_cmp(info_ptr->signature, num_checked, num_to_check))
+pngread.c:             png_sig_cmp(info_ptr->signature, num_checked, num_to_check - 4))
+pngread.c:      png_free(png_ptr, info_ptr->text);
+pngread.c:      png_free(png_ptr, end_info_ptr->text);
+pngrtran.c:      if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+pngrtran.c:            info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+pngrtran.c:            info_ptr->color_type = PNG_COLOR_TYPE_RGB;
+pngrtran.c:         info_ptr->bit_depth = 8;
+pngrtran.c:         info_ptr->num_trans = 0;
+pngrtran.c:            info_ptr->color_type |= PNG_COLOR_MASK_ALPHA;
+pngrtran.c:         if (info_ptr->bit_depth < 8)
+pngrtran.c:            info_ptr->bit_depth = 8;
+pngrtran.c:         info_ptr->num_trans = 0;
+pngrtran.c:      info_ptr->color_type &= ~PNG_COLOR_MASK_ALPHA;
+pngrtran.c:      info_ptr->num_trans = 0;
+pngrtran.c:      info_ptr->background = png_ptr->background;
+pngrtran.c:      info_ptr->gamma = png_ptr->gamma;
+pngrtran.c:   if ((png_ptr->transformations & PNG_16_TO_8) && info_ptr->bit_depth == 16)
+pngrtran.c:      info_ptr->bit_depth = 8;
+pngrtran.c:      if (((info_ptr->color_type == PNG_COLOR_TYPE_RGB) ||
+pngrtran.c:         (info_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA)) &&
+pngrtran.c:         png_ptr->palette_lookup && info_ptr->bit_depth == 8)
+pngrtran.c:         info_ptr->color_type = PNG_COLOR_TYPE_PALETTE;
+pngrtran.c:   if ((png_ptr->transformations & PNG_PACK) && info_ptr->bit_depth < 8)
+pngrtran.c:      info_ptr->bit_depth = 8;
+pngrtran.c:      info_ptr->color_type |= PNG_COLOR_MASK_COLOR;
+pngrtran.c:      info_ptr->color_type &= ~PNG_COLOR_MASK_COLOR;
+pngrtran.c:   if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+pngrtran.c:      info_ptr->channels = 1;
+pngrtran.c:   else if (info_ptr->color_type & PNG_COLOR_MASK_COLOR)
+pngrtran.c:      info_ptr->channels = 3;
+pngrtran.c:      info_ptr->channels = 1;
+pngrtran.c:      info_ptr->color_type &= ~PNG_COLOR_MASK_ALPHA;
+pngrtran.c:   if (info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
+pngrtran.c:      info_ptr->channels++;
+pngrtran.c:       (info_ptr->color_type == PNG_COLOR_TYPE_RGB ||
+pngrtran.c:        info_ptr->color_type == PNG_COLOR_TYPE_GRAY))
+pngrtran.c:      info_ptr->channels++;
+pngrtran.c:       if(info_ptr->bit_depth < png_ptr->user_transform_depth)
+pngrtran.c:         info_ptr->bit_depth = png_ptr->user_transform_depth;
+pngrtran.c:       if(info_ptr->channels < png_ptr->user_transform_channels)
+pngrtran.c:         info_ptr->channels = png_ptr->user_transform_channels;
+pngrtran.c:   info_ptr->pixel_depth = (png_byte)(info_ptr->channels *
+pngrtran.c:      info_ptr->bit_depth);
+pngrtran.c:   info_ptr->rowbytes = ((info_ptr->width * info_ptr->pixel_depth + 7) >> 3);
+pngrutil.c:      if (info_ptr != NULL && info_ptr->valid & PNG_INFO_tRNS)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_gAMA
+pngrutil.c:      && !(info_ptr->valid & PNG_INFO_sRGB)
+pngrutil.c:   if (info_ptr->valid & PNG_INFO_sRGB)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_sBIT)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_cHRM
+pngrutil.c:      && !(info_ptr->valid & PNG_INFO_sRGB)
+pngrutil.c:   if (info_ptr->valid & PNG_INFO_sRGB)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_sRGB)
+pngrutil.c:   if ((info_ptr->valid & PNG_INFO_gAMA))
+pngrutil.c:   if (info_ptr->valid & PNG_INFO_cHRM)
+pngrutil.c:      if (fabs(info_ptr->x_white - (float).3127) > (float).001 ||
+pngrutil.c:          fabs(info_ptr->y_white - (float).3290) > (float).001 ||
+pngrutil.c:          fabs(  info_ptr->x_red - (float).6400) > (float).001 ||
+pngrutil.c:          fabs(  info_ptr->y_red - (float).3300) > (float).001 ||
+pngrutil.c:          fabs(info_ptr->x_green - (float).3000) > (float).001 ||
+pngrutil.c:          fabs(info_ptr->y_green - (float).6000) > (float).001 ||
+pngrutil.c:          fabs( info_ptr->x_blue - (float).1500) > (float).001 ||
+pngrutil.c:          fabs( info_ptr->y_blue - (float).0600) > (float).001)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_tRNS)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_bKGD)
+pngrutil.c:      if(info_ptr->num_palette)
+pngrutil.c:          if(buf[0] > info_ptr->num_palette)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_hIST)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_pHYs)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_oFFs)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_pCAL)
+pngrutil.c:   else if (info_ptr != NULL && info_ptr->valid & PNG_INFO_tIME)
+pngset.c:   png_memcpy(&(info_ptr->background), background, sizeof(png_color_16));
+pngset.c:   info_ptr->valid |= PNG_INFO_bKGD;
+pngset.c:   info_ptr->x_white = (float)white_x;
+pngset.c:   info_ptr->y_white = (float)white_y;
+pngset.c:   info_ptr->x_red   = (float)red_x;
+pngset.c:   info_ptr->y_red   = (float)red_y;
+pngset.c:   info_ptr->x_green = (float)green_x;
+pngset.c:   info_ptr->y_green = (float)green_y;
+pngset.c:   info_ptr->x_blue  = (float)blue_x;
+pngset.c:   info_ptr->y_blue  = (float)blue_y;
+pngset.c:   info_ptr->valid |= PNG_INFO_cHRM;
+pngset.c:   info_ptr->gamma = (float)file_gamma;
+pngset.c:   info_ptr->valid |= PNG_INFO_gAMA;
+pngset.c:   info_ptr->hist = hist;
+pngset.c:   info_ptr->valid |= PNG_INFO_hIST;
+pngset.c:   info_ptr->width = width;
+pngset.c:   info_ptr->height = height;
+pngset.c:   info_ptr->bit_depth = (png_byte)bit_depth;
+pngset.c:   info_ptr->color_type =(png_byte) color_type;
+pngset.c:   info_ptr->compression_type = (png_byte)compression_type;
+pngset.c:   info_ptr->filter_type = (png_byte)filter_type;
+pngset.c:   info_ptr->interlace_type = (png_byte)interlace_type;
+pngset.c:   if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+pngset.c:      info_ptr->channels = 1;
+pngset.c:   else if (info_ptr->color_type & PNG_COLOR_MASK_COLOR)
+pngset.c:      info_ptr->channels = 3;
+pngset.c:      info_ptr->channels = 1;
+pngset.c:   if (info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
+pngset.c:      info_ptr->channels++;
+pngset.c:   info_ptr->pixel_depth = (png_byte)(info_ptr->channels * info_ptr->bit_depth);
+pngset.c:   rowbytes_per_pixel = (info_ptr->pixel_depth + 7) >> 3;
+pngset.c:      info_ptr->rowbytes = (png_size_t)0;
+pngset.c:      info_ptr->rowbytes = (info_ptr->width * info_ptr->pixel_depth + 7) >> 3;
+pngset.c:   info_ptr->x_offset = offset_x;
+pngset.c:   info_ptr->y_offset = offset_y;
+pngset.c:   info_ptr->offset_unit_type = (png_byte)unit_type;
+pngset.c:   info_ptr->valid |= PNG_INFO_oFFs;
+pngset.c:   info_ptr->pcal_purpose = (png_charp)png_malloc(png_ptr, length);
+pngset.c:   png_memcpy(info_ptr->pcal_purpose, purpose, (png_size_t)length);
+pngset.c:   info_ptr->pcal_X0 = X0;
+pngset.c:   info_ptr->pcal_X1 = X1;
+pngset.c:   info_ptr->pcal_type = (png_byte)type;
+pngset.c:   info_ptr->pcal_nparams = (png_byte)nparams;
+pngset.c:   info_ptr->pcal_units = (png_charp)png_malloc(png_ptr, length);
+pngset.c:   png_memcpy(info_ptr->pcal_units, units, (png_size_t)length);
+pngset.c:   info_ptr->pcal_params = (png_charpp)png_malloc(png_ptr,
+pngset.c:   info_ptr->pcal_params[nparams] = NULL;
+pngset.c:      info_ptr->pcal_params[i] = (png_charp)png_malloc(png_ptr, length);
+pngset.c:      png_memcpy(info_ptr->pcal_params[i], params[i], (png_size_t)length);
+pngset.c:   info_ptr->valid |= PNG_INFO_pCAL;
+pngset.c:   info_ptr->x_pixels_per_unit = res_x;
+pngset.c:   info_ptr->y_pixels_per_unit = res_y;
+pngset.c:   info_ptr->phys_unit_type = (png_byte)unit_type;
+pngset.c:   info_ptr->valid |= PNG_INFO_pHYs;
+pngset.c:   info_ptr->palette = palette;
+pngset.c:   info_ptr->num_palette = (png_uint_16)num_palette;
+pngset.c:   info_ptr->valid |= PNG_INFO_PLTE;
+pngset.c:   png_memcpy(&(info_ptr->sig_bit), sig_bit, sizeof (png_color_8));
+pngset.c:   info_ptr->valid |= PNG_INFO_sBIT;
+pngset.c:   info_ptr->srgb_intent = (png_byte)intent;
+pngset.c:   info_ptr->valid |= PNG_INFO_sRGB;
+pngset.c:   if (info_ptr->num_text + num_text > info_ptr->max_text)
+pngset.c:      if (info_ptr->text != NULL)
+pngset.c:         old_max = info_ptr->max_text;
+pngset.c:         info_ptr->max_text = info_ptr->num_text + num_text + 8;
+pngset.c:         old_text = info_ptr->text;
+pngset.c:         info_ptr->text = (png_textp)png_malloc(png_ptr,
+pngset.c:            (png_uint_32)(info_ptr->max_text * sizeof (png_text)));
+pngset.c:         png_memcpy(info_ptr->text, old_text, (png_size_t)(old_max *
+pngset.c:         info_ptr->max_text = num_text + 8;
+pngset.c:         info_ptr->num_text = 0;
+pngset.c:         info_ptr->text = (png_textp)png_malloc(png_ptr,
+pngset.c:            (png_uint_32)(info_ptr->max_text * sizeof (png_text)));
+pngset.c:      png_debug1(3, "allocated %d entries for info_ptr->text\n",
+pngset.c:         info_ptr->max_text);
+pngset.c:      png_textp textp = &(info_ptr->text[info_ptr->num_text]);
+pngset.c:      info_ptr->num_text++;
+pngset.c:      png_debug1(3, "transferred text chunk %d\n", info_ptr->num_text);
+pngset.c:   png_memcpy(&(info_ptr->mod_time), mod_time, sizeof (png_time));
+pngset.c:   info_ptr->valid |= PNG_INFO_tIME;
+pngset.c:      info_ptr->trans = trans;
+pngset.c:      png_memcpy(&(info_ptr->trans_values), trans_values,
+pngset.c:   info_ptr->num_trans = (png_uint_16)num_trans;
+pngset.c:   info_ptr->valid |= PNG_INFO_tRNS;
+pngwrite.c: * you to supply a PNG_INFO_ flag, and check info_ptr->valid before writing
+pngwrite.c:   png_write_IHDR(png_ptr, info_ptr->width, info_ptr->height,
+pngwrite.c:      info_ptr->bit_depth, info_ptr->color_type, info_ptr->compression_type,
+pngwrite.c:      info_ptr->filter_type,
+pngwrite.c:      info_ptr->interlace_type);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_gAMA)
+pngwrite.c:      png_write_gAMA(png_ptr, info_ptr->gamma);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_sRGB)
+pngwrite.c:      png_write_sRGB(png_ptr, (int)info_ptr->srgb_intent);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_sBIT)
+pngwrite.c:      png_write_sBIT(png_ptr, &(info_ptr->sig_bit), info_ptr->color_type);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_cHRM)
+pngwrite.c:         info_ptr->x_white, info_ptr->y_white,
+pngwrite.c:         info_ptr->x_red, info_ptr->y_red,
+pngwrite.c:         info_ptr->x_green, info_ptr->y_green,
+pngwrite.c:         info_ptr->x_blue, info_ptr->y_blue);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_PLTE)
+pngwrite.c:      png_write_PLTE(png_ptr, info_ptr->palette,
+pngwrite.c:         (png_uint_32)info_ptr->num_palette);
+pngwrite.c:   else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_tRNS)
+pngwrite.c:            info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+pngwrite.c:            for (j=0; j<(int)info_ptr->num_trans; j++)
+pngwrite.c:               info_ptr->trans[j] = (png_byte)(255 - info_ptr->trans[j]);
+pngwrite.c:      png_write_tRNS(png_ptr, info_ptr->trans, &(info_ptr->trans_values),
+pngwrite.c:         info_ptr->num_trans, info_ptr->color_type);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_bKGD)
+pngwrite.c:      png_write_bKGD(png_ptr, &(info_ptr->background), info_ptr->color_type);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_hIST)
+pngwrite.c:      png_write_hIST(png_ptr, info_ptr->hist, info_ptr->num_palette);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_oFFs)
+pngwrite.c:      png_write_oFFs(png_ptr, info_ptr->x_offset, info_ptr->y_offset,
+pngwrite.c:         info_ptr->offset_unit_type);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_pCAL)
+pngwrite.c:      png_write_pCAL(png_ptr, info_ptr->pcal_purpose, info_ptr->pcal_X0,
+pngwrite.c:         info_ptr->pcal_X1, info_ptr->pcal_type, info_ptr->pcal_nparams,
+pngwrite.c:         info_ptr->pcal_units, info_ptr->pcal_params);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_pHYs)
+pngwrite.c:      png_write_pHYs(png_ptr, info_ptr->x_pixels_per_unit,
+pngwrite.c:         info_ptr->y_pixels_per_unit, info_ptr->phys_unit_type);
+pngwrite.c:   if (info_ptr->valid & PNG_INFO_tIME)
+pngwrite.c:      png_write_tIME(png_ptr, &(info_ptr->mod_time));
+pngwrite.c:   for (i = 0; i < info_ptr->num_text; i++)
+pngwrite.c:         info_ptr->text[i].compression);
+pngwrite.c:      if (info_ptr->text[i].compression >= PNG_TEXT_COMPRESSION_zTXt)
+pngwrite.c:         png_write_zTXt(png_ptr, info_ptr->text[i].key,
+pngwrite.c:            info_ptr->text[i].text, info_ptr->text[i].text_length,
+pngwrite.c:            info_ptr->text[i].compression);
+pngwrite.c:         info_ptr->text[i].compression = PNG_TEXT_COMPRESSION_zTXt_WR;
+pngwrite.c:      else if (info_ptr->text[i].compression == PNG_TEXT_COMPRESSION_NONE)
+pngwrite.c:         png_write_tEXt(png_ptr, info_ptr->text[i].key,
+pngwrite.c:            info_ptr->text[i].text, info_ptr->text[i].text_length);
+pngwrite.c:         info_ptr->text[i].compression = PNG_TEXT_COMPRESSION_NONE_WR;
+pngwrite.c:      if (info_ptr->valid & PNG_INFO_tIME &&
+pngwrite.c:         png_write_tIME(png_ptr, &(info_ptr->mod_time));
+pngwrite.c:      for (i = 0; i < info_ptr->num_text; i++)
+pngwrite.c:            info_ptr->text[i].compression);
+pngwrite.c:         if (info_ptr->text[i].compression >= PNG_TEXT_COMPRESSION_zTXt)
+pngwrite.c:            png_write_zTXt(png_ptr, info_ptr->text[i].key,
+pngwrite.c:               info_ptr->text[i].text, info_ptr->text[i].text_length,
+pngwrite.c:               info_ptr->text[i].compression);
+pngwrite.c:            info_ptr->text[i].compression = PNG_TEXT_COMPRESSION_zTXt_WR;
+pngwrite.c:         else if (info_ptr->text[i].compression == PNG_TEXT_COMPRESSION_NONE)
+pngwrite.c:            png_write_tEXt(png_ptr, info_ptr->text[i].key,
+pngwrite.c:               info_ptr->text[i].text, info_ptr->text[i].text_length);
+pngwrite.c:            info_ptr->text[i].compression = PNG_TEXT_COMPRESSION_NONE_WR;
+pngwrite.c:      png_free(png_ptr, info_ptr->text);
+pngwrite.c:      png_free(png_ptr, info_ptr->pcal_purpose);
+pngwrite.c:      png_free(png_ptr, info_ptr->pcal_units);
+pngwrite.c:      if (info_ptr->pcal_params != NULL)
+pngwrite.c:         for (i = 0; i < (int)info_ptr->pcal_nparams; i++)
+pngwrite.c:            png_free(png_ptr, info_ptr->pcal_params[i]);
+pngwrite.c:         png_free(png_ptr, info_ptr->pcal_params);

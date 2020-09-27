@@ -1,0 +1,22 @@
+TARGETNAME = vdxmo$(D)
+TARGETTYPE = LIBRARY
+TARGETPATH = $(BASEDIR)\public\sdk\lib
+
+USE_NOLIBS = 1
+NTDBGFILES = 1
+USE_MAPSYM = 1
+
+!if "$(NTDEBUG)" == "ntsd" || "$(NTDEBUG)" == "cvp" || "$(NTDEBUG)" == "sym"
+C_DEFINES = $(C_DEFINES) -DDEBUG=1
+MSC_OPTIMIZATION = $(MSC_OPTIMIZATION) /Od
+!endif
+
+USER_C_FLAGS = $(USER_C_FLAGS) /FAcs
+
+SOURCES = voicedecoder.cpp
+
+INCLUDES = $(BASEDIR)\public\ddk\inc;\
+           $(BASEDIR)\public\sdk\inc;\
+           $(BASEDIR)\private\inc;\
+           ..\inc;
+

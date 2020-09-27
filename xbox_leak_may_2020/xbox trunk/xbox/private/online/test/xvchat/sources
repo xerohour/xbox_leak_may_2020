@@ -1,0 +1,27 @@
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+TARGETNAME=xvchattest
+USE_LIBCMT=1
+UMTYPE=xboxapp
+
+MSC_WARNING_LEVEL=/W3 /WX /Ob1
+
+!if $(FREEBUILD) == 0
+MSC_OPTIMIZATION=/Od
+!endif
+
+LINKER_FLAGS=$(LINKER_FLAGS) /map /IGNORE:4099
+
+SOURCES=\
+    xvchattest.cpp \
+
+
+INCLUDES=$(INCLUDES); \
+    $(BASEDIR)\private\online\xvchat;\
+
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\dsound$(D).lib \
+    $(LIBRARY_PATH)\xvchat$(D).lib \
+             
+

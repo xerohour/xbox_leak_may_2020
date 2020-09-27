@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Simulator Network IO</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Simulator Network IO</H1>
+    <DIV CLASS=BLOCK>
+    The following tables describe the communication between the USB Simulator and the controller.</DIV><P>
+
+<DIV CLASS=BLOCKHEADER>Packet Format</DIV>
+    <DIV CLASS=BLOCK>
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2>
+    <TR>
+        <TH>Header (5 bytes)
+            <TABLE WIDTH=100% CELLSPACING=2 CELLPADDING=2>
+            <TR><TD>1 byte</TD><TD>1 byte</TD><TD>1 byte</TD><TD>2 bytes</TD></TR>
+            <TR><TD>Command</TD><TD>Subcommand</TD><TD>USB Endpoint</TD><TD>Data Size (little endian)</TD></TR>
+            </TABLE>
+            </TH>
+        <TH>Data
+            <TABLE WIDTH=100% CELLSPACING=2 CELLPADDING=2>
+            <TR><TD>Data Size bytes</TD></TR>
+            <TR><TD>Data</TD></TR>
+            </TABLE>
+            </TH>
+        </TR>
+    </TABLE>
+    </DIV>
+
+<P>
+
+<DIV CLASS=BLOCKHEADER>USB Data</DIV>
+    <DIV CLASS=BLOCK>
+    UDP Ports: 201-204
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2 STYLE="table-layout:fixed">
+    <TR><TH WIDTH=35>Cmd</TH><TH WIDTH=35>Sub<BR>Cmd</TH><TH WIDTH=70>USB<BR>EP</TH><TH WIDTH=60>Data<BR>Size</TH><TH>Data</TH></TR>
+    <TR><TD>0x01</TD><TD>0x00</TD><TD>0x00 - 0x07</TD><TD>Variable</TD><TD>USB communication, first byte is PID</TD></TR>
+    </TABLE>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>USB Handshake</DIV>
+    <DIV CLASS=BLOCK>
+    UDP Ports: 201-204
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2 STYLE="table-layout:fixed">
+    <TR><TH WIDTH=35>Cmd</TH><TH WIDTH=35>Sub<BR>Cmd</TH><TH WIDTH=70>USB<BR>EP</TH><TH WIDTH=60>Data<BR>Size</TH><TH>Data</TH></TR>
+    <TR><TD>0x02</TD><TD>0x01</TD><TD>0x00 - 0x07</TD><TD>0x01</TD><TD>0x4B - ACK<BR>0x5A - NAK</TD></TR>
+    <TR><TD>0x02</TD><TD>0x02</TD><TD>0x00 - 0x07</TD><TD>Variable</TD><TD>Other USB Data, first byte is PID</TD></TR>
+    <TR><TD>0x02</TD><TD>0x03</TD><TD>NA</TD><TD>0x01</TD><TD>0xFF - USB Reset<BR>0xFE - USB Suspend<BR>0xFD - USB Resume</TD></TR>
+    </TABLE>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>IP Query</DIV>
+    <DIV CLASS=BLOCK>
+    UDP Ports: 200
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2 STYLE="table-layout:fixed">
+    <TR><TH WIDTH=35>Cmd</TH><TH WIDTH=35>Sub<BR>Cmd</TH><TH WIDTH=70>USB<BR>EP</TH><TH WIDTH=60>Data<BR>Size</TH><TH>Data</TH></TR>
+    <TR><TD>0x03</TD><TD>0x00</TD><TD>NA</TD><TD>0x00</TD><TD>IP Address request from Controller to Simulator (broadcast)</TD></TR>
+    <TR><TD>0x03</TD><TD>0x00</TD><TD>NA</TD><TD>0x04</TD><TD>Four byte IP address, response to request</TD></TR>
+    </TABLE>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Simulator Status</DIV>
+    <DIV CLASS=BLOCK>
+    UDP Ports: 200
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2 STYLE="table-layout:fixed">
+    <TR><TH WIDTH=35>Cmd</TH><TH WIDTH=35>Sub<BR>Cmd</TH><TH WIDTH=70>USB<BR>EP</TH><TH WIDTH=60>Data<BR>Size</TH><TH>Data</TH></TR>
+    <TR><TD>0x04</TD><TD>0x01</TD><TD>NA</TD><TD>0x00</TD><TD>Version request from Controller to Simulator</TD></TR>
+    <TR><TD>0x04</TD><TD>0x01</TD><TD>NA</TD><TD>Variable</TD><TD>Response containing string with the version</TD></TR>
+    <TR><TD>0x04</TD><TD>0x02</TD><TD>NA</TD><TD>0x00</TD><TD>MAC Address request from Controller to Simulator</TD></TR>
+    <TR><TD>0x04</TD><TD>0x02</TD><TD>NA</TD><TD>0x06</TD><TD>Response containing the 6 byte MAC Address</TD></TR>
+    <TR><TD>0x04</TD><TD>0x03</TD><TD>NA</TD><TD>0x00</TD><TD>USB Board status request from Controller to Simulator</TD></TR>
+    <TR><TD>0x04</TD><TD>0x03</TD><TD>NA</TD><TD>0x01</TD><TD>1 byte bitmask showing which USB Boards are operational</TD></TR>
+    </TABLE>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Simulator Setup</DIV>
+    <DIV CLASS=BLOCK>
+    UDP Ports: 200, 201-204
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2 STYLE="table-layout:fixed">
+    <TR><TH WIDTH=35>Cmd</TH><TH WIDTH=35>Sub<BR>Cmd</TH><TH WIDTH=70>USB<BR>EP</TH><TH WIDTH=60>Data<BR>Size</TH><TH>Data</TH></TR>
+    <TR><TD>0x05</TD><TD>0x01</TD><TD>0x00 - 0x07</TD><TD>0x03</TD><TD>Configuration for the USB endpoint (see format below)</TD></TR>
+    <TR><TD>0x05</TD><TD>0x02</TD><TD>0x00</TD><TD>0x01</TD><TD>0x00 - 0x07, Sets the USB Address</TD></TR>
+    <TR><TD>0x05</TD><TD>0x03</TD><TD>0x00</TD><TD>0x01</TD><TD>0x00 - Disconnect the device<BR>0x01 - Connect the device</TD></TR>
+    <TR><TD>0x05</TD><TD>0x04</TD><TD>NA</TD><TD>0x00</TD><TD>Reset the simulator and all of its ports (UDP 200)</TD></TR>
+    <TR><TD>0x05</TD><TD>0x04</TD><TD>NA</TD><TD>0x01</TD><TD>Response to the reset, 1 byte bitmask showing which USB Boards are operational (UDP 200)</TD></TR>
+    <TR><TD>0x05</TD><TD>0x05</TD><TD>NA</TD><TD>0x01</TD><TD>0x00 - 0x0F,  1-byte bit-masked setting for GPIO output bits B4-B7 (UDP 200)</TD></TR>
+    <TR><TD>0x05</TD><TD>0x06</TD><TD>NA</TD><TD>0x01</TD><TD>Request for GPIO input bits (UDP 200)</TD></TR>
+    <TR><TD>0x05</TD><TD>0x06</TD><TD>NA</TD><TD>0x01</TD><TD>Response containing GPIO input bits (UDP 200)</TD></TR>
+    <TR><TD>0x05</TD><TD>0x07</TD><TD>0x00 - 0x07</TD><TD>0x01</TD><TD>0x00 Unstalls the endpoint, 0x01 STALLs the endpoint</TD></TR>
+    </TABLE>
+    </DIV>
+
+<P>
+
+<DIV CLASS=BLOCKHEADER>Endpoint Configuration Setup Data (Command 5.1)</DIV>
+    <DIV CLASS=BLOCK>
+    <TABLE WIDTH=95% CELLSPACING=2 CELLPADDING=2>
+    <TR>
+        <TH>Endpoint Configuration Data (3 bytes)
+            <TABLE WIDTH=100% CELLSPACING=2 CELLPADDING=2>
+            <TR VALIGN=TOP><TD>Byte 1 - FIFO Size</TD><TD>Byte 2 - Endpoint Type</TD><TD>Byte 3 - Auto Repeat</TD></TR>
+            <TR VALIGN=TOP><TD>0x00 - non ISOC 16 bytes, ISOC 64 bytes<BR>0x01 - non ISOC 64 bytes, ISOC 256 bytes<BR>0x02 - non ISOC 8 bytes, ISOC 512 bytes<BR>0x03 - non ISOC 32 bytes, ISOC 1024 bytes</TD>
+                <TD>0x00 - disable endpoint<BR>0x01 - Enabled as ISOC<BR>0x02 - Enabled for non ISOC<BR>0x03 - Enabled as Control</TD>
+                <TD>0x00 - auto repeat disabled<BR>0x01 - auto repeat enabled</TD></TR>
+            <TR VALIGN=TOP><TD COLSPAN=3>NOTE: Total size of all endpoints cannot exceed 1120 bytes.</TD></TR>
+            </TABLE>
+            </TH>
+        </TR>
+    </TABLE>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

@@ -1,0 +1,109 @@
+HKLM
+{
+	%REGROOTBEGIN%
+	NoRemove CLSID
+	{
+		ForceRemove '{A54AAE93-30C2-11D3-87BF-A04A4CC10000}' = s 'Xbox Platform Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+	}
+
+	'VC'
+	{
+		'VC_OBJECTS_PLATFORM_INFO'
+		{
+			ForceRemove 'Xbox' = s '{A54AAE93-30C2-11D3-87BF-A04A4CC10000}'
+			{
+				Directories
+				{
+					 val 'Path Dirs' = s '%XDK%\Xbox\Bin\VC7;%XDK%\Xbox\Bin;%EXEPATH%'
+					 val 'Library Dirs' = s '%XDK%\Xbox\Lib'
+					 val 'Include Dirs' = s '%XDK%\Xbox\Include'
+					 val 'Source Dirs' = s '%XDK%\Source'
+					 val 'Reference Dirs' = s ''
+				}
+				ToolDefaultExtensionLists
+				{
+					val 'VCCLCompilerTool' = s '*.cpp;*.cxx;*.cc;*.c'
+					val 'VCLinkerTool' = s '*.obj;*.res;*.lib;*.rsc'
+					val 'VCLibrarianTool' = s '*.obj;*.res;*.lib;*.rsc'
+					val 'VCMIDLTool' = s '*.idl;*.odl'
+					val 'VCCustomBuildTool' = s '*.bat'
+					val 'VCResourceCompilerTool' = s '*.rc'
+					val 'VCPreBuildEventTool' = s '*.bat'
+					val 'VCPreLinkEventTool' = s '*.bat'
+					val 'VCPostBuildEventTool' = s '*.bat'
+					val 'VCBscMakeTool' = s '*.sbr'
+					val 'VCNMakeTool' = s ''
+					val 'VCWebServiceProxyGeneratorTool' = s '*.sdl;*.wsdl'
+					val 'VCWebDeploymentTool' = s ''
+					val 'XboxDeploymentTool' = s ''
+					val 'XboxImageTool' = s '*.exe'
+				}
+			}
+		}
+	}
+	NoRemove CLSID
+	{
+		ForceRemove '{994053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxDeploymentGeneral Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+		ForceRemove '{984053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxImageGeneral Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+		ForceRemove '{974053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxImageCertificate Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+		ForceRemove '{964053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxImageTitleInfo Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+	}
+	%REGROOTEND%
+}
+
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove '{A54AAE93-30C2-11D3-87BF-A04A4CC10000}' = s 'Xbox Platform Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+		}
+		ForceRemove '{994053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxDeploymentGeneral Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+		ForceRemove '{984053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxImageGeneral Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+		ForceRemove '{974053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxImageCertificate Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+		ForceRemove '{964053B8-CE89-4db7-8DA4-7DF0A608F55B}' = s 'XboxImageTitleInfo Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+	}
+}

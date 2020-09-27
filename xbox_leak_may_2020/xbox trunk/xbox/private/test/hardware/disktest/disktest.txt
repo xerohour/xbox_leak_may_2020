@@ -1,0 +1,45 @@
+DiskTest documentation for the hardware team
+
+Here is what the hardware team wants:
+2.3	Hard Disk Drive
+
+The HDD software test applet will provide a method for measuring the following critical hard drive parameters:
+-	Startup Time - from power on to Drive Ready  (we don't use power management, and not possible to time this from software)
+-	Startup Time - from Standby to Drive Ready  (we don't use power management, and not possible to time this from software)
+-	Spindown Time - from Standby Command  (we don't use power management, and not possible to time this from software)
+-	Spindown Time - from power off (we don't use power management, and not possible to time this from software)
+-	Seek/Read Time (not compatible with the way the OS works)
+-	Seek/Write Time (not compatible with the way the OS works)
+*	Data Transfer Rate, Sustained (*can use existing filesystem tests)
+
+-       Additionally the test tool will provide a mechanism for reading and writing data and files to any specified location on the hard disk. (nope!)
+
+-The test applet will allow each HDD command to be sent in each of the following modes:
+-	DMA MultiWord modes 0-3 (nope)
+-	DMA-33 (nope)
+-	PIO Modes 0-2 (nope)
+
++The Test applet will be able to support the SMART self-test features of the hard drive and report self test results.
+        SMART test:
+                SMART READ DATA
+                SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE
+                SMART SAVE ATTRIBUTE VALUES
+                SMART EXECUTE OFF-LINE IMMEDIATE
+                SMART ENABLE OPERATIONS
+                SMART DISABLE OPERATIONS
+                SMART RETURN STATUS
+
+Here is what they are going to get:
+*        identify attached devices - done
+
+*        SMART test - done
+
+*        Full-Stroke Seek Time (inner track to outer track, and outer track to inner track combines) - done (may have to tweak when we get real hardware)
+*        Track-to-Track Seek Time - inner tracks, middle tracks, outer tracks - done
+
+
+Here is how it works:
+The test enumerates all devices, and calls each test for each device.
+If the device supports the commands required to perform the tests, 
+it performs the test, otherwise it returns.
+

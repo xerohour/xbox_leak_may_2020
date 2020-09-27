@@ -1,0 +1,89 @@
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+OLE=0
+
+!include $(BASEDIR)\private\vc6addon\ide\sources.inc
+
+MAJORCOMP=wizard
+MINORCOMP=xbgwz
+
+TARGETNAME=xbgwz$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=awx
+UMTYPE=windows
+
+COFFBASE = xbgwz
+DLLENTRY=_DllMainCRTStartup
+
+INCLUDES=$(IDE_ROOT)\wizards\xbgwiz;$(O);$(IDE_ROOT)\wizards\appwiz;$(IDE_ROOT)\pkgs\include;$(IDE_INCLUDES)
+
+MSC_WARNING_LEVEL=/W4
+
+# lets have a writable resource section
+LINKER_FLAGS = $(LINKER_FLAGS) -section:.rsrc,RW
+
+!ifndef APPWIZLANG
+APPWIZLANG=ENU
+!endif
+
+APPWIZ_LANG=APPWZ$(APPWIZLANG)
+!if "$(APPWIZLANG)" == "ENU"
+TPL_LOC_DIR=TEMPLATE.LOC
+!else
+TPL_LOC_DIR=TEMPLATE.$(APPWIZLANG)
+!endif
+
+!if "$(APPWIZLANG)" == "JPN"
+TPL_NOLOC_DIR = template.$(APPWIZLANG)
+!else
+TPL_NOLOC_DIR = template
+!endif
+
+C_DEFINES=$(C_DEFINES) /D_APWZEXT
+
+USE_MFC=1
+USE_ATL=1
+
+SOURCES=    \
+    exe.cpp  \
+    debug.cpp   \
+    exeaw.cpp \
+    exe.rc
+
+NTTARGETFILES=
+
+TARGETLIBS= \
+    $(IDE_ROOT)\lib\*\devshl$(D).lib \
+    $(IDE_ROOT)\lib\*\mfcapwz$(D).lib \
+    $(SDK_LIB_PATH)\oleaut32.lib   \
+    $(SDK_LIB_PATH)\ole32.lib   \
+    $(SDK_LIB_PATH)\uuid.lib   \
+    $(SDK_LIB_PATH)\kernel32.lib    \
+    $(SDK_LIB_PATH)\gdi32.lib   \
+    $(SDK_LIB_PATH)\user32.lib  \
+    $(SDK_LIB_PATH)\shell32.lib \
+    $(SDK_LIB_PATH)\advapi32.lib
+
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_PCH=stdafx.pch
+PRECOMPILED_OBJ=stdafx.obj
+PRECOMPILED_CXX=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) /map

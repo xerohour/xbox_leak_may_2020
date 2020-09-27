@@ -1,0 +1,62 @@
+//	Copyright (c) 1997, Microsoft Corporation, All Rights Reserved
+//	Information Contained Herein Is Proprietary And Confidential
+//
+// vssccitm.idl
+//
+// IVsSccItem
+//
+// Purpose:
+//
+//   This used to help find what files, if any, correspond to the
+// selected files being operated on by the property browser.
+// The sequence includes:
+//   QI the IUnknowns in the selection container
+// for IVsSccItem. If QI succeeds, call GetSccFiles
+// and just use those. GetSccFiles can return zero files, and that
+// would be the end of it. * If the QI fails, we will QI for
+// IVsSccProject. What will we QI? The IUnknowns or just
+// the IVsHierarchies in the selection? I think the IVsHierarchies.
+// If those QI's fail, done. If the QI(IVsSccProject) succeeds,
+// use the usual GetSccFiles/GetMkDocument sequence.
+//
+// * At this point, need to check a particular VSHPROPID to determine
+// the following steps.
+//   
+//
+// History:
+//
+//   10/15/1997 jayk initial version
+//
+
+#if !defined(CTC_INVOKED) && !defined(RGS_INVOKED)
+
+cpp_quote("#if     _MSC_VER > 1000")
+cpp_quote("#pragma once")
+cpp_quote("#endif")
+
+import "objidl.idl";
+import "vsshell.idl";
+#include "VseeGuids.h"
+
+[ uuid(uuid_IVsSccItem)]
+interface IVsSccItem : IUnknown
+{
+	HRESULT GetSccFiles(
+		[out] CALPOLESTR* pCaFiles,
+		[out]	CADWORD*  pCaFlagsOut // zero elements or elements with value zero expected.
+		);
+
+	// FUTURE
+	/*
+	HRESULT GetSccSpecialFiles(
+		[in]	VSITEMID	itemid,
+		[in]	DWORD		dwFlag, // one flag from GetSccFiles.pCaFlagsOut
+		[out]	CADWORD*	pCaFlagsOut);
+	*/
+};
+
+#elif defined(RGS_INVOKED)
+
+#elif defined(CTC_INVOKED)
+
+#endif

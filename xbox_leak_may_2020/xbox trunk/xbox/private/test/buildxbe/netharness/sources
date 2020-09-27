@@ -1,0 +1,53 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+
+TARGETNAME=netharness
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+USE_STL=1
+
+SOURCES=main.cpp \
+        modules.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0xA7049955 /INITFLAGS:3 /TESTNAME:"Xbox Network Test Harness" \
+
+TARGETLIBS=$(TESTLIBS)\harnesslib.lib \
+           $(TESTLIBS)\xtestlib.lib \
+           $(TESTLIBS)\xmem.lib \
+           $(TESTLIBS)\xnetref$(D).lib \
+           $(TESTLIBS)\xlog.lib \
+           $(TESTLIBS)\netsync.lib \
+           $(SDK_LIB_PATH)\xnet$(S)$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+           $(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+           $(TESTMODULES)
+
+TESTMODULES=$(TESTLIBS)\xnetbvt.lib    \
+            $(TESTLIBS)\xnetapi.lib    \
+            $(TESTLIBS)\xnetstress.lib \
+            $(TESTLIBS)\xnetstream.lib \

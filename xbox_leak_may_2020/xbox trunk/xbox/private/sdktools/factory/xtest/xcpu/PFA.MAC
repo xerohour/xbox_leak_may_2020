@@ -1,0 +1,618 @@
+; (c) Copyright 1999-2000 Intel Corp. All rights reserved.
+; Intel Confidential.
+
+; *************** five-reals-first-fft macro ******************
+; This macro takes five real values and performs the initial
+; two-and-a-quarter levels of the FFT process.
+; The desired results are:
+; R1 = R1 + R2 + R3 + R4 + R5
+; R2 = R1 + (R2+R5)*.309 + (R3+R4)*-.809
+; R3 = R1 + (R2+R5)*-.809 + (R3+R4)*.309
+; I2 = (R2-R5)*.951 + (R3-R4)*.588
+; I3 = (R2-R5)*.588 + (R3-R4)*-.951
+; NOTE: Optimal = 37 clocks, Actual = 37 clocks
+
+five_reals_first_fft MACRO R1,R2,R3,R4,R5
+	fld	R2			;; R2
+	fadd	R5			;; T1 = R2 + R5
+	fld	R3			;; R3,T1
+	fadd	R4			;; T2 = R3 + R4
+	fld	R1			;; R1,T2,T1
+	fxch	st(2)			;; T1,T2,R1
+	fadd	st(2), st		;; R1 = R1 + T1
+	fmul	P309			;; T1 = T1 * .309
+	fld	R2			;; R2,T1,T2,R1
+	fsub	R5			;; T3 = R2 - R5
+	fld	R3			;; R3,T3,T1,T2,R1
+	fsub	R4			;; T4 = R3 - R4
+	fxch	st(1)			;; T3,T4,T1,T2,R1
+	fmul	P951			;; T3 = T3 * .951
+	fxch	st(3)			;; T2,T4,T1,T3,R1
+	fadd	st(4), st		;; R1 = R1 + T2 (final R1)
+	fmul	M809			;; T2 = T2 * -.809
+	fld	R1			;; R1 (will become newR2)
+	fxch	st(2)			;; T4,T2,newR2,T1,T3,R1
+	fmul	P588			;; T4 = T4 * .588
+	fxch	st(3)			;; T1,T2,newR2,T4,T3,R1
+	fadd	st(2), st		;; newR2 = newR2 + T1
+	fmul	M262			;; T1 = T1 * (-.809/.309)
+	fld	st(4)			;; newI2 = T3 (T3,T1,T2,nR2,T4,nI2,R1)
+	fmul	P618			;; T3 = T3 * (.588/.951)
+	fxch	st(5)			;; newI2,T1,T2,newR2,T4,T3,R1
+	fadd	st, st(4)		;; newI2 = newI2 + T4 (final I2)
+	fxch	st(4)			;; T4,T1,T2,newR2,newI2,T3,R1
+	fmul	M162			;; T4 = T4 * (-.951/.588)
+	fxch	st(2)			;; T2,T1,T4,newR2,newI2,T3,R1
+	fadd	st(3), st		;; newR2 = newR2 + T2 (final R2)
+	fmul	M382			;; T2 = T2 * (.309/-.809)
+	fxch	st(1)			;; T1,T2,T4,newR2,newI2,T3,R1
+	fadd	R1			;; T1 = T1 + R1
+	fxch	st(6)			;; R1,T2,T4,newR2,newI2,T3,T1
+	fstp	R1			;; T2,T4,newR2,newI2,T3,T1
+	faddp	st(5), st		;; T1 = T1 + T2 (final R3)
+	faddp	st(3), st		;; T3 = T3 + T4 (final I3)
+					;; newR2,newI2,T3,T1
+					;; R2,R3,R5,R4
+	fstp	R2
+	fstp	R3
+	fstp	R5
+	fstp	R4
+	ENDM
+
+; *************** five-reals-last-unfft macro ******************
+; This macro takes one real values and two complex values and
+; performs the final two-and-a-quarter levels of the inverse FFT process,
+; producing five real results.
+; NOTE: Optimal = 40 clocks, Actual = 40 clocks
+
+; Using Hermetian symettry, we really have 5 complex values:
+; R1 + 0i, R2 + I2i, R3 + I3i, R3 - I3i, R2 - I2i.
+; Now, use the standard brute force inverse FFT algorithm to compute the
+; resulting value of R1.  We get, R1 = 1/5 *
+; ((R1+0i)*e^0 + (R2+I2i)*e^0 + (R3+I3i)*e^0 + (R3-I3i)*e^0 + (R2-I2i)*e^0).
+; Which simplifies to R1 = 1/5 (R1 + 2 * R2 + 2 * R3).
+; However, the input value of R1 has already been multiplied by one-half
+; (the eight-real-unfft macros did this).  Thus, R1 = 2/5 * (R1 + R2 + R3)
+; We don't multiply by 2/5 here, we let the rounding code do it.
+
+; Following similar logic for computing R2, R3, R4, R5, we get:
+; R1 = R1 + R2 + R3
+; R2 = R1 + R2*.309 + I2*.951 - R3*.809 + I3*.588
+; R3 = R1 - R2*.809 + I2*.588 + R3*.309 - I3*.951
+; R4 = R1 - R2*.809 - I2*.588 + R3*.309 + I3*.951
+; R5 = R1 + R2*.309 - I2*.951 - R3*.809 - I3*.588
+
+five_reals_last_unfft MACRO R1,R2,R3,R4,R5
+	fld	R2			;; R2
+	fmul	P309			;; T1 = R2 * .309
+	fld	R4			;; R3,T1
+	fmul	P309			;; T2 = R3 * .309
+	fld	R1			;; newR2,T2,T1
+	fld	R1			;; newR3,newR2,T2,T1
+	fxch	st(3)			;; T1,newR2,T2,newR3
+	fadd	st(1), st		;; newR2 = newR2 + T1
+	fmul	M262			;; T1 = T1 * (-.809/.309)
+	fxch	st(2)			;; T2,newR2,T1,newR3
+	fadd	st(3), st		;; newR3 = newR3 + T2
+	fmul	M262			;; T2 = T2 * (-.809/.309)
+	fld	R3			;; I2,T2,newR2,T1,newR3
+	fmul	P951			;; T3 = I2 * .951
+	fld	R5			;; I3,T3,T2,newR2,T1,newR3
+	fmul	P588			;; T4 = I3 * .588
+	fxch	st(2)			;; T2,T3,T4,newR2,T1,newR3
+	faddp	st(3), st		;; newR2 = newR2 + T2
+	fxch	st(3)			;; T1,T4,newR2,T3,newR3
+	faddp	st(4), st		;; newR3 = newR3 + T1
+	fld	R1			;; R1,T4,newR2,T3,newR3
+	fadd	R2			;; R1 = R1 + R2
+	fld	st(3)			;; T5 = T3 (T5,R1,T4,newR2,T3,newR3)
+	fmul	P618			;; T5 = T5 * (.588/.951)
+	fxch	st(2)			;; T4,R1,T5,newR2,T3,newR3
+	fadd	st(4), st		;; T3 = T3 + T4
+	fmul	M162			;; T4 = T4 * (-.951/.588)
+	fld	st(5)			;; newR4 = newR3
+	fld	st(4)			;; newR5 = newR2
+	fxch	st(4)			;; T5,newR4,T4,R1,newR5,newR2,T3,newR3
+	faddp	st(2), st		;; T4 = T4 + T5
+	fxch	st(2)			;; R1,T4,newR4,newR5,newR2,T3,newR3
+	fadd	R4			;; R1 = R1 + R3
+	fxch	st(5)			;; T3,T4,newR4,newR5,newR2,R1,newR3
+	fadd	st(4), st		;; newR2 = newR2 + T3
+	fsubp	st(3), st		;; newR5 = newR5 - T3
+	fadd	st(5), st		;; newR3 = newR3 + T4
+	fsubp	st(1), st		;; newR4 = newR4 - T4
+	fxch	st(3)			;; R1,newR5,newR2,newR4,newR3
+	fstp	R1
+	fstp	R5
+	fstp	R2
+	fstp	R4
+	fstp	R3
+	ENDM
+
+; *************** pfa-5-setup macro ******************
+; This macro initializes the five_reals sine-cosine data.
+; NOTE: When computing cosine / sine, divide by the 64-bit sine
+; not the 80-bit sine since macros will multiply by the 64-bit sine.
+
+pfa_5_setup MACRO
+	fldpi				;; PI
+	fadd	st, st			;; 2*PI
+	fdiv	P5			;; 2*PI * 1 / 5
+	fsincos				;; Compute cosine (0.309), sine (0.951)
+	fst	P309			;; Save cosine
+	fxch	st(1)
+	fst	P951			;; Save sine
+	fldpi				;; PI
+	fadd	st, st			;; 2*PI
+	fadd	st, st			;; 2*PI * 2
+	fdiv	P5			;; 2*PI * 2 / 5
+	fsincos				;; Compute cosine (-.809), sine (0.588)
+	fst	M809			;; Save cosine
+	fxch	st(1)
+	fst	P588			;; Save sine
+	fdiv	P951			;; 0.588 / 0.951
+	fstp	P618			;; Save
+	fdiv	P309			;; -0.809 / 0.309
+	fstp	M262			;; Save
+	fchs				;; -0.951
+	fdiv	P588			;; -0.951 / 0.588
+	fstp	M162			;; Save
+	fdiv	M809			;; 0.309 / -0.809
+	fstp	M382			;; Save
+	ENDM
+
+
+
+; *************** six-reals-first-fft macro ******************
+; This macro takes six real values and performs the initial
+; two-and-a-half levels of the FFT process.  This is implemented
+; as two three-way FFTs (multipliers are 1 + 0i, -.5 + .866i, -.5 - .866i)
+; followed by two two-way FFTs (one real and one complex).
+; NOTE: Optimal = 45 clocks, Actual = 45 clocks
+
+; Pseudo-code:
+; T1 = R3 + R5
+; T2 = R3 - R5
+; R1 = R1 + T1 (new R1)
+; T1 = T1 * 0.5
+; T2 = T2 * 0.866 (new I2)
+; T1 = R1 - T1 (new R2)
+
+; T3 = R4 + R6
+; T4 = R4 - R6
+; R2 = R2 + T3 (new R3)
+; T3 = T3 * 0.5
+; T4 = T4 * 0.866 (new I4)
+; T3 = R2 - T3 (new R4)
+
+; Multiply R4 + I4i by 0.5 + 0.866i
+
+; R1 + R3 (final R1)
+; R1 - R3 (final R2)
+; R2 + R4 (final R3)
+; R2 - R4 (final R5)
+; I2 + I4 (final R4)
+; I2 - I4 (final R6)
+
+; Note: below we combine the "T4 = T4 * 0.866" step with the complex multiply
+
+six_reals_first_fft MACRO R1,R2,R3,R4,R5,R6
+	fld	R4			;; R4
+	fadd	R6			;; T3 = R4 + R6
+	fld	R4			;; R4,T3
+	fsub	R6			;; T4 = R4 - R6 (new I4 / 0.866)
+	fld	R2			;; R2,newI4,T3
+	fxch	st(2)			;; T3,newI4,R2
+	fadd	st(2), st		;; R2 = R2 + T3 (new R3)
+	fmul	_FPSHALF			;; T3 = T3 * 0.5
+	fld	R3			;; R3,T3,newI4,newR3
+	fadd	R5			;; T1 = R3 + R5
+	fxch	st(1)			;; T3,T1,newI4,newR3
+	fsubr	R2			;; T3 = R2 - T3 (new R4)
+	fxch	st(2)			;; newI4,T1,newR4,newR3
+	fmul	P75			;; B4 = newI4 * sine
+	fld	R3			;; R3,B4,T1,newR4,newR3
+	fsub	R5			;; T2 = R3 - R5
+	fxch	st(3)			;; newR4,B4,T1,T2,newR3
+	fmul	P866			;; A4 = newR4 * sine
+	fld	R1			;; R1,A4,B4,T1,T2,newR3
+	fxch	st(3)			;; T1,A4,B4,R1,T2,newR3
+	fadd	st(3), st		;; R1 = R1 + T1 (new R1)
+	fmul	_FPSHALF			;; T1 = T1 * 0.5
+	fld	st(1)			;; C4 = A4 (C4,T1,A4,B4,newR1,T2,newR3)
+	fmul	P577			;; C4 = C4 * cosine / sine
+	fxch	st(6)			;; newR3,T1,A4,B4,newR1,T2,C4
+	fsub	st(4), st		;; newR1 = newR1 - newR3 (final R2)
+	fadd	st, st			;; newR3 = newR3 * 2
+	fxch	st(3)			;; B4,T1,A4,newR3,newR1,T2,C4
+	fsub	st(6), st		;; C4 = C4 - B4 (new R4)
+	fmul	P577			;; B4 = B4 * cosine / sine
+	fxch	st(1)			;; T1,B4,A4,newR3,newR1,T2,newR4
+	fsubr	R1			;; T1 = R1 - T1 (new R2)
+	fxch	st(5)			;; T2,B4,A4,newR3,newR1,newR2,newR4
+	fmul	P866			;; T2 = T2 * 0.866 (new I2)
+	fxch	st(1)			;; B4,newI2,A4,newR3,newR1,newR2,newR4
+	faddp	st(2), st		;; A4 = A4 + B4 (new I4)
+					;; I2,I4,R3,R1,R2,R4
+	fxch	st(5)			;; R4,I4,R3,R1,R2,I2
+	fsub	st(4), st		;; R2 = R2 - R4 (final R5)
+	fadd	st, st			;; R4 = R4 * 2
+	fxch	st(1)			;; I4,R4,R3,R1,R2,I2
+	fsub	st(5), st		;; I2 = I2 - I4 (final R6)
+	fadd	st, st			;; I4 = I4 * 2
+	fxch	st(3)			;; R1,R4,R3,I4,R2,I2
+	fadd	st(2), st		;; R3 = R1 + R3 (final R1)
+	fxch	st(1)			;; R4,R1,R3,I4,R2,I2
+	fadd	st, st(4)		;; R4 = R2 + R4 (final R3)
+	fxch	st(5)			;; I2,R1,R3,I4,R2,R4
+	fadd	st(3), st		;; I4 = I2 + I4 (final R4)
+					;; R6,R2,R1,R4,R5,R3
+	fstp	R6
+	fstp	R2
+	fstp	R1
+	fstp	R4
+	fstp	R5
+	fstp	R3
+	ENDM
+
+; *************** six-reals-last-unfft macro ******************
+; This macro takes two real values and two complex values and
+; performs the final two-and-a-half levels of the inverse FFT process,
+; producing six real results.
+; This is implemented as two two-way FFTs (one real and one complex)
+; followed by two three-way FFTs.
+; NOTE: Optimal = 44 clocks, Actual = 44 clocks
+
+; Pseudo-code:
+
+; R1 + R2 (new R1)
+; R1 - R2 (new R3)
+; R3 + R5 (new R2)
+; R3 - R5 (new R4)
+; R4 + R6 (new I2)
+; R4 - R6 (new I4)
+
+; Multiply R4 + I4i by 0.5 - 0.866i
+
+; T1 = R1 - 0.5 * R2
+; T2 = 0.866 * I2
+; R1 + R2 (final R1)
+; T1 + T2 (final R3)
+; T1 - T2 (final R5)
+
+; T3 = R3 - 0.5 * R4
+; T4 = 0.866 * I4
+; R3 + R4 (final R2)
+; T3 + T4 (final R4)
+; T3 - T4 (final R6)
+
+; Note: below we combine the 0.866 * I4 and 0.5 * R4 steps with the
+; complex multiply to save one clock.
+
+six_reals_last_unfft MACRO R1,R2,R3,R4,R5,R6
+	fld	R3
+	fsub	R5			;; R3 - R5 (new R4)
+	fld	R4
+	fsub	R6			;; R4 - R6 (new I4)
+	fxch	st(1)			;; R4,I4
+	fmul	P25			;; A4 = R4 * 0.5 * 0.5
+	fld	R3
+	fadd	R5			;; R3 + R5 (new R2)
+	fxch	st(2)			;; I4,A4,R2
+	fmul	P433			;; B4 = I4 * 0.866 * 0.5
+	fld	st(1)			;; C4 = A4 (C4,B4,A4,R2)
+	fmul	P3			;; C4 = C4 * 0.75/0.25
+	fxch	st(1)			;; B4,C4,A4,R2
+	fadd	st(2), st		;; A4 = A4 + B4 (new R4 * 0.5)
+	fxch	st(3)			;; R2,C4,A4,B4
+	fmul	_FPSHALF			;; R2 = R2 * 0.5
+	fld	R1
+	fadd	R2			;; R1 + R2 (new R1)
+	fxch	st(2)			;; C4,R2,R1,A4,B4
+	fsubp	st(4), st		;; B4 = B4 - C4 (new I4 * 0.866)
+	fld	R1
+	fsub	R2			;; R1 - R2 (new R3)
+	fld	R4
+	fadd	R6			;; R4 + R6 (new I2)
+	fxch	st(2)			;; R2,R3,I2,R1,R4,I4
+	fsub	st(3), st		;; R1 = R1 - 0.5 * R2
+	fmul	P3			;; R2 = R2 * 3
+	fxch	st(4)			;; R4,R3,I2,R1,R2,I4
+	fsub	st(1), st		;; R3 = R3 - 0.5 * R4
+	fmul	P3			;; R4 = 3 * R4
+	fxch	st(3)			;; R1,R3,I2,R4,R2,I4
+	fadd	st(4), st		;; R2 = R1 + R2 (final R1)
+	fxch	st(2)			;; I2,R3,R1,R4,R2,I4
+	fmul	P866			;; I2 = 0.866 * I2
+	fxch	st(1)			;; R3,I2,R1,R4,R2,I4
+	fadd	st(3), st		;; R4 = R3 + R4 (final R2)
+	fxch	st(5)			;; I4,I2,R1,R4,R2,R3
+	fsub	st(5), st		;; R3 = R3 - I4 (final R6)
+	fadd	st, st			;; I4 = I4 * 2
+	fxch	st(1)			;; I2,I4,R1,R4,R2,R3
+	fsub	st(2), st		;; R1 = R1 - I2 (final R5)
+	fadd	st, st			;; I2 = I2 * 2
+	fxch	st(1)			;; I4,I2,R1,R4,R2,R3
+	fadd	st, st(5)		;; I4 = R3 + I4 (final R4)
+	fxch	st(5)			;; R3,I2,R1,R4,R2,I4
+	fstp	R6			;; I2,R1,R4,R2,I4
+	fadd	st, st(1)		;; I2 = R1 + I2 (final R3)
+	fxch	st(4)			;; I4,R1,R4,R2,I2
+					;; R4,R5,R2,R1,R3
+	fstp	R4
+	fstp	R5
+	fstp	R2
+	fstp	R1
+	fstp	R3
+	ENDM
+
+; *************** pfa-6-setup macro ******************
+; This macro initializes the six_reals sine-cosine data.
+; NOTE: When computing cosine / sine, divide by the 64-bit sine
+; not the 80-bit sine since macros will multiply by the 64-bit sine.
+
+pfa_6_setup MACRO
+	fldpi				;; PI
+	fadd	st, st			;; 2*PI
+	fdiv	P3			;; 2*PI / 3
+	FSIN_X				;; Compute sine (0.866)
+	fst	P866			;; Save sine
+	fmul	_FPSHALF			;; 0.5 * P866
+	fst	P433			;; Save
+	fadd	st, st
+	fld	_FPSHALF
+	fdivrp	st(1), st		;; 0.5 / 0.866
+	fstp	P577			;; Save
+	ENDM
+
+
+; *************** seven-reals-first-fft macro ******************
+; This macro takes seven real values and performs the initial
+; two-and-three-quarter levels of the FFT process.
+; The desired results are:
+; R1 = R1 + R2 + R3 + R4 + R5 + R6 + R7
+; R2 = R1 + (R2+R7)*.623 + (R3+R6)*-.223 + (R4+R5)*-.901
+; R3 = R1 + (R2+R7)*-.223 + (R3+R6)*-.901 + (R4+R5)*.623
+; R4 = R1 + (R2+R7)*-.901 + (R3+R6)*.623 + (R4+R5)*-.223
+; I2 = (R2-R7)*.782 + (R3-R6)*.975 + (R4-R5)*.434
+; I3 = (R2-R7)*.975 + (R3-R6)*-.434 + (R4-R5)*-.782
+; I4 = (R2-R7)*.434 + (R3-R6)*-.782 + (R4-R5)*.975
+; NOTE: Optimal = 69 clocks, Actual = 69 clocks
+
+seven_reals_first_fft MACRO R1,R2,R3,R4,R5,R6,R7
+	fld	R2			;; R2
+	fadd	R7			;; T1 = R2+R7
+	fld	R3			;; R3,T1
+	fadd	R6			;; T2 = R3+R6
+	fld	R1			;; newR1,T2,T1
+	fxch	st(2)			;; T1,T2,newR1
+	fadd	st(2), st		;; newR1 = newR1 + T1
+	fmul	P623			;; T1 = T1 * .623
+	fld	R4			;; R4,T1,T2,newR1
+	fadd	R5			;; T3 = R4+R5
+	fxch	st(2)			;; T2,T1,T3,newR1
+	fadd	st(3), st		;; newR1 = newR1 + T2
+	fmul	P623			;; T2 = T2 * .623
+	fld	R1			;; newR2 = R1
+	fxch	st(2)			;; T1,T2,newR2,T3,newR1
+	fadd	st(2), st		;; newR2 = newR2 + T1
+	fmul	M358			;; T1 = T1 * (-.223/.623)
+	fxch	st(3)			;; T3,T2,newR2,T1,newR1
+	fadd	st(4), st		;; newR1 = newR1 + T3
+	fmul	P623			;; T3 = T3 * .623
+	fld	R1			;; newR4 = R1
+	fxch	st(2)			;; T2,T3,newR4,newR2,T1,newR1
+	fadd	st(2), st		;; newR4 = newR4 + T2
+	fmul	M358			;; T2 = T2 * (-.223/.623)
+	fld	R1			;; newR3 = R1
+	fxch	st(2)			;; T3,T2,newR3,newR4,newR2,T1,newR1
+	fadd	st(2), st		;; newR3 = newR3 + T3
+	fmul	M358			;; T3 = T3 * (-.223/.623)
+	fxch	st(1)			;; T2,T3,newR3,newR4,newR2,T1,newR1
+	fadd	st(4), st		;; newR2 = newR2 + T2
+	fmul	P404			;; T2 = T2 * (-.901/-.223)
+	fxch	st(5)			;; T1,T3,newR3,newR4,newR2,T2,newR1
+	fadd	st(2), st		;; newR3 = newR3 + T1
+	fmul	P404			;; T1 = T1 * (-.901/-.223)
+	fxch	st(1)			;; T3,T1,newR3,newR4,newR2,T2,newR1
+	fadd	st(3), st		;; newR4 = newR4 + T3
+	fmul	P404			;; T3 = T3 * (-.901/-.223)
+	fxch	st(5)			;; T2,T1,newR3,newR4,newR2,T3,newR1
+	faddp	st(2), st		;; newR3 = newR3 + T2 (final R4)
+	faddp	st(2), st		;; newR4 = newR4 + T1 (final R6)
+	fxch	st(3)			;; T3,newR4,newR2,newR3,newR1
+	faddp	st(2), st		;; newR2 = newR2 + T3 (final R2)
+	fld	R2			;; R2,newR4,newR2,newR3,newR1
+	fsub	R7			;; T1 = R2-R7
+	fld	R3			;; R3,T1,newR4,newR2,newR3,newR1
+	fsub	R6			;; T2 = R3-R6
+	fxch	st(1)			;; T1,T2,newR4,newR2,newR3,newR1
+	fmul	P975			;; T1 = T1 * .975
+	fld	R4			;; R4,T1,T2,newR4,newR2,newR3,newR1
+	fsub	R5			;; T3 = R4-R5
+	fxch	st(2)			;; T2,T1,T3,newR4,newR2,newR3,newR1
+	fmul	P975			;; T2 = T2 * .975
+	fxch	st(6)			;; newR1,T1,T3,newR4,newR2,newR3,T2
+	fstp	R1			;; T1,T3,newR4,newR2,newR3,T2
+	fld	st(0)			;; newI3 = T1
+	fxch	st(2)			;; T3,T1,newI3,newR4,newR2,newR3,T2
+	fmul	P975			;; T3 = T3 * .975
+	fxch	st(4)			;; newR2,T1,newI3,newR4,T3,newR3,T2
+	fstp	R2			;; T1,newI3,newR4,T3,newR3,T2
+	fmul	P445			;; T1 = T1 * (.434/.975)
+	fxch	st(4)			;; newR3,newI3,newR4,T3,T1,T2
+	fstp	R4			;; newI3,newR4,T3,T1,T2
+	fld	st(4)			;; newI2 = T2
+	fmul	P445			;; T2 = T2 * (.434/.975)
+	fld	st(3)			;; newI4 = T3
+	fmul	P445			;; T3 = T3 * (.434/.975)
+	fxch	st(5)			;; T1,T2,newI3,newR4,newI4,T3,newI2
+	fadd	st(4), st		;; newI4 = newI4 + T1
+	fmul	P180			;; T1 = T1 * (.782/.434)
+	fxch	st(1)			;; T2,T1,newI3,newR4,newI4,T3,newI2
+	fsub	st(2), st		;; newI3 = newI3 - T2
+	fmul	P180			;; T2 = T2 * (.782/.434)
+	fxch	st(5)			;; T3,T1,newI3,newR4,newI4,T2,newI2
+	fadd	st(6), st		;; newI2 = newI2 + T3
+	fmul	P180			;; T3 = T3 * (.782/.434)
+	fxch	st(5)			;; T2,T1,newI3,newR4,newI4,T3,newI2
+	fsubp	st(4), st		;; newI4 = newI4 - T2 (final R7)
+	faddp	st(5), st		;; newI2 = newI2 + T1 (final R3)
+	fxch	st(3)			;; T3,newR4,newI4,newI3,newI2
+	fsubp	st(3), st		;; newI3 = newI3 - T3 (final R5)
+	fstp	R6
+	fstp	R7
+	fstp	R5
+	fstp	R3
+	ENDM
+
+; *************** seven-reals-last-unfft macro ******************
+; This macro takes one real value and three complex values and
+; performs the final two-and-three-quarters levels of the inverse FFT process,
+; producing seven real results.
+; R1 = R1 + R2 + R3 + R4
+; R2 = R1 + R2*.623 + I2*.782 - R3*.223 + I3*.975 - R4*.901 + I4*.434
+; R3 = R1 - R2*.223 + I2*.975 - R3*.901 - I3*.434 + R4*.623 - I4*.782
+; R4 = R1 - R2*.901 + I2*.434 + R3*.623 - I3*.782 - R4*.223 + I4*.975
+; R5 = R1 - R2*.901 - I2*.434 + R3*.623 + I3*.782 - R4*.223 - I4*.975
+; R6 = R1 - R2*.223 - I2*.975 - R3*.901 + I3*.434 + R4*.623 + I4*.782
+; R7 = R1 + R2*.623 - I2*.782 - R3*.223 - I3*.975 - R4*.901 - I4*.434
+; NOTE: Optimal = 71 clocks, Actual = 71 clocks
+
+seven_reals_last_unfft MACRO R1,R2,R3,R4,R5,R6,R7
+	fld	R3			;; I2
+	fmul	P975			;; T2 = I2*.975
+	fld	R5			;; I3,T2
+	fmul	P975			;; T3 = I3*.975
+	fld	R7			;; I4,T3,T2
+	fmul	P975			;; T4 = I4*.975
+	fld	st(2)			;; B3 = T2 (T2,T4,T3,B3)
+	fmul	P445			;; T2 = T2 * (.434/.975)
+	fld	st(2)			;; B2 = T3 (T3,T2,T4,B2,B3)
+	fmul	P445			;; T3 = T3 * (.434/.975)
+	fld	st(2)			;; B4 = T4 (T4,T3,T2,B4,B2,B3)
+	fmul	P445			;; T4 = T4 * (.434/.975)
+	fxch	st(2)			;; T2,T3,T4,B4,B2,B3
+	fadd	st(3), st		;; B4 = B4 + T2
+	fmul	P180			;; T2 = T2 * (.782/.434)
+	fxch	st(1)			;; T3,T2,T4,B4,B2,B3
+	fsub	st(5), st		;; B3 = B3 - T3
+	fmul	P180			;; T3 = T3 * (.782/.434)
+	fxch	st(2)			;; T4,T2,T3,B4,B2,B3
+	fadd	st(4), st		;; B2 = B2 + T4
+	fmul	P180			;; T4 = T4 * (.782/.434)
+	fxch	st(2)			;; T3,T2,T4,B4,B2,B3
+	fsubp	st(3), st		;; B4 = B4 - T3
+	faddp	st(3), st		;; B2 = B2 + T2
+	fsubp	st(3), st		;; B3 = B3 - T4
+	fld	R2			;; R2,B4,B2,B3
+	fmul	P623			;; S2 = R2 * .623
+	fld	R4			;; R3,S2,B4,B2,B3
+	fmul	M223			;; S3 = R3 * -.223
+	fld	R1			;; A2 = R1 (A2,S3,S2,B4,B2,B3)
+	fxch	st(2)			;; S2,S3,A2,B4,B2,B3
+	fadd	st(2), st		;; A2 = A2 + S2
+	fmul	M358			;; S2 = S2 * (-.223/.623)
+	fld	R6			;; R4,S2,S3,A2,B4,B2,B3
+	fmul	M901			;; S4 = R4 * -.901
+	fxch	st(2)			;; S3,S2,S4,A2,B4,B2,B3
+	fadd	st(3), st		;; A2 = A2 + S3
+	fmul	P404			;; S3 = S3 * (-.901/-.223)
+	fld	R1			;; A3 = R1 (A3,S3,S2,S4,A2,B4,B2,B3)
+	fxch	st(2)			;; S2,S3,A3,S4,A2,B4,B2,B3
+	fadd	st(2), st		;; A3 = A3 + S2
+	fmul	P404			;; S2 = S2 * (-.901/-.223)
+	fxch	st(3)			;; S4,S3,A3,S2,A2,B4,B2,B3
+	fadd	st(4), st		;; A2 = A2 + S4
+	fmul	M691			;; S4 = S4 * (.623/-.901)
+	fxch	st(6)			;; B2,S3,A3,S2,A2,B4,S4,B3
+	fsub	st(4), st		;; A2 = A2 - B2 (final R7)
+	fadd	st, st			;; B2 = B2 * 2
+	fxch	st(1)			;; S3,B2,A3,S2,A2,B4,S4,B3
+	fadd	st(2), st		;; A3 = A3 + S3
+	fmul	M691			;; S3 = S3 * (.623/-.901)
+	fxch	st(4)			;; A2,B2,A3,S2,S3,B4,S4,B3
+	fadd	st(1), st		;; B2 = A2 + B2 (final R2)
+	fxch	st(6)			;; S4,B2,A3,S2,S3,B4,A2,B3
+	fadd	st(2), st		;; A3 = A3 + S4
+	fmul	M358			;; S4 = S4 * (-.223/.623)
+	fxch	st(4)			;; S3,B2,A3,S2,S4,B4,A2,B3
+	faddp	st(3), st		;; A4 = S2 + S3
+	fxch	st(5)			;; A2,A3,A4,S4,B4,B2,B3
+	fstp	R7			;; A3,A4,S4,B4,B2,B3
+	fld	R1			;; R1,A3,A4,S4,B4,B2,B3
+	fxch	st(3)			;; S4,A3,A4,R1,B4,B2,B3
+	faddp	st(2), st		;; A4 = A4 + S4
+	fsub	st, st(5)		;; A3 = A3 - B3 (final R6)
+	fxch	st(2)			;; R1,A4,A3,B4,B2,B3
+	fadd	R2			;; R1 = R1 + R2
+	fxch	st(1)			;; A4,R1,A3,B4,B2,B3
+	fadd	R1			;; A4 = A4 + R1
+	fxch	st(5)			;; B3,R1,A3,B4,B2,A4
+	fadd	st, st			;; B3 = B3 * 2
+	fxch	st(1)			;; R1,B3,A3,B4,B2,A4
+	fadd	R4			;; R1 = R1 + R3
+	fxch	st(3)			;; B4,B3,A3,R1,B2,A4
+	fsub	st(5), st		;; A4 = A4 - B4 (final R5)
+	fadd	st, st			;; B4 = B4 * 2
+	fxch	st(1)			;; B3,B4,A3,R1,B2,A4
+	fadd	st, st(2)		;; B3 = A3 + B3 (final R3)
+	fxch	st(3)			;; R1,B4,A3,B3,B2,A4
+	fadd	R6			;; R1 = R1 + R4
+	fxch	st(1)			;; B4,R1,A3,B3,B2,A4
+	fadd	st, st(5)		;; B4 = A4 + B4 (final R4)
+	fxch	st(5)			;; A4,R1,A3,B3,B2,B4
+					;; R5,R1,R6,R3,R2,R4
+	fstp	R5
+	fstp	R1
+	fstp	R6
+	fstp	R3
+	fstp	R2
+	fstp	R4
+	ENDM
+
+; *************** pfa-7-setup macro ******************
+; This macro initializes the seven_reals sine-cosine data.
+; NOTE: When computing cosine / sine, divide by the 64-bit sine
+; not the 80-bit sine since macros will multiply by the 64-bit sine.
+
+pfa_7_setup MACRO
+	fldpi				;; PI
+	fadd	st, st			;; 2*PI
+	fdiv	P7			;; 2*PI * 1 / 7
+	fsincos				;; Compute cosine (0.623), sine (0.782)
+	fst	P623			;; Save cosine
+	fldpi				;; PI
+	fadd	st, st			;; 2*PI
+	fadd	st, st			;; 2*PI * 2
+	fdiv	P7			;; 2*PI * 2 / 7
+	fsincos				;; Compute cosine (-.223), sine (0.975)
+	fst	M223			;; Save cosine
+	fxch	st(1)
+	fstp	P975			;; Save sine
+	fldpi				;; PI
+	fadd	st, st			;; 2*PI
+	fld	st(0)			;; 2*PI
+	fadd	st, st			;; 2*PI * 2
+	faddp	st(1), st		;; 2*PI * 3
+	fdiv	P7			;; 2*PI * 3 / 7
+	fsincos				;; Compute cosine (-.901), sine (0.434)
+	fst	M901			;; Save cosine
+	fxch	st(1)			;; .434,-.901,-.223,.623,.782
+	fdiv	P975			;; 0.434 / 0.975
+	fstp	P445			;; Save
+	fld	P975			;; .975,-.901,-.223,.623,.782
+	fmul	P445			;; .975*.445,-.901,-.223,.623,.782
+	fdivp	st(4), st		;; 0.782 / (0.975 * 0.445)
+	fxch	st(3)			;; 1.802,-.223,.623,-.901
+	fstp	P180			;; Save
+	fdiv	P623			;; -0.223 / 0.623
+	fstp	M358			;; Save
+	fdiv	M901			;; 0.623 / -0.901
+	fstp	M691			;; Save
+	fld	P623			;; .623
+	fmul	M358			;; .623*-.358
+	fdivp	st(1), st		;; -.901 / (.623 * -.358)
+	fstp	P404			;; Save
+	ENDM
+

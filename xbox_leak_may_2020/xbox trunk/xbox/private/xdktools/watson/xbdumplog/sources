@@ -1,0 +1,29 @@
+TARGETNAME=xbDumpLog
+TARGETTYPE=PROGRAM
+TARGETPATH=obj
+UMTYPE=console
+UMENTRY=main
+
+# Use precompiled header for much faster build
+PRECOMPILED_INCLUDE=StdAfx.h
+PRECOMPILED_CXX=1
+
+SOURCES=\
+    xbDumpLog.cpp \
+    Output.cpp \
+    ParseLogFile.cpp \
+    ReadWriteBreakInfo.cpp \
+    xbDumpLog.rc
+
+TARGETLIBS = \
+    $(SDK_LIB_PATH)\xboxdbg.lib \
+    $(WSDK_LIB_PATH)\gdi32.lib    \
+    $(WSDK_LIB_PATH)\comdlg32.lib \
+    $(WSDK_LIB_PATH)\imagehlp.lib \
+    $(WSDK_LIB_PATH)\kernel32.lib \
+    $(WSDK_LIB_PATH)\advapi32.lib \
+    $(WSDK_LIB_PATH)\user32.lib
+
+USE_MSVCRT=1
+
+MSC_WARNING_FLAGS=/W3 /WX

@@ -1,0 +1,26 @@
+HKCR
+{
+	USBSimulator.Simulator.1 = s 'Simulator Class'
+	{
+		CLSID = s '{7E47374A-175E-47D9-A97E-ADD45D5A0F70}'
+	}
+	USBSimulator.Simulator = s 'Simulator Class'
+	{
+		CLSID = s '{7E47374A-175E-47D9-A97E-ADD45D5A0F70}'
+		CurVer = s 'USBSimulator.Simulator.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {7E47374A-175E-47D9-A97E-ADD45D5A0F70} = s 'Simulator Class'
+		{
+			ProgID = s 'USBSimulator.Simulator.1'
+			VersionIndependentProgID = s 'USBSimulator.Simulator'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{FA33F7A9-3CDF-4ADF-BBC8-1718F17D391F}'
+		}
+	}
+}

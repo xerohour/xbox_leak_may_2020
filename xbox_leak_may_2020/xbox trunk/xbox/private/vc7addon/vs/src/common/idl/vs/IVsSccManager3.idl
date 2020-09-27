@@ -1,0 +1,84 @@
+/*-----------------------------------------------------------------------------
+Microsoft VSEE
+
+Microsoft Confidential
+Copyright 1995-2001 Microsoft Corporation. All Rights Reserved.
+
+@doc
+@module IVsSccManager3.idl - Project <-> Source-Control interaction |
+
+This interface allows projects to make changes to their source-control state.
+
+*******************************************************************************
+**                                                                           **
+**  IMPORTANT NOTE: this is NOT a VSIP interface, and is not meant to be     **
+**  consumed by 3rd-parties, and should not be documented in the EnvSDK.     **
+**                                                                           **
+*******************************************************************************
+
+@owner SumedhK
+-----------------------------------------------------------------------------*/
+
+cpp_quote("#pragma once")
+
+
+// Includes -------------------------------------------------------------------
+
+#include "SCGuids.h"
+
+
+// Imports --------------------------------------------------------------------
+
+import "oaidl.idl";
+import "IVsSccProject2.idl";
+
+
+// Prototypes -----------------------------------------------------------------
+
+/*-----------------------------------------------------------------------------
+Name: IVsSccManager3
+
+@interface IVsSccManager3 |
+
+This interface is used by projects to make changes to their source-control
+status.
+
+@base public | IUnknown
+
+@hung scm3
+-----------------------------------------------------------------------------*/
+[
+	uuid(uuid_IVsSccManager3)
+]
+interface IVsSccManager3 : IUnknown
+{
+	// @cmember Called by a project to take its enlistment off-line
+	// NOTE: only projects that have registered themselves with SCC (via
+	// IVsSccManager2::RegisterSccProject) can call this method
+	HRESULT TakeProjectOffline
+	(
+		[in] IVsSccProject2 *pscp2Project,
+		[in] LPCOLESTR pszOnlineProjectFilePath		// cannot be NULL/empty string
+	);
+
+	// @cmember Called by off-line source-controlled projects when they are
+	// opened; this method REPLACES IVsSccManager2::RegisterSccProject only
+	// for projects that have taken their enlistments off-line
+	HRESULT RegisterOfflineSccProject
+	(
+		[in] IVsSccProject2 *pscp2Project,
+		[in] LPCOLESTR pszOnlineProjectFilePath,	// cannot be NULL/empty string
+		[in] LPCOLESTR pszSccProjectName,
+		[in] LPCOLESTR pszSccAuxPath,
+		[in] LPCOLESTR pszSccLocalPath,
+		[in] LPCOLESTR pszProvider
+	);
+
+	// @cmember Called by a project to bring its enlistment back on-line
+	// NOTE: only projects that have taken themselves off-line (via
+	// TakeProjectOffline) can call this method
+	HRESULT BringProjectOnline
+	(
+		[in] IVsSccProject2 *pscp2Project
+	);
+};

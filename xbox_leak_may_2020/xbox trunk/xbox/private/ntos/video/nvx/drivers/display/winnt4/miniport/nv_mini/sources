@@ -1,0 +1,62 @@
+!include ..\..\..\..\sources.nv
+
+TARGETNAME=nv_mini
+TARGETTYPE=LIBRARY
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ENDIF
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFDEF NEC_DMT
+ASM_DEFINES=-DNEC_DMT
+C_DEFINES=-DNEC_DMT
+!ENDIF
+
+!IFDEF NT_BUILD_NV3
+C_DEFINES=$(C_DEFINES) -DNT_BUILD_NV3=1
+!ENDIF
+
+!IFDEF NT_BUILD_NV4
+C_DEFINES=$(C_DEFINES) -DNT_BUILD_NV4=1
+!ENDIF
+
+
+INCLUDES=$(BASEDIR)\src\video\inc;..\..\displays\nv_disp\i386;$(NTMAKEENV);$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\vesa
+
+INCLUDES=$(INCLUDES);$(BASEDIR)\inc\ddk;$(BUILD_TREE)\drivers\modeset.mhd\include;$(BUILD_TREE)\drivers\modeset.mhd\code
+
+!IFDEF NT5
+INCLUDES=$(INCLUDES);$(BASEDIR)\inc\ddk
+!ENDIF
+
+!IFDEF NVPE
+C_DEFINES = $(C_DEFINES) -DNVPE
+INCLUDES=$(INCLUDES);$(BUILD_TREE)\drivers\common\VPE\inc
+!ENDIF
+
+!IFDEF DISABLE_AGP
+C_DEFINES = $(C_DEFINES) -DDISABLE_AGP
+!ENDIF
+
+C_DEFINES = $(C_DEFINES) -DNV3_HW -DNTMINIPORT -DNVDEPRECATED
+
+C_DEFINES = $(C_DEFINES) -DNVDLL=0
+
+
+
+INCLUDES=$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\modeset.mhd\include
+INCLUDES=$(INCLUDES);..\..\displays\nv_disp
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vpe\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vesa
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\modeset.mhd\code
+
+SOURCES= osapiNT.c nvsysmem.c nv.c nvdat.c nvmode.c modesetNT.c modehw.c nvpeos.c nvpekmvt.c minii2c.c  

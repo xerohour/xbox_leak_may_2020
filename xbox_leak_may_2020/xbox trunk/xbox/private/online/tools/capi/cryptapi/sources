@@ -1,0 +1,33 @@
+MAJORCOMP=online
+MINORCOMP=cryptapi
+
+TARGETNAME=cryptapi
+TARGETTYPE=LIBRARY
+
+TARGETPATH=$(BASEDIR)\private\online\client\lib
+
+# NOT_UNICODE=1
+
+C_DEFINES=-D_ADVAPI32_ -DNTCRYPTO -D_WIN32_WINNT=0x0400 -DCOREDLL -DWINCEMACRO -DUNDER_CE
+
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=\
+    ..\include;\
+    $(BASEDIR)\private\online\client\inc;\
+    $(BASEDIR)\private\online\common\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\public\sdk\inc
+
+#    ..\..\asn1\inc;\
+
+SOURCES=\
+    cryptapi.c
+

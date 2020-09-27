@@ -1,0 +1,28 @@
+Fixver();
+
+sub Fixver
+{
+    while(<stdin>)
+    {
+        if(/^.define[ ]*VER_PRODUCTBUILD[^_][ ]*([0-9]*)/)
+        {
+            # add 6000
+            $ver = $1 + 6000;
+            print "#define VER_PRODUCTBUILD            ", $ver, "\n"
+        }
+        elsif(/1\.00/)
+        {
+            s/1\.00/6.00/;
+            print $_;
+        }
+        elsif(/1,00/)
+        {
+            s/1,00/6,00/;
+            print $_;
+        }
+        else
+        {
+            print $_;
+        }
+    }
+}

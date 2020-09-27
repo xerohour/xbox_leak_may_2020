@@ -1,0 +1,53 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Repair Install"
+	Dim path1 as string
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+
+	Install(BuildNumber, false, false)
+	sleep 5
+
+	xdkpath = GetXDKPath()
+	'
+	' Delete some random Xbox installed files
+	'
+	path1 = RegistryGetValue("HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Directories", "Install Dirs")
+	if exists(path1+"\IDE\XbgWz.Awx") then kill path1+"\IDE\XbgWz.Awx"
+	if exists(path1+"\IDE\XslWz.Awx") then kill path1+"\IDE\XslWz.Awx"
+	if exists(xdkpath+"\Xbox\bin\xb*.exe") then kill xdkpath+"\Xbox\bin\xb*.exe"
+	'
+	' Attempt to repair files
+	'
+	RepairInstall()
+
+	if exists(path1+"\IDE\XbgWz.Awx") = false OR _
+		exists(path1+"\IDE\XslWz.Awx") = false OR _
+		exists(xdkpath+"\Xbox\bin\xb*.exe") = false then
+		FAIL "Install Repair did not restore deleted file"
+	end if
+
+Scenario Cleanup
+	sleep 5
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

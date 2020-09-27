@@ -1,0 +1,54 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation.  All right reserved.
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+TARGETNAME=certspy
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMENTRYABS=DxtEntry
+
+INCLUDES= \
+    $(SDK_INC_PATH); \
+    $(PRIVATE_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\ke; \
+    $(BASEDIR)\private\ntos\mmx \
+
+TARGETLIBS= \
+    $(SDK_LIB_PATH)\xboxkrnl.lib \
+    $(SDK_LIB_PATH)\xbdm.lib \
+    $(SDK_LIB_PATH)\libcntpr.lib \
+    $(BASEDIR)\private\ntos\rtl\obj\i386\xbdmrtl.lib
+
+USE_LIBCNTPR=1
+USE_NOLIBS=1
+
+XNOLIBS=1
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+!if $(FREEBUILD)
+MSC_OPTIMIZATION=/Odi
+!endif
+
+SOURCES= \
+    certspy.cpp \
+    command.cpp
+
+PRECOMPILED_INCLUDE=certspyp.h
+PRECOMPILED_CXX=1
+

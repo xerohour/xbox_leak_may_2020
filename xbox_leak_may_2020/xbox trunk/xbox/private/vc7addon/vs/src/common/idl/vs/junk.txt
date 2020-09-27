@@ -1,0 +1,552 @@
+34 MIDL_OPTIMIZATION is -Oicf -error all
+		1
+		$(_NTROOT)\public\mstools\vc70\cl -nologo
+		$(VC_PATH)cl
+		-P $(BINPLACE_PLACEFILE) $(BINPLACE_FLAGS)
+		$(BINPLACE_FLAGS) -W
+		$(C_FLAGS) /GS
+		$(C_FLAGS)
+		$(TARGETLIBFILES) $(TARGETPATH)\*\$(TARGETNAME).lib
+		$(TARGETOBJFILES) $(OBJECTS)
+		1
+		1
+		$(BASEDIR)\public\mstools\vc70
+		$(MIDL_OPTIMIZATION_NT4)
+		-Oicf -robust -error all
+		e:\xbox\PUBLIC\OAK\BIN;e:\xbox\public\idw;e:\xbox\public\mstools;e:\xbox\public\tools;C:\Program Files\Microsoft Xbox SDK\Xbox\Bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\PROGRA~1\CA\Common\SCANEN~1;C:\PROGRA~1\CA\eTrust\ANTIVI~1
+		$(INCPATH0) -I$(NTINCLUDES:;= -I) -I$(UMINCL:;= -I)
+		$(INCPATH0) -I$(INCLUDES:;= -I)
+		-I$(MFC_INCLUDES:;= -I) -I$(ATL_INCLUDES:;= -I) -I$(USER_INCLUDES:;= -I)
+		$(INCPATH1) -I$(NTINCLUDES:;= -I) -I$(UMINCL:;= -I)
+		$(INCPATH1) -I$(INCLUDES:;= -I)
+		-I$(MFC_INCLUDES:;= -I) -I$(ATL_INCLUDES:;= -I) -I$(USER_INCLUDES:;= -I)
+		$(DBGFLAGS) /Oy-
+		$(DBGFLAGS) $(MSC_OPTIMIZATION)
+		/Zi
+		d
+		$(TARGETLIB) $(TARGETLIBS)
+		-DCONDITION_HANDLING=1 $(NT_UP_DEFINES)  -DNT_INST=$(NT_INST) $(WIN32_DEFINE) $(NT_PNP_POWER_DEFINES)  $(NT_PNP_STUB_DEFINES)
+		$(TARGETPATHLIB)\$(TARGET_DIRECTORY)\$(TARGETNAME).lib
+		-DDBG=1 -DDEVL=1
+		$(COMMON_INCLUDES);$(INCLUDES)
+		$(LINKLIBS) $(PERFLIBS)
+		-DWIN32=100 -D_NT1X_=100 -DWINNT=1 -D_WIN32_WINNT=$(WIN32_WINNT_VERSION) -DWINVER=$(WINVER_VERSION)
+		$(LINK_LIB_IGNORE_FLAG) $(LIBRARIAN_FLAGS) -nodefaultlib
+		$(LIBRARIAN_FLAGS) /newimplib
+		$(LIBRARIAN_FLAGS) -ignore:4006
+		$(XE_FLAGS) /DEBUG
+		$(BINPLACE_CMD_NT)
+		$(JAVA_BASE_CLASS); $(MAKEDIR); $(USER_CLASS_PATH)
+		$(CDEFINES:  = )
+		$(LINKER_FLAGS) $(LINKER_DBG_SECTION) $(LINKER_DBG_TYPE) $(LINK_OS_VERSIONS)
+		$(LINKER_FLAGS)  -MERGE:_PAGE=PAGE  -MERGE:_TEXT=.text  $(LINK_INCREMENTAL_FLAG)  -SECTION:INIT,d  -NODEFAULTLIB
+		$(LINKER_FLAGS) -STACK:262144,4096
+		$(C_PREPROCESSOR_FLAGS:/Tc=)
+		$(INCPATHRC:-I=;)
+		$(INCPATH0: =)
+		$(C_DEFINES) -D_NEW_SDK=1
+		$(C_DEFINES) -DDEBUG
+		$(IMPLIB_OBJS) $(MFC_STATIC_LIB) $(LINKLIBS) $(OBJECTS)
+		$(BASEDIR)\public\sdk\lib\*
+		$(@B).def
+		$(WSDK_LIB_PATH)
+		$(BASEDIR)\public\sdk\lib\*
+		@$(COFFBASE_TXT_FILE),usermode
+		$(C_COMPILER_FLAGS: =
+)
+		$(TARGETPATH)\$(TARGETNAME).$(TARGETEXT)
+		
+		$(WSDK_INC_PATH)
+		$(UMLIBS) $(WIN32_LIBS) $(GUI32_LIBS)
+		$(SDK_INC_PATH)\ntverp.h
+		xbox
+		
+		$(MIDL_FLAGS) /win32
+		$(MIDL_FLAGS) -D_MIDL_USER_MARSHAL_DISABLED=1 -D__MIDL__=1
+		$(TARGET_DEFINES) -D_WCHAR_T_DEFINED
+		
+		@$(COFFBASE_TXT_FILE),$(TARGETNAME)
+		$(NTINCLUDES);$(PRIVATE_INC_PATH)
+		
+
+{obj\i386\}.obj{obj\i386\}.exe:   $(LINKER) @<<
+$(LINKER_FLAGS: =
+)
+$(TSLINKER_FLAG)
+$(PDB_ROOTUM)
+$(ORDER: =
+)
+$(LINKGPSIZE: =
+)
+$(LINKER_OPTIDATA)
+-base:$(UMBASE)
+-subsystem:$(SUBSYSTEM)
+$(UMENTRY)
+$(HEADEROBJNAME: =
+)
+$(UMRES: =
+)
+$<
+$(UMOBJS: =
+)
+$(UMLIBS: =
+)
+$(CRTLIBS: =
+)
+$(LINKLIBS: =
+)
+<<NOKEEP
+			   $(MAPSYM_CMD)
+			   $(POST_BUILD_CMD)
+			   $(SIGNCODE_CMD)
+			   $(BINPLACE_CMD)
+
+{i386\}.asm{obj\i386\}.obj:   $(386_ASSEMBLER) -Fo$(MAKEDIR)\$@ $<
+
+{obj\i386\}.asm{obj\i386\}.obj:   $(386_ASSEMBLER) -Fo$(MAKEDIR)\$@ $<
+
+{..\i386\}.asm{obj\i386\}.obj:   $(386_ASSEMBLER) -Fo$(MAKEDIR)\$@ $<
+
+{i386\}.asm{}.lst:   $(386_ASSEMBLER) /Fl$@ /Fo$(MAKEDIR)\$(_OBJ_DIR)\i386\$(@B).obj $<
+
+{..\i386\}.asm{}.lst:   $(386_ASSEMBLER) /Fl$@ /Fo$(_OBJ_DIR)\i386\$(@B).obj $<
+
+.asm.exe:$(AS) $(AFLAGS) $*.asm
+
+.asm.obj:$(AS) $(AFLAGS) /c $*.asm
+
+{}.c{i386\}.pp:   $(C_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $(USECXX_FLAG) $< > $@
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{i386\}.c{}.pp:   $(C_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $(USECXX_FLAG) $< > $@
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{}.c{}.pp:   $(C_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $(USECXX_FLAG) $< > $@
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{i386\}.c{}.cod:   $(C_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{}.c{}.cod:   $(C_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{..\i386\}.c{}.pp:   $(C_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $(USECXX_FLAG) $< > $@
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{..\}.c{}.pp:   $(C_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $(USECXX_FLAG) $< > $@
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{..\i386\}.c{}.cod:   $(C_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{..\}.c{}.cod:   $(C_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{i386\}.c{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_MSG)
+<<NOKEEP
+			   @$(C_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{}.c{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_MSG)
+<<NOKEEP
+			   @$(C_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{obj\i386\}.c{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_MSG)
+<<NOKEEP
+			   @$(C_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{..\i386\}.c{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_MSG)
+<<NOKEEP
+			   @$(C_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{..\}.c{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_MSG)
+<<NOKEEP
+			   @$(C_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $(USECXX_FLAG) $<
+$(EX_C_COMPILER_FLAGS)
+<<NOKEEP
+
+{}.c{}.asm:   $(C_COMPILER_NAME) @<< /Fa $(MAKEDIR)\$(<F)
+$(C_COMPILER_FLAGS: =
+)
+$(C_COMPILER_FLAGS:##= )
+<<NOKEEP
+
+.c.exe:$(CC) $(CFLAGS) $<
+
+.c.obj:$(CC) $(CFLAGS) /c $<
+
+{}.cpp{}.pp:   $(CXX_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $< > $@
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{}.cpp{}.cod:   $(CXX_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\}.cpp{}.pp:   $(CXX_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $< > $@
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\}.cpp{}.cod:   $(CXX_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{i386\}.cpp{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{}.cpp{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\i386\}.cpp{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\}.cpp{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{obj\i386\}.cpp{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+.cpp.exe:$(CPP) $(CPPFLAGS) $<
+
+.cpp.obj:$(CPP) $(CPPFLAGS) /c $<
+
+{}.cxx{}.pp:   $(CXX_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $< > $@
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{}.cxx{}.cod:   $(CXX_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\}.cxx{}.pp:   $(CXX_COMPILER_NAME) @<<$(CL_RSP) /E $(USE_FC) $< > $@
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\}.cxx{}.cod:   $(CXX_COMPILER_NAME) @<<$(CLCOD_RSP) /Fc $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{i386\}.cxx{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{}.cxx{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\i386\}.cxx{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{..\}.cxx{obj\i386\}.obj::   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+{obj\i386\}.cxx{obj\i386\}.obj:   @type <<$(ECHO_RSP)
+$(ECHO_CXX_MSG)
+<<NOKEEP
+			   @$(CXX_COMPILER_NAME) @<<$(CL_RSP) -Fo"$(MAKEDIR)\$O/" $(USE_FC) $<
+$(CXX_COMPILER_FLAGS: =
+)
+<<NOKEEP
+
+.cxx.exe:$(CXX) $(CXXFLAGS) $<
+
+.cxx.obj:$(CXX) $(CXXFLAGS) /c $<
+
+.bas.obj:$(BC) $(BFLAGS) $*.bas;
+
+.cbl.exe:$(COBOL) $(COBFLAGS) $*.cbl, $*.exe;
+
+.cbl.obj:$(COBOL) $(COBFLAGS) $*.cbl;
+
+.f.exe:$(FOR) $(FFLAGS) $*.f
+
+.f.obj:$(FOR) /c $(FFLAGS) $*.f
+
+.f90.exe:$(FOR) $(FFLAGS) $*.f90
+
+.f90.obj:$(FOR) /c $(FFLAGS) $*.f90
+
+.for.exe:$(FOR) $(FFLAGS) $*.for
+
+.for.obj:$(FOR) /c $(FFLAGS) $*.for
+
+.pas.exe:$(PASCAL) $(PFLAGS) $*.pas
+
+.pas.obj:$(PASCAL) /c $(PFLAGS) $*.pas
+
+{}.rc.rcpp:   set include=$(INCPATHRC);$(INCLUDE)
+			   $(RC_COMPILER) -r -p -fo $(@R).tmp $(CDEFINERC) $<
+			   @set include=$(INCLUDE)
+
+{..\}.rc.rcpp:   set include=$(INCPATHRC);$(INCLUDE)
+			   $(RC_COMPILER) -r -p -fo $(@R).tmp $(CDEFINERC) $<
+			   @set include=$(INCLUDE)
+
+{}.rc{obj\i386\}.res:   @type <<$(ECHO_RSP)
+    $(RC_COMPILER) -r -fo $(@R).tmp $(CDEFINES) $(INCPATH0) $<
+<<NOKEEP
+			   @set include=$(INCPATHRC);$(INCLUDE)
+			   @$(RC_COMPILER) -r -fo $(@R).tmp $(CDEFINERC) $<
+			   @set include=$(INCLUDE)
+			   @cvtres -nologo -machine:$(MACHINE_TYPE) -readonly -out:$@ $(@R).tmp
+			   @-erase $(@R).tmp
+
+{..\}.rc{obj\i386\}.res:   @type <<$(ECHO_RSP)
+    $(RC_COMPILER) -r -fo $(@R).tmp $(CDEFINES) $(INCPATH0) $<
+<<NOKEEP
+			   @set include=$(INCPATHRC);$(INCLUDE)
+			   @$(RC_COMPILER) -r -fo $(@R).tmp $(CDEFINERC) $<
+			   @set include=$(INCLUDE)
+			   @cvtres -nologo -machine:$(MACHINE_TYPE) -readonly -out:$@ $(@R).tmp
+			   @-erase $(@R).tmp
+
+.rc.res:$(RC) $(RFLAGS) /r $*
+
+{..\}.tdl{obj\i386\}.tlb:   @echo $(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $<
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $O\MyTypLib.TMP
+$(CPPXX: =
+)
+-D__MKTYPLIB__
+<<NOKEEP
+			   @$(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $O\MyTypLib.TMP
+
+.tdl{obj\i386\}.tlb:   @echo $(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $<
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $O\MyTypLib.TMP
+$(CPPXX: =
+)
+-D__MKTYPLIB__
+<<NOKEEP
+			   @$(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $O\MyTypLib.TMP
+
+{..\}.odl{obj\i386\}.tlb:   @echo $(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $<
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $O\MyTypLib.TMP
+$(CPPXX: =
+)
+-D__MKTYPLIB__
+<<NOKEEP
+			   @$(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $O\MyTypLib.TMP
+
+.odl{obj\i386\}.tlb:   @echo $(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $<
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $O\MyTypLib.TMP
+$(CPPXX: =
+)
+-D__MKTYPLIB__
+<<NOKEEP
+			   @$(MKTYPLIB) /tlb $@ -nocpp $(MKTYPLIB_FLAGS) $O\MyTypLib.TMP
+
+.thk{obj\i386\}.asm:   thunk -o $@ $<
+
+{E:\xbox\private\vc7addon\vs\src\common\idl\vs}.java{obj\i386\}.class:   $(JVC) $(JVC_FLAGS) $<
+
+{obj\i386\}.idl{obj\i386}.c:   @if not exist $(PASS0_UUIDDIR) mkdir $(PASS0_UUIDDIR)
+			   @if not exist $(PASS0_TLBDIR) mkdir $(PASS0_TLBDIR)
+			   @if not exist $(PASS0_PROXYDIR) mkdir $(PASS0_PROXYDIR)
+			   @if not exist $(PASS0_DLLDATADIR) mkdir $(PASS0_DLLDATADIR)
+			   @if not exist $(PASS0_HEADERDIR) mkdir $(PASS0_HEADERDIR)
+			   $(MIDL_BUILD_CMD)
+
+{..\}.idl{obj\i386}.c:   @if not exist $(PASS0_UUIDDIR) mkdir $(PASS0_UUIDDIR)
+			   @if not exist $(PASS0_TLBDIR) mkdir $(PASS0_TLBDIR)
+			   @if not exist $(PASS0_PROXYDIR) mkdir $(PASS0_PROXYDIR)
+			   @if not exist $(PASS0_DLLDATADIR) mkdir $(PASS0_DLLDATADIR)
+			   @if not exist $(PASS0_HEADERDIR) mkdir $(PASS0_HEADERDIR)
+			   $(MIDL_BUILD_CMD)
+
+.idl{obj\i386}.c:   @if not exist $(PASS0_UUIDDIR) mkdir $(PASS0_UUIDDIR)
+			   @if not exist $(PASS0_TLBDIR) mkdir $(PASS0_TLBDIR)
+			   @if not exist $(PASS0_PROXYDIR) mkdir $(PASS0_PROXYDIR)
+			   @if not exist $(PASS0_DLLDATADIR) mkdir $(PASS0_DLLDATADIR)
+			   @if not exist $(PASS0_HEADERDIR) mkdir $(PASS0_HEADERDIR)
+			   $(MIDL_BUILD_CMD)
+
+{obj\i386\}.idl{e:\xboxbins\vs7\built\debug\inc\i386}.h:   @if not exist $(PASS0_UUIDDIR) mkdir $(PASS0_UUIDDIR)
+			   @if not exist $(PASS0_TLBDIR) mkdir $(PASS0_TLBDIR)
+			   @if not exist $(PASS0_PROXYDIR) mkdir $(PASS0_PROXYDIR)
+			   @if not exist $(PASS0_DLLDATADIR) mkdir $(PASS0_DLLDATADIR)
+			   @if not exist $(PASS0_HEADERDIR) mkdir $(PASS0_HEADERDIR)
+			   $(MIDL_BUILD_CMD)
+
+{..\}.idl{e:\xboxbins\vs7\built\debug\inc\i386}.h:   @if not exist $(PASS0_UUIDDIR) mkdir $(PASS0_UUIDDIR)
+			   @if not exist $(PASS0_TLBDIR) mkdir $(PASS0_TLBDIR)
+			   @if not exist $(PASS0_PROXYDIR) mkdir $(PASS0_PROXYDIR)
+			   @if not exist $(PASS0_DLLDATADIR) mkdir $(PASS0_DLLDATADIR)
+			   @if not exist $(PASS0_HEADERDIR) mkdir $(PASS0_HEADERDIR)
+			   $(MIDL_BUILD_CMD)
+
+.idl{e:\xboxbins\vs7\built\debug\inc\i386}.h:   @if not exist $(PASS0_UUIDDIR) mkdir $(PASS0_UUIDDIR)
+			   @if not exist $(PASS0_TLBDIR) mkdir $(PASS0_TLBDIR)
+			   @if not exist $(PASS0_PROXYDIR) mkdir $(PASS0_PROXYDIR)
+			   @if not exist $(PASS0_DLLDATADIR) mkdir $(PASS0_DLLDATADIR)
+			   @if not exist $(PASS0_HEADERDIR) mkdir $(PASS0_HEADERDIR)
+			   $(MIDL_BUILD_CMD)
+
+.mc{obj\i386}.rc:   $(MC) -h $(PASS0_HEADERDIR) -r $(MC_SOURCEDIR) $(MC_FLAGS) $<
+
+.mc{e:\xboxbins\vs7\built\debug\inc\i386}.h:   $(MC) -h $(PASS0_HEADERDIR) -r $(MC_SOURCEDIR) $(MC_FLAGS) $<
+
+{..\}.mc{obj\i386}.rc:   $(MC) -h $(PASS0_HEADERDIR) -r $(MC_SOURCEDIR) $(MC_FLAGS) $<
+
+{..\}.mc{e:\xboxbins\vs7\built\debug\inc\i386}.h:   $(MC) -h $(PASS0_HEADERDIR) -r $(MC_SOURCEDIR) $(MC_FLAGS) $<
+
+{}.asn{e:\xboxbins\vs7\built\debug\inc\i386}.h:   $(ASN) $(ASNFLAGS) -out $(PASS0_HEADERDIR)\$(@B) $<
+
+.mof.bmf:   $(MOFCOMP) -B:$@ $<
+
+{..\}.mof.bmf:   $(MOFCOMP) -B:$@ $<
+
+{}.def{obj\i386}.def:   @type <<$(ECHO_RSP)
+$(ECHO_MSG) /EP $<
+<<NOKEEP
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $@
+$(CPPXX: =
+)
+<<NOKEEP
+
+{..\}.def{obj\i386}.def:   @type <<$(ECHO_RSP)
+$(ECHO_MSG) /EP $<
+<<NOKEEP
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $@
+$(CPPXX: =
+)
+<<NOKEEP
+
+{..\..\}.src{obj\i386}.def:   @type <<$(ECHO_RSP)
+$(ECHO_MSG) /EP $<
+<<NOKEEP
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $@
+$(CPPXX: =
+)
+<<NOKEEP
+
+{}.src{obj\i386}.def:   @type <<$(ECHO_RSP)
+$(ECHO_MSG) /EP $<
+<<NOKEEP
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $@
+$(CPPXX: =
+)
+<<NOKEEP
+
+{..\}.src{obj\i386}.def:   @type <<$(ECHO_RSP)
+$(ECHO_MSG) /EP $<
+<<NOKEEP
+			   @$(C_PREPROCESSOR_NAME) @<<$(CL_RSP) /Tc$< > $@
+$(CPPXX: =
+)
+<<NOKEEP
+
+.SUFFIXES: .exe .obj .asm .c .cpp .cxx .bas .cbl .f .f90 .for .pas .res .rc .cxx .cpp .c .f .rc .s .asm .obj .exe .res .p .tdl .odl .rcpp .thk .java .class .h .idl .mc .odl .tdl .asn .thk .mof .def .src 
+print: -i    @-ppr *.h $(SOURCES)
+
+obj\_objects.mac: -i .\sources    @echo Rebuilding obj\_objects.mac from $(SOURCES_USED).
+			   @build -OZf >nul 2>&1
+			   @echo obj\_objects.mac was rebuilt, please reinvoke NMAKE
+			   @md \ >nul 2>nul
+
+e:\xboxbins\vs7\built\debug\lib\i386\vsguids.lib: -i obj\i386\context.obj obj\i386\designer.obj 
+			obj\i386\oleipc.obj obj\i386\textmgr.obj obj\i386\vsshell.obj 
+			   @-erase $@ >nul 2>nul
+			   -$(LIBRARIAN) @<<
+$(HEADEROBJNAME: =
+)
+$(**: =
+)
+<<NOKEEP
+			   $(LINT_CMD2)
+
+binplace_miscfiles: -i    @!binplace -R $(_NTTREE) $(BINPLACE_DBGFLAGS_NT) $(BINPLACE_FLAGS) $(BINPLACE_LC_MISCFLAGS) $**
+
+obj\i386\*.res: -i e:\xbox\private\vc7addon\vs\src\common\inc\dwinvers.h 
+			
+
+update: -i    @echo Updating library.
+
+build_objects: -i obj\i386\context.obj obj\i386\designer.obj 
+			obj\i386\oleipc.obj obj\i386\textmgr.obj obj\i386\vsshell.obj 
+			
+
+all: -i obj\_objects.mac e:\xboxbins\vs7\built\debug\inc\i386\context.h 
+			obj\i386\context.c e:\xboxbins\vs7\built\debug\inc\i386\designer.h 
+			obj\i386\designer.c e:\xboxbins\vs7\built\debug\inc\i386\oleipc.h 
+			obj\i386\oleipc.c e:\xboxbins\vs7\built\debug\inc\i386\textmgr.h 
+			obj\i386\textmgr.c e:\xboxbins\vs7\built\debug\inc\i386\vsshell.h 
+			obj\i386\vsshell.c build_objects e:\xboxbins\vs7\built\debug\lib\i386\i386\vsguids.lib 
+			build_umobjects    @echo.
+			   @echo $(BUILDMSG)
+
+loc: -i    @-loc *.h $(SOURCES)
+
+build_umobjects: -i 
+
+

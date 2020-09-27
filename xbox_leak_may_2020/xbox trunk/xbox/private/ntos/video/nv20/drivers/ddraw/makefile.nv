@@ -1,0 +1,197 @@
+#
+# Makefile for Compiling Direct3D Drivers
+#
+# Must use NMAKE 1.62 (MSVC++ 5.0) or greater.
+#
+# Usage: see below or use 'nmake' with no arguments
+#
+# Copyright (c) 1998, NVIDIA Corporation.  All rights reserved.
+#
+
+
+.SUFFIXES: . .obj .c .res .rc .lib
+
+
+#--------------------------------------------------------------------
+#                       D E F I N I T I O N S
+#--------------------------------------------------------------------
+
+DIR_BASE = .
+C_VER = msvc60sp3
+
+!include MAKE.d3ddefs
+
+ALLBUILDS        = nv3.method.os nv4.method.os celsius.method.os kelvin.method.os
+NV3PROJECTS      = common.ext nv3.ext
+NV4PROJECTS      = common.ext
+CELSIUS_PROJECTS = common_disp.ext common.ext celsius.ext
+KELVIN_PROJECTS  = common_disp.ext common.ext celsius.ext kelvin.ext
+
+
+#--------------------------------------------------------------------
+#                  E X T E R N A L   T A R G E T S
+#--------------------------------------------------------------------
+
+default:
+        @echo.
+        @echo " D3D Makefile
+        @echo "
+        @echo " Usage: nmake target* [options]
+        @echo "
+        @echo "        target = ( class.method.os -or-
+        @echo "                   class.method    -or-
+        @echo "                   class           -or-
+        @echo "                   method )
+        @echo "
+        @echo "        class  = ( nv3             -or-
+        @echo "                   nv4             -or-
+        @echo "                   celsius         -or-
+        @echo "                   kelvin )
+        @echo "
+        @echo "        method = ( retail          -or-
+        @echo "                   debug           -or-
+        @echo "                   develop         -or-
+        @echo "                   oem             -or-
+        @echo "                   stat            -or-
+        @echo "                   clean)
+        @echo "
+        @echo "        os     = ( win9x           -or-
+        @echo "                   winnt )
+        @echo "
+        @echo "        'class' defaults to all classes
+        @echo "        'method' defaults to retail
+        @echo "        'os' defaults to win9x
+        @echo "
+        @echo "        [options] are enumerated in MAKE.*opts
+        @echo "        browse = build MSVC browse file
+        @echo "        cod    = build assembly listing files
+        @echo.
+
+
+# Expand abbreviated targets to fully specified targets
+
+# targets of form 'arch'
+# (architecture given. neither method nor os specified)
+$(ALLBUILDS:.method.os=): $(@B).retail.win9x
+
+# targets of form 'arch.method'
+# (architecture and method given. os unspecified)
+$(ALLBUILDS:.method.os=.retail):  $(@B).retail.win9x
+$(ALLBUILDS:.method.os=.debug):   $(@B).debug.win9x
+$(ALLBUILDS:.method.os=.develop): $(@B).develop.win9x
+$(ALLBUILDS:.method.os=.oem) :    $(@B).oem.win9x
+$(ALLBUILDS:.method.os=.stat):    $(@B).stat.win9x
+$(ALLBUILDS:.method.os=.clean):   $(@B).clean.win9x
+
+# targets of form 'method'
+# (method given. neither architecture nor os unspecified)
+all:     $(ALLBUILDS:.method.os=.retail.win9x)
+retail:  $(ALLBUILDS:.method.os=.retail.win9x)
+debug:   $(ALLBUILDS:.method.os=.debug.win9x)
+develop: $(ALLBUILDS:.method.os=.develop.win9x)
+oem:     $(ALLBUILDS:.method.os=.oem.win9x)
+stat:    $(ALLBUILDS:.method.os=.stat.win9x)
+clean:   $(ALLBUILDS:.method.os=.clean.win9x)
+
+
+# Translate fully expanded target into environment variables and call makefile recursively
+
+$(ALLBUILDS:.method.os=.retail.win9x):
+        @$(MAKE) $(@B:.retail=)._make $(MFLAGS) NVCLASS=$(@B:.retail=) DEBUG=retail TARGET_OS=win9x
+
+$(ALLBUILDS:.method.os=.debug.win9x):
+        @$(MAKE) $(@B:.debug=)._make $(MFLAGS) NVCLASS=$(@B:.debug=) DEBUG=debug TARGET_OS=win9x
+
+$(ALLBUILDS:.method.os=.develop.win9x):
+        @$(MAKE) $(@B:.develop=)._make $(MFLAGS) NVCLASS=$(@B:.develop=) DEBUG=develop TARGET_OS=win9x
+
+$(ALLBUILDS:.method.os=.oem.win9x):
+        @$(MAKE) $(@B:.oem=)._make $(MFLAGS) NVCLASS=$(@B:.oem=) DEBUG=oem TARGET_OS=win9x
+
+$(ALLBUILDS:.method.os=.stat.win9x):
+        @$(MAKE) $(@B:.stat=)._make $(MFLAGS) NVCLASS=$(@B:.stat=) DEBUG=stat TARGET_OS=win9x
+
+$(ALLBUILDS:.method.os=.clean.win9x):
+        @$(MAKE) $(@B:.clean=)._clean $(MFLAGS) NVCLASS=$(@B:.clean=) TARGET_OS=win9x
+
+$(ALLBUILDS:.method.os=.retail.winnt):
+        @$(MAKE) $(@B:.retail=)._make $(MFLAGS) NVCLASS=$(@B:.retail=) DEBUG=retail TARGET_OS=winnt
+
+$(ALLBUILDS:.method.os=.debug.winnt):
+        @$(MAKE) $(@B:.debug=)._make $(MFLAGS) NVCLASS=$(@B:.debug=) DEBUG=debug TARGET_OS=winnt
+
+$(ALLBUILDS:.method.os=.develop.winnt):
+        @$(MAKE) $(@B:.develop=)._make $(MFLAGS) NVCLASS=$(@B:.develop=) DEBUG=develop TARGET_OS=winnt
+
+$(ALLBUILDS:.method.os=.oem.winnt):
+        @$(MAKE) $(@B:.oem=)._make $(MFLAGS) NVCLASS=$(@B:.oem=) DEBUG=oem TARGET_OS=winnt
+
+$(ALLBUILDS:.method.os=.stat.winnt):
+        @$(MAKE) $(@B:.stat=)._make $(MFLAGS) NVCLASS=$(@B:.stat=) DEBUG=stat TARGET_OS=winnt
+
+$(ALLBUILDS:.method.os=.clean.winnt):
+        @$(MAKE) $(@B:.clean=)._clean $(MFLAGS) NVCLASS=$(@B:.clean=) TARGET_OS=winnt
+
+# Break it down into component projects and then include MAKE.rules to handle them
+
+!if "$(NVCLASS)" == "nv3"
+NVPROJECTS = $(NV3PROJECTS)
+!else if "$(NVCLASS)" == "nv4"
+NVPROJECTS = $(NV4PROJECTS)
+!else if "$(NVCLASS)" == "celsius"
+NVPROJECTS = $(CELSIUS_PROJECTS)
+!else if "$(NVCLASS)" == "kelvin"
+NVPROJECTS = $(KELVIN_PROJECTS)
+!endif
+
+NVLIBS = $(NVPROJECTS:.ext=.lib)
+NVSRC  = $(NVPROJECTS:.ext =\src;)
+NVSRC  = $(NVSRC:.ext=\src)
+
+# For winnt, DX7 driver is built as static lib and linked into display drv
+!if ("$(TARGET_OS)" == "win9x")
+MAKETARGETS = $(TARGET).$(EXT_DLL) $(TARGET).$(EXT_SYM)
+!if (("$(DEBUG)" != "retail") && ("$(DEBUG)" != "oem"))
+MAKETARGETS = $(MAKETARGETS) $(TARGET).$(EXT_NMS)
+!endif
+!endif
+
+$(NVCLASS)._make:    $(NVPROJECTS:.ext=.__make) $(MAKETARGETS)
+
+$(NVCLASS)._clean:   $(NVPROJECTS:.ext=.__clean)
+
+
+!include $(DIR_BASE)\MAKE.rules
+
+
+# Link the .dll and generate derivative files
+
+LIBS = kernel32.lib  user32.lib  advapi32.lib  \
+       thunk32.lib   gdi32.lib   nvrmapi.lib   \
+       nvw32ms.lib   ddraw.lib   libc.lib
+
+!if "$(TARGET_OS)" == "win9x"
+$(TARGET).$(EXT_DLL): dir_bin $(FILE_RES)
+!if "$(NVCLASS)" != "nv3"
+        @echo.
+        @echo Encrypting Registry Keys...
+        $(ENCRYPT) common\$(DIR_OBJ)\global.obj
+!endif
+        @if exist $(DIR_BIN)\*.dll $(RM) $(DIR_BIN)\*.dll
+        @echo.
+        @echo Linking .dll...
+        $(LINK) $(LFLAGS) -out:$(DIR_BIN)\$(TARGET).$(EXT_DLL) \
+                $(NVLIBS) $(LIBS) $(FILE_RES)
+!endif
+
+$(TARGET).$(EXT_SYM):
+        @echo.
+        @echo Generating .sym file...
+        $(MAPSYM) -nologo -o $(DIR_BIN)\$(TARGET).$(EXT_SYM) $(DIR_BIN)\$(TARGET).map
+
+$(TARGET).$(EXT_NMS):
+        @echo.
+        @echo Generating .nms file...
+        $(OBJ2NMS) -trans:source,package -source:$(NVSRC);$(DIR_DRIVERS)\common\src;$(DIR_DRIVERS)\common\VPE\src \
+                   -out:$(DIR_BIN)\$(TARGET).$(EXT_NMS) $(DIR_BIN)\$(TARGET).$(EXT_DLL)
+

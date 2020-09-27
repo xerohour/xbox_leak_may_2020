@@ -1,0 +1,46 @@
+!IF 0
+
+Copyright (c) 1990-1998  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+
+!include ..\..\..\..\sources.inc
+
+TARGETNAME=VCProjectUI
+TARGETTYPE=DYNLINK
+# TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)\$(VC7)\$(VCPACKAGES)\$(CODEPAGE)
+# Remember to edit placefile.lst
+TARGETPATH=$(O)
+
+RESOURCE_ONLY_DLL=1
+UMTYPE=nt
+
+COFFBASE=VCProjectUI
+CMDTABLE=gpmenus
+
+# this allows the use of a localized version of the resource file
+!if "$(RCFILE)" == ""
+RCFILE=prjbldui
+!endif
+
+USER_INCLUDES=$(VC_INCLUDES);$(VCROOT)\hierlib;..\src;$(O)
+USER_C_DEFINES=$(USER_C_DEFINES) -DVC_PROXY -DNEW_PROJ_VIEW -DSTRICT -D_VRES
+
+SOURCES= \
+	$(RCFILE).rc
+
+NTTARGETFILES=
+
+#POSTBUILD_CMD = preg prjbldui $(BINPLACE_PLACEFILE) $(_NTTREE) regsvr32 -s !TARGET

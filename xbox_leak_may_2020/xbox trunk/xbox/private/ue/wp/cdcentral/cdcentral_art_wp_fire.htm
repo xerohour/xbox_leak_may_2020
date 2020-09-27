@@ -1,0 +1,132 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+<BR>
+<BR>
+</td><td><H2>Playing with Fire 1</H2>
+
+<P><b>The first of three articles about generating fire effects</b><BR><BR>
+<img src="/content/img/fire1.jpg" width="400" height="300" border="0" alt="">
+<P><I>By Dave McCoy, Graphics Techniques Consultant, Xbox Content and Design 
+Team</I></P>
+<H3>Introduction</H3>
+
+<P>While  particles will often be used to accomplish fire effects, they have 
+limitations. Hardware particles (point sprites) can only reach a maximum size of 
+64 x 64 pixels on the screen. This can make filling the screen with flame very 
+difficult. Software sprites can of course be any size, but the numerous 
+transparent particles overdrawing each other to create flame can be a 
+performance problem. </P>
+<P>Using multiple images to create an animated movie on a billboard can be 
+effective; however, it requires many images be stored in memory or paged off the 
+DVD or hard disk. Additionally, billboard effects announce their flat nature 
+when they intersect other geometry, showing a hard edge at the intersection. </P>
+<P>This simple flame effect makes a few modifications to typical billboard 
+approaches in order to achieve a more realistic flame and to do so with minimum 
+texture usage and performance impact. </P>
+<P>Start with a card that has been subdivided into a regular grid. This article 
+uses an 8 x 8 division, but you could use more or less depending on the effect 
+you are trying to achieve.</P>
+
+<IMG alt="" border=0 height=480 
+src="/content/img/fire2.jpg" width=600> <BR><BR>
+
+<P>Onto this, map texture representing the flame colors and alpha. Since these 
+colors and alpha values do not require much spatial precision, you could burn 
+color and alpha values directly into the vertices, which would make the effect 
+even faster to draw in hardware since it would not require multitexturing. 
+Whether by texture mapping or setting vertex values, what is most important is 
+that the top and sides of the fire be completely transparent and that the entire 
+bottom edge be a single color. Here are the color and alpha images used in this 
+article:</P>
+
+<IMG alt="" border=0 height=256 
+src="/content/img/fire3.jpg" width=256> <IMG alt="" border=0 
+height=256 src="/content/img/fire4.jpg" width=256> <BR><BR>
+
+<P>Additionally, map a vertically tiling noise texture onto the alpha of the 
+card. This texture should be fairly tall and thin since we will be scrolling it 
+vertically for the fire effect. For this article, a 128 x 512 noise texture was 
+used. Map the texture so that only a small part of the y dimension is used on the 
+surface of the card. This will give us room to scroll vertically without 
+immediately repeating the texture pattern.</P>
+
+<IMG alt="" border=0 height=512 
+src="/content/img/fire5.jpg" width=128> <BR><BR>
+
+<P>We now push and pull vertices to introduce distortions into our fire grid. 
+These follow the general flow of the fire, tending to be wide at the bottom and 
+narrower up top. The vertices should be farther apart vertically towards the top 
+of the card to simulate the acceleration of hot gases in the flame. Variations 
+in the regularity of the grid will also help the final appearance of the effects 
+as they will simulate turbulence when the alpha noise scrolls through the flame. 
+Though the effect will be billboarded, introducing some depth variation in the 
+card helps to reduce the appearance of flatness when the card is viewed at 
+different ranges. </P>
+<P>Here the distorted card is shown with color and alpha effects and with 
+polygon edges to clarify the vertex editing that has been done. </P>
+
+<IMG alt="" 
+border=0 height=480 src="/content/img/fire6.jpg" 
+width=600> <BR><BR>
+
+<P>Set the flame to be self-illuminated and you will have a reasonable flame. Now 
+it should be planted onto the ground. </P>
+<P>The general problem with billboarding flames and explosions is that their 
+flatness is revealed where they intersect the ground. To mask this effect and 
+improve the appearance of our effect we project a texture onto the ground that 
+is the same color as the bottom of the flame. A 2-D texture works fine for flat 
+ground. If the flame will intersect hills or other complex shapes, a 3-D texture 
+that corresponds to the colors in the flame can be used to mask intersections. </P>
+<P>Here a circle simulating the light from the fire has been mapped onto the 
+ground texture of the scene. The flame will sit in the circle's center and 
+billboard on the y axis.</P>
+
+<IMG alt="" border=0 height=512 
+src="/content/img/fire7.jpg" width=512> <BR><BR>
+
+<P>To animate the flame we simply scroll the noise texture vertically through 
+the flame shape. The speed of scrolling is quite significant to the appearance 
+of the flame and should be adjusted depending on the shape of the card and the 
+textures used. </P>
+<P>Since this effect can use simple per-vertex coloration and alpha, it can be 
+executed with a single texture and therefore draws very quickly in hardware. 
+Additional alpha images can be multitextured onto the card to improve the 
+appearance of the flame. For example, the flame can be made more opaque at its 
+base. </P>
+<P>Variations in the geometry, color and alpha, noise, and scrolling noise can 
+create a very wide range of different fire effects. </P>
+<P>The picture at the top of this paper shows the techniques described within applied to a still image. But to really see the effect, play the 
+animation. </P>
+
+<P><a href="/download/fireanimI.avi"><B>Download Animation</B></a> (3.37 MB)
+</P>
+
+<P>As always, please contact <A 
+href="mailto:content@xbox.com"><B>content@xbox.com</B></A> with any questions or 
+suggested revisions or extensions to this paper.</P>
+
+<BR><BR><SMALL>Thursday, March 22, 2001</SMALL> 
+</td>
+
+
+
+
+
+	

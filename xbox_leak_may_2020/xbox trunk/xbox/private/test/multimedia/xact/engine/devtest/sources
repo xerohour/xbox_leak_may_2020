@@ -1,0 +1,29 @@
+TARGETNAME=devtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+PROJNAME=devtest
+UMTYPE = xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od /FAcs
+
+SOURCES=\
+    main.cpp\
+    util.cpp\
+    linkall.cpp
+
+
+INCLUDES=$(SDK_INC_PATH);\
+    $(PRIVATE_INC_PATH);\
+    $(BASEDIR)\private\ntos\inc;\
+    $(INCLUDES)
+
+
+
+LINKLIBS=$(SDK_LIB_PATH)\xacteng$(D).lib \
+    $(SDK_LIB_PATH)\dsound$(D).lib 
+
+

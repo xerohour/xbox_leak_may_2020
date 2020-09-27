@@ -1,0 +1,255 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Intermediate Scripting Techniques:<BR>
+Variable Playback and Self-Modifying Music 
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>Microsoft&#174; DirectX&#174; Audio scripting is an extremely flexible language, and we've really only started to scratch the surface in the previous scripting papers.<sup><font size:"9">1</font></sup> This paper will cover some of the more advanced features of DirectX Audio scripting, based on typical content playback scenarios. First, we'll look at randomizing playback between several segments. Then, we will cover several methods of authoring self-modifying music, including polling variables to determine how and when music should react to the game state. Lastly, we'll briefly discuss the "Baseball" scripting example provided with the Xbox Development Kit (XDK) and the DirectX 8.0 Software Development Kit.</P>
+
+<H3>Randomized Segment Playback</H3>
+
+<P>Remember that Microsoft&#174; DirectMusic&#174; provides variability (content that can sound subtly or dramatically different each time it is played) on several different levels. Individual notes in pattern track parts (in segments) and pattern parts (in styles) can have variable start times, durations, and velocities. This kind of microscopic variability is left to the performance&#8212;you as the sound designer or composer say that this note plays at velocity 80 plus or minus 20, and when DirectMusic plays that note, it will randomly choose a value between 60 and 100. After deciding the range of values, you leave control over choosing a specific value to the DirectMusic performance. The 32 variations per part (in wave tracks and pattern tracks in segments, and patterns in styles) provide a higher level of variability&#8212;now you're potentially creating entire musical ideas in patterns or segments, and you can more fully control how they are chosen (by choosing the playback mode for a part: shuffle, play in order, and so on).</P>
+<P>In each of the above cases, the variability is dictated by the content; no programming effort is required by your developer to choose a variation or generate the random velocity of a note. But sometimes, even higher-level variability is needed. For instance, segments are limited to a static length. What if you have several musical ideas that might be of varying lengths? Here is where you'd traditionally need to engage your developer, and where DirectX Audio scripting can provide a solution.</P>
+<P>Let's set up a scenario. Say we've got an action cue that we've cut up into several segments (Action1.sgp, Action2.sgp, and so on), each of which can convincingly start where any other one ends. For simplicity, our plan is just to start the music playing, randomly picking between our segments, and when one of them is finished, pick another one at random and play it. Because the segments are of varying lengths, we couldn't have done this as multiple wave track variations in a single segment. (If any do happen to be the same length, we could save some scripting by doing just that.)</P>
+<P>So let's write a routine to pick the first segment to play. We're going to the DirectX Audio scripting <b>Rand</b> method, which is a random number generator. The format of the method is <b>Rand</b> (x), where x is a number you provide that tells it to pick a random number between 1 and x. Let's say we've got four segments for this example. Our routine might look like this.</P>
+<PRE style="font-face:courier; font-size:12">
+     Sub PickAndPlaySegment
+         OurRandomValue = Rand (4)
+         If (OurRandomValue = 1) then
+             Action1.play
+         ElseIf (OurRandomValue = 2) then
+             Action2.play
+         ElseIf (OurRandomValue = 3) then
+             Action3.play
+         ElseIf (OurRandomValue = 4) then
+             Action4.play
+         End If
+     End Sub
+</PRE>
+
+<P>For the time being, we've implemented our random playback by creating a local variable,<sup><font size:"9">2</font></sup> <b>OurRandomValue</b>, where we pick a number from 1 to 4. Based on the value, we play one of our four segments. Currently, it should choose each of them 25 percent of the time. We could also weight the choice by controlling the random number generator's range. Say we really like Action2 and want to hear it 50 percent of the time:</P>
+<PRE style="font-face:courier; font-size:12">
+     Sub PickAndPlaySegment_Weighted
+         OurRandomValue = Rand (6)
+         If (OurRandomValue = 1) then
+             Action1.play
+         ElseIf (OurRandomValue >= 2 and OurRandomValue &#60;= 4) then
+             Action2.play
+         ElseIf (OurRandomValue = 5) then
+             Action3.play
+         ElseIf (OurRandomValue = 6) then
+             Action4.play
+         End If
+     End Sub
+</PRE>
+
+<P>Now we're choosing a number from 1 to 6. But the values 2, 3, and 4 will play Action2, and the other three each map to one of the remaining three segments. So Action2 will play 50 percent of the time.</P>
+<P>Let's get slightly fancier: I don't want to hear the same segment played twice in a row. At this point, we might want to make <b>OurRandomValue</b> a global variable; then we'd be able to keep track of its current value, so the next time we pick a number, we can make sure it's not a repeat. (Note that I've gone back to equal weighting here.)</P>
+<PRE style="font-face:courier; font-size:12">
+     Dim OurRandomValue	' "dim" makes a variable global
+
+     Sub PickAndPlaySegment_NoRepeats
+         LocalValue = Rand (3)
+
+         If (LocalValue >= OurRandomValue) then
+             OurRandomValue = LocalValue + 1
+         Else
+             OurRandomValue = LocalValue
+         End If
+
+         If (OurRandomValue = 1) then
+             Action1.play
+         ElseIf (OurRandomValue = 2) then
+             Action2.play
+         ElseIf (OurRandomValue = 3) then
+             Action3.play
+         ElseIf (OurRandomValue = 4) then
+             Action4.play
+         End If
+     End Sub
+</PRE>
+
+<P>Because we want to choose a random variation among the ones that are not currently playing, we've got only three choices, so we're actually picking a random number from 1 to 3. We map these numbers to the three choices (by adding one if they're at or above the currently playing segment). You might be wondering why we couldn't set up some kind of loop to just keep going back to the random number generator if <b>Rand</b> picked the number that was already playing. This would certainly simplify the above code somewhat. However, AudioVBScript, a subset of Microsoft&#174; Visual Basic&#174; Scripting Edition, does not have any sort of looping mechanisms (for instance, the "do while" and "for/next" syntax of Visual Basic). This is because script routines are meant to execute rapidly and not get stuck in extensive routine loops that could bog down the DirectMusic performance. For more advanced behaviors that might require loops, we'll see a bit later how you can set up a segment with a script track that triggers a routine as often and as many times as you wish. You might also consider communicating the behavior you want to your developer, who can implement it in the game code. Note that it is very straightforward to pass information back and forth; a developer can get or set any global variable or make use of any object you have referenced (such as segments or audiopath configurations) or created (such as playing segments or running audiopaths) in your script.</P>
+<P>Speaking of which, there is one more thing to worry about if you're using global variables: initializing them first. For instance, the first time we called the above routine, <b>OurRandomValue</b> would be an indeterminate value.<sup><font size:"9">3</font></sup> We've got a couple of choices here: our developer can initialize our variables, or we could write an initialization routine that does this for all of our variables. The latter is probably the easiest; just have the developer trigger a specified routine when the developer first loads the script.</P>
+<PRE style="font-face:courier; font-size:12">
+     Dim OurRandomValue
+
+     Sub InitValues
+         OurRandomValue = 0
+         'initialize any other global variables here
+     End Sub
+
+     Sub PickAndPlaySegment_NoRepeats
+         If (OurRandomValue = 0) then
+             OurRandomValue = Rand (4)
+         Else
+             LocalValue = Rand (3)
+             If (LocalValue >= OurRandomValue) then
+                 OurRandomValue = LocalValue + 1
+             Else
+                 OurRandomValue = LocalValue
+             End If
+         End If
+
+         If (OurRandomValue = 1) then
+             Action1.play
+         ElseIf (OurRandomValue = 2) then
+             Action2.play
+         ElseIf (OurRandomValue = 3) then
+             Action3.play
+         ElseIf (OurRandomValue = 4) then
+             Action4.play
+         End If
+     End Sub
+</PRE>
+
+<H3>The Next Step: Self-Modifying Music</h3>
+<P>At this point, we've got a pretty good handle on starting up a random segment from a list and keeping track of the last one we played so it won't repeat. But the second half of our scenario was that when one of our segments reaches the end, we want to pick another. Unfortunately, DirectX Audio scripting does not provide a notification scheme; a routine cannot be automatically triggered when the performance senses that a segment is about to end, for instance. But there's nothing stopping us from authoring our content to compensate for this. At this point, let's introduce the script track, which can be placed in a segment to trigger one or more script routines at specific times during that segment's playback. This track is going to allow us to create some self-modifying music&#8212;that is, music that changes itself without needing the direct influence of game code (and thus the developer).</P>
+<P>One fairly straightforward way to get the behavior we want (queue up a new segment as this segment reaches its end) is to drop a routine call into a script track in each segment in the last bar or so.<SUP><FONT SIZE:9>4</FONT></SUP></P>
+<IMG src="/content/img/interscripting_fig1.gif" WIDTH="577" HEIGHT="196" ALT="" BORDER="0"><BR><BR>
+<P><B>Illustration</b>&nbsp;&nbsp;<I>Triggering a script routine via a script track, near the end of the segment.</i></P>
+<P>Of course, we would want to change our script flags such that the new segment was getting queued by using the <b>AtFinish</b> flag (otherwise it would interrupt this current segment before it's finished):</P>
+
+<PRE style="font-face:courier; font-size:12">
+     If (OurRandomValue = 1) then
+         Action1.play AtFinish
+     ElseIf (OurRandomValue = 2) then
+         Action2.play AtFinish
+
+     [and so on]
+</PRE>
+
+<P>And now we're all set up. The developer would just call our <b>InitValues</b> routine and then <b>PickAndPlaySegment</b> to get things started, and all subsequent segment choices (and continued playback) would be determined by the content itself. Of course, we'd probably want to come up with a separate routine to stop this music, or leave that for the developers (who again have full access to the DirectMusic engine and performance if they desire).</P>
+
+<H3>Self-Polling Music</h3>
+<p>A fairly typical use for scripting involves giving the developer an abstraction to the intensity of the music or ambience. The developer gets the equivalent of a "knob" that they can crank down or up based on what's happening in the game, without having to worry about things like transitions and groove levels and other DirectMusic concepts. One of the difficulties here is that again, AudioVBScript does not have a notification scheme built-in, so a script doesn't automatically notice that a variable's value has changed. There are two ways to alert the script to the change:</p>
+<ol>
+	<li>Have the developer call a specific script routine after changing a variable's value (that is, "VariableUpdated" or "UpdateMusic" or something like that). It's an additional call, and if the developer forgets to put it in one place, your music might not react (or worse, get confused the next time it is supposed to react).</li><BR><BR>
+	<li>Author content that occasionally checks (polls) to see if the developer has changed a variable's value, and then react if it has.</li>
+</ol>
+
+<P>We're going to focus mainly on the second option here, as once again it involves the least effort on the part of the developer. There are two steps involved: writing the actual routine that tells us what variables to check and what to do if they've changed, and starting up a looping segment that calls the routine every so often for the actual "polling."</P>
+<P>Let's again start with an example scenario, the one I discussed above. Namely, the developer is going to tell us when our music's intensity should change, through a variable, <b>Intensity</b>, that varies from 1 (calm) to 3 (frantic). For the sake of simplicity, we'll just have a piece of music for each intensity level (Music1, Music2, and Music3), and let's say that transitions to the lower levels occur at the next measure, but transition to the highest level will be at the next beat. So first, we write our routine to see if we should change anything about the currently playing music.</P>
+
+<PRE style="font-face:courier; font-size:12">
+     Dim LastPlayedIntensity ' keep track of what intensity is currently playing
+
+     Dim Intensity ' this is the value that the developer can change 
+
+     Sub CheckIntensity
+         If (Intensity <> LastPlayedIntensity) then
+         'intensity has changed
+             If  (Intensity = 1) then
+                 Music1.Play AtMeasure
+             ElseIf (Intensity = 2) then
+                 Music2.Play AtMeasure
+             ElseIf (Intensity = 3) then
+                 Music3.Play AtBeat
+             End If
+         End If
+     End Sub
+</pre>
+
+<P>Why do we have that second variable? We want to keep track of what's already playing and not start the same piece up again every time we call CheckIntensity.<sup><font size:"9">5</font></sup> For instance, the following simplified (but generally undesired) code will do just that:</P>
+
+<PRE style="font-face:courier; font-size:12">
+     Sub CheckIntensity_PoorImplementation
+         'just using "Intensity" variable
+         If  (Intensity = 1) then
+             Music1.Play AtMeasure
+         ElseIf (Intensity = 2) then
+             Music2.Play AtMeasure
+         ElseIf (Intensity = 3) then
+             Music3.Play AtBeat
+         End If
+     End Sub
+</PRE>
+<P><B>Illustration</b>&nbsp;&nbsp;<I>Probably not our desired behavior&#8212;every time we check the intensity, we'll be restarting our music (even if it hasn't changed).</i></P>
+
+<P>Our next step is to author a segment that will trigger this routine every so often. The easiest way is generally to make the segment an infinitely looped<sup><font size:"9">6</font></sup> secondary segment (secondary so that it will just layer on top of our primary content without affecting or being affected by it).</P>
+<IMG src="/content/img/interscripting_fig2.gif" WIDTH="398" HEIGHT="409" ALT="" BORDER="0"><BR><BR>
+
+<P><B>Illustration</b>&nbsp;&nbsp;<I>A polling segment we've authored and its property dialog (right click on it in the project tree and choose <b>Properties</b>, or press F11 when it has focus). Based on our loop points, the script routine will be triggered on every grid (subdivision of a beat).</i></P>
+
+<P>We've now got a segment that's ready to loop and poll for changes to intensity. Now we just need to make sure to get it running when the script is ready to go. Again, this sort of behavior would fit nicely into our initialization routine (assuming we want the music to start when the script loads).</P>
+
+<PRE style="font-face:courier; font-size:12">
+     Dim LastPlayedIntensity ' keep track of what intensity is currently playing
+
+     Dim Intensity ' this is the value that the developer can change 
+
+     Sub InitPlayback
+         PollingSeg.Play IsSecondary
+         LastPlayedIntensity = 0
+     End Sub
+
+     Sub CheckIntensity
+         If (Intensity <> LastPlayedIntensity) then
+         'intensity has changed
+             If  (Intensity = 1) then
+                 Music1.Play AtMeasure
+             ElseIf (Intensity = 2) then
+                 Music2.Play AtMeasure
+             ElseIf (Intensity = 3) then
+                 Music3.Play AtBeat
+             End If
+         End If
+     End Sub
+</PRE>
+
+<P>We now just tell the developers to call the routine InitPlayback after loading the script and setting the initial <b>Intensity</b> value they like, and the music will begin. From then on, the developer only needs to worry about altering the <b>Intensity</b> value as game conditions dictate. Our polling segment and routine will make sure that the music reacts properly to these changes.</P>
+
+<H3>Wrap Up: Baseball Sample Script in the XDK</h3>
+
+<P>After going through the above scenarios, you might want to check out the "DMScript" example that comes with the Xbox Development Kit. The content there uses the concepts above to create a baseball game soundscape. The crowd "reacts" (with cheers or boos) based on when it notices that the score has changed. This content is a good example of script authoring in general as well; you can open the script file (Baseball.spt) in DirectMusic Producer to see the script routines (and embedded content) that it is composed of.</P>
+<br><br>
+<P>For more information about DirectX Audio scripting, DirectMusic Producer, and DirectMusic concepts, please consult the "Scripting Reference" section of the DirectMusic Producer help document, the DirectMusic Producer FAQ, or DirectMusic Producer Terminology white paper, or send an e-mail message to <a href="mailto:content@xbox.com">content@xbox.com.</a></P>
+
+<BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;For an introduction to DirectX Audio scripting, see the white paper "<A HREF="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_bridging.htm"><B>Bridging the Content-Coding Gap: An Introduction to DirectX Audio Scripting</B></A>," and for some applications of DirectX Audio scripting, see the white paper "<A HREF="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_dialog.htm"><B>Talking the Talk: DirectX Audio Scripting Solutions for Dialog Scenarios</B></A>."
+<P style="font-size:12"><SUP>2</SUP>&nbsp;A local variable is a variable used within a routine that isn't globally declared. When the routine finishes executing (that is, gets to End Sub), the variable value goes away and the memory it used is ready to be freed by the DirectX Audio scripting engine. Conversely, a global variable is "dim"-ed outside of any routine and its value is remembered even after a routine is done executing. It is not freed until the script is unloaded.
+<P style="font-size:12"><SUP>3</SUP>&nbsp;In practice, variables and objects that have not yet been initialized are set to a special value of "Empty". However, because object comparisons use "Is" and variable comparisons use mathematical comparisons (&#62;, &#60, =), it's best to specifically initialize at least the objects that you intend to use.
+<P style="font-size:12"><SUP>4</SUP>&nbsp;For content that uses clock-time content, a few seconds should be sufficient. Alternatively, we could just add the script routine call at the last possible tick of the segment, though for certain reasons (that is, making sure we have sufficient time to download the instruments or "prime" any waves that are to be streamed), it's generally recommended that you queue instead.
+<P style="font-size:12"><SUP>5</SUP>&nbsp;If we are using the first method (where the developer calls a routine to alert us they've changed a variable's value), the <b>CheckIntensity_PoorImplementation</b> code example would probably be the kind of code we'd use. We would probably want to pick a more accurate routine name though (because we're not checking the intensity anymore, just reacting to it).
+<P style="font-size:12"><SUP>6</SUP>&nbsp;A brief word here: remember that we said that a script routine cannot have a loop built into it (that is, "for/next"). However, it's completely acceptable to call a routine "fairly" often, even on the order of grids or ticks.
+<BR><BR>
+<SMALL>Monday, April 23, 2001</SMALL>
+
+
+<BR>
+
+</td>
+
+
+</TD>
+
+
+
+	

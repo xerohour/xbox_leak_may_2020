@@ -1,0 +1,25 @@
+TARGETNAME=overscan
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+XE_FLAGS=/TESTNAME:"overscan" /TESTID:0xA7049955
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc
+
+TARGETLIBS =        $(LIBRARY_PATH)\xonline$(D).lib \
+		    $(LIBRARY_PATH)\d3d8$(D).lib \
+		    $(LIBRARY_PATH)\d3dx8$(D).lib	\
+		    $(LIBRARY_PATH)\xgraphics$(D).lib	\
+
+SOURCES= 			                                       \
+    ..\overscan.cpp \
+    ..\Test.cpp \
+    ..\OverScanTest.cpp

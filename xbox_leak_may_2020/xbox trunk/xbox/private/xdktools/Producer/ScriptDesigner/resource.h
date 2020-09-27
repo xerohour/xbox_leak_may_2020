@@ -1,0 +1,124 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Developer Studio generated include file.
+// Used by ScriptDesignerDLL.rc
+//
+#define IDI_ABOUTDLL                    1
+#define IDS_SCRIPT                      2
+#define IDD_ABOUTBOX_SCRIPT             2
+#define IDB_SCRIPT                      2
+#define IDS_SCRIPT_PPG                  3
+#define IDD_DLG_SCRIPT                  101
+#define IDS_SCRIPT_PPG_CAPTION          200
+#define IDD_PROPPAGE_SCRIPT             200
+#define IDS_SCRIPT_COMPONENT_NAME       201
+#define IDC_SOURCE                      201
+#define IDS_HELP_FILE_EXT               202
+#define IDS_ERR_INVALIDARG              203
+#define IDR_SCRIPT_DOCTYPE              204
+#define IDI_SCRIPT_DOCTYPE_SEL          205
+#define IDS_ERR_REGISTER_CF             205
+#define IDM_SCRIPT_NODE_RMENU           205
+#define IDI_SCRIPTREF                   206
+#define IDS_ERR_ADD_CLIPFORMAT          206
+#define IDI_SCRIPTREF_SEL               207
+#define IDS_ERR_ADD_IMAGELIST           207
+#define IDS_ERR_MEMORY                  208
+#define IDS_ERR_ADD_DOCTYPE             209
+#define IDS_ERR_MISSING_CONDUCTOR       210
+#define IDS_SCRIPT_TEXT                 211
+#define IDS_SCRIPT_VERSION_TEXT         212
+#define IDS_NO_SCRIPT                   213
+#define IDS_UNDO_SCRIPT_NAME            214
+#define IDS_UNDO_SCRIPT_GUID            215
+#define IDS_UNDO_SCRIPT_LANGUAGE        216
+#define IDS_UNDO                        217
+#define IDS_UNDO_ACCEL                  218
+#define IDS_REDO                        219
+#define IDS_REDO_ACCEL                  220
+#define IDS_REDO_ACCEL2                 221
+#define IDS_UNDO_SCRIPT_DOWNLOAD_ALL    221
+#define IDC_FILE_VERSION                222
+#define IDS_UNDO_SCRIPT_AUTHOR          222
+#define IDS_UNDO_SCRIPT_COPYRIGHT       223
+#define IDS_UNDO_SCRIPT_SUBJECT         224
+#define IDC_LANGUAGE                    225
+#define IDC_AUTHOR                      225
+#define IDS_UNDO_SCRIPT_VERSION         225
+#define IDC_COPYRIGHT                   226
+#define IDS_SCRIPT_OBJECT_TEXT          226
+#define IDC_VERSION_1                   227
+#define IDS_DEBUG_WINDOW_MENU_TEXT      227
+#define IDC_VERSION_2                   228
+#define IDS_DEBUG_WINDOW_MENU_HELP_TEXT 228
+#define IDC_VERSION_3                   229
+#define IDS_ERR_ADD_MENUITEM            229
+#define IDC_VERSION_4                   230
+#define IDD_TAB_SCRIPT_SCRIPT           230
+#define IDS_ERR_ADD_LOGTOOL             230
+#define IDC_NAME                        231
+#define IDC_SUBJECT                     231
+#define IDS_CONTAINER_NODE_NAME         231
+#define IDC_DM_VERSION_1                232
+#define IDS_UNDO_SCRIPT_LOAD_ALL        232
+#define IDC_DM_VERSION_2                233
+#define IDS_ERR_MISSING_CONTAINER_DESIGNER 233
+#define IDC_DM_VERSION_3                234
+#define IDS_UNDO_SOURCE                 234
+#define IDC_DM_VERSION_4                235
+#define IDS_ERR_MESSAGE_WINDOW_THREAD   236
+#define IDR_SCRIPT_EDITOR               237
+#define IDS_LINE_TEXT                   237
+#define IDS_COLUMN_TEXT                 238
+#define IDR_SCRIPT_ACCELS               239
+#define IDS_NAME_TEXT                   239
+#define IDS_VALUE_TEXT                  240
+#define IDS_EMPTY_TEXT                  241
+#define IDM_SCRIPTREF_NODE_RMENU        242
+#define IDS_UNKNOWN_TEXT                242
+#define IDD_DLG_DEBUG                   243
+#define IDS_OBJECT_TEXT                 243
+#define IDD_DLG_GUID                    244
+#define IDS_ERROR_TEXT                  244
+#define IDD_TAB_SCRIPT_INFO             245
+#define IDC_LSTBX_DEBUG_SPEW            246
+#define IDM_CLEAR                       247
+#define IDS_UNDO_REPLACE_CONTAINER      247
+#define IDM_MESSAGE_WINDOW              248
+#define IDS_UNDO_UPDATE_CONTAINER       248
+#define IDM_ROUTINE_LIST                249
+#define IDS_UNDO_SCRIPT_SOURCE          249
+#define IDM_VARIABLE_LIST               250
+#define IDC_EDIT_GUID                   305
+#define IDC_NEW_GUID                    306
+#define IDC_CHECK_LOAD_ALL              500
+#define IDC_CHECK_DOWNLOAD_ALL          501
+#define IDC_ROUTINE_LIST                503
+#define IDC_ROUTINE_PROMPT              504
+#define IDC_VARIABLE_PROMPT             505
+#define IDC_REFRESH                     506
+#define IDC_SOURCE_PROMPT               507
+#define IDC_VARIABLE_LIST               508
+#define IDC_EDIT_VALUE                  509
+#define IDC_INIT_VARIABLES              509
+#define IDS_SCRIPT_LANGUAGE_DEFAULT     1000
+#define IDS_SCRIPT_LANGUAGE2            1001
+#define IDM_PROPERTIES                  32768
+#define IDM_RENAME                      32769
+#define IDM_CALL_ROUTINE                32771
+#define IDM_SET_VARIABLE                32772
+#define IDM_HELP_SCRIPT_API             32774
+#define IDM_HELP_SCRIPT_LANGUAGE        32775
+#define ID_EDIT_DELETE                  32777
+#define ID_EDIT_INSERT                  32796
+#define IDM_HELP_FINDER                 32815
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        301
+#define _APS_NEXT_COMMAND_VALUE         32776
+#define _APS_NEXT_CONTROL_VALUE         510
+#define _APS_NEXT_SYMED_VALUE           103
+#endif
+#endif

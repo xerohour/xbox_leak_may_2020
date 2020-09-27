@@ -1,0 +1,1 @@
+!include "..\..\samples\makefile.inc"

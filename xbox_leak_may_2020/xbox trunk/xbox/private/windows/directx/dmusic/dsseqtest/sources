@@ -1,0 +1,35 @@
+TARGETNAME=dsstest
+TARGETTYPE=PROGRAM
+TARGETPATH=obj
+UMTYPE=xboxapp
+
+!include ..\sources.inc
+
+SYNCHRONIZE_DRAIN = 1
+
+USE_LIBCMT=1
+
+LINKLIBS=\
+    $(LIBRARY_PATH)\uuid.lib \
+	$(LIBC_LIB) \
+    $(LIBRARY_PATH)\dsound$(D).lib \
+
+INCLUDES= $(INCLUDES); \
+    ..\xprivate;   \
+    ..\shared; \
+    $(BASEDIR)\public\sdk\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\windows\directx\dsound\dsound;\
+    $(BASEDIR)\private\windows\directx\dsound\ac97;\
+    ..\dmsynth;
+
+LINKER_FLAGS=$(LINKER_FLAGS) -map
+
+C_DEFINES = $(C_DEFINES) -DXMIX
+
+SOURCES=\
+    dsstest.cpp \
+    dsswrapper.cpp		                                       
+
+

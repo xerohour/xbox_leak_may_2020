@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Duke.SetButtonState</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>SetButtonState</H1>
+    <DIV CLASS=BLOCK>
+    Specifies the raw state data sent to the host when polled.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("SetButtonState(long digital, short analog1, short analog2, short analog3, short analog4, short analog5, short analog6, short analog7, short analog8, short thumbLX, short thumbLY, short thumbRX, short thumbRY)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>digital</I><BR>
+        Bitmask of the digital buttons:
+        <TABLE CELLPADDING=2>
+        <TR><TH>0</TH><TH>1</TH><TH>2</TH><TH>3</TH><TH>4</TH><TH>5</TH><TH>6</TH><TH>7</TH><TH>Bits 8-15 are unused</TH></TR>
+        <TR VALIGN=MIDDLE ALIGN=CENTER><TD>DPAD<BR>Up</TD><TD>DPAD<BR>Down</TD><TD>DPAD<BR>Left</TD><TD>DPAD<BR>Right</TD><TD>Start</TD><TD>Back</TD><TD>Left<BR>Thumbstick</TD><TD>Right<BR>Thumbstick</TD><TD>NA</TD></TR>
+        </TABLE>
+    <DT><I>analog1</I><BR>
+        0x00 - 0xFF range for button A
+    <DT><I>analog2</I><BR>
+        0x00 - 0xFF range for button B 
+    <DT><I>analog3</I><BR>
+        0x00 - 0xFF range for button X
+    <DT><I>analog4</I><BR>
+        0x00 - 0xFF range for button Y
+    <DT><I>analog5</I><BR>
+        0x00 - 0xFF range for the black button 
+    <DT><I>analog6</I><BR>
+        0x00 - 0xFF range for the white button
+    <DT><I>analog7</I><BR>
+        0x00 - 0xFF range for the left trigger
+    <DT><I>analog8</I><BR>
+        0x00 - 0xFF range for the right trigger
+    <DT><I>thumbLX</I><BR>
+        -32767 - 32768 range for the horizontal left thumb stick
+    <DT><I>thumbLY</I><BR>
+        -32767 - 32768 range for the vertical left thumb stick
+    <DT><I>thumbRX</I><BR>
+        -32767 - 32768 range for the horizontal right thumb stick
+    <DT><I>thumbRY</I><BR>
+        -32767 - 32768 range for the vertical right thumb stick
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>
+    To send the default (idle) state, set all values to zero.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var duke = WScript.CreateObject(\"USBSimulator.Duke\");\n\nduke.port = 1;\nduke.IP = \"157.56.10.18\";\nduke.buttonDownDelay = 125;\nduke.buttonUpDelay = 200;\n\nduke.Plug();\n\nduke.SetButtonState(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -32000, 0, 0);\nWScript.Sleep(duke.buttonDownDelay);\nduke.SetButtonState(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);\nWScript.Sleep(duke.buttonUpDelay);\n\nduke.Unplug();");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="m_Button.htm">Button</A>, <A HREF="p_buttonDownDelay.htm">buttonDownDelay</A>, <A HREF="p_buttonUpDelay.htm">buttonUpDelay</A>, <A HREF="../Samples/DukeHelper.htm">RepeatButton & DukeButton JScript Samples</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

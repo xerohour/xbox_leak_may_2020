@@ -1,0 +1,318 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>ActiveWire USB Control Page</title>
+</head>
+
+<body>
+
+<h1 align="center">ActiveWire USB Simple I/O Control HTML</h1>
+
+<br>
+<br>
+
+<p align="center"><script language="JavaScript"><!--
+
+var	opened = 0;
+var dir = 0;
+var data = 0;
+
+function Open (devnum)
+{
+	var	error;
+
+	if (opened)
+		skill.Close();
+
+	debug.value = "Open #" + devnum;
+	error = skill.Open (devnum);
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	opened = 1;
+
+	skill.EnablePort (dir);
+	skill.OutPort (data);
+
+	Update();
+}	
+
+
+function Close ()
+{
+	var error;
+
+	debug.value = "Close";
+	error = skill.Close();
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	opened = 0;
+}	
+
+
+function Dir (num)
+{
+	var error;
+
+	if (dir & (1<<num))	
+		dir &= (~(1<<num));
+	else 
+		dir |= (1<<num);
+
+	debug.value = "EnablePort";
+	error = skill.EnablePort (dir);
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+	
+	Update();
+}
+
+
+function Data (num)
+{
+	var error;
+
+	if (data & (1<<num))	
+		data &= (~(1<<num));
+	else 
+		data |= (1<<num);
+
+	debug.value = "OutPort";
+	error = skill.OutPort (data);
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	Update();
+}
+
+
+function Update ()
+{
+	data = skill.InPort ();
+	if (data < 0)
+		debug.value = "InPort : " + skill.ErrorMessage (data);
+
+	Dir0.value = (dir & 1) ? "Out" : "In";
+	Dir1.value = (dir & 2) ? "Out" : "In";
+	Dir2.value = (dir & 4) ? "Out" : "In";
+	Dir3.value = (dir & 8) ? "Out" : "In";
+	Dir4.value = (dir & 16) ? "Out" : "In";
+	Dir5.value = (dir & 32) ? "Out" : "In";
+	Dir6.value = (dir & 64) ? "Out" : "In";
+	Dir7.value = (dir & 128) ? "Out" : "In";
+	Dir8.value = (dir & 256) ? "Out" : "In";
+	Dir9.value = (dir & 512) ? "Out" : "In";
+	Dir10.value = (dir & 1024) ? "Out" : "In";
+	Dir11.value = (dir & 2048) ? "Out" : "In";
+	Dir12.value = (dir & 4096) ? "Out" : "In";
+	Dir13.value = (dir & 8192) ? "Out" : "In";
+	Dir14.value = (dir & 16384) ? "Out" : "In";
+	Dir15.value = (dir & 32768) ? "Out" : "In";
+
+	Data0.value = (data & 1) ? "1" : "0";
+	Data1.value = (data & 2) ? "1" : "0";
+	Data2.value = (data & 4) ? "1" : "0";
+	Data3.value = (data & 8) ? "1" : "0";
+	Data4.value = (data & 16) ? "1" : "0";
+	Data5.value = (data & 32) ? "1" : "0";
+	Data6.value = (data & 64) ? "1" : "0";
+	Data7.value = (data & 128) ? "1" : "0";
+	Data8.value = (data & 256) ? "1" : "0";
+	Data9.value = (data & 512) ? "1" : "0";
+	Data10.value = (data & 1024) ? "1" : "0";
+	Data11.value = (data & 2048) ? "1" : "0";
+	Data12.value = (data & 4096) ? "1" : "0";
+	Data13.value = (data & 8192) ? "1" : "0";
+	Data14.value = (data & 16384) ? "1" : "0";
+	Data15.value = (data & 32768) ? "1" : "0";
+}
+
+
+function About ()
+{
+	debug.value = "about...";
+	skill.AboutBox();
+	debug.value += "done";
+}
+
+// --></script></p>
+
+<p align="center">
+	Please select Device# at first. <br>
+
+	Device# is the number sequentially assigned to each board by Windows operating system.<br>
+	If you have only 1 board plugged into your system, Device# is 0.<br>	
+	If you have 2 boards plugged into your system, the first board is 0, the another is 1.<br>
+	<br>	
+	Click in the box below, type in a number, then click Open. <br>
+	Device# <input type="text" size="5" name="DevNum" onchange="Open(this.value)"> <br>
+	<input type="button" name="Open" value="Open" onclick="Open(DevNum.value)">
+	<input type="button" name="Close" value="Close" onclick="Close()">
+</p>
+
+<br>
+
+<div align="center"><center>
+
+<table border="2" cellpadding="2" width="100%">
+    <tr>
+        <td align="center">I/O#</td>
+        <td align="center" nowrap>I/O15</td>
+        <td align="center" nowrap>I/O14</td>
+        <td align="center" nowrap>I/O13</td>
+        <td align="center" nowrap>I/O12</td>
+        <td align="center" nowrap>I/O11</td>
+        <td align="center" nowrap>I/O10</td>
+        <td align="center" nowrap>I/O9</td>
+        <td align="center" nowrap>I/O8</td>
+        <td align="center" nowrap>I/O7</td>
+        <td align="center" nowrap>I/O6</td>
+        <td align="center" nowrap>I/O5</td>
+        <td align="center" nowrap>I/O4</td>
+        <td align="center" nowrap>I/O3</td>
+        <td align="center" nowrap>I/O2</td>
+        <td align="center" nowrap>I/O1</td>
+        <td align="center" nowrap>I/O0</td>
+    </tr>
+    <tr>
+        <td align="center">Header</td>
+        <td align="center" nowrap>P2</td>
+        <td align="center" nowrap>P2</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P2</td>
+        <td align="center" nowrap>P2</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+        <td align="center" nowrap>P1</td>
+    </tr>
+    <tr>
+        <td align="center">pin#</td>
+        <td align="center" nowrap>pin 16</td>
+        <td align="center" nowrap>pin 15</td>
+        <td align="center" nowrap>pin 10</td>
+        <td align="center" nowrap>pin 6</td>
+        <td align="center" nowrap>pin 5</td>
+        <td align="center" nowrap>pin 5</td>
+        <td align="center" nowrap>pin 4</td>
+        <td align="center" nowrap>pin 3</td>
+        <td align="center" nowrap>pin 20</td>
+        <td align="center" nowrap>pin 19</td>
+        <td align="center" nowrap>pin 17</td>
+        <td align="center" nowrap>pin 16</td>
+        <td align="center" nowrap>pin 15</td>
+        <td align="center" nowrap>pin 14</td>
+        <td align="center" nowrap>pin 13</td>
+        <td align="center" nowrap>pin 11</td>
+    </tr>
+    <tr>
+        <td align="center">Direction</td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir15" value="In" onclick="Dir(15)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir14" value="In" onclick="Dir(14)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir13" value="In" onclick="Dir(13)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir12" value="In" onclick="Dir(12)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir11" value="In" onclick="Dir(11)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir10" value="In" onclick="Dir(10)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir9" value="In" onclick="Dir(9)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir8" value="In" onclick="Dir(8)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir7" value="In" onclick="Dir(7)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir6" value="In" onclick="Dir(6)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir5" value="In" onclick="Dir(5)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir4" value="In" onclick="Dir(4)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir3" value="In" onclick="Dir(3)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir2" value="In" onclick="Dir(2)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir1" value="In" onclick="Dir(1)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Dir0" value="In" onclick="Dir(0)"></td>
+    </tr>
+    <tr>
+        <td align="center">High/Low</td>
+        <td align="center" nowrap><input type="text" size="5" name="Data15" onclick="Data(15)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data14" onclick="Data(14)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data13" onclick="Data(13)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data12" onclick="Data(12)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data11" onclick="Data(11)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data10" onclick="Data(10)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data9" onclick="Data(9)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data8" onclick="Data(8)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data7" onclick="Data(7)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data6" onclick="Data(6)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data5" onclick="Data(5)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data4" onclick="Data(4)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data3" onclick="Data(3)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data2" onclick="Data(2)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data1" onclick="Data(1)"></td>
+        <td align="center" nowrap><input type="text" size="5" name="Data0" onclick="Data(0)"></td>
+    </tr>
+</table>
+</center></div>
+
+<br>
+
+<p align="center">
+	debug message : <input type="text" size="40" name="debug" value="debug"> 
+</p>
+
+<br>
+
+<p align="center">
+	If you see ActiveWire bitmap below, ActiveX control is loaded successfully.
+</p>
+
+<p align="center">
+	<object id="skill" name="skill"
+			classid="clsid:95438945-F98A-11D2-AC25-00104B306BEE"
+			align="baseline" border="0" width="64" height="64">
+	</object>
+	<input type="button" name="About" value="About..." onclick="About()">
+</p>
+
+<p align="left">If you see broken picture above, either ;</p>
+
+<ol>
+    <li><p align="left">
+			Microsoft Internet Explorer 4.0 or above is required. 
+			Download the latest from Microsoft web site.</p>
+    </li>
+    <li><p align="left">
+			Security setting of your Internet Explorer is preventing from loading ActiveX control.
+			Choose View-&gt;Internet Option-&gt;Security,
+			then set Local intra net zone security setting to Low.</p>
+    </li>
+    <li><p align="left">
+			ActiveX control is not installed in your system properly. 
+			Download AwusbIO.OCX, and follow instruction.</p>
+    </li>
+    <li><p align="left">
+			ActiveWire USB Windows Driver is not installed properly. 
+			Download RegClear.exe and try reinstall driver.</p>
+    </li>
+</ol>
+
+<br>
+
+</body>
+</html>
+

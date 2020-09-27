@@ -1,0 +1,644 @@
+#
+#  (C) Copyright NVIDIA Corporation Inc., 1995-2000. All rights reserved.
+# 
+#############################################################################
+#                                                                           #
+#                    Makefile for Resource Manager.                         #
+#                                                                           #
+#############################################################################
+
+#
+# Define what kind of binaries to build.
+#
+
+!IFNDEF DEBUG
+!IFNDEF DEVELOPER
+!MESSAGE Building Retail
+RETAIL=1
+!ENDIF
+!ENDIF
+
+!IFDEF DEBUG
+!IFDEF IKOS
+!MESSAGE Building Debug IKOS
+!ELSE
+!MESSAGE Building Debug
+!ENDIF
+!UNDEF RETAIL
+!UNDEF DEVELOPER
+!UNDEF EXCLUDE_SRCS
+!ENDIF
+
+!IFDEF DEVELOPER
+!IFDEF EXCLUDE_SRCS
+!MESSAGE Building OEM Debug
+!ELSE
+!MESSAGE Building Developer
+!ENDIF
+!UNDEF RETAIL
+!UNDEF DEBUG
+!ENDIF
+
+!IFDEF NV3
+!MESSAGE Building for NV3
+CHIP      = nv3
+HWREF     = NV3_HW
+NVARCH    = 0x03
+!ELSE
+!MESSAGE Building for NV4/NV10/NV20
+CHIP      = nv4
+HWREF     = NV4_HW
+# should NVARCH be base or max support?
+NVARCH    = 0x04
+!ENDIF
+
+#
+# Directories.
+#
+
+ARCHDIR   = ..
+KERNELDIR = ..\..\..\kernel
+
+WINDIR    = .
+#WINDIR    = $(ARCHDIR)\WIN9X
+
+APUDIR = $(ARCHDIR)\AUDIO
+APUVXDDIR = $(APUDIR)\WIN9XVXD
+
+SDKDIR    = $(WINDIR)\SDK
+DDKDIR    = $(WINDIR)\DDK
+VXDDIR    = $(WINDIR)\VXD
+VDDDIR    = $(WINDIR)\VDD
+DLL32DIR  = $(WINDIR)\DLL32
+DLL16DIR  = $(WINDIR)\DLL16
+EXE16DIR  = $(WINDIR)\EXE16
+INCVXDDIR = $(WINDIR)\INCVXD
+INC32DIR  = $(WINDIR)\INC32
+INC16DIR  = $(WINDIR)\INC16
+!IFDEF NV3
+INCNV = $(WINDIR)\INCNV\NV3
+INCVDDDIR = $(VDDDIR)\$(CHIP)
+!ELSE
+INCNV = $(WINDIR)\INCNV
+INCVDDDIR = $(VDDDIR)
+!ENDIF
+INCSDKDIR = $(NVARCINCDIR)
+INCDXDDIR = $(WINDIR)\..\..\..\..\..\..\tools\ddk\directx5\inc
+INCDXDDIR7 = $(WINDIR)\..\..\..\..\..\..\tools\ddk\directx7\inc
+DRVCMNDIR = $(WINDIR)\..\..\..\..\common
+INCDDDIR  = $(DRVCMNDIR)\win9x\inc
+INCMOCOMPDIR = $(DRVCMNDIR)\win9x\inc
+# INCMOCOMPDIR = $(WINDIR)\..\..\..\..\ddraw\common\inc
+INCVPE    = $(DRVCMNDIR)\VPE
+VESADIR   = $(DRVCMNDIR)\vesa
+INCVESA   = $(DRVCMNDIR)\vesa
+INCDEVINIT= $(KERNELDIR)\devinit\nv
+LIB32DIR  = $(WINDIR)\LIB32
+LIB16DIR  = $(WINDIR)\LIB16
+# For now, still looking in sdk\nvidia\nv4\lib for NV4/NV10/NV20
+SDKLIBDIR = $(WINDIR)\..\..\..\..\..\sdk\nvidia\$(CHIP)\lib
+
+!IFDEF NV3
+LIBSDKDIR = $(SDKDIR)\LIB
+LIBDDKDIR = $(DDKDIR)\LIB
+!ENDIF
+
+OBJDIR	  = $(WINDIR)\OBJ
+OBJDIR_NV4 = $(WINDIR)\OBJ\NV4
+OBJDIR_NV10 = $(WINDIR)\OBJ\NV10
+OBJDIR_NV20 = $(WINDIR)\OBJ\NV20
+LSTDIR    = $(WINDIR)\LST
+BINDIR    = $(WINDIR)\BIN
+DBGDIR    = $(WINDIR)\DBG
+
+!IFDEF NV3
+# Don't use MSVC 5.0 for NV3.
+OLDTOOLDIR   = $(WINDIR)\TOOLS
+TOOLDIR      = $(WINDIR)\TOOLS
+!ELSE
+OLDTOOLDIR   = $(WINDIR)\TOOLS
+TOOLDIR      = $(WINDIR)\..\..\..\..\..\..\tools\msvc50\bin
+!ENDIF
+
+RM           = $(WINDIR)\..\..\..\..\..\..\tools\sdk\win32\bin\rm.exe -fx
+
+!IFDEF NV3
+INCDIR    = $(KERNELDIR)\INC\$(CHIP)
+!ELSE
+INCDIR    = $(KERNELDIR)\INC
+!ENDIF
+
+CODECDIR  = $(KERNELDIR)\CODEC
+DACDIR    = $(KERNELDIR)\DAC
+DMADIR    = $(KERNELDIR)\DMA
+FBDIR     = $(KERNELDIR)\FB
+FIFODIR   = $(KERNELDIR)\FIFO
+GPDIR     = $(KERNELDIR)\GPORT
+GRDIR     = $(KERNELDIR)\GR
+HALDIR    = $(KERNELDIR)\HAL
+HEAPDIR   = $(KERNELDIR)\HEAP
+MCDIR     = $(KERNELDIR)\MC
+CLASSDIR  = $(KERNELDIR)\CLASS
+RMODEDIR  = $(KERNELDIR)\RMODE
+TMRDIR    = $(KERNELDIR)\TMR
+STATEDIR  = $(KERNELDIR)\STATE
+BTREEDIR  = $(KERNELDIR)\BTREE
+VBLANKDIR = $(KERNELDIR)\VBLANK
+MODDIR    = $(KERNELDIR)\MODULAR
+MPDIR	  = $(KERNELDIR)\MP
+VIDEODIR  = $(KERNELDIR)\VIDEO
+DEVINITDIR= $(KERNELDIR)\DEVINIT
+KERNAPUDIR= $(KERNELDIR)\AUDIO
+DSPPROGDIR= $(KERNELDIR)\AUDIO\DSPPROGS
+
+!IFDEF NV3
+NVARCSRCDIR = $(ARCHDIR)\COMMON\SRC\NV3
+NVARCINCDIR = $(ARCHDIR)\COMMON\INC\NV3
+!ELSE
+NVARCSRCDIR = $(ARCHDIR)\COMMON\SRC\NV
+NVARCINCDIR = $(ARCHDIR)\COMMON\INC
+!ENDIF
+
+RMAPIDIR  = $(NVARCSRCDIR)
+NVSDKDIR  = $(WINDIR)\..\..\..\..\..\sdk\nvidia
+NVDDKDIR  = $(WINDIR)\..\..\..\..\..\ddk\nvidia
+
+INCVERDIR  = $(DRVCMNDIR)\inc
+
+#
+# NMS file list
+#
+NMSFILELIST = \
+/SOURCE:..\$(VXDDIR);/SOURCE:..\$(NVARCSRCDIR);/SOURCE:..\$(VESADIR); \
+!IFDEF NVDFLTSYMS
+ /SOURCE:$(DFLTKERNSRCDIRS); \
+!ELSE
+ /SOURCE:$(KERNSRCDIRS); \
+! IFDEF NV4SYMS
+  /SOURCE:$(NV4KERNSRCDIRS); \
+! ENDIF
+! IFDEF NV10SYMS
+  /SOURCE:$(NV10KERNSRCDIRS); \
+! ENDIF
+! IFDEF NV20SYMS
+  /SOURCE:$(NV20KERNSRCDIRS); \
+! ENDIF
+!ENDIF
+
+
+#
+# Needed for international support
+#
+
+!IFNDEF LANG
+RESDIR=$(VDDDIR)\msg\usa
+!ELSE
+RESDIR=$(VDDDIR)\msg\$(LANG)
+!ENDIF
+
+#
+# Dependencies.
+#
+
+!IFDEF NV3
+
+all    : $(BINDIR)\nv3.vxd $(BINDIR)\nv3mini2.vxd $(BINDIR)\nv3rm.vxd $(BINDIR)\nv3sys.dll $(BINDIR)\nv3api.dll $(BINDIR)\nvrmapi.lib $(BINDIR)\nvrmr0api.lib
+
+!ELSEIFDEF NVAFX
+all    : $(BINDIR)\nvacore.vxd
+
+!ELSE
+
+all    : $(BINDIR)\nvmini.vxd $(BINDIR)\nvmini2.vxd $(BINDIR)\nvcore.vxd $(BINDIR)\nvarch16.dll $(BINDIR)\nvarch32.dll $(BINDIR)\nvrmapi.lib $(BINDIR)\nvrmr0api.lib
+
+!ENDIF
+
+clean  :
+        $(RM) $(OBJDIR)\*.obj
+!IFNDEF NV3
+        $(RM) $(OBJDIR_NV4)\*.obj
+        $(RM) $(OBJDIR_NV10)\*.obj
+        $(RM) $(OBJDIR_NV20)\*.obj
+!ENDIF
+        $(RM) $(OBJDIR)\*.res
+        $(RM) $(OBJDIR)\*.asm
+        $(RM) $(LSTDIR)\*.asm
+        $(RM) $(LSTDIR)\*.lst
+        $(RM) $(DBGDIR)\*.map
+        $(RM) $(DBGDIR)\*.sym
+        $(RM) $(DBGDIR)\*.lst
+        $(RM) $(DBGDIR)\*.nms
+
+        $(RM) $(BINDIR)\*.386
+        $(RM) $(BINDIR)\*.vxd
+        $(RM) $(BINDIR)\*.dll
+        $(RM) $(BINDIR)\*.exe
+        $(RM) $(BINDIR)\*.sym
+        $(RM) $(BINDIR)\*.bin
+        $(RM) $(BINDIR)\*.pdb
+        $(RM) $(BINDIR)\*.lib
+        $(RM) $(BINDIR)\*.exp
+
+        $(RM) $(WINDIR)\*.pdb
+        $(RM) $(WINDIR)\*.sbr
+        $(RM) $(WINDIR)\*.pch
+!IFDEF NV3
+        $(RM) $(LIBSDKDIR)\*.lib
+        $(RM) $(LIBSDKDIR)\*.obj
+        $(RM) $(LIBSDKDIR)\*.exp
+        $(RM) $(LIBDDKDIR)\*.lib
+        $(RM) $(LIBDDKDIR)\*.obj
+        $(RM) $(LIBDDKDIR)\*.exp
+!ENDIF
+
+#
+# Tool defines.
+#
+
+# Flag for defining stereo support
+#STEREO   =
+STEREO	 = /DSTEREO_SUPPORT
+
+# Flags for MiniVDD. 
+# MINIVDD must always be defined. Its used in MINIVDD.INC.
+# UNIFY_VXDS is used if MiniVDD and Resource Manager are combined.
+
+!IFDEF VPEFSMIRROR
+DEFSVDD   = /DMINIVDD /D$(HWREF) /DDIOC /DI2C /DNVPE /DVPEFSMIRROR
+!ELSE
+DEFSVDD   = /DMINIVDD /D$(HWREF) /DDIOC /DI2C /DNVPE 
+!ENDIF
+AVXDINCS  = /I$(INCVXDDIR) /I$(INCNV)
+AVDDINCS  = /I$(INCVXDDIR) /I$(INCNV) /I$(VDDDIR)\common /I$(INCMOCOMPDIR) /I$(INCVPE) /I$(INCDXDDIR)
+A32INCS   = /I$(INC32DIR)
+A16INCS   = /I$(INC16DIR)
+
+CVXDINCS  = /I$(INCDIR) /I$(INCDIR)\nv4 /I$(INCDIR)\nv10 /I$(INCDIR)\nv20 /I$(NVARCINCDIR) /I$(INCVXDDIR) /I$(INCNV) /I$(INCVDDDIR) /I$(NVSDKDIR)\$(CHIP)\inc /I$(NVSDKDIR)\inc /I$(INCVESA) /I$(INCVERDIR) /I$(INCDEVINIT)
+C32INCS   =	/I$(INCDIR) /I$(INCDIR)\nv4 /I$(INCDIR)\nv10 /I$(INCDIR)\nv20 /I$(INCVXDDIR) /I$(INC32DIR) /I$(INCSDKDIR) /I$(INCNV) /I$(NVSDKDIR)\$(CHIP)\inc /I$(NVSDKDIR)\inc
+C16INCS   = /I$(INCNV) /I$(INC16DIR) /I$(INC32DIR) /I$(INCDIR) /I$(INCDIR)\nv4 /I$(INCDIR)\nv10 /I$(INCDIR)\nv20 /I$(NVARCINCDIR) /I$(NVSDKDIR)\$(CHIP)\inc /I$(NVSDKDIR)\inc
+
+!IFDEF RETAIL
+!MESSAGE Setting up Retail tools
+
+DEFSVXD   = /DWIN32 /D$(HWREF) /DNVARCH=$(NVARCH) /DUSE_GUI /DRM20 /DNVSPEAK $(STEREO)
+!IFDEF NVAFX
+DEFSVXD = $(DEFSVXD) /DNVAUDIO
+!ENDIF
+DEFSDLL   = /D$(HWREF)  
+
+AFLAGSVXD = /coff /Zp1 /DBLD_COFF /W2 /c /Cx /DMASM6 /Sg $(AVXDINCS) $(DEFSVXD) 
+AFLAGSVDD = /coff /Zp1 /DBLD_COFF /W2 /c /Cx /DMASM6 /Sg $(AVDDINCS) $(DEFSVDD)
+AFLAGS32  = /c /Zp1 /Zm /W2 /Cx $(A32INCS) /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD) /Ta
+AFLAGS16  = /c /Zp1 /Cx /Sn /W3 /DMASM6 $(A16INCS) /Fo$(OBJDIR)\$(@B).obj
+
+CFLAGSVXD = /c /Zp1 /W3 /WX /Gs /G5 /Zl /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV4 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV4)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV10 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV10)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV20 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV20)\$(@B).obj $(DEFSVXD)
+CFLAGS16 = /c /Zp1 /W3 /WX /AL /DWIN32 /D$(HWREF) /G3 /Gw /Gs $(C16INCS) /Fo$(OBJDIR)\$(@B).obj /Fa$(LSTDIR)\$(@B).asm
+CFLAGS32 = /c /Zp1 /W3 /WX $(C32INCS) /nologo /D_X86_ /D$(HWREF) /FR /YX /O2 /Fo$(OBJDIR)\$(@B).obj /FAcs /Fa$(LSTDIR)\$(@B).asm
+CFLAGS32_NT = /c /W3 /WX $(C32INCS) /nologo /D_X86_ /D$(HWREF) /D_WIN32_WINNT=0x0400 /FR /YX /O2 /Fo$(OBJDIR)\$(@B).obj /FAcs /Fa$(LSTDIR)\$(@B).asm
+
+!IFDEF NV3
+CFLAGSVXD_OPT = $(CFLAGSVXD)
+!ELSE
+CFLAGSVXD_OPT = /c /Zp1 /W3 /WX /Gs /G5 /Zl /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_OPT_NV4 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV4)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_OPT_NV10 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV10)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_OPT_NV20 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV20)\$(@B).obj $(DEFSVXD)
+!ENDIF
+
+LINKCPPDBG =
+LST       = 
+!ENDIF
+
+!IFDEF DEBUG
+!MESSAGE Setting up Debug tools
+
+DEFSVXD   = /DWIN32 /D$(HWREF) /DNVARCH=$(NVARCH) /DUSE_GUI /DRM20 /DDEBUG /DNVSPEAK $(STEREO)
+!IFDEF IKOS
+DEFSVXD = $(DEFSVXD) /DIKOS
+!ENDIF
+!IFDEF NVAFX
+DEFSVXD = $(DEFSVXD) /DNVAUDIO
+#/DVIKDBG
+!ENDIF
+
+DEFSDLL   = /D$(HWREF) 
+
+AFLAGSVXD = /coff /Zp1 /DBLD_COFF /W2 /c /Cx /Zi /Zd /DMASM6 /Sg $(AVXDINCS) $(DEFSVXD)
+AFLAGSVDD = /coff /Zp1 /DBLD_COFF /W2 /c /Cx /Zi /Zd /DMASM6 /Sg $(AVDDINCS) $(DEFSVDD)
+AFLAGS32  = /c /Zp1 /Zm /W2 /Cx $(A32INCS) /Fl$(LSTDIR)\$(@B).lst /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD) /Ta
+AFLAGS16  = /c /Zp1 /Cx /Sn /W3 /Zp1 /DMASM6 $(A16INCS) /Fl$(LSTDIR)\$(@B).lst /Fo$(OBJDIR)\$(@B).obj
+
+CFLAGSVXD = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV4 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV4)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV10 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV10)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV20 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV20)\$(@B).obj $(DEFSVXD)
+CFLAGS16 = /c /Zp1 /W3 /WX /DWIN32 /D$(HWREF) /AL /G3 /Zi /Gs /Gw $(C16INCS) /Fo$(OBJDIR)\$(@B).obj  /Fa$(LSTDIR)\$(@B).asm
+CFLAGS32 = /c /Zp1 /W3 /WX $(C32INCS) /nologo /D_X86_ /D$(HWREF) /FR /YX /O2 /Zi /Fa$(LSTDIR)\$(@B).asm /Fo$(OBJDIR)\$(@B).obj
+CFLAGS32_NT = /c /W3 /WX $(C32INCS) /nologo /D_X86_ /D$(HWREF) /D_WIN32_WINNT=0x0400 /FR /YX /O2 /Zi /Fa$(LSTDIR)\$(@B).asm /Fo$(OBJDIR)\$(@B).obj
+
+!IFDEF NV3
+CFLAGSVXD_OPT = $(CFLAGSVXD)
+!ELSE
+# For debug build, don't optimize anything
+CFLAGSVXD_OPT = $(CFLAGSVXD)
+CFLAGSVXD_OPT_NV4 = $(CFLAGSVXD_NV4)
+CFLAGSVXD_OPT_NV10 = $(CFLAGSVXD_NV10)
+CFLAGSVXD_OPT_NV20 = $(CFLAGSVXD_NV20)
+!ENDIF
+
+LINKCPPDBG = /DEBUG /DEBUGTYPE:cv
+LST       = 
+!ENDIF
+
+!IFDEF DEVELOPER
+!MESSAGE Setting up Developer tools
+
+DEFSVXD   = /DWIN32 /D$(HWREF) /DNVARCH=$(NVARCH) /DUSE_GUI /DRM20 /DNVSPEAK $(STEREO)
+DEFSDLL   = /D$(HWREF) 
+
+AFLAGSVXD = /coff /Zp1 /DBLD_COFF /W2 /c /Cx /Zi /Zd /DMASM6 /Sg $(AVXDINCS) $(DEFSVXD)
+AFLAGSVDD = /coff /Zp1 /DBLD_COFF /W2 /c /Cx /Zi /Zd /DMASM6 /Sg $(AVDDINCS) $(DEFSVDD)
+AFLAGS32  = /c /Zp1 /Zm /W2 /Cx $(A32INCS) /Fl$(LSTDIR)\$(@B).lst /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD) /Ta
+AFLAGS16  = /c /Zp1 /Cx /Sn /W3 /Zp1 /DMASM6 $(A16INCS) /Fl$(LSTDIR)\$(@B).lst /Fo$(OBJDIR)\$(@B).obj
+
+CFLAGSVXD = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV4 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV4)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV10 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV10)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_NV20 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV20)\$(@B).obj $(DEFSVXD)
+CFLAGS16 = /c /Zp1 /W3 /WX /DWIN32 /D$(HWREF) /AL /G3 /Zi /Gs /Gw $(C16INCS) /Fo$(OBJDIR)\$(@B).obj  /Fa$(LSTDIR)\$(@B).asm
+CFLAGS32 = /c /Zp1 /W3 /WX $(C32INCS) /nologo /D_X86_ /D$(HWREF) /FR /YX /O2 /Zi /Fa$(LSTDIR)\$(@B).asm /Fo$(OBJDIR)\$(@B).obj
+CFLAGS32_NT = /c /W3 /WX $(C32INCS) /nologo /D_X86_ /D$(HWREF) /D_WIN32_WINNT=0x0400 /FR /YX /O2 /Zi /Fa$(LSTDIR)\$(@B).asm /Fo$(OBJDIR)\$(@B).obj
+
+!IFDEF NV3
+CFLAGSVXD_OPT = $(CFLAGSVXD)
+!ELSE
+CFLAGSVXD_OPT = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_OPT_NV4 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV4)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_OPT_NV10 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV10)\$(@B).obj $(DEFSVXD)
+CFLAGSVXD_OPT_NV20 = /c /Zp1 /W3 /WX /Gs /G5 /Zl /Zi /O1 /nologo /FAcs /Fa$(LSTDIR)\$(@B).asm $(CVXDINCS) /Fo$(OBJDIR_NV20)\$(@B).obj $(DEFSVXD)
+!ENDIF
+
+LINKCPPDBG = /PDB:none /DEBUG /DEBUGTYPE:cv
+LST       = 
+!ENDIF
+
+RFLAGS32  = /v /r /I$(INC32DIR) /I$(INCVERDIR) /I$(INCNV) /Fo$(OBJDIR)\$(@B).res
+RFLAGS16  = /r /bt=windows /i=$(INC16DIR) /i=$(INCNV) /i=$(INCVERDIR) /fo=$(OBJDIR)\$(@B).res
+RFLAGS95  = -r -i$(INC16DIR) -i$(INCNV) -i$(INCVERDIR)
+
+ASMVXD    = $(OLDTOOLDIR)\ml
+ASM       = $(OLDTOOLDIR)\ml
+
+CCVXD     = $(TOOLDIR)\cl
+CC32      = $(TOOLDIR)\cl
+CC16      = $(OLDTOOLDIR)\CC16\cl
+
+RC32      = $(TOOLDIR)\rc
+RC95      = $(OLDTOOLDIR)\rc95\rc95.exe
+
+LIB32     = $(TOOLDIR)\lib
+LIB       = $(TOOLDIR)\lib
+
+!IFDEF NV3
+LINKVXD   = $(TOOLDIR)\link
+!ELSE
+# Post Service Pack 3 linker in msvc5.0 does not produce debug symbols. So I am explicitly
+# using linker version 5.00.7022.
+LINKVXD   = $(TOOLDIR)\link7022
+!ENDIF
+
+LINK16    = $(OLDTOOLDIR)\CC16\link
+LINK32   = $(TOOLDIR)\link
+
+NMSYM     = $(OLDTOOLDIR)\nmsym
+CVPACK    = $(TOOLDIR)\cvpack
+DBG2MAP   = $(TOOLDIR)\dbg2map		
+ADDRC     = $(OLDTOOLDIR)\adrc2vxd
+
+# we would like to be able to add obj files to the library, but this does not do it!
+ADD_TO_NVRM_LIB = $(LIB32) /OUT:nvrm.lib $(OBJDIR)\$(@B).obj
+
+DLL16OBJS = $(OBJDIR)\nvsys.obj + $(OBJDIR)\nvarch16.obj + $(OBJDIR)\nvrm16.obj + $(OBJDIR)\thunk16.obj 
+
+VDDCOBJS = $(OBJDIR)\vddVP.obj $(OBJDIR)\transfer.obj $(OBJDIR)\timing.obj $(OBJDIR)\colorctl.obj \
+$(OBJDIR)\kmvtdisp.obj $(OBJDIR)\vddi2c.obj $(OBJDIR)\nvi2c.obj $(OBJDIR)\nvpeos.obj $(OBJDIR)\nvpecore.obj $(OBJDIR)\nvpekmvt.obj
+
+#
+# Load chip specific dependencies
+#
+!IFDEF NV3
+!INCLUDE "nv3.mak"
+!ELSEIFDEF NVAFX
+!INCLUDE "nva.mak"
+!ELSE
+!INCLUDE "nvx.mak"
+!ENDIF
+
+RMAPIOBJ   = $(OBJDIR)\nvrmapi.obj $(OBJDIR)\nvRmApi9x.obj $(OBJDIR)\nvRmApiNt.obj
+RMR0APIOBJ = $(OBJDIR)\nvrmr0api.obj $(OBJDIR)\miscR0.obj
+
+VDDINCS = \
+        $(INCVXDDIR)\vmm.inc \
+        $(INCVXDDIR)\debug.inc \
+        $(INCVXDDIR)\minivdd.inc \
+        $(INCVXDDIR)\v86mmgr.inc \
+        $(INCNV)\vnvrmd.inc \
+        $(INCNV)\nvdef.inc \
+        $(INCNV)\vbe30.inc \
+        $(INCVDDDIR)\nvidia.inc \
+        $(INCNV)\nv_ref.inc \
+        $(INCNV)\nv_mac.inc \
+        $(INCNV)\nv_sim.inc \
+	$(INCVPE)\surfaces.inc
+
+OSINCS  = $(INCVXDDIR)\vmm.h    $(INCNV)\vnvrmd.h \
+          $(INCVXDDIR)\vpicd.h  $(INCNV)\oswin.h 
+
+#
+# VDD files.
+#
+
+$(OBJDIR)\nvpekmvt.obj : $(VDDDIR)\common\nvpekmvt.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR7)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR7) /I$(DRVCMNDIR)\VPE\inc /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\nvpeos.obj : $(VDDDIR)\common\nvpeos.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR7)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR7) /I$(DRVCMNDIR)\VPE\inc /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\nvpecore.obj : $(DRVCMNDIR)\VPE\src\core\nvpecore.c $(OSINCS) $(INCDXDDIR7)
+        $(CCVXD) $(CFLAGSVXD) /D$(CHIP) /DDRIVER=1 /DVXD=1 /I$(INC32DIR) /I$(INCDXDDIR7) /I$(DRVCMNDIR)\VPE\inc /I$(INCVDDDIR)\common $(DEFSVDD) $(DRVCMNDIR)\VPE\src\core\$(@B).c
+        $(LST)
+
+#$(OBJDIR)\vpvdd.obj : $(VDDDIR)\common\vpvdd.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+#        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR) /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+#        $(LST)
+
+$(OBJDIR)\vddVPP.obj : $(VDDDIR)\common\vddVPP.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR) /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\vddVP.obj : $(VDDDIR)\common\vddVP.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR)  /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\vddOV.obj : $(VDDDIR)\common\vddOV.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR)  /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\colorctl.obj : $(VDDDIR)\common\colorctl.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR)  /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\transfer.obj : $(VDDDIR)\common\transfer.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR)  /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\timing.obj : $(VDDDIR)\common\timing.c $(VDDINCS) $(RMINCS) $(OSINCS) $(INCDXDDIR)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(INCDXDDIR)  /I$(INCVPE) /I$(INCDDDIR) /I$(INCMOCOMPDIR) $(VDDDIR)\common\$(@B).c
+        $(LST)
+
+$(OBJDIR)\kmvtdisp.obj : $(VDDDIR)\common\kmvtdisp.asm $(VDDINCS)
+        set ML= $(AFLAGSVDD) /Fo$(OBJDIR)\$(@B).obj /Fl$(LSTDIR)\$(@B).lst
+        $(ASMVXD) $(VDDDIR)\common\$(@B).asm
+
+$(OBJDIR)\vddi2c.obj : $(VDDDIR)\$(CHIP)\vddi2c.c $(VDDINCS) $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGSVXD) /I$(INC32DIR) /I$(DRVCMNDIR)\win9x\inc $(VDDDIR)\$(CHIP)\$(@B).c
+        $(LST)
+
+$(OBJDIR)\nvi2c.obj : $(DRVCMNDIR)\win9x\src\nvi2c.c $(VDDINCS) $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGSVXD) /D$(CHIP) /DDRIVER=1 /DVXD=1 /I$(INC32DIR) /I$(DRVCMNDIR)\win9x\inc $(DRVCMNDIR)\win9x\src\$(@B).c
+        $(LST)
+
+#
+# NV ARCHITECTURE files.
+#
+$(OBJDIR)\nvapi.obj : $(NVARCSRCDIR)\nvapi.c $(RM_INCS)
+        $(CCVXD) $(CFLAGSVXD_OPT) $(NVARCSRCDIR)\$(@B).c
+        $(LST)
+
+$(OBJDIR)\client.obj : $(NVARCSRCDIR)\client.c $(RM_INCS)
+        $(CCVXD) $(CFLAGSVXD_OPT) $(NVARCSRCDIR)\$(@B).c
+        $(LST)
+
+$(OBJDIR)\cpuid.obj : $(NVARCSRCDIR)\cpuid.c $(RM_INCS)
+        $(CCVXD) $(CFLAGSVXD_OPT) $(NVARCSRCDIR)\$(@B).c
+        $(LST)
+
+$(OBJDIR)\nvagp.obj : $(NVARCSRCDIR)\nvagp.c $(RM_INCS)
+        $(CCVXD) $(CFLAGSVXD_OPT) $(NVARCSRCDIR)\$(@B).c
+        $(LST)
+
+$(OBJDIR)\nvauapi.obj : $(NVARCSRCDIR)\nvauapi.c $(RM_INCS)
+        $(CCVXD) $(CFLAGSVXD_OPT) $(NVARCSRCDIR)\$(@B).c
+        $(LST)
+
+#
+# Link dependencies.
+#
+
+#############################################################################
+#                                                                           #
+#                                RMAPI.LIB files.                           #
+#                                                                           #
+#############################################################################
+
+
+$(OBJDIR)\nvrmapi.obj : $(RMAPIDIR)\nvrmapi.c $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGS32) /I$(INC32DIR) /I$(NVARCINCDIR) /I$(INCDDDIR) /I$(INCVERDIR) /I$(INCMOCOMPDIR) /c /Fo$(OBJDIR)\nvrmapi.obj $(RMAPIDIR)\$(@B).c
+        $(LST)
+
+$(OBJDIR)\nvRmApi9x.obj : $(RMAPIDIR)\nvRmApi9x.c $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGS32) /I$(INC32DIR) /I$(NVARCINCDIR) /I$(INCDDDIR) /I$(INCVERDIR) /I$(INCMOCOMPDIR) /c /Fo$(OBJDIR)\nvRmApi9x.obj $(RMAPIDIR)\$(@B).c
+        $(LST)
+        
+$(OBJDIR)\nvRmApiNt.obj : $(RMAPIDIR)\nvRmApiNt.c $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGS32_NT) /I$(INC32DIR) /I$(NVARCINCDIR) /I$(INCDDDIR) /I$(INCVERDIR) /I$(INCMOCOMPDIR) /c /Fo$(OBJDIR)\nvRmApiNt.obj $(RMAPIDIR)\$(@B).c
+        $(LST)
+        
+$(OBJDIR)\nvrmr0api.obj : $(RMAPIDIR)\nvrmr0api.c $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGS32) /I$(INC32DIR) /I$(NVARCINCDIR) /I$(INCDDDIR) /I$(INCVERDIR) /I$(INCMOCOMPDIR) /c /Fo$(OBJDIR)\nvrmr0api.obj $(RMAPIDIR)\$(@B).c
+        $(LST)
+        
+$(OBJDIR)\miscR0.obj : $(RMAPIDIR)\miscR0.c $(RMINCS) $(OSINCS)
+        $(CCVXD) $(CFLAGS32) /I$(INC32DIR) /I$(NVARCINCDIR) /I$(INCDDDIR) /I$(INCMOCOMPDIR) /c /Fo$(OBJDIR)\miscR0.obj $(RMAPIDIR)\$(@B).c
+        $(LST)
+        
+$(BINDIR)\nvrmapi.lib : $(RMAPIOBJ)
+        $(LIB32) /SUBSYSTEM:WINDOWS /OUT:$(BINDIR)\nvrmapi.lib $(RMAPIOBJ)
+
+$(BINDIR)\nvrmr0api.lib : $(RMR0APIOBJ)
+        $(LIB32) /SUBSYSTEM:WINDOWS /OUT:$(BINDIR)\nvrmr0api.lib $(RMR0APIOBJ)
+
+#############################################################################
+#                                                                           #
+#                                DLL16 files.                               #
+#                                                                           #
+#############################################################################
+
+#
+# 16 bit DLL system API for Resource Manager.
+#
+
+$(OBJDIR)\thunk.asm : $(DLL32DIR)\thunk.thk
+        $(OLDTOOLDIR)\cc16\thunk.exe -t THK  -o $(OBJDIR)\thunk.asm $(DLL32DIR)\thunk.thk
+
+!IFDEF NV3
+$(OBJDIR)\nvarch16.obj : $(DLL16DIR)\$(CHIP)\nvarch16.c $(NVSDKDIR)\inc\nvcm.h $(INCNV)\nvrmwin.h $(INCDIR)\nvrm.h
+        $(CC16) $(CFLAGS16) $(DLL16DIR)\$(CHIP)\$(@B).c
+
+$(OBJDIR)\nvsys.obj : $(DLL16DIR)\$(CHIP)\nvsys.c $(INCNV)\nvsys.h $(NVSDKDIR)\inc\nvcm.h $(INCNV)\nvrmwin.h $(INCDIR)\nvrm.h 
+        $(CC16) $(CFLAGS16) $(DLL16DIR)\$(CHIP)\$(@B).c
+!ELSE
+$(OBJDIR)\nvarch16.obj : $(DLL16DIR)\nvarch16.c $(NVSDKDIR)\inc\nvcm.h $(INCNV)\nvrmwin.h $(INCDIR)\nvrm.h
+        $(CC16) $(CFLAGS16) $(DLL16DIR)\$(@B).c
+
+$(OBJDIR)\nvsys.obj : $(DLL16DIR)\nvsys.c $(INCNV)\nvsys.h $(NVSDKDIR)\inc\nvcm.h $(INCNV)\nvrmwin.h $(INCDIR)\nvrm.h 
+        $(CC16) $(CFLAGS16) $(DLL16DIR)\$(@B).c
+!ENDIF
+
+$(OBJDIR)\nvrm16.obj : $(DLL16DIR)\nvrm16.asm
+        set ML= $(AFLAGS16) $(DEFSDLL) /Fo$(OBJDIR)\$(@B).obj /Fl$(DBGDIR)\nvrm16.lst
+        $(ASM) $(DLL16DIR)\$(@B).asm
+
+$(OBJDIR)\thunk16.obj : $(OBJDIR)\thunk.asm
+        set ML= /DIS_16 /c /W3 /nologo /Fo$(OBJDIR)\$(@B).obj /Fl$(DBGDIR)\thunk16.lst
+        $(ASM) $(OBJDIR)\thunk.asm
+
+$(OBJDIR)\nvrm16.res:  $(DLL16DIR)\nvrm16.rc
+        $(RC95) $(RFLAGS95) -fo$(OBJDIR)\nvrm16.res $(DLL16DIR)\nvrm16.rc
+
+
+#############################################################################
+#                                                                           #
+#                                DLL32 files.                               #
+#                                                                           #
+#############################################################################
+
+#
+# 32 bit DLL client API to Resource Manager.
+#
+
+!IFDEF NV3
+$(OBJDIR)\nvapi32.obj : $(DLL32DIR)\$(CHIP)\nvapi32.c $(INCNV)\nvsys.h $(NVSDKDIR)\inc\nvos.h 
+        $(CC32) $(CFLAGS32) $(DLL32DIR)\$(CHIP)\$(@B).c
+
+$(OBJDIR)\nvarch32.obj : $(DLL32DIR)\$(CHIP)\nvarch32.c $(INCNV)\nvsys.h 
+        $(CC32) $(CFLAGS32) $(DLL32DIR)\$(CHIP)\$(@B).c
+!ELSE
+$(OBJDIR)\nvapi32.obj : $(DLL32DIR)\nvapi32.c $(INCNV)\nvsys.h $(NVSDKDIR)\inc\nvos.h 
+        $(CC32) $(CFLAGS32) $(DLL32DIR)\$(@B).c
+
+$(OBJDIR)\nvarch32.obj : $(DLL32DIR)\nvarch32.c $(INCNV)\nvsys.h 
+        $(CC32) $(CFLAGS32) $(DLL32DIR)\$(@B).c
+!ENDIF
+
+$(OBJDIR)\thunk32.obj : $(OBJDIR)\thunk.asm
+        set ML= /DIS_32 /c /W3 /nologo /Fo$(OBJDIR)\$(@B).obj /Fl$(DBGDIR)\thunk32.lst
+        $(ASM) $(OBJDIR)\thunk.asm
+
+$(OBJDIR)\nvrm32.res:  $(DLL32DIR)\nvrm32.rc
+        $(RC32) $(RFLAGS32) $(DLL32DIR)\nvrm32.rc

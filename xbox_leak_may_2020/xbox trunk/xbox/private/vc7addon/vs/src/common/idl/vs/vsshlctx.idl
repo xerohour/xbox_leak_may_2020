@@ -1,0 +1,69 @@
+import "oleidl.idl";
+import "servprov.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "context.idl";
+
+
+[
+uuid(5e819c22-a727-11d2-aa82-00c04f990343),
+version(1.0)
+]
+interface IVsShellContext : IUnknown
+{
+  // Get the top level context object
+  //
+  HRESULT GetTopContext(
+              [out] IVsUserContext ** ppc);
+
+  // makes a new context (wraps the context monitor)
+  //
+  HRESULT CreateNewContext(
+              [out] IVsUserContext ** ppc);
+
+  // Get the monitor object (not shell specific)
+  // equivalent to QueryService(SID_SVsMonitorUserContext)
+  //
+  HRESULT GetContextMonitor(
+              [out] IVsMonitorUserContext ** pmuc);
+
+  // Get the context bag associated with a command ui context
+  //
+  HRESULT GetCmdUIContext(
+              [in] DWORD_PTR dwCookie,
+              [out] IVsUserContext ** ppc);
+
+  // Set the context bag associated with a command ui context
+  // This context will be included when the specified context
+  // is active in the selection context.
+  //
+  HRESULT SetCmdUIContext(
+              [in] DWORD_PTR dwCookie,
+              [in] IVsUserContext * pc);
+
+  // Add an index file containing attribute and keyword information
+  // This is an XML file (or possible other formats, such as a CHI
+  // or COL file, could also be supported)
+  //
+  HRESULT AddInformationIndex(
+              [in] LPCOLESTR pszPath);
+
+  // Remove the specified path
+  //
+  HRESULT RemoveInformationIndex(
+              [in] LPCOLESTR pszPath);
+
+  // Helper to perform F1 help lookups, for example, in the editor
+  // or find combo.
+  //
+  HRESULT F1Lookup(
+              [in] LPCOLESTR pszKeyword);
+
+  HRESULT QueryStatusF1WindowLookup(
+              [out] BOOL *pfIsEnabled,
+              [out] BSTR *pbstrWindowName);
+
+  HRESULT F1WindowLookup();
+}
+
+cpp_quote("#define SID_SVsShellContext IID_IVsShellContext")

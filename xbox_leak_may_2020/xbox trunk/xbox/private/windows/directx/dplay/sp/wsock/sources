@@ -1,0 +1,38 @@
+!include ..\..\sources.inc
+
+TARGETNAME=dpnwsock
+TARGETPATH=obj
+TARGETTYPE=LIBRARY
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=wsockspi.h
+PRECOMPILED_PCH=wsockspi.pch
+PRECOMPILED_OBJ=wsockspi.obj
+
+!if $(FREEBUILD)
+C_DEFINES=$(C_DEFINES) -DASSUME_VALID_PARAMETERS
+!else
+C_DEFINES=$(C_DEFINES) -DDEBUG
+MSC_OPTIMIZATION=$(MSC_OPTIMIZATION) /Od
+!endif
+
+SOURCES= AdapterEntry.cpp \
+         classfacs.cpp \
+         CMDData.cpp \
+	 DebugUtils.cpp \
+	 Endpoint.cpp \
+	 HandleTables.cpp \
+	 IOData.cpp \
+	 IPAddress.cpp \
+	 IPEndpt.cpp \
+	 JobQueue.cpp \
+	 Locals.cpp \
+         Poolss.cpp \
+	 SendQueue.cpp \
+	 Socketport.cpp \
+	 SPAddress.cpp \
+ 	 SPData.cpp \
+	 ThreadPool.cpp \
+         unk.cpp \
+	 Utils.cpp \
+	 WSockSP.cpp

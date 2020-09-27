@@ -1,0 +1,28 @@
+TARGETNAME=mpatches
+TARGETPATH=..\..\..\bin
+TARGETTYPE=PROGRAM
+
+UMTYPE=console
+
+SOURCES = \
+        mpatches.c \
+        redblack.c \
+        mpatches.rc
+
+INCLUDES=..\..
+
+USE_CRTDLL=1
+
+TARGETLIBS = \
+    ..\..\..\bin\*\mspatchl.lib \
+    $(WSDK_LIB_PATH)\user32.lib
+
+# C_DEFINES=$(C_DEFINES) /DTESTCODE=1
+
+# C_DEFINES=$(C_DEFINES) -DIMPORTING_PATCHAPI_DLL=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) /section:.shared,rws
+
+MSC_WARNING_LEVEL=/W4
+
+NTTARGETFILES=COPYTOBIN

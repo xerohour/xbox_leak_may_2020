@@ -1,0 +1,91 @@
+// ssevent.idl : IDL source for ssevent.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ssevent.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+	[
+		object,
+		uuid(F03E09B3-CCAC-11D0-BAF6-00C04FD7082F),
+		dual,
+		helpstring("ISiteServerEvent Interface"),
+		pointer_default(unique)
+	]
+	interface ISiteServerEvent : IDispatch
+	{
+		[helpstring("Reads a property value by name")]
+		HRESULT Read([in, string] BSTR bstrPropertyName, 
+					[out, retval] VARIANT * pvPropertyVal);
+
+		[helpstring("Adds a property value by name")] 
+		HRESULT Write([in, string] BSTR bstrPropertyName, 
+					[in] VARIANT * pvPropertyVal);
+
+		[propget, helpstring("The number of properties contained in this event")] 
+		HRESULT NumProperties([out, retval] VARIANT *pVal);
+
+		[propget, helpstring("Gets a collection of this event's property names")] 
+		HRESULT PropertyNames([out, retval] VARIANT* pVal);
+	};
+	[
+		object,
+		uuid(73CF5FFE-129B-11D1-8C86-00C04FC2D3B9),
+//		dual,
+//		odl,
+		helpstring("ISiteServerEventProperties Interface"),
+//		pointer_default(unique)
+	]
+	interface ISiteServerEventProperties : IDispatch
+	{
+		[propget, helpstring("Returns number of items in collection.")]
+		HRESULT Count([out, retval] long* retval);
+
+		[propget, id(DISPID_VALUE), helpstring("Given an index, returns an item in the collection.")]
+		HRESULT Item([in] long Index, [out, retval] VARIANT* retval);
+
+		[id(DISPID_NEWENUM),
+			helpstring("returns an enumerator for the collection.")]	// Must be propget. 
+		HRESULT _NewEnum([out, retval] IEnumVARIANT** retval);	
+	};
+[
+	uuid(F03E09A6-CCAC-11D0-BAF6-00C04FD7082F),
+	version(1.0),
+	helpstring("Site Server 3.0 Server Event Type Library")
+]
+library SSEVENTLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(F03E09B4-CCAC-11D0-BAF6-00C04FD7082F),
+		helpstring("SiteServerEvent Class")
+	]
+	coclass SiteServerEvent
+	{
+		[default] interface ISiteServerEvent;
+	};
+
+
+	[
+		uuid(548D442C-101E-11D1-8C85-00C04FC2D3B9),
+		helpstring("SiteServerEnumEventProperties Class")
+	]
+	coclass SiteServerEnumEventProperties
+	{
+		[default] interface IEnumVARIANT;
+	};
+
+	[
+		uuid(73CF5FFF-129B-11D1-8C86-00C04FC2D3B9),
+		helpstring("SiteServerEventProperties Class")
+	]
+	coclass SiteServerEventProperties
+	{
+		[default] interface ISiteServerEventProperties;
+	};
+
+};

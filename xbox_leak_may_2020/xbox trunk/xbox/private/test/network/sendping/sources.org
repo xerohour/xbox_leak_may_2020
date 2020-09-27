@@ -1,0 +1,73 @@
+
+
+MAJORCOMP=xboxtest
+MINORCOMP=iptest
+
+TARGETNAME=xautosrv
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=xboxdll
+DLLDEF=xautosrv.def
+
+C_DEFINES=$(C_DEFINES) -UUNICODE
+
+DLLENTRY=DllMain
+
+
+SOURCES=\
+        IPHlpAPILib.cpp \
+        XAutoSrv.c \
+        XAutoSrv.rc 
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         ..\inc          
+
+
+TARGETLIBS=$(SDK_LIB_PATH)\xapi.lib \
+           $(SDK_LIB_PATH)\ntoskrnl.lib \
+           $(SDK_LIB_PATH)\msvcrt.lib \
+           $(SDK_LIB_PATH)\hal.lib \
+           $(BASEDIR)\private\test\lib\*\xlog.lib
+
+!IF 0
+#SOURCES = \
+#        IPHlpAPILib.cpp \
+#        XAutoSrv.c \
+#        XAutoSrv.rc 
+#        stdafx.cpp \
+#        SCB.cpp \
+#        RegLib.cpp \
+#        Service.cpp
+!ENDIF
+
+
+
+
+
+
+!IF 0
+
+TARGETNAME=AutoSrv
+TARGETPATH=..\bin
+TARGETTYPE=PROGRAM
+
+SOURCES = \
+        IPHlpAPILib.cpp \
+        AutoSrv.cpp \
+        SCB.cpp \
+        RegLib.cpp \
+        Service.cpp
+        
+INCLUDES= \
+        $(SDK_INC_PATH); \
+        ..\inc 
+
+UMLIBS= \
+        $(SDK_LIB_PATH)\iphlpapi.lib \
+        $(SDK_LIB_PATH)\ws2_32.lib \
+        $(SDK_LIB_PATH)\advapi32.lib         
+        
+UMTYPE=console
+                              
+!ENDIF

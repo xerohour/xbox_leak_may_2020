@@ -1,0 +1,29 @@
+TARGETNAME =        ShadowBuffer
+TARGETPATH =        obj
+TARGETTYPE =        PROGRAM
+PROJNAME =          ShadowBuffer
+
+UMTYPE =            xboxapp
+TITLEID = 	    0xffff1111
+
+NTTARGETFILE0 = $(O)\ShadowBuffer.dsp $(O)\Font.xpr $(O)\Gamepad.xpr $(O)\resource.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000 /TITLEIMAGE:titleimage.xbx
+
+SYNCHRONIZE_DRAIN = 1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /FAcs
+
+C_DEFINES =         $(C_DEFINES) -DKERNEL_MODE
+
+INCLUDES =          $(INCLUDES);  ..\..\common\include;
+
+LINKLIBS =          $(XDK_LIB_PATH)\d3d8$(D).lib \
+                    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+                    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+                    ..\..\common\src\obj\*\xbframe.lib \
+
+SOURCES =           shadowbuffer.cpp
+                    
+
+USE_LIBCMT=1

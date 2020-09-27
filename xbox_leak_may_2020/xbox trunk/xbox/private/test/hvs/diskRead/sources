@@ -1,0 +1,33 @@
+TARGETNAME=diskRead
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS= /INITFLAGS:0 /TESTID:0x48570002 /TESTNAME:"Disk Read"
+
+SOURCES=\
+    bitfont.cpp \
+    diskRead.cpp \
+    diskUtils.cpp \
+    gui.cpp \
+    utils.cpp
+
+
+INCLUDES = $(DDK_INC_PATH);                     \
+           $(SDK_INC_PATH);                     \
+           $(INCLUDES);                         \
+           $(BASEDIR)\private\ntos\inc;         \
+           $(BASEDIR)\private\ntos\xapi\inc;    \
+           $(BASEDIR)\private\inc;              \
+           $(BASEDIR)\private\inc\crypto;       \
+           $(BASEDIR)\private\test\inc
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+TARGETLIBS=\
+    $(TESTLIBS)\hvsUtil.lib             \
+    $(SDK_LIB_PATH)\xboxkrnl.lib        \
+    $(SDK_LIB_PATH)\xnet$(D).lib \
+    $(SDK_LIB_PATH)\d3d8$(D).lib \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib
+

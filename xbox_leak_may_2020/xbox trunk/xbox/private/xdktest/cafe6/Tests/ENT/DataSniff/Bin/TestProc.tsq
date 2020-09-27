@@ -1,0 +1,13 @@
+CREATE PROCEDURE TestProc @lolimit money, @hilimit money,
+@sales int
+AS
+BEGIN
+
+print 'Least popular titles:'
+select pub_id, title_id, price, ytd_sales
+from titles
+where price >@lolimit AND price <@hilimit AND ytd_sales <= @sales OR ytd_sales = NULL
+order by pub_id, ytd_sales
+COMPUTE count(title_id) BY pub_id, ytd_sales
+
+END

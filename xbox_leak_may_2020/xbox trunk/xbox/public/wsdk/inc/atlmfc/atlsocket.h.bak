@@ -1,0 +1,1814 @@
+// This is a part of the Active Template Library.
+// Copyright (C) 1996-1999 Microsoft Corporation
+// All rights reserved.
+//
+// This source code is only intended as a supplement to the
+// Active Template Library Reference and related
+// electronic documentation provided with the library.
+// See these sources for detailed information regarding the
+// Active Template Library product.
+
+#ifndef _WINSOCKAPI_
+	#include <winsock2.h>
+#endif
+
+
+#include <atlutil.h>
+#include <atlcoll.h>
+#include <atlfile.h>
+
+
+#define ULONG_PTR unsigned long
+#define SECURITY_WIN32
+#include <security.h>
+#include <atlenc.h>
+
+#ifndef _ATL_NO_DEFAULT_LIBS
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "SECUR32.LIB")
+#endif  // !_ATL_NO_DEFAULT_LIBS
+
+#pragma once
+
+namespace ATL {
+
+enum status_headerparse{
+				ATL_HEADER_PARSE_COMPLETE=0,
+				ATL_HEADER_PARSE_HEADERNOTCOMPLETE,
+				ATL_HEADER_PARSE_HEADERERROR
+};
+
+
+enum status_navigate{
+				ATL_HTTP_NAVIGATE_ERROR=0,
+				ATL_HTTP_NAVIGATE_COMPLETE,
+				ATL_HTTP_NAVIGATE_NOT_COMPLETE,
+				ATL_HTTP_NAVIGATE_SOCKETREAD_ERROR,
+				ATL_HTTP_NAVIGATE_REDIRECTING,
+				ATL_HTTP_NAVIGATE_AUTHREQUIRED
+};
+
+enum readstate{rs_init=0, rs_readheader, rs_scanheader, rs_readbody, rs_complete};
+
+#define ATL_DEFAULT_DATA_TYPE "application/x-www-form-urlencoded"
+#define ATL_HEADER_END "\r\n\r\n"
+#define ATL_HEADER_END_LEN 4
+#define ATL_DW_HEADER_END 0x0a0d0a0d
+#define ATL_FIELDNAME_DELIMITER ':'
+#define ATL_MAX_FIELDNAME_LEN 1024
+#define ATL_MAX_VALUE_LEN 1024
+#define ATL_AUTH_HDR_SIZE 1024
+#define ATL_READ_BUFF_SIZE 2048
+#define ATL_INVALID_STATUS -1
+#define ATL_HTTP_HEADER " HTTP/1.1\r\n"
+#define ATL_HTTP_HEADER_PROXY " HTTP/1.1\r\n"
+#define ATL_HTTP_FOOTER \
+					"Accept: */*\r\n" \
+					"Accept-Language: en-us\r\n" \
+					"Accept-Encoding: gzip, deflate\r\n" \
+					"User-Agent: ATL/Server HTTP Client\r\n"
+
+#define ATL_IS_INVALIDCREDHANDLE(x) ((x.dwLower==0xFFFFFFFF) && (x.dwUpper==0xFFFFFFFF))					
+#define ATL_HTTP_AUTHTYPE_NTLM "NTLM"
+#define ATL_HTTP_AUTHTYPE_BASIC "BASIC"
+#define ATL_HTTP_METHOD_GET "GET"
+#define ATL_HTTP_METHOD_POST "POST"
+#define ATL_HTTP_FLAG_AUTO_REDIRECT 0x1
+
+#ifndef ATL_SOCK_TIMEOUT
+	#define ATL_SOCK_TIMEOUT 10000
+#endif
+
+// One of these objects can be created globally to turn
+// on the socket stuff at CRT startup and shut it down
+// on CRT term.
+class _AtlWSAInit
+{
+public:
+	_AtlWSAInit() throw()
+	{
+		m_dwErr = WSAEFAULT;
+	}
+
+	bool Init()
+	{
+		m_dwErr = WSAStartup(WINSOCK_VERSION, &m_stData);
+		return m_dwErr == 0;
+	}
+
+	bool IsStarted(){ return m_dwErr == 0; }
+
+	~_AtlWSAInit() throw()
+	{
+		if (!m_dwErr)
+			WSACleanup();
+	}
+
+	WSADATA  m_stData;
+	DWORD m_dwErr;
+};
+
+__declspec(selectany)_AtlWSAInit g_HttpInit;
+
+// default socket class.
+template< class TRWType,
+		 short Taf=PF_INET,
+		 short Ttype=SOCK_STREAM,
+		 short Tproto=IPPROTO_TCP
+		 >
+class CAtlSocket : public TRWType
+{
+	bool m_bConnected;
+
+public:
+	CAtlSocket() throw():
+		m_socket(INVALID_SOCKET),
+		m_dwLastError(0),
+		m_bConnected(false)
+	{
+		g_HttpInit.Init();
+	}
+	
+	~CAtlSocket() throw()
+	{
+		Close();
+	}
+
+	void Close() throw()
+	{
+		if (m_socket != INVALID_SOCKET)
+		{
+			m_bConnected = false;
+			closesocket(m_socket);
+			m_socket = INVALID_SOCKET;
+			rwtype::Term();
+		}
+	}
+
+	bool Create(WORD wFlags=0)
+	{
+		return Create(Taf, Ttype, Tproto, wFlags);
+	}
+
+	bool Create(short af, short st, short proto,
+		WORD wFlags=0) throw()
+	{
+		bool bRet = true;
+		m_socket = WSASocket(af, st, proto, NULL, 0,
+			wFlags | rwtype::m_dwCreateFlags);
+		if (m_socket == INVALID_SOCKET)
+		{
+			bRet = false;
+		}
+		else
+			bRet = rwtype::Init(m_socket, NULL);
+		return bRet;
+	}
+
+	bool Connect(LPCSTR szAddr, unsigned short nPort) throw()
+	{
+		if (m_bConnected)
+			return true;
+
+		bool bRet = true;
+		sockaddr_in sa;
+		sa.sin_family = Taf;
+		sa.sin_port = htons(nPort);
+		sa.sin_zero[0] = 0;
+		sa.sin_addr.s_addr = INADDR_NONE;
+
+		HOSTENT *ph = gethostbyname(szAddr);
+		if (ph)
+		{
+			sa.sin_addr.s_addr = *((ULONG FAR*)ph->h_addr);
+		}
+		else
+		{
+			// try for dotted IP address
+			sa.sin_addr.s_addr = inet_addr(szAddr);
+		}
+
+		if (sa.sin_addr.s_addr == INADDR_NONE)
+		{
+			m_dwLastError = WSAGetLastError();
+			bRet = false;
+		}
+		else
+		{
+			bRet = rwtype::Connect((sockaddr*)&sa);
+		}
+		if (bRet)
+			m_bConnected = true;
+		return bRet;
+	}
+
+	bool Send(BYTE *pData, DWORD *pdwLen) throw()
+	{
+		return rwtype::Write(pData, pdwLen);
+	}
+
+	bool Send(WSABUF *pData, int nCount, DWORD *pdwLen) throw()
+	{
+		return rwtype::Write(pData, nCount, pdwLen);
+	}
+
+	operator SOCKET() throw()
+	{
+		return m_socket;
+	}
+
+	bool Read(BYTE *pBuff, DWORD *pdwLen) throw()
+	{
+		return rwtype::Read(pBuff, pdwLen);
+	}
+	DWORD m_dwLastError;
+protected:
+	SOCKET m_socket;
+	typedef TRWType rwtype;
+};
+
+
+// Reader/Writer class that uses event objects to respond to
+// network events.
+class CAtlRWSyncEvt
+{
+public:
+	CAtlRWSyncEvt() throw()
+	{
+		m_dwCreateFlags = WSA_FLAG_OVERLAPPED;
+		m_hEventRead = m_hEventWrite = m_hEventConnect = NULL;
+		m_socket = INVALID_SOCKET;
+	}
+
+	~CAtlRWSyncEvt() throw()
+	{
+		Term();
+	}
+
+	void Term() throw()
+	{
+		if (m_hEventRead)
+		{
+			WSACloseEvent(m_hEventRead);
+			m_hEventRead = NULL;
+		}
+		if (m_hEventWrite)
+		{
+			WSACloseEvent(m_hEventWrite);
+			m_hEventWrite = NULL;
+		}
+		if (m_hEventConnect)
+		{
+			WSACloseEvent(m_hEventConnect);
+			m_hEventConnect = NULL;
+		}
+		m_socket = INVALID_SOCKET;
+	}
+
+	bool Write(WSABUF *pBuffers, int nCount, DWORD *pdwSize) throw()
+	{
+		// if we aren't already connected we'll wait to see if the connect
+		// event happens
+		if (WAIT_OBJECT_0 != WaitForSingleObject((HANDLE)m_hEventConnect , ATL_SOCK_TIMEOUT))
+			return false; // not connected
+
+		// make sure we aren't already writing
+		if (WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_hEventWrite, 0))
+			return false; // another write on is blocking this socket
+
+		bool bRet = true;
+		*pdwSize = 0;
+		WSAOVERLAPPED o;
+		m_csWrite.Lock();
+		o.hEvent = m_hEventWrite;
+		WSAResetEvent(o.hEvent);
+		if (WSASend(m_socket, pBuffers, nCount, pdwSize, 0, &o, 0))
+		{	
+			DWORD dwLastError = WSAGetLastError();
+			if (dwLastError != WSA_IO_PENDING)
+			{
+				SetLastError(dwLastError);
+				bRet = false;
+			}
+		}
+		
+		// wait for write to complete
+		if (WAIT_OBJECT_0 == WaitForSingleObject((HANDLE)m_hEventWrite, ATL_SOCK_TIMEOUT))
+		{
+			DWORD dwFlags = 0;
+			if (WSAGetOverlappedResult(m_socket, &o, pdwSize, FALSE, &dwFlags))
+				bRet = true;
+			else
+				bRet = false;
+		}
+		
+		m_csWrite.Unlock();
+		return bRet;
+
+	}
+	bool Write(const unsigned char *pBuffIn, DWORD *pdwSize) throw()
+	{
+		// if we aren't already connected we'll wait to see if the connect
+		// event happens
+		if (WAIT_OBJECT_0 != WaitForSingleObject((HANDLE)m_hEventConnect , ATL_SOCK_TIMEOUT))
+			return false; // not connected
+
+		// make sure we aren't already writing
+		if (WAIT_TIMEOUT == WaitForSingleObject((HANDLE)m_hEventWrite, 0))
+			return false; // another write on is blocking this socket
+
+		bool bRet = true;
+		WSABUF buff;
+		buff.buf = (char*)pBuffIn;
+		buff.len = *pdwSize;
+		*pdwSize = 0;
+		WSAOVERLAPPED o;
+		m_csWrite.Lock();
+		o.hEvent = m_hEventWrite;
+		WSAResetEvent(o.hEvent);
+		if (WSASend(m_socket, &buff, 1, pdwSize, 0, &o, 0))
+		{	
+			DWORD dwLastError = WSAGetLastError();
+			if (dwLastError != WSA_IO_PENDING)
+			{
+				SetLastError(dwLastError);
+				bRet = false;
+			}
+		}
+		
+		// wait for write to complete
+		if (WAIT_OBJECT_0 == WaitForSingleObject((HANDLE)m_hEventWrite, ATL_SOCK_TIMEOUT))
+		{
+			DWORD dwFlags = 0;
+			if (WSAGetOverlappedResult(m_socket, &o, pdwSize, FALSE, &dwFlags))
+				bRet = true;
+			else
+				bRet = false;
+		}
+		
+		m_csWrite.Unlock();
+		return bRet;
+	}
+
+	bool Read(const unsigned char *pBuff, DWORD *pdwSize) throw()
+	{
+		// if we aren't already connected we'll wait to see if the connect
+		// event happens
+		if (WAIT_OBJECT_0 != WaitForSingleObject((HANDLE)m_hEventConnect , ATL_SOCK_TIMEOUT))
+			return false; // not connected
+
+		if (WAIT_ABANDONED == WaitForSingleObject((HANDLE)m_hEventRead, 0))
+			return false; // already reading
+
+		bool bRet = true;
+		WSABUF buff;
+		buff.buf = (char*)pBuff;
+		buff.len = *pdwSize;
+		*pdwSize = 0;
+		DWORD dwFlags = 0;
+		WSAOVERLAPPED o;
+		ZeroMemory(&o, sizeof(o));
+
+		// protect against re-entrency
+		m_csRead.Lock();
+		o.hEvent = m_hEventRead;
+		WSAResetEvent(o.hEvent);
+		if (WSARecv(m_socket, &buff, 1, pdwSize, &dwFlags, &o, 0))
+		{
+			DWORD dwLastError = WSAGetLastError();
+			if (dwLastError != WSA_IO_PENDING)
+			{
+				SetLastError(dwLastError);
+				bRet = false;
+			}
+		}
+
+		// wait for the read to complete
+		if (bRet && WAIT_OBJECT_0 == WaitForSingleObject((HANDLE)o.hEvent, ATL_SOCK_TIMEOUT))
+		{
+			DWORD dwFlags = 0;
+			if (WSAGetOverlappedResult(m_socket, &o, pdwSize, FALSE, &dwFlags))
+				bRet = true;
+			else
+				bRet = false;
+
+		}
+
+		m_csRead.Unlock();
+		return bRet;
+	}
+	
+	bool Connect(SOCKADDR* psa) throw()
+	{
+		DWORD dwLastError;
+		bool bRet = true;
+		if (WSAConnect(m_socket, 
+			psa, sizeof(SOCKADDR),
+			NULL, NULL, NULL, NULL))
+		{
+			dwLastError = WSAGetLastError();
+			if (dwLastError != WSAEWOULDBLOCK)
+			{
+				SetLastError(dwLastError);
+				bRet = false;
+			}
+			else
+			{
+				dwLastError = WaitForSingleObject((HANDLE)m_hEventConnect, 10000);
+				if (dwLastError == WAIT_OBJECT_0)
+				{
+					// make sure there were no connection errors.
+					WSANETWORKEVENTS wse;
+					ZeroMemory(&wse, sizeof(wse));
+					WSAEnumNetworkEvents(m_socket, NULL, &wse);
+					if (wse.iErrorCode[FD_CONNECT_BIT]!=0)
+					{
+						SetLastError(wse.iErrorCode[FD_CONNECT_BIT]);
+						return false;
+					}
+				}
+			}
+
+		}
+		return bRet;
+	}
+
+	void SetLastError(DWORD dwErr)
+	{
+		parentType *pParent = (parentType*)this;
+		pParent->m_dwLastError = dwErr;
+	}
+
+	bool Init(SOCKET hSocket, void * /*pData=NULL*/) throw()
+	{
+		ATLASSERT(hSocket != INVALID_SOCKET);
+
+		if (hSocket == INVALID_SOCKET)
+			return false;
+		m_socket = hSocket;
+		
+		// Allocate Events. On error, any open event handles will be closed
+		// in the destructor
+		if (NULL != (m_hEventRead = WSACreateEvent()))
+			if (NULL != (m_hEventWrite = WSACreateEvent()))
+				if (NULL != (m_hEventConnect = WSACreateEvent()))
+		{
+			if (!WSASetEvent(m_hEventWrite) || !WSASetEvent(m_hEventRead))
+				return false;
+
+			if (SOCKET_ERROR != WSAEventSelect(m_socket, m_hEventRead, FD_READ))
+				if (SOCKET_ERROR != WSAEventSelect(m_socket, m_hEventWrite, FD_WRITE))
+					if (SOCKET_ERROR != WSAEventSelect(m_socket, m_hEventConnect, FD_CONNECT))
+						return true;
+		}
+		return false;
+	}
+
+	DWORD m_dwCreateFlags;
+	WSAEVENT m_hEventRead;
+	WSAEVENT m_hEventWrite;
+	WSAEVENT m_hEventConnect;
+
+	CComAutoCriticalSection m_csRead;
+	CComAutoCriticalSection m_csWrite;
+	SOCKET m_socket;
+	typedef CAtlSocket<CAtlRWSyncEvt> parentType;
+};
+
+class CAtlHttpSocket;
+
+// pure virtual class that describes all authorization objects
+class CAtlBaseAuthObject
+{
+public:
+	virtual bool Authenticate(LPCSTR szAuthTypes) = 0;
+	virtual void Init(CAtlHttpSocket *pSocket) = 0;
+};
+
+// CDefaultAuthObject only does NTLM authintication using the
+// credentials of the logged on user.
+class CDefaultAuthObject :
+	public CAtlBaseAuthObject
+{
+public:
+	CAtlHttpSocket *m_pSocket;
+	CredHandle m_hCredentials;
+	int m_nMaxTokenSize;
+	TimeStamp m_ts;
+	CDefaultAuthObject() throw(): 
+		m_pSocket(NULL),
+		m_nMaxTokenSize(0)
+	{
+		SecInvalidateHandle(&m_hCredentials)
+	}
+
+	~CDefaultAuthObject()
+	{
+		if (!ATL_IS_INVALIDCREDHANDLE(m_hCredentials))
+			FreeCredentialsHandle(&m_hCredentials);
+	}
+
+	void Init(CAtlHttpSocket *pSocket) throw()
+	{
+		m_pSocket = pSocket;
+	}
+
+	bool Authenticate(LPCSTR szAuthTypes) throw()
+	{
+		if (strstr(szAuthTypes, ATL_HTTP_AUTHTYPE_NTLM))
+		{
+			if (AcquireCredHandle())
+				return DoNTLMAuthenticate();
+		}
+		return false;
+	}
+
+	bool AcquireCredHandle()
+	{
+		PSecPkgInfo pPackageInfo = NULL;
+		SECURITY_STATUS SecurityStatus = SEC_E_OK;
+
+		// Acquire a credentials handle on the NTLM security package
+		SecurityStatus = QuerySecurityPackageInfo(ATL_HTTP_AUTHTYPE_NTLM,
+								&pPackageInfo);
+
+		if (SecurityStatus != SEC_E_OK)
+			return false;
+
+		SecurityStatus = AcquireCredentialsHandle(
+						0,
+						pPackageInfo->Name,
+						SECPKG_CRED_OUTBOUND,
+						0,
+						0,
+						0,
+						0,
+						&m_hCredentials,
+						&m_ts
+						);
+
+		m_nMaxTokenSize = pPackageInfo->cbMaxToken;
+		FreeContextBuffer(pPackageInfo);
+		return SecurityStatus == SEC_E_OK ? true : false;
+	}
+
+	// This function creates an NTML Authorization header
+	// and sends it to the HTTP server.
+	bool SendSecurityInfo(SecBuffer *pSecBuffer, LPSTR *pszBuffer);
+	bool DoNTLMAuthenticate() throw();
+};
+
+
+// CAtlLCStringAMap lower cases all the keys before they are stored and/or
+// looked up in the map. Using this map in the HTTP socket class, 
+// we won't have to worry about what format the server passes it's
+// headers in. The RFC's leave the case format of header name fields
+// as an implementation detail.
+
+typedef CAtlMap< 
+				CStringA,
+				CStringA,
+				CStringElementTraitsI<CStringA>,
+				CStringElementTraitsI<CStringA>
+			   > CAtlLCStringAMap;
+
+class CAtlHttpSocket : 
+	public CAtlSocket<CAtlRWSyncEvt>
+{
+protected:
+// class data
+	CAtlLCStringAMap m_HeaderMap; // Map of response headers
+	CAtlIsapiBuffer<> m_current; // The entire response
+	CAtlBaseAuthObject *m_pAuthObject; // Object used to do authorization
+	CUrl m_urlCurrent; // URL of current request
+
+	CStringA m_strMethod; // Current request method.
+	CStringA m_strProxy; // Path to current proxy server.
+	CStringA m_strDataType; // If this is a post, this contains the data type of the data
+
+	long m_nStatus; // Current response status (from status line)
+	short m_nProxyPort; // Port used on current proxy server
+	DWORD m_dwBodyLen; // Length of body
+	DWORD m_dwHeaderLen; // Length of current raw headers
+	DWORD m_dwHeaderStart;
+	BYTE *m_pData; // Pointer to data sent with request (warning: we don't make our own copy of the data!)
+	DWORD m_dwDataLen; // Length of current data
+	DWORD m_dwFlags; // Flags that describe the request.
+	BYTE *m_pCurrent;
+
+
+public:
+	CAtlHttpSocket()
+	{
+		InitializeObject();
+	}
+
+	// Sets this object to a known state.
+	void InitializeObject() throw()
+	{
+		Close(); // will close the socket if it's already open
+
+		// reset all data that has to do with the current request
+		m_HeaderMap.RemoveAll();
+		m_current.Empty();
+		m_pAuthObject = NULL;
+		m_urlCurrent.Clear();
+
+		m_strMethod = "";
+		m_strProxy = "";
+		m_strDataType = "";
+
+		m_nStatus = ATL_INVALID_STATUS;
+		m_nProxyPort = ATL_URL_INVALID_PORT_NUMBER;
+		m_dwBodyLen = 0;
+		m_dwHeaderLen = 0;
+		m_dwHeaderStart = 0;
+		m_pData = NULL;
+		m_dwDataLen = 0;
+		m_dwFlags = 0;
+		m_pCurrent = NULL;
+	}
+
+
+	// Use this function to retrieve an entity from a server via an HTTP
+	// request. This function will either request a connection from the
+	// server specified in the szURL parameter or request a connection from
+	// the proxy server. If a proxy server is to be used, you must call
+	// SetProxy prior to calling this function to specify the proxy server
+	// being used. Once the connection is established, an HTTP request 
+	// is built and sent to the HTTP server. An attempt to read the HTTP
+	// response is then made. If the response is successfully read, the
+	// response will be parsed and stored in this class instance. The 
+	// headers can be parsed via the LookupHeader function and the body
+	// of the respone can be retrieved using the GetBody function. You
+	// can also retrieve the contents of the entire response by calling
+	// GetResponse.
+	//
+
+	bool Navigate(LPCSTR szServer,
+		LPCSTR szPath, 
+		DWORD dwFlags=ATL_HTTP_FLAG_AUTO_REDIRECT,
+		LPCSTR szMethod=ATL_HTTP_METHOD_GET,
+		short nPort = ATL_URL_DEFAULT_HTTP_PORT,
+		BYTE *pData=NULL,
+		DWORD dwDataLen=0,
+		LPCSTR szDataType=ATL_DEFAULT_DATA_TYPE,
+		LPCSTR szExtraHeaders=NULL)
+	{
+		// Create a URL
+		CUrl url;
+		url.SetScheme(ATL_URL_SCHEME_HTTP);
+		url.SetHostName(szServer);
+		url.SetUrlPath(szPath);
+		url.SetPortNumber(nPort);
+		char szUrl[ATL_URL_MAX_URL_LENGTH];
+		DWORD dwMaxLen = ATL_URL_MAX_URL_LENGTH;
+		url.CreateUrl(szUrl, &dwMaxLen);
+
+		// Navigate
+		return Navigate(szUrl, dwFlags, szMethod, nPort, pData,
+			dwDataLen, szDataType, szExtraHeaders);
+
+	}
+
+	bool Navigate(LPCSTR szURL, DWORD dwFlags=ATL_HTTP_FLAG_AUTO_REDIRECT,
+		LPCSTR szMethod=ATL_HTTP_METHOD_GET,
+		short nPort=ATL_URL_DEFAULT_HTTP_PORT,
+		BYTE *pData=NULL, DWORD dwDataLen = 0,
+		LPCSTR szDataType=ATL_DEFAULT_DATA_TYPE,
+		LPCSTR szExtraHeaders=NULL) throw()
+	{
+		m_strMethod = szMethod;
+		m_dwFlags = dwFlags;
+
+		// set m_urlCurrent
+		if (!SetDefaultUrl(szURL, nPort))
+			return false;
+
+		// connect to the correct server
+		if (GetProxy())
+		{
+			//if we're using a proxy connect to the proxy
+			if (!Connect(m_strProxy, m_nProxyPort))
+				return false;
+		}
+		else
+			if (!Connect(m_urlCurrent.GetHostName(),
+				m_urlCurrent.GetPortNumber())) // connect to the server
+				return false;
+	
+		DWORD dwSent = 0;
+		CStringA strRequest;
+		CStringA strExtraInfo;
+		
+		BuildRequest(&strRequest, szMethod,
+						m_urlCurrent.GetHostName(), 
+						m_urlCurrent.GetUrlPath(),
+						m_urlCurrent.GetExtraInfo(),
+						pData, dwDataLen, szDataType,
+						szExtraHeaders);
+
+		dwSent = 0;
+		DWORD dwAvailable = strRequest.GetLength() + m_dwDataLen;
+		dwSent = dwAvailable;
+
+		WSABUF *pBuffers;
+		int nCount;
+		if (m_pData)
+		{
+			pBuffers = (WSABUF*)_alloca(sizeof(WSABUF)*2);
+			pBuffers[0].buf = (char*)(LPCSTR)strRequest;
+			pBuffers[0].len = strRequest.GetLength();
+			pBuffers[1].buf = (char*)m_pData;
+			pBuffers[1].len = m_dwDataLen;
+			nCount = 2;
+		}
+		else
+		{
+			pBuffers = (WSABUF*)_alloca(sizeof(WSABUF));
+			pBuffers->buf = (char*)(LPCSTR)strRequest;
+			pBuffers->len = strRequest.GetLength();
+			nCount = 1;
+		}
+		if (!Send(pBuffers, nCount, &dwSent))
+			return false;
+
+		strRequest.ReleaseBuffer();
+
+		// make sure everything was sent
+		if (dwSent != dwAvailable)
+			return false;
+
+		// Read the response
+		if (ReadHttpResponse())
+		{
+			// if navigation isn't complete, try to complete
+			// it based on the status code and flags
+			if (!ProcessStatus(dwFlags))
+			{
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	bool BuildRequest(/*out*/CStringA *pstrRequest, LPCSTR szMethod,
+		LPCSTR szServer, LPCSTR szPath,
+		LPCSTR szExtraInfo=NULL, const BYTE* pData=NULL, DWORD dwDataLen=0,
+		LPCSTR szDataType=NULL, LPCSTR szExtraHeaders=NULL) throw()
+	{
+		// build up the request
+		CStringA strRequest = szMethod;
+		strRequest += " ";
+		if (GetProxy())
+		{
+			CUrl urlRequest;
+			urlRequest.SetScheme(ATL_URL_SCHEME_HTTP);
+			urlRequest.SetHostName(szServer);
+			urlRequest.SetUrlPath(szPath);
+			urlRequest.SetPortNumber(ATL_URL_DEFAULT_HTTP_PORT);
+
+			char buffURL[ATL_URL_MAX_URL_LENGTH];
+			DWORD dwSize = ATL_URL_MAX_URL_LENGTH;
+			urlRequest.CreateUrl(buffURL, &dwSize);
+			strRequest += buffURL;
+			if (szExtraInfo)
+				strRequest += szExtraInfo;
+
+			strRequest += ATL_HTTP_HEADER_PROXY;
+			CStringA strHost;
+			strHost.Format("Host: %s\r\n", szServer);
+			strRequest += strHost;
+
+			if (dwDataLen && pData)
+			{
+				CStringA strCL;
+				strCL.Format(
+					"Content-Type: %s\r\n"
+					"Content-Length: %d\r\n",szDataType, dwDataLen);
+				strRequest += strCL;
+			}
+			strRequest += ATL_HTTP_FOOTER;
+		}
+		else
+		{
+			strRequest += szPath;
+			if (szExtraInfo)
+				strRequest += szExtraInfo;
+			strRequest += ATL_HTTP_HEADER;
+
+			if (szExtraHeaders)
+				strRequest += szExtraHeaders;
+#if 0
+			if (bCloseCon)
+				strRequest += "Connection: close\r\n";
+#endif
+
+			if (dwDataLen && pData)
+			{
+				CStringA strCL;
+				strCL.Format(
+					"Content-Type: %s\r\n"
+					"Content-Length: %d\r\n",szDataType, dwDataLen);
+				strRequest += strCL;
+			}
+
+			CStringA strHost;
+			strHost.Format("Host: %s\r\n", szServer);
+			strRequest += strHost;
+			strRequest += ATL_HTTP_FOOTER;
+		}
+		strRequest += "\r\n";
+
+		if (dwDataLen && pData)
+		{
+			// append the data to the request.
+			// CString can hold a lot of data!
+//			strRequest.Append((const char*)pData, dwDataLen);
+			m_pData = (BYTE*)pData;
+			m_dwDataLen = dwDataLen;
+			m_strDataType = szDataType;
+		}
+
+		*pstrRequest = strRequest;
+		return true;
+	}
+
+
+	bool ReadSocket()
+	{
+		bool bRet = false;
+		unsigned char read_buff[ATL_READ_BUFF_SIZE];
+		int dwSize = ATL_READ_BUFF_SIZE;
+		bRet = Read(read_buff, (DWORD*)&dwSize);
+		if (bRet && dwSize>0)
+		{
+			m_current.Append((LPCSTR)read_buff, dwSize);
+			if (!m_pCurrent)
+				m_pCurrent = (BYTE*)(LPCSTR)m_current;
+		}
+		return bRet;
+	}
+
+	// Starts searching for a complete header set at
+	// m_pCurrent. This function will only move m_pCurrent
+	// if a complete set is found. Returns the header beginning
+	// optionally.
+	unsigned char* FindHeaderEnd(unsigned char** ppBegin)
+	{
+		if (!m_pCurrent)
+			return NULL;
+
+		unsigned char *pCurr = m_pCurrent;
+		unsigned char *pBegin = m_pCurrent;
+		int nLen = m_current.GetLength();
+
+		if ((LPCSTR)pCurr >= (LPCSTR)m_current + m_current.GetLength())
+			return NULL; // no more chars in buffer
+		// look for the end of the header (the \r\n\r\n)
+		while (pCurr < (pCurr + nLen - ATL_HEADER_END_LEN - 1))
+		{
+			if (*((DWORD*)pCurr) == ATL_DW_HEADER_END)
+			{
+				// set m_pCurrent pointer to the end of the header
+				m_pCurrent = pCurr + ATL_HEADER_END_LEN;
+				if (ppBegin)
+					*ppBegin = pBegin;
+				return m_pCurrent;
+			}
+			pCurr++;
+		}
+		return NULL;
+	}
+
+	// Call this function after sending an HTTP request. The complete
+	// HTTP response will be read. This function will also parse
+	// response headers into the response header map.
+	bool ReadHttpResponse() throw()
+	{
+		// Read until we at least have the response headers
+		readstate state = rs_init;
+		status_navigate nav_status = ATL_HTTP_NAVIGATE_ERROR;
+		unsigned char *pBodyBegin = NULL;
+		unsigned char *pHeaderBegin = NULL;
+		m_current.Empty();
+		m_pCurrent = NULL;
+
+		while (state != rs_complete)
+		{
+
+			switch(state)
+			{
+			case rs_init:
+				m_HeaderMap.RemoveAll();
+				m_nStatus = ATL_INVALID_STATUS;
+				m_dwHeaderLen = 0;
+				m_dwBodyLen = 0;
+				state = rs_readheader;
+				// fall through
+
+			case rs_readheader:
+
+				// read from the socket until we have a complete set of headers.
+				pBodyBegin = FindHeaderEnd(&pHeaderBegin);
+				if (!pBodyBegin)
+				{
+					if (!ReadSocket())
+					{
+						// Either reading from the socket failed, or there
+						// was not data to read. Set the nav status to error
+						// and change the state to complete.
+						nav_status = ATL_HTTP_NAVIGATE_ERROR;
+						state = rs_complete;
+						break;
+					}
+					else
+						break; // loop back and FindHeaderEnd again.
+				}
+				// we have a complete set of headers
+				m_dwHeaderLen = pBodyBegin-pHeaderBegin;
+				m_dwHeaderStart = pHeaderBegin - (BYTE*)(LPCSTR)m_current;
+				// fall through
+				state = rs_scanheader;
+
+			case rs_scanheader:
+				// set m_nStatus and check for valid status
+				ParseStatusLine(pHeaderBegin);
+				// failed to set m_nStatus;
+				if (m_nStatus == ATL_INVALID_STATUS)
+				{
+					nav_status = ATL_HTTP_NAVIGATE_ERROR;
+					state = rs_complete;
+					break;
+				}
+
+				else if (m_nStatus == 100)
+				{
+					state = rs_init;
+					break;
+				}
+
+				// crack all the headers and put them into a header map.
+				if (ATL_HEADER_PARSE_COMPLETE != CrackResponseHeader((LPCSTR)pHeaderBegin, 
+					(LPCSTR*)&pBodyBegin))
+				{
+					// something bad happened while parsing the headers!
+					nav_status = ATL_HTTP_NAVIGATE_ERROR;
+					state = rs_complete;
+					break;
+				}
+
+				else if (m_nStatus >= 300 && m_nStatus < 400)
+				{
+					// need to redirect
+					nav_status = ATL_HTTP_NAVIGATE_REDIRECTING;
+				}
+				else if (m_nStatus >= 400 && m_nStatus < 500)
+				{
+					// authorization is required
+					nav_status = ATL_HTTP_NAVIGATE_AUTHREQUIRED;
+				}
+				else if (m_nStatus == 200)
+					nav_status = ATL_HTTP_NAVIGATE_COMPLETE;
+	
+				state = rs_readbody;
+				// fall through
+
+			case rs_readbody:
+				// headers are parsed and cracked, we're ready to read the rest
+				// of the response. 
+				nav_status = ReadBody(GetContentLength(), m_current.GetLength()-(m_dwHeaderStart+m_dwHeaderLen));
+				state = rs_complete;
+				//fall through
+
+			case rs_complete:
+				// clean up the connection if the server requested a close;
+				DisconnectIfRequired();
+
+				break;
+			}
+		}
+		return true;
+	}
+
+	// Checks to see if the server has closed the connection.
+	// If it has, we create a new socket and reconnect it to
+	// the current server. This also clears the contents of the
+	// current response buffer.
+	void ResetConnection() throw()
+	{
+		ReconnectIfRequired();
+		m_HeaderMap.RemoveAll();
+		m_current.Empty();
+		m_nStatus = ATL_INVALID_STATUS;
+	}
+
+	// Takes action based on the flags passed and the current
+	// status for this object.
+	virtual bool ProcessStatus(DWORD dwFlags, bool bNoAuth = false) throw()
+	{
+		switch(m_nStatus)
+		{
+		case 200: // In all these cases there is no further action
+		case 201: // to take. Any additional informaion is returned
+		case 202: // in the entity body.
+		case 203:
+		case 204:
+		case 205:
+		case 206:
+		case 304:
+		case 305:
+			return true;
+			break;
+		case 301:
+		case 302:
+		case 303:
+			if (dwFlags & ATL_HTTP_FLAG_AUTO_REDIRECT)
+				return ProcessObjectMoved();
+			break;
+		case 401:
+			if (GetAuthObj() && !bNoAuth)
+				return ProcessAuthRequired();
+			break;
+
+		}
+		return false;
+	}
+
+	// Looks up the value of a response header in the header map. Call with
+	// NULL szBuffer to have length of the required buffer placed in 
+	// pdwLen on output.
+
+	// szName is the name of the header to look up.
+	// szBuffer is the buffer that will contain the looked up string.
+	// pdwLen contains the length of szBuffer on input and the length
+	// of the string including NULL terminator on output.
+	bool GetHeaderValue(LPCSTR szName, LPSTR szBuffer, int *pdwLen) const throw()
+	{
+		CStringA strValue;
+		bool bRet = m_HeaderMap.Lookup(szName, strValue);
+		int nLen = strValue.GetLength();
+		if (!bRet || !pdwLen)
+			return false;
+
+		if (*pdwLen < nLen+1 || !szBuffer)
+		{
+			*pdwLen = nLen+1;
+			return szBuffer ? false : true;
+		}
+
+		strncpy(szBuffer, (LPCSTR)strValue, nLen+1);
+		*pdwLen = nLen+1;
+
+		return true;
+	}
+
+	// Sets the current authorization object for this socket.
+	void SetAuthObj(const CAtlBaseAuthObject *pObject) throw()
+	{
+		if (!pObject)
+			m_pAuthObject = NULL;
+		else
+		{
+			m_pAuthObject = (CAtlBaseAuthObject*)pObject;
+			m_pAuthObject->Init(this);
+		}
+	}
+
+	// Retrieves a pointer to the current authorization object
+	// for this socket.
+	const CAtlBaseAuthObject* GetAuthObj() const throw()
+	{
+		return m_pAuthObject;
+	}
+
+	// Sets the current proxy server and port
+	void SetProxy(LPCSTR szProxy, short nProxyPort) throw()
+	{
+		m_strProxy = szProxy;
+		m_nProxyPort = nProxyPort;
+	}
+
+	// retrieves the current proxy
+	LPCSTR GetProxy() const throw()
+	{
+		if (m_strProxy.GetLength())
+			return (LPCSTR)m_strProxy;
+		return NULL;
+	}
+
+	// Gets the contents of the entire response buffer.
+	LPCSTR GetResponse() throw()
+	{
+		return (LPCSTR)m_current;
+	}
+	
+	// Gets the length of the body of the current response
+	DWORD GetBodyLength() const throw()
+	{
+		return m_dwBodyLen;
+	}
+
+	// Gets the contents of the body of the current response.
+	const BYTE* GetBody() throw()
+	{
+		return (BYTE*)((LPCSTR)m_current+m_dwHeaderStart+m_dwHeaderLen);
+	}
+
+	DWORD GetHeaderLength()
+	{
+		return m_dwHeaderLen-2; // m_dwHeaderLen includes the final \r\n
+	}
+
+	// buffer must include space for null terminator.
+	// on input, pdwLen specifies the size of szBuffer,
+	// on output, pdwLen holds the number of bytes copied
+	// to szBuffer, or the required size of szBuffer if 
+	// szBuffer wasn't big enough
+	bool GetRawRequestHeaders(LPSTR szBuffer, int *pdwLen)
+	{
+		if (!pdwLen)
+			return false;
+
+		int header_len = GetHeaderLength();
+		if (!szBuffer || *pdwLen < header_len+1)
+		{
+			*pdwLen = header_len+1;
+			return false;
+		}
+
+		memcpy(szBuffer, (BYTE*)(LPCSTR)m_current, header_len);
+		szBuffer[header_len]='\0';
+
+		*pdwLen = header_len+1;
+		return true;
+	}
+
+	// Gets the current URL object.
+	LPCURL GetCurrentUrl() const throw()
+	{
+		return (LPCURL)&m_urlCurrent;
+	}
+
+	bool SetDefaultUrl(LPCSTR szUrl, 
+		short nPortNumber=ATL_URL_DEFAULT_HTTP_PORT) throw()
+	{
+		return _SetDefaultUrl(szUrl,nPortNumber);
+	}
+
+	bool SetDefaultUrl(LPCURL pUrl, 
+		short nPortNumber=ATL_URL_DEFAULT_HTTP_PORT) throw()
+	{
+		m_urlCurrent = *pUrl;
+		return _SetDefaultUrl(NULL, nPortNumber);
+	}
+
+	void SetDefaultMethod(LPCSTR szMethod) throw()
+	{
+		m_strMethod = szMethod;
+	}
+
+	LPCSTR GetDefaultMethod() const throw()
+	{
+		return m_strMethod;
+	}
+
+	void SetFlags(DWORD dwFlags) throw()
+	{
+		m_dwFlags = dwFlags;
+	}
+
+	DWORD GetFlags() const throw()
+	{
+		return m_dwFlags;
+	}
+
+// Implementation
+private:
+	bool DisconnectIfRequired()
+	{
+		CStringA strValue;
+		if (m_HeaderMap.Lookup("Connection", strValue))
+		{
+			if (!strValue.CompareNoCase("close"))
+			{
+				Close();
+			}
+		}
+		return true;
+	}
+public:
+	long GetContentLength() throw()
+	{
+		CStringA strValue;
+		if (m_HeaderMap.Lookup("Content-Length", strValue))
+		{
+			char *pStop = NULL;
+			return strtol(strValue, &pStop, 10);
+		}
+		else
+			return -1;
+	}
+
+	LPCSTR NextLine(LPCSTR pCurr) throw()
+	{
+		while ( *pCurr && *pCurr != '\r' && *pCurr+1 != '\n')
+			pCurr++;
+
+		if (!memcmp(pCurr, ATL_HEADER_END, 4))
+			return NULL;
+
+		return pCurr+2;
+	}
+
+	bool IsMsgBodyChunked() throw()
+	{
+		CStringA strValue;
+		return (
+			m_HeaderMap.Lookup((LPCSTR)"Transfer-Encoding", strValue) &&
+			!strValue.CompareNoCase("chunked")) ? true : false;
+
+	}
+
+	// finds the end of an individual header field pointed to by
+	// pszStart. Header fields can be multi-line with multi-line 
+	// header fields being a line that starts with some kind of 
+	// white space.
+	LPCSTR FindEndOfHeader(LPCSTR pszStart) throw()
+	{
+		// move through all the lines until we come to one
+		// that doesn't start with white space
+		LPCSTR pLineStart = pszStart;
+		LPCSTR pHeaderEnd = NULL;
+
+		do 
+		{
+			pLineStart = NextLine(pLineStart);
+		}while (pLineStart && isspace(*pLineStart));
+
+		//if we reach the end of all headers then pLineStart 
+		// will be NULL
+		if (pLineStart)
+			pHeaderEnd = pLineStart-2;
+		else // on last header
+		{
+			pHeaderEnd = strstr(pszStart, ATL_HEADER_END);
+		}
+
+		return pHeaderEnd;
+	}
+
+	void DecodeHeader(LPCSTR pHeaderStart, LPCSTR pHeaderEnd) throw()
+	{
+		if (!pHeaderStart || !pHeaderEnd)
+			return;
+		LPCSTR pTemp = pHeaderStart;
+		while (*pTemp != ATL_FIELDNAME_DELIMITER && pTemp < pHeaderEnd)
+			pTemp++;
+		if (*pTemp == ATL_FIELDNAME_DELIMITER)
+		{
+			char szName[ATL_MAX_FIELDNAME_LEN];
+			char szValue[ATL_MAX_VALUE_LEN];
+			int nLen = (int)(pTemp-pHeaderStart) ;
+			ATLASSERT(nLen < ATL_MAX_FIELDNAME_LEN);
+			memcpy(szName, pHeaderStart, nLen);
+			szName[nLen]=0;
+
+			pTemp++; // move past delimiter;
+			while (isspace(*pTemp) && pTemp < pHeaderEnd)
+				pTemp++;
+
+			nLen = pHeaderEnd-pTemp;
+			ATLASSERT(nLen < ATL_MAX_VALUE_LEN);
+			memcpy(szValue, pTemp, nLen);
+			szValue[nLen]=0;
+
+			CStringA strExist;
+			if (!m_HeaderMap.Lookup(szName, strExist))
+				m_HeaderMap.SetAt(szName, szValue);
+			else
+			{	
+				// field-values for headers with the same name can be appended
+				// per rfc2068 4.2, we do the appending so we don't have to
+				// store/lookup duplicat keys.
+				strExist += ',';
+				strExist += szValue;
+				m_HeaderMap.SetAt(szName, (LPCSTR)strExist);
+			}
+
+		}
+	}
+
+	LPCSTR ParseStatusLine(BYTE* pBuffer) throw()
+	{
+		if (!pBuffer)
+			return NULL;
+		// find the first space'
+		while (!isspace(*pBuffer))
+			pBuffer++;
+
+		// move past the space
+		while (isspace(*pBuffer))
+			pBuffer++;
+
+		// should be pointing at the status code
+		LPCSTR pEnd = NULL;
+		m_nStatus = strtol((LPSTR)pBuffer, (LPSTR*)&pEnd, 10);
+
+		// move to end of line
+		while (*pBuffer !=  '\n')
+			pBuffer++;
+
+		// set the return pointing to the first 
+		// character after our status line.
+		return (LPCSTR)++pBuffer;
+	}
+
+
+	// pBuffer should start at the first character
+	// after the status line.
+	int CrackResponseHeader(LPCSTR pBuffer, /*out*/ LPCSTR *pEnd) throw()
+	{
+		// read up to the double /r/n
+		LPCSTR pszStartSearch = pBuffer;
+		if (!pEnd)
+			return ATL_HEADER_PARSE_HEADERERROR;
+
+		*pEnd = NULL;
+		if (pszStartSearch == NULL)
+			return ATL_HEADER_PARSE_HEADERERROR;
+
+		// check to see if we have a complete set of headers
+		if (!strstr(pszStartSearch, ATL_HEADER_END))
+			return ATL_HEADER_PARSE_HEADERNOTCOMPLETE;
+
+		// start parsing headers
+		LPCSTR pHeaderStart = ParseStatusLine((BYTE*)pBuffer);
+		LPCSTR pHeaderEnd = NULL;
+
+		while (pHeaderStart)
+		{
+			pHeaderEnd = FindEndOfHeader(pHeaderStart);
+			if (!pHeaderEnd)
+				break;
+			DecodeHeader(pHeaderStart, pHeaderEnd);
+
+			if (!strncmp(pHeaderEnd, ATL_HEADER_END, strlen(ATL_HEADER_END)))
+			{
+				*pEnd = pHeaderEnd + ATL_HEADER_END_LEN;
+				break; 		// we're done
+			}
+			else
+				pHeaderStart = pHeaderEnd+2;
+		}
+
+		return ATL_HEADER_PARSE_COMPLETE;		
+	}
+
+public:
+
+	// Reads the body if the encoding is not chunked.
+	status_navigate ReadBody(int nContentLen, int nCurrentBodyLen) throw()
+	{
+		// nCurrentBodyLen is the length of the body that has already been read
+		// nContentLen is the value of Content-Length
+		// current is the buffer that will contain the entire response
+		status_navigate nRet = ATL_HTTP_NAVIGATE_COMPLETE;
+
+		if (nContentLen != -1) // We know the content length.
+		{
+			// read the rest of the body.
+			BYTE readbuff[ATL_READ_BUFF_SIZE];
+			while (nCurrentBodyLen < nContentLen)
+			{
+				DWORD dwRead = ATL_READ_BUFF_SIZE-1;
+				if (!Read(readbuff, &dwRead))
+					return ATL_HTTP_NAVIGATE_ERROR;
+				else
+				{
+					nCurrentBodyLen += dwRead;
+					m_current.Append((LPCSTR)readbuff, dwRead);
+				}
+			}
+			m_dwBodyLen = nCurrentBodyLen;
+		}
+		else // We don't know content length. All we can do is
+		{	 // read until there is nothing else to read.
+		
+			// read the rest of the body.
+			DWORD dwRead = ATL_READ_BUFF_SIZE-1;
+			BYTE readbuff[ATL_READ_BUFF_SIZE];
+			dwRead = ATL_READ_BUFF_SIZE-1;
+			do
+			{
+				if (Read((BYTE*)readbuff, (DWORD*)&dwRead))
+				{
+					nCurrentBodyLen += dwRead;
+					m_current.Append((LPCSTR)readbuff, dwRead);
+				}
+				else 
+				{
+					nRet = ATL_HTTP_NAVIGATE_COMPLETE;
+					break;
+				}
+			}while (dwRead);
+			m_dwBodyLen = nCurrentBodyLen;
+		}
+		return nRet;
+	}
+
+	bool ReconnectIfRequired() throw()
+	{
+		CStringA strValue;
+		// if we have a keep-alive header then return true
+		// else we have to close and re-open the connection
+		if (!m_HeaderMap.Lookup("Connection", strValue)
+			|| !strValue.CompareNoCase("keep-alive"))
+			return true; // No connection header or server said stay open.
+
+		if (!strValue.CompareNoCase("close"))
+		{
+			Close();
+			if (Create())
+			{
+				if (GetProxy())
+					return Connect(m_strProxy, m_nProxyPort);
+				else
+					return Connect(m_urlCurrent.GetHostName(), m_urlCurrent.GetPortNumber());
+			}
+		}	
+		return false;
+	}
+
+	bool ProcessAuthRequired() throw()
+	{
+		CStringA strValue;
+		// must have an authenticate header
+		if (!m_HeaderMap.Lookup("WWW-Authenticate", strValue))
+			return false;
+
+		// if we got multiple WWW-Authenticate headers, their values
+		// will have been appended together in a comma separated list
+		// by our DecodeHeader function
+		if (!strValue.GetLength())
+			return false;
+
+		if (m_pAuthObject)
+			return m_pAuthObject->Authenticate(strValue);
+		return false;
+	}
+
+	// Complete relative URLs and URLs
+	// that have a missing path. These are common with redirect headers.
+	// http://www.cdnow.com becomes http://www.cdnow.com/
+	// localstart.asp becomes whatever our current (m_urlCurrent) 
+	// path is plus localstart.asp
+	bool CompleteURL(CStringA& strURL) throw()
+	{
+		CStringA strUrlTemp = strURL;
+		CUrl url;
+		bool bErr = false;
+		if (url.CrackUrl(strUrlTemp))
+		{
+			return true; // URL is already valid
+		}
+
+
+		// if we have a scheme and a host name but no
+		// path, then add the path of '/'
+		if (url.GetScheme() == ATL_URL_SCHEME_HTTP &&
+			url.GetHostNameLength() > 0 &&
+			!url.GetUrlPathLength() )
+		{
+			url.SetUrlPath("/");
+			bErr = true;
+		}
+		// if we don't have a scheme or host name or path we derive
+		// the url from our current URL (m_urlCurrent) and add
+		// our relative paths
+		else if (url.GetScheme() == ATL_URL_SCHEME_UNKNOWN &&
+			url.GetHostNameLength() == 0 &&
+			url.GetUrlPathLength() == 0)
+		{
+			char szPath[ATL_URL_MAX_PATH_LENGTH];
+			szPath[0]=0;
+			url = m_urlCurrent;
+
+
+			if (!url.GetUrlPathLength())
+				strcpy(szPath, "/"); // current URL has no path!
+			else
+				strcpy(szPath, url.GetUrlPath());
+
+			// back up to the first / and insert our current url
+			char* pBuff = strrchr(szPath,  '/');
+			pBuff++;
+			if (!(*pBuff))
+				strcat(szPath, (LPCSTR)strURL);
+			else
+				strcpy(pBuff, (LPCSTR)strURL);
+
+			url.SetUrlPath((LPSTR)szPath);
+			bErr = true;
+		}
+		if (!bErr)
+			return bErr;
+		DWORD dwLen = ATL_URL_MAX_PATH_LENGTH;
+
+		return url.CreateUrl(strURL.GetBuffer(ATL_URL_MAX_PATH_LENGTH),
+			&dwLen) ? true : false;
+	}
+
+	bool ProcessObjectMoved() throw()
+	{
+		// look for a location header
+		CStringA strValue;
+		CStringA strURLNew;
+		if (m_HeaderMap.Lookup("Location", strValue))
+		{
+			ReconnectIfRequired();
+			m_HeaderMap.RemoveAll();
+			m_current.Empty();
+
+
+			// create a new URL based on what is in the
+			// Location header and set it as this object's 
+			// default Url
+			strURLNew = strValue;
+			CompleteURL(strURLNew);
+			SetDefaultUrl((LPCSTR)strURLNew, m_urlCurrent.GetPortNumber());
+			
+			// build up a request			
+			CStringA strRequest;
+			BuildRequest(&strRequest, m_strMethod, 
+				m_urlCurrent.GetHostName(),
+				m_urlCurrent.GetUrlPath(), 
+				m_urlCurrent.GetExtraInfo(), m_pData, m_dwDataLen, m_strDataType);
+
+			// send the request
+			DWORD dwSent = strRequest.GetLength();
+			DWORD dwAvailable = dwSent;
+			if (!Send((BYTE*)strRequest.GetBuffer(dwAvailable), &dwSent))
+				return false;
+			strRequest.ReleaseBuffer();
+
+			if (dwSent != dwAvailable)
+				return false;
+
+			// read the response
+			if (ReadHttpResponse())
+			{
+				ProcessStatus(m_dwFlags);
+			}
+		}
+		return true;
+	}
+
+	bool _SetDefaultUrl(LPCSTR szURL, short nPort) throw()
+	{
+
+		if (szURL)
+			m_urlCurrent.CrackUrl((LPSTR)szURL); // re-inits the field of the CUrl first
+
+		if (ATL_URL_SCHEME_HTTP != m_urlCurrent.GetScheme())
+			return false; // only support HTTP
+
+		if (!m_urlCurrent.GetUrlPathLength())
+		{
+			// no path, default to /
+			m_urlCurrent.SetUrlPath("/");
+		}
+
+		if (!m_urlCurrent.GetHostNameLength())
+		{
+			// no server name
+			return false;
+		}
+
+		if (m_urlCurrent.GetPortNumber() == ATL_URL_INVALID_PORT_NUMBER)
+			m_urlCurrent.SetPortNumber(nPort);
+		return true;
+	}
+public:
+	LPCSTR GetMethod()
+	{
+		return m_strMethod;
+	}
+
+	BYTE *GetData()
+	{
+		return m_pData;
+	}
+
+	DWORD GetDataLen()
+	{
+		return m_dwDataLen;
+	}
+
+	LPCSTR GetDataType()
+	{
+		return m_strDataType;
+	}
+};
+
+bool inline CDefaultAuthObject::DoNTLMAuthenticate()
+{
+	bool bRet = false;
+
+	// make sure we have a good credentials handle
+	ATLASSERT(!ATL_IS_INVALIDCREDHANDLE(m_hCredentials));
+	if (ATL_IS_INVALIDCREDHANDLE(m_hCredentials))
+		return false;
+
+	SECURITY_STATUS SecurityStatus = SEC_E_OK;
+
+	unsigned long ContextAttributes = 0;
+	SecBufferDesc OutBufferDesc = {0,0,0};
+	CtxtHandle SecurityContext = {0, 0};
+	SecBuffer OutSecBuffer = {0, 0, 0};
+	unsigned char securitybuffer[ATL_AUTH_HDR_SIZE];
+
+
+	OutBufferDesc.ulVersion = 0;
+	OutBufferDesc.cBuffers = 1;
+	OutBufferDesc.pBuffers = &OutSecBuffer;
+
+	OutSecBuffer.cbBuffer = m_nMaxTokenSize;
+	OutSecBuffer.BufferType = SECBUFFER_TOKEN;
+	OutSecBuffer.pvBuffer = securitybuffer;
+
+	SecurityStatus = InitializeSecurityContext(
+				&m_hCredentials,
+				0,
+				ATL_HTTP_AUTHTYPE_NTLM,
+				ISC_REQ_USE_DCE_STYLE | ISC_REQ_DELEGATE |
+				ISC_REQ_MUTUAL_AUTH |ISC_REQ_REPLAY_DETECT |
+				ISC_REQ_SEQUENCE_DETECT |ISC_REQ_CONFIDENTIALITY |
+				ISC_REQ_CONNECTION,
+				0,
+				0,
+				0,
+				0,
+				&SecurityContext,
+				&OutBufferDesc,
+				&ContextAttributes,
+				&m_ts
+				);
+
+	if ( (SecurityStatus == SEC_I_COMPLETE_NEEDED) ||
+		 (SecurityStatus == SEC_I_COMPLETE_AND_CONTINUE) )
+	{
+		SecurityStatus = CompleteAuthToken( &SecurityContext, &OutBufferDesc );
+	}
+
+	if (IS_ERROR(SecurityStatus))
+		return false;
+
+	// create an Authentication header with the contents of the
+	// security buffer and send it to the HTTP server. The output
+	// buffer will be pointing to a buffer that contains the 
+	// response from the HTTP server on return.
+	LPSTR pszbuff = NULL;
+	if (!SendSecurityInfo(&OutSecBuffer, &pszbuff) || !pszbuff)
+		return false;
+
+
+	char *szResponsecode = strstr(pszbuff, "WWW-Authenticate: NTLM");
+	char pszcode[ATL_AUTH_HDR_SIZE];
+	if (szResponsecode)
+	{
+		szResponsecode += strlen("WWW-Authenticate: NTLM ");
+		char *pszend = strstr(szResponsecode, "\r\n");
+		bRet = false;
+		int nsize = 0;
+		if (pszend)
+		{
+			// copy authentication data to our buffer
+			// and base64decode it.
+			int nlen = (int)(pszend-szResponsecode);
+			memcpy(pszcode, szResponsecode, nlen );
+			pszcode[pszend-szResponsecode]=0;
+			nsize = m_nMaxTokenSize;
+			ZeroMemory(securitybuffer, ATL_AUTH_HDR_SIZE);
+			bRet = Base64Decode(pszcode, (int) strlen(pszcode), securitybuffer, &nsize) != FALSE;
+		}
+
+		if (!bRet)
+			return false;
+	
+		// Create buffers for the challenge data
+		SecBufferDesc OutBufferDesc2, InBufferDesc;
+		SecBuffer OutSecBuffer2, InSecBuffer;
+		unsigned char Buffer[ATL_AUTH_HDR_SIZE];
+		ZeroMemory(Buffer, ATL_AUTH_HDR_SIZE);
+		OutBufferDesc2.ulVersion = 0;
+		OutBufferDesc2.cBuffers = 1;
+		OutBufferDesc2.pBuffers = &OutSecBuffer2;
+
+		OutSecBuffer2.cbBuffer = ATL_AUTH_HDR_SIZE;
+		OutSecBuffer2.BufferType = SECBUFFER_TOKEN;
+		OutSecBuffer2.pvBuffer = Buffer;
+
+		InBufferDesc.ulVersion = 0;
+		InBufferDesc.cBuffers = 1;
+		InBufferDesc.pBuffers = &InSecBuffer;
+
+		InSecBuffer.cbBuffer = nsize;
+		InSecBuffer.BufferType = SECBUFFER_TOKEN;
+		InSecBuffer.pvBuffer = securitybuffer;
+
+		SecurityStatus = InitializeSecurityContext(
+					0,
+					&SecurityContext,
+					ATL_HTTP_AUTHTYPE_NTLM,
+					0,
+					0,
+					0 ,
+					&InBufferDesc,
+					0,
+					&SecurityContext,
+					&OutBufferDesc2,
+					&ContextAttributes,
+					&m_ts
+					);
+
+		if (IS_ERROR(SecurityStatus))
+			return false;
+		pszbuff = NULL;
+		if (SendSecurityInfo(&OutSecBuffer2, &pszbuff))
+		{
+			// at this point we should be authenticated and either have the page
+			// we requested or be getting re-directed to another page under our
+			// authorization. Either way, we don't want to go through authorization
+			// code again if we are not authorized to prevent recursive authorization
+			// so we send a flag saying not to process authorization status' again.
+			bRet = m_pSocket->ProcessStatus(m_pSocket->GetFlags(), true);
+		}
+
+	}
+
+	return bRet;
+
+}
+bool inline CDefaultAuthObject::SendSecurityInfo(SecBuffer *pSecBuffer, LPSTR *pszBuffer)
+{
+	ATLASSERT(pSecBuffer);
+	ATLASSERT(m_pSocket);
+	ATLASSERT(pszBuffer);
+
+	int nDest = ATL_AUTH_HDR_SIZE;
+	char auth_b64encoded[ATL_AUTH_HDR_SIZE];
+	char auth_header[ATL_AUTH_HDR_SIZE];
+	char *pszFmtStr = "Authorization: NTLM %s\r\n";
+
+	if (!pSecBuffer || !pSecBuffer->pvBuffer || !pszBuffer)
+		return false;
+	*pszBuffer = 0;
+
+	// Base64Encode will fail gracefully if buffer not big enough
+	if (Base64Encode((BYTE*)pSecBuffer->pvBuffer, pSecBuffer->cbBuffer,
+		auth_b64encoded, &nDest, ATL_BASE64_FLAG_NOCRLF))
+	{
+		auth_b64encoded[nDest]=0;
+		// make sure we have enough room in our header buffer
+		if ( (strlen(pszFmtStr)-2 + nDest) < ATL_AUTH_HDR_SIZE)
+			wsprintf(auth_header, pszFmtStr, auth_b64encoded);
+		else
+			return false;
+	}
+	else
+		return false;
+
+	// reset the connection if required
+	m_pSocket->ResetConnection();
+
+	// build up an HTTP request which includes our
+	// encoded authorization data and send it to the server
+	CStringA strRequest;
+	LPCURL pUrl = m_pSocket->GetCurrentUrl();	
+	bool bRet = false;
+	if (m_pSocket->BuildRequest(&strRequest, m_pSocket->GetMethod(), 
+		pUrl->GetHostName(),
+		pUrl->GetUrlPath(), 
+		pUrl->GetExtraInfo(),
+		m_pSocket->GetData(),
+		m_pSocket->GetDataLen(),
+		m_pSocket->GetDataType(),
+		auth_header))
+	{
+	
+		DWORD dwSent = strRequest.GetLength();
+		if (m_pSocket->Send((BYTE*)(LPCSTR)strRequest, &dwSent))
+		{
+			bRet = m_pSocket->ReadHttpResponse();
+			if (bRet)
+				*pszBuffer = (LPSTR)m_pSocket->GetResponse();
+		}
+	}
+	return bRet;
+}
+
+} // ATL
+
+

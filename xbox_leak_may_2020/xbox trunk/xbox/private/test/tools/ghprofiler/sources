@@ -1,0 +1,61 @@
+!IF 0
+
+Copyright (c) 2000 Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Author:
+
+    jpoley
+
+!ENDIF
+
+
+MAJORCOMP=testing
+MINORCOMP=tools
+
+TARGETNAME=GhProfiler
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+UMENTRY=main
+
+#
+# exception handling
+#
+#USE_NATIVE_EH=1
+
+LINKER_STACKSIZE=-stack:1024000,4096
+#USE_CRTDLL=1
+
+C_DEFINES=$(C_DEFINES) -DWIN32 -D_WINDOWS -D_MBCS
+
+#USE_NOLIBS=1
+
+TARGETLIBS= \
+    $(LIBRARY_PATH)\kernel32.lib \
+    $(LIBRARY_PATH)\ntdll.lib \
+    $(LIBRARY_PATH)\msvcrt.lib \
+    $(LIBRARY_PATH)\Dbghelp.lib
+
+SOURCES=\
+    GhProfiler.cpp \
+    GhProfiler.rc
+
+
+#
+# Precompiled Header
+#
+PRECOMPILED_INCLUDE = stdafx.h
+PRECOMPILED_PCH = stdafx.pch
+PRECOMPILED_OBJ = stdafx.obj
+PRECOMPILED_CXX = 1

@@ -1,0 +1,127 @@
+define(ROOTPATH,..\..)include(ROOTPATH\templateheader.dst)define(SOURCEFILELIST,POUND Begin Source File
+
+SOURCE=.\Trees.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\debug.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\debug.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\SwizzleFormat.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Mipmap.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Mipmap.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\resource.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\SliceTexture.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\SliceTexture.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\SliceObject.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\SliceObject.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Terrain.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Terrain.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Tree.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Tree.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\TreeBranch.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\TreeBranch.h
+POUND End Source File
+POUND Begin Group "Media"
+
+POUND PROP Default_Filter "vsh;psh;m;abc;tga;bmp;dds"
+POUND Begin Source File
+
+SOURCE=.\Media\Shaders\Mipmap.psh
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\Shaders\Mipmap.psh
+InputName=Mipmap
+
+"$(ProjDir)\$(InputName).inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	xsasm -nologo -v -l $(InputPath) $(OutDir)\$(InputName).xpu $(OutDir)\$(InputName).xsc $(ProjDir)\$(InputName).inl
+
+POUND End Custom Build
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\Shaders\comp2.psh
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\Shaders\comp2.psh
+InputName=comp2
+
+"$(ProjDir)\$(InputName).inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	xsasm -nologo -l $(InputPath) $(OutDir)\$(InputName).xpu $(OutDir)\$(InputName).xsc $(ProjDir)\$(InputName).inl
+
+POUND End Custom Build
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\Shaders\comp3.psh
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\Shaders\comp3.psh
+InputName=comp3
+
+"$(ProjDir)\$(InputName).inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	xsasm -nologo -l $(InputPath) $(OutDir)\$(InputName).xpu $(OutDir)\$(InputName).xsc $(ProjDir)\$(InputName).inl
+POUND End Custom Build
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\Shaders\Tree.vsh
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\Shaders\Tree.vsh
+InputName=Tree
+
+"$(ProjDir)\Media\Shaders\$(InputName).xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	xsasm -nologo -l $(InputPath)
+POUND End Custom Build
+POUND End Source File
+POUND End Group)undefine(`COMMONSOURCEFILELIST')define(COMMONSOURCEFILELIST,POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\XPath.cpp
+POUND End Source File)define(RESOURCEFILELIST,RESOURCEFILEENTRY(font)
+RESOURCEFILEENTRY(gamepad)
+RESOURCEFILEENTRY(Resource))include(ROOTPATH\template.dst)

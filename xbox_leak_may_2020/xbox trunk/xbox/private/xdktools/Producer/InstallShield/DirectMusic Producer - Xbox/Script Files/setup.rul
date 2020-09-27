@@ -1,0 +1,1047 @@
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  IIIIIII SSSSSS
+//    II    SS                          InstallShield (R)
+//    II    SSSSSS      (c) 1996-1997, InstallShield Software Corporation
+//    II        SS      (c) 1990-1996, InstallShield Corporation
+//  IIIIIII SSSSSS                     All Rights Reserved.
+//
+//
+//  This code is generated as a starting setup template.  You should
+//  modify it to provide all necessary steps for your setup.
+//
+//
+//    File Name:  Setup.rul
+//
+//  Description:  InstallShield script
+//
+//     Comments:  This template script performs a basic setup on a
+//                Windows 95 or Windows NT 4.0 platform. With minor
+//                modifications, this template can be adapted to create
+//                new, customized setups.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+  // Include header file
+#include "sdlang.h"
+#include "sddialog.h"
+
+////////////////////// string defines ////////////////////////////
+
+#define UNINST_LOGFILE_NAME      "Uninst.isu"
+#define SETUPTYPE_RELEASE      "Release"
+#define SETUPTYPE_TITLE                 "Setup Type Selection"
+#define SETUPTYPE_MSG                   "Please select a setup type."
+#define IDCANCEL    2
+#define IDOK        1
+#define MB_RETRYCANCEL 5
+#define MB_OKCANCEL 1
+#define MB_OK       0
+#define HWND_BROADCAST 0xFFFF
+#define WM_FONTCHANGE 0x001D
+
+//////////////////// installation declarations ///////////////////
+
+  // ----- DLL prototypes -----
+
+
+     // your DLL prototypes
+
+
+  // ---- script prototypes -----
+
+     // generated
+     prototype ShowDialogs();
+     prototype MoveFileData();
+     prototype HandleMoveDataError( NUMBER );
+     prototype ProcessBeforeDataMove();
+     prototype ProcessAfterDataMove();
+     prototype SetupRegistry();
+     prototype SetupFolders();
+     prototype CleanUpInstall();
+     prototype SetupInstall();
+     prototype SetupScreen();
+     prototype CheckRequirements();
+     prototype DialogShowSdWelcome();
+     prototype DialogShowSdLicense();
+     prototype DialogShowSdAskDestPath();
+     prototype DialogShowSdSetupType();
+     prototype DialogShowSdSelectFolder();
+     prototype DialogShowSdFinishReboot();
+
+     // your prototypes
+     prototype SetupUserFolder();
+     prototype _ConfigureUninstInfo(STRING,STRING);
+     prototype INT GDI32.AddFontResource(BYREF STRING);
+     prototype InstallDirectXRuntime();
+
+  // ----- global variables ------
+
+     // generated
+     BOOL        bWinNT, bIsShellExplorer, bInstallAborted, bIs32BitSetup;
+     STRING      svDir;
+     STRING      svName, svCompany, svSerial;
+     STRING      svDefGroup;
+     STRING      szAppPath;
+     STRING      svSetupType;
+
+
+     // your global variables
+     STRING      svUserQuickStartFileLocation;
+     STRING      svUserTutorialFileLocation;
+     STRING      svUserTutorialAppFileLocation;
+     STRING      svUserTutorialAppSrcFileLocation;
+     STRING      svUserTutorialAppResFileLocation;
+     STRING      svUserTutorialProjectFileLocation;
+     STRING      svUserTutorialRawElemFileLocation;
+     STRING      svDMusicPath;
+     STRING      svDMusicVersionNumber;
+     BOOL        bRebootForDXDLLsNeeded;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//   MAIN PROGRAM
+//
+//      The setup begins here by hiding the visible setup
+//      window.  This is done to allow all the titles, images, etc. to
+//      be established before showing the main window.  The following
+//      logic then performs the setup in a series of steps.
+//
+///////////////////////////////////////////////////////////////////////////////
+program
+    Disable( BACKGROUND );
+
+    bRebootForDXDLLsNeeded = FALSE;
+
+    CheckRequirements();
+
+    SetupInstall();
+
+    SetupScreen();
+
+    if (ShowDialogs()<0) goto end_install;
+
+    if (ProcessBeforeDataMove()<0) goto end_install;
+
+    if (MoveFileData()<0) goto end_install;
+
+    if (ProcessAfterDataMove()<0) goto end_install;
+
+    if (SetupRegistry()<0) goto end_install;
+
+    if (SetupFolders()<0) goto end_install;
+
+  end_install:
+
+    CleanUpInstall();
+
+     // If an unrecoverable error occurred, clean up the partial installation.
+     // Otherwise, exit normally.
+
+    if (bInstallAborted) then
+        abort;
+    endif;
+
+endprogram
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: SetupUserFolder                                                 //
+//                                                                           //
+//  Purpose: This function finds the location of the user's document folder. //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function SetupUserFolder()
+ LONG nvType, nvSize;
+ STRING szParameter, svValue, svDirectory;
+ begin
+
+    // Try and get the location of "My Documents"
+    RegDBSetDefaultRoot ( HKEY_CURRENT_USER );
+    if ( (RegDBGetKeyValueEx ( "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" , "Personal" , nvType , svDirectory , nvSize ) < 0) || ((nvType != REGDB_STRING) && (nvType != REGDB_STRING_EXPAND)) ) then
+        svDirectory = TARGETDIR;
+    endif;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\QuickStart";
+    ComponentSetTarget ( MEDIA , "<szUserQuickStartDocuments>" , svValue );
+    svUserQuickStartFileLocation = svValue;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\Tutorial8";
+    ComponentSetTarget ( MEDIA , "<szUserTutorial>" , svValue );
+    svUserTutorialFileLocation = svValue;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\Tutorial8\\FarmGameApp";
+    ComponentSetTarget ( MEDIA , "<szUserTutorialApp>" , svValue );
+    svUserTutorialAppFileLocation = svValue;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\Tutorial8\\FarmGameApp\\Source";
+    ComponentSetTarget ( MEDIA , "<szUserTutorialAppSrc>" , svValue );
+    svUserTutorialAppSrcFileLocation = svValue;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\Tutorial8\\FarmGameApp\\Res";
+    ComponentSetTarget ( MEDIA , "<szUserTutorialAppRes>" , svValue );
+    svUserTutorialAppResFileLocation = svValue;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\Tutorial8\\FarmGameProject";
+    ComponentSetTarget ( MEDIA , "<szUserTutorialFinishedProject>" , svValue );
+    svUserTutorialProjectFileLocation = svValue;
+
+    svValue = svDirectory ^ "\\" ^ @DOCUMENT_FOLDER ^ "\\Tutorial8\\RawElements";
+    ComponentSetTarget ( MEDIA , "<szUserTutorialRawElements>" , svValue );
+    svUserTutorialRawElemFileLocation = svValue;
+
+    return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+//  Function: InstallDirectXRuntime                                          //
+//                                                                           //
+//  Purpose: Invokes the dx runtime/driver installer.                        //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+prototype INT DSETUP.DirectXSetupA(HWND,STRING,INT);
+
+function InstallDirectXRuntime()
+   STRING szDllPath;
+   STRING szFilePath;
+   INT nResult,nFlags;
+
+begin
+
+   // Always trigger the runtime/driver installer.
+   //if (!bWinNT) then
+      // Set things up so that we can load DSETUP.DLL. NOTE: DSETUP.DLL is very
+      // twitchy about this and will fault if you don't launch it from the same
+      // directory setup's running out of.
+
+      // The runtime should be at ..\\..\\redist\\directx9
+      szFilePath = SRCDIR^"..\\..\\redist\\directx9";
+
+      nResult = ChangeDirectory(szFilePath);
+      if ( nResult != 0 ) then
+         MessageBox("Unable to find DirectX Runtime Setup files.\nPlease install DirectX 8.1 before running Producer.",WARNING);
+         return -1;
+      endif;
+
+      // You'll find this dsetup.dll there too
+      szDllPath = szFilePath^"dsetup.dll";
+
+      LongPathToQuote(szFilePath,TRUE);
+      LongPathToQuote(szDllPath,TRUE);
+
+      nResult = UseDLL(szDllPath);
+      if (nResult != 0) then
+         MessageBox("Unable to find DirectX Runtime Setup files.\nPlease install DirectX 8.1 before running Producer.",WARNING);
+         return -1;
+      endif;
+
+      // "Magic" flag numbers indicate: install directx runtime, ddraw and
+      // dsound drivers, prompt when overwriting drivers.
+      nFlags = 0x10010098;
+
+      nResult = DirectXSetupA(NULL,szFilePath,nFlags);
+
+      UnUseDLL(szDllPath);
+
+      // If dsetup returns DSETUPERR_SUCCESS_RESTART, we need to
+      // trigger a restart when we get done.
+      if (nResult = 1) then
+         // This will force a reboot.
+         bRebootForDXDLLsNeeded = TRUE;
+      else
+         // -14 indicates that the currently installed run-time is newer
+         // than the run-time being installed (DSETUPERR_NEWERVERSION).
+         if ((nResult < 0) && (nResult != -14)) then
+            MessageBox("DirectX Runtime Setup Failed.\nPlease re-install DirectX 8.1 before running Producer.",WARNING);
+         endif;
+      endif;
+   //endif;
+
+   return 0;
+
+end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function:  ShowDialogs                                                    //
+//                                                                           //
+//  Purpose:  This function manages the display and navigation               //
+//            the standard dialogs that exist in a setup.                    //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function ShowDialogs()
+    NUMBER  nResult;
+ begin
+
+    Dlg_Start:
+        // beginning of dialogs label
+
+    Dlg_SdWelcome:
+        nResult = DialogShowSdWelcome();
+        if (nResult = BACK) goto Dlg_Start;
+
+    Dlg_SdLicense:
+        nResult = DialogShowSdLicense();
+        if (nResult = BACK) goto Dlg_SdWelcome;
+
+    Dlg_SdAskDestPath:
+        nResult = DialogShowSdAskDestPath();
+        if (nResult = BACK) goto Dlg_SdLicense;
+
+    Dlg_SdSetupType:
+        //nResult = DialogShowSdSetupType();
+        if (nResult = BACK) goto Dlg_SdAskDestPath;
+
+    Dlg_SdSelectFolder:
+        nResult = DialogShowSdSelectFolder();
+        if (nResult = BACK) goto Dlg_SdSetupType;
+
+    return 0;
+
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: ProcessBeforeDataMove                                           //
+//                                                                           //
+//  Purpose: This function performs any necessary operations prior to the    //
+//           actual data move operation.                                     //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function ProcessBeforeDataMove()
+  STRING svLogFile;
+  NUMBER nResult;
+ begin
+
+  SetupUserFolder();
+
+  InstallationInfo( @COMPANY_NAME, @PRODUCT_NAME, @PRODUCT_VERSION, @PRODUCT_KEY );
+
+  svLogFile = UNINST_LOGFILE_NAME;
+
+  nResult = DeinstallStart( svDir, svLogFile, @UNINST_KEY, 0 );
+  if (nResult < 0) then
+      MessageBox( @ERROR_UNINSTSETUP, WARNING );
+  endif;
+
+  szAppPath = TARGETDIR;
+
+  if ((bIs32BitSetup) && (bIsShellExplorer)) then
+     RegDBSetItem( REGDB_APPPATH, szAppPath );
+     RegDBSetItem( REGDB_APPPATH_DEFAULT, szAppPath ^ @PRODUCT_KEY );
+     RegDBSetItem( REGDB_UNINSTALL_NAME, @UNINST_DISPLAY_NAME );
+  endif;
+
+  // TODO : update any items you want to process before moving the data
+  //
+
+  return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function:  MoveFileData                                                   //
+//                                                                           //
+//  Purpose:  This function handles the data movement for                    //
+//            the setup.                                                     //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function MoveFileData()
+  NUMBER nResult, nDisk, nSetupType, nFilter;
+  STRING  svPath, svVersionNumber, svCommandLine;
+begin
+
+  nDisk = 1;
+  SetStatusWindow( 0, "" );
+  Disable( DIALOGCACHE );
+  Enable( STATUS );
+
+  nResult = Enable( SELFREGISTERBATCH );
+  if( nResult != 0 ) then
+    SprintfBox( SEVERE, @TITLE_CAPTIONBAR, @ERROR_MOVEDATA, nResult );
+    bInstallAborted = TRUE;
+    goto end_MoveFileData;
+  endif;
+
+  nResult = Enable ( CORECOMPONENTHANDLING );
+  if( nResult != 0 ) then
+    SprintfBox( SEVERE, @TITLE_CAPTIONBAR, @ERROR_SYSTEMFILES, nResult );
+    bInstallAborted = TRUE;
+    goto end_MoveFileData;
+  endif;
+
+  // Install the non-Tutorial/QuickStart/dmusprod.ini files
+  ComponentSelectItem( MEDIA, "Tutorial Files", FALSE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialApp", FALSE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialAppSrc", FALSE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialAppRes", FALSE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\FinishedProject", FALSE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialRawElem", FALSE );
+  ComponentSelectItem( MEDIA, "QuickStart Files", FALSE );
+  ComponentSelectItem( MEDIA, "dmusprod ini", FALSE );
+  StatusUpdate( ON, 65 );
+  nResult = ComponentMoveData( MEDIA, nDisk, 0 );
+
+  HandleMoveDataError( nResult );
+  if( nResult < 0 ) then
+    goto end_MoveFileData;
+  endif;
+
+  // Install the Tutorial/QuickStart/dmusprod.ini files
+  ComponentSelectItem( MEDIA, "Tutorial Files", TRUE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialApp", TRUE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialAppSrc", TRUE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialAppRes", TRUE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\FinishedProject", TRUE );
+  ComponentSelectItem( MEDIA, "Tutorial Files\\TutorialRawElem", TRUE );
+  ComponentSelectItem( MEDIA, "QuickStart Files", TRUE );
+  ComponentSelectItem( MEDIA, "dmusprod ini", TRUE );
+  ComponentSelectItem( MEDIA, "Release System Files", FALSE );
+  ComponentSelectItem( MEDIA, "Help Files", FALSE );
+  ComponentSelectItem( MEDIA, "Release Program Files", FALSE );
+  ComponentSelectItem( MEDIA, "Fonts", FALSE );
+  Disable( LOGGING );
+  StatusUpdate( ON, 90 );
+  nResult = ComponentMoveData( MEDIA, nDisk, 0 );
+  Enable( LOGGING );
+
+  HandleMoveDataError( nResult );
+  if( nResult < 0 ) then
+    goto end_MoveFileData;
+  endif;
+
+  SetStatusWindow( 95, @REGISTER_FILES );
+
+  nResult = VerFindFileVersion ( @DMTOOL_DLL , svPath , svVersionNumber );
+  if( (nResult = FILE_NO_VERSION) ||
+      ((nResult = 0) &&
+       (VerCompare ( svVersionNumber , @DMTOOL_VERSION , VERSION ) = LESS_THAN) &&
+       (VerCompare ( svVersionNumber , @DMTOOL_MINVERSION , VERSION ) = GREATER_THAN)) ) then
+     // svPath is only valid if nResult was 0, so we always assume WINSYSDIR,
+     // since that's the only place we installed dmtool*.dll
+     VarSave( SRCTARGETDIR );
+     TARGETDIR = WINSYSDIR;
+     SetFileInfo( TARGETDIR ^ @DMTOOL_DLL, FILE_ATTRIBUTE, FILE_ATTR_NORMAL, "" );
+     SetFileInfo( TARGETDIR ^ @DMTOOLPRP_DLL, FILE_ATTRIBUTE, FILE_ATTR_NORMAL, "" );
+     svCommandLine = "/u /s " + TARGETDIR ^ @DMTOOL_DLL + " " + TARGETDIR ^ @DMTOOLPRP_DLL;
+     LaunchAppAndWait( WINSYSDIR ^ "regsvr32.exe", svCommandLine, WAIT );
+     Delay(5);
+     DeleteFile( @DMTOOL_DLL );
+     DeleteFile( @DMTOOLPRP_DLL );
+     VarRestore( SRCTARGETDIR );
+  endif;
+
+  nResult = Do( SELFREGISTRATIONPROCESS );
+  SetStatusWindow( 100, "" );
+  if( nResult < 0 ) then
+    nResult = Do( SELFREGISTRATIONPROCESS );
+    if( nResult < 0 ) then
+      SprintfBox( SEVERE, @TITLE_CAPTIONBAR, @ERROR_REGISTRATION, ERRORFILENAME );
+      bInstallAborted = TRUE;
+      goto end_MoveFileData;
+    endif;
+  endif;
+
+end_MoveFileData:
+  Disable( STATUS );
+
+  return nResult;
+
+ end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: HandleMoveDataError                                             //
+//                                                                           //
+//  Purpose: This function handles the error (if any) during the move data   //
+//           operation.                                                      //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function HandleMoveDataError( nResult )
+   NUMBER  nvError;
+   STRING  svMedia, svComponent, svFileGroup, svFile;
+ begin
+
+  if( nResult < 0 ) then
+    ComponentError( svMedia, svComponent, svFileGroup, svFile, nvError );
+    SprintfBox( SEVERE, "Data Transfer Error Information",
+                "ComponentError returned the following data transfer error.\n" +
+                "Setup will now abort.\n\n" +
+                "Media Name: %s\nComponent: %s\nFile Group: %s\n" +
+                "File: %s\nError Number: %ld",
+                svMedia, svComponent, svFileGroup, svFile, nvError );
+       //SprintfBox( SEVERE, @TITLE_CAPTIONBAR, @ERROR_MOVEDATA, nResult );
+       bInstallAborted = TRUE;
+  endif;
+
+  return nResult;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: ProcessAfterDataMove                                            //
+//                                                                           //
+//  Purpose: This function performs any necessary operations needed after    //
+//           all data has been moved.                                        //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function ProcessAfterDataMove()
+  STRING szReferenceFile;
+  STRING svFileName;
+  STRING svRegKeyName;
+  NUMBER nResult;
+ begin
+
+  // TODO : update self-registered files and other processes that
+  //        should be performed after the data has been moved.
+
+  // DeinstallSetReference specifies a file to be checked before
+  // uninstallation. If the file is in use, uninstallation will not proceed.
+
+  szReferenceFile = svDir ^ @PRODUCT_KEY;
+  DeinstallSetReference( szReferenceFile );
+
+   // Install Musical Symbols Font
+   ////////////////////////////////////////////////////////////////////////////////////
+   svRegKeyName = "SOFTWARE\\MICROSOFT\\WINDOWS";
+
+   if(bWinNT) then
+       svRegKeyName = svRegKeyName + " NT";
+   endif;
+
+   // Add NotationStation to the registry
+   svRegKeyName = svRegKeyName + "\\CURRENTVERSION\\FONTS";
+   RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+   svFileName = "MUSICSYM.TTF";
+   RegDBSetKeyValueEx( svRegKeyName, "Musical Symbols (TrueType)", REGDB_STRING, svFileName, -1 );
+
+   // Tell the system we added the font
+   svFileName = WINDIR ^ "fonts\\MUSICSYM.TTF";
+   nResult = AddFontResource(svFileName);
+   SendMessage(HWND_BROADCAST,WM_FONTCHANGE,0,0);
+
+  return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: SetupRegistry                                                   //
+//                                                                           //
+//  Purpose: This function makes the registry entries for this setup.        //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function SetupRegistry()
+ begin
+
+  // No registry keys created.
+  //
+  //    RegDBCreateKeyEx, RegDBSetKeyValueEx....
+  //
+
+  return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Function: SetupFolders
+//
+//  Purpose: This function creates all the folders and shortcuts for the
+//           setup.  This includes program groups and items for Windows 3.1.
+//
+///////////////////////////////////////////////////////////////////////////////
+function SetupFolders()
+STRING szPathQuote, szPath;
+ begin
+
+  // Add a Start menu shortcut to DMUSProd.exe
+  // It is named Programs\DirectMusic\DirectMusic Producer
+  ProgDefGroupType ( PERSONAL );
+  CreateProgramFolder ( svDefGroup );
+  szPath = TARGETDIR ^ @PRODUCT_KEY;
+  szPathQuote = szPath;
+  LongPathToQuote ( szPathQuote , TRUE );
+  AddFolderIcon ( FOLDER_PROGRAMS ^ svDefGroup , @TITLE_MAIN , szPathQuote , "" , szPath , 0 , "" , REPLACE );
+
+  // Add a shortcut to the help file
+  szPath = TARGETDIR ^ @HELPFILE_NAME;
+  szPathQuote = szPath;
+  LongPathToQuote ( szPathQuote , TRUE );
+  AddFolderIcon ( FOLDER_PROGRAMS ^ svDefGroup , @HELPFILE_TITLE , szPathQuote , "" , szPath , 0 , "" , REPLACE );
+
+  // Add a shortcut to the reamde file
+  szPath = TARGETDIR ^ @README_NAME;
+  szPathQuote = szPath;
+  LongPathToQuote ( szPathQuote , TRUE );
+  AddFolderIcon ( FOLDER_PROGRAMS ^ svDefGroup , @README_TITLE , szPathQuote , "" , szPath , 0 , "" , REPLACE );
+
+  // Add a shortcut to the tutorial document
+  szPath = svUserTutorialFileLocation ^ "\\" ^ @TUTORIAL_DOC_NAME;
+  szPathQuote = szPath;
+  LongPathToQuote ( szPathQuote , TRUE );
+  AddFolderIcon ( FOLDER_PROGRAMS ^ svDefGroup , @TUTORIAL_DOC_TITLE , szPathQuote , "" , szPath , 0 , "" , REPLACE );
+
+  // Add a shortcut to the tutorial exe
+  szPath = svUserTutorialAppFileLocation ^ "\\" ^ @TUTORIAL_EXE_NAME;
+  szPathQuote = szPath;
+  LongPathToQuote ( szPathQuote , TRUE );
+  AddFolderIcon ( FOLDER_PROGRAMS ^ svDefGroup , @TUTORIAL_EXE_TITLE , szPathQuote , svUserTutorialAppFileLocation , szPath , 0 , "" , REPLACE );
+
+  szPath = TARGETDIR ^ "Uninst.dll";
+  _ConfigureUninstInfo(@UNINST_KEY, szPath);
+  return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: CleanUpInstall                                                  //
+//                                                                           //
+//  Purpose: This cleans up the setup.  Anything that should                 //
+//           be released or deleted at the end of the setup should           //
+//           be done here.                                                   //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function CleanUpInstall()
+
+ begin
+
+
+  if (bInstallAborted) then
+     return 0;
+  endif;
+
+  DialogShowSdFinishReboot();
+
+  if (BATCH_INSTALL || bRebootForDXDLLsNeeded) then // ensure locked files are properly written
+     CommitSharedFiles(0);
+  endif;
+
+  return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: SetupInstall                                                    //
+//                                                                           //
+//  Purpose: This will setup the installation.  Any general initialization   //
+//           needed for the installation should be performed here.           //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function SetupInstall()
+ begin
+
+  bInstallAborted = FALSE;
+
+  if (bIs32BitSetup) then
+     svDir = PROGRAMFILES ^ @PRODUCT_NAME;
+  else
+     svDir = PROGRAMFILES ^ @PRODUCT_NAME16; // use shorten names
+  endif;
+
+  TARGETDIR  = svDir;
+
+  SdProductName( @PRODUCT_NAME );
+
+  Enable( DIALOGCACHE );
+
+  return 0;
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function:  SetupScreen                                                    //
+//                                                                           //
+//  Purpose:  This function establishes  the screen look.  This includes     //
+//            colors, fonts, and text to be displayed.                       //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function SetupScreen()
+ begin
+
+   Enable( FULLWINDOWMODE );
+   SetTitle( @TITLE_MAIN, 24, WHITE );
+
+   SetTitle( @TITLE_CAPTIONBAR, 0, BACKGROUNDCAPTION ); // Caption bar text.
+
+   Enable( BACKGROUND );
+
+   Delay( 1 );
+ end;
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function:  CheckRequirements                                              //
+//                                                                           //
+//  Purpose:  This function checks all minimum requirements for the          //
+//            application being installed.  If any fail, then the user       //
+//            is informed and the setup is terminated.                       //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function CheckRequirements()
+   NUMBER  nvDx, nvDy, nvResult;
+   STRING  svResult, svPath, svVersionNumber;
+   HWND    hWnd;
+   STRING  szKey, svNumValue, szUninstValue,szstring1,szapp,szcmd;
+   NUMBER  nvSize, nType,nResult;
+   LIST    listID;
+
+begin
+
+   bWinNT           = FALSE;
+   bIsShellExplorer = FALSE;
+
+   // Check screen resolution.
+   GetExtents( nvDx, nvDy );
+
+   if (nvDy < 480) then
+      MessageBox( @ERROR_VGARESOLUTION, WARNING );
+      abort;
+   endif;
+
+   // set 'setup' operation mode
+   bIs32BitSetup = TRUE;
+   GetSystemInfo( ISTYPE, nvResult, svResult );
+   if (nvResult = 16) then
+     MessageBox( @ERROR_SYSTEMREQIREMENTS, WARNING );
+     abort;
+   endif;
+
+   // --- 32-bit testing after this point ---
+
+   // Determine the target system's operating system.
+   GetSystemInfo( OS, nvResult, svResult );
+
+   if (nvResult =  IS_WINDOWSNT) then
+      // Running Windows NT.
+      bWinNT = TRUE;
+
+      // Check to see if the shell being used is EXPLORER shell.
+      if (GetSystemInfo( OSMAJOR, nvResult, svResult ) = 0) then
+         if (nvResult >= 5) then
+            bIsShellExplorer = TRUE;
+         else
+            MessageBox( @ERROR_SYSTEMREQIREMENTS, WARNING );
+            abort;
+         endif;
+      endif;
+
+   elseif (nvResult = IS_WINDOWS95 ) then
+      bIsShellExplorer = TRUE;
+
+   endif;
+
+   // Make sure DirectMusic Producer isn't already running
+   hWnd = FindWindow(@PROD_CLASS_NAME, "");
+
+   while (hWnd != NULL)
+      if( MessageBox( @ERROR_PRODUCER_RUNNING, 0x10 | MB_RETRYCANCEL ) == IDCANCEL ) then
+         abort;
+      endif;
+      hWnd = FindWindow(@PROD_CLASS_NAME, "");
+   endwhile;
+
+   if( VerFindFileVersion ( @OLEAUT32 , svPath , svVersionNumber ) = 0 ) then
+      if( VerCompare ( svVersionNumber , @OLEVERSION , VERSION ) = LESS_THAN ) then
+         MessageBox( @ERROR_INSTALLIE4, SEVERE );
+         abort;
+      endif;
+   else
+      MessageBox( @ERROR_INSTALLIE4, SEVERE );
+      abort;
+   endif;
+
+   // Check for DX version
+   if( VerFindFileVersion ( @DMUSIC_DLL , svPath , svVersionNumber ) = 0 ) then
+      if ( (bWinNT && (VerCompare ( svVersionNumber , @DMUSIC_NTVERSION , VERSION ) = LESS_THAN))
+      ||   (!bWinNT && (VerCompare ( svVersionNumber , @DMUSIC_9XVERSION , VERSION ) = LESS_THAN)) ) then
+          nvResult = MessageBox( @ERROR_DXREQUIREMENTS, MB_OK );
+          if( nvResult = IDOK ) then
+             nvResult = InstallDirectXRuntime();
+             if( nvResult = -1 ) then
+                // Unable to find runtime setup
+                abort;
+             endif;
+          else
+             // User chose to exit setup
+             abort;
+          endif;
+       endif;
+   else
+      // Unable to find DMusic.dll
+      nvResult = MessageBox( @ERROR_DXREQUIREMENTS, MB_OKCANCEL );
+      if( nvResult = IDOK ) then
+          nvResult = InstallDirectXRuntime();
+          if( nvResult = -1 ) then
+             // Unable to find runtime setup
+             abort;
+          endif;
+       else
+          // User chose to exit setup
+          abort;
+       endif;
+   endif;
+
+   nType = REGDB_NUMBER;
+   szUninstValue = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DirectMusic Producer";
+   RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+   // Retrieve the uninstallation string.
+   if (RegDBGetKeyValueEx(szUninstValue, "UninstallString", nType, svNumValue, nvSize) >= 0) then
+
+      nvResult = MessageBox( @ERROR_PRODUCER_INSTALLED, MB_OKCANCEL );
+      if( nvResult != IDOK ) then
+          // User chose to exit setup
+          abort;
+      endif;
+      listID = ListCreate ( STRINGLIST );
+      StrGetTokens ( listID , svNumValue , "-" );
+      szcmd = "-y ";
+      nResult = ListGetFirstString ( listID , szstring1 );
+      while (nResult != END_OF_LIST)
+         if (szapp = "") then
+            szapp = szstring1;
+         endif;
+         nResult = ListGetNextString ( listID , szstring1);
+         if( nResult != END_OF_LIST ) then
+            szcmd = szcmd + " -" + szstring1;
+         endif;
+      endwhile;
+
+
+      LaunchAppAndWait (szapp, szcmd, WAIT); // launch unInstallShield
+
+      // Look for DX7/DX6.1 Producer
+      if( FindFile ( PROGRAMFILES ^ "DirectMusic Producer\\", "Uninst.isu" , svResult ) = 0 ) then
+         szstring1 = PROGRAMFILES ^ "DirectMusic Producer\\Uninst.isu";
+         szcmd = " -y -f\"" + szstring1 + "\" -c\"";
+         szstring1 = PROGRAMFILES ^ "DirectMusic Producer\\Uninst.dll";
+         szcmd = szcmd + szstring1;
+         LaunchAppAndWait (szapp, szcmd, WAIT); // launch unInstallShield
+      endif;
+
+      /*
+      if (LaunchAppAndWait (szapp, "-" + szcmd, WAIT) < 0) then // launch unInstallShield
+         MessageBox("Failed to Launch unInstallShield", SEVERE);
+      endif;
+      */
+   endif;
+
+end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: DialogShowSdWelcome                                             //
+//                                                                           //
+//  Purpose: This function handles the standard welcome dialog.              //
+//                                                                           //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function DialogShowSdWelcome()
+  NUMBER nResult;
+  STRING szTitle, szMsg;
+ begin
+
+  szTitle = "";
+  szMsg   = "";
+  nResult = SdWelcome( szTitle, szMsg );
+
+  return nResult;
+ end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: DialogShowSdLicense                                             //
+//                                                                           //
+//  Purpose: This function displays the license agreement dialog.            //
+//                                                                           //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function DialogShowSdLicense()
+  NUMBER nResult;
+  STRING szTitle, szMsg, szQuestion, szLicenseFile;
+ begin
+
+  szLicenseFile = SUPPORTDIR ^ "license.txt";
+  szTitle    = "";
+  szMsg      = "";
+  szQuestion = "";
+  nResult    = SdLicense( szTitle, szMsg, szQuestion, szLicenseFile );
+
+  return nResult;
+ end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: DialogShowSdAskDestPath                                         //
+//                                                                           //
+//  Purpose: This function asks the user for the destination directory.      //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function DialogShowSdAskDestPath()
+  NUMBER nResult;
+  STRING szTitle, szMsg;
+ begin
+
+  szTitle = "";
+  szMsg   = "";
+  nResult = SdAskDestPath( szTitle, szMsg, svDir, 0 );
+
+  TARGETDIR = svDir;
+
+  return nResult;
+ end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: DialogShowSdSetupType                                           //
+//                                                                           //
+//  Purpose: This function displays the standard setup type dialog.          //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function DialogShowSdSetupType()
+  NUMBER nResult;
+ begin
+
+  nResult = SdSetupTypeEx( SETUPTYPE_TITLE, SETUPTYPE_MSG, "", svSetupType, 0 );
+
+  return nResult;
+ end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: DialogShowSdSelectFolder                                        //
+//                                                                           //
+//  Purpose: This function displays the standard folder selection dialog.    //
+//                                                                           //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function DialogShowSdSelectFolder()
+  NUMBER nResult;
+  STRING szTitle, szMsg;
+ begin
+
+  if (svDefGroup = "") then
+      svDefGroup = @FOLDER_NAME;
+  endif;
+
+  szTitle    = "";
+  szMsg      = "";
+  nResult    = SdSelectFolder( szTitle, szMsg, svDefGroup );
+
+  return nResult;
+ end;
+
+
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Function: DialogShowSdFinishReboot                                        //
+//                                                                           //
+//  Purpose: This function will show the last dialog of the product.         //
+//           It will allow the user to reboot and/or show some readme text.  //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+function DialogShowSdFinishReboot()
+  NUMBER nResult, nDefOptions;
+  STRING szTitle, szMsg1, szMsg2, szOption1, szOption2, svResult;
+  NUMBER bOpt1, bOpt2;
+ begin
+
+  //if ((!BATCH_INSTALL) && (!bRebootForDXDLLsNeeded)) then
+     bOpt1 = FALSE;
+     bOpt2 = FALSE;
+     szMsg1 = "";
+     szMsg2 = "";
+     svResult = "";
+     if( FindFile ( SRCDIR ^ @DEMOCONTENT_DIR, @DEMOCONTENT_FILENAME , svResult ) = 0 ) then
+        szOption1 = @INSTALL_CONTENT_OPTION;
+        szOption2 = @README_OPTION;
+        szMsg1 = @SETUP_COMPLETE_INSTRUCTIONS_CONTENT;
+     else
+        szOption1 = @README_OPTION;
+        if( BATCH_INSTALL || bRebootForDXDLLsNeeded ) then
+           szOption2 = "";
+        else
+           szOption2 = @RUN_PRODUCER_OPTION;
+        endif;
+     endif;
+     nResult = SdFinish( szTitle, szMsg1, szMsg2, szOption1, szOption2, bOpt1, bOpt2 );
+     if( svResult != "" ) then
+        if( bOpt1 ) then
+           LaunchAppAndWait( SRCDIR ^ @DEMOCONTENT_DIR ^ @DEMOCONTENT_FILENAME, "", WAIT );
+        endif;
+        if( bOpt2 ) then
+           LaunchAppAndWait( "Notepad.exe", TARGETDIR ^ "dmusprod.txt", WAIT );
+        endif;
+     else
+        if( bOpt1 ) then
+           LaunchAppAndWait( "Notepad.exe", TARGETDIR ^ "dmusprod.txt", WAIT );
+        endif;
+        if( bOpt2 ) then
+           LaunchApp( TARGETDIR ^ "DMUSProd.exe", "" );
+        endif;
+     endif;
+  //   return 0;
+  //endif;
+
+  if( BATCH_INSTALL || bRebootForDXDLLsNeeded ) then
+     nDefOptions = SYS_BOOTMACHINE;
+     szTitle     = "";
+     szMsg1      = "";
+     szMsg2      = "";
+     nResult     = SdFinishReboot( szTitle, szMsg1, nDefOptions, szMsg2, 0 );
+
+     return nResult;
+  else
+     return 0;
+  endif;
+ end;
+
+/*---------------------------------------------------------------------------*\
+* function _ConfigureUninstInfo()
+*
+* This function configures the uninstall key in the registry or the uninstall
+* icon. It should be called once during the installation AFTER creating the
+* uninstall icon and calling the normal uninstall functions.
+\*---------------------------------------------------------------------------*/
+
+function _ConfigureUninstInfo(szUninstallName,szUninstDll)
+STRING szRegKey;
+
+NUMBER nvType,nvSize;
+
+STRING svValue;
+
+NUMBER nReturn;
+
+begin
+
+nReturn=0;
+
+    RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+
+    szRegKey="SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\UNINSTALL" ^ szUninstallName;
+
+    RegDBGetKeyValueEx(szRegKey,"UninstallString",nvType,svValue,nvSize);
+
+    // Modify uninstall string.
+
+    svValue = svValue + " -c" + "\"" + szUninstDll;
+
+    nReturn=RegDBSetKeyValueEx(szRegKey,"UninstallString",nvType,svValue,nvSize);
+
+return(nReturn);
+
+end;
+
+ // --- include script file section ---
+
+#include "sddialog.rul"
+
+

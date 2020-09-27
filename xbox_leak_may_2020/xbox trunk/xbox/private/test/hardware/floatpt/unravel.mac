@@ -1,0 +1,136 @@
+; (c) Copyright 1999-2000 Intel Corp. All rights reserved.
+; Intel Confidential.
+;
+; macros to aid in timing chunks of code
+;
+
+_RDTSC	MACRO
+	DB	0Fh, 31h
+	ENDM
+
+Z1 MACRO
+	mov ecx,edx
+	_RDTSC
+	sub _ERRCHK, eax
+	mov edx,ecx
+ENDM
+
+Z2 MACRO
+	mov ecx,edx
+	_RDTSC
+	add _ERRCHK, eax
+	mov edx,ecx
+ENDM
+
+;
+; Macros to work around MASM bugs
+;
+
+FSIN_X	MACRO
+	DB	0D9h, 0FEh
+	ENDM
+FCOS_X	MACRO
+	DB	0D9h, 0FFh
+	ENDM
+
+;
+; Jump instructions to make Linux happy
+;
+
+CALL_X	MACRO	DEST
+	LOCAL	xxx
+	DB	0E8h
+	DD	OFFSET DEST - OFFSET xxx
+xxx:
+	ENDM
+JMP_X	MACRO	DEST
+	LOCAL	xxx
+	DB	0E9h
+	DD	OFFSET DEST - OFFSET xxx
+xxx:
+	ENDM
+JCOND_X	MACRO	COND, DEST
+	LOCAL	xxx
+	DB	0Fh
+	DB	80h + COND
+	DD	OFFSET DEST - OFFSET xxx
+xxx:
+	ENDM
+
+JE_X	MACRO	DEST
+	JCOND_X	04h, DEST
+	ENDM
+JZ_X	MACRO	DEST
+	JCOND_X	04h, DEST
+	ENDM
+JNE_X	MACRO	DEST
+	JCOND_X	05h, DEST
+	ENDM
+JNZ_X	MACRO	DEST
+	JCOND_X	05h, DEST
+	ENDM
+JLE_X	MACRO	DEST
+	JCOND_X	0Eh, DEST
+	ENDM
+JB_X	MACRO	DEST
+	JCOND_X	02h, DEST
+	ENDM
+JAE_X	MACRO	DEST
+	JCOND_X	03h, DEST
+	ENDM
+JC_X	MACRO	DEST
+	JCOND_X	02h, DEST
+	ENDM
+JNC_X	MACRO	DEST
+	JCOND_X	03h, DEST
+	ENDM
+JS_X	MACRO	DEST
+	JCOND_X	08h, DEST
+	ENDM
+JNS_X	MACRO	DEST
+	JCOND_X	09h, DEST
+	ENDM
+JG_X	MACRO	DEST
+	JCOND_X	0Fh, DEST
+	ENDM
+
+;
+; Macros used in unravelling loops
+;
+
+loopent	MACRO	y,z		; Create a entry in the loop entry table
+	DD	&y&z
+	ENDM
+looptab	MACRO	y, cnt		; Create the loop entry table
+x	=	0
+	REPT	cnt
+	loopent	y, %x
+x	=	x + 1
+	ENDM
+	ENDM
+looplab	MACRO	y,z		; Create a code label in the unravelled loop
+&y&z:
+	ENDM
+loopst	MACRO	y, cnt		; Marks the beginning of the code to unravel
+x	=	cnt
+	;REPT	cnt
+	;looplab y, %x
+	ENDM
+loopmid	MACRO
+x	=	x - 1
+	;IF	x EQ 0
+	;EXITM
+	;ENDIF
+	ENDM
+loopend	MACRO	y
+	;ENDM
+	;looplab y, 0
+	ENDM
+
+loopjmp	MACRO	jtype, x, y	; Jumps to an entry labelled by looplab
+	jtype	&x&y
+	ENDM
+
+loopcall MACRO	x, y		; Calls an entry labelled by looplab
+	call	&x&y
+	ENDM

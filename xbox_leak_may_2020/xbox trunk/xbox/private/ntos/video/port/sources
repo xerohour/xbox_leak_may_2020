@@ -1,0 +1,28 @@
+TARGETNAME=videoprt
+TARGETPATH=obj
+TARGETPATHLIB=$(DDK_LIB_DEST)
+TARGETTYPE=EXPORT_DRIVER
+
+LINKLIBS=$(SDK_LIB_PATH)\ntoskrnl.lib
+
+INCLUDES=..\inc;..\..\inc;..\..\..\inc
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+MSC_WARNING_LEVEL=$(MSC_WARNING_LEVEL) /WX
+
+SYNCHRONIZE_BLOCK=1
+
+SOURCES=agp.c        \
+        ddc.c        \
+        i2c.c        \
+        ops.c        \
+        pnp.c        \
+        registry.c   \
+        videoprt.c   \
+        videoprt.rc  \
+        vpdata.c
+
+DLLDEF=$(O)\videoprt.def

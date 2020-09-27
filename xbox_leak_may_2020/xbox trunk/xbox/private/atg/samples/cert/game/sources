@@ -1,0 +1,50 @@
+TARGETNAME = TechCertGame
+PROJNAME   = TechCertGame
+SOURCES    = App.cpp \
+             Controller.cpp \
+	     CXFont.cpp \
+             Demo.cpp \
+             File.cpp \
+             Game.cpp \
+             Globals.cpp \
+             HeightField.cpp \
+             Light.cpp \
+             LoadSave.cpp \
+             Math3d.cpp \
+             Menu.cpp \
+             MenuOptions.cpp \
+             Mesh.cpp \
+             Splash.cpp \
+             StartScreen.cpp \
+             PhysicsObject.cpp \
+             PhysicsSystem.cpp \
+             Polyhedron.cpp \
+             Shader.cpp \
+             Text.cpp \
+             Vehicle.cpp \
+             SoundEffect.cpp \
+             MusicManager.cpp
+
+TITLEID    = 0xffff0109
+
+NTTARGETFILE0 = $(O)\TechCertGame.dsp dsstdfx $(O)\Font.xpr $(O)\Font12.xpr $(O)\Font16.xpr $(O)\Font9.xpr $(O)\LoadSaveResource.xpr $(O)\MenuResource.xpr $(O)\Xboxdings_24.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000 /TITLEIMAGE:titleimage.xbx /DEFAULTSAVEIMAGE:saveimage.xbx
+
+USE_STL             = 1
+USE_NATIVE_EH       = 1
+TARGETPATH          = obj
+TARGETTYPE          = PROGRAM
+UMTYPE              = xboxapp
+MSC_WARNING_LEVEL   = /W4
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+             $(XDK_LIB_PATH)\dsound$(D).lib
+
+USE_LIBCMT=1

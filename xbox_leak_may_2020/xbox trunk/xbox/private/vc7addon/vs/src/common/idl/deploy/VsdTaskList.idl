@@ -1,0 +1,125 @@
+// VsdTaskList.idl : IDL source for Deployment Task List
+//
+
+// import "vsshell.idl";
+
+
+interface IVsdTaskListRoutingCallback;
+interface IVsdTaskList;
+
+
+typedef
+[
+	uuid(54565925-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdTaskListManager")
+]
+enum DISPIDs_IVsdTaskListManager
+{
+	[helpstring("DISPID_IVsdTaskListManager_CreateTaskList")] DISPID_IVsdTaskListManager_CreateTaskList	= 2,
+	[helpstring("DISPID_IVsdTaskListManager_Close")] DISPID_IVsdTaskListManager_Close					= 3,
+} DISPIDs_IVsdTaskListManager;
+
+typedef
+[
+	uuid(54565980-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdTaskList")
+]
+enum DISPIDs_IVsdTaskList
+{
+	[helpstring("DISPID_IVsdTaskList_SetRoutingCallback")] DISPID_IVsdTaskList_SetRoutingCallback		= 1,
+	[helpstring("DISPID_IVsdTaskList_AddTaskItem")] DISPID_IVsdTaskList_AddTaskItem						= 2,
+	[helpstring("DISPID_IVsdTaskList_SetTaskItem")] DISPID_IVsdTaskList_SetTaskItem						= 3,
+	[helpstring("DISPID_IVsdTaskList_RemoveTasks")] DISPID_IVsdTaskList_RemoveTasks						= 4,
+	[helpstring("DISPID_IVsdTaskList_RemoveAll")] DISPID_IVsdTaskList_RemoveAll							= 5,
+} DISPIDs_IVsdTaskList;
+
+typedef
+[
+	uuid(54565955-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdTaskListItem")
+]
+enum DISPIDs_IVsdTaskListItem
+{
+	[helpstring("DISPID_IVsdTaskListItem_CanonicalName")] DISPID_IVsdTaskListItem_CanonicalName			= 1,
+	[helpstring("DISPID_IVsdTaskListItem_SetValues")] DISPID_IVsdTaskListItem_SetValues					= 2,
+} DISPIDs_IVsdTaskListItem;
+
+typedef
+[
+	uuid(54565956-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdTaskListManagerRoutingCallback")
+]
+enum DISPIDs_IVsdTaskListRoutingCallback
+{
+	[helpstring("DISPID_IVsdTaskListRoutingCallback_RouteTaskListItem")] DISPID_IVsdTaskListRoutingCallback_RouteTaskListItem	 = 1,
+	[helpstring("DISPID_IVsdTaskListRoutingCallback_GetTaskListItemFileName")] DISPID_IVsdTaskListRoutingCallback_GetTaskListItemFileName	 = 2,
+} DISPIDs_IVsdTaskListManagerRoutingCallback;
+
+// Enumerators 
+typedef
+[
+	uuid(54565926-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdTaskAttributes")
+]
+enum vsdTaskAttributes
+{
+	[helpstring("vsdtaCanDelete")]	vsdtaCanDelete	= 1,
+} vsdTaskAttributes;
+
+
+
+
+// Interfaces
+[
+object,
+uuid(54565928-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdTaskListManager : IDispatch
+{
+	[id(DISPID_IVsdTaskListManager_CreateTaskList), helpstring("method CreateTaskList")] HRESULT CreateTaskList([out]IVsdTaskList **TaskList);
+	[id(DISPID_IVsdTaskListManager_Close), helpstring("method Close")] HRESULT Close();
+}
+
+[
+object,
+uuid(54565981-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdTaskList : IDispatch
+{
+	[id(DISPID_IVsdTaskList_SetRoutingCallback), helpstring("method SetRoutingCallback")] HRESULT SetRoutingCallback([in]IVsdTaskListRoutingCallback *RoutingCallback);
+	[id(DISPID_IVsdTaskList_AddTaskItem), helpstring("method AddTaskItem")] HRESULT AddTaskItem([in]BSTR CanonicalName, [in]vsdTaskAttributes TaskAttributes, [in]VSTASKCATEGORY TaskCategory, [in]VSTASKBITMAP bmpIndex, [in]VSTASKPRIORITY Priority, [in]IDispatch *Object, [in]DISPID dsipid, [in]long ErrorCode, [in]BSTR Message, [in]long lHelpContext);
+	[id(DISPID_IVsdTaskList_SetTaskItem), helpstring("method SetTaskItem")] HRESULT SetTaskItem([in]BSTR CanonicalName, [in]vsdTaskAttributes TaskAttributes, [in]VSTASKCATEGORY TaskCategory, [in]VSTASKBITMAP bmpIndex, [in]VSTASKPRIORITY Priority, [in]IDispatch *Object, [in]DISPID dsipid, [in]long ErrorCode, [in]BSTR Message, [in]long lHelpContext);
+	[id(DISPID_IVsdTaskList_RemoveTasks), helpstring("method RemoveTasks")] HRESULT RemoveTasks([in]IDispatch *Object, [in]DISPID dispid, [in]long ErrorCode);
+	[id(DISPID_IVsdTaskList_RemoveAll), helpstring("method RemoveAll")] HRESULT RemoveAll();
+}
+
+[
+uuid(54565929-dbfb-11d2-898d-0000f8064ebb),
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdTaskListItem : IDispatch
+{
+	[propget, id(DISPID_IVsdTaskListItem_CanonicalName), helpstring("property CanonicalName")] HRESULT CanonicalName([out, retval]BSTR *Val);
+	[id(DISPID_IVsdTaskListItem_SetValues), helpstring("method SetValues")] HRESULT SetValues([in]vsdTaskAttributes TaskAttributes, [in]VSTASKCATEGORY Category, [in]long lBmpIndex, [in]VSTASKPRIORITY Priority, [in]BSTR Message);
+}
+
+[
+object,
+uuid(54565957-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdTaskListRoutingCallback : IDispatch
+{
+	[id(DISPID_IVsdTaskListRoutingCallback_RouteTaskListItem), helpstring("method RouteTaskListItem")] HRESULT RouteTaskListItem([in]BSTR CanonicalName, [in]vsdTaskAttributes TaskAttributes, [in]VSTASKCATEGORY Category, [in]long lBmpIndex, [in]VSTASKPRIORITY Priority, [in]IDispatch *Object, [in]DISPID dispid, [in]HRESULT	hrIn, [in]BSTR Message);
+	[id(DISPID_IVsdTaskListRoutingCallback_GetTaskListItemFileName), helpstring("method GetTaskListItemFileName")] HRESULT GetTaskListItemFileName([out]BSTR *pbstrFileName);
+}
+

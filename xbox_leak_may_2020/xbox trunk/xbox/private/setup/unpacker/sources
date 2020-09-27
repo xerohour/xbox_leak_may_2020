@@ -1,0 +1,68 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=setup
+MINORCOMP=unpacker
+
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+TARGETNAME=unpacker
+
+UMTYPE=windows
+UMENTRY=winmain
+
+NOT_UNICODE=1
+USE_LIBC=1
+USE_NATIVE_EH=1
+
+!if "$(NTDEBUG)" != ""
+MSC_OPTIMIZATION=/Odi
+!endif
+
+INCLUDES=..\common
+
+SOURCES= \
+        cab.cpp         \
+        debug.cpp       \
+        dirs.cpp        \
+        manifest.cpp    \
+        uninstall.cpp   \
+        unpacker.cpp    \
+        wiz.cpp         \
+        wizpage.cpp     \
+        wzcopy.cpp      \
+        wzerror.cpp     \
+        wzfinish.cpp    \
+        wzlicense.cpp   \
+        wzseldir.cpp    \
+        wzwelc.cpp      \
+        unpacker.rc
+
+TARGETLIBS= \
+        ..\common\$(O)\common.lib     \
+        $(WSDK_LIB_PATH)\uuid.lib  \
+        $(WSDK_LIB_PATH)\shell32.lib  \
+        $(WSDK_LIB_PATH)\comctl32.lib \
+        $(WSDK_LIB_PATH)\ole32.lib \
+        $(WSDK_LIB_PATH)\fdi.lib \
+        $(WSDK_LIB_PATH)\version.lib
+        
+PRECOMPILED_INCLUDE=unpacker.h
+PRECOMPILED_PCH=upckrpch.pch
+PRECOMPILED_OBJ=upckrpch.obj
+PRECOMPILED_CXX=1
+

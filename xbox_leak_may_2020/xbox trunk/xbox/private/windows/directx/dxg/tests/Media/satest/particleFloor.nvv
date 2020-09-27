@@ -1,0 +1,28 @@
+; Vertex Shader for the floor of the Particle System
+; Each vertex contains
+; v0: position
+; v1: 2D texture coordinates
+
+
+#include "ParticleSystem.h"
+
+vs.1.0
+
+#define ZERO          c[VSC_CONSTANTS].x
+#define SIXTH       - c[VSC_SINE].y
+#define HALF        - c[VSC_COSINE].y
+#define MINUS_HALF    c[VSC_COSINE].y
+#define ONE           c[VSC_COSINE].x
+#define TWO           c[VSC_CONSTANTS].y
+#define PI            c[VSC_CONSTANTS].z
+
+
+; Transform position to clip space
+dp4 oPos.x, v0, c[VSC_WORLDVIEW_PROJ_0]
+dp4 oPos.y, v0, c[VSC_WORLDVIEW_PROJ_1]
+dp4 oPos.z, v0, c[VSC_WORLDVIEW_PROJ_2]
+dp4 oPos.w, v0, c[VSC_WORLDVIEW_PROJ_3]
+
+mov oT0, v1
+
+

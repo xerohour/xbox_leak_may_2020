@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Debugger.SendCommand</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>SendCommand</H1>
+    <DIV CLASS=BLOCK>
+    Sends a command string through the debug channel on the XBOX.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("void SendCommand(BSTR cmd)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>cmd</I><BR>
+        String specifying the command to send.
+        <TABLE>
+            <TR><TH>Command</TH><TH>Description</TH></TR>
+            <TR><TD>"NOTIFY"</TD><TD>Tells the debug channel to start sending responses on the TCP connection. Note that this sends the debuger into a special mode where other commands are ignored.</TD></TR>
+            <TR><TD>"REBOOT"</TD><TD></TD></TR>
+            <TR><TD>"SYSTIME"</TD><TD></TD></TR>
+            <TR><TD>"XBEINFO"</TD><TD></TD></TR>
+            <TR><TD>"TITLE"</TD><TD></TD></TR>
+            <TR><TD>"PCLIST"</TD><TD></TD></TR>
+            <TR><TD>"QUERYPC"</TD><TD></TD></TR>
+            <TR><TD>"MODULES"</TD><TD></TD></TR>
+            <TR><TD>"MODSECTIONS"</TD><TD></TD></TR>
+            <TR><TD>"MODLONG"</TD><TD></TD></TR>
+            <TR><TD>"FUNCCALL"</TD><TD></TD></TR>
+            <TR><TD>"QUERYKMEMINFO"</TD><TD></TD></TR>
+            <TR><TD>"QUERYCPUTIMEINFO"</TD><TD></TD></TR>
+        </TABLE>
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>
+    Note that all commands must be terminated with a proper new line character sequence (0x0D 0x0A)
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var debugmonitor = WScript.CreateObject(\"USBSimulator.Debugger\");\n\ndebugmonitor.Connect(\"157.56.10.74\");\ndebugmonitor.SendCommand(\"NOTIFY\\r\\n\");\n\ndebugmonitor.Disconnect();");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="m_Connect.htm">Connect</A>, <A HREF="m_Disconnect.htm">Disconnect</A>, <A HREF="m_GetResponse.htm">GetResponse</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

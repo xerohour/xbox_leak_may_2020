@@ -1,0 +1,41 @@
+'$include 'install.inc'
+
+
+scenario "Verify SDK Full Setup places correct name in Add/Remove Programs"
+	Dim uninstallName$
+	Dim xdkpath$
+
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Default install
+	'
+	Install(BuildNumber, false, false)
+
+	uninstallName = trim$(RegistryGetValue("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\"+UninstallKey, "DisplayName"))
+
+	if lcase(trim$(uninstallName)) <> "microsoft xbox sdk" then
+		FAIL "Incorrect display name in Add/Remove Programs. Is '"+uninstallName+"', but should be 'Microsoft Xbox SDK'"
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

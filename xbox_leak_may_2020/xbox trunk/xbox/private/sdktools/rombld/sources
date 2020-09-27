@@ -1,0 +1,41 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+USE_MSVCRT=1
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETNAME=rombld
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+INCLUDES=$(BASEDIR)\private\inc\crypto; \
+         $(BASEDIR)\private\ntos\bootx\inc; \
+         $(BASEDIR)\private\ntos\inc
+
+SOURCES= \
+        rombld.cpp \
+        list.cpp \
+        property.cpp \
+        util.cpp \
+        enc.cpp \
+        rombld.rc
+
+
+LINKLIBS=$(BASEDIR)\public\sdk\lib\*\user32.lib \
+         $(BASEDIR)\public\sdk\lib\*\kernel32.lib \
+         $(BASEDIR)\public\sdk\lib\*\shlwapi.lib \
+         $(BASEDIR)\public\sdk\lib\*\ole32.lib
+
+
+TARGETLIBS= $(BASEDIR)\private\lib\*\rsa32.lib \
+            $(BASEDIR)\public\sdk\lib\*\randlib.lib \
+            $(BASEDIR)\private\lib\*\xcrypt.lib \
+            $(BASEDIR)\private\lib\*\lci.lib
+
+UMTYPE=console
+
+

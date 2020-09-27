@@ -1,0 +1,26 @@
+TARGETNAME=netstrm
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+INCLUDES=$(INCLUDES);$(PRIVATE_INC_PATH);$(SDK_INC_PATH);$(BASEDIR)\private\ntos\inc
+INCLUDES=$(INCLUDES);..\netxmo
+
+C_DEFINES = $(C_DEFINES) -DKERNEL_MODE
+
+LINKLIBS= \
+         $(LIBRARY_PATH)\dsound$(D).lib\
+         $(SDK_LIB_PATH)\netxmo$(D).lib\
+         $(SDK_LIB_PATH)\vexmo$(D).lib\
+         $(SDK_LIB_PATH)\vdxmo$(D).lib
+
+TARGETLIBS= \
+    $(LIBRARY_PATH)\xnet$(D).lib
+
+SOURCES=\
+    netstream.cpp
+
+SYNCHRONIZE_BLOCK=1

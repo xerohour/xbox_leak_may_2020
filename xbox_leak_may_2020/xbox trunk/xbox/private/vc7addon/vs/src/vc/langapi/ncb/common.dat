@@ -1,0 +1,88 @@
+// CRT/Win32 Headers
+__far
+__RPC_FAR
+_CRTAPI1                __cdecl
+_CRTIMP
+DECLSPEC_UUID(x)        __declspec(uuid(x))
+DEFINE_GUIDNAMED(n)     __uuidof(struct n)
+DEFINE_GUIDSTRUCT(g, n) struct __declspec(uuid(g)) n
+DEFINE_OLEGUID(name, l, w1, w2) DEFINE_GUID(name, l, w1, w2, 0xC0,0,0,0,0,0,0,0x46)
+interface               __interface
+MIDL_INTERFACE(x)       struct __declspec(uuid(x)) __declspec(novtable)
+THROW0()                throw()
+WDBGAPI                 __stdcall
+WINAPI					__stdcall
+WINAPIV                 __cdecl
+
+// ATL/MFC headers
+AFX_CDECL               __cdecl
+AFX_CLASS_EXPORT        __declspec(dllexport)
+AFX_CLASS_IMPORT        __declspec(dllimport)
+AFX_COMDAT				__declspec(selectany)
+AFX_MSG_CALL            __thiscall
+AFX_NOVTABLE
+AFX_DATA
+AFX_DATADEF
+AFX_CORE_DATA
+AFX_DATA_IMPORT			__declspec(dllimport)
+AFXAPI                  __stdcall
+AFXISAPI                __stdcall
+AFXISAPI_CDECL          __cdecl
+AFXOLEAPI               __stdcall
+
+// COM Smart Pointers
+_COM_SMARTPTR        _com_ptr_t
+_COM_SMARTPTR_LEVEL2 _com_IIID
+_COM_SMARTPTR_TYPEDEF(Interface, IID) typedef _COM_SMARTPTR<_COM_SMARTPTR_LEVEL2<Interface, &IID> > Interface##Ptr
+
+BEGIN_DUAL_INTERFACE_PART(localClass, baseClass) class X##localClass : public baseClass { public: BEGIN_COM_MAP(X##localClass, localClass) COM_INTERFACE_ENTRY (baseClass) END_COM_MAP()
+DECLARE_AGGREGATABLE(x) public: typedef CComCreator2< CComCreator< CComObject< x > >, CComCreator< CComAggObject< x > > > _CreatorClass;
+DECLARE_CLASSFACTORY_EX(cf) typedef CComCreator< CComObjectCached< cf > > _ClassFactoryCreatorClass;
+DECLARE_CLASSFACTORY() DECLARE_CLASSFACTORY_EX(CComClassFactory)
+DECLARE_CLASSFACTORY2(lic) DECLARE_CLASSFACTORY_EX(CComClassFactory2<lic>)
+DECLARE_CLASSFACTORY_AUTO_THREAD() DECLARE_CLASSFACTORY_EX(CComClassFactoryAutoThread)
+DECLARE_CLASSFACTORY_SINGLETON(obj)  DECLARE_CLASSFACTORY_EX(CComClassFactorySingleton<obj>)
+DECLARE_DUAL_ERRORINFO()
+DECLARE_DYNCREATE(class_name) DECLARE_DYNAMIC(class_name) static CObject* PASCAL CreateObject();
+DECLARE_INTERFACE(iface) interface iface
+DECLARE_INTERFACE_(iface, baseiface) interface iface : public baseiface
+DECLARE_OLECREATE_EX(class_name) BEGIN_OLEFACTORY(class_name) END_OLEFACTORY(class_name)
+DECLARE_OLECTLTYPE(class_name) virtual UINT GetUserTypeNameID(); virtual DWORD GetMiscStatus();
+DECLARE_PROPERTY_SUPPORT(class)
+DECLARE_PROPPAGEIDS(class_name) protected: virtual LPCLSID GetPropPageIDs(ULONG& cPropPages);
+DECLARE_SERIAL(class_name) _DECLARE_DYNCREATE(class_name) AFX_API friend CArchive& AFXAPI operator>>(CArchive& ar, class_name* &pOb);
+DECLARE_STATIC_REGISTRY_RESOURCE(x) DECLARE_REGISTRY_RESOURCE(x)
+DECLARE_STATIC_REGISTRY_RESOURCEID(x) DECLARE_REGISTRY_RESOURCEID(x)
+DELEGATE_DUAL_INTERFACE(objectClass, dualClass)
+END_CONNECTION_PART(localClass) } m_x##localClass; friend class X##localClass;
+END_DUAL_INTERFACE_PART(localClass) } m_x##localClass; friend class X##localClass;
+END_INTERFACE_PART(localClass) } m_x##localClass; friend class X##localClass;
+IMPLEMENT_DUAL_ERRORINFO(objectClass, riidSource)
+IMPLEMENT_DYNAMIC(class_name, base_class_name) IMPLEMENT_RUNTIMECLASS(class_name, base_class_name, 0xFFFF, NULL, NULL)
+IMPLEMENT_DYNCREATE(class_name, base_class_name) CObject* PASCAL class_name::CreateObject(); IMPLEMENT_RUNTIMECLASS(class_name, base_class_name, 0xFFFF, class_name::CreateObject, NULL)
+IMPLEMENT_OLECREATE(class_name, external_name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) AFX_COMDAT COleObjectFactory class_name::factory(class_name::guid, RUNTIME_CLASS(class_name), FALSE, _T(external_name)); AFX_COMDAT const GUID class_name::guid;
+IMPLEMENT_OLECTLTYPE(class_name, idsUserTypeName, dwOleMisc) UINT class_name::GetUserTypeNameID(); DWORD class_name::GetMiscStatus();
+SNAPINMENUID(id)        public: static const UINT GetMenuID() { static const UINT IDMENU = id; return id; }
+
+
+// MFC try/catch wrappers
+TRY { AFX_EXCEPTION_LINK _afxExceptionLink; try {
+
+CATCH(class, e)		} catch (class* e) { ASSERT(e->IsKindOf(RUNTIME_CLASS(class))); _afxExceptionLink.m_pException = e;
+
+AND_CATCH(class, e)	} catch (class* e) { ASSERT(e->IsKindOf(RUNTIME_CLASS(class))); _afxExceptionLink.m_pException = e;
+
+END_CATCH			} }
+
+THROW(e)			throw e
+
+THROW_LAST()		(AfxThrowLastCleanup(), throw)
+
+CATCH_ALL(e)		} catch (CException* e) { {	ASSERT(e->IsKindOf(RUNTIME_CLASS(CException))); _afxExceptionLink.m_pException = e;
+
+AND_CATCH_ALL(e)	} catch (CException* e) { {	ASSERT(e->IsKindOf(RUNTIME_CLASS(CException))); _afxExceptionLink.m_pException = e;
+
+END_CATCH_ALL		} } }
+
+END_TRY				} catch (CException* e) { ASSERT(e->IsKindOf(RUNTIME_CLASS(CException))); _afxExceptionLink.m_pException = e; } }
+

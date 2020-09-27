@@ -1,0 +1,275 @@
+// wiascr.idl : IDL source for wiascr.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (wiascr.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// generic disp id's
+#define DISPID_GETPROP				1000
+#define DISPID_SETPROP				1001
+
+// IWia disp id's
+#define DISPID_WIA_DEVICES			1
+#define DISPID_WIA_CREATE			2
+
+// ICollection disp id's
+#define DISPID_COLLECTION_LENGTH	1
+
+// IWiaDeviceInfo disp id's
+#define DISPID_DEVINFO_CREATE		1
+#define DISPID_DEVINFO_ID			2
+#define DISPID_DEVINFO_NAME			3
+#define DISPID_DEVINFO_TYPE			4
+#define DISPID_DEVINFO_PORT			5
+#define DISPID_DEVINFO_UI_CLSID		6
+#define DISPID_DEVINFO_VENDOR		7
+
+// IWiaItem disp id's
+#define DISPID_ITEMD_CONNSTATUS		1
+#define DISPID_ITEMD_TIME			2
+#define DISPID_ITEMD_FIRMWAREVER	3
+
+#define DISPID_ITEM_NAME			20
+#define DISPID_ITEM_FULL_NAME		21
+#define DISPID_ITEM_TYPE			22
+#define DISPID_ITEM_WIDTH			23
+#define DISPID_ITEM_HEIGHT			24
+
+#define DISPID_ITEMC_THUMBWIDTH		50
+#define DISPID_ITEMC_THUMBHEIGHT	51
+#define DISPID_ITEMC_THUMBNAIL		52
+#define DISPID_ITEMC_HEIGHT			53
+#define DISPID_ITEMC_WIDTH			54
+
+#define DISPID_ITEM_CHILDREN		500
+	
+
+[
+	uuid(95CEDD63-2E34-4B84-9FB3-F86AF1D4BF7A),
+	version(1.0),
+	helpstring("nwscript 1.0 Type Library")
+]
+library NDMEDIALib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//
+	// Sample object class
+	//
+
+	[
+		object,
+		uuid(C7A4EFC9-017E-45AB-BEF0-9A8218BC1D40),
+		dual,
+		helpstring("ISample Interface"),
+		pointer_default(unique)
+	]
+	interface ISample : IDispatch
+	{
+		[propget, id(1), helpstring("Sample property")]
+		HRESULT SampleProperty([out, retval] BSTR * pbstrSample);
+		[propput, id(1), helpstring("Sample property")]
+		HRESULT SampleProperty([in] BSTR bstrSample);
+		[id(2), helpstring("Sample method. Does nothing in particular")]
+		HRESULT SampleMethod(void);
+	};
+	// End Sample
+
+	/*-------------------------------------------------------------------------
+	 * Wia Interfaces and classes
+	 *------------------------------------------------------------------------*/
+
+	[
+		object,
+		uuid(C34C8CE7-B253-4f89-AA25-8A24AD71D0C0),
+		dual,
+		helpstring( "ICollection interface" ),
+		pointer_default(unique)
+	]
+	interface ICollection : IDispatch
+	{
+        [propget, helpstring( "Returns the length of the collection" )]
+        HRESULT Count( [out,retval] long* pCount );
+
+		[propget, id(DISPID_COLLECTION_LENGTH), helpstring( "Returns the length of the collection" )]
+		HRESULT Length( [out, retval] unsigned long* plLength );
+		
+		[propget, id(DISPID_VALUE), helpstring("returns the specified item in the collection")]
+		HRESULT Item( [in] unsigned long lItem, [out, retval] IDispatch** ppDispItem );
+
+		[propget, id(DISPID_NEWENUM), helpstring("returns a copy of this enumerator")]
+		HRESULT _NewEnum( [out, retval] IUnknown** ppEnum );
+	};
+
+	[
+		object,
+		uuid(B10BA1BC-3713-4EC0-8EEA-690EBD2CED8A),
+		dual,
+		helpstring("IWia Interface"),
+		pointer_default(unique)
+	]
+	interface IWia : IDispatch
+	{
+		[id(10010), helpstring( "pops up the debugging dialog" )]
+		HRESULT _DebugDialog( BOOL fWait );
+
+		[propget, id(DISPID_WIA_DEVICES), helpstring( "Retrieves the device collection" )]
+		HRESULT Devices( [out, retval] ICollection** ppCol );
+
+		[id(DISPID_WIA_CREATE), helpstring( "connects to the specified device" )]
+		HRESULT Create( [in, unique] VARIANT* pvaConnect, [out,retval] IDispatch** ppDevice );
+	};
+
+	// for some reason midl doesn't put the DIID in the header
+	// this ensures that it is in the header which makes ATL a lot
+	// happier.
+	cpp_quote( "EXTERN_C const GUID DIID__IWiaEvents;" )
+
+	[
+		uuid(E5F04D72-6C16-42e2-BCCA-F8D0DB4ADE06),
+		helpstring("Events fired by the IWia interface")
+	]
+	dispinterface _IWiaEvents
+	{
+	properties:
+	methods:
+		[id(1), helpstring("handles a device connection" )]
+		void OnDeviceConnected( BSTR bstrDeviceId );
+		[id(2), helpstring("handles a device disconnection")]
+		void OnDeviceDisconnected( BSTR bstrDeviceId );
+		[id(3), helpstring("called when a transfer is complete")]
+		void OnTransferComplete( IDispatch* pItem, BSTR bstrPath );
+	};
+
+	[
+		object,
+		uuid(5267FF5E-7CAF-4769-865D-17A25968525E),
+		dual,
+		helpstring("IWiaDeviceInfo Interface"),
+		pointer_default(unique)
+	]
+	interface IWiaDeviceInfo : IDispatch
+	{
+		[propget, id(DISPID_DEVINFO_ID), helpstring("The id of the device")]
+		HRESULT Id( [out,retval] BSTR* pbstrDeviceId );
+
+		[propget, id(DISPID_DEVINFO_NAME), helpstring("the name of the device" )]
+		HRESULT Name( [out,retval] BSTR* pbstrName );
+
+		[propget, id(DISPID_DEVINFO_TYPE), helpstring("the type of the device" )]
+		HRESULT Type( [out,retval] BSTR* pbstrType );
+
+		[propget, id(DISPID_DEVINFO_PORT), helpstring("the port the device lives on" )]
+		HRESULT Port( [out,retval] BSTR* pbstrPort );
+
+		[propget, id(DISPID_DEVINFO_UI_CLSID), helpstring("the class id for the ui for this device" )]
+		HRESULT UIClsid( [out,retval] BSTR* pbstrGuidUI );
+
+		[propget, id(DISPID_DEVINFO_VENDOR), helpstring("the name of the vendor for this device" )]
+		HRESULT Manufacturer( [out,retval] BSTR* pbstrVendor );
+
+		[id(DISPID_DEVINFO_CREATE), helpstring("create a connection to this device")]
+		HRESULT Create( [out,retval] IDispatch** ppDevice );
+
+		// Universal backdoor for property inspection
+		[id(DISPID_GETPROP), helpstring("returns the value of the property with the given id")]
+		HRESULT GetPropById( [in] DWORD propid, [out,retval] VARIANT* pvaOut );
+	};
+
+	[
+		object,
+		uuid(D06D503F-4B71-40f3-94A7-66478F732BC9),
+		dual,
+		helpstring("IWiaDeviceItem interface"),
+		pointer_default(unique)
+	]
+	interface IWiaDispatchItem : IDispatch
+	{
+		// Methods ------------------------------------------------------------
+
+        // UI
+        [helpstring("shows the data acquisition U.I.")]
+        HRESULT GetItemsFromUI([in] DWORD dwFlags, [in] DWORD dwIntent, [out, retval] ICollection** ppCollection);
+
+		// Universal backdoor for property inspection
+		[id(DISPID_GETPROP), helpstring("returns the value of the property with the given id")]
+		HRESULT GetPropById( [in] DWORD propid, [out,retval] VARIANT* pvaOut );
+
+		// save this item (if its a file out)
+		[helpstring( "transfers the item to a file, or clipboard if filename is clipboard" )]
+		HRESULT Transfer( [in] BSTR pbstrFilename,  BOOL bAsyncTransfer );
+
+		// Properties.  (there are lots of them) ------------------------------
+
+		[propget, id(DISPID_ITEM_CHILDREN), helpstring("a collection of this items children")]
+		HRESULT Children( [out,retval] ICollection** ppCollection );
+		[propget, id(DISPID_ITEM_TYPE), helpstring("a string representing the type of this item")]
+		HRESULT ItemType( [out,retval] BSTR* pbstrType );
+
+		// WIA_DPA_xxx
+		[propget, id(DISPID_ITEMD_CONNSTATUS), helpstring("the current connection status")]
+		HRESULT ConnectStatus( [out,retval] BSTR* pbstrStatus );
+		[propget, id(DISPID_ITEMD_TIME), helpstring("the current time on the device RO/RW")]
+		HRESULT Time( [out,retval] BSTR* pbstrTime );
+		[propget, id(DISPID_ITEMD_FIRMWAREVER), helpstring("the firmware version of the device")]
+		HRESULT FirmwareVersion( [out,retval] BSTR* pbstrVersion );
+
+		// WIA_IPA_xxx
+		[propget, id(DISPID_ITEM_NAME), helpstring("the name of the item")]
+		HRESULT Name( [out,retval] BSTR* pbstrName );
+		[propget, id(DISPID_ITEM_FULL_NAME), helpstring("the full name of the item")]
+		HRESULT FullName( [out,retval] BSTR* pbstrFullName );
+		[propget, id(DISPID_ITEM_WIDTH), helpstring("the width of the item in pixels")]
+		HRESULT Width( [out,retval] DWORD* pdwWidth );
+		[propget, id(DISPID_ITEM_HEIGHT), helpstring("the height of the item in pixels")]
+		HRESULT Height( [out,retval] DWORD* pdwHeight );
+
+		// WIA_IPC_xxx
+		[propget, id(DISPID_ITEMC_THUMBWIDTH), helpstring("width of the the item's thumbnail")]
+		HRESULT ThumbWidth([out,retval] DWORD* pdwWidth );
+		[propget, id(DISPID_ITEMC_THUMBHEIGHT), helpstring("height of the item's thumbnail")]
+		HRESULT ThumbHeight( [out,retval] DWORD* pdwHeight );
+		[propget, id(DISPID_ITEMC_THUMBNAIL), helpstring("path to the temporary image thumbnail")]
+		HRESULT Thumbnail( [out,retval] BSTR* pbstrPath );
+		[propget, id(DISPID_ITEMC_WIDTH), helpstring("width of the picture")]
+		HRESULT PictureWidth( [out,retval] DWORD* pdwWidth );
+		[propget, id(DISPID_ITEMC_HEIGHT), helpstring("height of the picture")]
+		HRESULT PictureHeight( [out, retval] DWORD* pdwHeight );
+	};
+
+	/*-------------------------------------------------------------------------
+	 * Component Classes
+	 *------------------------------------------------------------------------*/
+
+	[
+		uuid(4C43FC25-E748-427F-8021-CB590027396F),
+		helpstring("Sample Class")
+	]
+	coclass Sample
+	{
+		[default] interface ISample;
+	};
+
+	[
+		uuid(0DAD5531-BF31-43AC-A513-1F8926BBF5EC),
+		helpstring("Wia Class")
+	]
+	coclass Wia
+	{
+		[default]			interface IWia;
+		[default, source]	dispinterface _IWiaEvents;
+	};
+	[
+		uuid(13F3EA8B-91D7-4F0A-AD76-D2853AC8BECE),
+		helpstring("WiaProtocol Class")
+	]
+	coclass WiaProtocol
+	{
+		[default] interface IInternetProtocolRoot;
+	};
+};
+

@@ -1,0 +1,17 @@
+@echo off
+set APPID=A7049955
+
+@echo Making directory %APPID% off C:\TDATA
+xbmkdir xc:\tdata\%APPID%\
+
+@echo Copying DMHarn.XBE to XBox
+xbcp -y -f %CURDIR%\DMHARN.XBE xe:\
+
+REM Copying the media recursively.
+xbcp -t -y -f -r %CURDIR%\Media xc:\tdata\%APPID%\
+
+REM Copying the INI file.
+xbcp -y -f %CURDIR%\dmharn.ini xc:\tdata\%APPID%\testini.ini
+
+@echo Run DMHARN on your XBox.
+

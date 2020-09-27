@@ -1,0 +1,27 @@
+
+USE_MSVCRT=1
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETNAME=GssServer
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+USE_CRTDLL=1
+
+C_DEFINES=$(C_DEFINES) -DRPC_NO_WINDOWS_H -DUNICODE -D_NTSDK
+
+INCLUDES=.
+         
+SOURCES= \
+        gssmisc.c \
+        gssserver.c \
+        GssServer.rc
+
+LINKLIBS=$(LIBRARY_PATH)\user32.lib   \
+         $(LIBRARY_PATH)\secur32.lib \
+         $(LIBRARY_PATH)\ws2_32.lib \
+         $(LIBRARY_PATH)\ntdll.lib \
+
+UMTYPE=console
+

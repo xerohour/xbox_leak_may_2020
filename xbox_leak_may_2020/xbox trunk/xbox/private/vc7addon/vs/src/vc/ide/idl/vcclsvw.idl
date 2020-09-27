@@ -1,0 +1,1058 @@
+// vcclsvw.idl : IDL source for vcclsvw.dll
+//  ClassView interfaces
+
+// This file will be processed by the MIDL tool to
+// produce the type library (vc.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+import "vsshell.idl";
+
+/* The rough hierarchy of interfaces (top level)
+	IWizardNode
+		ILanguageNodes
+			ILanguageNode -- the following are all language items.
+				ILanguageItems
+				ILanguageModule
+				ILanguageClassNode
+				ILanguageClass
+				ILanguageFunction
+				ILanguageVariable
+				ILanguageEnum
+				ILanguageTypedef
+				ILanguageMap
+				ILanguageMapItem
+				ILanguageMacro
+
+
+*/
+
+typedef enum 
+{
+	dxWizNormal			=	0x00000,	// can be anything
+	dxWizVariable		=	0x00100,	// variable
+	dxWizFunction		=	0x00200,	// function
+	dxWizCoclass		=	0x00400,	// coclass
+	dxWizInterface		=	0x00800,	// interface
+	dxWizClass			=	0x01000,	// class
+	dxWizTemplate		=	0x02000,	// it is ok for this thing to be a template
+	dxWizDispinterface	=	0x04000,	// dispinterface
+	dxWizLibrary		=	0x08000,	// library
+	dxWizEnum			=	0x00001,	// enum	-- never OR'ed with other type flags
+	dxWizTypedef		=	0x00002,	// typedef -- never OR'ed with other type flags
+	dxWizMap			=	0x00003,	// map -- never OR'ed with other type flags
+	dxWizMacro			=	0x00004		// macro -- never OR'ed with other type flags
+} OBJECTTYPE;
+
+// generic association major types
+typedef enum
+{
+	dxWizNothing		=	0x00000,	// current item has no association
+		// need to be able to OR these types with dxWizFunction and dxWizVariable
+	dxWizProperty		=	0x00001,	// current item, variable or function, is actually a property
+	dxWizPropertyNotify	=	0x00002,	// current item is a property change notification function
+	dxWizMethod			=	0x00004,	// current item is a function
+	dxWizActiveXMatch	=	0x00010,	// ActiveX assoc present
+	dxWizActiveXMissing	=	0x00020,	// would be present for ActiveX assoc if wasn't missing
+	dxWizActiveXNone	=	0x00040		// not related to ActiveX assoc
+} ASSOCTYPE;
+
+// location & hint types
+typedef enum
+{
+	dxWizHintNone		=	0x0000,	// no hint
+	dxWizStart			=	0x0001,	// start of whatever it is
+	dxWizEnd			=	0x0002,	// end of whatever it is
+	dxWizHintCOM		=	0x0004,	// it's a COM thingie (like STDMETHOD)
+	dxWizHintLineNumber	=	0x0008,	// hint is a line number
+	dxWizFilePathAbsolute =	0x0100,	// absolute path
+	dxWizFilePathRelative =	0x0200,	// relative to project directory
+	dxWizFilePathSimple	=	0x0400,	// just the file name, no directories
+	dxWizName			=	0x0800,	// want the name of whatever it is
+	dxWizHintGlobalScope =	0x1000,	// want the thing at global scope
+	dxWizHintCodeStart	=	0x2000,	// want start of file, below any #includes, etc.
+	dxWizDoIndents		=	0x4000,	// want the code we're inserting to be indented like auto-indent would do
+	dxWizFileInsertIface =	0x00010000,	// insert an interface appropriately into IDL/ODL
+	dxWizFileInsertCoclass = 0x00020000	// insert a coclass appropriately into IDL/ODL
+} HINTTYPE;
+
+// these flags are for determining scope for IDL/ODL import/importlib inclusion
+// we need to be able to OR them with dxWizImport and dxWizImportlib
+typedef enum
+{
+	dxWizFileScope		=	0x1000,	// it's at file scope (matters only for IDL/ODL)
+	dxWizLibraryScope	=	0x2000,	// it's at library scope (matters only for IDL/ODL)
+	dxWizObjectScope	=	0x4000	// it's at the scope of whatever object we resolved the filename for
+} SCOPETYPE;
+
+// file existence types
+typedef enum
+{
+	dxWizFileExist		=	0x00000001,	// the file already exists
+	dxWizFileInProject	=	0x00000002	// the file is already in the project
+} EXISTTYPE;
+
+// file types and 'include' variations
+typedef enum
+{
+	dxWizDefinition		=	0x0001,
+	dxWizDeclaration	=	0x0002,
+	dxWizMemberDefinitions = 0x0004,	// file the members of a class are defined in (the .cpp for a class)
+	dxWizMemberDeclarations	= 0x0008,	// file the members of a class are declared in (the .h for a class)
+	dxWizProjectInclude	=	0x0010,	// typically, stdafx.h
+	dxWizGlobalItem		=	0x0020,	// use this to get the #include file for a global func or var 
+	dxWizFileInclude	=	0x0040,	// use this to put an #include in a particular file
+	dxWizInclude		=	0x0080,	// it's an include
+	dxWizImport			=	0x0100,	// it's an import
+	dxWizImportlib		=	0x0200,	// it's an importlib
+	dxWizAllFileTypes	=	0x0FFF
+} FILETYPE;
+
+//----------------------------------------------------------------------
+// IVCClsVwPackage properties
+//----------------------------------------------------------------------
+	[
+		object,
+		uuid(CC2A8291-C75E-11d0-B580-00A0C91BC942),
+		dual,
+		helpstring("IVCClsVwPackage Interface"),
+		pointer_default(unique)
+	]
+	interface IVCClsVwPackage : IDispatch
+	{
+//		[propget, helpstring("")]
+//		HRESULT Caption ([out, retval]BSTR *pCaption);
+//		[propput, helpstring("")]
+//		HRESULT Caption ([in]BSTR Caption);
+//		HRESULT CreateFileView(/* [in] */ BSTR pszFileName);
+
+	};
+
+	
+
+	[
+		object,
+		uuid(CC2A8290-C75E-11d0-B580-00A0C91BC942),
+		dual,
+		helpstring("IClsVwInterface Interface"),
+		pointer_default(unique)
+	]
+	interface IClsVwInterface : IDispatch
+	{
+		[id(1), helpstring("method CreateView")] HRESULT CreateView(DWORD *piVCNode);
+		[id(2), helpstring("method CreateGenNode")] HRESULT CreateGenNode(BSTR bszFileName, BSTR bszPath, DWORD * pHandleGroup, DWORD dwProjItemCookie, DWORD * ppHandleFile);
+		[id(4), helpstring("method CreateGenGroup")] HRESULT CreateGenGroup(BSTR bszFileName, DWORD * ppHandle, DWORD dwProjItemCookie);
+	};
+cpp_quote("#define SID_SVCClsVwService IID_IClsVwInterface")
+
+//----------------------------------------------------------------------------
+// 
+//   ClassView Wizard interfaces
+//
+//----------------------------------------------------------------------------
+
+
+// forward declares
+// these are all real basic interfaces
+
+interface IWizardNode;		// base for all Wizard nodes
+interface IWizardTransaction;	// used for tracking transactions to allow commit & abort
+interface IWizardItem;		// base for all Wizard instances
+interface IWizardListNode;	// services for Wizard lists
+interface IWizardStrings;	// handles lists of strings returned from various queries
+interface IWizardIntegers;	// handles lists of integers returned from various queries
+interface IWizardEnum;		// handles lists of COM objects returned from various queries
+interface IWizardParser;	// all language specific things deal with this
+
+// these interfaces are used to handle AppObjects
+
+#ifdef NOT_YET
+interface IAppObjectNode;	// use for determining AppObjects in project
+interface IAppObject;		// basis for all AppObjects
+interface IAppObjectPart;	// all AppObjects consist of a series of these
+#endif // NOT_YET
+
+// Language specific interfaces
+
+interface ILanguageNode;
+interface ILanguageNodes;
+interface ILanguageItem;
+interface ILanguageModule;
+interface ILanguageClassNode;
+interface ILanguageClass;
+interface ILanguageFunction;
+interface ILanguageVariable;
+interface ILanguageEnum;
+interface ILanguageTypedef;
+interface ILanguageMap;
+interface ILanguageMapItem;
+interface ILanguageMacro;
+interface ILanguageItems;
+
+// use to create a new class
+
+#ifdef NOT_YET
+interface ICreateClasses;
+#endif // NOT_YET
+
+//----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
+[
+uuid(3A7B81A0-C02A-11d0-8D2A-00A0C91BC942),
+version(1.0),
+pointer_default(unique)
+]
+interface ILanguageNodes : IDispatch
+{
+	[helpstring("method get_ParseStatus")] HRESULT get_ParseStatus(short *pnParseStatus);
+	[helpstring("method get_ParseFilesLeft")] HRESULT get_ParseFilesLeft(int *pnParseFiles);
+	[helpstring("method put_DefaultConfiguration")] HRESULT put_DefaultConfiguration(LPCSTR lpszConfig);
+	[helpstring("method GetLanguageNode")] HRESULT GetLanguageNode(LPCSTR lpszName, IDispatch **ppvLangNode);
+	[helpstring("method FindInterface")] HRESULT FindInterface(LPCSTR lpszInterfaceName, [out] IDispatch **ppvInterface);
+	[helpstring("method _NewEnum")] HRESULT _NewEnum([out] IDispatch  **ppvInterface);
+}
+
+[
+uuid(BE2833A0-C0B3-11d0-8D2B-00A0C91BC942),
+version(1.0),
+pointer_default(unique)
+]
+interface ILanguageNode : IDispatch
+{
+	[id(1), helpstring("method get_LanguageName")] HRESULT get_LanguageName(BSTR *bstrLanguageName);
+	[id(2), helpstring("method GetVersion")] HRESULT GetVersion(long *pnMajor, long *pnMinor);
+	[id(3), helpstring("method CheckVersion")] HRESULT CheckVersion(long nMajor, long nMinor);
+	[id(4), helpstring("method EnumAllWizardTypes")] HRESULT EnumAllWizardTypes(long nScopeType, IWizardIntegers **ppvWizardIntegers);
+	[id(5), helpstring("method FindInterface")] HRESULT FindInterface(LPSTR lpszInterfaceName, 
+		[out] IDispatch**ppvInterface);
+	[id(6), helpstring("method GetAllNamesOfType")] HRESULT GetAllNamesOfType(long nScopeType, 
+		LPSTR lpszScopeName, long nType, IWizardStrings** ppvWizardStrings);
+	[id(7), helpstring("method get_ParseStatus")] HRESULT get_ParseStatus([out] short *pnParseStatus);
+	[id(8), helpstring("method get_ParseFilesLeft")] HRESULT get_ParseFilesLeft([out] int *pnParseFiles);
+	[id(9), helpstring("method GetSelectedProject")] HRESULT GetSelectedProject([out] DWORD *phTarget);
+#ifdef NOT_YET
+	[id(14), helpstring("method ParseName")] HRESULT ParseName(long nParseType, LPSTR lpszParseString, BSTR *pbstrResponse);
+#endif	// NOT_YET
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// IWizardIntegers
+//   This interface provides access to generic lists of Wizard string data.
+[
+uuid(BE2833A1-C0B3-11d0-8D2B-00A0C91BC942),
+version(1.0),
+pointer_default(unique)
+]
+interface IWizardIntegers : IDispatch
+{
+	// IWizardIntegers methods
+		[helpstring("method GetListType")] HRESULT GetListType(long *pnListType);
+		[helpstring("method Next")] HRESULT Next(long *pnElement);
+		[helpstring("method Skip")] HRESULT Skip(long nSkipNumber);
+		[helpstring("method Reset")] HRESULT Reset();
+		[helpstring("method Find")] HRESULT Find(long nElement, BOOL bPartialMatch, long *pnActualElement);
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+// IWizardStrings
+//   This interface provides access to generic lists of Wizard string data.
+
+[
+uuid(BE2833A2-C0B3-11d0-8D2B-00A0C91BC942),
+version(1.0),
+pointer_default(unique)
+]
+interface IWizardStrings : IDispatch
+{
+	// IWizardStrings methods
+		[id(1), helpstring("method GetListType")] HRESULT GetListType(long *pnListType);
+		[id(2), helpstring("method _NewEnum")] HRESULT _NewEnum(IDispatch /* IEnumVARIANT */ **ppenum);
+		[id(3), helpstring("method Find")] HRESULT Find(LPSTR lpszElement, BOOL bPartialMatch, BSTR *pbstrActualElement);
+};
+//	[id(5), helpstring("method GetListType")] HRESULT GetListType(long *pnListType);
+//	[id(6), helpstring("method _NewEnum")] HRESULT _NewEnum(IDispatch /* IEnumVARIANT */ **ppenum);
+//	[id(7), helpstring("method Find")] HRESULT Find(LPSTR lpszElement, BOOL bPartialMatch, BSTR *pbstrActualElement);
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+// ICollectionEvents
+//   This interface describes how events on collections can be handled
+
+[
+uuid(A11A3510-E60F-11d0-B592-00A0C91BC942),
+version(1.0),
+pointer_default(unique)
+]
+interface ICollectionEvents : IDispatch
+{
+		[id(1), helpstring("method AfterAdd")] HRESULT AfterAdd( IDispatch * pItem, DWORD dwCookie);
+		[id(2), helpstring("method BeforeDelete")] HRESULT BeforeDelete( IDispatch * pItem, DWORD dwCookie);
+		[id(3), helpstring("method AfterChange")] HRESULT AfterChange( IDispatch * pItem, DWORD dwCookie);
+		[id(4), helpstring("method BeginAtomic")] HRESULT BeginAtomic(DWORD dwCookie);
+		[id(5), helpstring("method EndAtomic")] HRESULT EndAtomic(DWORD dwCookie);
+};
+
+
+	
+/////////////////////////////////////////////////////////////////////////////
+// IWizardNode
+//   This is the primary interface on a base Wizard node.
+[
+	object,
+	uuid(FC3EDB88-C0B0-11D0-8D2B-00A0C91BC942),
+	dual,
+	helpstring("IWizardNode Interface"),
+	pointer_default(unique)
+]
+interface IWizardNode : IDispatch
+{
+	[id(1), helpstring("method GetVersion")] HRESULT GetVersion([out] long *pnMajor, [out] long *pnMinor);
+	[id(2), helpstring("method CheckVersion")] HRESULT CheckVersion(long nMajor, long nMinor);
+	[id(3), helpstring("method FindInterface")] HRESULT FindInterface(LPCSTR lpszInterfaceName,
+		[out] /* IDispatch */ IDispatch **ppvInterface);
+	[id(4), helpstring("method FindInterfacesOfType")] HRESULT FindInterfacesOfType(BSTR bstrInterfaceName, [out] /* IDispatch */ IDispatch **ppvI);
+	[id(5), helpstring("method StartTransaction")] HRESULT StartTransaction(IWizardTransaction **ppvTransaction);
+	[id(6), helpstring("method WaitOnParser")] HRESULT WaitOnParser();
+	[id(7), helpstring("method put_DefaultConfiguration")] HRESULT put_DefaultConfiguration(LPCSTR lpszConfig);
+	[id(8), helpstring("method get_ProjectName")] HRESULT get_ProjectName(BSTR* pbstrProjName);
+	[id(9), helpstring("method IsObjectInProject")] HRESULT IsObjectInProject(LPCSTR lpszObjName, BOOL* pbInProj);
+	[id(10), helpstring("method MakeRelative")] HRESULT MakeRelative(LPCSTR lpszOrigPath, LPCSTR lpszRelativeWhat, BSTR* pbstrRelativePath);
+	[id(11), helpstring("method GetSelectedProject")] HRESULT GetSelectedProject(DWORD* phTarget);
+	[id(12), helpstring("method GetBuildProject")] HRESULT GetBuildProject(DWORD hTarget, IUnknown** pBuildProject);
+	[id(13), helpstring("method GetProjectType")] HRESULT GetProjectType(DWORD hTarget, int* pnProjType);
+	[id(14), helpstring("method GetProjectDirectory")] HRESULT GetProjectDirectory(DWORD hTarget, BSTR* pbstrProjDir);
+	[id(15), helpstring("method GetCodeManagerLocation")] HRESULT GetCodeManagerLocation(BSTR* pbstrCodeMgrLoc);
+	[id(16), helpstring("method FindInterfacesOfTypeC")] HRESULT FindInterfacesOfTypeC(LPCSTR lpszInterfaceName,
+		[out] /* IDispatch */ IDispatch **ppvI);
+};
+
+	
+/////////////////////////////////////////////////////////////////////////////
+// IWizardTransaction
+//   This interface handles transaction management for other Wizard APIs (i.e., bail out capability).
+//	 'begin transaction' is implicit in creating one of these
+
+[
+	object,
+	uuid(FC3EDB8A-C0B0-11D0-8D2B-00A0C91BC942),
+	dual,
+	helpstring("IWizardTransaction Interface"),
+	pointer_default(unique)
+]
+interface IWizardTransaction : IDispatch
+{
+	[id(1), helpstring("method CommitTransaction")] HRESULT CommitTransaction(BOOL bRemember);
+	[id(2), helpstring("method AbortTransaction")] HRESULT AbortTransaction();
+	[id(3), helpstring("method CreateTemplate")] HRESULT CreateTemplate(DWORD lpStm, /* IWizExpandTemplates** */ IDispatch** ppvObj);	// similar to Gallery's CreateTemplateFromText
+};
+
+///////////////////////////////////////////////////////////////////// ////////
+// IWizardEnum
+//   This interface provides access to generic lists of Wizard objects.
+
+[
+	object,
+	uuid(FC3EDB8D-C0B0-11D0-8D2B-00A0C91BC942),
+	dual,
+	helpstring("IWizardEnum Interface"),
+	pointer_default(unique)
+]
+interface IWizardEnum : IDispatch
+{
+	[id(1), helpstring("method Next")] HRESULT Next([out] DWORD *ppvObj);
+	[id(2), helpstring("method Skip")] HRESULT Skip(long nSkipNumber);
+	[id(3), helpstring("method Reset")] HRESULT Reset();
+	[id(4), helpstring("method Find")] HRESULT Find(BSTR lpszElementName, BOOL bPartialMatch, [out] DWORD *ppvObj);
+};
+
+
+[
+	object,
+	uuid(853D4DF8-C30D-11D0-B57D-00A0C91BC942),
+	dual,
+	helpstring("IPrivLangItems Interface"),
+	pointer_default(unique)
+]
+interface IPrivLangItems : IUnknown
+{
+};
+
+[
+	object,
+	uuid(853D4E07-C30D-11D0-B57D-00A0C91BC942),
+	dual,
+	helpstring("ILanguageItems Interface"),
+	pointer_default(unique)
+]
+interface ILanguageItems : IDispatch
+{
+	[id(1), helpstring("method _NewEnum")] HRESULT _NewEnum(/* IEnumVARIANT */ IDispatch **ppenum);
+};
+
+
+[
+	object,
+	uuid(71006EA3-C3F1-11D0-B57E-00A0C91BC942),
+	dual,
+	helpstring("IBscPersistentItem Interface"),
+	pointer_default(unique)
+]
+interface IBscPersistentItem : IDispatch
+{
+	[id(1), helpstring("method GetIinst")] HRESULT GetIinst(DWORD *piinst);
+	[id(2), helpstring("method SetIinst")] HRESULT SetIinst(DWORD iinst);
+};
+
+[
+	object,
+	uuid(71006EA6-C3F1-11D0-B57E-00A0C91BC942),
+	dual,
+	helpstring("IOleCollection Interface"),
+	pointer_default(unique)
+]
+interface IOleCollection : IDispatch
+{
+	[id(1), helpstring("method Next")] HRESULT Next(unsigned long celt, VARIANT *rgvar, [out] DWORD *pceltFetched);
+	[id(2), helpstring("method Skip")] HRESULT Skip(DWORD celt);
+	[id(3), helpstring("method Reset")] HRESULT Reset();
+	[id(4), helpstring("method Clone")] HRESULT Clone(IDispatch **ppenum);
+};
+
+[
+	object,
+	uuid(CC4881C5-CED5-11D0-B586-00A0C91BC942),
+	dual,
+	helpstring("IVCEnum Interface"),
+	pointer_default(unique)
+]
+interface IVCEnum : IDispatch
+{
+	[id(1), helpstring("method Next")] HRESULT Next(DWORD celt, VARIANT *rgvar, [out] DWORD *pceltFetched);
+	[id(2), helpstring("method Skip")] HRESULT Skip(DWORD celt);
+	[id(3), helpstring("method Reset")] HRESULT Reset();
+	[id(4), helpstring("method Clone")] HRESULT Clone(IDispatch **ppenum);
+};
+
+[
+	object,
+	uuid(BBED9560-C995-11d0-B581-00A0C91BC942),
+	dual,
+	helpstring("ILanguageClass Interface"),
+	pointer_default(unique)
+]
+interface ILanguageClass : IDispatch
+{
+	[id(1), helpstring("method GetScopeObject")] HRESULT GetScopeObject(LPSTR lpszScopeName, IDispatch** ppvScopeObject);
+	[id(6), helpstring("method HasMembers")] HRESULT HasMembers(BOOL* bHasMembers);
+	[id(7), helpstring("method HasAssociations")] HRESULT HasAssociations(long nAssociationMajorType, 
+		long nAssociationMinorType, BOOL* pbHasAssoc);
+	[id(8), helpstring("method GetAssociations")] HRESULT GetAssociations(long nAssociationMajorType, 
+		long nAssociationMinorType, IDispatch** pvAssociations);
+	[id(11), helpstring("method FindInterface")] HRESULT FindInterface(LPSTR lpszInterfaceName, 
+		IDispatch** ppvInterface);
+	[id(16), helpstring("method GetName")] HRESULT GetName(short nWizType, BSTR * pbClassName);
+	[id(17), helpstring("method get_BaseClass")] HRESULT get_BaseClass( BSTR* pbstrBaseClass);
+	[id(18), helpstring("method GotoEditorLocation")] HRESULT GotoEditorLocation(long nFileType, 
+		short nLocationType);
+	[id(20), helpstring("method get_AllFileNames")] HRESULT get_AllFileNames( long nFileType, short nPathType, 
+		IDispatch** ppvFiles);
+	[id(21), helpstring("method get_BaseClassList")] HRESULT get_BaseClassList(IDispatch** ppvBaseClassNames);
+	[id(23), helpstring("method HasBaseClass")] HRESULT HasBaseClass(LPCSTR lpszBaseClass, BOOL bAsImmediate, 
+		BOOL* pbHasBaseClass);
+	[id(24), helpstring("method SetName")] HRESULT SetName(LPCSTR lpszName);
+	[id(25), helpstring("method get_Type")] HRESULT get_Type(BSTR * pbClassType);
+	[id(26), helpstring("method get_AccessType")] HRESULT get_AccessType(short* pnAccessType);
+	[id(27), helpstring("method put_AccessType")] HRESULT put_AccessType(short nAccessType);
+	[id(28), helpstring("method get_Contents")] HRESULT get_Contents(BSTR* pbstrClassContents);
+	[id(29), helpstring("method put_Contents")] HRESULT put_Contents(LPCSTR lpszContents);
+	[id(30), helpstring("method get_AllAttributes")] HRESULT get_AllAttributes(BSTR* pbstrAllAttributes);
+	[id(31), helpstring("method put_AllAttributes")] HRESULT put_AllAttributes(LPCSTR lpszAllAttributes);
+	[id(32), helpstring("method get_NumberOfAttributes")] HRESULT get_NumberOfAttributes(short* pnNumAttrib);
+	[id(40), helpstring("method GetScope")] HRESULT GetScope(long* nScopeType, BSTR* bstrScopeName);
+	[id(42), helpstring("method get_FileName")] HRESULT get_FileName(long nFileType, short nPathType, BSTR* pbstrFileName);
+	[id(44), helpstring("method get_StartLine")] HRESULT get_StartLine(long nFileType, long* pnLineNumber);
+	[id(45), helpstring("method get_EndLine")] HRESULT get_EndLine(long nFileType, long* pnLineNumber);
+	[id(46), helpstring("method get_Conditions")] HRESULT get_Conditions(BSTR* bstrConditions);
+	[id(47), helpstring("method put_Conditions")] HRESULT put_Conditions(LPCSTR lpszConditions);
+	[id(48), helpstring("method GetNamedAttribute")] HRESULT GetNamedAttribute(LPCSTR lpszName, BSTR* bstrValue, 
+		BOOL* bIsDefined);
+	[id(49), helpstring("method SetNamedAttribute")] HRESULT SetNamedAttribute(LPCSTR lpszName, 
+		LPCSTR lpszValue, BOOL bIsDefined);
+	[id(50), helpstring("method GetIndexedAttribute")] HRESULT GetIndexedAttribute(short nIndex, BSTR* bstrName, 
+		BSTR* bstrValue);
+	[id(51), helpstring("method EnumAllWizardTypes")] HRESULT EnumAllWizardTypes(long nScopeType, 
+		LPCSTR lpszScopeName, IDispatch** pvWizardIntegers);
+	[id(52), helpstring("method GetAllNamesOfType")] HRESULT GetAllNamesOfType(long nScopeType, 
+		LPCSTR lpszScopeName, long nWizardType,	IDispatch** pvWizardStrings);
+	[id(53), helpstring("method GetAllObjectsOfType")] HRESULT GetAllObjectsOfType(long nWizardMajorType, 
+		long nWizardMinorType, LPCSTR lpszExtra, IDispatch** ppvWizardEnum);
+	[id(54), helpstring("method GetObjectOfType")] HRESULT GetObjectOfType(long nWizardMajorType, 
+		long nWizardMinorType, LPCSTR lpszExtra, LPCSTR lpszObjectName, IDispatch** pvLangItem);
+	[id(61), helpstring("method GetFileAccess")] HRESULT GetFileAccess(short nMode, long nFindType, 
+		long nHintType, LPCSTR lpszHintName, BOOL* pbHaveAccess);
+	[id(63), helpstring("method GetAssociation")] HRESULT GetAssociationName(long nAssociationMajorType, 
+		long nAssociationMinorType, long nPresentHow, BSTR* pbstrName);
+	[id(64), helpstring("method GetBrowserInfo")] HRESULT GetBrowserInfo(BSTR* psz, DWORD* ptyp, DWORD* patr, 
+		BOOL* pbSuccess);
+	[id(71), helpstring("method GetTemplate")] HRESULT GetTemplate(long nWizardType, LPCSTR lpszName, 
+		BSTR* pbstrTemplate, BSTR* pbstrTemplateVariables);
+	[id(73), helpstring("method AddVariable")] HRESULT AddMember(long nMemberKind, LPCSTR lpszMemberName, 
+		LPCSTR lpszMemberType, short nAccessType, LPCSTR lpszAttributes, LPCSTR lpszConditions, 
+		LPCSTR lpszBody, long nHintType, LPCSTR lpszHintName, BOOL bMemberAddAfter);
+	[id(75), helpstring("method AddMemberBody")] HRESULT AddMemberBody(long nMemberKind, 
+		LPCSTR lpszMemberName, LPCSTR lpszMemberType, LPCSTR lpszAttributes, LPCSTR lpszMemberBody, 
+		LPCSTR lpszConditions, long nHintType, LPCSTR lpszHintName, BOOL bMemberAddAfter);
+	[id(76), helpstring("method CreateFunctionStubBody")] HRESULT CreateFunctionStubBody(VARTYPE vt, 
+		BSTR* pbstrReturn);
+	[id(78), helpstring("method AddBaseClass")] HRESULT AddBaseClass(LPCSTR pszBaseClass, short nAccessType, 
+		long nHintType, LPCSTR lpszHintName);
+	[id(79), helpstring("method get_Configuration")] HRESULT get_Configuration(BSTR * pbstrConfig);
+	[id(80), helpstring("method GetClassStyle")] HRESULT GetClassStyle (BSTR* pbstrStyle);
+	[id(81), helpstring("method GetMinorClassStyle")] HRESULT GetMinorClassStyle(LPCSTR lpszMajorStyle, 
+		BSTR* pbstrStyle);
+	[id(82), helpstring("method GetSpecialIncludes")] HRESULT GetSpecialIncludes (LPCSTR lpszParams, 
+		BSTR* pbstrIncludes);
+	[id(100), helpstring("method GetOneLine")] HRESULT GetOneLine(long nFileType, long nLineNumber, 
+		BSTR* bstrLineContents);
+	[id(101), helpstring("method SetOneLine")] HRESULT SetOneLine(long nFileType, long nLineNumber, 
+		LPCSTR lpszText);
+	[id(105), helpstring("method InsertText")] HRESULT InsertText(long nFileType, LPCSTR lpszText, 
+		long nLineNumber, long nColumn, BOOL bFullLine);
+	[id(106), helpstring("method Refresh")] HRESULT Refresh();
+
+#ifdef NOT_YET
+[id(83), helpstring("method get_RelatedAppObjects")] HRESULT get_RelatedAppObjects(IDispatch * * ppvWizardEnum);
+[id(84), helpstring("method get_OverrideList")] HRESULT get_OverrideList(LPWIZARDLIST * ppvWizardList);
+[id(85), helpstring("method GetOverrideItem")] HRESULT GetOverrideItem(LPCSTR lpszFunctionName, BSTR * pbstrFullName);
+[id(98), helpstring("method RenderFunctionTemplate")] HRESULT RenderFunctionTemplate(LPCSTR lpszFunctionName, LPCSTR lpszTemplateVariables, LPCSTR lpszDeclHintType, LPCSTR lpszDeclHintName, BOOL bDeclAddAfter, LPCSTR lpszImplHintType, LPCSTR lpszImplHintName, BOOL bImplAddAfter);
+[id(99), helpstring("method RenderMyTemplate")] HRESULT RenderMyTemplate(LPCSTR lpszTemplate, LPCSTR lpszTemplateVariables, BSTR * bstrRenderedTemplate);
+[id(102), helpstring("method FindExactText")] HRESULT FindExactText(long nLineNumberStart, LPCSTR lpszText, BOOL bCheckNext, BOOL bCheckComments, BSTR * pbstrFoundFile, BSTR * pbstrFoundLocation, long * pnLineNumberFound);
+[id(103), helpstring("method FindVariable")] HRESULT FindVariable(LPCSTR lpszVariableType, long nLineNumberStart, BOOL bCheckNext, BSTR * pbstrVariableName, BSTR * pbstrFoundFile, BSTR * pbstrFoundLocation, long * nLineNumberFound);
+[id(104), helpstring("method WhatIsThis")] HRESULT WhatIsThis(LPCSTR lpszText, LPCSTR lpszFileFound, long nLineNumber, long * nTokenType);
+[id(106), helpstring("method DeleteOneLine")] HRESULT DeleteOneLine(long nFileType, long nLineNumber);
+#endif	// NOT_YET
+};
+
+[
+	object,
+	uuid(C7861D80-D4AD-11d0-B58A-00A0C91BC942),
+	dual,
+	helpstring("ILanguageFunction Interface"),
+	pointer_default(unique)
+]
+interface ILanguageFunction : IDispatch
+{
+	[id(1), helpstring("method GetName")] HRESULT GetName(short nNameType, BSTR* bstrName);
+	[id(2), helpstring("method SetName")] HRESULT SetName(LPCSTR lpszName);
+	[id(3), helpstring("method get_AccessType")] HRESULT get_AccessType(short* pnAccessType);
+	[id(4), helpstring("method put_AccessType")] HRESULT put_AccessType(short nAccessType);
+	[id(5), helpstring("method get_Contents")] HRESULT get_Contents(BSTR* pbstrContents);
+	[id(6), helpstring("method put_Contents")] HRESULT put_Contents(LPCSTR lpszContents);
+	[id(7), helpstring("method get_AllAttributes")] HRESULT get_AllAttributes(BSTR* pbstrAllAttributes);
+	[id(8), helpstring("method put_AllAttributes")] HRESULT put_AllAttributes(LPCSTR lpszAllAttributes);
+	[id(9), helpstring("method get_NumberOfAttributes")] HRESULT get_NumberOfAttributes(short* pnNumAttrib);
+	[id(10), helpstring("method get_Conditions")] HRESULT get_Conditions(short nWhichFile, BSTR* pbstrConditions);
+	[id(11), helpstring("method put_Conditions")] HRESULT put_Conditions(short nWhichFile, LPCSTR lpszConditions);
+	[id(12), helpstring("method GetScope")] HRESULT GetScope(long* nScopeType, BSTR* bstrScopeName);
+	[id(13), helpstring("method GetScopeObject")] HRESULT GetScopeObject(LPCSTR lpszScopeName, 
+		IDispatch** pvScopeObject);
+	[id(14), helpstring("method GetReturnType")] HRESULT GetReturnType(short nWhichOne, BSTR* pbstrReturnType);
+	[id(15), helpstring("method SetReturnType")] HRESULT SetReturnType(short nWhichOne, LPCSTR lpszReturnType);
+	[id(16), helpstring("method GetNamedAttribute")] HRESULT GetNamedAttribute(LPCSTR lpszName, 
+		BSTR* bstrValue, BOOL * bIsDefined);
+	[id(17), helpstring("method SetNamedAttribute")] HRESULT SetNamedAttribute(LPCSTR lpszName, 
+		LPCSTR lpszValue, BOOL bIsDefined);
+	[id(18), helpstring("method GetIndexedAttribute")] HRESULT GetIndexedAttribute(short nAttribNum, 
+		BSTR* bstrName, BSTR* bstrValue);
+	[id(19), helpstring("method GetParameters")] HRESULT GetParameters(BOOL bWithAttributes, 
+		BSTR* pbstrParameters);
+	[id(20), helpstring("method SetParameters")] HRESULT SetParameters(LPCSTR lpszParameters);
+	[id(21), helpstring("method get_NumberOfParameters")] HRESULT get_NumberOfParameters(short* pnNumParams);
+ 	[id(22), helpstring("method GetOneParameter")] HRESULT GetOneParameter(short nParamNum, BSTR* pbstrParam, BSTR * bstrAttribs);
+	[id(23), helpstring("method SetOneParameter")] HRESULT SetOneParameter(short nParamNum, LPCSTR lpszParam, 
+		LPCSTR lpszAttribs);
+	[id(24), helpstring("method GetOneParameterAttributes")] HRESULT GetOneParameterAttributes(short nParamNum, BSTR * bstrAttribs);
+	[id(25), helpstring("method GetOneParameterAttributeCount")] HRESULT GetOneParameterAttributeCount(
+		short nParamNum, short* nAttribCount);
+	[id(26), helpstring("method GetOneParameterNamedAttribute")] HRESULT GetOneParameterNamedAttribute(
+		short nParamNum, LPCSTR lpszName, BSTR* bstrValue,  BOOL* bIsDefined);
+	[id(27), helpstring("method SetOneParameterNamedAttribute")] HRESULT SetOneParameterNamedAttribute(
+		short nParamNum, LPCSTR lpszName, LPCSTR lpszValue, BOOL bIsDefined);
+	[id(28), helpstring("method GetOneParameterIndexedAttribute")] HRESULT GetOneParameterIndexedAttribute(
+		short nParamNum, short nAttribNum, BSTR* bstrName, BSTR* bstrValue);
+	[id(29), helpstring("method GetAssociationType")] HRESULT GetAssociationType(long nAssociationType, 
+		LPCSTR lpszInterfaceName, BSTR* bstrInterfaceName, long* pnType);
+	[id(30), helpstring("method GetAssociation")] HRESULT GetAssociation(long nAssociationMajorType, 
+		long nAssociationMinorType, LPCSTR lpszName, IDispatch** pvLangFunc, long* pnType, BSTR* pbstrName);
+	[id(31), helpstring("method GetAssociationName")] HRESULT GetAssociationName(long nAssociationMajorType, 
+		long nAssociationMinorType, long nPresentHow, BSTR* pbstrName);
+	[id(32), helpstring("method IsVirtual")] HRESULT IsVirtual(BOOL* pbIsVirtual);
+	[id(33), helpstring("method get_FileName")] HRESULT get_FileName(long nFileType, short nPathType, 
+		BSTR* pbstrFileName);
+	[id(34), helpstring("method get_AllFileNames")] HRESULT get_AllFileNames(long nFileType, short nPathType, 
+		IDispatch ** ppvFiles);
+	[id(35), helpstring("method get_StartLine")] HRESULT get_StartLine(long nFileType, long* pnLineNumber);
+	[id(36), helpstring("method get_EndLine")] HRESULT get_EndLine(long nFileType, long* pnLineNumber);
+	[id(37), helpstring("method GetBrowserInfo")] HRESULT GetBrowserInfo(BSTR* psz, DWORD* ptyp, DWORD* patr,
+		BOOL* pbSuccess);
+	[id(38), helpstring("method get_Configuration")] HRESULT get_Configuration(BSTR* pbstrConfig);
+	[id(39), helpstring("method FindInterface")] HRESULT FindInterface(LPCSTR lpszInterfaceName, 
+		IDispatch** ppvInterface);
+	[id(40), helpstring("method GotoEditorLocation")] HRESULT GotoEditorLocation(long nFileType, 
+		short nLocationType);
+	[id(41), helpstring("method Delete")] HRESULT Delete(short nPieceToDelete, short nCommentOrDeletePiece);
+	[id(42), helpstring("method GetOneLine")] HRESULT GetOneLine(long nFileType, long nLineNumber, 
+		BSTR* bstrLineContents);
+	[id(43), helpstring("method InsertText")] HRESULT InsertText(long nFileType, LPCSTR lpszText, 
+		long nLineNumber, long nColumn, BOOL bFullLine);
+	[id(44), helpstring("method SetOneLine")] HRESULT SetOneLine(long nFileType, long nLineNumber, 
+		LPCSTR lpszText);
+#ifdef NOT_YET
+	[id(45), helpstring("method GetActiveXMethod")] HRESULT GetActiveXMethod(BSTR* bstrInterfaceName, 
+		BSTR* bstrMethodName);
+	[id(46), helpstring("method GetActiveXProperty")] HRESULT GetActiveXProperty(BSTR* bstrInterfaceName, 
+		long* nPart, BSTR* bstrImplGet, BSTR* bstrImplPut, BSTR* bstrPropGet, BSTR* bstrPropPut);
+	[id(47), helpstring("method AddToFunction")] HRESULT AddToFunction(long nOffset, int nByNumLines, 
+		LPCSTR lpszText);
+	[id(48), helpstring("method FindExactText")] HRESULT FindExactText(long nLineNumberStart, LPCSTR lpszText,
+		BOOL bCheckNext, BOOL bCheckComments, BSTR* pbstrFoundFile, BSTR* pbstrFoundLocation, 
+		long* nLineNumberFound);
+	[id(49), helpstring("method FindVariable")] HRESULT FindVariable(LPCSTR lpszVariableType, 
+		long nLineNumberStart, BOOL bCheckNext, BSTR* pbstrVariableName, BSTR* pbstrFoundFile, 
+		BSTR* pbstrFoundLocation, long* nLineNumberFound);
+	STDMETHOD(WhatIsThis)(THIS_ LPCTSTR lpszText, LPCTSTR lpszFileFound, long nLineNumber, 
+		long FAR* nTokenType) PURE;
+	[id(50), helpstring("method WhatIsThis")] HRESULT WhatIsThis(LPCSTR lpszText, LPCSTR lpszFileFound, 
+		long nLineNumber, long* nTokenType);
+	[id(51), helpstring("method DeleteOneLine")] HRESULT DeleteOneLine(long nFileType, long nLineNumber);
+#endif	// NOT_YET
+}
+
+[
+	object,
+	uuid(C7861D81-D4AD-11d0-B58A-00A0C91BC942),
+	dual,
+	helpstring("ILanguageVariable Interface"),
+	pointer_default(unique)
+]
+interface ILanguageVariable : IDispatch
+{
+	[id(1), helpstring("method GetName")] HRESULT GetName(short nNameType, BSTR* bstrName);
+	[id(2), helpstring("method SetName")] HRESULT SetName(LPCSTR lpszName);
+	[id(3), helpstring("method get_AccessType")] HRESULT get_AccessType(short* pnAccessType);
+	[id(4), helpstring("method put_AccessType")] HRESULT put_AccessType(short nAccessType);
+	[id(5), helpstring("method get_Type")] HRESULT get_Type(BSTR* pbstrType);
+	[id(6), helpstring("method put_Type")] HRESULT put_Type(LPCSTR lpszType);
+	[id(7), helpstring("method get_NumberOfAttributes")] HRESULT get_NumberOfAttributes(short* numAttribs);
+	[id(8), helpstring("method get_AllAttributes")] HRESULT get_AllAttributes(BSTR* bstrAttribs);
+	[id(9), helpstring("method put_AllAttributes")] HRESULT put_AllAttributes(LPCSTR lpszAttribs);
+	[id(10), helpstring("method get_FileName")] HRESULT get_FileName(long nFileType, short nPathType, 
+		BSTR* pbstrFileName);
+	[id(11), helpstring("method get_AllFileNames")] HRESULT get_AllFileNames(long nFileType, short nPathType, 
+		IDispatch** ppvFiles);
+	[id(12), helpstring("method get_StartLine")] HRESULT get_StartLine(long nFileType, long* pnLineNumber);
+	[id(13), helpstring("method get_EndLine")] HRESULT get_EndLine(long nFileType, long* pnLineNumber);
+	[id(14), helpstring("method get_Conditions")] HRESULT get_Conditions(BSTR* bstrConditions);
+	[id(15), helpstring("method put_Conditions")] HRESULT put_Conditions(LPCSTR lpszConditions);
+	[id(16), helpstring("method GetBrowserInfo")] HRESULT GetBrowserInfo(BSTR* psz, DWORD* ptyp, DWORD* patr, 
+		BOOL* pbSuccess);
+	[id(17), helpstring("method get_Configuration")] HRESULT get_Configuration(BSTR* pbstrConfig);
+	[id(18), helpstring("method GetScope")] HRESULT GetScope(long* nScopeType, BSTR* bstrScopeName);
+	[id(19), helpstring("method GetScopeObject")] HRESULT GetScopeObject(LPCSTR lpszScopeName, 
+		IDispatch** pvScopeObject);
+	[id(20), helpstring("method GetNamedAttribute")] HRESULT GetNamedAttribute(LPCSTR lpszName, 
+		BSTR* bstrValue, BOOL* bIsDefined);
+	[id(21), helpstring("method SetNamedAttribute")] HRESULT SetNamedAttribute(LPCSTR lpszName, 
+		LPCSTR lpszValue, BOOL bIsDefined);
+	[id(22), helpstring("method GetIndexedAttribute")] HRESULT GetIndexedAttribute(short nAttribNum, 
+		BSTR* bstrName, BSTR* bstrValue);
+	[id(24), helpstring("method FindInterface")] HRESULT FindInterface(LPCSTR lpszInterfaceName, 
+		IDispatch** ppvInterface);
+	[id(25), helpstring("method GotoEditorLocation")] HRESULT GotoEditorLocation(long nFileType, 
+		short nLocationType);
+#ifdef NOT_YET
+	[id(23), helpstring("method GetActiveXProperty")] HRESULT GetActiveXProperty(BSTR* bstrInterfaceName, 
+		long* nPart, BSTR* bstrOne, BSTR* bstrImplNotify, BSTR* bstrProp, BSTR* bstrTwo);
+#endif	// NOT_YET
+}
+
+
+[
+	object,
+	uuid(7B794051-CEF7-11d0-B586-00A0C91BC942),
+	dual,
+	helpstring("ILanguageClassNode Interface"),
+	pointer_default(unique)
+]
+interface ILanguageClassNode : IDispatch
+{
+	[id(1), helpstring("method GetScopeObject")] HRESULT GetScopeObject(LPCSTR lpszScopeName, IDispatch** pvScopeObject);
+	[id(2), helpstring("method GetAllObjectsOfType")] HRESULT GetAllObjectsOfType(DWORD hTarget, 
+		long nWizardMajorType, long nWizardMinorType, LPCSTR lpszExtra, IDispatch** ppvWizardEnum);
+	[id(3), helpstring("method GetObjectOfType")] HRESULT GetObjectOfType(DWORD hTarget, 
+		long nWizardMajorType, long nWizardMinorType, LPCSTR lpszExtra, LPCSTR lpszObjectName, 
+		IDispatch** ppvLangItem);
+	[id(6), helpstring("method GetDerivedClasses")] HRESULT GetDerivedClasses(LPCSTR lpszBaseClass, 
+		BOOL bImmediateOnly, IDispatch** ppvClasses);
+	[id(7), helpstring("method HasMembers")] HRESULT HasMembers(BOOL* pbHasMembers);
+	[id(8), helpstring("method HasAssociations")] HRESULT HasAssociations(DWORD hTarget, 
+		long nAssociationMajorType, long nAssociationMinorType, LPCSTR lpszClass, BOOL* pbHasAssoc);
+	[id(9), helpstring("method GetAssociations")] HRESULT GetAssociations(DWORD hTarget, 
+		long nAssociationMajorType, long nAssociationMinorType, LPCSTR lpszClass, IDispatch** pvWizardEnum);
+	[id(10), helpstring("method GetAssociationName")] HRESULT GetAssociationName(DWORD hTarget, 
+		long nAssociationMajorType, long nAssociationMinorType, long nPresentHow, long nAssociatedHow, 
+		LPCSTR lpszAssociatedName, BSTR* pbstrName);
+	[id(11), helpstring("method AddInclude")] HRESULT AddInclude(long nAddWhere, LPCSTR lpszClassName, 
+		LPCSTR lpszIncludeName, LPCSTR lpszConditions, LPCSTR lpszComments, long nHintType, 
+		LPCSTR lpszHintName, BOOL bAddAfter);
+	[id(12), helpstring("method GetInclude")] HRESULT GetInclude(long nFileType, LPCSTR lpszClassName, 
+		BOOL bMakeRelative, LPCSTR lpszRelativeWhere, BSTR* pbstrIncludeFile);
+	[id(13), helpstring("method FindInterface")] HRESULT FindInterface(LPCSTR lpszInterfaceName, 
+		IDispatch** ppvInterface);
+	[id(14), helpstring("method IsValidSymbol")] HRESULT IsValidSymbol(long nObjectType, LPCSTR lspzName, 
+		BOOL* pbIsValidSymbol);
+	[id(15), helpstring("method IsReservedSymbol")] HRESULT IsReservedSymbol(long nObjectType, 
+		LPCSTR lpszName, long* pnSymbolType);
+	[id(16), helpstring("method CreateWrapper")] HRESULT CreateWrapper(long nHintType, LPCSTR lpszHintName, 
+		LPCSTR lpszSeed, BSTR* pbstrWrapper);
+	[id(17), helpstring("method GetSelectedProject")] HRESULT GetSelectedProject(DWORD* phTarget);
+};
+
+
+[
+	object,
+	uuid(D49DF1E0-DC55-11d0-B58C-00A0C91BC942),
+	dual,
+	helpstring("ILanguageMap Interface"),
+	pointer_default(unique)
+]
+interface ILanguageMap : IDispatch
+{
+	[id(1), helpstring("method GetName")] HRESULT GetName( short nNameType, BSTR* pbstrName);
+	[id(2), helpstring("method SetName")] HRESULT SetName(LPCSTR lpszName);
+	[id(3), helpstring("method get_FileName")] HRESULT get_FileName(long nFileType, short nPathType, 
+		BSTR* pbstrFileName);
+	[id(4), helpstring("method get_AllFileNames")] HRESULT get_AllFileNames(long nFileType, short nPathType, 
+		IDispatch** ppvFiles);
+	[id(5), helpstring("method get_StartLine")] HRESULT get_StartLine(long nFileType, long* pnLineNumber);
+	[id(6), helpstring("method get_EndLine")] HRESULT get_EndLine(long nFileType, long* pnLineNumber);
+	[id(7), helpstring("method get_Conditions")] HRESULT get_Conditions(long nFileType, BSTR* bstrConditions);
+	[id(8), helpstring("method put_Conditions")] HRESULT put_Conditions(long nFileType, LPCSTR lpszConditions);
+	[id(9), helpstring("method GetScopeObject")] HRESULT GetScopeObject(LPCSTR lpszScopeName, IDispatch** pvScopeObject);
+	[id(10), helpstring("method GetContents")] HRESULT GetContents(IDispatch** ppvMFCMapItems);
+	[id(11), helpstring("method get_MapParameters")] HRESULT get_MapParameters(short nWhichPart, 
+		BSTR* bstrMapParameters);	
+	[id(12), helpstring("method put_MapParameters")] HRESULT put_MapParameters(short nWhichPart, 
+		LPCSTR lpszMapParameters);
+	[id(13), helpstring("method GetMapItemSet")] HRESULT GetMapItemSet(short nByParam, LPCSTR lpszName, 
+		IDispatch** ppvMapItems);
+	[id(14), helpstring("method GotoEditorLocation")] HRESULT GotoEditorLocation(long nFileType, 
+		short nLocationType);
+	[id(15), helpstring("method AddMapItem")] HRESULT AddMapItem(LPCSTR lpszMapItem, BOOL bInsertAtTop);
+	[id(16), helpstring("method InsertMapItem")] HRESULT InsertMapItem(long nOffsetLocation, 
+		LPCSTR lpszMapItem);
+	[id(18), helpstring("method FindInterface")] HRESULT FindInterface( LPCSTR lpszInterfaceName, 
+		IDispatch** ppvInterface);
+	[id(19), helpstring("method get_Configuration")] HRESULT get_Configuration( BSTR * pbstrConfig);
+
+	[id(17), helpstring("method DeleteMapItem")] HRESULT DeleteMapItem( LPCSTR lpszMapItem);
+	[id(20), helpstring("method GetBrowserInfo")] HRESULT GetBrowserInfo(BSTR* psz, DWORD* ptyp, 
+		DWORD* patr, BOOL* pbSuccess);
+};
+
+
+[
+	object,
+	uuid(D49DF1E1-DC55-11d0-B58C-00A0C91BC942),
+	dual,
+	helpstring("ILanguageMapItem Interface"),
+	pointer_default(unique)
+]
+interface ILanguageMapItem : IDispatch
+{
+	[id(1), helpstring("method GetName")] HRESULT GetName(short nNameType, BSTR* pbstrName);
+	[id(2), helpstring("method SetName")] HRESULT SetName(LPCSTR lpszName);
+	[id(3), helpstring("method get_NumberOfParameters")] HRESULT get_NumberOfParameters(short* numParameters);
+	[id(4), helpstring("method get_FileName")] HRESULT get_FileName(short nPathType, BSTR * pbstrFileName);
+	[id(5), helpstring("method get_AllFileNames")] HRESULT get_AllFileNames(long nFileType, short nPathType, 
+		IDispatch** ppvFiles);
+	[id(6), helpstring("method get_StartLine")] HRESULT get_StartLine(long* pnLineNumber);
+	[id(7), helpstring("method get_EndLine")] HRESULT get_EndLine(long* pnLineNumber);
+	[id(8), helpstring("method get_Conditions")] HRESULT get_Conditions(BSTR* bstrConditions);
+	[id(9), helpstring("method put_Conditions")] HRESULT put_Conditions(LPCSTR lpszConditions);
+	[id(10), helpstring("method get_Contents")] HRESULT get_Contents(BSTR* pbstrContents);
+	[id(11), helpstring("method put_Contents")] HRESULT put_Contents(LPCSTR lpszContents);
+	[id(12), helpstring("method get_Parameter")] HRESULT get_Parameter(short nParamNum, BSTR * pbstrParam);
+	[id(13), helpstring("method put_Parameter")] HRESULT put_Parameter(short nParamNum, LPCSTR lpszParameter);
+	[id(14), helpstring("method get_Configuration")] HRESULT get_Configuration(BSTR* pbstrConfig);
+	[id(15), helpstring("method GetScopeObject")] HRESULT GetScopeObject(LPCSTR lpszScopeName, 
+		IDispatch** pvScopeObject);
+	[id(16), helpstring("method GetBrowserInfo")] HRESULT GetBrowserInfo( BSTR* psz, DWORD* ptyp, DWORD* patr,
+		BOOL* pbSuccess);
+	[id(17), helpstring("method GotoEditorLocation")] HRESULT GotoEditorLocation(long nFileType, short nLocationType);
+	[id(18), helpstring("method FindInterface")] HRESULT FindInterface(LPCSTR lpszInterfaceName, 
+		IDispatch** ppvInterface);
+	[id(19), helpstring("method Delete")] HRESULT Delete(BOOL bCommentOut);
+};
+
+
+
+[
+	object,
+	uuid(1B8C521A-F8BD-11D0-B59C-00A0C91BC942),
+	dual,
+	helpstring("Class Name"),
+	pointer_default(unique)
+]
+interface IClassProp : IDispatch
+{
+		[propget, id(1), helpstring("property DefnFile")] HRESULT DefnFile([out, retval] BSTR *pVal);
+		[propput, id(1), helpstring("property DefnFile")] HRESULT DefnFile([in] BSTR newVal);
+		[propget, id(2), helpstring("property Base Class")] HRESULT BaseClass([out, retval] BSTR *pVal);
+};
+
+
+
+
+
+
+[
+	uuid(64BA8A63-A7CC-11D0-A4EE-00A0C90A6333),
+	version(1.0),
+	helpstring("VcClassView 1.0 Type Library")
+]
+library VCClsVwLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(CC2A8295-C75E-11d0-B580-00A0C91BC942),
+		helpstring("VCClassViewPackage Class")
+	]
+	coclass CVCClsVwPackage
+	{
+		[default] interface IVCClsVwPackage;
+	};
+	
+	
+	[
+		uuid(32875B8E-C7EA-11D0-B580-00A0C91BC942),
+		helpstring("ClsVwInterface Class")
+	]
+	coclass ClsVwInterface
+	{
+		[default] interface IClsVwInterface;
+	};
+
+	[
+		uuid(BE2833A3-C0B3-11d0-8D2B-00A0C91BC942),
+		helpstring("LanguageNodes Class")
+	]
+	coclass LanguageNodes
+	{
+		[default] interface ILanguageNodes;
+	};
+	
+	[
+		uuid(BE2833A4-C0B3-11d0-8D2B-00A0C91BC942),
+		helpstring("LanguageNode Class")
+	]
+	coclass LanguageNode
+	{
+		[default] interface ILanguageNode;
+	};
+
+	
+	[
+		uuid(BE2833A5-C0B3-11d0-8D2B-00A0C91BC942),
+		helpstring("WizardStrings Class")
+	]
+	coclass WizardStrings
+	{
+		[default] interface IWizardStrings;
+	};
+
+	
+	[
+		uuid(BE2833A6-C0B3-11d0-8D2B-00A0C91BC942),
+		helpstring("WizardIntegers Class")
+	]
+	coclass WizardIntegers
+	{
+		[default] interface IWizardIntegers;
+	};
+
+	
+	[
+		uuid(FC3EDB87-C0B0-11D0-8D2B-00A0C91BC942),
+		helpstring("WizardNode Class")
+	]
+	coclass WizardNode
+	{
+		[default] interface IWizardNode;
+	};
+	
+	[
+		uuid(FC3EDB8B-C0B0-11D0-8D2B-00A0C91BC942),
+		helpstring("WizardTransaction Class")
+	]
+	coclass WizardTransaction
+	{
+		[default] interface IWizardTransaction;
+	};
+
+	
+	[
+		uuid(FC3EDB8E-C0B0-11D0-8D2B-00A0C91BC942),
+		helpstring("WizardEnum Class")
+	]
+	coclass WizardEnum
+	{
+		[default] interface IWizardEnum;
+	};
+
+	
+	[
+		uuid(853D4DF9-C30D-11D0-B57D-00A0C91BC942),
+		helpstring("BscColl Class")
+	]
+	coclass BscColl
+	{
+		[default] interface ILanguageItems;
+		interface IPrivLangItems;
+	};
+
+	
+	[
+		uuid(853D4E08-C30D-11D0-B57D-00A0C91BC942),
+		helpstring("LanguageItems Class")
+	]
+	coclass LanguageItems
+	{
+		[default] interface ILanguageItems;
+	};
+
+	
+	[
+		uuid(7BD8E1F4-C37C-11D0-B57D-00A0C91BC942),
+		helpstring("PrivLangItems Class")
+	]
+	coclass PrivLangItems
+	{
+		[default] interface IPrivLangItems;
+	};
+
+	
+	[
+		uuid(71006EA4-C3F1-11D0-B57E-00A0C91BC942),
+		helpstring("BscPersistentItem Class")
+	]
+	coclass BscPersistentItem
+	{
+		[default] interface IBscPersistentItem;
+	};
+
+	[
+		uuid(82632362-2098-11D1-B447-00A0C915070C),
+		helpstring("LanguageMapItem Class")
+	]
+	coclass LanguageMapItem
+	{
+		[default] interface ILanguageMapItem;
+	};
+
+	
+	[
+		uuid(71006EA7-C3F1-11D0-B57E-00A0C91BC942),
+		helpstring("OleCollection Class")
+	]
+	coclass OleCollection
+	{
+		[default] interface IOleCollection;
+	};
+
+	[
+		uuid(BBED9561-C995-11d0-B581-00A0C91BC942),
+		helpstring("ILanguageClass Class")
+	]
+	coclass LanguageClass
+	{
+		[default] interface ILanguageClass;
+	};
+
+
+	
+	[
+		uuid(CC4881C3-CED5-11D0-B586-00A0C91BC942),
+		helpstring("WizardClassNodeInterface Class")
+	]
+	coclass WizardClassNodeInterface
+	{
+		[default] interface ILanguageClassNode;
+	};
+
+	[
+		uuid(7B794052-CEF7-11d0-B586-00A0C91BC942),
+		helpstring("ILanguageClassNode Class")
+	]
+	coclass LanguageClassNode
+	{
+		[default] interface ILanguageClassNode;
+	};
+
+
+	
+	[
+		uuid(CC4881C6-CED5-11D0-B586-00A0C91BC942),
+		helpstring("VCEnum Class")
+	]
+	coclass VCEnum
+	{
+		[default] interface IVCEnum;
+	};
+
+	[
+		uuid(C7861D84-D4AD-11d0-B58A-00A0C91BC942),
+		helpstring("LanguageFunction Class")
+	]
+	coclass LanguageFunction
+	{
+		[default] interface ILanguageFunction;
+	};
+
+	
+	[
+		uuid(C7861D85-D4AD-11d0-B58A-00A0C91BC942),
+		helpstring("LanguageVariable Class")
+	]
+	coclass LanguageVariable
+	{
+		[default] interface ILanguageVariable;
+	};
+
+
+	[
+		uuid(1B8C521B-F8BD-11D0-B59C-00A0C91BC942),
+		helpstring("ClassProp Class")
+	]
+	coclass ClassProp
+	{
+		[default] interface IClassProp;
+	};
+
+
+	[
+		uuid(236A9C19-076D-11D1-B59D-00A0C91BC942),
+		helpstring("FolderInfo Class")
+	]
+	coclass FolderInfo
+	{
+		interface IUnknown;
+	};
+};

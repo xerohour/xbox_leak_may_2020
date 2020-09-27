@@ -1,0 +1,113 @@
+// This is a part of the Active Template Library.
+// Copyright (C) 1996-2001 Microsoft Corporation
+// All rights reserved.
+//
+// This source code is only intended as a supplement to the
+// Active Template Library Reference and related
+// electronic documentation provided with the library.
+// See these sources for detailed information regarding the	
+// Active Template Library product.
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+#include "atlbuild.h"
+
+#ifndef VER_FILEFLAGSMASK
+#define VER_FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
+#endif
+
+#ifndef VER_FILEFLAGS
+#ifdef _DEBUG
+#define VER_FILEFLAGS	VS_FF_DEBUG
+#else
+#define VER_FILEFLAGS 0x0L
+#endif
+#endif
+
+#ifndef VER_FILEOS
+#define VER_FILEOS		VOS__WINDOWS32
+#endif
+
+#ifndef VER_FILETYPE
+#pragma message("VER_FILETYPE not defined. Defaulting to VFT_UNKNOWN")
+#define VER_FILETYPE	VFT_UNKNOWN
+#endif
+
+#ifndef VER_FILESUBTYPE
+#if (VER_FILETYPE == VFT_DRV) || (VER_FILETYPE == VFT_FONT)
+#pragma message("_FILESUBTYPE not defined. Defaulting to VFT2_UNKNOWN")
+#endif
+
+#define VER_FILESUBTYPE	VFT2_UNKNOWN
+#endif
+
+#ifndef VER_FILEDESCRIPTION_STR
+#error VER_FILEDESCRIPTION_STR not defined.
+#endif
+
+#ifndef VER_ORIGINALFILENAME_STR
+#error VER_ORIGINALFILENAME_STR not defined
+#endif
+
+#ifndef VER_INTERNALNAME_STR
+#define VER_INTERNALNAME_STR	VER_ORIGINALFILENAME_STR
+#endif
+
+#ifndef VER_OLESELFREGISTER_STR
+#define VER_OLESELFREGISTER_STR	""
+#endif
+
+#ifndef VER_COPYRIGHTENDYEAR_STR
+#define VER_COPYRIGHTENDYEAR_STR	"2001"
+#endif
+
+#ifndef VER_COPYRIGHTSTARTYEAR_STR
+#pragma message ("VER_COPYRIGHTSTARTYEAR_STR not defined. Using VER_COPYRIGHTENDYEAR_STR")
+#define VER_COPYRIGHTSTARTYEAR_STR	VER_COPYRIGHTENDYEAR_STR
+#endif
+
+#ifndef VER_LANGCODE_STR
+#define VER_LANGCODE_STR			"040904b0"
+#endif
+
+#ifndef VER_LANGID
+#define VER_LANGID				0x409
+#endif
+
+#ifndef VER_CODEPAGE
+#define VER_CODEPAGE			1200
+#endif
+
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION _LIBS_FILE_VERSION_MAJOR, _LIBS_FILE_VERSION_MINOR, _LIBS_BUILD, _LIBS_RBLD
+ PRODUCTVERSION _LIBS_PRODUCT_VERSION_MAJOR, _LIBS_PRODUCT_VERSION_MINOR, _LIBS_BUILD, _LIBS_RBLD
+ FILEFLAGSMASK VER_FILEFLAGSMASK
+ FILEFLAGS VER_FILEFLAGS
+ FILEOS VER_FILEOS
+ FILETYPE VER_FILETYPE
+ FILESUBTYPE VER_FILESUBTYPE
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK VER_LANGCODE_STR
+		BEGIN
+			VALUE "CompanyName", "Microsoft Corporation"
+			VALUE "FileDescription", VER_FILEDESCRIPTION_STR
+			VALUE "FileVersion", _LIBS_USER_FILE_VERSION_MAJOR "." _LIBS_USER_FILE_VERSION_MINOR "." _LIBS_USER_BUILD "." _LIBS_USER_RBLD
+			VALUE "InternalName", VER_INTERNALNAME_STR
+			VALUE "LegalCopyright", "Copyright \251 Microsoft Corporation " VER_COPYRIGHTSTARTYEAR_STR "-" VER_COPYRIGHTENDYEAR_STR
+			VALUE "OriginalFilename", VER_ORIGINALFILENAME_STR
+			VALUE "ProductName", "Microsoft\256 Visual Studio.NET"
+			VALUE "ProductVersion", _LIBS_USER_PRODUCT_VERSION_MAJOR "." _LIBS_USER_PRODUCT_VERSION_MINOR "." _LIBS_USER_BUILD "." _LIBS_USER_RBLD
+			VALUE "OLESelfRegister", VER_OLESELFREGISTER_STR
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", VER_LANGID, VER_CODEPAGE
+	END
+END

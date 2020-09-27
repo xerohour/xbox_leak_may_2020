@@ -1,0 +1,43 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+
+!ENDIF
+
+TARGETNAME=dvdperf
+TARGETPATH=$(BASEDIR)\private\test\hardware\lib                     
+TARGETTYPE=LIBRARY
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+C_DEFINES=$(C_DEFINES) -DHARNESSLIB
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(BASEDIR)\private\inc\crypto; \
+         $(BASEDIR)\private\ntos\bootx\inc; \
+         $(BASEDIR)\private\ntos\bootx\bldr32\$(TARGET_DIRECTORY); \
+         $(BASEDIR)\private\ntos\xapi\inc; \
+	 $(BASEDIR)\public\ddk\inc
+
+SOURCES=..\dvdperf.cpp

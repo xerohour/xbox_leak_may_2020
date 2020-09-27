@@ -1,0 +1,94 @@
+<job>
+<script language="VBScript">
+'
+' VerifyDSPs.wsf - Verify headers and libraries
+' emmang@xbox.com
+'
+Const SCRIPTNAME = "VerifyLIBs"
+Const BATCHBAT   = "c:\verifylibs.bat"
+Const BATCHLOG   = "c:\verifylibs.log"
+Const ForReading = 1
+
+Const REG_XDKINSTALL = "HKLM\Software\Microsoft\XboxSDK\InstallPath"
+Const REG_XDKBUILD   = "HKLM\Software\Microsoft\XboxSDK\InstalledVersion"
+Const REG_WINDIFF    = "HKLM\Software\Microsoft\Shared Tools\windiff.exe\Path"
+Const XBUILDS        = "\\xbuilds\release\usa"
+
+Dim gobjFileSystem, gobjShell, gFileBatch
+
+Main()
+
+Sub Main
+    On Error Resume Next
+	'
+	' create tool objects
+	'
+	Set gobjFileSystem = CreateObject("Scripting.FileSystemObject")
+	Set gobjShell = CreateObject("WScript.Shell")
+	'
+	' get location of Xbox SDK
+	'
+	strXDKInstall = gobjShell.RegRead(REG_XDKINSTALL)
+    '
+    ' find out the version of the XDK installed
+    '
+    strXDKBuild = gobjShell.RegRead(REG_XDKBUILD)
+    strXDKBuild = Mid(strXDKBuild,5,4)
+
+    strSrcRoot = XBUILDS & "\" & strXDKBuild
+    strSrcChk = strSrcRoot & "\checked\public\xdk"
+    strSrcFre = strSrcRoot & "\free\public\xdk"
+
+    WScript.Echo "comparing free\xdk\inc and %XDK%\Xbox\Include..."
+    CompareDirs strSrcFre & "\inc", strXDKInstall & "\xbox\include"
+
+    WScript.Echo "comparing free\xdk\lib and %XDK%\Xbox\Lib..."
+    CompareDirs strSrcFre & "\lib", strXDKInstall & "\xbox\lib"
+
+    WScript.Echo "comparing checked\xdk\lib and %XDK%\Xbox\Lib..."
+    CompareDirs strSrcChk & "\lib", strXDKInstall & "\xbox\lib"
+
+    WScript.Echo "*** sanity check ***" & vbCrLf & _
+        "comparing checked and free include dirs..."
+    CompareDirs strSrcChk & "\inc", strSrcFre & "\inc"
+
+    WScript.Echo "comparing symbols on \\xbuilds and %XDK%\Xbox\Symbols..."
+    Set gfileBatch = gobjFileSystem.CreateTextFile(BATCHBAT, True)
+    gfileBatch.WriteLine("if exist " & BATCHLOG & " del " & BATCHLOG)
+    gfileBatch.WriteLine("date /t >> " & BATCHLOG)
+    gfileBatch.WriteLine("time /t >> " & BATCHLOG)
+    CompareFiles strSrcRoot & "\checked\xboxkrnl.exe", strXDKInstall & "\xbox\symbols\xboxkrnl.exe"
+    CompareFiles strSrcRoot & "\checked\xboxkrnl.pdb", strXDKInstall & "\xbox\symbols\xboxkrnl.pdb"
+    CompareFiles strSrcRoot & "\checked\devkit\xbdm.dll", strXDKInstall & "\xbox\symbols\xbdm.dll"
+    CompareFiles strSrcRoot & "\checked\devkit\xbdm.pdb", strXDKInstall & "\xbox\symbols\xbdm.pdb"
+    gfileBatch.Close
+    gobjShell.Run BATCHBAT, 5, True
+
+    ' see the results
+    gobjShell.Run "notepad " & BATCHLOG, 5, True
+    gobjFileSystem.DeleteFile BATCHBAT
+    gobjFileSystem.DeleteFile BATCHLOG
+End Sub
+
+Sub CompareFiles(file1, file2)
+    On Error Resume Next
+
+    gfileBatch.WriteLine "FC.EXE /B " & _
+        Chr(34) & file1 & Chr(34) & " " & _
+        Chr(34) & file2 & Chr(34) & " >> " & BATCHLOG
+End Sub
+
+Sub CompareDirs(dir1, dir2)
+    On Error Resume Next
+    '
+    ' find out where Windiff is located
+    '
+    strWindiff = ""
+    strWindiff = gobjShell.RegRead(REG_WINDIFF)
+
+    gobjShell.Run Chr(34) & strWindiff & Chr(34) & " " & _
+        Chr(34) & dir1 & Chr(34) & " " & _
+        Chr(34) & dir2 & Chr(34), 5, True
+End Sub
+</script>
+</job>

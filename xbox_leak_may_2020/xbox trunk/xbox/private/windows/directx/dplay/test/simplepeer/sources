@@ -1,0 +1,35 @@
+TARGETNAME=simplepeer
+TARGETTYPE=PROGRAM
+TARGETPATH=obj
+
+UMENTRY=winmain
+UMTYPE=windows
+
+INCLUDES=..\..\inc
+
+C_DEFINES=$(C_DEFINES)
+
+USER_C_FLAGS=$(USER_C_FLAGS) /FAcs /Od
+
+!if "$(NTDEBUG)" == "ntsd" || "$(NTDEBUG)" == "ntsdnodbg" || "$(NTDEBUG)" == "cvp" || "$(NTDEBUG)" == "sym"
+USER_C_FLAGS=$(USER_C_FLAGS) /Od
+!endif
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+SOURCES= simplepeer.cpp \
+         simplepeer.rc \
+         netconnect.cpp
+
+TARGETLIBS= \
+	   $(BASEDIR)\public\sdk\lib\*\libcmt$(BUILD_ALT_DIR).lib \
+           $(BASEDIR)\public\sdk\lib\*\libcmt$(BUILD_ALT_DIR).lib \
+	   $(BASEDIR)\public\sdk\lib\*\ws2_32.lib  \
+	   $(BASEDIR)\public\sdk\lib\*\kernel32.lib \
+	   $(BASEDIR)\public\sdk\lib\*\user32.lib \
+	   $(BASEDIR)\public\sdk\lib\*\gdi32.lib \
+	   $(BASEDIR)\public\sdk\lib\*\winmm.lib \
+	   $(BASEDIR)\public\sdk\lib\*\advapi32.lib \
+	   $(BASEDIR)\public\sdk\lib\*\ole32.lib  \
+	   $(BASEDIR)\public\sdk\lib\*\uuid.lib \
+	   $(BASEDIR)\public\sdk\lib\*\rpcrt4.lib

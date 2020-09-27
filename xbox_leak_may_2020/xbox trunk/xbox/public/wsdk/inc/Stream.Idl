@@ -1,0 +1,259 @@
+// stream.idl : IDL source for stream.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (stream.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#pragma midl_echo("enum {")
+#pragma midl_echo("anncNone = 0,")
+#pragma midl_echo("anncCurrent,")
+#pragma midl_echo("anncTimeSlice,")
+#pragma midl_echo("anncChannel,")
+#pragma midl_echo("anncFuture")
+#pragma midl_echo("};")
+
+	[
+		object,
+		uuid(C5BB4722-AB29-11D0-A24E-00AA0062C797),
+		dual,
+		helpstring("IEnhEvent Interface"),
+		pointer_default(unique)
+	]
+	interface IEnhEvent : IDispatch
+	{
+		[propget, id(1), helpstring("Time of the event, in seconds")] HRESULT Start([out, retval] double *pVal);
+		[propput, id(1), helpstring("Time of the event, in seconds")] HRESULT Start([in] double newVal);
+		[propget, id(2), helpstring("Name, or text data")] HRESULT Name([out, retval] BSTR *pVal);
+		[propput, id(2), helpstring("Name, or text data")] HRESULT Name([in] BSTR newVal);
+		[propget, id(3), helpstring("Only, do not collect dependencies")] HRESULT Only([out, retval] BOOL *pVal);
+		[propput, id(3), helpstring("Only, do not collect dependencies")] HRESULT Only([in] BOOL newVal);
+		[propget, id(4), helpstring("property IsTrigger")] HRESULT IsTrigger([out, retval] BOOL *pVal);
+		[propput, id(4), helpstring("property IsTrigger")] HRESULT IsTrigger([in] BOOL newVal);
+		[propget, id(5), helpstring("Repeat interval, in seconds")] HRESULT Repeat([out, retval] double *pVal);
+		[propput, id(5), helpstring("Repeat interval, in seconds")] HRESULT Repeat([in] double newVal);
+		[propget, id(6), helpstring("Until, repeat duration")] HRESULT Until([out, retval] double *pVal);
+		[propput, id(6), helpstring("Until, repeat duration")] HRESULT Until([in] double newVal);
+		[propget, id(7), helpstring("Length of file, 0 if can't open")] HRESULT Length([out, retval] long *pVal);
+		[propget, id(8), helpstring("property Priority")] HRESULT Priority([out, retval] long *pVal);
+		[propput, id(8), helpstring("property Priority")] HRESULT Priority([in] long newVal);
+		[propget, id(9), helpstring("Timeout, garbage collection time")] HRESULT Timeout([out, retval] double *pVal);
+		[propput, id(9), helpstring("Timeout, garbage collection time")] HRESULT Timeout([in] double newVal);
+		[id(10), helpstring("method Delete")] HRESULT Delete();
+		[propget, id(11), helpstring("Before, data will be transmitted before Start time")] HRESULT Before([out, retval] BOOL *pVal);
+		[propput, id(11), helpstring("Before, data will be transmitted before Start time")] HRESULT Before([in] BOOL newVal);
+		[propget, id(12), helpstring("Trigger value")] HRESULT Trigger([out, retval] long *pVal);
+		[propput, id(12), helpstring("Trigger value")] HRESULT Trigger([in] long newVal);
+		[propget, id(13), helpstring("stream language Text for the event")] HRESULT Text([out, retval] BSTR *pVal);
+		[propput, id(13), helpstring("stream language Text for the event")] HRESULT Text([in] BSTR newVal);
+		[propget, id(14), helpstring("Handle, unique idenfier used with FindHandle")] HRESULT Handle([out, retval] long *pVal);
+		[propget, id(15), helpstring("property XMitName")] HRESULT XMitName([out, retval] BSTR *pVal);
+		[propget, id(16), helpstring("property HRef")] HRESULT HRef([out, retval] long *pVal);
+		[propput, id(16), helpstring("property HRef")] HRESULT HRef([in] long newVal);
+		[propget, id(17), helpstring("property IsAnnounce")] HRESULT IsAnnounce([out, retval] BOOL *pVal);
+		[propput, id(17), helpstring("property IsAnnounce")] HRESULT IsAnnounce([in] BOOL newVal);
+		[propget, id(18), helpstring("property onefile")] HRESULT onefile([out, retval] BOOL *pVal);
+		[propput, id(18), helpstring("property onefile")] HRESULT onefile([in] BOOL newVal);
+		[propget, id(19), helpstring("property XMitDuration")] HRESULT XMitDuration([out, retval] double *pVal);
+		[propget, id(20), helpstring("property IsInclude")] HRESULT IsInclude([out, retval] BOOL *pVal);
+		[propput, id(20), helpstring("property IsInclude")] HRESULT IsInclude([in] BOOL newVal);
+		[propget, id(21), helpstring("property Opcode")] HRESULT Opcode(long index, [out, retval] short *pVal);
+		[propput, id(21), helpstring("property Opcode")] HRESULT Opcode(long index, [in] short newVal);
+		[propget, id(22), helpstring("property Attr")] HRESULT Attr(long index, [out, retval] BSTR *pVal);
+		[propput, id(22), helpstring("property Attr")] HRESULT Attr(long index, [in] BSTR newVal);
+		[propget, id(23), helpstring("property AttrCount")] HRESULT AttrCount([out, retval] long *pVal);
+		[propget, id(24), helpstring("property Depend")] HRESULT Depend(long index, [out, retval] BSTR *pVal);
+		[propput, id(24), helpstring("property Depend")] HRESULT Depend(long index, [in] BSTR newVal);
+		[propget, id(25), helpstring("property DependCount")] HRESULT DependCount([out, retval] long *pVal);
+		[id(26), helpstring("method Flatten")] HRESULT Flatten();
+		[id(27), helpstring("method UnFlatten")] HRESULT UnFlatten();
+		[propget, id(28), helpstring("property TargName")] HRESULT TargName([out, retval] BSTR *pVal);
+		[propget, id(29), helpstring("property PageName")] HRESULT PageName([out, retval] BSTR *pVal);
+		[propget, id(30), helpstring("property RestOfName")] HRESULT RestOfName([out, retval] BSTR *pVal);
+	};
+	[
+		object,
+		uuid(F7BE7831-ABAA-11D0-A24F-00AA0062C797),
+		dual,
+		helpstring("IEnhEvents Interface"),
+		pointer_default(unique)
+	]
+	interface IEnhEvents : IDispatch
+	{
+		[propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+		[id(2), helpstring("method Load")] HRESULT Load(BSTR Filename);
+		[id(3), helpstring("method Store")] HRESULT Store(BSTR Filename);
+		[id(4), helpstring("method Clear")] HRESULT Clear();
+		[id(5), helpstring("method Add")] HRESULT Add(double Time, BSTR Name, [out, retval] VARIANT *pVal);
+		[propget, id(6), helpstring("property Bandwidth (in bits per second)")] HRESULT Bandwidth([out, retval] double *pVal);
+		[propput, id(6), helpstring("property Bandwidth (in bits per second)")] HRESULT Bandwidth([in] double newVal);
+		[propget, id(7), helpstring("property ShowLength (length of show, in seconds)")] HRESULT ShowLength([out, retval] double *pVal);
+		[propput, id(7), helpstring("property ShowLength (length of show, inseconds)")] HRESULT ShowLength([in] double newVal);
+		[propget, id(8), helpstring("TimeOut, default garbage collection time")] HRESULT TimeOut([out, retval] double *pVal);
+		[propput, id(8), helpstring("TimeOut, default garbage collection time")] HRESULT TimeOut([in] double newVal);
+		[propget, id(9), helpstring("default transmit Priority")] HRESULT Priority([out, retval] long *pVal);
+		[propput, id(9), helpstring("default transmit Priority")] HRESULT Priority([in] long newVal);
+		[propget, id(10), helpstring("Errorlist, syntax errors from Load method")] HRESULT Errorlist(long index, [out, retval] BSTR *pVal);
+		[propget, id(11), helpstring("LastAdd, last event added by Add or AddText")] HRESULT LastAdd([out, retval] VARIANT *pVal);
+		[id(12), helpstring("method Flatten")] HRESULT Flatten();
+		[id(13), helpstring("AddText add an event by giving stream language")] HRESULT AddText(BSTR str);
+		[propget, id(14), helpstring("FindTime: find an event given it's time")] HRESULT FindTime(double time, [out, retval] VARIANT *pVal);
+		[propget, id(15), helpstring("LeadTime, settling down time before sending a trigger")] HRESULT LeadTime([out, retval] double *pVal);
+		[propput, id(15), helpstring("LeadTime, settling down time before sending a trigger")] HRESULT LeadTime([in] double newVal);
+		[propget, id(16), helpstring("FindHandle, find an event given it's handle")] HRESULT FindHandle(long Handle, [out, retval] VARIANT *pVal);
+		[propget, id(17), helpstring("property DependLength")] HRESULT DependLength(BSTR filename, [out, retval] long *pVal);
+		[propget, id(18), helpstring("property ParseTime")] HRESULT ParseTime(BSTR Str, [out, retval] double *pVal);
+		[propget, id(19), helpstring("property TimeStr")] HRESULT TimeStr(double Time, [out, retval] BSTR *pVal);
+		[propget, id(20), helpstring("property FrameName")] HRESULT FrameName(long Index, [out, retval] BSTR *pVal);
+		[propput, id(20), helpstring("property FrameName")] HRESULT FrameName(long Index, [in] BSTR newVal);
+		[propget, id(21), helpstring("property ShowName")] HRESULT ShowName([out, retval] BSTR *pVal);
+		[propput, id(21), helpstring("property ShowName")] HRESULT ShowName([in] BSTR newVal);
+		[propget, id(22), helpstring("property HRef")] HRESULT HRef([out, retval] long *pVal);
+		[propput, id(22), helpstring("property HRef")] HRESULT HRef([in] long newVal);
+		[propget, id(23), helpstring("property Style")] HRESULT Style([out, retval] long *pVal);
+		[propput, id(23), helpstring("property Style")] HRESULT Style([in] long newVal);
+		[propget, id(24), helpstring("property Overhead")] HRESULT Overhead([out, retval] long *pVal);
+		[propput, id(24), helpstring("property Overhead")] HRESULT Overhead([in] long newVal);
+		[propget, id(25), helpstring("property Redundancy")] HRESULT Redundancy([out, retval] long *pVal);
+		[propput, id(25), helpstring("property Redundancy")] HRESULT Redundancy([in] long newVal);
+		[propget, id(26), helpstring("property Title")] HRESULT Title([out, retval] BSTR *pVal);
+		[propput, id(26), helpstring("property Title")] HRESULT Title([in] BSTR newVal);
+		[propget, id(27), helpstring("property FPS")] HRESULT FPS([out, retval] double *pVal);
+		[propput, id(27), helpstring("property FPS")] HRESULT FPS([in] double newVal);
+		[propget, id(28), helpstring("property LoadBias")] HRESULT LoadBias([out, retval] double *pVal);
+		[propput, id(28), helpstring("property LoadBias")] HRESULT LoadBias([in] double newVal);
+		[id(29), helpstring("method UnFlatten")] HRESULT UnFlatten();
+		[id(30), helpstring("method AddEvent")] HRESULT AddEvent(IUnknown *lp);
+		[propget, id(DISPID_VALUE), helpstring("property Item")] HRESULT Item([in] long Index, [out, retval] VARIANT *pVal);
+		[propget, id(DISPID_NEWENUM), helpstring("property _NewEnum")] HRESULT _NewEnum([out, retval] LPUNKNOWN *pVal);
+		[propget, helpstring("ErrorCount, number of syntax errors")] HRESULT ErrorCount([out, retval] long *pVal);
+	};
+	[
+		object,
+		uuid(98674ED0-6222-11D1-BF52-006097C5738F),
+		dual,
+		helpstring("IAnnc Interface"),
+		pointer_default(unique)
+	]
+	interface IAnnc : IDispatch
+	{
+		[id(1), helpstring("method Load")] HRESULT Load(BSTR Filename);
+		[id(2), helpstring("method Store")] HRESULT Store(BSTR Filename);
+		[propget, id(3), helpstring("property ShowName, name of the show being enhanced")] HRESULT ShowName([out, retval] BSTR *pVal);
+		[propput, id(3), helpstring("property ShowName, name of the show being enhanced")] HRESULT ShowName([in] BSTR newVal);
+		[propget, id(4), helpstring("property Title of the Enhancement")] HRESULT Title([out, retval] BSTR *pVal);
+		[propput, id(4), helpstring("property Title of the Enhancement")] HRESULT Title([in] BSTR newVal);
+		[propget, id(5), helpstring("property ShowLength, length of the enhancement, in minutes")] HRESULT ShowLength([out, retval] double *pVal);
+		[propput, id(5), helpstring("property ShowLength, length of the enhancement, in minutes")] HRESULT ShowLength([in] double newVal);
+		[propget, id(6), helpstring("property Network, TV broadcaster's network")] HRESULT Network([out, retval] BSTR *pVal);
+		[propput, id(6), helpstring("property Network, TV broadcaster's network")] HRESULT Network([in] BSTR newVal);
+		[propget, id(7), helpstring("property TuningSpace")] HRESULT TuningSpace([out, retval] BSTR *pVal);
+		[propput, id(7), helpstring("property TuningSpace")] HRESULT TuningSpace([in] BSTR newVal);
+		[propget, id(8), helpstring("property PreloadURL")] HRESULT PreloadURL([out, retval] BSTR *pVal);
+		[propput, id(8), helpstring("property PreloadURL")] HRESULT PreloadURL([in] BSTR newVal);
+		[propget, id(9), helpstring("property ShowStart, GMT based OLE DATE")] HRESULT ShowStart([out, retval] DATE *pVal);
+		[propput, id(9), helpstring("property ShowStart, GMT based OLE DATE")] HRESULT ShowStart([in] DATE newVal);
+		[propget, id(10), helpstring("property TriggerIP")] HRESULT TriggerIP([out, retval] BSTR *pVal);
+		[propput, id(10), helpstring("property TriggerIP")] HRESULT TriggerIP([in] BSTR newVal);
+		[propget, id(11), helpstring("property Channel")] HRESULT Channel([out, retval] long *pVal);
+		[propput, id(11), helpstring("property Channel")] HRESULT Channel([in] long newVal);
+		[propget, id(12), helpstring("property Station")] HRESULT Station([out, retval] BSTR *pVal);
+		[propput, id(12), helpstring("property Station")] HRESULT Station([in] BSTR newVal);
+		[propget, id(13), helpstring("property NetCard")] HRESULT NetCard([out, retval] BSTR *pVal);
+		[propput, id(13), helpstring("property NetCard")] HRESULT NetCard([in] BSTR newVal);
+		[propget, id(14), helpstring("property SessionID")] HRESULT SessionID([out, retval] long *pVal);
+		[propput, id(14), helpstring("property SessionID")] HRESULT SessionID([in] long newVal);
+		[propget, id(15), helpstring("property SessionVersion")] HRESULT SessionVersion([out, retval] long *pVal);
+		[propput, id(15), helpstring("property SessionVersion")] HRESULT SessionVersion([in] long newVal);
+		[id(16), helpstring("method Clear")] HRESULT Clear();
+		[propget, id(17), helpstring("Time To Live: number of network hops")] HRESULT TTL([out, retval] long *pVal);
+		[propput, id(17), helpstring("Time To Live: number of network hops")] HRESULT TTL([in] long newVal);
+		[propget, id(18), helpstring("Announcement Type")] HRESULT AnnouncementType([out, retval] long *pVal);
+		[propput, id(18), helpstring("Announcement Type")] HRESULT AnnouncementType([in] long newVal);
+		[propget, id(19), helpstring("User ID")] HRESULT UserID([out, retval] BSTR *pVal);
+		[propput, id(19), helpstring("User ID")] HRESULT UserID([in] BSTR newVal);
+		[propget, id(20), helpstring("ShowRef")] HRESULT ShowRef([out, retval] BSTR *pVal);
+		[propput, id(20), helpstring("ShowRef")] HRESULT ShowRef([in] BSTR newVal);
+		[id(21), helpstring("method StoreToString")] HRESULT StoreToString(BSTR* pVal);
+	};
+	[
+		object,
+		uuid(7C1C3402-DF2B-11D1-BF5B-006097C5738F),
+		dual,
+		helpstring("IWalkDocument Interface"),
+		pointer_default(unique)
+	]
+	interface IWalkDocument : IDispatch
+	{
+		[id(1), helpstring("method Walk")] HRESULT Walk(BSTR URL);
+		[propget, id(2), helpstring("property DependencyCount")] HRESULT DependencyCount([out, retval] long *pVal);
+		[propget, id(3), helpstring("property GetDependency")] HRESULT GetDependency(long Index, [out, retval] BSTR *pVal);
+		[propget, id(4), helpstring("property TargetCount")] HRESULT TargetCount([out, retval] long *pVal);
+		[id(5), helpstring("property GetTarget")] HRESULT GetTarget(long Index, [out] BSTR *pVal, [out] BOOL *pFrame);
+		[propget, id(6), helpstring("property HTMLDocument")] HRESULT HTMLDocument([out, retval] BSTR *pVal);
+		[propput, id(6), helpstring("property HTMLDocument")] HRESULT HTMLDocument([in] BSTR newVal);
+	};
+[
+	uuid(F25E7F50-AA31-11D0-A24C-00AA0062C797),
+	version(1.0),
+	helpstring("BPC Enhancement Stream Compiler 1.0 Type Library")
+]
+library STREAMLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(C5BB4723-AB29-11D0-A24E-00AA0062C797),
+		helpstring("EnhEvent Class")
+	]
+	coclass EnhEvent
+	{
+		[default] interface IEnhEvent;
+	};
+	[
+		uuid(F7BE7832-ABAA-11D0-A24F-00AA0062C797),
+		helpstring("EnhEvents Class")
+	]
+	coclass EnhEvents
+	{
+		[default] interface IEnhEvents;
+	};
+	[
+		uuid(98674ED1-6222-11D1-BF52-006097C5738F),
+		helpstring("Annc Class")
+	]
+	coclass Annc
+	{
+		[default] interface IAnnc;
+	};
+
+	typedef [ uuid(013E70F0-6096-11d1-BF52-006097C5738F),
+		  helpstring("Stream EVent OPcode Types")
+	]
+	enum
+	{
+		[ helpstring("Download")] EVOPdownload,
+		[ helpstring("Trigger")] EVOPtrigger,
+		[ helpstring("Include")] EVOPinclude,
+		[ helpstring("Announcement")] EVOPannouncement,
+		[ helpstring("Global")] EVOPglobal,
+		[ helpstring("User Defined")] EVOPuserdef,
+		[ helpstring("Delete Announcment")] EVOPdelannc,
+		[ helpstring("Group of events")] EVOPgroup,
+		
+	} EventOPcodes;
+
+
+	[
+		uuid(691D74E1-887E-11D1-A989-0060B057BAEB),
+		helpstring("WalkDocument Class")
+	]
+	coclass WalkDocument
+	{
+		[default] interface IWalkDocument;
+	};
+};
+

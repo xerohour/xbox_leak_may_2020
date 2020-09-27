@@ -1,0 +1,28 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1999 - 2000
+
+Module Name:
+
+    sources.
+
+!ENDIF
+
+TARGETNAME=MUKDX
+TARGETTYPE=DYNLINK
+TARGETPATH=obj
+
+INCLUDES= ..\..\inc;$(BASEDIR)\private\ntos\inc; ..\..\mu; $(BASEDIR)\public\ddk\inc
+
+TARGETLIBS=$(BASEDIR)\public\sdk\lib\*\kernel32.lib
+
+SOURCES= mukdx.rc      \
+         mukdx.cpp
+
+UMTYPE=windows
+DLLDEF=$(O)\mukdx.def
+
+TARGETLIBS=$(SDK_LIB_PATH)\kernel32.lib
+
+DLLENTRY=_DllMainCRTStartup
+

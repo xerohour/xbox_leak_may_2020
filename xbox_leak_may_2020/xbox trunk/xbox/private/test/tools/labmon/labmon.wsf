@@ -1,0 +1,128 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    labmon.wsf
+
+Abstract:
+
+    Looks in the database for active boxes. 
+    Check the "Last Ping" field in DB for stale times
+    If stale then we run triage.exe and set the triage state to 
+        "problem identified"
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+    If triage.exe hangs then the entire monitoring process will hang as well.
+
+    Triage states:
+        0   no problem
+        1   problem identified
+        2   notified (email sent)
+
+    Current State:
+        0   "Crashed";
+        1   "Not Responding";
+        2   "Idle";
+        3   "Running";
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+var loopAlways = true;
+
+main();
+
+function IsPingOld(timestamp)
+    {
+    var date = new Date();
+    date.setMinutes(date.getMinutes()-15);
+
+    if(timestamp > date) return false;
+    return true;
+    }
+
+function main()
+    {
+    var records = WScript.CreateObject("ADODB.Recordset");
+    var timestamp;
+    var delay = 1;
+
+    do
+        {
+        try
+            {
+            delay = parseInt(GetProperty("dbgmonDelay"));
+
+            // open the set of boxes with no current problems
+            records.Open("SELECT [Machine Name], [Debugger], [Last Ping], [Triage Notes], [Triage], [Monitor Timestamp] FROM BoxList WHERE [Current State]=3", driver, 1, 2);
+
+            while(!records.EOF)
+                {
+                timestamp = new Date();
+                SetProperty("dbgmonLastRun", FormatShortDate(timestamp));
+                if(GetProperty("dbgmonStop") == "1")
+                    {
+                    loopAlways = false;
+                    break;
+                    }
+
+                // test the Last Ping time
+                if(IsPingOld(records("Last Ping")))
+                    {
+                    try
+                        {
+                        shell.Run(shell.ExpandEnvironmentStrings("%SystemRoot%/system32/cmd.exe /T:17 /C triage " + records("Debugger") + " " + records("Machine Name") + " -nosym > triage.log"), 0, true);
+                        logfile = filesystem.OpenTextFile("triage.log", 1, false);
+                        records("Triage Notes") = logfile.ReadAll();
+                        logfile.Close();
+                        records("Triage") = 1;
+                        records("Monitor Timestamp") = timestamp.getVarDate();
+                        }
+                    catch(e)
+                        {
+                        var d = new Date();
+                        shell.LogEvent(2, "XBOX LAB Monitor: " + e.description + " (" + e.number + ")");
+                        WScript.Echo("XBOX LAB Monitor: " + e.description + " (" + e.number + ") " + d);
+                        }
+                    }
+
+                records.MoveNext();
+                }
+
+            try {  records.Close(); } catch(e) {}
+
+            WScript.Sleep(1000); // let the db finish its updates
+            shell.Run("notifier.wsf");
+            }
+        catch(e)
+            {
+            var d = new Date();
+            shell.LogEvent(2, "XBOX LAB Monitor: " + e.description + " (" + e.number + ")");
+            WScript.Echo("XBOX LAB Monitor: " + e.description + " (" + e.number + ") " + d);
+            }
+
+        if(loopAlways) WScript.Sleep(1000*delay);
+        } while(loopAlways);
+
+    WScript.Echo("Done");
+    }
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>

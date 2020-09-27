@@ -1,0 +1,32 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Default values, using hotkeys"
+	Dim xdkpath$
+	'
+	' Uninstall if needed
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Install Full setup using hotkeys
+	'
+	Install(BuildNumber, false, true)
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+ 

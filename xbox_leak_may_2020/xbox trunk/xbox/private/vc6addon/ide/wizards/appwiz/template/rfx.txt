@@ -1,0 +1,50 @@
+$$// RFX.LST - list of templates mapping data source type into C/MFC types
+$$//                   
+$$// format is  <C type>;<data source key>;<initial value>;<RFX proc>;<comment>
+$$//
+$$// <initial value> is the RHS of the assignment statement in the
+$$//		AFX_FIELD_INIT section.  If this is empty, no initialization
+$$//		statement is emitted
+$$//
+$$// <RFX proc> is the name of the procedure called to do the transfer.
+$$//		The string listed will be appended to "RFX_" to form the
+$$//		complete name
+$$//
+$$// <data source Key> is the index of the data source type (offset by SQL_TYPE_MIN)
+$$//		This is a little wierd because SQL_TYPE_MIN is #defined to -7 
+$$//		and 0 isn't a valid type.  The possible values for this are:
+$$//
+$$//			a	bit						k	decimal
+$$//			b	tinyint					l	integer (32-bits)
+$$//			c	bigint					m	smallint
+$$//			d	longvarbinary			n	float
+$$//			e	varbinary				o	real
+$$//			f	binary					p	double
+$$//			g	longvarchar				q	date
+$$//			h	INVALID					r	time
+$$//			i	char					s	tiemstamp
+$$//			j	numeric					t	varchar
+$$//
+$$//
+BOOL;a;FALSE;Bool;binding bit column to BOOL field
+BYTE;b;0;Byte;binding tinyint column to BYTE field
+CString;c;"";Text;binding bigint column to CString field
+CLongBinary;d;;LongBinary;binding longvarbinary column to CLongBinary field
+$$// CByteArray;d;;Binary;binding longvarbinary column to CByteArray field
+CByteArray;e;;Binary;binding varbinary column to CByteArray field
+CByteArray;f;;Binary;binding binary column to CByteArray field
+CString;g;"";Text;binding longvarchar column to CString field
+$$// CLongBinary;g;;LongBinary;binding longvarchar column to CLongBinary field
+INVALID;h;INVALID;INVALID;INVALID
+CString;i;"";Text;binding char column to CString field
+CString;j;"";Text;binding numeric column to CString field
+CString;k;"";Text;binding decimal column to CString field
+long;l;0;Long;binding data source integer column to long field
+int;m;0;Int;binding smallint column to int field
+double;n;0;Double;binding data source single column to double field
+float;o;0;Single;binding data source single column to float field
+double;p;0;Double;binding data source double column to double field
+CTime;q;;Date;binding date column to CTime field
+CTime;r;;Date;binding time column to CTime field
+CTime;s;;Date;binding timestamp column to CTime field
+CString;t;"";Text;binding varchar column to CString field

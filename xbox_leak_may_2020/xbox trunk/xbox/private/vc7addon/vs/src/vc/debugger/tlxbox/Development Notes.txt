@@ -1,0 +1,84 @@
+Development Notes:
+	
+1) These are my notes while writing the Xbox plug-in for VS7.  Some of this is stuff I learned while picking apart the VC6 Xbox plugin DM and the win32 VC7 DM; other
+   comments are my design decisions for the VC7 plugin.
+	
+2) Decided to combine Transport Layer(TL) and Debug Monitor (DM) into a single plug-in.  The project lives in tlxbox and builds as dmxbox.  One of these will change,
+   I haven't decided which yet.
+   
+3) The TL buffer management is much more complicated than it needs to be.  Most of this stems from this belief in a complicated the thread model.  This also seems to be untrue.
+   There was a comment to the effect that "the dm is called on one thread, usually goes off and does work on another thread and then calls back to the TL (with tlfReply) from
+   that thread.  The TL blocks the original thread until the reply."  *Maybe* this was true under VC6, where there was one global reply buffer. (It was not properly protected,
+   but by luck didn't break win32 debugging.  By poor luck it did break Xbox debugging, but jlange modified their EM layer to so as to protect the buffer.)  Under VC7, this
+   comment is definately untrue.  The reply buffer is now in TLS, you retrieve it by calling through a pointer to get it when you need.  If you call this function on the
+   wrong thread, you get the wrong buffer.  The dang thing ought to be just a pointer to an output parameter (dare I suggest a union of all the possible reply types) passed
+   into the dispatch function.  In our new DM's dispatch function, we will do just this.
+   
+4) So how many threads are there and what do they do?  Astonishingly, I am 98% sure that when using TLLoc for win32 debugging on VC7 there are only two threads.  The UI thread:
+   you get called on this thread when the debugger is first launched.  If you hang on any of these calls, the debugger UI freezes.  The DM polling thread:  This thread polls Win32
+   for DEBUG_EVENTs.  Then it translates the DEBUG_EVENT into an RTP (not sure what it stands for, but this is the "DEBUG_EVENT" of the higher portion of the debugger) and calls
+   the EM.  The EM can then call you back from the thread before returning, thus the need for thread based reply buffers.  As a general rule it would seem to be a bad idea to
+   call the EM from within the context of a call from the EM.  You are basically using a calling convention where parameters are passed through common memory rather than a stack.
+   If the call stack gets deeper than about 3 you run a risk of stomping on return values, unless both sides are very careful about when they fill out the return value.  I wouldn't
+   count on the EM being careful here.  However, the VC7 code does call the EM back with a LOAD_DLL_DEBUG_EVENT on all platforms, and a thread create on Win95.  So the EM must
+   at least handle these.
+   
+5) I factored most of the process specific things into a CXboxProcess class.  This avoids having lots of data at global scope.  The few things that do belong at global
+   scope have been placed in a DM_GLOBALS structures and referred to through a single instance, g_DmGlobals.  These few things are basically required remenants of the TL.
+   
+6) CXboxProcess::SetTitle and calling the debugger.  For right now we have some temporary measures for running the debugger that we need to fix on the front end:
+	a) We are simply replacing NatDbgTlLoc.dll with dmxbox.dll.
+	b) The executable name for debugging its local location on the development machine, and it is .exe.
+	c) The working directory is the target directory on Xbox (leading x is optional).
+	d) CXboxProcess::SetTitle grafts the .exe name from the exe path unto the working dir, and the replaces
+	   .exe with .xbe, before calling DmSetTitle.
+	e) The rational is that by not changing the Exe path, the EE can go out and find it, and then load the correct
+	   symbols without needing to modify the EE to understand XBE's.
+	f) The arrangement is intended to be a temporary hack to get things moving, we need to revist exactly what to do here.
+	   In VC6, we modified the EE.  There will be other considerations in VS.NET, such as what the dialogs look like.
+
+7) There is this UserTimer thing.  I think it is intended to measure execution time between breakpoints our something.  In any case, the code is obviously in various states
+   of totally broken on both VS.NET and VC6.  I will not include anything like here.
+   
+8) DEBUG_EVENTs.  I have gone a long way down build this CDebugEventPump.  This is very similar to the existing DEQ.   This translates 
+   notifications from XboxDbg notifications,  dwParam points to a structure appropriate for the notification, to DEBUG_EVENTs.  I did
+   this before unpeeling the other half the onion.  The EM does actually deal with DEBUG_EVENTs. Win32 gives DEBUG_EVENTs which as I
+   now explain in item 4) above get translated into RTPs for the EM.  DEBUG_EVENTs are not such a greate idea since as I found it is
+   really hard to translate XboxDbg notifications into DEBUG_EVENTs.  The VC6 does it, but it is a hack; sometimes it just can't cramn
+   all the information into the DEBUG_EVENT, or cannot do the translation so it stuff ever related information into fields it cannot fill
+   out, and then fixes it on the other side of pulling it off the queue while translating it to an RTP anyway.
+   
+   So does that mean we should never bother to convert to DEBUG_EVENTs at all?  I wouldn't go that far.  There is a lot of good code
+   written that uses them.  For each event type, we should look at the DEBUG_EVENT and the existing handler code.  In some cases, the
+   handlers rely extensively on this being a win32 process.  In this case, we will need to rewrite the handler anyway, why not skip the
+   translation and translation back.  In other cases, the handler may not need to change at all provided we can cleaning convert the XboxDbg
+   notification into a DEBUG event.
+   
+   And another thing.  The Win32 code doesn't really have a queue (well it does, but more on that in a couple of items).  It starts up
+   a thread and polls WaitForDebugEvent (a little indirectly, but that is what is happening).  For a debugger, this is kind of like a
+   Windows message pump calling GetMessage.  We call it "polling", but our polls block until there is something to say. It then dispatches
+   these.  In the VC6 code, the DEQ was created as a way of turning notification calls from XboxDbg into something you can poll in the same
+   way.  We should consider whether this queue and an extra polling thread is necessary.  XboxDbg already has a thread associated with the
+   notification session.  It call you back from this thread whenever there is an event. Why not just notify the EM from that thread? 
+   
+		It could be that the EM will block you for a while, and that XboxDbg won't like it very much.  I know that
+		XboxDbg is OK with it on an assert, the VC6 plugin blocks the thread to stick up the assert dialog!  However,
+		in that case the debuggee is stopped and definately sending stuff. If strings are coming fast and furious, and
+		the EM is too slow, it might overflow XboxDbg's buffer.  In this case, it still more elegant to push back into
+		XboxDbg and increase its buffer (or the tcpip socket's buffer).
+   
+9) So will the CDebugEventPump that I spent a day on die?  Originally, I was going to prime the CDebugEventPump to aid in connecting the debugger
+   without starting up an extra launch thread.   This was a good idea, but if we kill the polling thread and use XboxDbg's thread to notify the EM,
+   we won't be able to do it.  It looks like I may need to spin a thread after all.  If I do this I will not use CDebugEventPump, but something
+   closer to what the VC6 plugin did.  Before creating the startup thread and before turning on the XboxDbg notification, I will create an
+   XBOXDBG_NOTIFICATION struct that contains the notification code and a union of all things dwParam can point to.  I will create an STL
+   queue<XBOXDBG_NOTIFICATION> and populate it with all the notifications that need to be sent at start up.  Then I will create the startup
+   thread, and pass it the queue<XBOXDBG_NOTIFICATION>.  It will process the queue by dispatch notifications through the callback that XboxDbg
+   notifications will go through.  After processing the last one, it will delete the queue, and turn on the real Xbox notifications.  Then the
+   starup thread will exit.
+
+10) What is the queue used by the VC7 DM.  It is a continue event queue.  It is used for two things.  While single stepping or when stopped at a
+	breakpoint the user may hit go, or choose to termiante the process or something else like that.  The EM will tell us about when we are processing
+	a notification, so we queue until we are done with the notification.  So basically, everytime we finish processing a really notification we go and
+	process that queue.  We can still utilize XboxDbg's thread.  Whenever we finish processing a notification, we just process this queue before
+	returning.

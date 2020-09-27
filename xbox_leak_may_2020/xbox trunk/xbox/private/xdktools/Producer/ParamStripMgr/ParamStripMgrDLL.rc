@@ -1,0 +1,607 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\GroupBitsPPG.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "ParamStripMgr.DLL\0"
+#define VERSIONDESCRIPTION          "ParamStripMgr Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "ParamStripMgr Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "ParamStripMgr.DLL\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_TRACKMGR            REGISTRY DISCARDABLE    "TrackMgr.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE_WAVE_GROUP_BITS DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Track Group Assignment"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Track Group:",IDC_STATIC,10,17,43,8
+    COMBOBOX        IDC_COMBO_GROUP_LIST,63,15,35,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "(Parameter Control Tracks can belong to only a single Track Group at any given time.)",
+                    IDC_STATIC,10,34,165,18
+    GROUPBOX        "&Track Group Assignment",IDC_STATIC,3,4,244,53,WS_GROUP
+END
+
+IDD_PROPPAGE_OBJECT DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Object"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Object:",IDC_STATIC,10,38,24,8
+    LTEXT           "PChannels:",IDC_STATIC,10,61,39,8
+    EDITTEXT        IDC_EDIT_PCHANNEL,50,60,31,12,ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE | WS_DISABLED
+    CONTROL         "Spin3",IDC_SPIN_PCHANNEL,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS | NOT WS_VISIBLE | 
+                    WS_DISABLED,73,61,11,10
+    EDITTEXT        IDC_EDIT_PCHANNELNAME,50,60,190,13,ES_AUTOHSCROLL | 
+                    ES_READONLY | WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "Stage:",IDC_STATIC,10,14,33,8,NOT WS_VISIBLE
+    LTEXT           "",IDC_STAGE_STATIC,50,14,190,12,SS_CENTERIMAGE | 
+                    SS_SUNKEN | NOT WS_VISIBLE
+    LTEXT           "",IDC_OBJECT_STATIC,50,37,190,12,SS_CENTERIMAGE | 
+                    SS_SUNKEN
+    GROUPBOX        "",IDC_STATIC,7,7,236,97
+END
+
+IDD_NEW_PARAM DIALOG DISCARDABLE  0, 0, 225, 127
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Parameter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    RADIOBUTTON     "DMOs",IDC_RADIO_DMOS,70,6,36,10
+    RADIOBUTTON     "Tools",IDC_RADIO_TOOLS,128,6,33,10
+    COMBOBOX        IDC_COMBO_STAGE,55,26,159,42,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_OBJECT,55,46,159,42,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_PARAM,55,85,159,42,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&OK",IDOK,107,108,49,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,169,107,49,15
+    EDITTEXT        IDC_NEWOBJECT_EDIT_PCHANNEL,55,66,31,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_VISIBLE
+    CONTROL         "Spin1",IDC_NEWOBJECT_SPIN_PCHANNEL,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS | NOT WS_VISIBLE,83,65,
+                    11,15
+    EDITTEXT        IDC_EDIT_PCHNAME,57,66,157,12,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_TABSTOP
+    LTEXT           "PChannels",IDC_STATIC,16,68,35,8
+    LTEXT           "Stage",IDC_STATIC,15,28,35,8
+    LTEXT           "Object",IDC_STATIC,15,48,35,8
+    LTEXT           "Parameter",IDC_STATIC,16,87,35,8
+    GROUPBOX        "",IDC_STATIC,6,17,214,87
+    GROUPBOX        "",IDC_STATIC,6,0,214,18
+END
+
+IDD_PROPPAGE_CURVE DIALOG DISCARDABLE  0, 0, 250, 111
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Curve(s)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",-1,7,0,235,62
+    LTEXT           "Bar",IDC_PROMPT_BAR,68,6,20,10
+    LTEXT           "Beat",IDC_PROMPT_BEAT,111,6,20,10
+    LTEXT           "Grid",IDC_PROMPT_GRID,154,6,20,10
+    LTEXT           "Tick",IDC_PROMPT_TICK,197,6,20,10
+    LTEXT           "&Start Time",-1,18,17,33,8
+    EDITTEXT        IDC_EDIT_STARTBAR,68,16,34,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin3",IDC_SPIN_STARTBAR,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,96,16,11,10
+    EDITTEXT        IDC_EDIT_STARTBEAT,110,16,33,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER | WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_STARTBEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,138,16,11,10
+    EDITTEXT        IDC_EDIT_STARTGRID,153,16,33,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER | WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_STARTGRID,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,181,16,11,10
+    EDITTEXT        IDC_EDIT_STARTTICK,196,16,33,12,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_STARTTICK,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,224,16,11,10
+    LTEXT           "&End Time",-1,18,32,31,8
+    EDITTEXT        IDC_EDIT_ENDBAR,68,31,33,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin3",IDC_SPIN_ENDBAR,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,96,31,11,10
+    EDITTEXT        IDC_EDIT_ENDBEAT,110,31,33,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_ENDBEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,138,31,11,10
+    EDITTEXT        IDC_EDIT_ENDGRID,153,31,33,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_ENDGRID,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,181,31,11,10
+    EDITTEXT        IDC_EDIT_ENDTICK,196,31,33,12,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_ENDTICK,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,224,31,11,10
+    LTEXT           "&Duration",-1,18,47,28,8
+    EDITTEXT        IDC_EDIT_DURBAR,68,46,33,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin3",IDC_SPIN_DURBAR,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,96,46,11,10
+    EDITTEXT        IDC_EDIT_DURBEAT,110,46,33,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_DURBEAT,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,138,46,11,10
+    EDITTEXT        IDC_EDIT_DURGRID,153,46,33,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_DURGRID,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,181,46,11,10
+    EDITTEXT        IDC_EDIT_DURTICK,196,46,33,12,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_DURTICK,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | WS_DISABLED,224,46,11,10
+    LTEXT           "Sta&rt Value:",-1,18,66,37,8
+    EDITTEXT        IDC_EDIT_STARTVALUE,55,65,57,12,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Spin3",IDC_SPIN_STARTVALUE,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    WS_DISABLED,125,66,9,10
+    COMBOBOX        IDC_COMBO_ENUMSTARTVALUE,57,65,67,47,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "E&nd Value:",-1,18,81,37,8
+    EDITTEXT        IDC_EDIT_ENDVALUE,55,80,57,12,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Spin2",IDC_SPIN_ENDVALUE,"msctls_updown32",
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    WS_DISABLED,125,80,9,10
+    COMBOBOX        IDC_COMBO_ENUMENDVALUE,57,79,67,42,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | NOT WS_VISIBLE | WS_DISABLED | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Type:",-1,138,65,18,8
+    COMBOBOX        IDC_COMBO_SHAPE,159,64,76,62,CBS_DROPDOWN | WS_DISABLED | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Flip &Vertical",IDC_BTN_FLIPVERT,134,79,49,13,
+                    WS_DISABLED
+    PUSHBUTTON      "Flip &Horizontal",IDC_BTN_FLIPHORZ,190,79,52,13,
+                    WS_DISABLED
+    CONTROL         "Start From &Current",IDC_CHECK_START_FROM_CURRENT,
+                    "Button",BS_AUTO3STATE | WS_TABSTOP,15,95,73,10
+END
+
+IDD_GRIDS_PER_SECOND DIALOG DISCARDABLE  0, 0, 225, 110
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Grids Per Second"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,58,90,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,118,90,50,14
+    GROUPBOX        "Grid",IDC_STATIC,6,3,214,36
+    RTEXT           "&Divide second into",IDC_STATIC,9,20,67,8
+    EDITTEXT        IDC_EDIT_NBR_GRIDS,81,18,30,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin3",IDC_SPIN_NBR_GRIDS,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,105,15,11,10
+    CONTROL         "&Change the active strip",IDC_RADIO_ACTIVE_PART,"Button",
+                    BS_AUTORADIOBUTTON,6,51,150,10
+    CONTROL         "Change al&l strips in this track",IDC_RADIO_ALL_PARTS,
+                    "Button",BS_AUTORADIOBUTTON,6,62,148,10
+    LTEXT           "grids.",IDC_STATIC,113,20,22,8
+    LTEXT           "",IDC_NBR_MS,139,20,76,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+IDR_EDIT_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, GRAYED
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, GRAYED
+        POPUP "&Paste\tCtrl+V", GRAYED
+        BEGIN
+            MENUITEM "&Merge",                      32797
+            MENUITEM "&Overwrite",                  32798
+        END
+        MENUITEM "Select Al&l\tCtrl+A",         ID_EDIT_SELECT_ALL, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Add &New Parameter... ",      ID_NEW_PARAM
+        MENUITEM "&Delete Parameter(s)",        ID_DELETE_PARAM
+        MENUITEM SEPARATOR
+        MENUITEM "Dra&w Curve\tIns",            ID_EDIT_INSERT_CURVE, GRAYED
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE, GRAYED
+        MENUITEM SEPARATOR
+        POPUP "&Snap To"
+        BEGIN
+            MENUITEM "None\tCtrl+E",                IDM_SNAP_NONE
+            MENUITEM "Grid\tCtrl+G",                IDM_SNAP_GRID
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Add Track(s)...\tCtrl+Ins",  ID_EDIT_ADD_TRACK
+        MENUITEM "D&elete Track(s)\tCtrl+Del",  ID_EDIT_DELETE_TRACK
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            ID_VIEW_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_PROPPAGE_OBJECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
+
+    IDD_NEW_PARAM, DIALOG
+    BEGIN
+        RIGHTMARGIN, 218
+        BOTTOMMARGIN, 122
+    END
+
+    IDD_PROPPAGE_CURVE, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 105
+    END
+
+    IDD_GRIDS_PER_SECOND, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_PROPPAGE_WAVE_GROUP_BITS DLGINIT
+BEGIN
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0031, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0032, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0033, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0034, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0035, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0036, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0037, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0038, 
+    IDC_COMBO_GROUP_LIST, 0x403, 2, 0
+0x0039, 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3031, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3131, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3231, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3331, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3431, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3531, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3631, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3731, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3831, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3931, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3032, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3132, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3232, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3332, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3432, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3532, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3632, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3732, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3832, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3932, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3033, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3133, "\000" 
+    IDC_COMBO_GROUP_LIST, 0x403, 3, 0
+0x3233, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_ZOOMOUT_UP          BITMAP  DISCARDABLE     "Res\\ZoomOut_Up.bmp"
+IDB_ZOOMIN_DOWN         BITMAP  DISCARDABLE     "Res\\ZoomIn_Down.bmp"
+IDB_ZOOMIN_UP           BITMAP  DISCARDABLE     "Res\\ZoomIn_Up.bmp"
+IDB_ZOOMOUT_DOWN        BITMAP  DISCARDABLE     "Res\\ZoomOut_Down.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJNAME            "ParamStripMgr"
+    IDS_PROPPAGE_FILEREF    "Curve"
+    IDS_DELETE              "Delete Curve(s)"
+    IDS_PASTE               "Paste Curve(s)"
+    IDS_INSERT              "Insert Curve"
+    IDS_TRACK_NAME          "Parameter Control Track"
+    IDS_PROPPAGE_GROUP_BITS "Parameter Control Track"
+    IDS_MULTIPLE_SELECT     "Multiple Curves Selected"
+    IDS_UNDO_CHANGE         "Change Curve(s)"
+    IDS_UNDO_MOVE           "Move Curve(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_TRACK_GROUP    "Track Group Assignment"
+    IDS_STRIP_NAME          "Parameter Control"
+    IDS_EMPTY_TEXT          "Empty"
+    IDS_UNDO_TRACKEXTRAS    "Track Configuration Change"
+    IDS_UNDO_PRODUCERONLY   "Producer-specific flag change"
+    IDS_UNDO_DELETE_WAVE    "Delete Curve"
+    IDS_UNDO_REPLACE_WAVE   "Revert Curve"
+    IDS_UNDO_CHANGE_WAVE_LINK "Refresh File Reference"
+    IDS_UNDO_CHANGE_WAVE_NAME "Change Curve Name"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Parameter Control Strip Manager"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_FLAGS          "Set Flags"
+    IDS_NONE_TEXT           "<None>"
+    IDS_BROADCAST_SEG       "Seg"
+    IDS_BROADCAST_PERF      "Perf"
+    IDS_EMPTY_PCHANNEL      "PChannel is unused"
+    IDS_USED_PCHANNEL       "PChannel is used"
+    IDS_INVALID_PCHANNEL    "Invalid PChannel number"
+    IDS_UNDO_ADD_PART       "Add Part(s)"
+    IDS_UNDO_OBJECT_PCHANNEL "Change PChannel"
+    IDS_UNDO_OBJECT_FLAGS   "Change Object Flags"
+    IDS_UNDO_OBJECT_NAME    "Change Object Name"
+    IDS_UNDO_DELETE_PART    "Delete Part(s)"
+    IDS_UNDO_TRACK_FLAGS    "Change Track Flags"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_STRIP_MINIMIZED "Minimize Parameter Strip"
+    IDS_UNDO_STRIP_MAXIMIZED "Maximize Parameter Strip"
+    IDS_UNDO_STRIP_RESIZE   "Resize Parameter Strip"
+    IDS_FONT_NAME           "Times New Roman"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CREATE_TEXT         " - create"
+    IDS_NO_PARAM_TRACKS_TEXT "No Parameter Tracks"
+    IDS_PARAM_STRIP_FONTNAME "Arial"
+    IDS_TOOLS_SEGMENT       "from toolgraph in this segment"
+    IDS_TOOLS_SEGMENT_AUDIOPATH "from toolgraph in this segment's audiopath"
+    IDS_START_TEXT          "Start"
+    IDS_END_TEXT            "End"
+    IDS_CURVE_TEXT          "Curve"
+    IDS_MINUS_TEXT          "-"
+    IDS_BEAT_TEXT           "Beat"
+    IDS_BEAT_MENU_TEXT      "Beat\tCtrl+T"
+    IDS_BAR_TEXT            "Bar"
+    IDS_BAR_MENU_TEXT       "Barline\tCtrl+B"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_INSERT2         "Inserts data using default values\nInsert"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CURVE_SHAPE1        "Sine"
+    IDS_CURVE_SHAPE2        "Logarithmic"
+    IDS_CURVE_SHAPE3        "Exponential"
+    IDS_CURVE_SHAPE4        "Instant"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CURVE_SHAPE5        "Linear"
+    IDS_UNDO_CHANGE_CURVE   "Modify Curve"
+    IDS_UNDO_INSERT_CURVE   "Insert Curve"
+    IDS_NO_PARAM_TEXT       "No Parameters"
+    IDS_SECOND_TEXT         "Second"
+    IDS_SET_GRID_TEXT       "Set Grids Per Second..."
+    IDS_NBR_MS_PER_GRID_TEXT "(1 grid = %1 ms)"
+    IDS_ERR_NBR_GRIDS_PER_SECOND "You must enter a number between 1 and 100."
+    IDS_UNDO_NBR_GRIDS_PER_SECOND "Change Grids Per Second"
+    IDS_UNDO_ADD_PARAM      "Add Parameter"
+    IDS_UNDO_DELETE_PARAM   "Delete Parameter(s)"
+    IDS_UNDO_SNAP_TO        "Snap To"
+    IDS_UNDO_COPY_CURVE     "Copy Curve(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GRID_TEXT           "Grid"
+    IDS_TICK_TEXT           "Tick"
+    IDS_MIN_TEXT            "Min"
+    IDS_SEC_TEXT            "Sec"
+    IDS_MS_TEXT             "Ms"
+    IDS_DMOS_SEGMENT_AUDIOPATH "from the Segment's audiopath"
+    IDS_BOOL_FALSE          "False"
+    IDS_BOOL_TRUE           "True"
+    IDS_DMOS_PERFORMANCE_AUDIOPATH "from the Performance's active audiopath"
+    IDS_TOOLS_PERFORMANCE_AUDIOPATH_TOOLGRAPH 
+                            "from toolgraph in performance's active audiopath"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\GroupBitsPPG.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

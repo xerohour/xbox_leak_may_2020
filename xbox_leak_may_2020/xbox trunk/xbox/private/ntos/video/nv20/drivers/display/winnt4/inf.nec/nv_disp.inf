@@ -1,0 +1,166 @@
+;
+; NV Display INF file
+;
+
+[Version]
+Signature="$Windows NT$"
+Provider=%NVidia%
+LayoutFile=layout.inf
+Class=Display
+
+;
+; Dest directories are \windows\system32 and \windows\system32\drivers
+;
+
+[DestinationDirs]
+DefaultDestDir       = 11
+nv.Miniport      = 12
+nv.Display       = 11
+nv.rm            = 12
+nv.oldrm         = 12
+
+;
+; The Manufacturer section lists all of the manufacturers that we will
+; display in the Dialog box. DEVICE sections are specified.
+;
+
+[Manufacturer]
+%NVidia%      = NVidia.Mfg
+
+;
+; Device section. Each section here corresponds with an entry listed in the
+; [Manufacturer] section, above. The models will be displayed in the order
+; that they appear in the INF file. This section identifies
+; the corresponding INSTALL sections.
+;
+
+
+[NVidia.Mfg]
+
+ %NVidia% Release 2.0 = nv
+
+;---------------------------------------------------------------------
+; NV Driver INSTALL Section. This INSTALL section specifies
+; what files are to to be copied (File List sections)
+;---------------------------------------------------------------------
+
+[nv]
+CopyFiles=nv.Miniport, nv.Display, nv.rm, nv.icd
+DelFiles=nv.oldrm
+
+;
+; NV Driver INSTALL Section. This INSTALL section specifies
+; what registry fields are to be modified (ADD Registry section)
+;
+
+[nv.SoftwareSettings]
+AddReg = nv_SoftwareDeviceSettings
+AddReg = nv_icdSoftwareSettings
+
+;
+; NV Service Installation
+;
+
+[nv.Services]
+AddService = nv, 0x00000002, nv_Generic_Service_Inst, nv_EventLog_Inst
+AddService = nvarch,, nvarch_Generic_Service_Inst, nvarch_EventLog_Inst
+AddService = nvgfx,, nvgfx_Generic_Service_Inst, nvgfx_EventLog_Inst
+DelService=nvrm
+
+[nv_EventLog_Inst]
+AddReg = nv_EventLog_AddReg
+
+[nvarch_EventLog_Inst]
+AddReg = nvarch_EventLog_AddReg
+
+[nvgfx_EventLog_Inst]
+AddReg = nvgfx_EventLog_AddReg
+
+[nv_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%SystemRoot%\System32\IoLogMsg.dll;%SystemRoot%\System32\drivers\nv_mini.sys"
+HKR,,TypesSupported,0x00010001,7
+
+[nvarch_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%SystemRoot%\System32\IoLogMsg.dll;%SystemRoot%\System32\drivers\nvarch.sys"
+HKR,,TypesSupported,0x00010001,7
+
+[nvgfx_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%SystemRoot%\System32\IoLogMsg.dll;%SystemRoot%\System32\drivers\nvgfx.sys"
+HKR,,TypesSupported,0x00010001,7
+
+[nv_Generic_Service_Inst]
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 1                  ; SERVICE_SYSTEM_START
+ErrorControl   = 0                  ; SERVICE_ERROR_IGNORE
+LoadOrderGroup = Video
+ServiceBinary  = %12%\nv_mini.sys
+
+[nvarch_Generic_Service_Inst]
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 1                  ; SERVICE_SYSTEM_START
+ErrorControl   = 0                  ; SERVICE_ERROR_IGNORE
+ServiceBinary  = %12%\nvarch.sys
+
+[nvgfx_Generic_Service_Inst]
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 1                  ; SERVICE_SYSTEM_START
+ErrorControl   = 0                  ; SERVICE_ERROR_IGNORE
+ServiceBinary  = %12%\nvgfx.sys
+
+;
+; File List sections for NV.Display and NV.Miniport
+;
+
+[nv.Display]
+nv_disp.dll
+
+[nv.Miniport]
+nv_mini.sys
+
+[nv.rm]
+nvarch.sys
+nvgfx.sys
+
+[nv.oldrm]
+nvrm.sys,0x00000001
+
+[nv.icd]
+nv3oglnt.dll
+
+[nv.GeneralConfigData]
+MaximumDeviceMemoryConfiguration=80
+
+;
+; NVidia Add registry section
+;
+
+[nv_SoftwareDeviceSettings]
+HKR,, InstalledDisplayDrivers,     %REG_MULTI_SZ%, nv_disp
+HKR,, VgaCompatible,               %REG_DWORD%,    0
+HKR,, DmaBuf,                      %REG_DWORD%,    5
+HKR,, IF09,                        %REG_DWORD%,    1
+HKR,, DMTOVERRIDE,                 %REG_DWORD%,    1
+
+[nv_icdSoftwareSettings]
+HKLM,"SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers",RIVA128, %REG_SZ%, nv3oglnt
+
+[Strings]
+;
+; Non-Localizable Strings
+;
+
+REG_SZ         = 0x00000000
+REG_MULTI_SZ   = 0x00010000
+REG_EXPAND_SZ  = 0x00020000
+REG_BINARY     = 0x00000001
+REG_DWORD      = 0x00010001
+serviceroot    = System\CurrentControlSet\Services
+
+;
+; Localizable Strings
+;
+
+NVidia       = "NVidia RIVA 128"
+
+DiskId="NVidia NT Driver Library installation disk"
+drvlib="NVidia NT Driver Library"

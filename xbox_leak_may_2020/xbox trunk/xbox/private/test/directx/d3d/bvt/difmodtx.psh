@@ -1,0 +1,11 @@
+;
+; Color input registers:
+;
+; v0            Diffuse color
+; v1            Specular color
+;
+
+tex t0              ; Sample the texture set in stage 0
+mul r1, t0, v0      ; Modulate the pixel's diffuse color with the texel color
+add r0.xyz, r1, v1  ; Add the pixel's specular color
+mov r0.a, r1.a      ; Use the modulated diffuse/texel alpha for the pixel

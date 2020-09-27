@@ -1,0 +1,294 @@
+from \\lang2\qaslm\src\cxx\can\cvscc.41\testsrc\sec5
+
+NOTE: all tests at the root of this path are too trivial to worry about.
+
+
+SUB-DIRECTORY 5_1
+-----------------
+
+
+p05085.c	superfluous class qualifiers	evaluate/call the following:
+												pobj->a_class::a_class()
+												pobj->a_class::~a_class()
+												pobj->a_class::func()
+												obj.a_class::a_class()
+												obj.a_class::~a_class()
+												obj.a_class::func()
+
+
+p05126.c	destructor						evaluate/call the following:
+												pobj->~a_class()
+												obj.~a_class()
+
+
+p05157.c	globally scoped enums			define:
+												enum global_enum{x = 0};
+												enum local_enum{x = 1};
+											evaluate:
+												::x, from local scope
+											verify:
+												::x refers to global_enum, not local_enum
+
+
+p05158.c	nested classes					define:
+												
+												struct A {
+													static int fA();
+													struct B {
+														static int fB();
+														struct C {
+															static int fC();
+															struct D {
+																static int fD();
+															};
+														};
+													};
+												};
+
+												int A::fA() { return 1; }
+												int A::B::fB() { return 2; }
+												int A::B::C::fC() { return 3; }
+												int A::B::C::D::fD() { return 4; }
+
+												A			a;
+												A::B		b;
+												A::B::C		c;
+												A::B::C::D	d;
+
+											evaluate:
+												a.fA()
+												b.fB()
+												c.fC()
+												d.fD()
+
+
+p05179.c	returning this pointer			define:
+												class a_class
+													{
+													public:
+														a_class *func(void){return this;}
+													} obj;
+													
+											evaluate/call:
+												obj.func()
+
+											verify:
+												obj.func() == &obj									
+												type of obj.func() = a_class *
+
+
+p05180.c	accessing types hidden			define:
+			by other types
+												class a_class	// global scope
+													{
+													int x;
+													};
+
+												class a_class	// local scope
+													{
+													int y;
+													}
+
+												::a_class obj;	// local scope
+
+											verify:
+												obj.x is accessible
+
+
+p05181.c	parenthesized l-values			define:
+												int x;
+											verify:
+												(x) can be assigned
+
+
+p05182.c	:: and inheritance/statics		define:
+												
+												class base_class
+													{
+													public:
+														static long x;
+													};
+
+												class derived_class : public base_class
+													{
+													public:
+														static long y;
+													} dobj;
+
+												long base::x;
+												long derived::y;
+
+											verify:
+												base_class::x can be assigned
+												derived_class::y can be assigned
+												derived_classs::y == dobj.y
+												type of derived_class::y is long
+												derived_class::x == dobj.x
+												derived_class::x can be assigned
+												type of derived_class::x is long
+
+
+p05183.c	accessing types hidden			define:
+			by non-type names					
+												class x
+													{
+													public:
+														static int m;
+													};
+													
+												x::m = 1;
+												
+												int x = 0;		// local scope
+												
+											verify:
+											
+												x::m is accessible
+
+												
+SUB-DIRECTORY 5_10
+------------------
+
+												
+p05151.c	equality of pointers			define:
+			to member variables										
+												struct a_struct
+													{
+													int m1;
+													int m2;
+													};
+
+												int a_struct::*p1 = &a_struct::m1;
+												int a_struct::*p2 = &a_struct::m2;
+
+											verify:
+												p1 == p2 returns FALSE
+												p1 != p2 returns TRUE
+
+
+p05152.c	equality of pointers			define:
+			to member functions										
+												struct a_struct
+														{
+														void func1() {}
+														void func2() {}
+														};
+
+												void (a_struct::*p1)(void) = &a_struct::func1;
+												void (a_struct::*p1)(void) = &a_struct::func2;
+
+											verify:
+												p1 == p2 returns FALSE
+												p1 != p2 returns TRUE
+
+
+p05330.c	type of result of != and		TODO: do we support the "bool" type?	
+			== operators is bool			currently we return "int" as the type.
+
+
+p05331.c	relational operators have		verify:
+			higher precedence than				1 != 2 >= 1
+			equality operators						parses as 
+												1 != (2 >= 1)
+												
+												
+p05332.c	implicit conversion of			define:
+			enums to numeric types				enum enum_type{x = 1, y = 2};
+			by equality operators				enum_type enum_var1 = x;
+												enum_type enum_var2 = y;										
+											evaluate:
+												enum_var1 == enum_var2
+												enum_var1 != enum_var2
+
+
+p05333.c	use equality operators			define:
+			on pointers to functions			void func1() {}          
+			and pointers to variables			void func2() {}
+												void (*pfunc1)() = func;            
+												void (*pfunc2)() = func;
+												char data[2];
+												char *pdata0 = &data[0];
+												char *pdata1 = &data[1];
+											verify:
+												pfunc1 != pfunc2 == TRUE
+												pfunc1 == pfunc2 == FALSE
+												pdata0 != pdata1 == TRUE
+												pdata0 == pdata1 == FALSE
+
+
+p05334.C	use equality operators to		define:
+			compare pointer to members			class a_class
+			to 0.									{
+													public:
+														int m_i;
+													};
+											verify:
+												&a_class::m_i == 0 is allowed
+												&a_class::m_i != 0 is allowed
+
+
+SUB-DIRECTORY 5_11
+------------------
+
+
+p05337.c	equality operator has			verify:
+			higher precedence than				1 & 3 == 1
+			bit-wise AND operator					parses as
+												1 & (3 == 1)
+
+
+p05338.c	implicit conversion of			define:
+			enums to numeric types				enum{zero, one, two} enum_var = one;
+			by bit-wise AND operator		verify:
+												1 & enum_var == 1
+
+			also, test bit-wise AND			verify:
+			between a number and its			1 & ~1 == 0
+			complement
+			
+			
+SUB-DIRECTORY 5_12
+------------------
+
+
+p05340.c	implicit conversion of			define:
+			enums to numeric types				enum{zero, one, two} enum_var = two;
+			by bit-wise 0R operator			verify:
+												1 ^ enum_var == 3
+
+			also, test bit-wise OR			verify:
+			between a number and itself			1 ^ 1 == 0
+
+
+p05341.c	bit-wise AND operator			verify:
+			has higher precedence				3 ^ 2 & 1
+			than bit-wise exclusive					parses as
+			OR operator							3 ^ (2 & 1)
+
+
+
+				
+				
+
+
+
+
+
+
+
+																											
+												
+												
+													
+													
+
+
+
+
+
+
+
+
+
+
+
+

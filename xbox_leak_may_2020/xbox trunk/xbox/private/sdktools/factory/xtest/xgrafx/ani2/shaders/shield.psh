@@ -1,0 +1,44 @@
+xps.1.1
+
+; Inputs:
+; t0          = reflection vector -- environment cubemap
+; t1          = halfway vector for blob light -- normalization cubemap
+; t2		  = halfway vector for mood light -- normalization cubemap
+; t3          = normal with -- normalization cubemap
+; c0          = base color (should be black with medium alpha)
+; c1          = blob intensity
+; c2          = specular coefficient
+
+def c3, 0.2f,0.5f,0.2f,1.f
+
+tex t0	
+tex t1
+tex t2
+tex t3
+
+
+; N dot H,
+xdd r0,r1,t1_bx2,t3_bx2,t2_bx2,t3_bx2
+
+; Raise to the 32nd power
+xmma r0,r1,v0,r0_sat,r0_sat,r1_sat,r1_sat
+xmma r0,r1,v0,r0,r0,r1,r1
+xmma r0,r1,v0,r0,r0,r1,r1
+xmma r0,r1,v0,r0,r0,r1,r1
+
+; scale by const color for highlight with green fringe
+mad r0,r0,c3,r0
+
+; Add in specular highlight for other light
+add r0,r0_sat,r1_sat
+
+; scale specular highlights by spec coefficients, and add term to cubemap
+mad r0.rgb, r0_sat,c2,t0
+
+xfc r0, c1, zero, zero, zero, zero, c0.a
+
+
+
+ 
+
+

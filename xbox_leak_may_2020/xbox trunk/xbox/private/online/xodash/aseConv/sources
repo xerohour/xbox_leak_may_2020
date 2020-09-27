@@ -1,0 +1,65 @@
+TARGETNAME = ASEConv
+PROJNAME   = ASEConv
+				
+TITLEID    = 0xffff0000
+
+#NTTARGETFILE0 = $(O)\xonlinedash.dsp
+
+USE_NATIVE_EH=1
+USE_STL = 1
+#USE_PDB		= 1
+#NTDEBUGTYPE=both
+
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+XLATEPATH = $(BASEDIR)\private\online\xodash\media\locale
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:0xFFFE0000 /INITFLAGS:0x00000000 \
+	     /INSERTFILE:$(XLATEPATH)\english.inf,EnglishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\japanese.inf,JapaneseXlate,N \
+        /INSERTFILE:$(XLATEPATH)\german.inf,GermanXlate,N \
+        /INSERTFILE:$(XLATEPATH)\french.inf,FrenchXlate,N \
+        /INSERTFILE:$(XLATEPATH)\spanish.inf,SpanishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\italian.inf,ItalianXlate,N
+
+
+INCLUDES   = $(INCLUDES); \
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+        $(BASEDIR)\private\ntos\inc; \
+        $(BASEDIR)\private\ntos\xapi\inc; \
+	$(BASEDIR)\private\online; \
+	$(BASEDIR)\private\ntos\net; \
+        $(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+	$(BASEDIR)\private\online\xodash\xodashlib; \
+	
+
+
+LINKLIBS   = \
+             $(BASEDIR)\private\online\xodash\XODashLib\obj\i386\xodashlib.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+	     $(SDK_LIB_PATH)\dsound$(D).lib \
+	     $(BASEDIR)\private\lib\i386\xapilibp$(D).lib 	
+
+
+SOURCES	=    main.cpp \
+			aseconv.cpp \
+			asescene.cpp \
+			csvfile.cpp \
+
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj
+
+
+
+USE_LIBCMT=1

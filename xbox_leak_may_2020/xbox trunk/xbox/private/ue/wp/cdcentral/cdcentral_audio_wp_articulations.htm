@@ -1,0 +1,117 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Creating DLS Articulations in
+DirectMusic Producer 
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>. </P>
+<H3>Introduction</H3>
+<P>The Downloadable Sounds Level 2 (DLS-2) specification<sup><font size:"9">1</font></sup> provides for a variety of articulation data to be used to manipulate the wavetable data that comprises a DLS instrument or region.<sup><font size:"9">2</font></sup> This white paper will detail how some of these features are exposed in Microsoft&#174; DirectMusic&#174; Producer, the primary tool for authoring DLS content on the Xbox&#8482; video game system from Microsoft.</P>
+
+<H3>DLS Designer and Articulations </H3>
+<P>DLS collection editing, which includes wave editing, instrument assembly, and articulation editing, is all provided in the DLS Designer module of DirectMusic Producer. We've already discussed building up instruments from waves, but we didn't talk much about articulations, which give you enormous flexibility on individual regions or entire DLS instruments. In DLS Designer, articulations take up the bottom half of the editor window.</P>
+<IMG src="/content/img/articulations_fig1.gif" WIDTH="517" HEIGHT="272" ALT="" BORDER="0"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>The default articulation created with a new instrument</I></P>
+<P>Let's take a look at what some of this means. Notice that the title of the frame (text at the upper left) is <B>Instrument Articulation.</B> This is how DirectMusic Producer differentiates between instrument and region-wide articulations. You can have both existing simultaneously in an instrument; any regions that do not have their own articulation will use the instrument-wide articulation.</P>
+<P>To create an articulation for a region:</P>
+<OL>
+<LI>In the project tree, expand the Regions folder of the instrument if it isn't already.</LI><BR><BR>
+<LI>Right click the region you want to add a local articulation to.</LI><BR><BR>
+<LI>Choose <B>Insert Articulation List</B> from the shortcut menu.<sup><font size:"9">3</font></sup><BR><BR>
+<IMG src="/content/img/articulations_fig2.gif" WIDTH="187" HEIGHT="183" ALT="" BORDER="0"></LI>
+</OL>
+<P>You'll notice at this point that the title of the articulation frame has changed to <B>Region Articulation.</B> You're now editing a local articulation for this region. Other regions will continue to use the global instrument articulation, and if you click on them (either in the project tree or the graphic bars above the piano roll in DLS Designer), the articulation frame will display that articulation for editing. </P>
+<H3>Setting Up Xbox DLS Articulations </H3>
+<P>Xbox supports the DLS-2 specification for articulations. Remember that DirectMusic Producer is also used for PC content authoring, much of which supports DLS-1 content. This is why articulations default to DLS-1. To take advantage of DLS-2 articulation features exposed by the Xbox audio hardware, first uncheck the <B>DLS1</B> check box for an articulation. This in turn enables the full DLS-2 feature set, which includes, among other parameters:</P>
+<UL>
+<LI>The Delay and Hold stages of the volume and pitch envelopes</LI><BR><BR>
+<LI>A vibrato low frequency oscillator (a second LFO; DLS-1 exposes one LFO)</LI><BR><BR>
+<LI>DLS-2 low-pass filter</LI>
+</UL>
+<P>You can experiment with most of these parameters within the DLS Designer window. To hear an instrument or region play after changing a setting, you can:</P>
+<UL>
+<LI>Press the space bar (press again to stop hearing the wave if it is looped).</LI><BR><BR>
+<LI>Click a note in the piano roll to hear that particular note (if <B>Multiple Layers</B> is checked, all regions that would be triggered by that specific note at that specific velocity will be played).</LI><BR><BR>
+<LI>Play a note from a MIDI keyboard.</LI>
+</UL>
+<P>Note that the DLS-2 specification does not, in general, allow for real-time parameter adjustment (for example, while a wave is playing), except for those that are triggered by MIDI controller changes&#8212;for instance, filter cutoff can be manipulated using controller #74. So you'll need to retrigger a wave in DirectMusic Producer to hear the changed values.</P>
+<H3>Articulation Editing Shortcuts </H3>
+<P>Copy-and-paste commands&#8212;a common question is how to use the copy and paste commands for articulations. The project tree does not have drag copy (or clipboard copy) functionality for articulations. But fear not, there's a way (albeit a fairly hidden one) to obtain this functionality:</P>
+<OL>
+<LI>Make the articulation you wish to copy appear in DLS Designer (by selecting it in the project tree, or by selecting the region it belongs to).</LI><BR><BR>
+<LI>Right click anywhere in DLS Designer except in a text box. This will bring up a shortcut menu consisting of two choices: <B>Copy</B> and <B>Paste.</B> Choose <B>Copy.</B><BR><BR>
+<IMG src="/content/img/articulations_fig3.gif" WIDTH="518" HEIGHT="272" ALT="" BORDER="0"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>The "hidden" right-click menu for copying articulations.</I></P></LI>
+<LI>Now open the articulation you wish to add the information to.</LI><BR><BR>
+<LI>Again, right click anywhere in DLS Designer except in a text box. Choose <B>Paste.</B></LI>
+</OL>
+
+<P>Note that this shortcut only works for copying between two articulations of the same type&#8212;instrument articulations or region articulations. These steps also won't automatically create a region articulation; you'll need to manually create an articulation for each region that you'll be adding to (for copying region articulations).</P>
+<P>Editing parameters via sliders&#8212;based in part on user requests, each of the sliders in DLS Designer has a shortcut to get back to that slider's default value. Just CTRL+click on a slider to return it to its default position. And if you want to "nudge" a slider without having to worry about moving the mouse a small amount, the left and right arrow keys can be used to nudge a slider's value. Just click on the slider once, or use TAB or SHIFT+TAB to give it focus first.</P>
+<IMG src="/content/img/articulations_fig3a.gif" WIDTH="325" HEIGHT="45" ALT="" BORDER="0">
+<P><B>Illustration</B>&nbsp;&nbsp;<I><B>Vel to Attack</B> has focus. Pressing SHIFT+TAB would give focus to <B>Shutdown Time</B>; pressing TAB would then give focus back to <B>Vel to Attack.</B></I></P>
+<H3>Removing an Articulation </H3>
+<P>If you decide that an articulation is no longer necessary (for example, a region should just use the instrument articulation, or conversely, all regions have their own local articulations and an instrument-wide articulation is unnecessary), simply select it in the project tree and press DELETE. Note that the Articulation List folder node will remain in the project tree (with no articulations in it) until the next time you open the DLS collection in DirectMusic Producer, at which time it will disappear. You also cannot remove the instrument articulation if any regions are using it (for example, do not have a region articulation).</P>
+
+<H3>Basic Scenario: Creating an Analog Synth from a Sawtooth Wave </H3>
+<P>Let's wrap this up by demonstrating how much an articulation can impact the wave, and how using very small waves (~1 KB) can build up some fat "analog" synthesizer sounds. We start with a looped sawtooth wave created in a sound synthesis or editing application. We insert it into a DLS collection and create an instrument. Just to make things interesting, we'll use this same wave twice (in two regions) with different articulations to get a fuller sound.</P>
+<OL>
+<LI>Create two regions in the DLS instrument on separate layers. I just let each of them span the full MIDI keyboard.<BR><BR>
+<IMG src="/content/img/articulations_fig4.gif" WIDTH="517" HEIGHT="67" ALT="" BORDER="0"></LI><BR><BR>
+<LI>Insert an articulation for each region. Granted, one of them could just use the instrument articulation, but to keep things straight, we'll do two (local) region articulations. <BR><BR><IMG src="/content/img/articulations_fig5.gif" WIDTH="175" HEIGHT="161" ALT="" BORDER="0"></LI><BR><BR>
+<LI>Do something interesting with each of the articulations. For instance, add a pitch envelope and some filtering to each, but vary the values. An example:<BR><BR>
+<IMG src="/content/img/articulations_fig6.gif" WIDTH="500" HEIGHT="402" ALT="" BORDER="0"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>Sample values for pitch envelope and filter parameters.</I></P></LI>
+<LI>Pitch one of the regions down an octave. To do this, just set its root note to be an octave higher (so playing the same relative note will sound an octave lower).<BR><BR>
+<IMG src="/content/img/articulations_fig7.gif" WIDTH="318" HEIGHT="37" ALT="" BORDER="0"><BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>Repitching a region by changing its root note. If the other region's root note is C3, this region will play an octave lower given the same MIDI note.</I></P></LI>
+<LI>Check out your creation. Click on the piano roll, or audition it from a MIDI keyboard. You can audition each region separately (using the <B>Solo Layer</B> option button), or hear them together. You can also put together a quick sequence using DirectMusic Producer (or other sequencers by using <B>Echo MIDI In</B><sup><font size:"9">4</font></sup>) and try varying some of the MIDI parameters (for instance, using MIDI controller 74 for filter cutoff, or the mod wheel).</LI><BR><BR>
+</OL>
+
+<P>Lastly, check out the size of this DLS instrument you've created. The one I've got is all of 2.8 KB. The size of articulation information is in general trivial compared to the size of wave data. We were also able to use the same wave twice without twice the footprint.</P>
+<P>Click <a href="/download/Analog.dlp">here</a> to download an analog instrument in a DLS collection based on the discussion above.</P>
+<P>For more information about DLS articulations, DLS-2, and editing DLS collections in DirectMusic Producer, please consult the white papers cited in this document or the DirectMusic Producer help document, or send e-mail to <A HREF="mailto:content@xbox.com">content@xbox.com</A>.</P>
+
+
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;For full details on the DLS-2 specification, please visit the MIDI Manufacturers' Association (MMA) Web site at <A HREF="http://www.midi.org"><B>http://www.midi.org</B></A>.
+<P style="font-size:12"><SUP>2</SUP>&nbsp;For definitions of DLS terminology, as well as a more introductory paper to DLS authoring, please consult "<A HREF= "/BPProgInfo.asp?Page=content/cd_audio_wp_gettingstarted.htm"><B>Getting Started with DirectMusic Producer: MIDI and DLS Collections</B></A>" on this site.
+<P style="font-size:12"><SUP>3</SUP>&nbsp;Why an articulation "list"? Remember that DirectMusic Producer is the authoring tool for both Xbox and PC DLS content. The DLS-2 specification allows for multiple articulations to be defined on a single region. This doesn't mean that all of the articulations are applied to the region simultaneously, but instead allows for different articulations to be applied depending on the synthesizer that is present. This is known as conditional chunks (different parts of a collection are applied depending on the capabilities of the synthesizer). Because the Xbox hardware is constant, you should not create multiple articulations within a single articulation list (for example, a single articulation per region, and/or a single global articulation).
+<P style="font-size:12"><SUP>4</SUP>&nbsp;See the white paper "<A HREF= "/BPProgInfo.asp?Page=content/cd_audio_wp_MIDItriggering.htm"><B>Using DirectMusic Producer to Trigger DLS Instruments from Non-DLS-Enabled Sequencers</B></A>" for more details on using DirectMusic Producer solely as a DLS management tool for external triggering.<BR><BR><BR>
+
+<SMALL>Monday, April 2, 2001</SMALL>
+
+
+
+</td>
+
+
+</TD>
+
+
+
+	

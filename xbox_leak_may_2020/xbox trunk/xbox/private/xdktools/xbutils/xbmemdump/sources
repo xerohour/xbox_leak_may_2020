@@ -1,0 +1,24 @@
+TARGETNAME=xbmemdump
+
+SOURCES= \
+    xbmemmap.rc \
+    xbmemmap.cpp \
+    DmConnection.cpp \
+    meminfo.cpp \
+    vad.cpp \
+    PfnDatabase.cpp
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_SOURCEFILE=stdafx.cpp
+PRECOMPILED_CXX=1
+
+!include ..\sources.inc
+
+INCLUDES= \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\mmx; \
+    $(BASEDIR)\private\ntos\ke; \
+    $(SDK_INC_PATH); \
+    $(INCLUDES)
+
+MSC_WARNING_LEVEL=/W3 /WX

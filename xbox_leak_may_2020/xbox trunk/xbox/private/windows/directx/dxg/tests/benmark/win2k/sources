@@ -1,0 +1,23 @@
+!include ..\sources.inc
+
+UMENTRY=winmain
+UMTYPE=windows
+
+INCLUDES=$(INCLUDES);..\..\common
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -DPCBUILD -DENABLE_DINPUT
+
+!if $(FREEBUILD)
+D=
+!else
+D=d
+!endif
+
+LINKLIBS=\
+    ..\..\common\win2k\obj\*\d3dtestlib.lib \
+    $(BASEDIR)\public\wsdk\lib\dx8\d3d8.lib \
+    $(BASEDIR)\public\wsdk\lib\dx8\d3dx8.lib \
+    $(BASEDIR)\public\wsdk\lib\dx8\dinput8.lib \
+    $(BASEDIR)\public\wsdk\lib\uuid.lib 
+    
+

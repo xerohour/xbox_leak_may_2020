@@ -1,0 +1,38 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim VCommand
+dim VGroove
+dim VTempo
+dim VBeatsPerMeasure
+dim VBeat
+dim VGridsPerBeat
+
+sub TGetParams
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	PlaySegment(seg)
+
+	'this is really poor -- wait for segment to be fully playing
+	mt = GetMusicTime()
+	while GetMusicTime() < mt + 768
+	wend
+
+	VCommand = GetCommand()
+	VGroove = GetGrooveLevel()
+	VTempo = GetTempo()
+	VBeatsPerMeasure = GetTimeSigBeatsPerMeasure()
+	VBeat = GetTimeSigBeat()
+	VGridsPerBeat = GetTimeSigGridsPerBeat()
+end sub
+
+sub TTempoAndTranspose
+	t = GetTempo()
+	SendTempoPMSG 0 , GetMusicTime(), t*2
+	SendTransposePMSG 0 , GetMusicTime(), 3, 4
+end sub
+
+sub TConstants
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	PlaySegment seg, DMUS_SEGF_MEASURE
+end sub

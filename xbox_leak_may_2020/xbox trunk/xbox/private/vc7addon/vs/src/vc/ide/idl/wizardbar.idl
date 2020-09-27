@@ -1,0 +1,61 @@
+////////////////////////////////////////////////////////////////////////////////////
+// WIZBAR.IDL
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "textmgr.idl";
+
+////////////////////////////////////////////////////////////////////////////////////
+// BASEOBJECT - object containing information for a class or a function
+
+typedef struct _BASEOBJECT
+{
+    BSTR    sbstrName;          // class/function name
+    USHORT  iMod;				// module where it was defined
+	BYTE	typ;				// type of method/class attribute/property/...
+	DWORD 	uAttr;				// attributes - private/protected
+
+} BASEOBJECT;
+
+typedef enum {CLASS_OBJ, FUNC_OBJ} ObjType;
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// interface IObjectList
+// Array of BASEOBJECT sorted by name in alphabetical order
+// methods for manipulating the array
+
+[
+	uuid(9B3A2FA8-5665-11d3-B97B-00C04F685D8C)
+]
+
+interface IObjectList : IUnknown
+{	
+	HRESULT          AllocateObjectList([in] long lObjectCount);
+    HRESULT          AddObject([in] BASEOBJECT *pCO);        
+    HRESULT          GetCount([out] long *pCount);
+    HRESULT          GetObjectIndex([in] BSTR ObjectName, [out] long *pIndex);    
+    HRESULT          GetObject([in] BSTR ObjectName, [out] BASEOBJECT **pCO );    
+    HRESULT          GetItemAt([in] long lIndex, [out] BASEOBJECT **pCO);	
+	HRESULT			 SortByName();
+};
+
+////////////////////////////////////////////////////////////////////////////////////
+// interface IWizBarInfo
+// used for manipulating the class and member lists supplied to the dropdown combos
+// for the wizard bar
+
+[	
+	uuid(9B3A2FA7-5665-11d3-B97B-00C04F685D8C)	
+]
+
+interface IWizBarInfo : IUnknown
+{
+	HRESULT			SetNCBUpdateFlag([in]HRESULT flag);
+	HRESULT			GetNCBUpdateFlag();
+	HRESULT			SetMethodListDirty();
+	HRESULT			SetSkipUpdateFlag([in]HRESULT flagVal);
+	HRESULT			GetSkipUpdateFlag();
+    HRESULT         GetEnclosingFunction([in] IVsTextLines *pBuffer, [in] long iLine, [in] USHORT uIMod, [out] USHORT *puFuncIMod, [out] BOOL *pbInFunc,  [out] BOOL *pbInClass, [out] BSTR *pbstrName, [out] BYTE *pTyp, [out]DWORD *puAttr);
+	HRESULT			UpdateObjectLines([in]long iLine, [in]long lineCount, [in]ObjType type);
+};

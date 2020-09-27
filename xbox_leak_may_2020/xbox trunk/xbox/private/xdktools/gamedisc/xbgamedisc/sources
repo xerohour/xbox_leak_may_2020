@@ -1,0 +1,55 @@
+TARGETPATH=obj
+TARGETNAME=xbgamedisc
+TARGETTYPE=PROGRAM
+
+UMTYPE=windows
+UMENTRY=winmain
+
+# Use precompiled header for much faster build
+PRECOMPILED_INCLUDE=StdAfx.h
+PRECOMPILED_CXX=1
+
+SOURCES=\
+  CExpListView.cpp \
+  CFileHierarchy.cpp \
+  CFileObject.cpp \
+  CLayerListView.cpp \
+  CMyListView.cpp \
+  CSplitter.cpp \
+  CStatusBar.cpp \
+  CToolbar.cpp \
+  CToolbarMgr.cpp \
+  CTreeView.cpp \
+  CViewMode_Explorer.cpp \
+  CViewMode_Layer.cpp \
+  Debug.cpp \
+  FileSystemChangeThread.cpp \
+  TrackMessage.cpp \
+  Util.cpp \
+  ValidateFileSystem.cpp \
+  xbGameDisc.cpp \
+  CFile.cpp \
+  CUpdateBox.cpp \
+  CFileObject_LoadTypeInfo.cpp \
+  NewOpenSave.cpp \
+  PersistSettings.cpp \
+  CFastToSlow.cpp \
+  CUnplacedListView.cpp \
+  CUnplacedWindow.cpp \
+  StartupDlg.cpp \
+  About.cpp \
+  xbGameDisc.rc
+
+TARGETLIBS = \
+     $(WSDK_LIB_PATH)\comctl32.lib \
+     $(WSDK_LIB_PATH)\gdi32.lib    \
+     $(WSDK_LIB_PATH)\comdlg32.lib \
+     $(WSDK_LIB_PATH)\shell32.lib \
+     $(WSDK_LIB_PATH)\ole32.lib    \
+     $(WSDK_LIB_PATH)\rpcrt4.lib  \
+     $(WSDK_LIB_PATH)\Msimg32.lib
+
+INCLUDES = \
+     $(BASEDIR)\private\ntos\gdfx;$(WSDK_INC_PATH)
+
+USE_MSVCRT=1

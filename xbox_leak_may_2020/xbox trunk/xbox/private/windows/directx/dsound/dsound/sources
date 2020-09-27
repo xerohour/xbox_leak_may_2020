@@ -1,0 +1,37 @@
+!include ..\dsound.inc
+
+TARGETNAME = dsound$(D)
+
+NTTARGETFILES = \
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib \
+    DSP
+
+C_DEFINES = $(C_DEFINES) -DDPF_LIBRARY=\"DSOUND\"
+
+SOURCES =\
+    ac97xmo.cpp\
+    cipher.cpp\
+    dsperf.cpp\
+    dsapi.cpp\
+    dscommon.cpp\
+    dsmath.cpp\
+    dspdma.cpp\
+    epdsp.cpp\
+    globals.c\
+    gpdsp.cpp\
+    heap.cpp\
+    hrtf.cpp\
+    i3dl2.cpp\
+    mcpapu.cpp\
+    mcpbuf.cpp\
+    mcpstrm.cpp\
+    mcpvoice.cpp\
+    mcpxcore.cpp\
+    wavexmo.cpp
+
+OBJLIBFILES =\
+     $(SDK_LIB_PATH)\dsac97$(D).lib\
+     $(SDK_LIB_PATH)\wmaxmo$(D).lib\
+     $(SDK_LIB_PATH)\wma_decs_nodrm$(D).lib
+
+PRECOMPILED_INCLUDE = dsoundi.h

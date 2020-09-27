@@ -1,0 +1,49 @@
+#define Not_VxD
+
+#define VER_FILETYPE			VFT_DLL
+#define VER_FILESUBTYPE                 0
+#define VER_FILEDESCRIPTION_STR	        NV_PART_NAME_STRING " Windows 95/98 Modeset library, Version " NV_VERSION_STRING " \0"
+#define VER_INTERNALNAME_STR		"NVMODE"
+#define VER_LEGALCOPYRIGHT_YEARS	"1999"
+#define VER_ORIGINALFILENAME_STR	"NVMODE.DLL"
+
+//
+// Include common version resources
+//
+
+#include <..\..\common\inc\nvver.h>
+#include <ver.h>
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    NV_VERSION_NUMBER
+ PRODUCTVERSION NV_VERSION_NUMBER
+ FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS      (VER_PRIVATEBUILD|VER_PRERELEASE|VER_DEBUG)
+#else
+ FILEFLAGS      0x0L
+#endif
+ FILEOS         VOS_DOS_WINDOWS16
+ FILETYPE       VFT_DLL
+ FILESUBTYPE    VFT2_DRV_SYSTEM
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e2"
+        BEGIN
+            VALUE "CompanyName", NV_COMPANY_NAME_STRING
+            VALUE "FileDescription", VER_FILEDESCRIPTION_STR
+            VALUE "FileVersion", NV_VERSION_MS_STRING
+            VALUE "InternalName", VER_INTERNALNAME_STR
+            VALUE "LegalCopyright", "Copyright (c) 1998-99 " NV_COMPANY_NAME_STRING
+            VALUE "OriginalFilename", VER_ORIGINALFILENAME_STR
+            VALUE "ProductName", NV_NVDISPVER95
+            VALUE "ProductVersion", NV_VERSION_MS_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1250
+    END
+END
+

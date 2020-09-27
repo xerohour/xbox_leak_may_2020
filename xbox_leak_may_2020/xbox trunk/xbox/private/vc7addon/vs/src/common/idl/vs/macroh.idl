@@ -1,0 +1,130 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+#include "shellver.h"
+
+[
+    uuid(7E9B6563-C142-11d2-B25F-00C04F688E57),
+    version(DTE_LIB_VERSION),
+    helpstring("Macro Hierarchy Type Library")
+]
+
+library VsMacroHierarchyLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+
+    enum _ROOTDISPIDS
+    {
+    ROOTDISPID_DefaultSecurity  = 1,
+    };
+
+    enum _PROJECTDISPIDS
+    {
+    PROJECTDISPID_Name = 1,
+    PROJECTDISPID_File = 2,  
+    PROJECTDISPID_Security  = 3,
+    PROJECTDISPID_StorageFormat = 4,
+    };
+
+
+    [
+        uuid(1E9AD28F-C21D-11d2-B260-00C04F688E57)
+    ]
+    interface IRootProps : IDispatch
+    {
+        [id(ROOTDISPID_DefaultSecurity), propget, helpstring("Default Security Settings")] HRESULT DefaultSecurity([out, retval] BSTR *pSecurity);
+        [id(ROOTDISPID_DefaultSecurity), propput, helpstring("Default Security Settings")] HRESULT DefaultSecurity(BSTR Security);
+    };
+
+    [
+        uuid(7E9B6564-C142-11d2-B25F-00C04F688E57)
+    ]
+    interface IProjectProps : IDispatch
+    {
+        [id(PROJECTDISPID_Name), propget, helpstring("Project Name")] HRESULT Name([out, retval] BSTR *pVal);
+        [id(PROJECTDISPID_Name), propput, helpstring("Project Name")] HRESULT Name(BSTR Name);
+        [id(PROJECTDISPID_File), propget, helpstring("Path to the project file on disk")] HRESULT Path([out, retval] BSTR *pVal);
+        [id(PROJECTDISPID_File), propput, helpstring("Path to the project file on disk")] HRESULT Path(BSTR Path);
+        [id(PROJECTDISPID_Security), propget, helpstring("Project Security Settings")] HRESULT Security([out, retval] BSTR *pSecurity);
+        [id(PROJECTDISPID_Security), propput, helpstring("Project Security Settings")] HRESULT Security(BSTR Security);
+        [id(PROJECTDISPID_StorageFormat), propget, helpstring("Project Storage Format")] HRESULT StorageFormat([out, retval] BSTR *pSecurity);
+        [id(PROJECTDISPID_StorageFormat), propput, helpstring("Project Storage Format")] HRESULT StorageFormat(BSTR Security);
+    };
+
+    [
+        uuid(5B52E1CD-C20D-11d2-B260-00C04F688E57)
+    ]
+    interface IModuleProps : IDispatch
+    {
+        [id(1), propget, helpstring("Module Name")] HRESULT Name([out, retval] BSTR *pVal);
+        [id(1), propput, helpstring("Module Name")] HRESULT Name(BSTR Name);
+    };
+
+    [
+        uuid(5B52E1CE-C20D-11d2-B260-00C04F688E57)
+    ]
+    interface IMacroProps : IDispatch
+    {
+        [id(1), propget, helpstring("Macro Name")] HRESULT Name([out, retval] BSTR *pVal);
+        [id(1), propput, helpstring("Macro Name")] HRESULT Name(BSTR Name);
+        [id(2), propget, helpstring("Description"), hidden] HRESULT Description([out, retval]BSTR *pDescription);
+        [id(2), propput, helpstring("Description"), hidden] HRESULT Description(BSTR Description);
+    };
+
+    
+    [ uuid(336CA0A6-0E0B-11d3-B299-00C04F688E57) ]
+    dispinterface _dispEnvironmentEvents
+    {
+        properties:
+        methods:
+    };
+
+    [ uuid (336CA0A7-0E0B-11d3-B299-00C04F688E57), oleautomation, odl ]
+    interface _EnvironmentEvents : IDispatch 
+    {
+    };
+
+    [ uuid(336CA0A5-0E0B-11d3-B299-00C04F688E57) ]
+    coclass EnvironmentEvents
+    {
+        [default] interface _EnvironmentEvents;
+        [source, default] dispinterface _dispEnvironmentEvents;
+    };
+
+    [ uuid(C4D19869-0EF8-11d3-B299-00C04F688E57) ]
+    dispinterface _dispVSHostExtender
+    {
+        properties:
+        methods:
+    };
+
+    [ uuid(C4D1986A-0EF8-11d3-B299-00C04F688E57), oleautomation, odl ]
+    interface _VSHostExtender : IDispatch 
+    {
+        [id(0x80010000), propget]
+        HRESULT Name([out, retval] BSTR* pbstr);
+
+        [id(0x80010000), propput]
+        HRESULT Name([in] BSTR pbstr);
+
+        [id(0xfffffcde), propget]
+        HRESULT Object([out, retval] IUnknown** ppUnk);
+
+        [id(0x80010008), propget]
+        HRESULT Parent([out, retval] IUnknown** ppUnk);
+
+        [id(0xfffffcdf), hidden]
+        HRESULT Delete();
+
+        [id(0xfffffcdc), hidden]
+        HRESULT Index();
+    };
+
+    [ uuid(C4D1986B-0EF8-11d3-B299-00C04F688E57) ]
+    coclass VSHostExtender
+    {
+        [default] interface _VSHostExtender;
+        [source, default] dispinterface _dispVSHostExtender;
+    };
+};

@@ -1,0 +1,44 @@
+TARGETNAME=GRate6EC
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0x0000000A /TESTNAME:"Xbox Test Rated 6 EC" /TESTRATINGS:006 /INITFLAGS:0x00000000 /TITLEIMAGE:"titleimage.xbx" /DEFAULTSAVEIMAGE:"defsave.xbx" 
+
+C_DEFINES = $(C_DEFINES) -D_XBOXTEST=1
+
+XDBG_COMPILE_LEVEL=5
+
+INCLUDES = \
+    $(PRIVATE_INC_PATH); \
+    $(PRIVATE_INC_PATH)\crypto; \
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\xapi\inc; \
+    $(BASEDIR)\private\test\ui\tools\inc; \
+    $(BASEDIR)\private\test\inc; \
+	$(BASEDIR)\private\ui\inc;
+
+
+LINKLIBS = \
+    $(LIBRARY_PATH)\xbdm.lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib \
+    $(LIBRARY_PATH)\dsound$(D).lib \
+	$(LIBRARY_PATH)\xgraphics$(D).lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\menus.lib \
+    $(BASEDIR)\private\ui\obj\*\dashst.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\wavemedia.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\memoryareas.lib \
+    $(BASEDIR)\private\test\ui\tools\obj\*\images.lib
+
+SOURCES=\
+	xfontfuncs.cpp \
+	polyobject.cpp \
+    GameRate.cpp
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_CXX=1

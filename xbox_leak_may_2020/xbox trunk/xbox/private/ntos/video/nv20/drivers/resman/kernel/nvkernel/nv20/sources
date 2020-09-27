@@ -1,0 +1,40 @@
+TARGETNAME=nullnv20
+
+TARGETPATH=..\..\..\arch\nvalloc\winnt4\lib\nv4
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(BASEDIR)\lib
+!ELSE
+TARGETPATH=$(TARGETPATH)
+!ENDIF
+
+TARGETTYPE=LIBRARY
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+INCLUDES=..\..\inc;..\..\inc\nv20;..\..\..\arch\nvalloc\winnt4\inc;..\..\..\arch\nvalloc\common\inc
+
+!IFDEF NV_BUILD_INTERNAL
+INCLUDES=$(INCLUDES);$(BUILD_NVSDK_DIR)\nv4\inc;$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\nv4\inc
+!ENDIF
+
+C_DEFINES=-DWIN32 -DNV4_HW -DHW_CURSOR -DDIRECT_DRAW -DUSE_GUI -DNTRM -DRM20 -DNVARCH -DNVDEPRECATED
+C_DEFINES=$(C_DEFINES) $(RM_EXTRA_C_DEFINES)
+
+!IF ("$(NTDEBUG)" != "") && ("$(NTDEBUG)" != "ntsdnodbg")
+C_DEFINES=$(C_DEFINES) -DDEBUG $(RM_EXTRA_C_DEBUG_DEFINES)
+!ENDIF
+
+SOURCES=                \
+        nv20kern.c
+
+RMLIBDIR=$(BUILD_TREE)\drivers\resman\arch\nvalloc\winnt4\lib\nv4\*
+
+!IFNDEF NT5
+RMLIBDIR=$(RMLIBDIR)\$(DDKBUILDENV)
+!ENDIF
+
+NTTARGETFILE1= $(RMLIBDIR)\nv20kern.lib

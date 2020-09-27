@@ -1,0 +1,28 @@
+TARGETNAME=sndtrk
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+C_DEFINES = $(C_DEFINES) -DDBG
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFFE0000 /TESTNAME:"Soundtrack Testbed"
+
+INCLUDES = $(BASEDIR)\private\ntos\inc;$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(BASEDIR)\private\ui\inc
+
+USE_LIBC=1
+
+
+SOURCES= \
+    main.cpp  \
+    imagefile.cpp \
+    xboxvideo.cpp
+
+TARGETLIBS= \
+    $(XDK_LIB_PATH)\d3d8$(D).lib  \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib \
+    $(BASEDIR)\private\ui\obj\i386\dashst.lib
+
+
+PRECOMPILED_INCLUDE=sndtrpch.h
+PRECOMPILED_PCH=sndtrpch.pch
+PRECOMPILED_OBJ=sndtrpch.obj

@@ -1,0 +1,55 @@
+!IF 0
+
+Copyright (c) 1989-1996  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+!include $(_NTDRIVE)$(_NTROOT)\private\vc7addon\vsenv.inc
+!include ..\sources.inc
+
+TARGETNAME=DmXbox
+TARGETPATH=$(O)
+TARGETPATHLIB=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+TARGETTYPE=DYNLINK
+UMTYPE=windows
+DLLENTRY=_DllMainCRTStartup
+
+NO_NTDLL=1
+USE_MSVCRT=1
+USE_STL=1
+#turn on /GX
+USE_NATIVE_EH=1  
+
+C_DEFINES= $(C_DEFINES) -DVCDBG_DONOT_OVERRIDE_ALLOCACTORS
+
+DLLDEF=dmxbox$(D).def
+
+PRECOMPILED_INCLUDE=precomp.h
+PRECOMPILED_CXX=1
+PRECOMPILED_OBJ=precomp.obj
+PRECOMPILED_PCH=precomp.pch
+
+SOURCES= \
+	dmxbox.rc   \
+	events.cpp  \
+	main.cpp    \
+	process.cpp \
+	debug.cpp
+
+TARGETLIBS= \
+    $(XDK_LIB_PATH)\xboxdbg.lib \
+	$(SDK_LIB_PATH)\kernel32.lib \
+	$(SDK_LIB_PATH)\user32.lib \
+	$(SDK_LIB_PATH)\uuid.lib \
+	$(SDK_LIB_PATH)\advapi32.lib
+	

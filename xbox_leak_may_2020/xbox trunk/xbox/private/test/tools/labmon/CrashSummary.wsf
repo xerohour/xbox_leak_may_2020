@@ -1,0 +1,178 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    CrashSummary.wsf
+
+Abstract:
+
+    Looks in the database for "problem identified" boxes.
+    Sends email to component owner.
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+    If triage.exe hangs then the entire monitoring process will hang as well.
+
+    triage states:
+        0   no problem
+        1   problem identified
+        2   notified (email sent)
+
+    Current State
+
+        0   "Crashed";
+        1   "Not Responding";
+        2   "Idle";
+        3   "Running";
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+var ownerlist = null;
+var debugAlias = "";
+var defaultOwner = GetOwner("[default]");
+var debug = false;
+
+function Crash(m, d, e, s, t)
+    {
+    this.machine = ""+m;
+    this.email = ""+e;
+    this.debuggername = ""+d;
+    this.stack = ""+s;
+    this.timestamp = ""+t;
+    }
+function OwnerObj(o, a)
+    {
+    this.owner = ""+o;
+    this.area = ""+a;
+    }
+
+main();
+
+function main()
+    {
+    var nugget = "<SPAN STYLE='display:none'>"+Math.random()+"</SPAN>";
+    var crashes = new Array;
+    var results = "";
+    var stack = "";
+    var owner;
+    var records = WScript.CreateObject("ADODB.Recordset");
+
+    // open the set of boxes with a found problems
+    records.Open("SELECT * FROM BoxList WHERE Triage=2 AND [Current State]=0 ORDER BY [Crash Owner]", driver, 0, 1);
+
+    var emailbody = "";
+    emailbody += "<HTML>\r\n<HEAD>\r\n";
+    emailbody += "    <TITLE>Crashed XBOX Systems</TITLE>\r\n";
+    emailbody += "    <LINK REL='stylesheet' TYPE='text/css' HREF='http://xboxlab/lab/include/lab.css'>\r\n";
+    emailbody += "</HEAD>\r\n\r\n<BODY RIGHTMARGIN=0 LEFTMARGIN=0><CENTER><H3>Crashed "+nugget+"XBOX "+nugget+"Systems</H3><P>\r\n";
+    emailbody += "For "+nugget+"more "+nugget+"information "+nugget+"on these "+nugget+"systems "+nugget+"please "+nugget+"visit "+nugget+"this "+nugget+"site: <A HREF='http://xboxlab/lab/default.asp'>XBOX "+nugget+"Lab</A><P>\r\n";
+    emailbody += "\r\n<TABLE WIDTH=100%><TH CLASS=ROWHEAD>Info</TH><TH CLASS=ROWHEAD>Stack</TH>\r\n";
+
+    var row = 0;
+    var count = 0;
+
+    while(!records.EOF)
+        {
+        try
+            {
+            ++count;
+            results = ""+records("Triage Notes");
+            results = results.split("\r\n");
+            stack = "";
+            owner = "";
+            for(var i=0; i<results.length; i++)
+                {
+                if(results[i].indexOf("FOLLOWUP:") != -1) break;
+                stack += results[i] + "\r\n";
+                if(owner == "")
+                    {
+                    owner = GetOwner(results[i]);
+                    }
+                }
+
+            if(owner == "") owner = defaultOwner;
+
+            emailbody += "<TR><TD CLASS=ROW" + row + " VALIGN=TOP WIDTH=110 STYLE='font:normal 8pt Arial;'><SPAN TITLE='Assigned To'>" + owner + "</SPAN><BR><DIV STYLE='color:#777777'>(" + FormatShortDate(records("Monitor Timestamp")) + ")<HR>";
+            emailbody += "REMOTE /C " + RTrim(records("Debugger")) +" \"" + RTrim(records("Machine Name")) + "\"<HR>";
+            emailbody += RTrim(records("Current HW Version")) + "<HR>";
+            emailbody += RTrim(records("Configuration Hardware")) + "<HR>";
+            emailbody += "</DIV><A HREF='mailto:"+RTrim(records("Owner"))+"'>Email</A><BR><A HREF='http://xboxlab/lab/editBox.asp?mac="+RTrim(records("Machine Name"))+"'>Resolve</A></TD>\r\n";
+            emailbody += "<TD CLASS=ROW" + row + " VALIGN=TOP STYLE='font:normal 6pt Courier; line-break:strict;white-space:nowrap'>" +stack.replace(/\r\n/g,"<BR>") + "</TD></TR>\r\n";
+            row == 0 ? row = 1 : row = 0;
+            }
+        catch(e)
+            {
+            shell.LogEvent(2, "XBOX LAB: " + e.description + " (" + e.number + ")");
+            WScript.Echo("XBOX LAB: " + e.description + " (" + e.number + ")");
+            }
+
+        records.MoveNext();
+        }
+    records.Close();
+
+    emailbody += "</TABLE>\r\n\r\n<P><H3>Microsoft Confidential</H3><P><SPAN STYLE='font:normal 10pt Arial'>This "+nugget+"mail "+nugget+"was "+nugget+"sent "+nugget+"from "+nugget+"an "+nugget+"unmonitored "+nugget+"alias, "+nugget+"please "+nugget+"do "+nugget+"not "+nugget+"reply</SPAN>\r\n";
+    emailbody += "</BODY></HTML>";
+
+    var subject = "Crashed";
+    for(i=0; i<parseInt(Math.random()*4); i++)
+        subject += " ";
+    subject += " XBOX";
+    for(i=0; i<parseInt(Math.random()*4); i++)
+        subject += " ";
+    subject += " Systems (" + count + ")";
+
+    if(debug == true) SendMail("jpoley", subject, emailbody, "Stress Results");
+    else SendMail("xstress; xboxos; xontest", subject, emailbody, "Stress Results");
+    }
+
+
+function GetOwner(area)
+    {
+    if(ownerlist == null) CreateOwnerList();
+
+    for(var i=0; i<ownerlist.length; i++)
+        {
+        if(area.indexOf(ownerlist[i].area) != -1) return ownerlist[i].owner;
+        }
+
+    return "";
+    }
+
+
+function CreateOwnerList(area)
+    {
+    // store a snapshot of the table in memory so we dont have to flood 
+    // the db with searches for owners
+    ownerlist = new Array;
+
+    var records = WScript.CreateObject("ADODB.Recordset");
+    records.Open("SELECT * FROM Owners", driver, 0, 1);
+
+    while(!records.EOF)
+        {
+        ownerlist[ownerlist.length] = new OwnerObj(RTrim(records("Owner")), RTrim(records("Area")));
+        records.MoveNext();
+        }
+    records.Close();
+    }
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>
+

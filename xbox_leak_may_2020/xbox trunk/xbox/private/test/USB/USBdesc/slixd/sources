@@ -1,0 +1,36 @@
+#TARGETNAME=slixdriver note: it's "xid" to confuse the linker.
+TARGETNAME=SLIXD
+TARGETTYPE=LIBRARY
+#TARGETTYPE=EXPORT_DRIVER
+#TARGETTYPE=DRIVER
+
+#TARGETPATH=$(BASEDIR)\public\sdk\lib
+TARGETPATH=obj
+#targetpathlib=$(basedir)\public\sdk\lib
+
+BROWSER_INFO=1
+synchronize_drain=1
+
+TARGETLIBS= $(BASEDIR)\public\sdk\lib\*\usbpnp.lib\
+            $(BASEDIR)\public\ddk\lib\*\usbd.lib\
+            $(BASEDIR)\private\test\lib\*\tsc.lib
+
+INCLUDES= $(BASEDIR)\private\ntos\dd\usb\inc;\
+        $(BASEDIR)\private\ntos\inc;\
+        $(BASEDIR)\private\test\inc;\
+		$(BASEDIR)\private\ntos\dd\usb\xid;\
+		$(DDK_INC_PATH)
+
+
+USER_C_FLAGS=/FAcs
+MSC_WARNING_LEVEL=/W3
+
+DLLDEF=$(O)\slixdriver.def
+USER_C_FLAGS=/FAcs
+
+SOURCES=slixdriver.cpp\
+    islixd.cpp\
+    slixdriver.rc
+
+USE_MAPSYM  = 1
+  

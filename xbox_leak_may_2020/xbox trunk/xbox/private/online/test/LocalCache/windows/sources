@@ -1,0 +1,29 @@
+UMTYPE=console
+NO_BINPLACE=1
+
+C_DEFINES=$(C_DEFINES) -DXONLINE_BUILD_LIBW -DXONLINE_FEATURE_TEST
+
+!include ..\sources.inc
+
+INCLUDES=$(INCLUDES); \
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\online;\
+    $(BASEDIR)\private\online\util;\
+    $(BASEDIR)\private\online\kerb;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\private\ntos\xapi\k32;\
+    $(BASEDIR)\private\ntos\net;\
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\public\wsdk\inc; \
+    
+    
+
+TARGETLIBS=\
+    $(WSDK_LIB_PATH)\ntdll.lib \
+    $(WSDK_LIB_PATH)\user32.lib \
+    $(BASEDIR)\private\lib\i386\rsa32.lib \
+    $(BASEDIR)\private\lib\i386\vlan$(D).lib \
+    $(SDK_LIB_PATH)\xonlinew$(D).lib \
+

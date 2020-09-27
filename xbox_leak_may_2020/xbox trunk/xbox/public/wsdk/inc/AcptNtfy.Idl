@@ -1,0 +1,62 @@
+//----------------------------------------------------------------------------
+//
+//  Copyright (C) Microsoft Corporation, 1996 - 1999.
+//
+//  File:       AcptNtfy.IDL
+//
+//  Contents:   IAcceptNotify interface
+//
+//  History:    4-26-96   SSanu              Sync'd to latest spec
+//
+//
+//----------------------------------------------------------------------------
+
+[
+    object,
+    uuid(541eaaf0-717b-11cf-86cb-00aa00b4e1b8),
+    pointer_default(unique),
+	helpstring("IAcceptNotify interface")
+]
+
+interface IAcceptNotify : IUnknown
+{
+    import "unknwn.idl";
+    import "wtypes.idl";
+
+    cpp_quote("#ifndef _LPSINDEXNOTIFYDEFINED")
+    cpp_quote("#define _LPSINDEXNOTIFYDEFINED")
+    typedef IAcceptNotify * LPACCEPTNOTIFY;
+    cpp_quote("#endif ")
+
+	#include "acntdefs.h"
+
+	HRESULT InitNotify(
+                    [in, string, unique] LPCSTR pszScopeName, 
+					[in,string, unique] LPCSTR pszServerName,
+                    [in] DWORD dwReserved
+				);
+
+    //pszScopeName in the succeeding can be NULL.
+    //it defaults to pszScope in Init() if it is not specified.
+
+    HRESULT SetMapping (
+                    [in, string, unique] LPCSTR pszScopeName,
+                    [in] DWORD eANMSetting,
+                    [in, string, unique] LPCSTR pszPhysicalPrefix,
+                    [in, string, unique] LPCSTR pszLogicalPrefix
+                );
+
+	HRESULT OnDataChange(
+                    [in, string, unique] LPCSTR pszScopeName,
+					[in]	DWORD eANDChAdvise,
+					[in, string, unique] LPCSTR pszPhysicaAddress,
+                    [in, string, unique] LPCSTR pszLogicalAddress,
+					[in, unique]	NOTIFYDATA *pndData
+					);
+
+	HRESULT OnStatusChange(
+					[in,string, unique]  LPCSTR pszScopeName,
+                    [in]	DWORD eANSStatusChange
+                    );
+
+}

@@ -1,0 +1,48 @@
+; Generates texture coordinates based
+; on the input normal.  The texture coordinates
+; represent a ray from the eye reflected from the object, 
+; based on the normal.  
+; This is an implementation of D3D's CAMERASPACEREFLECTIONVECTOR
+#include "reflect.h"
+
+#define R_EYE_VERTEX r8
+#define R_EYE_NORMAL r9
+#define R_EYE_VECTOR r3
+#define R_DOT2 r4
+
+vs.1.0
+
+; Transform position
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+dp4 R_EYE_VERTEX.x, v0, c[CV_WORLDVIEW_0]
+dp4 R_EYE_VERTEX.y, v0, c[CV_WORLDVIEW_1]
+dp4 R_EYE_VERTEX.z, v0, c[CV_WORLDVIEW_2]
+dp4 R_EYE_VERTEX.w, v0, c[CV_WORLDVIEW_3]
+
+; Create R_EYE_VECTOR, the normalized vector from the eye to the vertex
+dp3 R_EYE_VECTOR.w, R_EYE_VERTEX, R_EYE_VERTEX
+rsq R_EYE_VECTOR.w, R_EYE_VECTOR.w		
+mul R_EYE_VECTOR, R_EYE_VERTEX, R_EYE_VECTOR.w
+
+; Transform normal to eye-space
+; We use the inverse transpose of the worldview
+; matrix to do this
+dp3 R_EYE_NORMAL.x, v1, c[CV_WORLDVIEWIT_0]
+dp3 R_EYE_NORMAL.y, v1, c[CV_WORLDVIEWIT_1]
+dp3 R_EYE_NORMAL.z, v1, c[CV_WORLDVIEWIT_2]
+
+; Need to re-normalize normal
+dp3 R_EYE_NORMAL.w, R_EYE_NORMAL, R_EYE_NORMAL
+rsq R_EYE_NORMAL.w, R_EYE_NORMAL.w
+mul R_EYE_NORMAL, R_EYE_NORMAL, R_EYE_NORMAL.w
+
+; Calculate E - 2*(E dot N)*N
+dp3 R_DOT2, R_EYE_VECTOR, R_EYE_NORMAL
+add R_DOT2, R_DOT2, R_DOT2
+mul R_EYE_NORMAL, R_EYE_NORMAL, R_DOT2
+add oT0, R_EYE_VECTOR, -R_EYE_NORMAL
+mov oT0.w, c[CV_ONE].x

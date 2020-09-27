@@ -1,0 +1,64 @@
+; This shader does the per-vertex dot3 work.
+; It transforms the light vector by the basis vectors
+; passed into the shader.
+; The basis vectors only need to change if the model's
+; shape changes.
+; The output vector is stored in the diffuse channel
+; (use the menu to look at the generated light vector)
+#include "blinn_reflect.h"
+
+#define V_POSITION v0
+#define V_NORMAL v1
+#define V_DIFFUSE v2
+#define V_TEXTURE v3
+#define V_SxT v4
+#define V_S v5
+#define V_T v6
+#define S_WORLD r0
+#define T_WORLD r1
+#define SxT_WORLD r2
+#define VERTEX_WORLD r4
+#define EYE_VECTOR r5
+#define EYE_LOCAL r3
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, V_POSITION, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, V_POSITION, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, V_POSITION, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, V_POSITION, c[CV_WORLDVIEWPROJ_3]
+
+dp3 VERTEX_WORLD.x, V_POSITION, c[CV_WORLD_0]
+dp3 VERTEX_WORLD.y, V_POSITION, c[CV_WORLD_1]
+dp3 VERTEX_WORLD.zw, V_POSITION, c[CV_WORLD_2]
+
+; Transform basis vectors to world space
+dp3 oT1.x, V_S, c[CV_WORLD_0]
+dp3 oT1.y, V_S, c[CV_WORLD_1]
+dp3 oT1.z, V_S, c[CV_WORLD_2]
+
+dp3 oT2.x, V_T, c[CV_WORLD_0]
+dp3 oT2.y, V_T, c[CV_WORLD_1]
+dp3 oT2.z, V_T, c[CV_WORLD_2]
+
+dp3 oT3.x, V_SxT, c[CV_WORLD_0]
+dp3 oT3.y, V_SxT, c[CV_WORLD_1]
+dp3 oT3.z, V_SxT, c[CV_WORLD_2]
+
+add EYE_VECTOR, -VERTEX_WORLD, c[CV_EYE_VECTOR]
+dp3 EYE_VECTOR.w, EYE_VECTOR, EYE_VECTOR
+rsq EYE_VECTOR.w, EYE_VECTOR.w
+mul EYE_VECTOR, EYE_VECTOR, EYE_VECTOR.w
+
+mov oT1.w, c[CV_EYE_VECTOR].x
+mov oT2.w, c[CV_EYE_VECTOR].y
+mov oT3.w, c[CV_EYE_VECTOR].z
+
+mov oD0, c[CV_ONE]
+
+mov oT0, V_TEXTURE
+
+
+
+

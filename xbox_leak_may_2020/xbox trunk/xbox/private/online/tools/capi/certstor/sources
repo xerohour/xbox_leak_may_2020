@@ -1,0 +1,68 @@
+MAJORCOMP=online
+MINORCOMP=certstor
+
+TARGETNAME=certstor
+TARGETTYPE=LIBRARY
+
+TARGETPATH=$(BASEDIR)\private\online\client\lib
+
+# NOT_UNICODE=1
+
+C_DEFINES=-D_WINDOWS -D_CRYPT32_ -DCE_BUILD -DUNDER_CE
+
+#
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+#
+
+INCLUDES=\
+    ..\include;\
+    ..\..\asn1\inc;\
+    $(BASEDIR)\private\online\client\inc;\
+    $(BASEDIR)\private\online\common\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\public\sdk\inc
+
+PRECOMPILED_INCLUDE = global.hxx
+PRECOMPILED_PCH =     global.pch
+PRECOMPILED_OBJ =     global.obj
+
+#INCLUDES=$(INCLUDES);..\..\inc;..\..\asn1\inc;
+#..\..\pkitrust\wintrust\certs
+
+SOURCES= \
+    oidconv.cpp  \
+    newstor.cpp  \
+    oidinfo.cpp  \
+    crypttls.cpp \
+    wincert.cpp  \
+    certhlpr.cpp \
+    certstr.cpp  \
+    x509.c       \
+    ekuhlpr.cpp  \
+    memory.cpp   \
+    oidfunc.cpp  \
+    xlogstor.cpp  \
+    policy.cpp  \
+    fndchain.cpp \
+    sca.cpp \
+    origin.cpp
+
+NTSOURCES= \
+    syscert.cpp  \
+    scrdcert.cpp \
+    scstore.cpp  \
+    fndchain.cpp \
+    ctlfunc.cpp  \
+    revfunc.cpp  \
+    policy.cpp   \
+    protroot.cpp \
+    sca.cpp      \
+    frmtfunc.cpp \
+    queryobj.cpp \
+    async.cpp    \
+    selfsign.cpp

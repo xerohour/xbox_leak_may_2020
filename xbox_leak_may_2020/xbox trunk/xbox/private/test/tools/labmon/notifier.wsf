@@ -1,0 +1,232 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    notifier.wsf
+
+Abstract:
+
+    Looks in the database for "problem identified" boxes.
+    Sends email to component owner.
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+    If triage.exe hangs then the entire monitoring process will hang as well.
+
+    triage states:
+        0   no problem
+        1   problem identified
+        2   notified (email sent)
+
+    Current State
+
+        0   "Crashed";
+        1   "Not Responding";
+        2   "Idle";
+        3   "Running";
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+var ownerlist = null;
+
+// if true, then send email to jpoley instead of the actual owner
+var debugAlias = GetProperty("notifierDbgEmail");
+
+function Crash(m, d, e, s, t)
+    {
+    this.machine = ""+m;
+    this.email = ""+e;
+    this.debuggername = ""+d;
+    this.stack = ""+s;
+    this.timestamp = ""+t;
+    }
+function OwnerObj(o, a)
+    {
+    this.owner = ""+o;
+    this.area = ""+a;
+    }
+
+main();
+
+function main()
+    {
+    var crashes = new Array;
+    var results = "";
+    var stack = "";
+    var owner;
+    var defaultOwner = GetOwner("[default]");
+    var records = WScript.CreateObject("ADODB.Recordset");
+
+    SetProperty("notifierLastRun", FormatShortDate());
+
+    // open the set of boxes with a found problems
+    records.Open("SELECT * FROM BoxList WHERE Triage=1 ORDER BY [Machine Name]", driver, 1, 2);
+
+    while(!records.EOF)
+        {
+        try
+            {
+            var machine = ""+records("MAC Address");
+            results = ""+records("Triage Notes");
+
+             // Hung Box
+            if(results.indexOf("Not broken into debugger") == 0)
+                {
+                records("Triage") = 2;
+                records("Current State") = 0; // Mark as Crashed
+                records("Triage Notes") = "Not broken into debugger\r\n\r\nPossibly Hung";
+                records("Crash Owner") = defaultOwner;
+                records.Update();
+
+                UpdateTestHistory(machine, 0, "");
+
+                stack = "Not broken into debugger\r\n\r\nPossibly Hung";
+                owner = defaultOwner;
+                }
+
+            // Unable to connect to the debugger
+            else if(results.indexOf("Unable to connect") == 0 || results.indexOf("Debugger Unresponsive") == 0)
+                {
+                records("Triage") = 2;
+                records("Current State") = 1; // Missing
+                records("Crash Owner") = records("Owner");
+                records.Update();
+
+                UpdateTestHistory(machine, 1, "");
+
+                stack = "Unable to connect";
+                owner = defaultOwner;
+                }
+
+            // Crashed
+            else
+                {
+                results = results.split("\r\n");
+                stack = "";
+                owner = "";
+                for(var i=0; i<results.length; i++)
+                    {
+                    if(results[i].indexOf("FOLLOWUP:") != -1) break;
+                    stack += results[i] + "\r\n";
+                    if(owner == "")
+                        {
+                        owner = GetOwner(results[i]);
+                        }
+                    }
+                if(owner == "") owner = defaultOwner;
+
+                records("Triage") = 2;
+                records("Current State") = 0; // Crashed
+                records("Triage Notes") = stack;
+                records("Crash Owner") = owner;
+                records.Update();
+
+                UpdateTestHistory(machine, 0, "");
+                }
+
+            if(crashes[owner] == null) crashes[owner] = new Array;
+            crashes[owner][crashes[owner].length] = new Crash(RTrim(records("Machine Name")), RTrim(records("Debugger")), RTrim(records("Owner")), stack, FormatShortDate(records("Monitor Timestamp")));
+            }
+        catch(e)
+            {
+            shell.LogEvent(2, "XBOX LAB: " + e.description + " (" + e.number + ")");
+            }
+
+        records.MoveNext();
+        }
+    records.Close();
+
+    // Parse through the results and generate the emails
+    for(users in crashes)
+        {
+        var row = 0;
+        var user = crashes[users];
+        var emailbody = "";
+        emailbody += "<HTML>\r\n<HEAD>\r\n";
+        emailbody += "    <TITLE>XBOX Systems with Failures</TITLE>\r\n";
+        emailbody += "    <LINK REL='stylesheet' TYPE='text/css' HREF='http://xboxlab/lab/include/lab.css'>\r\n";
+        emailbody += "</HEAD>\r\n\r\n<BODY RIGHTMARGIN=0 LEFTMARGIN=0><CENTER><H3>XBOX Systems with Failures</H3><P>\r\n";
+        emailbody += "For more information on these systems please visit this site: <A HREF='http://xboxlab/lab/default.asp'>XBOX Lab</A><P>\r\n";
+        emailbody += "\r\n<TABLE WIDTH=100%><TH CLASS=ROWHEAD>Machine</TH><TH CLASS=ROWHEAD>Stack</TH>\r\n";
+
+        for(var i=0; i<user.length; i++)
+            {
+            emailbody += "<TR><TD CLASS=ROW" + row + " VALIGN=TOP WIDTH=110>" + users + "<BR><DIV STYLE='font:normal 8pt Arial;color:#777777'>(" + user[i].timestamp + ")<HR>REMOTE /C " + user[i].debuggername +" \"" + user[i].machine + "\"</DIV><HR><A HREF='mailto:"+user[i].email+"'>Email</A><BR><A HREF='http://xboxlab/lab/editBox.asp?mac="+user[i].machine+"'>Resolve</A></TD>\r\n";
+            emailbody += "<TD CLASS=ROW" + row + " VALIGN=TOP STYLE='font:normal 6pt Courier; line-break:strict;white-space:nowrap'>" +user[i].stack.replace(/\r\n/g,"<BR>") + "</TD></TR>\r\n";
+            row == 0 ? row = 1 : row = 0;
+            }
+        emailbody += "</TABLE>\r\n\r\n<P><H3>Microsoft Confidential</H3><P><SPAN STYLE='font:normal 10pt Arial'>This mail was sent from an unmonitored alias, please do not reply</SPAN>\r\n";
+        emailbody += "</BODY></HTML>";
+
+        SendMail(users, "Failed XBOX Systems (" + user.length + ")", emailbody, "XBOX Crash");
+        }
+    }
+
+function UpdateTestHistory(machine, state, notes)
+    {
+    var records = WScript.CreateObject("ADODB.Recordset");
+
+    records.Open("SELECT * FROM TestHistory WHERE [MAC Address]='"+machine+"' ORDER BY [Timestamp] DESC;", driver, 1, 2);
+    
+    if(!records.EOF)
+        {
+        records("State") = state;
+        records("Test Results") = notes;
+        records.Update();
+        }
+
+    records.Close();
+    }
+
+function GetOwner(area)
+    {
+    if(ownerlist == null) CreateOwnerList();
+
+    var owners = "";
+
+    for(var i=0; i<ownerlist.length; i++)
+        {
+        if(area.indexOf(ownerlist[i].area) != -1) owners += ownerlist[i].owner + "; ";
+        }
+
+    return owners;
+    }
+
+
+function CreateOwnerList(area)
+    {
+    // store a snapshot of the table in memory so we dont have to flood 
+    // the db with searches for owners
+    ownerlist = new Array;
+
+    var records = WScript.CreateObject("ADODB.Recordset");
+    records.Open("SELECT * FROM Owners", driver, 0, 1);
+
+    while(!records.EOF)
+        {
+        ownerlist[ownerlist.length] = new OwnerObj(RTrim(records("Owner")), RTrim(records("Area")));
+        records.MoveNext();
+        }
+    records.Close();
+    }
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>
+

@@ -1,0 +1,125 @@
+!IF 0
+
+Copyright (c) 1990-1998  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+!include ..\..\..\sources.inc
+
+TARGETNAME=VCProjectConversion
+TARGETTYPE=DYNLINK
+# TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)\$(VC7)\$(VCPACKAGES)
+# Remember to edit placefile.lst
+TARGETPATH=$(O)
+TARGETPATHLIB=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+TARGETEXT=dll
+
+NO_BBT_COMMANDS=1
+UMTYPE=windows
+
+USE_MFC=1
+USE_STATIC_ATL=1
+USE_IOSTREAM=1
+USE_VSANSIDELAYLOAD=1
+
+COFFBASE=VCProjectConversion
+DLLDEF=vcprojcnvt.def
+
+# this allows the use of a localized version of the resource file
+!if "$(RCFILE)" == ""
+RCFILE=vcprojcnvt
+!endif
+
+# Turn on GX
+NO_EH=0
+
+USER_INCLUDES=$(VC_INCLUDES);$(VCROOT)\extras\spawner\idl;$(VCROOT)\extras\spawner\client;$(VCROOT)\hierlib;$(EXTERNAL_ROOT)\inc;$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+LAST_INCLUDES=$(LANGAPI_ROOT)\include;$(LANGAPI_ROOT)\ncb
+USER_C_DEFINES=$(USER_C_DEFINES) -DVC_PROXY -D_USERDLL -DAFXDLL -DSTRICT -D_VRES -D_WIN32_IE=0x0400
+#USER_C_FLAGS=$(USER_C_FLAGS) /Wp64
+
+LIBRARIAN_FLAGS=$(LIBRARIAN_FLAGS) -name:$(TARGETNAME)
+LINK_LIB_IGNORE_FLAG=$(LINK_LIB_IGNORE_FLAG) -IGNORE:4075,4099
+
+DELAYLOAD=shell32.dll;vsansi.dll
+
+# These files are listed in alphabetical order.  Keep them that way!
+SOURCES= \
+	bldiface.cpp \
+	bldrfile.cpp \
+	dirmgr.cpp \
+	engine.cpp \
+	makread.cpp \
+	optnbsc.cpp \
+	optncplr.cpp \
+	optnlib.cpp \
+	optnlink.cpp \
+	optnmtl.cpp \
+	optnrc.cpp \
+	prjconfg.cpp \
+	prjoptn.cpp \
+	projcntr.cpp \
+	projdep.cpp \
+	project.cpp \
+	projitem.cpp \
+	projtool.cpp \
+	targitem.cpp \
+	vcprojcnvt.cpp \
+	VCProjConvert.cpp \
+	$(RCFILE).rc \
+	axpoptn.cpp \
+	mcdoptn.cpp \
+	platalf.cpp \
+	platmrcd.cpp \
+	platx86.cpp \
+	platXbox.cpp \
+	tool.cpp \
+	x86optn.cpp
+
+
+
+TARGETLIBS= \
+	$(VSPREBUILT)\$(BUILT_FLAVOR)\lib\*\sloblib$(D).lib \
+	$(VSPREBUILT)\$(BUILT_FLAVOR)\lib\*\vcutillib$(D).lib \
+	$(VSBUILT)\$(BUILT_FLAVOR)\lib\*\vcidl.lib \
+	$(VSBUILT)\$(BUILT_FLAVOR)\lib\*\vsguids.lib \
+	$(VSBUILT)\$(BUILT_FLAVOR)\lib\*\vseeguids.lib \
+	$(VSPREBUILT)\$(BUILT_FLAVOR)\lib\*\envguids.lib \
+	$(VSPREBUILT)\$(BUILT_FLAVOR)\lib\*\ad2ide.lib \
+!if "$(BUILD_RETAIL)"=="no"
+	$(VSPREBUILT)\$(BUILT_FLAVOR)\lib\*\vsassert.lib \
+!endif
+!IF "$(BUILD_TARGET_ARCHITECTURE)"=="x86" # This line MUST come after all of the VS libraries, but before the SDK libraries.
+	$(VSPREBUILT)\$(BUILT_FLAVOR)\lib\*\vsansidelayimp.lib \
+!ENDIF
+	$(SDK_LIB_PATH)\uuid.lib \
+	$(SDK_LIB_PATH)\oleaut32.lib \
+	$(SDK_LIB_PATH)\ole32.lib \
+	$(SDK_LIB_PATH)\kernel32.lib \
+	$(SDK_LIB_PATH)\gdi32.lib \
+	$(SDK_LIB_PATH)\user32.lib \
+	$(SDK_LIB_PATH)\shell32.lib \
+	$(SDK_LIB_PATH)\comdlg32.lib \
+	$(SDK_LIB_PATH)\comctl32.lib \
+	$(SDK_LIB_PATH)\version.lib \
+	$(SDK_LIB_PATH)\advapi32.lib \
+	$(SDK_LIB_PATH)\shlwapi.lib \
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_SOURCEFILE=stdafx.cpp
+PRECOMPILED_PCH=stdafx.pch
+PRECOMPILED_OBJ=stdafx.obj
+PRECOMPILED_CXX=1
+
+#POSTBUILD_CMD = preg projbld $(BINPLACE_PLACEFILE) $(_NTTREE) regsvr32 -s !TARGET

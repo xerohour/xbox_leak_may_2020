@@ -1,0 +1,305 @@
+// Copyright Microsoft Corp. 1996
+
+// we define this for readability
+#define HSC(n) helpstringcontext(n)
+
+#include "resource.h"
+
+[ uuid(34C63000-AE64-11cf-AB59-00AA00C091A1), 
+  // DevStudio 96 bug 21113 caused this easy fix which hard-codes the typelib
+  //  name in the typelibrary, rather than allowing it to be localized.
+  //  Otherwise, the first time type libraries are registered, the ugly library
+  //  name (e.g., DSSharedObjects) is used as the display name in oleview and
+  //  the VB object browsers instead of the pretty long name (e.g.,
+  //  Visual Studio 97 Shared Objects).
+  //HSC(IDS_HS_DEBUG_TYPELIB),
+  helpstring("Visual C++ Debugger"),
+#ifdef _DEBUG
+  helpstringdll("DevTLDcD.dll"),
+#else
+  helpstringdll("DevTLDc.dll"),
+#endif
+  version(6.0)
+] 
+
+library DSDebugger
+{
+	importlib("stdole2.tlb");
+
+	#include "dbgdefs.odh"
+
+	// event source dual interface for CAutoDebugger
+
+	[ uuid(34C6301A-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, dual, hidden, HSC(IDS_HS_DEBUGGER_EVENTS)
+	]
+	interface IDebuggerEvents : IDispatch
+	{
+		[id(1), HSC(IDS_HS_DEBUGGER_EVENTS_BREAKPOINT_HIT)] 
+		HRESULT BreakpointHit([in] IDispatch *pBreakpoint);
+	};
+
+	// event source dispinterface for CAutoDebugger
+
+	[ uuid(34C6301B-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispDebuggerEvents
+	{
+		interface IDebuggerEvents;
+	};
+
+	// dual interface for CAutoDebugger
+
+	[ uuid(34C63001-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, hidden, dual, HSC(IDS_HS_DEBUGGER)
+	]
+	interface IDebugger : IDispatch
+	{
+	// properties:
+		[propget, id(1), HSC(IDS_HS_DEBUGGER_APPLICATION)] 
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+		[propget, id(2), HSC(IDS_HS_DEBUGGER_PARENT)] 
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+		[propget, id(3), HSC(IDS_HS_DEBUGGER_BREAKPOINTS)] 
+			HRESULT Breakpoints([out, retval] IDispatch** ppDispatch);
+		[propget, id(4), HSC(IDS_HS_DEBUGGER_DEFAULTRADIX)] 
+			HRESULT DefaultRadix([out, retval] long* pLong);
+		[propput, id(4), HSC(IDS_HS_DEBUGGER_DEFAULTRADIX)] 
+			HRESULT DefaultRadix([in] long l);
+		[propget, id(5), HSC(IDS_HS_DEBUGGER_PROCESS_STATE)] 
+			HRESULT ProcessState([out, retval] DsExecutionState* pState);
+		[propget, id(6), HSC(IDS_HS_DEBUGGER_JIT)] 
+			HRESULT JustInTimeDebugging([out, retval] boolean* pBoolean);
+		[propput, id(6), HSC(IDS_HS_DEBUGGER_JIT)] 
+			HRESULT JustInTimeDebugging([in] boolean bool);
+		[propget, id(7), HSC(IDS_HS_DEBUGGER_RPC)] 
+			HRESULT RemoteProcedureCallDebugging([out, retval] boolean* pBoolean);
+		[propput, id(7), HSC(IDS_HS_DEBUGGER_RPC)] 
+			HRESULT RemoteProcedureCallDebugging([in] boolean bool);
+
+	// methods:
+
+		[id(9), HSC(IDS_HS_DEBUGGER_GO)] HRESULT Go(void);
+		[id(10), HSC(IDS_HS_DEBUGGER_STEP_INTO)] HRESULT StepInto(void);
+		[id(11), HSC(IDS_HS_DEBUGGER_STEP_OVER)] HRESULT StepOver(void);
+		[id(12), HSC(IDS_HS_DEBUGGER_STEP_OUT)] HRESULT StepOut(void);
+		[id(13), HSC(IDS_HS_DEBUGGER_RESTART)] HRESULT Restart(void);
+		[id(14), HSC(IDS_HS_DEBUGGER_STOP)] HRESULT Stop(void);
+		[id(15), HSC(IDS_HS_DEBUGGER_BREAK)] HRESULT Break(void);
+		[id(16), HSC(IDS_HS_DEBUGGER_EVALUATE)] 
+			HRESULT Evaluate([in] BSTR expr, [out, retval] BSTR *pBSTR);
+		[id(17), HSC(IDS_HS_DEBUGGER_SHOW_NEXT_STATEMENT)] 
+			HRESULT ShowNextStatement(void);
+		[id(18), HSC(IDS_HS_DEBUGGER_RUN_TO_CURSOR)] HRESULT RunToCursor(void);
+		[id(19), HSC(IDS_HS_DEBUGGER_SET_NEXT_STATEMENT)] HRESULT SetNextStatement([in, optional] VARIANT Selection);
+	};
+
+	//  Primary dispatch interface for CAutoDebugger
+	
+	[ uuid(34C63002-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispDebugger
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoDebugger)
+			[id(1)] IDispatch* Application;
+			[id(2)] IDispatch* Parent;
+			[id(3)] IDispatch* Breakpoints;
+			[id(4)] long DefaultRadix;
+			[id(5)] DsExecutionState State;
+			[id(6)] boolean JustInTimeDebugging;
+			[id(7)] boolean RemoteProcedureCallDebugging;
+			//}}AFX_ODL_PROP
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoDebugger)
+			[id(9)] void Go();
+			[id(10)] void StepInto();
+			[id(11)] void StepOver();
+			[id(12)] void StepOut();
+			[id(13)] void Restart();
+			[id(14)] void Stop();
+			[id(15)] void Break();
+			[id(16)] BSTR Evaluate([in] BSTR Expression);
+			[id(17)] void ShowNextStatement();
+			[id(18)] void RunToCursor();
+			[id(19)] void SetNextStatement([in, optional] VARIANT Selection);
+			//}}AFX_ODL_METHOD
+
+	};
+
+	//  Class information for CAutoDebugger
+
+	[ uuid(34C63003-AE64-11cf-AB59-00AA00C091A1), HSC(IDS_HS_DEBUGGER) ]
+	coclass Debugger
+	{
+		// regular interfaces
+		dispinterface IDispDebugger;
+		[default] interface IDebugger;
+
+		// event interfaces
+		[source, default] dispinterface IDispDebuggerEvents;
+		[source] interface IDebuggerEvents;
+	};
+
+
+	// dual interface for CAutoBreakpoint
+
+	[ uuid(34C63004-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, hidden, dual, HSC(IDS_HS_BREAKPOINT)
+	]
+	interface IBreakpoint : IDispatch
+	{
+	// properties:
+		[propget, id(1), HSC(IDS_HS_BREAKPOINT_APPLICATION)] 
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+		[propget, id(2), HSC(IDS_HS_BREAKPOINT_PARENT)] 
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+		[propget, id(3), HSC(IDS_HS_BREAKPOINT_ENABLED)] 
+			HRESULT Enabled([out, retval] boolean* pBool);
+		[propput, id(3), HSC(IDS_HS_BREAKPOINT_ENABLED)] 
+			HRESULT Enabled([in] boolean bool);
+		[propget, id(4), HSC(IDS_HS_BREAKPOINT_LOCATION)] 
+			HRESULT Location([out, retval] BSTR *pBSTR);
+		[propget, id(5), HSC(IDS_HS_BREAKPOINT_FILE)] 
+			HRESULT File([out, retval] BSTR *pBSTR);
+		[propget, id(6), HSC(IDS_HS_BREAKPOINT_FUNCTION)] 
+			HRESULT Function([out, retval] BSTR *pBSTR);
+		[propget, id(7), HSC(IDS_HS_BREAKPOINT_EXECUTABLE)] 
+			HRESULT Executable([out, retval] BSTR *pBSTR);
+		[propget, id(8), HSC(IDS_HS_BREAKPOINT_CONDITION)] 
+			HRESULT Condition([out, retval] BSTR *pBSTR);
+		[propput, id(8), HSC(IDS_HS_BREAKPOINT_CONDITION)] 
+			HRESULT Condition([in] BSTR bstr);
+		[propget, id(9), HSC(IDS_HS_BREAKPOINT_ELEMENTS)] 
+			HRESULT Elements([out, retval] long *pLong);
+		[propget, id(10), HSC(IDS_HS_BREAKPOINT_PASSCOUNT)] 
+			HRESULT PassCount([out, retval] long *pLong);
+		[propget, id(11), HSC(IDS_HS_BREAKPOINT_MESSAGE)] 
+			HRESULT Message([out, retval] long *pLong);
+		[propget, id(12), HSC(IDS_HS_BREAKPOINT_WINDOW_PROCEDURE)] 
+			HRESULT WindowProcedure([out, retval] BSTR *pBSTR);
+		[propget, id(13), HSC(IDS_HS_BREAKPOINT_TYPE)] 
+			HRESULT Type([out, retval] long *pLong);
+
+	// methods:
+		[id(15), HSC(IDS_HS_BREAKPOINT_REMOVE)] 
+			HRESULT Remove(void);
+	};
+
+	//  Primary dispatch interface for CAutoBreakpoint
+	
+	[ uuid(34C63005-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispBreakpoint
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoBreakpoint)
+			[id(1)] IDispatch* Application;
+			[id(2)] IDispatch* Parent;
+			[id(3)] boolean Enabled;
+			[id(4)] BSTR Location;
+			[id(5)] BSTR File;
+			[id(6)] BSTR Function;
+			[id(7)] BSTR Executable;
+			[id(8)] BSTR Condition;
+			[id(9)] long Elements;
+			[id(10)] long PassCount;
+			[id(11)] long Message;
+			[id(12)] BSTR WindowProcedure;
+			[id(13)] long Type;
+			//}}AFX_ODL_PROP
+			
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoBreakpoint)
+			[id(15)] void Remove();
+			//}}AFX_ODL_METHOD
+
+	};
+
+	//  Class information for CAutoBreakpoint
+
+	[ uuid(34C63006-AE64-11cf-AB59-00AA00C091A1), HSC(IDS_HS_BREAKPOINT) ]
+	coclass Breakpoint
+	{
+		dispinterface IDispBreakpoint;
+		[default] interface IBreakpoint;
+	};
+
+
+	// dual interface for CAutoBreakpoints
+
+	[ uuid(34C63007-AE64-11cf-AB59-00AA00C091A1),
+	  oleautomation, hidden, dual, HSC(IDS_HS_BREAKPOINTS)
+	]
+	interface IBreakpoints : IDispatch
+	{
+		// properties
+		[propget, id(1), HSC(IDS_HS_BREAKPOINTS_COUNT)]
+			HRESULT Count([out, retval] long* Count);
+		[propget, id(2), HSC(IDS_HS_BREAKPOINTS_APPLICATION)]
+			HRESULT Application([out, retval] IDispatch** ppDispatch);
+		[propget, id(3), HSC(IDS_HS_BREAKPOINTS_PARENT)]
+			HRESULT Parent([out, retval] IDispatch** ppDispatch);
+
+		[id(-4), hidden, propget, restricted]	
+			HRESULT _NewEnum([out, retval] IUnknown** _NewEnum);
+
+		// methods
+		[id(0), HSC(IDS_HS_BREAKPOINTS_ITEM)]
+			HRESULT Item([in] VARIANT index, [out, retval] IDispatch** Item);
+		[id(5), HSC(IDS_HS_BREAKPOINTS_REMOVE_ALL_BREAKPOINTS)]
+			HRESULT RemoveAllBreakpoints(void);
+		[id(6), HSC(IDS_HS_BREAKPOINTS_REMOVE_BREAKPOINT_AT_LINE)]
+			HRESULT RemoveBreakpointAtLine([in,optional] VARIANT sel, [out, retval] boolean* bool);
+		[id(7), HSC(IDS_HS_BREAKPOINTS_ADD_BREAKPOINT_AT_LINE)]
+			HRESULT AddBreakpointAtLine([in,optional] VARIANT sel, [out, retval] IDispatch** Item);
+
+	};
+
+	//  Primary dispatch interface for CAutoBreakpoints
+	
+	[ uuid(34C63008-AE64-11cf-AB59-00AA00C091A1), hidden ]
+	dispinterface IDispBreakpoints
+	{
+		properties:
+			// NOTE - ClassWizard will maintain property information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_PROP(CAutoBreakpoints)
+			[id(1), readonly] long Count;
+			[id(2), readonly] IDispatch* Application;
+			[id(3), readonly] IDispatch* Parent;
+			//}}AFX_ODL_PROP
+				[id(-4), hidden, readonly] IUnknown* _NewEnum;
+		
+		methods:
+			// NOTE - ClassWizard will maintain method information here.
+			//    Use extreme caution when editing this section.
+			//{{AFX_ODL_METHOD(CAutoBreakpoints)
+			[id(0)] IDispatch* Item(VARIANT index);
+			[id(5)] void RemoveAllBreakpoints();
+			[id(6)] boolean RemoveBreakpointAtLine(VARIANT Selection);
+			[id(7)] IDispatch* AddBreakpointAtLine(VARIANT Selection);
+			//}}AFX_ODL_METHOD
+};
+
+	//  Class information for CAutoBreakpoints
+
+	[ uuid(34C63009-AE64-11cf-AB59-00AA00C091A1), HSC(IDS_HS_BREAKPOINTS) ]
+	coclass Breakpoints
+	{
+		dispinterface IDispBreakpoints;
+		[default] interface IBreakpoints;
+	};
+
+
+	// Next GUID: 34C6301C-AE64-11cf-AB59-00AA00C091A1
+
+	//{{AFX_APPEND_ODL}}
+
+};

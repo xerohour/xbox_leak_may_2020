@@ -1,0 +1,72 @@
+<TD valign="top" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</TD><Td><H2>Using DirectMusic Producer to Trigger DLS Instruments from Non-DLS-Enabled Sequencers</H2>
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>One of the challenges in using your own hardware for initial authoring and then building DLS collections is that you don't hear your content in context until you've got your authored content in Microsoft&#174; DirectMusic&#174; Producer. At that point, if you need to modify your linear sequenced data, you're forced to abandon your existing sequencer (or reimport the MIDI files), or use the often undeveloped sequencing features of DirectMusic Producer. Then there is often a process of tweaking samples, altering volume levels, and other mix modifications. But an often overlooked feature of DirectMusic Producer allows you to hear DLS collections from the start from the sequencer of your choice-with a little bit of set up. This paper describes the process of using DirectMusic Producer as an access point to manage the DLS-enabled DirectMusic synthesizer, which can then be triggered by any other sequencer.</P>
+<H3>Scenario 1: A Second Machine (Mac, PC, or Other)</H3>
+<P>Perhaps the easiest way to use DirectMusic Producer to manager your DLS samples is to trigger them from another computer. So long as this second machine has MIDI output (and your Windows 2000 development machine has MIDI input), this is the most straightforward route to take.</P>
+<P><I>Hardware setup:</I> connect the MIDI output from your second machine to the MIDI input for your Windows 2000 development machine.</P>
+<P>Let's assume that you have a "completed" MIDI sequence in your favorite sequencer and you want to hear how it sounds with your DLS instruments.
+<OL>
+<LI>Launch DirectMusic Producer, open a project, and build your DLS collection(s).<sup><font size:"9">1</font></sup></LI><BR><BR>
+<LI>Create a new segment with a band track.</LI><BR><BR>
+<LI>Insert a band into the beginning of the band track (right click, then click Insert in the shortcut menu).</LI><BR><BR>
+<LI>Double click the band to open it, then set up the pchannels of the band to correspond to the MIDI channels in your sequencer-if you were previously triggering your sampler's piano patch on MIDI channel 1 on your sequencer, pchannel 1 should be set to play your DLS piano instrument.</LI><BR><BR>
+<LI>In the Secondary Segment Toolbar, choose the segment you created, click Play for that secondary segment, then stop after a few seconds. This should be adequate to send down all of the patch changes.<sup><font size:"9">2</font></sup><BR><BR><IMG src="/content/img/MIDItriggering_fig1.gif" WIDTH="411" HEIGHT="46" ALT="" BORDER="0">
+</li> <BR><BR>
+<LI>In the Transport Options toolbar, click the <IMG src="/content/img/MIDItriggering_fig2.gif" WIDTH="25" HEIGHT="21" ALT="" BORDER="0"> icon to bring up the MIDI/Performance Options menu.</LI><BR><BR>
+<LI>Choose your MIDI input device as the Echo MIDI Input Device. Select the check box for Echo MIDI In, and choose the pchannels it should route to (generally just 1-16).</LI><BR><BR>
+<LI>In the non-DirectMusic Producer application, make sure to set the output port for each channel to be the appropriate output.</LI><BR><BR>
+<LI>Start playing your sequencer. You should hear the MIDI data echoed onto your DLS collection. If you hear piano sounds, make sure to open the band in the segment to force a download of those particular instruments.</LI>
+</OL></P>
+<H3>Scenario 2: On the Same Machine (Windows 2000 Development PC)</H3>
+<P>You can also trigger DLS collection instruments from a sequencer application running on the same machine. The process itself is identical, but you must first set up one or more virtual MIDI drivers using a third-party application. Think of virtual MIDI drivers like patch cables. They effectively allow one application to route its MIDI output to another application's MIDI input. Many of these drivers allow multiple "patches" to be made (that is, one sequencer could send out 32, 48, or more pchannels to another multi-port sequencer). A few examples of virtual MIDI drivers are MIDI Yoke Junction (<A HREF="http://www.midiox.com" target="blank">http://www.midiox.com</A>) and Hubi's Loopback Device (<A HREF="http://www.geocities.com/SiliconValley/Vista/2872/hmidilb/hmdlpbk.html" target="blank"> http://www.geocities.com/SiliconValley/Vista/2872/hmidilb/hmdlpbk.html</A>).</P>
+<P>Once they are installed, you'll notice all of your sequencers will have additional MIDI input/output options. The names and functions may vary by driver, but what we're going to do is send our sequencer's output to a virtual MIDI device's input, and then set DirectMusic Producer's Echo MIDI In to that device's output.</P>
+<P>The steps are then identical to above. In step 7, set the Echo MIDI Input Device to one of our virtual MIDI devices.</P>
+<IMG src="/content/img/MIDItriggering_fig3.gif" WIDTH="202" HEIGHT="106" ALT="" BORDER="0">
+<P><B>Illustration</B>  <I>Using MIDI Yoke as the</I> <B>Echo MIDI Input Device</B> <I>in DirectMusic Producer. We would set our sequencer's output to be the equivalent "out" port (MIDI Yoke port #1 in this case)</I>.</P><BR><BR>
+<H3>Playing Nice With Other Sequencers</H3>
+<P>Some sequencers like to have exclusive control over MIDI ports. You may notice that they complain or refuse to use some ports if any other application that uses MIDI is open. DirectMusic Producer can temporarily halt its use of MIDI to allow these kinds of sequencers to run successfully (for either switching between authoring environments, or for the above scenario of DLS triggering from the other application). Just click the <IMG src="/content/img/MIDItriggering_fig4.gif" WIDTH="22" HEIGHT="20" ALT="" BORDER="0"> button in the Transport Options toolbar to toggle MIDI on/off. (Note that there may be a slight delay before MIDI is released, signifying by the button popping up.) Be sure to toggle it back on (button "pressed") when you want to use DirectMusic Producer again, or the transport buttons will have no effect and you will just get silence.</P>
+
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;See the Audio Designer's Corner white paper entitled <A HREF="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_gettingstarted.htm"><B>Getting Started with DirectMusic Producer: MIDI and DLS Collections</B></A> for more details on how to build a DLS collection.</P>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;You could alternatively play this segment from the primary transport, and then CTRL+click stop it. Note that regular primary segment "stop" (that is, clicking the stop button without holding down ctrl) sends down a GM Reset, which effectively loses all patch change information. This is why it's generally easier to just keep the patch change "segment" in the secondary transport; stopping secondary segments does not send a GM Reset.</P>
+
+<BR>
+
+<SMALL>Wednesday, February 28, 2001</SMALL>
+
+
+
+</TD>
+
+
+
+
+
+	

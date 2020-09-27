@@ -1,0 +1,81 @@
+// AttrHand.idl : IDL source for AttrHand.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (AttrHand.tlb) and marshalling code.
+
+#include "compiler.idl"
+
+// CATID_AttributeProvider = {64626790-83F5-11d2-B8DA-00C04F799BBB}
+cpp_quote("extern \"C\" const __declspec(selectany) GUID CATID_AttributeProvider = { 0xd57875f0, 0x2f34, 0x11d3, { 0xbe, 0x70, 0x0, 0xa0, 0xc9, 0xa3, 0xa5, 0x9b } };")
+    
+    [
+        object,
+        uuid(64626787-83F5-11d2-B8DA-00C04F799BBB),
+        helpstring("IAttributeGrammar Interface"),
+        pointer_default(unique)
+    ]
+    interface IAttributeGrammar : IUnknown
+    {       
+        [id(1)] HRESULT GetAllAttributes([out] char*** ppszAttributes, [out] int* pnCount);
+        [id(2)] HRESULT GetListenToAttributes([out] char*** ppszAttributes, [out] int* pnCount);
+        [id(3)] HRESULT GetAttributeList([in] UsageType usage, [out] char*** ppszAttributes, [out] int* pnCount);
+        [id(4)] HRESULT GetArgumentList([in] int nAttribute, [out] char*** ppszArguments, [out] int* pnArgCount);
+        [id(5)] HRESULT GetArgumentValueList([in] int nAttribute, [in] int nArgument, [out] char*** ppszValues, [out] int* pnValCount);
+        [id(6)] HRESULT GetAttributeUsage([in] int nAttribute, [out] int* pUsageType, [out] BSTR* pUsageStr);
+        [id(7)] HRESULT GetArgumentDefault([in] int nAttribute, [in] int nArgument, [out] char** pszDefault);
+        [id(8)] HRESULT GetAttributeCategory([in] int nAttribute, [out] char** pszCategory);
+        [id(9)] HRESULT GetRepeatable([in] int nAttribute, [out] BOOL* pbRepeatable);
+        [id(10)] HRESULT GetArgumentType([in] int nAttribute, [in] int nArgument, [out] int* pbType);
+        [id(11)] HRESULT GetRequiredArguments([in] int nAttribute, [out] char*** pszReqArguments, [out] int* pnCount);
+        [id(12)] HRESULT GetRequiredAttributes([in] int nAttribute, [out] char*** pszReqAttributes, [out] int* pnCount);
+        [id(13)] HRESULT GetRequiredClassAttributes([in] int nAttribute, [out] char*** pszReqClassAttrs, [out] int* pnCount);
+        [id(14)] HRESULT GetArgumentRequiredAttributes([in] int nAttribute, [out] char*** keys, [out] char*** reqargs, [out] int* maxdim, [out] int** pcount, [out] int* count);
+        [id(15)] HRESULT GetInvalidAttributes([in] int nAttribute, [out] char*** pszReqAttributes, [out] int* pnCount);
+        [id(16)] HRESULT GetInvalidClassAttributes([in] int nAttribute, [out] char*** pszReqClassAttrs, [out] int* pnCount);
+        [id(17)] HRESULT GetArgumentInvalidAttributes([in] int nAttribute, [out] char*** keys, [out] char*** invargs, [out] int* maxdim, [out] int** pcount, [out] int* count);        
+        [id(18)] HRESULT GetHelpString([in] int nAttribute, [in] int nArgument, [out] BSTR* pszHelpString);
+        [id(19)] HRESULT GetAttributeHelpString([in] int nAttribute, [out] char** pszHelpString);
+        [id(20)] HRESULT GetArgumentHelpString([in] int nAttribute, [in] int nArgument, [out] char** pszHelpString);
+        [id(21)] HRESULT GetMeta([in] int nAttribute, [in]char* pszMetaType, [out] char** ppszArguments);
+        [id(22)] HRESULT GetVariableArguments([in] int nAttribute, [out] BOOL* pbVarArgs);
+        [id(23)] HRESULT AttributeToInt([in] const char* attr, [in] struct AttributeArg* args, [in] int argcount, [out, retval] int* idx);
+        [id(24)] HRESULT GetShipping([in] int nAttribute, [out] BOOL* pbShipping);
+        [id(25)] HRESULT GetVersion([out] DWORD* pmajor, [out] DWORD* pminor);
+        [id(26)] HRESULT GetNames([out] char** provname, [out] char** provguid);
+        [id(27)] HRESULT GetMultiValue([in] int nAttribute, [in] int nArgument, [out] BOOL* pbMultivalue);
+        [id(28)] HRESULT GetArgumentRepeatable([in] int nAttribute, [in] int nArgument, [out] BOOL* pbRepeatable);
+        [id(29)] HRESULT GetExplicitArguments([in] int nAttribute, [out] BOOL* pbExplicitArgs);
+        [id(30)] HRESULT GetEvent2ForAttribute([in] int nAttribute, [out] Event2 *pEvent2);
+midl_pragma warning( disable: 2279)
+        [id(31)] HRESULT GetAttributeValidExpression([in] int nAttribute, [out] const AttributeExpressionTree** ppTree);
+        [id(32)] HRESULT GetClassAttributeValidExpression([in] int nAttribute, [out] const AttributeExpressionTree** ppTree);
+		[id(33)] HRESULT GetOverLoadList([in] int nAttribute, [out] char*** ppszOverLoads, [out] int* pnOLCount);
+		[id(34)] HRESULT GetOverLoad([in] int nAttribute, [out] BOOL* pbOverLoad);
+		[id(35)] HRESULT GetOverloadedAttributes([out] char*** ppszOverLoads, [out] int* pnOverLoadCount);
+midl_pragma warning( default: 2279)
+    };
+
+    [
+        object,
+        uuid(64626786-83F5-11d2-B8DA-00C04F799BBB),
+        helpstring("IAttributeHandler Interface"),
+        pointer_default(unique)
+    ]
+    interface IAttributeHandler : IUnknown
+    {
+        [id(1), helpstring("method ParseAttributes")] 
+        HRESULT ParseAttributes(
+            [in] ICompiler* pcxxfe, 
+            [in, size_is(count)] struct Attribute* attr,
+            [in] int count,
+            [in] int usage);
+        [id(2), helpstring("method OnEvent")] 
+        HRESULT OnEvent([in] ICompiler* pcxxfe, [in] Event e);
+        [id(3), helpstring("method CreateInstance")] 
+        HRESULT CreateInstance(
+            [in] int eFlags, 
+            [out] IAttributeHandler** ppHandler, 
+            [out] IAttributeGrammar** ppGrammar);
+    };
+

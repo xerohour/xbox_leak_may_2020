@@ -1,0 +1,309 @@
+//
+// brokadmn.idl : IDL source for the broker's admin interface
+//
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+const LONG BROK_AUTH_TYPE_ANON =           0x0001;
+const LONG BROK_AUTH_TYPE_PWDCOOKIE =      0x0002;
+const LONG BROK_AUTH_TYPE_BASIC =          0x0004;
+const LONG BROK_AUTH_TYPE_DPA =            0x0008;
+const LONG IIS_AUTH_TYPE_ALLOW_ANON =      0x0010;
+const LONG BROK_ALWAYS_WRITE        =      0x0020;
+const LONG BROK_IGNORE_ALLOW_ANON   =      0x0040;
+
+
+#define PROPERTY_RW(type, name, prid)                 \
+        [propget, id(prid)]                           \
+        HRESULT name([out, retval] type * pRetVal);   \
+                                                      \
+        [propput, id(prid)]                           \
+        HRESULT name([in] type NewVal)
+
+
+	[
+		object,
+		uuid(19edab12-c4a4-11d0-bbda-00c04fb615e5),
+		dual,
+		helpstring("IBrokConfig Interface"),
+		pointer_default(unique)
+	]
+	interface IBrokConfig : IDispatch
+	{
+
+        [hidden]
+        HRESULT LoadDefaults(LONG lVirtServId);
+
+        //
+        // GetConfig will get the config (ppConfig) for the given virtual broker (lVirtServId).
+        // You can make changes to this config and call SetConfig .
+        //
+        HRESULT GetConfig(LONG lVirtServId);
+        //
+        // SetConfig will set the commit this config.
+        //
+        HRESULT SetConfig();
+
+        //
+        // CheckAcct 
+        //
+        HRESULT CheckAcct(BSTR bszDomain, BSTR bszName, BSTR bszPassword);
+
+
+        //
+        // In-memory config options..  If you changes these, call SetConfig.
+        // =================================================================
+
+        //
+        // lVirtServId is RO.  This is the virtual broker id.
+        //
+        PROPERTY_RW(LONG, lVirtServId, 1);
+        //
+        // bLocal tells the broker to hit a local DS or a remote DS.  TRUE means use local.
+        //
+        PROPERTY_RW(BOOL,  bLocal, 2);
+        //
+        // bszServerName is used only when bLocal==FALSE. This is the remote ldap 
+        // server name.
+        //
+        PROPERTY_RW(BSTR,  bszServerName, 3);
+        //
+        // lPort is used only when bLocal==FALSE.  This is the remote ldap port number.
+        //
+        PROPERTY_RW(LONG, lPort, 4);
+        //
+        // bSecure is used only when bLocal==FALSE.  TRUE means use SSL.
+        //
+        PROPERTY_RW(BOOL,  bSecure, 5);
+        //
+        // lSecurePort is used only when bLocal==FALSE and bSecure==TRUE.  This is the
+        // remote ldap server's ssl port.
+        //
+        PROPERTY_RW(LONG, lSecurePort, 6);
+        //
+        // lTimeLimit controls the timelimit for ldap searches.  This is in seconds.
+        //
+        PROPERTY_RW(LONG, lTimeLimit, 7);
+        //
+        // lSizeLimit controls the sizelimit for ldap searches.  This is in bytes.
+        //
+        PROPERTY_RW(LONG, lSizeLimit, 8);
+        //
+        // bszBaseDN the base DN to use as a prefix for all user names.  This is an x.500
+        // name in ascending order.  e.g. ou=Members, o=Microsoft, cn=US
+        //
+        PROPERTY_RW(BSTR,  bszBaseDN, 9);
+        //
+        // lCacheTimeout controls how long user attrs stay in the broker's cache.  Note
+        // the cache is also refcounted so items can stay in the cache longer than this
+        // value.
+        //
+        PROPERTY_RW(LONG, lCacheTimeout, 10);
+        //
+        // bszGroupPrefix is used when auto-mapping u2 groups to nt groups.  This string
+        // is prefixed to the u2 group name.  This string should be made unique by including 
+        // the VirtServId.  e.g. SiteServer_2
+        //
+        PROPERTY_RW(BSTR,  bszGroupPrefix, 11);
+        //
+        // bCreateGroups controls whether the broker will attempt to auto-create the nt group
+        // from the u2 group.  TRUE means create the groups.
+        //
+        PROPERTY_RW(BOOL,  bCreateGroups, 12);
+        //
+        // bszDomain is used to allow nt domain groups to be used.  The same u2 to n2 name 
+        // mapping occurs, but the broker will use that group from the domain bszDomain.
+        // These groups are NOT auto-created.
+        //
+        PROPERTY_RW(BSTR,  bszDomain, 13);
+        //
+        // bszDsName is the username to use when authenticating with the ldap server.
+        // this is an x.500 name.
+        //
+        PROPERTY_RW(BSTR,  bszDsName, 14);
+        //
+        // bszDsPwd is write-only.  This is the password for bszDsName.
+        //
+        PROPERTY_RW(BSTR,  bszDsPwd, 15);
+        //
+        // bszProxyName is the user name for the proxy acct the broker uses for nt auth.
+        //
+        PROPERTY_RW(BSTR,  bszProxyName, 16);
+        //
+        // bszProxyPwd is write only.  This is the password for bszProxyName.
+        //
+        PROPERTY_RW(BSTR,  bszProxyPwd, 17);
+        //
+        // bszProxyDomain is can optional domain for the user bszProxyName.
+        //
+        PROPERTY_RW(BSTR,  bszProxyDomain, 21);
+        //
+        // bUseTrackCookie controls whether or not the broker issues tracking cookies.  
+        // TRUE means issue them.
+        //
+        PROPERTY_RW(BOOL,  bUseTrackCookie, 18);
+        //
+        // lPwdCookieTimeout controls the timeout when using cookie auth.  This is minutes.
+        //
+	    PROPERTY_RW(LONG, lPwdCookieTimeout, 19);
+        //
+        // bEnabled is whether or not the broker is turned on for auth.  TRUE means turned on.
+        //
+        PROPERTY_RW(BOOL,  bEnabled, 20);
+        //
+        // bszComment is the friendly name used by svc admin.
+        //
+        PROPERTY_RW(BSTR,  bszComment, 22);
+        //
+        // bszComment is the friendly name used by svc admin.
+        //
+        PROPERTY_RW(BOOL,  bPwdCookiePersist, 23);
+        //
+        // bszComment is the friendly name used by svc admin.
+        //
+        PROPERTY_RW(BSTR,  bszRealm, 24);
+
+        //
+        // This is the timeout for caching of  NT tokens created by 
+        // the auth extension.
+        // 
+        PROPERTY_RW(LONG,  lTokenCacheTimeout, 25);
+
+        //
+        // This is the location of the DLL that creates the tokens
+        // 
+        PROPERTY_RW(BSTR,  bszTokenCreatorDll, 26);
+
+        [propget, id(27)] HRESULT bDirty([out, retval] BOOL * pRetVal);
+
+	};
+	
+	[
+		object,
+		uuid(099226a0-c4a7-11d0-bbda-00c04fb615e5),
+		dual,
+		helpstring("IBrokServer Interface"),
+		pointer_default(unique)
+	]
+	interface IBrokServers : IDispatch
+	{
+        //
+        // You must call Init first.
+        //
+    	HRESULT Init();
+
+        // HasWritePrivilege will check to see if the logon user has the
+        // permission to perform write on the membership server configuration
+        //
+        HRESULT HasWritePrivilege();
+
+        // HasNTAdminPrivilege will check to see if the logon user has the
+        // Local machine administrators privilege
+        //
+        HRESULT HasNTAdminPrivilege();
+
+        //
+        // CreateServer will create a new virtual broker.  This new broker will be assigned
+        // a virtual broker id (plVirtServId).  This will usually be the next number up 
+        // from the last existing broker (odd cases are races conditions, two people creating
+        // at the same time) .
+        //
+        HRESULT CreateServer([out] VARIANT *plVirtServId);
+        HRESULT DeleteServer(LONG lVirtServId);
+
+        HRESULT StartServer(LONG lVirtServId);
+        HRESULT StopServer(LONG lVirtServId);
+
+
+        //
+        // GetServerCount will return the total number of virtual brokers.
+        // You can then loop and call GetServer to find out about each broker.
+        //
+        HRESULT GetServers([in,out]VARIANT *plVirtServIds, [in,out]VARIANT *pComments);
+        
+        //
+        // These functions are used for mapping services to brokers
+        // ========================================================
+
+        //
+        // MapToBroker will map the given virtual instance (lVirtServId) of the 
+        // service (bszServiceName) to the virtual broker (lVirtBrokId)
+        //
+        HRESULT MapToBroker(BSTR bszServiceName, LONG lVirtServId, LONG lVirtBrokId);
+        //
+        // ClearMapping will remove any mapping for the given virtual instance (lVirtServId)
+        // of the service (bszServiceName)
+        //
+        HRESULT ClearMapping(BSTR bszServiceName, LONG lVirtServId);
+        //
+        // MappedTo will return which virtual broker (plVirtBrokId) the given virtual 
+        // instance (lVirtServId) of the service (bszServiceName) is currently mapped to 
+        //
+        HRESULT MappedTo(BSTR bszServiceName, LONG lVirtServId, [in,out]VARIANT *plVirtBrokId, [in,out]VARIANT *pbszComment);
+
+
+        //
+        // These functions are used for setting auth protocols 
+        // for url's. This is only for the w3svc service (web).
+        // ====================================================
+        
+        //
+        // SetAuthTypes will set the auth types for the given server (lVirtServId) for 
+        // the given url (bszPath) to the type (lTypes).  lTypes is a bit mask using the 
+        // values BROK_AUTH_TYPE_XXXXX.
+        //
+        HRESULT SetAuthTypes(BSTR bszPath, LONG lTypes);
+        //
+        // GetAuthTypes gets the auth type (plTypes) for the given server (lVirtServId) for 
+        // the given url (bszPath).  plTypes is a bit mask using the values BROK_AUTH_TYPE_XXX.
+        //
+        HRESULT GetAuthTypes(BSTR bszPath, [out, retval]LONG *plTypes);
+    	
+        HRESULT GetSecurityMode(BSTR bszServiceName, LONG lVirtServId, [out, retval]BOOL *pbNTSecurity);
+	};
+
+
+	
+[
+	uuid(a0341532-c4ac-11d0-bbda-00c04fb615e5),
+	version(1.0),
+	helpstring("Broker Config 1.0 Type Library")
+]
+library BrokConfigLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+
+	[
+		uuid(c78fa6e6-c4ac-11d0-bbda-00c04fb615e5),
+	]
+	coclass BrokConfig
+	{
+		[default] interface IBrokConfig;
+	};
+
+	[
+		uuid(cd8f114e-c4ac-11d0-bbda-00c04fb615e5),
+	]
+	coclass BrokServers
+	{
+		[default] interface IBrokServers;
+	};
+
+};
+
+
+cpp_quote("DEFINE_GUID(LIBID_BrokConfigLib, 0xa0341532,0xc4ac,0x11d0,0xbb,0xda,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+
+cpp_quote("DEFINE_GUID(IID_IBrokConfig, 0x19edab12,0xc4a4,0x11d0,0xbb,0xda,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+cpp_quote("DEFINE_GUID(IID_IBrokServers, 0x099226a0,0xc4a7,0x11d0,0xbb,0xda,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+
+cpp_quote("DEFINE_GUID(CLSID_BrokConfig, 0xc78fa6e6,0xc4ac,0x11d0,0xbb,0xda,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+cpp_quote("DEFINE_GUID(CLSID_BrokServers, 0xcd8f114e,0xc4ac,0x11d0,0xbb,0xda,0x00,0xc0,0x4f,0xb6,0x15,0xe5);")
+
+
+
+
+

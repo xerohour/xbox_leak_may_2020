@@ -1,0 +1,273 @@
+// compiler.idl : IDL source for cxxfe
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (_Attribute.tlb) and marshalling code.
+
+import "unknwn.idl";
+#include "prov_64.h"
+
+    typedef enum tagEmissionFlags {
+        eDoNothing = 0x0,
+        eFreeMemory = 0x1,
+        eForceGlobalScope = 0x2
+    } EmissionFlags;
+
+    typedef enum tagEvent {
+        seenNoEvent = 0x0,
+        seenDefineTag = 0x1,
+        seenAllBases = 0x2,
+        seenFunctionFormal = 0x3,
+        seenMember = 0x4,
+        seenAllMembers = 0x5,
+        seenEndTag = 0x6,
+        seenAllSource = 0x7,
+        seenDumpGlobals = 0x8,
+        MAX_EVENT = 0x9
+    } Event;
+
+    // Must be kept in sync with Event
+    typedef enum tagEvent2 {
+        seenNoEvent2                = (1 << seenNoEvent),
+        seenDefineTag2              = (1 << seenDefineTag),
+        seenAllBases2               = (1 << seenAllBases),
+        seenFunctionFormal2         = (1 << seenFunctionFormal),
+        seenMember2                 = (1 << seenMember),
+        seenAllMembers2             = (1 << seenAllMembers),
+        seenEndTag2                 = (1 << seenEndTag),
+        seenAllSource2              = (1 << seenAllSource),
+        seenDumpGlobals2            = (1 << seenDumpGlobals)
+    } Event2;
+
+    typedef enum tagMemberAttrs
+    {
+        eNone = 0x0,
+        ePrivate = 0x1,
+        eProtected = 0x2,
+        ePublic = 0x3,
+        eAccMask = 0x3,
+        eVirtual = 0x4,
+        eStatic = 0x8,
+        eConst = 0x10,
+        eMethod = 0x20,
+        eField = 0x40,
+        eBase = 0x80,
+        eOverload = 0x100,
+        eCdecl = 0x200,
+        eStdcall = 0x400,
+        eThiscall = 0x800,
+        eInterface = 0x1000, // or'd with tagInterfaceType to figure out if it is eDual etc.
+        eCoclass = 0x2000,
+        eClass = 0x4000,
+        eStruct = 0x8000,
+        eEnum = 0x10000,
+        eUnion = 0x20000,
+        eNamespace = 0x40000,
+        eDefined = 0x80000,
+        eQueuable = 0x100000,
+        ePure = 0x200000,
+        eOtherCall = 0x400000,
+        eSymbol = 0x800000,  // should be typedef
+        eManaged = 0x1000000,
+        eHasGuid = 0x2000000,
+        eIntroInterface = 0x4000000
+    } MemberAttrs;
+
+    typedef enum tagInterfaceType
+    {
+        eNoInterface = 0x0,
+        eDual = 0x1,
+        eDispinterface = 0x2,
+        eCustom = 0x4,
+        eCOMPlus = 0x8
+    } InterfaceType;
+
+    // scopes
+    typedef enum tagScopeType {
+        eNoScope = 0x0,
+        eGlobalScope = 0x1,
+        eClassScope = 0x2,
+        eNamespaceScope = 0x4,
+        eMemberScope = 0x8,
+        eMethodScope = 0x10,
+        eFormalScope = 0x20,
+        eSymbolScope = 0x40,    // typedefs, etc.
+        eMAXSCOPE
+    } ScopeType;
+
+    typedef enum tagPropertyType {
+        eDispMethod = 0x1,
+        ePropGet = 0x2,
+        ePropPut = 0x4,
+        ePropPutRef = 0x8
+    } PropertyType;
+
+    typedef enum tagUsageType
+    {
+#define DAT(e,val,str) e = val,
+#include "usage_dat.h"
+#undef DAT
+    } UsageType;
+
+    enum
+    {
+        eMaxUsage = 0x6ffffff,
+        eUsageCount = 29
+    };
+
+    struct MemberSpecs
+    {
+        [string] char* name;
+        [string] char* desc;
+        unsigned long attrs;
+        uintptr_t alias;
+    };
+
+    typedef enum tagMetadataTypes {
+        eClassDef = 0,
+        eClassRef = 1,
+        eMethodDef = 2,
+        eMethodRef = 3,
+        eMethodImpl = 4
+    } MetadataTypes;
+
+    typedef enum tagValueKind {
+        eANSIStringValue = 0,
+        eWideStringValue = 1,
+        eCOMPlusStringValue = 2,
+        eIntegerValue = 3,
+        eInteger64Value = 4,
+        eFloatValue = 5,
+        eDoubleValue = 6,
+        eIdentValue = 7,
+        eMacroValue = 8,
+        eBooleanValue = 9,
+        eGuidValue = 0xA,
+        eSystemTypeValue = 0xB,
+        eUnknownValue = 0xC,
+        eVariantValue = 0x10,
+        eArrayValue = 0x20,
+        eMaxValueKind = 15, // number of guys in tagValueKind
+    } ValueKind;
+
+    typedef enum tagForceIncludeKind {
+        eInclude = 0,
+        eSysInclude = 1,
+        eImport = 2,
+        eSysImport = 3
+    } ForceIncludeKind;
+
+#if 0
+    struct SizedValue {
+        [switch_type(char), switch_is(kind)] union {
+        [case(1)]
+            [string] wchar_t* wval;
+        [default]
+            [string] char* val;
+        };
+        ValueKind kind;
+    };
+#else
+    struct SizedValue {
+        [string] char* val;
+        char kind;
+        char flags;
+        char isdefault;
+    };
+#endif
+
+    struct AttributeArg {
+        [string] char* name;
+        [size_is(valcount)] struct SizedValue* vals;
+        int valcount;
+    };
+
+    struct Attribute {
+        [string] char* name;
+        [size_is(argcount)] struct AttributeArg* args;
+        unsigned short argcount;
+        unsigned short flags; // AttributeEx::Flags_e
+        DWORD vPos;
+        DWORD vEndPos; 
+        unsigned short index;
+    };
+
+    typedef enum AttributeExpressionNodeKind {
+       eLogicalAnd,
+       eLogicalOr,
+       eAttributeLeaf,
+    } AttributeExpressionNodeKind;
+
+    typedef struct AttributeExpressionTree {
+       char kind;
+    } AttributeExpressionTree;
+
+    typedef struct AttributeExpressionBinaryTree {
+       char kind;
+       AttributeExpressionTree* left;
+       AttributeExpressionTree* right;
+    } AttributeExpressionBinaryTree;
+
+    typedef struct AttributeExpressionTreeLeaf {
+       char kind;
+       char isSimple;   /* Does this attribute contain a '.' (more checking needed if so). */
+       char negated;    /* This attribute must not be in the current attribute block? */
+       [switch_type(char), switch_is(isSimple)] union {
+       [default]
+            uintptr_t attributeEnumeration;
+       [case(0)]
+            [string] const char* attributeExpr;
+       };
+    } AttributeExpressionTreeLeaf;
+
+    [
+        object,
+        uuid(64626784-83F5-11d2-B8DA-00C04F799BBB),
+        helpstring("ICompiler Interface"),
+        pointer_default(unique)
+    ]
+    interface ICompiler : IUnknown
+    {
+        [id(1)] HRESULT AddBaseClass([in] struct MemberSpecs* specs, [in, defaultvalue(FALSE)] boolean backpatch);
+        [id(2)] HRESULT AddtoMemberList([in, string] const char* toks);
+        [id(3)] HRESULT AddtoGlobalList([in, string] const char* toks, [in, defaultvalue(seenNoEvent)] Event e);
+        [id(4)] HRESULT QueryScope([out] int* pScope, [out, retval] char** pScopename);
+        [id(5)] HRESULT EmitGlobalsNow([in, defaultvalue(eDoNothing)] EmissionFlags freeMemory);
+        [id(6)] HRESULT InjectAtBeginningOfFunction([in, string] const char* toks, [in] const uintptr_t alias);
+        [id(7)] HRESULT InjectAtEndOfFunction([in, string] const char* toks, [in] const uintptr_t alias);
+        [id(8)] HRESULT InjectIntoFunctionHere([in, string] const char* toks);
+        [id(9)] HRESULT AlterName([in, string] const char* name, [in] const uintptr_t alias);
+        [id(10)] HRESULT QueryBases([in, out, size_is( , *count)] struct MemberSpecs** specs, [in, out] int* count, [in, defaultvalue(FALSE)] boolean recursive);
+        [id(11)] HRESULT QueryCurrentClass([out , retval] struct MemberSpecs* spec);
+        [id(12)] HRESULT QueryCurrentLibrary([out , retval] struct MemberSpecs* spec);
+        [id(13)] HRESULT QueryCurrentMember([out, retval] struct MemberSpecs* spec);
+        [id(14)] HRESULT QueryMembers([in, out , size_is( , *count)] struct MemberSpecs** specs, [in, out] int* count);
+        [id(15)] HRESULT QueryMacro([in, string] const char* macro, [out, retval] char** expansion);
+        [id(16)] HRESULT QuerySymbol([in, out] struct MemberSpecs* specs, [out] boolean* isDefd, [in] boolean lookonlyinclass, [in] const uintptr_t enclosingclass);
+        [id(17)] HRESULT QueryAttributes([in, out, size_is( , *pcount)] struct Attribute** ppattr, [in, out] int* pcount, [in] const uintptr_t alias);
+        [id(18)] HRESULT EmitMetadata([out] uintptr_t* emit_alias, [out] uintptr_t* import_alias);
+        [id(19)] HRESULT Guid([out] LPGUID* ppGuid, [out] struct SizedValue* pid, [in] const uintptr_t alias);
+        [id(20)] HRESULT EmitWarning([in] int level, [in, string] const char* warn);
+        [id(21)] HRESULT EmitError([in, string] const char* error);
+        [id(22)] HRESULT ForceInclude([in, string] const char* fullpath, [in] ForceIncludeKind e, [in, defaultvalue(FALSE)] boolean freeMemory);
+        [id(23)] HRESULT Pragma([in, string] const char* pragma);
+        [id(24)] HRESULT EmitMembersNow([in, defaultvalue(FALSE)] boolean fForce);
+        [id(25)] HRESULT IntegralExpressionEvaluator([in, string] const char* toks, [out, retval] hyper* out);
+        [id(26)] HRESULT GetValue([in] struct SizedValue* sv, [string, out, retval] char** val);
+        [id(27)] HRESULT GetDispid([in] uintptr_t alias, [out] long* dispid, [out] PropertyType* prop, [out] long* vfoffset);
+        [id(28)] HRESULT QueryStunDepth([out, retval] intptr_t *sd);
+        [id(29)] HRESULT QueryPosition([in] struct Attribute* attr, [in] const uintptr_t alias, [out, string] char** file, [out] uintptr_t *line);
+        [id(30)] HRESULT QueryName([in, string] const char* decorname, [out, string] char** undecorname);
+        [id(31)] HRESULT QueryToken([in] uintptr_t alias, [in] MetadataTypes e, [out] uintptr_t* token);
+        [id(32)] HRESULT QueryFullPath([in, string] const char* filename, [out, string] char** fullpath);
+        [id(33)] HRESULT EmitHRESULTError([in, string] const char* error, [in] HRESULT hr);
+        [id(34)] HRESULT AddtoGlobalDeclarationList([in, string] const char* toks, [in, defaultvalue(seenNoEvent)] Event e);
+        [id(35)] HRESULT EmitGlobalDeclarationsNow([in, defaultvalue(FALSE)] boolean freeMemory);
+        [id(36)] HRESULT InjectIDispatchImpl([in] struct MemberSpecs* specs);
+        [id(37)] HRESULT FloatingPointExpressionEvaluator([in, string] const char* toks, [out, retval] double* out);
+        [id(38)] HRESULT IsBaseClassOf([in] struct MemberSpecs* specs, [in] const uintptr_t alias, [in] boolean indirectBases, [out] boolean* isBase);
+        [id(39)] HRESULT IsMemberOf([in] struct MemberSpecs* specs, [in] const uintptr_t alias, [in] boolean searchBases, [out] boolean* isMember);
+        [id(40)] HRESULT SetInjectingAttribute([in] struct Attribute* attr);
+        [id(41)] HRESULT QueryQName([in, out] struct MemberSpecs* specs); 
+    };
+

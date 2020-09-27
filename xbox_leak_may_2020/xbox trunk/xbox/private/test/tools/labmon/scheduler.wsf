@@ -1,0 +1,102 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    scheduler.wsf
+
+Abstract:
+
+    Looks in the database for jobs to execute. 
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+var loopAlways = true;
+var days = new Array("S", "M", "T", "W", "R", "F", "A");
+
+main();
+
+function main()
+    {
+    var records = WScript.CreateObject("ADODB.Recordset");
+    var cmd = shell.ExpandEnvironmentStrings("%SystemRoot%/system32/cmd.exe");
+
+    try // top level try / catch
+        {
+        do
+            {
+            if(GetProperty("schedulerStop") == "1")
+                {
+                loopAlways = false;
+                break;
+                }
+
+            var currentTime = new Date();
+            var currentTimeMin = currentTime.getHours() * 60 + currentTime.getMinutes();
+
+            SetProperty("schedulerLastRun", FormatShortDate());
+
+            // Grab the set of 'run once' jobs that must be executed immediately
+            records.Open("SELECT * FROM Scheduler WHERE ISNULL([Occurs On])", driver, 0, 1);
+            while(!records.EOF)
+                {
+                shell.Run(cmd + " /T:17 /C jobRunner.wsf /script=" + UrlEncode(records("Script")), 0, false);
+                records.MoveNext();
+                }
+            records.Close();
+
+            // Delete all run once jobs 
+            records.Open("DELETE * FROM Scheduler WHERE ISNULL([Occurs On])", driver, 1, 2);
+
+            // Grab the set of jobs that need to be executed
+            records.Open("SELECT * FROM Scheduler WHERE [Occurs On] LIKE '%" + days[currentTime.getDay()] + "%' ORDER BY [Time];", driver, 0, 1);
+            while(!records.EOF)
+                {
+                var time = new Date(records("Time"));
+                time = time.getHours() * 60 + time.getMinutes();
+
+                if(time < currentTimeMin && time > currentTimeMin-3)
+                    {
+                    var lastRun = new Date(records("Last Run On"));
+                    var alreadyRan = (lastRun.getDate() == lastRun.getDate() && lastRun.getMonth() == lastRun.getMonth() && lastRun.getYear() == lastRun.getYear());
+                    if(!alreadyRan || ""+records("Last Run On") == "null")
+                        {
+                        shell.Run(cmd + " /T:17 /C jobRunner.wsf /jobID=" + records("Job ID") + " /script=" + UrlEncode(records("Script")), 0, false);
+                        }
+                    }
+                records.MoveNext();
+                }
+            records.Close();
+
+            if(loopAlways) WScript.Sleep(1000*60);
+
+            } while(loopAlways);
+        }
+    catch(e) // top level try / catch
+        {
+        shell.LogEvent(1, "XBOX LAB Scheduler: " + e.description + " (" + e.number + ")");
+        // TODO send mail
+        }
+
+    }
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>

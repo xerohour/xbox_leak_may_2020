@@ -1,0 +1,74 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim seg
+sub TPrepare
+	set seg = LoadSegment("Sample.sgt")
+	seg.Download
+	PlaySegment seg
+end sub
+
+sub TDownload
+	seg.Download
+end sub
+
+sub TUnload
+	seg.Unload
+end sub
+
+dim seg1
+dim seg2
+sub TClone
+	set seg1 = LoadSegment("Sample.sgt")
+	set seg2 = seg1.Clone()
+
+	seg1.SetStartPoint 768 * 4
+	if seg1.GetStartPoint() = seg2.GetStartPoint then
+		PlaySegment Nothing
+	end if
+
+	seg2.SetLoopPoints 768 * 4, 768 * 8
+	if seg1.GetLoopPointStart = seg2.GetLoopPointStart or seg1.GetLoopPointEnd = seg2.GetLoopPointEnd then
+		PlaySegment Nothing
+	end if
+
+	seg1.SetLength 768 * 8
+	if seg1.GetLength = seg2.GetLength then
+		PlaySegment Nothing
+	end if
+
+	seg1.SetRepeats 2
+	seg2.SetRepeats 4
+	if seg1.GetRepeats = seg2.GetRepeats then
+		PlaySegment Nothing
+	end if
+end sub
+
+sub TClone1
+	PlaySegment seg1
+end sub
+
+sub TClone2
+	PlaySegment seg2
+end sub
+
+sub TSendTempoPMSG
+	t = GetTempo()
+	SendTempoPMSG 0 , GetMusicTime(), t*2
+end sub
+
+sub TDisableTempo
+	seg.SetTempoEnable False
+end sub
+
+sub TEnableTempo
+	seg.SetTempoEnable True
+end sub
+
+sub TMIDI
+	set midseg = LoadSegment("mlintro.mid")
+	midseg.SetStandardMidiFile
+	set col = LoadCollection("sample.dls")
+	midseg.ConnectToCollection(col) ' tests calling the function, but has no discernable effect (consider finding a .dls collection that makes a difference)
+	midseg.Download
+	PlaySegment midseg
+end sub

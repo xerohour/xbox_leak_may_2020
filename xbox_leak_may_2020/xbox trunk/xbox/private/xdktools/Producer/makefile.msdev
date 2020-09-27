@@ -1,0 +1,242 @@
+#========================================================
+# make file for DMUSProd
+#
+#
+# Modified 7/03/01 by JBelt
+
+#--------------------------------------------------------
+# Call makefile again with project macros defined
+
+MAKEPRODUCER=nmake /s /nologo -f makefile producer
+
+# FUTURE: I introduced FLAVORMINSIZE to build Producer the exact same way the old makefile did
+# Consider removing it and building all Release components the same way
+
+# FUTURE: All could simply define FLAVOR as ALL, but this builds BBT as well - do we want that?
+
+All:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG="
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG="
+
+AllDebug:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG="
+
+AllRelease:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG="
+
+AllBBT:
+	$(MAKEPRODUCER) "FLAVOR=Win32 BBT"           "FLAVORMINSIZE=Win32 BBT"             "MSDEVARG="
+
+AllBoundsChecker:
+	$(MAKEPRODUCER) "FLAVOR=Win32 BoundsChecker" "FLAVORMINSIZE=Win32 BoundsChecker"   "MSDEVARG="
+
+AllXboxRelease:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG=" "FLAVORXBOX=Win32 Xbox Release"
+
+AllXboxDebug:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG=" "FLAVORXBOX=Win32 Xbox Debug"
+
+
+AllClean:
+	$(MAKEPRODUCER) "FLAVOR=ALL"                 "FLAVORMINSIZE=ALL"                   "MSDEVARG=/CLEAN"
+
+AllDebugClean:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG=/CLEAN"
+
+AllReleaseClean:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG=/CLEAN"
+
+AllBBTClean:
+	$(MAKEPRODUCER) "FLAVOR=Win32 BBT"           "FLAVORMINSIZE=Win32 BBT"             "MSDEVARG=/CLEAN"
+
+AllBoundsCheckerClean:
+	$(MAKEPRODUCER) "FLAVOR=Win32 BoundsChecker" "FLAVORMINSIZE=Win32 BoundsChecker"   "MSDEVARG=/CLEAN"
+
+AllXboxReleaseClean:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG=/CLEAN" "FLAVORXBOX=Win32 Xbox Release"
+
+AllXboxDebugClean:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG=/CLEAN" "FLAVORXBOX=Win32 Xbox Debug"
+
+
+AllRebuild:
+	$(MAKEPRODUCER) "FLAVOR=ALL"                 "FLAVORMINSIZE=ALL"                   "MSDEVARG=/REBUILD"
+
+AllDebugRebuild:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG=/REBUILD"
+
+AllReleaseRebuild:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG=/REBUILD"
+
+AllBBTRebuild:
+	$(MAKEPRODUCER) "FLAVOR=Win32 BBT"           "FLAVORMINSIZE=Win32 BBT"             "MSDEVARG=/REBUILD"
+
+AllBoundsCheckerRebuild:
+	$(MAKEPRODUCER) "FLAVOR=Win32 BoundsChecker" "FLAVORMINSIZE=Win32 BoundsChecker"   "MSDEVARG=/REBUILD"
+
+AllXboxReleaseRebuild:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Release"       "FLAVORMINSIZE=Win32 Release MinSize" "MSDEVARG=/REBUILD" "FLAVORXBOX=Win32 Xbox Release"
+
+AllXboxDebugRebuild:
+	$(MAKEPRODUCER) "FLAVOR=Win32 Debug"         "FLAVORMINSIZE=Win32 Debug"           "MSDEVARG=/REBUILD" "FLAVORXBOX=Win32 Xbox Debug"
+
+
+#--------------------------------------------------------
+# Build!
+
+producer:
+	echo Building "DMUSProd - $(FLAVOR)"
+	cd framework
+	MSDEV DMUSProdGUID.dsp        /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	MSDEV DMUSProdGUIDPrivate.dsp /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd JazzCommon
+	MSDEV JazzCommon.dsp          /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd framework
+!IFNDEF FLAVORXBOX
+	MSDEV DMUSProd.dsp            /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV DMUSProd.dsp            /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+	cd Conductor
+!IFNDEF FLAVORXBOX
+	MSDEV conductor.dsp           /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV conductor.dsp           /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+!IFDEF FLAVORXBOX
+	cd XboxAddin
+	MSDEV XboxAddin.dsp           /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd xdmime
+	MSDEV dmime.dsp				  /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+!ENDIF
+	cd RegionKeyboard
+	MSDEV RegionKeyboard.dsp      /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd DLSDesigner\ADSREnvelope
+	MSDEV ADSREnvelope.dsp        /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd DLSDesigner
+!IFNDEF FLAVORXBOX
+	MSDEV DLSDesigner.dsp         /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV DLSDesigner.dsp         /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+	cd "Band Editor"
+!IFNDEF FLAVORXBOX
+	MSDEV BandEditor.dsp          /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV BandEditor.dsp          /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+	cd "Style Designer"
+	MSDEV StyleDesigner.dsp       /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd PersonalityDesigner
+	MSDEV PersonalityDesigner.dsp /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd Timeline
+	MSDEV Timeline.dsp            /MAKE "ALL - $(FLAVORMINSIZE)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd ChordStripMgr
+	MSDEV ChordStripMgr.dsp       /MAKE "ALL - $(FLAVORMINSIZE)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd ChordMapStripMgr
+	MSDEV ChordMapStripMgr.dsp    /MAKE "ALL - $(FLAVORMINSIZE)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd CommandStripMgr
+	MSDEV CommandStripMgr.dsp     /MAKE "ALL - $(FLAVORMINSIZE)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd SignPostStripMgr
+	MSDEV SignPostStripMgr.dsp    /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd SegmentDesigner
+!IFNDEF FLAVORXBOX
+	MSDEV SegmentDesignerDLL.dsp  /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV SegmentDesignerDLL.dsp  /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+	cd MIDIStripMgr
+	MSDEV MIDIStripMgr.dsp        /MAKE "ALL - $(FLAVORMINSIZE)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd LyricStripMgr
+	MSDEV LyricStripMgr.dsp       /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd StyleRefStripMgr
+	MSDEV StyleRefStripMgr.dsp    /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd PersRefStripMgr
+	MSDEV PersRefStripMgr.dsp     /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd BandStripMgr
+	MSDEV BandStripMgr.dsp        /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd TempoStripMgr
+	MSDEV TempoStripMgr.dsp       /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd SequenceStripMgr
+	MSDEV SequenceStripMgr.dsp    /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd MuteStripMgr
+	MSDEV MuteStripMgr.dsp        /MAKE "ALL - $(FLAVORMINSIZE)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd TimeSigStripMgr
+	MSDEV TimeSigStripMgr.dsp     /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd ScriptDesigner
+!IFNDEF FLAVORXBOX
+	MSDEV ScriptDesigner.dsp      /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV ScriptDesigner.dsp      /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+	cd ScriptStripMgr
+	MSDEV ScriptStripMgr.dsp      /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd SegmentStripMgr
+	MSDEV SegmentStripMgr.dsp     /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd ContainerDesigner
+	MSDEV ContainerDesigner.dsp   /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd AudioPathDesigner
+!IFNDEF FLAVORXBOX
+	MSDEV AudioPathDesigner.dsp   /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV AudioPathDesigner.dsp   /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+#	cd MelGenStripMgr
+#	MSDEV MelGenStripMgr.dsp      /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+#	cd "$(MAKEDIR)"
+	cd WaveStripMgr
+!IFNDEF FLAVORXBOX
+	MSDEV WaveStripMgr.dsp        /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+!ELSE
+	MSDEV WaveStripMgr.dsp        /MAKE "ALL - $(FLAVORXBOX)" $(MSDEVARG)
+!ENDIF
+	cd "$(MAKEDIR)"
+	cd MarkerStripMgr
+	MSDEV MarkerStripMgr.dsp      /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+	cd ToolGraphDesigner
+	MSDEV ToolGraphDesigner.dsp   /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+!IFDEF FLAVORXBOX
+#	cd SongDesigner
+#	MSDEV SongDesigner.dsp        /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+#	cd "$(MAKEDIR)"
+!ENDIF
+!IFNDEF FLAVORXBOX
+	cd ParamStripMgr
+	MSDEV ParamStripMgr.dsp       /MAKE "ALL - $(FLAVOR)" $(MSDEVARG)
+	cd "$(MAKEDIR)"
+!ENDIF
+

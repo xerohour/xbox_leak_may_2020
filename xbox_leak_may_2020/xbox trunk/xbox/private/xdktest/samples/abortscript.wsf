@@ -1,0 +1,47 @@
+<job>
+<script language="VBScript">
+'
+' emmang@xbox.com
+' abort any of the Xbox SDK test scripts 
+'
+'
+Const REGENTRY = "HKCU\Software\Microsoft\XboxTest\DevMachine"
+
+Abort()
+
+Sub Abort()
+    On Error Resume Next
+    Dim objFileSystem, objShell, strDefaultMachine, strDevMachine, objFile
+    '
+    ' create global tool objects
+    '
+    Set objFileSystem = CreateObject("Scripting.FileSystemObject")
+    Set objShell = CreateObject("WScript.Shell")
+    '
+    ' get default dev machine
+    '
+    strDefaultMachine = objShell.RegRead(REGENTRY)
+    strDevMachine = InputBox( _
+            "This will prevent the currently running Xbox SDK " & vbCrLf & _
+            "script from processing the next file; the script " & vbCrLf & _
+            "will stop after the current file is done." & vbCrLf & _
+            vbCrLf & _
+            "(A file named C:\ABORT.TMP will be created on " & vbCrLf & _
+            "the machine running the script.) " & vbCrLf & _
+            vbCrLf & _
+            "Which machine is running the script?", _
+            "AbortScript", _
+            strDefaultMachine)
+
+    If (strDevMachine = "") Then
+        Exit Sub
+    End If
+
+    objShell.RegWrite REGENTRY, strDevMachine
+    Set objFile = objFileSystem.CreateTextFile("\\" & strDevMachine & "\c$\abort.tmp", True)
+    objFile.WriteLine(Now)
+    objFile.Close
+End Sub
+
+</script>
+</job>

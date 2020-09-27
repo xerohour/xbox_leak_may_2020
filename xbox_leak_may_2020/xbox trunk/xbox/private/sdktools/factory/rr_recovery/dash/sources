@@ -1,0 +1,14 @@
+TARGETNAME=rr_recovery
+TARGETPATH=$(BASEDIR)\private\sdktools\factory\rr_recovery\lib
+TARGETTYPE=LIBRARY
+UMTYPE=xbox
+
+C_DEFINES = $(C_DEFINES) -D_NTDRIVER_ -DDASHLIB
+
+INCLUDES = ..;$(DDK_INC_PATH);$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(BASEDIR)\private\ntos\inc;$(INCLUDES)
+
+SOURCES = recovery.cpp
+
+PRECOMPILED_INCLUDE=..\recovpch.h
+PRECOMPILED_PCH=..\recovpch.pch
+PRECOMPILED_OBJ=..\recovpch.obj

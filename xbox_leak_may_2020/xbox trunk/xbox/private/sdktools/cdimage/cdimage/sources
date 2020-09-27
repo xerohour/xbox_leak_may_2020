@@ -1,0 +1,60 @@
+MAJORCOMP=windows
+MINORCOMP=base
+
+SYNCHRONIZE_DRAIN=1
+
+TARGETNAME=CDImage
+TARGETPATH=$(_OBJ_DIR)
+TARGETTYPE=PROGRAM
+
+TARGETLIBS=..\crc\obj\*\crc.lib \
+           ..\rpcsig\obj\*\rpcsig.lib \
+           ..\md5\obj\*\md5.lib
+
+LINKLIBS=$(LIBRARY_PATH)\rpcrt4.lib
+
+UMTYPE=console
+
+INCLUDES=.;..\crc
+
+USE_CRTDLL=1
+USE_CRT=1
+USE_PDB=1
+LINKER_STACKSIZE=/STACK:4194304
+
+# Uncomment the line below to add symbols to the EXE
+#LINKER_FLAGS=$(LINKER_FLAGS) /PDB:NONE
+
+CDIMAGE_VERSION=2.45
+CDIMAGE_VERSIONRC=2,45,0,0
+
+#Define DEBUG_BUILD to get a debug version of CDImage
+
+!IFDEF DEBUG_BUILD
+C_DEFINES=-DDEBUG -D_DEBUG
+MSC_OPTIMIZATION=/Od
+#DEBUG_CRTS=1
+!ENDIF
+
+C_DEFINES=$(C_DEFINES) -DVERSION=$(CDIMAGE_VERSION) -DRC_VERSION=2,45,0,0
+
+C_DEFINES=$(C_DEFINES) -DXBOX
+
+MSC_WARNING_LEVEL= /W3 /WX
+
+PRECOMPILED_INCLUDE=precomp.h
+
+SOURCES=buffer.c    \
+        cdimage.c   \
+        error.c     \
+        heap.c      \
+        ntcalls.c   \
+        open.c      \
+        reader.c    \
+        sign.c      \
+        thread.c    \
+        udfbridg.c  \
+        writer.c    \
+        cdimage.rc
+
+NTTARGETFILES=$(_NTTREE)\IDW\XDiscImage.Exe

@@ -1,0 +1,25 @@
+TARGETNAME =        BasicDPlay
+TARGETPATH =        obj
+TARGETTYPE =        PROGRAM
+UMTYPE =            xboxapp
+
+PROJNAME   = BasicDPlay
+TITLEID    = 0xffff0044
+
+NTTARGETFILE0 = $(O)\BasicDPlay.dsp
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /FAcs
+
+C_DEFINES =         $(C_DEFINES) -DKERNEL_MODE
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS =          $(XDK_LIB_PATH)\dplay8$(D).lib \
+                    $(XDK_LIB_PATH)\xnet$(D).lib \
+
+SOURCES =           basicdplay.cpp
+                    
+
+USE_LIBCMT=1

@@ -1,0 +1,61 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Use Local Source Path, using buttons"
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Delete Local Temp directory
+	'
+	sleep 5
+	if exists(TempLocalInstallSourcePath, "+d") then
+		Log #10, "Deleting "+TempLocalInstallSourcePath+" directory"
+		killdir(TempLocalInstallSourcePath)
+		Log #10, "Deletion Complete"
+	end if
+	'
+	' Create temp directory
+	'
+	mkdir TempLocalInstallSourcePath
+	mkdir TempLocalInstallSourcePath+"\sdk"
+	'
+	' Copy setup files to local location
+	'
+	Log #10, "Copying files from '"+DefaultInstallSourceRoot+"\"+trim$(BuildNumber)+"\sdk' to '"+TempLocalInstallSourcePath+"'"
+	CopyDir(DefaultInstallSourceRoot+"\"+trim$(BuildNumber) + "\sdk", TempLocalInstallSourcePath+"\sdk")
+	Log #10, "Copy Complete"
+	'
+	' Install
+	'
+	Install(BuildNumber, false, false, , TempLocalInstallSourcePath)
+	'
+	' Remove temporary files
+	'
+	sleep 5
+Scenario Cleanup
+	if exists(TempLocalInstallSourcePath, "+d") then
+		Log #10, "Removing "+TempLocalInstallSourcePath+" directory"
+		killdir(TempLocalInstallSourcePath)
+		Log #10, "Deletion Complete"
+	end if
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

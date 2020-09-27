@@ -1,0 +1,2 @@
+cscript labmon.wsf
+pause

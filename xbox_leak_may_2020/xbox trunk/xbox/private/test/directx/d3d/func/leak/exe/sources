@@ -1,0 +1,25 @@
+TARGETNAME=leak
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+XE_FLAGS=/TESTNAME:"leak" /TESTID:0xA7049955
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc
+
+TARGETLIBS = \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib \
+    $(BASEDIR)\private\test\lib\*\xnetrefi$(D).lib \
+    $(LIBRARY_PATH)\xnet$(D).lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib \
+    $(LIBRARY_PATH)\xgraphics$(D).lib \
+    $(BASEDIR)\private\test\lib\*\xmem.lib \
+    $(BASEDIR)\private\test\lib\*\xlog.lib \
+
+SOURCES= 			                                       \
+    ..\leak.cpp

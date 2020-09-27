@@ -1,0 +1,54 @@
+// Copyright (c) 1997 - 1999 Microsoft Corporation
+
+// eventsnk.idl : IDL source for IReplicationEventSink
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (eventsnk.tlb) and marshalling code.
+
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+	[
+		object,
+		uuid(8072C46F-C89A-11D0-BAF5-00C04FD7082F),
+		dual,
+		helpstring("IReplicationEventSink Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationEventSink : IDispatch
+	{
+		[helpstring("initializes the event sink")] 
+		HRESULT Initialize([in, string] BSTR szName);
+
+		[helpstring("shuts down the event sink")] 
+		HRESULT Shutdown();
+
+		[helpstring("called on each event")]
+		HRESULT OnEvent([in] VARIANT * pvEvent);			// ISiteServerEvent
+
+		[helpstring("requests that the event store be cleared")]
+		HRESULT Clear();
+	};
+
+[
+	uuid(F03E09A9-CCAC-11D0-BAF6-00C04FD7082F),
+	version(3.0),
+	helpstring("Microsoft SiteServer 3.0 Server Event Sink Library")
+]
+library SiteServerEventSinkLib
+{
+	importlib("stdole2.tlb");
+
+	[
+		uuid(F03E09B6-CCAC-11D0-BAF6-00C04FD7082F),
+		helpstring("SiteServerEventSink Class")
+	]
+	coclass SiteServerEventSink
+	{
+		[default] interface IReplicationEventSink;
+	};
+};
+

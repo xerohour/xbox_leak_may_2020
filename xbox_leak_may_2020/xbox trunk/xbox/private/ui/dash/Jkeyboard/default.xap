@@ -1,0 +1,3910 @@
+//
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//
+
+DEF theJKeySelectSound AudioClip { url "Audio/MainAudio/Global Keyboard Stroke 1.wav" volume 0.88 }
+DEF theJKeyPressSound AudioClip { url "Audio/MainAudio/Global Keyboard Stroke 2.wav" volume 0.88 }
+
+DEF theJapaneseKeyboard Transform
+{
+	scale 100 100 100
+    children
+    [
+		DEF theJKeyboard Keyboard
+		{
+			function OnDone()
+			{
+				KeyboardDone();
+			}
+
+			function OnError()
+			{
+				PlaySoundError();
+			}
+
+			control DEF theJKeyboardJoystick Joystick
+			{
+				function OnADown()
+				{
+					theJKeyboard.activate();
+					theJKeyPressSound.Play();
+				}
+
+				function OnMoveUp()
+				{
+					theJKeyboard.selectUp();
+					theJKeySelectSound.Play();
+				}
+
+				function OnMoveDown()
+				{
+					theJKeyboard.selectDown();
+					theJKeySelectSound.Play();
+				}
+
+				function OnMoveLeft()
+				{
+					theJKeyboard.selectLeft();
+					theJKeySelectSound.Play();
+				}
+
+				function OnMoveRight()
+				{
+					theJKeyboard.selectRight();
+					theJKeySelectSound.Play();
+				}
+
+				function OnWhiteDown()
+				{
+					theJKeyboard.Backspace();
+					theJKeyPressSound.Play();
+				}
+
+				function OnBlackDown()
+				{
+					theJKeyboard.Insert(" ");
+					theJKeyPressSound.Play();
+				}
+
+				function OnBDown()
+				{
+					KeyboardCancel();
+				}
+
+				function OnXDown()
+				{
+					theJKeyboard.CycleMode();
+				}
+
+				function OnLeftDown()
+				{
+					theJKeyboard.CursorLeft();
+				}
+
+				function OnRightDown()
+				{
+					theJKeyboard.CursorRight();
+				}
+
+                function OnLeftThumbDown()
+                {
+                    theJKeyboard.Shift();
+                }
+			}
+			frame Group
+			{
+				children
+				[
+					DEF Line01 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "PanelBacking_02"
+									}
+									texture ImageTexture
+									{
+										url "keyboard_alpha.tga"
+									}
+								}
+								geometry DEF Line01-FACES Mesh { url "Line01-FACES.xm" }
+							}
+						]
+						rotation -1.000000 0.000000 0.000000 -1.571000
+						translation 0.067030 0.142200 0.070980
+					}
+	/*				DEF Sound_2_tube_04 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "TubesFade"
+									}
+								}
+								geometry DEF Sound_2_tube_04-FACES Mesh { url "Sound_2_tube_04-FACES.xm" }
+							}
+						]
+						rotation -0.257000 0.294100 0.920600 -2.877000
+						scale 0.059830 0.059830 0.059830
+						scaleOrientation -0.841700 -0.061180 0.536500 -0.558000
+						translation -0.937900 0.438300 0.191500
+					}*/
+					DEF Sound_2_panel_1 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "FlatSurfaces"
+									}
+								}
+								geometry DEF Sound_2_panel_1-FACES Mesh { url "Sound_2_panel_1-FACES.xm" }
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.012610 0.012610 0.012610
+						scaleOrientation 0.377400 0.650600 0.659000 -0.114900
+						translation 0.178600 0.553500 0.085630
+					}
+					DEF Sound_2_panel_4 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "FlatSurfaces"
+									}
+								}
+								geometry DEF Sound_2_panel_4-FACES Mesh { url "Sound_2_panel_4-FACES.xm" }
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.012610 0.012610 0.012610
+						scaleOrientation 0.377400 0.650600 0.659000 -0.114900
+						translation 1.014000 0.050680 0.080800
+					}
+					DEF Sound_2_tube_07 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "TubesFade"
+									}
+								}
+								geometry DEF Sound_2_tube_07-FACES Mesh { url "Sound_2_tube_07-FACES.xm" }
+							}
+						]
+						rotation -0.716000 -0.180600 0.674300 -1.507000
+						scale 0.059830 0.059830 0.059830
+						scaleOrientation 0.613000 -0.451000 0.648700 -0.436900
+						translation 0.961900 0.620900 0.013170
+					}
+					DEF Sound_2_tube_08 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "TubesFade"
+									}
+								}
+								geometry DEF Sound_2_tube_08-FACES Mesh { url "Sound_2_tube_08-FACES.xm" }
+							}
+						]
+						rotation -0.716000 -0.180600 0.674300 -1.507000
+						scale 0.059830 0.059830 0.059830
+						scaleOrientation 0.613000 -0.451000 0.648700 -0.436900
+						translation 0.982700 0.599800 -0.011020
+					}
+					DEF Sound_2_panel_5 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "FlatSurfaces"
+									}
+								}
+								geometry DEF Sound_2_panel_5-FACES Mesh { url "Sound_2_panel_5-FACES.xm" }
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.012610 0.012610 0.012610
+						scaleOrientation 0.377400 0.650600 0.659000 -0.114900
+						translation 0.740500 0.099580 0.082140
+					}
+					DEF Sound_2_panel_3 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "FlatSurfaces"
+									}
+								}
+								geometry DEF Sound_2_panel_3-FACES Mesh { url "Sound_2_panel_3-FACES.xm" }
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.012610 0.012610 0.012610
+						scaleOrientation 0.377400 0.650600 0.659000 -0.114900
+						translation -0.812500 -0.186200 0.089230
+					}
+					DEF Sound_2_panel_2 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "FlatSurfaces"
+									}
+								}
+								geometry DEF Sound_2_panel_2-FACES Mesh { url "Sound_2_panel_2-FACES.xm" }
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.012610 0.012610 0.012610
+						scaleOrientation 0.377400 0.650600 0.659000 -0.114900
+						translation -0.872000 0.371600 0.089970
+					}
+					DEF Sound_2_Text_title Transform
+					{
+						children
+						[
+							Transform
+							{
+								rotation 1 0 0 -1.571
+			//					translation -0.75 0 0
+								scale 0.1 0.1 0.1
+
+								children
+								[
+									Shape
+									{
+										appearance Appearance
+										{
+											material MaxMaterial
+											{
+												name "NavType"
+											}
+										}
+			//							geometry DEF Sound_2_Text_title-FACES Mesh { url "Sound_2_Text_title-FACES.xm" }
+										geometry DEF theKeyboardTitle Text { font "Heading" translate false text "NAME SOUNDTRACK" justify middle }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.001872 0.002462 -1.571000
+						scale 0.786900 0.786900 0.786900
+						scaleOrientation 0.414500 -0.531200 -0.738900 -0.225700
+						//translation 0.174500 0.518400 0.274200
+						translation 0.020500 0.426400 0.274200
+					}
+				]
+			}
+
+			text Transform
+			{
+				children
+				[
+					Transform
+					{
+						rotation 1 0 0 -1.571
+
+						children
+						[
+							Shape
+							{
+								appearance MaxMaterial { name "NavType" }
+								geometry Text { font "Body" translate false width -16.3 }
+							}
+						]
+					}
+				]
+				rotation -1.000000 -0.001872 0.002462 -1.571000
+				scale 0.0786900 0.0786900 0.0786900
+				scaleOrientation 0.414500 -0.531200 -0.738900 -0.225700
+				//translation -0.45 0.4 0.274200
+				translation -0.52 0.32 0.274200
+			}
+
+
+			keys
+			[
+					// Row 1
+					DEF Sound_2_num_key_1 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_1-FACES Mesh { url "Sound_2_num_key_1-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844500 0.221900 0.088290
+					}
+					DEF Sound_2_num_key_2 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_2-FACES Mesh { url "Sound_2_num_key_2-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.698000 0.222200 0.086910
+					}
+					DEF Sound_2_num_key_3 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_3-FACES Mesh { url "Sound_2_num_key_3-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.552600 0.222500 0.086700
+					}
+					DEF Sound_2_num_key_4 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_4-FACES Mesh { url "Sound_2_num_key_4-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.408700 0.223000 0.085850
+					}
+
+					DEF Sound_2_num_key_5 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_5-FACES Mesh { url "Sound_2_num_key_5-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.261600 0.223300 0.085240
+					}
+
+					DEF Sound_2_num_key_14 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_14-FACES Mesh { url "Sound_2_num_key_14-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.110800 0.221900 0.088260
+						translation -0.080800 0.221900 0.088260
+					}
+					DEF Sound_2_num_key_12 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_12-FACES Mesh { url "Sound_2_num_key_12-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040280 0.222200 0.087270
+						translation 0.070280 0.222200 0.087270
+					}
+					DEF Sound_2_num_key_13 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_13-FACES Mesh { url "Sound_2_num_key_13-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.188500 0.222500 0.086290
+						translation 0.218500 0.222500 0.086290
+					}
+					DEF Sound_2_num_key_10 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_10-FACES Mesh { url "Sound_2_num_key_10-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.332500 0.223000 0.086960
+						translation 0.362500 0.223000 0.086960
+					}
+					DEF Sound_2_num_key_11 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_num_key_11-FACES Mesh { url "Sound_2_num_key_11-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.479900 0.223300 0.085620
+						translation 0.509900 0.223300 0.085620
+					}
+
+					DEF Sound_2_button_09 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_09-FACES Mesh { url "Sound_2_button_09-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						//scale 0.012010 0.012010 0.012010
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.776100 0.235100 0.084880
+						translation 0.793100 0.235100 0.084880
+					}
+
+					// Row 2
+
+					DEF Sound_2_key_1 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_1-FACES Mesh { url "Sound_2_key_1-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844700 0.104700 0.088420
+					}
+					DEF Sound_2_key_2 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_2-FACES Mesh { url "Sound_2_key_2-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.698000 0.104900 0.087840
+					}
+					DEF Sound_2_key_3 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_3-FACES Mesh { url "Sound_2_key_3-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.553100 0.106400 0.086930
+					}
+					DEF Sound_2_key_4 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_4-FACES Mesh { url "Sound_2_key_4-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409400 0.106700 0.086330
+					}
+					DEF Sound_2_key_5 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_5-FACES Mesh { url "Sound_2_key_5-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261900 0.107000 0.085710
+					}
+					DEF Sound_2_key_37 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_37-FACES Mesh { url "Sound_2_key_37-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.111400 0.104700 0.088420
+						translation -0.081400 0.104700 0.088420
+					}
+					DEF Sound_2_key_36 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_36-FACES Mesh { url "Sound_2_key_36-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040400 0.104900 0.087840
+						translation 0.070400 0.104900 0.087840
+					}
+					DEF Sound_2_key_41 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_41-FACES Mesh { url "Sound_2_key_41-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188200 0.106400 0.086930
+						translation 0.218200 0.106400 0.086930
+					}
+					DEF Sound_2_key_39 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_39-FACES Mesh { url "Sound_2_key_39-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.331900 0.106700 0.086330
+						translation 0.361900 0.106700 0.086330
+					}
+					DEF Sound_2_key_45 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_45-FACES Mesh { url "Sound_2_key_45-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.479500 0.107000 0.085710
+						translation 0.509500 0.107000 0.085710
+					}
+					DEF Sound_2_button_10 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_10-FACES Mesh { url "Sound_2_button_10-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.775900 0.118900 0.085630
+						translation 0.793100 0.118900 0.085630
+					}
+
+				
+					// Row 3
+
+					DEF Sound_2_key_11 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_11-FACES Mesh { url "Sound_2_key_11-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844500 -0.006325 0.088210
+					}
+					DEF Sound_2_key_12 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_12-FACES Mesh { url "Sound_2_key_12-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.697700 -0.006023 0.087600
+					}
+					DEF Sound_2_key_13 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_13-FACES Mesh { url "Sound_2_key_13-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.552900 -0.004555 0.086720
+					}
+					DEF Sound_2_key_14 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_14-FACES Mesh { url "Sound_2_key_14-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409200 -0.004261 0.086110
+					}
+					DEF Sound_2_key_15 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_15-FACES Mesh { url "Sound_2_key_15-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261600 -0.003952 0.085510
+					}
+					DEF Sound_2_key_43 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_43-FACES Mesh { url "Sound_2_key_43-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.111100 -0.006325 0.088210
+						translation -0.081100 -0.006325 0.088210
+					}
+					DEF Sound_2_key_35 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_35-FACES Mesh { url "Sound_2_key_35-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040640 -0.006027 0.087600
+						translation 0.070640 -0.006027 0.087600
+					}
+					DEF Sound_2_key_34 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_34-FACES Mesh { url "Sound_2_key_34-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188500 -0.004555 0.086720
+						translation 0.218500 -0.004555 0.086720
+					}
+					DEF Sound_2_key_33 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_33-FACES Mesh { url "Sound_2_key_33-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.332100 -0.004261 0.086110
+						translation 0.362100 -0.004261 0.086110
+					}
+					DEF Sound_2_key_44 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_44-FACES Mesh { url "Sound_2_key_44-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.479700 -0.003952 0.085510
+						translation 0.509700 -0.003952 0.085510
+					}
+					DEF Sound_2_button_11 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_11-FACES Mesh { url "Sound_2_button_11-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.775900 0.007858 0.085630
+						translation 0.793100 0.007858 0.085630
+					}
+
+					// Row 4
+
+					DEF Sound_2_key_21 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_21-FACES Mesh { url "Sound_2_key_21-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844200 -0.122300 0.087970
+					}
+					DEF Sound_2_key_22 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_22-FACES Mesh { url "Sound_2_key_22-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.697500 -0.122000 0.087370
+					}
+					DEF Sound_2_key_23 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_23-FACES Mesh { url "Sound_2_key_23-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.552600 -0.120500 0.086500
+					}
+					DEF Sound_2_key_24 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_24-FACES Mesh { url "Sound_2_key_24-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409000 -0.120200 0.085880
+					}
+					DEF Sound_2_key_25 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_25-FACES Mesh { url "Sound_2_key_25-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261400 -0.119900 0.085280
+					}
+					DEF Sound_2_key_38 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_38-FACES Mesh { url "Sound_2_key_38-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.110900 -0.122300 0.087970
+						translation -0.080900 -0.122300 0.087970
+					}
+					DEF Sound_2_key_42 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_42-FACES Mesh { url "Sound_2_key_42-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040870 -0.122000 0.087370
+						translation 0.070870 -0.122000 0.087370
+					}
+					DEF Sound_2_key_32 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_32-FACES Mesh { url "Sound_2_key_32-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188700 -0.120500 0.086500
+						translation 0.218700 -0.120500 0.086500
+					}
+					DEF Sound_2_key_40 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_40-FACES Mesh { url "Sound_2_key_40-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.332400 -0.120200 0.085880
+						translation 0.362400 -0.120200 0.085880
+					}
+					DEF Sound_2_key_46 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_46-FACES Mesh { url "Sound_2_key_46-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.480000 -0.119900 0.085280
+						translation 0.510000 -0.119900 0.085280
+					}
+					DEF Sound_2_button_12 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_12-FACES Mesh { url "Sound_2_button_12-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.775900 -0.107600 0.085630
+						translation 0.793100 -0.107600 0.085630
+						
+					}
+
+					// Row 5
+
+					DEF Sound_2_key_31 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_31-FACES Mesh { url "Sound_2_key_31-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844200 -0.228600 0.087970
+					}
+					DEF Sound_2_key_30 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_30-FACES Mesh { url "Sound_2_key_30-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.697500 -0.228300 0.087370
+					}
+					DEF Sound_2_key_28 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_28-FACES Mesh { url "Sound_2_key_28-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.552600 -0.226800 0.086500
+					}
+					DEF Sound_2_key_27 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_27-FACES Mesh { url "Sound_2_key_27-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409000 -0.226500 0.085880
+					}
+					DEF Sound_2_key_29 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_29-FACES Mesh { url "Sound_2_key_29-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261400 -0.226200 0.085280
+					}
+					DEF Sound_2_key_51 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_51-FACES Mesh { url "Sound_2_key_51-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.110900 -0.228600 0.087970
+						translation -0.080900 -0.228600 0.087970
+					}
+					DEF Sound_2_key_50 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_50-FACES Mesh { url "Sound_2_key_50-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040870 -0.228300 0.087370
+						translation 0.070870 -0.228300 0.087370
+					}
+					DEF Sound_2_key_48 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_48-FACES Mesh { url "Sound_2_key_48-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188700 -0.226800 0.086500
+						translation 0.218700 -0.226800 0.086500
+					}
+					DEF Sound_2_key_47 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_47-FACES Mesh { url "Sound_2_key_47-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.332400 -0.226500 0.085880
+						translation 0.362400 -0.226500 0.085880
+					}
+					DEF Sound_2_key_49 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_49-FACES Mesh { url "Sound_2_key_49-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.480000 -0.226200 0.085280
+						translation 0.510000 -0.226200 0.085280
+					}
+					DEF Sound_2_button_13 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_13-FACES Mesh { url "Sound_2_button_13-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.775900 -0.213900 0.085630
+						translation 0.793100 -0.213900 0.085630
+						
+					}
+
+					// Row 6
+
+					DEF Sound_2_key_63 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_63-FACES Mesh { url "Sound_2_key_63-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844700 -0.339500 0.088420
+					}
+					DEF Sound_2_key_65 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_65-FACES Mesh { url "Sound_2_key_65-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.698000 -0.339200 0.087840
+					}
+					DEF Sound_2_key_67 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_67-FACES Mesh { url "Sound_2_key_67-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.553100 -0.337800 0.086930
+					}
+					DEF Sound_2_key_70 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_70-FACES Mesh { url "Sound_2_key_70-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409400 -0.337500 0.086330
+					}
+					DEF Sound_2_key_66 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_66-FACES Mesh { url "Sound_2_key_66-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261900 -0.337200 0.085710
+					}
+					DEF Sound_2_key_90 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_90-FACES Mesh { url "Sound_2_key_90-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.111400 -0.336900 0.088420
+						translation -0.081400 -0.336900 0.088420
+					}
+					DEF Sound_2_key_87 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_87-FACES Mesh { url "Sound_2_key_87-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040400 -0.336600 0.087840
+						translation 0.070400 -0.336600 0.087840
+					}
+					DEF Sound_2_key_83 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_83-FACES Mesh { url "Sound_2_key_83-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188200 -0.335100 0.086930
+						translation 0.218200 -0.335100 0.086930
+					}
+					DEF Sound_2_key_84 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_84-FACES Mesh { url "Sound_2_key_84-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.331900 -0.334800 0.086330
+						translation 0.361900 -0.334800 0.086330
+					}
+					DEF Sound_2_key_85 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_85-FACES Mesh { url "Sound_2_key_85-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.479500 -0.334500 0.085710
+						translation 0.509500 -0.334500 0.085710
+					}
+					DEF Sound_2_button_14 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_14-FACES Mesh { url "Sound_2_button_14-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.775900 -0.325400 0.085630
+						translation 0.793100 -0.325400 0.085630
+
+					}
+
+					// Row 7
+
+					DEF Sound_2_key_69 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_69-FACES Mesh { url "Sound_2_key_69-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844500 -0.450500 0.088210
+					}
+					DEF Sound_2_key_62 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_62-FACES Mesh { url "Sound_2_key_62-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.697700 -0.450200 0.087600
+					}
+					DEF Sound_2_key_59 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_59-FACES Mesh { url "Sound_2_key_59-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.552900 -0.448700 0.086720
+					}
+					DEF Sound_2_key_55 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_55-FACES Mesh { url "Sound_2_key_55-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409200 -0.448500 0.086110
+					}
+					DEF Sound_2_key_71 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_71-FACES Mesh { url "Sound_2_key_71-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261600 -0.448100 0.085510
+					}
+					DEF Sound_2_key_91 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_91-FACES Mesh { url "Sound_2_key_91-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.111100 -0.447900 0.088210
+						translation -0.081100 -0.447900 0.088210
+					}
+					DEF Sound_2_key_78 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_78-FACES Mesh { url "Sound_2_key_78-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040640 -0.447600 0.087600
+						translation 0.070640 -0.447600 0.087600
+					}
+					DEF Sound_2_key_77 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_77-FACES Mesh { url "Sound_2_key_77-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188500 -0.446100 0.086720
+						translation 0.218500 -0.446100 0.086720
+					}
+					DEF Sound_2_key_76 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_76-FACES Mesh { url "Sound_2_key_76-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.332100 -0.445800 0.086110
+						translation 0.362100 -0.445800 0.086110
+					}
+					DEF Sound_2_key_92 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_92-FACES Mesh { url "Sound_2_key_92-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.479700 -0.445500 0.085510
+						translation 0.509700 -0.445500 0.085510
+					}
+					DEF Sound_2_button_15 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_15-FACES Mesh { url "Sound_2_button_15-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.776000 -0.436300 0.085630
+						translation 0.793100 -0.436300 0.085630
+						
+					}
+
+					// Row 8
+
+					DEF Sound_2_key_68 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_68-FACES Mesh { url "Sound_2_key_68-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844200 -0.566500 0.087970
+					}
+					DEF Sound_2_key_61 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_61-FACES Mesh { url "Sound_2_key_61-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.697500 -0.566200 0.087370
+					}
+					DEF Sound_2_key_60 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_60-FACES Mesh { url "Sound_2_key_60-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.552600 -0.564700 0.086500
+					}
+					DEF Sound_2_key_57 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_57-FACES Mesh { url "Sound_2_key_57-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409000 -0.564400 0.085880
+					}
+					DEF Sound_2_key_64 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_64-FACES Mesh { url "Sound_2_key_64-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261400 -0.564100 0.085280
+					}
+					DEF Sound_2_key_88 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_88-FACES Mesh { url "Sound_2_key_88-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.110900 -0.563800 0.087970
+						translation -0.080900 -0.563800 0.087970
+					}
+					DEF Sound_2_key_74 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_74-FACES Mesh { url "Sound_2_key_74-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040870 -0.563500 0.087370
+						translation 0.070870 -0.563500 0.087370
+					}
+					DEF Sound_2_key_75 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_75-FACES Mesh { url "Sound_2_key_75-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188700 -0.562100 0.086500
+						translation 0.218700 -0.562100 0.086500
+					}
+					DEF Sound_2_key_81 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_81-FACES Mesh { url "Sound_2_key_81-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.332400 -0.561800 0.085880
+						translation 0.362400 -0.561800 0.085880
+					}
+					DEF Sound_2_key_86 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_86-FACES Mesh { url "Sound_2_key_86-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.480000 -0.561500 0.085280
+						translation 0.510000 -0.561500 0.085280
+					}
+					DEF Sound_2_button_16 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_16-FACES Mesh { url "Sound_2_button_16-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.776000 -0.552200 0.085630
+						translation 0.793100 -0.552200 0.085630
+					}
+
+					// Row 9
+
+					DEF Sound_2_key_73 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_73-FACES Mesh { url "Sound_2_key_73-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.844200 -0.672800 0.087970
+					}
+					DEF Sound_2_key_54 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_54-FACES Mesh { url "Sound_2_key_54-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						translation -0.697500 -0.672500 0.087370
+					}
+					DEF Sound_2_key_56 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_56-FACES Mesh { url "Sound_2_key_56-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.552600 -0.671000 0.086500
+					}
+					DEF Sound_2_key_58 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_58-FACES Mesh { url "Sound_2_key_58-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.409000 -0.670700 0.085880
+					}
+					DEF Sound_2_key_72 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_72-FACES Mesh { url "Sound_2_key_72-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						translation -0.261400 -0.670400 0.085280
+					}
+					DEF Sound_2_key_93 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_93-FACES Mesh { url "Sound_2_key_93-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation -0.110900 -0.670100 0.087970
+						translation -0.080900 -0.670100 0.087970
+					}
+					DEF Sound_2_key_79 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_79-FACES Mesh { url "Sound_2_key_79-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.400200 0.385300 -0.831500 -0.005398
+						//translation 0.040870 -0.669800 0.087370
+						translation 0.070870 -0.669800 0.087370
+					}
+					DEF Sound_2_key_80 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_80-FACES Mesh { url "Sound_2_key_80-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.188700 -0.668400 0.086500
+						translation 0.218700 -0.668400 0.086500
+					}
+					DEF Sound_2_key_82 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_82-FACES Mesh { url "Sound_2_key_82-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.332400 -0.668100 0.085880
+						translation 0.362400 -0.668100 0.085880
+					}
+					DEF Sound_2_key_89 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "Key"
+									}
+								}
+								geometry DEF Sound_2_key_89-FACES Mesh { url "Sound_2_key_89-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 0.2 0 1.5
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003277 0.001206 -1.573000
+						scale 0.013630 0.012610 0.013490
+						scaleOrientation 0.399900 0.383400 -0.832500 -0.005403
+						//translation 0.480000 -0.667800 0.085280
+						translation 0.510000 -0.667800 0.085280
+					}
+					DEF Sound_2_button_17 Transform
+					{
+						children
+						[
+							Shape
+							{
+								appearance Appearance
+								{
+									material MaxMaterial
+									{
+										name "BrightKey"
+									}
+								}
+								geometry DEF Sound_2_button_17-FACES Mesh { url "Sound_2_button_17-FACES.xm" }
+							}
+							Transform
+							{
+								rotation 1 0 0 -1.571
+								translation 2.7 0 2.6
+								scale 5.25 5.25 5.25
+								children
+								[
+									Shape
+									{
+										appearance MaxMaterial { name "KeyText" }
+										geometry Text { font "Body" justify "middle" }
+									}
+								]
+							}
+						]
+						rotation -1.000000 -0.003278 0.001206 -1.573000
+						scale 0.011210 0.012010 0.012010
+						scaleOrientation 0.146300 -0.177600 0.973200 -0.361300
+						//translation 0.776000 -0.658900 0.085630
+						translation 0.793100 -0.658900 0.085630
+					}
+				]
+			}
+		]
+		translation -0.580002 20.459999 -1.800003
+    }

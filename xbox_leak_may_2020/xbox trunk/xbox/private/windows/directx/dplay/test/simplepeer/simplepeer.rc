@@ -1,0 +1,79 @@
+#include <windows.h>
+#include "resource.h"
+
+//#include "verinfo.h"
+//#define VERSIONNAME               "SimplePeer.exe\0"
+//#define VERSIONDESCRIPTION        "DirectPlay Sample Application: SimplePeer\0"
+//#define VERSIONTYPE               VFT_APP
+//#define VERSIONSUBTYPE            VFT2_UNKNOWN
+//#include "verinfo.ver"
+
+//LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+//#pragma code_page(1252)
+
+
+IDD_MUTLIPLAYER_CONNECT DIALOG DISCARDABLE  0, 0, 282, 151
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Multiplayer Connect"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Player Name:",IDC_STATIC,7,10,43,8
+    EDITTEXT        IDC_PLAYER_NAME_EDIT,7,22,268,14,ES_AUTOHSCROLL
+    LTEXT           "Connection Type:",IDC_STATIC,7,41,57,8
+    LISTBOX         IDC_CONNECTION_LIST,7,53,268,72,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,171,130,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,225,130,50,14
+END
+
+IDD_MUTLIPLAYER_GAMES DIALOG DISCARDABLE  0, 0, 282, 140
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Multiplayer Games"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Select Game To Join:",-1,7,15,69,8
+    CONTROL         "Start Search",IDC_SEARCH_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,220,7,55,14
+    LISTBOX         IDC_GAMES_LIST,7,24,268,91,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Join",IDC_JOIN,7,119,50,14
+    PUSHBUTTON      "Create",IDC_CREATE,61,119,50,14
+    PUSHBUTTON      "Cancel",IDC_BACK,225,119,50,14
+END
+
+IDD_MAIN_GAME DIALOG DISCARDABLE  0, 0, 240, 183
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "The Greeting Game"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "Wave to other players!",IDC_WAVE,20,162,80,14
+    LTEXT           "In this extremely simple non-violent game the only action you can",
+                    IDC_STATIC,11,16,214,8
+    LTEXT           "do is to wave to the other players, or they in turn can wave to you!",
+                    IDC_STATIC,11,26,214,8
+    LTEXT           "Number of players in game:",IDC_STATIC,11,59,86,8
+    LTEXT           "0",IDC_NUM_PLAYERS,99,59,127,8
+    GROUPBOX        "Rules",IDC_STATIC,7,7,226,30
+    GROUPBOX        "Game Status",IDC_STATIC,7,39,226,118
+    LTEXT           "Local Player Name:",IDC_STATIC,11,49,62,8
+    LTEXT           "Static",IDC_PLAYER_NAME,76,49,150,8
+    PUSHBUTTON      "Exit",IDCANCEL,155,162,50,14
+    EDITTEXT        IDC_LOG_EDIT,13,71,213,80,ES_MULTILINE | ES_READONLY
+END
+
+IDD_MULTIPLAYER_CREATE DIALOG DISCARDABLE  0, 0, 186, 77
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create Game"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    EDITTEXT        IDC_EDIT_SESSION_NAME,7,19,172,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,7,56,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,56,50,14
+    LTEXT           "Game Name:",IDC_STATIC,7,7,42,8
+    CONTROL         "Migrate Host",IDC_MIGRATE_HOST,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,66,40,56,10
+END
+
+
+IDI_MAIN                ICON    DISCARDABLE     "directx.ico"

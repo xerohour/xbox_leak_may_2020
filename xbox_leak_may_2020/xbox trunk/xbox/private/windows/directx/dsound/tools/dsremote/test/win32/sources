@@ -1,0 +1,20 @@
+!include ..\..\..\..\console.inc
+
+TARGETTYPE = PROGRAM
+UMTYPE = console
+TARGETPATH = obj
+TARGETNAME = DSRTEST
+
+C_DEFINES = $(C_DEFINES) -DDPF_LIBRARY=\"TESTDS\"
+
+INCLUDES = $(INCLUDES);\
+    $(DSBASEDIR)\tools\dsremote
+
+TARGETLIBS = $(TARGETLIBS) \
+    $(WSDK_LIB_PATH)\kernel32.lib \
+    $(WSDK_LIB_PATH)\wsock32.lib \
+    $(WSDK_LIB_PATH)\*\dsrmt32$(D).lib \
+    $(XDK_LIB_PATH)\xboxdbg.lib
+
+SOURCES = \
+    ..\dsrtest.cpp

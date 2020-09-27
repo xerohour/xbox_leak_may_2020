@@ -1,0 +1,69 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+TARGETNAME=DMHARN
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+LINK_DSSTDFX=1
+USE_STL=1
+USE_LIBCMT=1
+#USE_MAPSYM=1
+
+UMENTRY=mainCRTStartup
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=..\main.cpp \
+        ..\modules.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0xA7049955 /INITFLAGS:3 /TESTNAME:"DSound/DMusic Test Harness"
+
+TARGETLIBS=$(TESTLIBS)\harnesslib.lib \
+           $(TESTLIBS)\xtestlib.lib \
+           $(TESTLIBS)\xmem.lib \
+           $(TESTLIBS)\xlog.lib \
+           $(TESTLIBS)\xnetrefi$(D).lib \
+           $(SDK_LIB_PATH)\xnet$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+           $(SDK_LIB_PATH)\dmusic$(D).lib \
+           $(TESTLIBS)\dxconio.lib \
+           $(TESTLIBS)\medialoader.lib \
+           $(TESTMODULES) \
+           $(SDK_LIB_PATH)\xgraphics$(D).lib \
+           $(SDK_LIB_PATH)\d3d8$(D).lib \
+           $(SDK_LIB_PATH)\d3dx8$(D).lib \
+           $(BASEDIR)\private\lib\*\xapilibp$(D).lib
+
+LINKLIBS=$(LINKLIBS) \
+	$(LIBRARY_PATH)\xnet$(D).lib \
+	$(LIBRARY_PATH)\xbdm.lib
+
+
+TESTMODULES= \
+            $(TESTLIBS)\DMTEST1.lib \
+            $(TESTLIBS)\dmth8.lib
+

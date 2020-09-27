@@ -1,0 +1,188 @@
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+SYNCHRONIZE_BLOCK=1
+
+!include $(BASEDIR)\private\vc6addon\ide\sources.inc
+
+MAJORCOMP=pkg
+MINORCOMP=dbg
+
+TARGETNAME=devdbg$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=pkg
+LINKER_FLAGS=$(LINKER_FLAGS) /map
+
+!if $(FREEBUILD)
+LINKER_FLAGS=$(LINKER_FLAGS) /delayload:mspdb60.dll 
+!endif
+
+# this warning is to keep mktyplib from barking about our use of enums as parameters
+MKTYPLIB_FLAGS=$(MKTYPLIB_FLAGS) /w0
+
+CMDFILE=dbg
+
+!ifndef RCFILE
+RCFILE=dbg
+!endif
+
+INC_DIR=inc
+ICO_DIR=res
+
+CONDITIONAL_INCLUDES=dbg.rcs
+
+INCLUDES=\
+	inc;\
+	cvinc;\
+	res;\
+	$(O);\
+	$(IDE_ROOT)\pkgs\include;\
+	$(IDE_INCLUDES);\
+	$(LANGAPI_ROOT)\undname
+
+DBG_AUTO=0
+!ifdef DBG_AUTO
+C_DEFINES=$(C_DEFINES) -DCODEVIEW -DDEBUGGER_AUTOMATION -DAUTO_COMPLETE
+!else
+C_DEFINES=$(C_DEFINES) -DCODEVIEW -DAUTO_COMPLETE
+!endif
+
+USE_MFC=1
+USE_ATL=1
+
+UMTYPE=windows
+
+COFFBASE = devdbg
+DLLDEF=$O\dbg.def
+
+BROWSER_INFO=1
+
+SOURCES=    \
+		dbgenc.cpp\
+        enclog.cpp\
+        encerr.cpp\
+        miscdlgs.cpp\
+        autobp.cpp \
+        autobps.cpp \
+        autodbg.cpp \
+        autodual.cpp \
+        autopkg.cpp \
+		dbgguid.cpp \
+        autownd.cpp\
+		tokens.cpp\
+        dbg.cpp\
+        ddrop.cpp \
+        idbg.cpp\
+        dbgcmd.cpp\
+        makeeng.cpp\
+        makeeng4.cpp\
+        dbgdock.cpp\
+        dbginit.cpp\
+        dbgnot.cpp\
+        dbgnew.cpp\
+        gotoitem.cpp\
+        varsview.cpp\
+        qwatch.cpp\
+        watchrow.cpp\
+        rwv.cpp\
+        fonts.cpp\
+        mw.cpp\
+        mwcore.cpp\
+        mwdata.cpp\
+        mwbar.cpp\
+        mwcache.cpp\
+        mwundo.cpp\
+        mwdlg.cpp\
+        mwutil.cpp\
+        meglobal.cpp\
+        mepriv.cpp\
+        mepublic.cpp\
+        cp.cpp\
+        wmalloc.cpp\
+        qcqp.cpp\
+        qcini.cpp\
+        linklist.cpp\
+        lnklst.cpp\
+        ldouble.cpp\
+        tracefn.cpp\
+        rundebug.cpp\
+        thread.cpp\
+        stsfile.cpp\
+        retvals.cpp\
+        treegrid.cpp\
+        excep.cpp\
+        eetm.cpp\
+        errors.cpp\
+        debugopt.cpp\
+        dbgutil.cpp\
+        dbgmisc.cpp\
+        dbgosd.cpp\
+        dbggrid.cpp\
+        data.cpp\
+        datatip.cpp\
+        cl.cpp\
+        colors.cpp\
+        cvmisc.cpp\
+        cvextras.cpp\
+        cvexpr.cpp\
+        damfile.cpp\
+        damutil.cpp\
+        dammap.cpp\
+        damdlg.cpp\
+        damapi.cpp\
+        clw.cpp\
+        cdebug.cpp\
+        brkptsy.cpp\
+        brkpt1.cpp\
+        brkpt0.cpp\
+        breakpts.cpp\
+        bpsmart.cpp\
+        bpdlgex.cpp\
+        bm.cpp\
+        askpath.cpp\
+        ambigsrc.cpp\
+        ambig.cpp\
+		plist.cpp\
+		javadbg.cpp\
+		hash.cpp\
+        $(RCFILE).rc \
+
+NTTARGETFILES=
+
+TARGETLIBS=   \
+    $(IDE_ROOT)\lib\*\devshl$(D).lib    \
+    $(SDK_LIB_PATH)\ole32.lib           \
+    $(SDK_LIB_PATH)\oleaut32.lib        \
+    $(SDK_LIB_PATH)\uuid.lib            \
+    $(SDK_LIB_PATH)\user32.lib          \
+    $(SDK_LIB_PATH)\gdi32.lib           \
+    $(SDK_LIB_PATH)\kernel32.lib        \
+    $(SDK_LIB_PATH)\advapi32.lib        \
+    $(SDK_LIB_PATH)\shell32.lib         \
+    $(SDK_LIB_PATH)\comdlg32.lib        \
+    $(SDK_LIB_PATH)\winspool.lib        \
+    $(MISC_LIB_PATH)\mspdb.lib	\
+    $(IDE_ROOT)\lib\*\odnt$(D).lib		\
+	$(IDE_ROOT)\lib\*\image$(D).lib
+	
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_SOURCEFILE=stdafx.cpp
+PRECOMPILED_CXX=1
+
+#DLLBASE=0x50000000

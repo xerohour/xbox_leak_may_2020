@@ -1,0 +1,27 @@
+MAJORCOMP=ntos
+MINORCOMP=msvc
+
+TARGETNAME=tlxbox
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=dll
+DLLENTRY=DllMain
+DLLDEF=tlxbox.def
+UMTYPE=windows
+
+!include ..\sources.inc
+#VCDBG=1
+
+SOURCES= \
+    ..\tlsetup.cpp \
+    ..\tlutil.cpp \
+    tlxbox.rc \
+    tlxbox.cpp
+
+USE_MSVCRT=1
+
+LINKLIBS= \
+    $(SDK_LIB_PATH)\xboxdbg.lib \
+    $(LIBRARY_PATH)\user32.lib \
+    $(LIBRARY_PATH)\kernel32.lib \
+    $(LIBRARY_PATH)\advapi32.lib

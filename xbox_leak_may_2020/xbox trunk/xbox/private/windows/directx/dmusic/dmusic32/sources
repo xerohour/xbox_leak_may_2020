@@ -1,0 +1,70 @@
+!IF 0
+
+Copyright (c) 1989-1999 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    Jim Geist (JimGe) 29-Aug-97
+
+NOTE:   Commented description of this file is in \nt\oak\bin\sources.tpl
+
+!ENDIF
+
+
+!include ..\win9x.inc
+
+MAJORCOMP=windows
+MINORCOMP=directx
+
+TARGETNAME=dmusic32
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=windows
+DLLDEF=dmusic32.def
+DLLENTRY=_DllMainCRTStartup
+#
+# Needed as this DLL is not in the NT build, and therefore coffbase.txt
+#
+DLLBASE=0x60300000
+ASM_DEFINES=$(ASM_DEFINES) -DIS_32
+
+USE_MAPSYM=1
+USE_CRTDLL=1
+
+C_DEFINES= $(C_DEFINES) -D_WIN32 -D_DMUSIC_USER_MODE_
+
+!if defined(DMUSIC_INTERNAL)
+C_DEFINES= $(C_DEFINES) -DDMUSIC_INTERNAL
+!endif
+
+
+TARGETLIBS=$(DXROOT)\public\sdk\lib\win9x\kernel32.lib		\
+	   $(BASEDIR)\public\sdk\lib\*\winmm.lib            \
+	   $(BASEDIR)\public\sdk\lib\*\advapi32.lib         \
+	   $(BASEDIR)\public\sdk\lib\*\user32.lib           \
+	   $(BASEDIR)\public\sdk\lib\*\uuid.lib        
+
+
+INCLUDES=$(DXROOT)\inc;\
+		 ..\includes
+
+SOURCES=debug.cpp       \
+devioctl.cpp            \
+dm32dll.cpp             \
+dmeport.cpp             \
+enumport.cpp            \
+dmthunk.thk             \
+opnew.cpp               \
+dmusic32.rc

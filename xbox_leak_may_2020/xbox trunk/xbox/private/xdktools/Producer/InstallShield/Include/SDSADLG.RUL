@@ -1,0 +1,102 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdsadlg.rul                                               */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdShowAnyDialog       */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdShowAnyDialog                                            */
+ /*                                                                        */
+ /*   Descrip:  This dialog will show any predefined dialog                */
+ /*                                                                        */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdShowAnyDialog(szTitle, szDialogId, nDialogId, nStyle)
+          STRING  szDlg, szTemp;
+          NUMBER  nId, nTemp;
+          HWND    hwndDlg;
+          BOOL    bDone;
+        begin
+
+           szDlg     = SD_DLG_SHOWANYDIALOG;
+           nSdDialog = SD_NDLG_SHOWANYDIALOG;
+
+           // record data produced by this dialog
+           if (MODE=SILENTMODE) then
+             SdMakeName( szAppKey, szDlg, szTitle, nSdShowAnyDialog );
+             SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+             return nId;
+           endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", szDialogId, nDialogId ) = DLG_ERR) then
+               return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdShowAnyDialog" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                       bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdShowAnyDialog );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+
+           return nId;
+
+        end;

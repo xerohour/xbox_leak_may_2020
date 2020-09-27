@@ -1,0 +1,33 @@
+!include ..\..\sources.nv
+
+TARGETNAME=modesetcode
+TARGETTYPE=LIBRARY
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ENDIF
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+
+C_DEFINES = $(C_DEFINES)
+ASM_DEFINES = -DCODE_SPACE=1
+INCLUDES=$(BASEDIR)\src\video\inc;$(NTMAKEENV);$(BASEDIR)\inc\ddk;$(BUILD_NVSDK_DIR)\inc;$(BUILD_TREE)\drivers\common\VPE\inc;$(BUILD_TREE)\drivers\display\winnt4\miniport\nv_mini;..\..\displays\nv_disp\i386;$(BUILD_TREE)\drivers\modeset.mhd\include
+
+INCLUDES=$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);..\include
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\display\winnt4\displays\nv_disp
+
+SOURCES =   digmode.c \
+            dmt.c \
+            edid.c \
+            gtf.c \
+            modeset.c \
+            restime.c \
+            tvmode.c \
+            utils.c

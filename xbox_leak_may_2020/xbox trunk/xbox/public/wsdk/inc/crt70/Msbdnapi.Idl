@@ -1,0 +1,233 @@
+
+
+// Definitions for the MSBDN API.
+
+
+
+import "wtypes.idl";
+import "unknwn.idl";
+
+
+typedef DWORD BDN_IP_ADDRESS;
+
+typedef
+struct	BDN_ARS_LEASE
+{
+	BDN_IP_ADDRESS	Address;
+	DWORD		LeaseID;
+	FILETIME	TimeStart;
+	FILETIME	TimeEnd;
+}	BDN_ARS_LEASE;
+
+// ensure that this is always congruent with MROUTER_RESV_POLICY
+typedef
+enum	BDN_RESV_POLICY {
+	BDN_RESV_POLICY_REGULATED_GUARANTEED,
+	BDN_RESV_POLICY_REGULATED_OPPORTUNISTIC,
+	BDN_RESV_POLICY_GUARANTEED,
+}	BDN_RESV_POLICY;
+
+typedef
+struct	BDN_ROUTE {
+	BDN_IP_ADDRESS	Address;
+	DWORD		VifID;
+	DWORD		ReservationID;
+}	BDN_ROUTE;
+
+typedef
+struct	BDN_VIF {
+	LPOLESTR	DisplayName;
+	DWORD		VifID;
+}	BDN_VIF;
+
+typedef
+struct	BDN_RESV {
+	DWORD		ReservationID;
+	DWORD		VifID;
+	BDN_RESV_POLICY	Policy;
+	DWORD		BitRate;
+	FILETIME	TimeBegin;
+	FILETIME	TimeEnd;
+}	BDN_RESV;
+
+[
+uuid(88edcc66-aa64-11d1-9151-00a0c9255d05),
+local
+]
+interface	IBdnHostLocator : IUnknown
+{
+	// sets this object to a specific server
+	HRESULT	SetServer	([in] LPCOLESTR);
+
+	// retrieves the name of the server to which this object is bound
+	HRESULT	GetServer	([out] LPOLESTR *);
+
+	// find a server for us
+	HRESULT	FindServer	(void);
+};
+
+cpp_quote("#define	IMPLEMENT_IBDNHOSTLOCATOR() public: \\")
+cpp_quote("	STDMETHODIMP	SetServer	(LPCOLESTR); \\")
+cpp_quote("	STDMETHODIMP	GetServer	(LPOLESTR *); \\")
+cpp_quote("	STDMETHODIMP	FindServer	(void);")
+
+[
+uuid(b027fd2e-aa64-11d1-9151-00a0c9255d05),
+local
+]
+interface	IBdnApplication : IUnknown
+{
+	// sets the application GUID which this application must use to identify itself
+	HRESULT	SetApplicationID	([in] const GUID *);
+
+	// retrieves the appliation GUID
+	HRESULT	GetApplicationID	([out] GUID *);
+};
+
+cpp_quote("#define	IMPLEMENT_IBDNAPPLICATION() public: \\")
+cpp_quote("	STDMETHODIMP	SetApplicationID	(const GUID *); \\")
+cpp_quote("	STDMETHODIMP	GetApplicationID	(GUID *);")
+
+
+// Interface used to interact with a BDN Multicast Address Reservation Server (ARS)
+// This is implemented as an in-process server.
+
+
+[
+uuid(be4e359c-a21f-11d1-914a-00a0c9255d05),
+local
+]
+interface	IBdnAddressReserve : IUnknown
+{
+	// deletes all leases on the bound server
+	HRESULT	DeleteAllLeases		(void);
+
+	// enumerate all known leases for this application
+	HRESULT	EnumLeases (
+		[out]	DWORD *		count,
+		[out, size_is(,*count)]	BDN_ARS_LEASE **	array);
+
+	// deletes a specific lease
+	HRESULT	DeleteLease (
+		[in]	DWORD		lease_id);
+
+	// queries the details for a specific lease
+	HRESULT	QueryLease (
+		[in]	DWORD		lease_id,
+		[out]	BDN_ARS_LEASE *	lease);
+
+	// request a new lease
+	HRESULT	RequestLease (
+		[in, out]	BDN_ARS_LEASE *	lease);
+
+};
+
+cpp_quote("#define	IMPLEMENT_IBDNADDRESSRESERVE() public: \\")
+cpp_quote("	STDMETHODIMP	DeleteAllLeases		(void); \\")
+cpp_quote("	STDMETHODIMP	EnumLeases			(DWORD *, BDN_ARS_LEASE **); \\")
+cpp_quote("	STDMETHODIMP	DeleteLease			(DWORD); \\")
+cpp_quote("	STDMETHODIMP	QueryLease			(DWORD, BDN_ARS_LEASE *); \\")
+cpp_quote("	STDMETHODIMP	RequestLease		(BDN_ARS_LEASE *);")
+
+
+
+
+[
+uuid(602c99f6-aa64-11d1-9151-00a0c9255d05),
+local
+]
+interface	IBdnRouter : IUnknown
+{
+	// enumerate installed VIFs
+	HRESULT	EnumVif (
+		[out]	DWORD * array_count,
+		[out, size_is(,*array_count)] BDN_VIF ** array);
+
+	// given a display name, get VIF ID
+	HRESULT	QueryVifByDisplayName (
+		[in]	LPCWSTR		display_name,
+		[out]	DWORD *		vif_id);
+
+	// create a new route
+	HRESULT CreateRoute (
+		[in] BDN_ROUTE * route);
+
+
+	// delete a route
+	HRESULT DeleteRoute (
+		[in] BDN_ROUTE * route);
+
+	// enumerate routes
+	// the parameters identify the subset of the routing table requested
+	HRESULT EnumRoute (
+		[in] DWORD flags,
+		[in] BDN_IP_ADDRESS ip_address,
+		[in] DWORD vif_id,
+		[in] DWORD resv_id,
+		[out] DWORD * array_count,
+		[out, size_is(,*array_count)] BDN_ROUTE ** array);
+
+	// create a bandwidth reservation
+	HRESULT CreateResv (
+		[in] BDN_RESV *,
+		[out] DWORD *);
+
+	// delete a bandwidth reservation
+	HRESULT DeleteResv (
+		[in] DWORD resv_id);
+
+	// query a reservation
+	HRESULT QueryResv (
+		[in] DWORD resv_id,
+		[out] BDN_RESV *);
+
+	// enumerate bandwidth reservations
+	HRESULT EnumResv (
+		[out] DWORD * count,
+		[out, size_is(,*count)] BDN_RESV **);
+}
+
+cpp_quote("#define	IMPLEMENT_IBDNROUTER() public: \\")
+cpp_quote("	STDMETHODIMP	EnumVif			(DWORD *, BDN_VIF **); \\")
+cpp_quote("	STDMETHODIMP	QueryVifByDisplayName	(LPCWSTR, DWORD *); \\")
+cpp_quote("	STDMETHODIMP	CreateRoute		(BDN_ROUTE *); \\")
+cpp_quote("	STDMETHODIMP	DeleteRoute		(BDN_ROUTE *); \\")
+cpp_quote("	STDMETHODIMP	EnumRoute		(DWORD, BDN_IP_ADDRESS, DWORD, DWORD, DWORD *, BDN_ROUTE **); \\")
+cpp_quote("	STDMETHODIMP	CreateResv		(BDN_RESV *, DWORD *);\\")
+cpp_quote("	STDMETHODIMP	DeleteResv		(DWORD); \\")
+cpp_quote("	STDMETHODIMP	QueryResv		(DWORD, BDN_RESV *); \\")
+cpp_quote("	STDMETHODIMP	EnumResv		(DWORD *, BDN_RESV **);")
+
+
+cpp_quote("#define	BDN_ROUTE_ALL")
+cpp_quote("#define	BDN_ROUTE_VIF")
+cpp_quote("#define	BDN_ROUTE_RESV")
+cpp_quote("#define	BDN_ROUTE_IP_ADDRESS")
+
+
+
+/*
+
+3f947340-aa65-11d1-9151-00a0c9255d05
+3f947341-aa65-11d1-9151-00a0c9255d05
+3f947342-aa65-11d1-9151-00a0c9255d05
+3f947343-aa65-11d1-9151-00a0c9255d05
+3f947344-aa65-11d1-9151-00a0c9255d05
+3f947345-aa65-11d1-9151-00a0c9255d05
+3f947346-aa65-11d1-9151-00a0c9255d05
+3f947347-aa65-11d1-9151-00a0c9255d05
+*/
+
+
+cpp_quote("// {b46aa12a-ae5c-11d1-9155-00a0c9255d05}")
+cpp_quote("DEFINE_GUID (CLSID_BdnRouter,")
+cpp_quote("0xb46aa12a, 0xae5c, 0x11d1, 0x91, 0x55, 0x00, 0xa0, 0xc9, 0x25, 0x5d, 0x05);")
+
+cpp_quote("// {b46aa12b-ae5c-11d1-9155-00a0c9255d05}")
+cpp_quote("DEFINE_GUID (CLSID_BdnAddressReserve,")
+cpp_quote("0xb46aa12b, 0xae5c, 0x11d1, 0x91, 0x55, 0x00, 0xa0, 0xc9, 0x25, 0x5d, 0x05);")
+
+
+
+
+

@@ -1,0 +1,32 @@
+!IF 0
+Copyright (C) Microsoft Corporation, 1989 - 2000
+!ENDIF
+USE_MSVCRT=1
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETNAME=2kCSPService
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=windows
+UMENTRY=winmain
+
+
+INCLUDES= $(BASEDIR)\private\sdktools\factory\include; \
+          $(BASEDIR)\private\ntos\inc; \
+          $(BASEDIR)\private\inc\crypto; \
+          $(BASEDIR)\private\inc
+         
+SOURCES= \
+        2kNCipherService.cpp\
+        CService.cpp \
+        CNetWork.cpp \
+        CCrypto.cpp \
+        2kNCipherService.rc
+
+LINKLIBS=$(LIBRARY_PATH)\user32.lib   \
+         $(LIBRARY_PATH)\crypt32.lib \
+         $(BASEDIR)\private\lib\*\rsa32.lib \
+         $(LIBRARY_PATH)\ws2_32.lib
+
+UMTYPE=console
+

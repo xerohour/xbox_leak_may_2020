@@ -1,0 +1,410 @@
+define(ROOTPATH,..\..)include(ROOTPATH\templateheader.dst)define(SOURCEFILELIST,POUND Begin Source File
+
+SOURCE=.\bunny.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\xfpatch.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\xfpatch.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\xfpmesh.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\xfpmesh.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Mipmap.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Mipmap.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\util.h
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\util.cpp
+POUND End Source File
+POUND Begin Group "Media"
+
+POUND PROP Default_Filter "vsh;psh;m;abc;tga;bmp;dds"
+POUND Begin Source File
+
+SOURCE=.\media\shaders\Mipmap.psh
+
+!IF  "$(CFG)" == "Fur - Xbox Release"
+
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\media\shaders\Mipmap.psh
+InputName=Mipmap
+
+BuildCmds= \
+	xsasm -nologo -v -l $(InputPath) $(OutDir)\$(InputName).xpu $(OutDir)\$(InputName).xsc $(ProjDir)\$(InputName).inl \
+
+"$(ProjDir)\$(InputName).inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+POUND End Custom Build
+
+!ELSEIF  "$(CFG)" == "Fur - Xbox Debug"
+
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\media\shaders\Mipmap.psh
+InputName=Mipmap
+
+BuildCmds= \
+	xsasm -nologo -v -l $(InputPath) $(OutDir)\$(InputName).xpu $(OutDir)\$(InputName).xsc $(ProjDir)\$(InputName).inl \
+
+"$(ProjDir)\$(InputName).inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+POUND End Custom Build
+
+!ENDIF 
+
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\shaders\fin.vsh
+
+!IF  "$(CFG)" == "Bunny - Xbox Release"
+
+USERDEP__FIN_V="Media\Shaders\hairlighting.vsh"	"Media\Shaders\wind.vsh"	
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\shaders\fin.vsh
+InputName=fin
+
+BuildCmds= \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind1_local1_self0.xvu ) \
+	xsasm -nologo -D WIND -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind1_local1_self0.xvu \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind1_local0_self1.xvu ) \
+	xsasm -nologo -D WIND                   -D SELF_SHADOWING $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind1_local0_self1.xvu \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind1_local0_self0.xvu ) \
+	xsasm -nologo -D WIND                                     $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind1_local0_self0.xvu \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind0_local1_self1.xvu ) \
+	xsasm -nologo         -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind0_local1_self1.xvu \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind0_local1_self0.xvu ) \
+	xsasm -nologo         -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind0_local1_self0.xvu \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind0_local0_self1.xvu ) \
+	xsasm -nologo                           -D SELF_SHADOWING $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind0_local0_self1.xvu \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ( del /f $(ProjDir)\Media\Shaders\$(InputName)_wind0_local0_self0.xvu ) \
+	xsasm -nologo                                             $(InputPath) $(ProjDir)\Media\Shaders\$(InputName)_wind0_local0_self0.xvu \
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+POUND End Custom Build
+
+!ELSEIF  "$(CFG)" == "Bunny - Xbox Debug"
+
+USERDEP__FIN_V="Media\shaders\hairlighting.vsh"	"Media\shaders\wind.vsh"	
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\shaders\fin.vsh
+InputName=fin
+
+BuildCmds= \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu ) \
+	xsasm -nologo -Od -D WIND -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ) \
+	xsasm -nologo -Od -D WIND -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ) \
+	xsasm -nologo -Od -D WIND                   -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ) \
+	xsasm -nologo -Od -D WIND                                     $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ) \
+	xsasm -nologo -Od         -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ) \
+	xsasm -nologo -Od         -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ) \
+	xsasm -nologo -Od                           -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ) \
+	xsasm -nologo -Od                                             $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu   \
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+POUND End Custom Build
+
+!ENDIF 
+
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\shaders\fur.vsh
+
+!IF  "$(CFG)" == "Bunny - Xbox Release"
+
+USERDEP__FUR_V="Media\shaders\hairlighting.vsh"	"Media\shaders\wind.vsh"	
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\shaders\fur.vsh
+InputName=fur
+
+BuildCmds= \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu ) \
+	xsasm -nologo -D WIND -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ) \
+	xsasm -nologo -D WIND -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ) \
+	xsasm -nologo -D WIND                   -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ) \
+	xsasm -nologo -D WIND                                     $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ) \
+	xsasm -nologo         -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ) \
+	xsasm -nologo         -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ) \
+	xsasm -nologo                           -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ) \
+	xsasm -nologo                                             $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu   \
+	\
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu ) \
+	xsasm -nologo -D WIND -D LOCAL_LIGHTING -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu ) \
+	xsasm -nologo -D WIND -D LOCAL_LIGHTING                   -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu ) \
+	xsasm -nologo -D WIND                   -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu ) \
+	xsasm -nologo -D WIND                                     -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu ) \
+	xsasm -nologo         -D LOCAL_LIGHTING -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu ) \
+	xsasm -nologo         -D LOCAL_LIGHTING                   -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu ) \
+	xsasm -nologo                           -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu ) \
+	xsasm -nologo                                             -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu   \
+	
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+POUND End Custom Build
+
+!ELSEIF  "$(CFG)" == "Bunny - Xbox Debug"
+
+USERDEP__FUR_V="Media\shaders\hairlighting.vsh"	"Media\shaders\wind.vsh"	
+POUND Begin Custom Build - xsasm $(InputPath)
+ProjDir=.
+InputPath=.\Media\shaders\fur.vsh
+InputName=fur
+
+BuildCmds= \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu ) \
+	xsasm -nologo -Od -D WIND -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu ) \
+	xsasm -nologo -Od -D WIND -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu ) \
+	xsasm -nologo -Od -D WIND                   -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu ) \
+	xsasm -nologo -Od -D WIND                                     $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu ) \
+	xsasm -nologo -Od         -D LOCAL_LIGHTING -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu ) \
+	xsasm -nologo -Od         -D LOCAL_LIGHTING                   $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu ) \
+	xsasm -nologo -Od                           -D SELF_SHADOWING $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ( del /f     $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu ) \
+	xsasm -nologo -Od                                             $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu   \
+	\
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu ) \
+	xsasm -nologo -Od -D WIND -D LOCAL_LIGHTING -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu ) \
+	xsasm -nologo -Od -D WIND -D LOCAL_LIGHTING                   -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu ) \
+	xsasm -nologo -Od -D WIND                   -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu ) \
+	xsasm -nologo -Od -D WIND                                     -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu ) \
+	xsasm -nologo -Od         -D LOCAL_LIGHTING -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu ) \
+	xsasm -nologo -Od         -D LOCAL_LIGHTING                   -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu ) \
+	xsasm -nologo -Od                           -D SELF_SHADOWING -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu   \
+	if EXIST $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu ( del /f $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu ) \
+	xsasm -nologo -Od                                             -D MULTISHELL $(InputPath) $(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu   \
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local1_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind1_local0_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local1_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self1_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"$(ProjDir)\media\shaders\$(InputName)_wind0_local0_self0_multishell.xvu" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+POUND End Custom Build
+
+!ENDIF 
+
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\shaders\hairlighting.vsh
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=.\Media\shaders\wind.vsh
+POUND End Source File
+POUND End Group)undefine(`COMMONSOURCEFILELIST')define(COMMONSOURCEFILELIST,POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\xfvf.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\xmodel.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\xbsound.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\xobj.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\xparse.cpp
+POUND End Source File
+POUND Begin Source File
+
+SOURCE=ROOTPATH\common\src\xpath.cpp
+POUND End Source File)define(RESOURCEFILELIST,RESOURCEFILEENTRY(font)
+RESOURCEFILEENTRY(gamepad))include(ROOTPATH\template.dst)

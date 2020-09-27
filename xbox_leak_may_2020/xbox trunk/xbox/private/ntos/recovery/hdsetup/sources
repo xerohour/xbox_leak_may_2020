@@ -1,0 +1,26 @@
+TARGETNAME=hdsetup
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+C_DEFINES = $(C_DEFINES) -D_NTDRIVER_ -DHDSETUPAPP
+
+INCLUDES = ..;$(DDK_INC_PATH);$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(PRIVATE_INC_PATH)\crypto;..\..\inc;$(INCLUDES)
+
+XNOHARDDISK=1
+XE_FLAGS=$(XE_FLAGS) /TESTRATINGS:0xFFFFFFFF /TESTMEDIATYPES:0x800000FF
+
+SOURCES= \
+    recovery.cpp  \
+    imagefile.cpp \
+    xboxvideo.cpp
+
+TARGETLIBS= \
+    $(XDK_LIB_PATH)\d3d8$(D).lib  \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+    $(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+    $(SDK_LIB_PATH)\xgraphics$(D).lib
+
+PRECOMPILED_INCLUDE=..\recovpch.h
+PRECOMPILED_PCH=..\recovpch.pch
+PRECOMPILED_OBJ=..\recovpch.obj

@@ -1,0 +1,125 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    YourCrashSummary.wsf
+
+Abstract:
+
+    Looks in the database for "problem identified" boxes.
+    Sends email to component owner.
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+    If triage.exe hangs then the entire monitoring process will hang as well.
+
+    triage states:
+        0   no problem
+        1   problem identified
+        2   notified (email sent)
+
+    Current State
+
+        0   "Crashed";
+        1   "Not Responding";
+        2   "Idle";
+        3   "Running";
+
+    at 6:00am /every:m,t,w,th,f C:\WINNT\system32\cscript.exe d:\LabMon\YourCrashSummary.wsf
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+var debugAlias = "";
+var debug = false;
+
+main();
+
+function main()
+    {
+    var emailbody = "";
+    var row = 0;
+    var results = "";
+    var stack = "";
+    var currentOwner;
+    var crashCount = 0;
+    var nugget = "<SPAN STYLE='display:none'>"+Math.random()+"</SPAN>";
+    var records = WScript.CreateObject("ADODB.Recordset");
+
+    // open the set of boxes with a found problems
+    records.Open("SELECT * FROM BoxList WHERE [Current State]=0 ORDER BY [Crash Owner], [Machine Name]", driver, 0, 1);
+
+    while(!records.EOF)
+        {
+        currentOwner = RTrim(records("Crash Owner"));
+        row = 0;
+        crashCount = 0;
+        emailbody = "";
+        emailbody += "<HTML>\r\n<HEAD>\r\n";
+        emailbody += "    <TITLE>Crashed XBOX Systems Assigned to You</TITLE>\r\n";
+        emailbody += "    <LINK REL='stylesheet' TYPE='text/css' HREF='http://xboxlab/lab/include/lab.css'>\r\n";
+        emailbody += "</HEAD>\r\n\r\n<BODY RIGHTMARGIN=0 LEFTMARGIN=0><CENTER><H3>Crashed "+nugget+"XBOX "+nugget+"Systems "+nugget+"Assigned "+nugget+"to "+nugget+"You</H3><P>\r\n";
+        emailbody += "For "+nugget+"more "+nugget+"information "+nugget+"on "+nugget+"these "+nugget+"systems "+nugget+"please "+nugget+"visit "+nugget+"this "+nugget+"site: <A HREF='http://xboxlab/lab/default.asp'>XBOX "+nugget+"Lab</A><P>\r\n";
+        emailbody += "\r\n<TABLE WIDTH=100%><TH CLASS=ROWHEAD>Machine</TH><TH CLASS=ROWHEAD>Stack</TH>\r\n";
+
+        while(currentOwner == RTrim(records("Crash Owner")))
+            {
+            ++crashCount;
+            if(records.EOF) break;
+
+            stack = "";
+            results = (""+records("Triage Notes")).split("\r\n");
+            for(var i=0; i<results.length; i++)
+                {
+                if(results[i].indexOf("FOLLOWUP:") != -1) break;
+                stack += results[i] + "<BR>";
+                }
+
+            emailbody += "<TR><TD CLASS=ROW" + row + " VALIGN=TOP WIDTH=110>" + currentOwner + "<BR><DIV STYLE='font:normal 8pt Arial;color:#777777'>(" + FormatShortDate(records("Monitor Timestamp")) + ")<HR>REMOTE /C " + RTrim(records("Debugger")) +" \"" + RTrim(records("Machine Name")) + "\"</DIV><HR><A HREF='mailto:"+RTrim(records("Owner"))+"'>Email</A><BR><A HREF='http://xboxlab/lab/editBox.asp?mac="+RTrim(records("Machine Name"))+"'>Resolve</A></TD>\r\n";
+            emailbody += "<TD CLASS=ROW" + row + " VALIGN=TOP STYLE='font:normal 6pt Courier; line-break:strict;white-space:nowrap'>" +stack+ "</TD></TR>\r\n";
+            row == 0 ? row = 1 : row = 0;
+
+            records.MoveNext();
+            }
+        emailbody += "</TABLE>\r\n\r\n<P><H3>Microsoft Confidential</H3><P><SPAN STYLE='font:normal 10pt Arial'>This "+nugget+"mail "+nugget+"was "+nugget+"sent "+nugget+"from "+nugget+"an "+nugget+"unmonitored "+nugget+"alias, "+nugget+"please "+nugget+"do not "+nugget+"reply</SPAN>\r\n";
+        emailbody += "</BODY></HTML>";
+
+        subject = "Your";
+        for(i=0; i<parseInt(Math.random()*4); i++)
+            subject += " ";
+        subject += " Stress";
+        for(i=0; i<parseInt(Math.random()*4); i++)
+            subject += " ";
+        subject += " Crashes: ("+crashCount+ ")";
+        for(i=0; i<parseInt(Math.random()*4); i++)
+            subject += " ";
+        subject += " (" + currentOwner + ")";
+
+        if(debug == true) SendMail("jpoley", subject, emailbody, "Stress Results");
+        else SendMail(currentOwner, subject, emailbody, "Stress Results");
+
+        if(!records.EOF) records.MoveNext();
+        }
+    records.Close();
+    }
+
+
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>
+

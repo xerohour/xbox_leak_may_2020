@@ -1,0 +1,2572 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+// Generated Help ID header file
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.hm"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "ids.h"
+#include "afxres.h"
+#include "dlgs.h"
+#include "optncplr.h2"
+#include "optnbsc.h2"
+#include "optnrc.h2"
+#include "optnlib.h2"
+#include "optnlink.h2"
+#include "optnmtl.h2"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROGRESS_DLG DIALOG DISCARDABLE  200, 100, 302, 61
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Scan Dependencies"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Scanning all project files for dependencies",102,5,7,
+                    293,8
+    CTEXT           "",IDC_STATIC1,3,25,298,8
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,126,41,50,14
+END
+
+IDDP_TARGET_GENERAL DIALOG DISCARDABLE  3, 20, 250, 62
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Project file:",IDC_STATIC,3,7,57,8
+    EDITTEXT        IDC_TARGET_NAME,60,6,187,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Last modified:",IDC_STATIC,3,21,57,8
+    LTEXT           "",IDC_TARGET_DATE,60,21,190,9
+    LTEXT           "Status:",IDC_SCC_STATUS_TEXT,3,49,57,8
+    EDITTEXT        IDC_SCC_STATUS,60,48,187,13,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDDP_OPTIONS_DIRECTORIES DIALOGEX 0, 0, 264, 140
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Platform:",IDC_STATIC,6,6,79,8
+    COMBOBOX        IDC_DIRS_TOOLSETS,6,16,119,52,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_DIRS_TOOLSETS
+    LTEXT           "&Show directories for:",IDC_STATIC,138,6,87,8
+    COMBOBOX        IDC_DIRS_OPTIONS,138,16,119,52,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_DIRS_OPTIONS
+    LTEXT           "&Directories:",IDC_PLACEHOLDER2,6,32,251,99,SS_SUNKEN,0,
+                    HIDC_PLACEHOLDER2
+END
+
+IDDP_OPTIONS_BUILD DIALOGEX 0, 0, 264, 140
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "&Export makefile when saving project file",
+                    IDC_ALWAYS_EXPORT_MAK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,5,5,258,10,0,HIDC_ALWAYS_EXPORT_MAK
+    CONTROL         "&Always write dependencies when writing makefiles",
+                    IDC_EXPORT_DEPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,
+                    17,258,10,0,HIDC_EXPORT_DEPS
+    CONTROL         "&Write Build Log (.plg)",IDC_WRITE_BUILD_LOG,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,29,258,10,0,
+                    HIDC_WRITE_BUILD_LOG
+END
+
+IDDP_EXTERNALMAKE_OPTIONS DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Reset",IDC_SET_DEFAULT,150,6,45,14,NOT WS_VISIBLE,0,
+                    HIDC_SET_DEFAULT
+    LTEXT           "&Build command line:",IDC_BUILDCMD_TEXT,5,26,162,8
+    EDITTEXT        IDC_EXTOPTS_CMDLINE,5,36,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_CMDLINE
+    LTEXT           "Rebuild &All options:",IDC_REBUILDALL_TEXT,5,56,169,8
+    EDITTEXT        IDC_EXTOPTS_REBUILDOPT,5,66,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_REBUILDOPT
+    LTEXT           "Output file &name:",IDC_TARGET_TXT,5,86,69,8
+    EDITTEXT        IDC_EXTOPTS_TARGET,5,96,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_TARGET
+    LTEXT           "Bro&wse info file name:",IDC_EXTOPTS_BSCNAME_TXT,5,115,
+                    99,8
+    EDITTEXT        IDC_EXTOPTS_BSCNAME,5,125,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_BSCNAME
+    LTEXT           "Platfor&m:",IDC_EXTOPTS_PLATFORM_TXT,5,145,30,8
+    COMBOBOX        IDC_EXTOPTS_PLATFORM,5,155,190,60,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_EXTOPTS_PLATFORM
+END
+
+IDDP_COMPILER_PREPROCESS DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Prepro&cessor definitions:",IDC_TXT_MACROS,5,5,146,8
+    EDITTEXT        IDC_MACROS,5,15,190,12,ES_AUTOHSCROLL,0,HIDC_MACROS
+    LTEXT           "&Undefined symbols:",IDC_TXT_UNDEFS,5,32,92,8
+    EDITTEXT        IDC_UNDEFS,5,43,190,12,ES_AUTOHSCROLL,0,HIDC_UNDEFS
+    CONTROL         "Undefine &all symbols",IDC_UNDEFINE,"Button",BS_3STATE | 
+                    WS_TABSTOP,99,31,100,10,0,HIDC_UNDEFINE
+    LTEXT           "Additio&nal include directories:",IDC_TXT_INCS,5,60,164,
+                    8
+    EDITTEXT        IDC_INCLUDE,5,70,190,12,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_INCLUDE
+    CONTROL         "Ignore standard &include paths",IDC_IGNINC,"Button",
+                    BS_3STATE | WS_TABSTOP,5,88,180,10,0,HIDC_IGNINC
+END
+
+IDDP_COMPILER_LISTFILE DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Generate &browse info",IDC_LISTBSC,"Button",BS_3STATE | 
+                    WS_TABSTOP,5,5,131,10,0,HIDC_LISTBSC
+    LTEXT           "&Intermediate browse info file destination:",
+                    IDC_TXT_LISTBSC,18,18,170,8
+    EDITTEXT        IDC_LISTBSC_NME,18,28,178,13,ES_AUTOHSCROLL | 
+                    ES_OEMCONVERT,0,HIDC_LISTBSC_NME
+    CONTROL         "E&xclude local variables from browse info",
+                    IDC_LISTLOCAL,"Button",BS_3STATE | WS_TABSTOP,18,45,178,
+                    10,0,HIDC_LISTLOCAL
+    LTEXT           "&Listing file type:",IDC_TXT_LISTASM,5,60,121,8
+    COMBOBOX        IDC_LISTASM,5,70,190,66,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_LISTASM
+    LTEXT           "Listing &file name:",IDC_TXT_LISTASM1,5,85,123,8
+    EDITTEXT        IDC_LISTASM_NME,5,95,190,13,ES_AUTOHSCROLL | 
+                    ES_OEMCONVERT,0,HIDC_LISTASM_NME
+END
+
+IDDP_COMPILER_OPTIMIZE DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Optimi&zations:",IDC_TXT_OPTIMIZE,5,5,163,8
+    COMBOBOX        IDC_OPTIMIZE2,5,15,190,66,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_OPTIMIZE2
+    LISTBOX         IDC_OPTIMIZE,5,29,190,49,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP,0,HIDC_OPTIMIZE
+    LTEXT           "&Inline function expansion:",IDC_TXT_INLINE,5,83,170,8,
+                    NOT WS_GROUP
+    COMBOBOX        IDC_INLINECTRL,5,93,190,51,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_INLINECTRL
+END
+
+IDDP_COMPILER_PCH DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "&Not using precompiled headers",IDC_NOPCH,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,5,5,113,10,0,
+                    HIDC_NOPCH
+    CONTROL         "Auto&matic use of precompiled headers",IDC_AUTOPCH,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,5,18,136,10,0,
+                    HIDC_AUTOPCH
+    CONTROL         "&Create precompiled header file (.pch)",IDC_CREATEPCH,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,5,46,180,10,0,
+                    HIDC_CREATEPCH
+    CONTROL         "&Use precompiled header file (.pch)",IDC_USEPCH,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,5,75,184,10,0,
+                    HIDC_USEPCH
+    LTEXT           "Through he&ader:",IDC_TXT_AUTOPCH,18,32,68,8
+    EDITTEXT        IDC_AUTOPCHNAME,89,31,100,12,ES_AUTOHSCROLL | 
+                    ES_OEMCONVERT,0,HIDC_AUTOPCHNAME
+    LTEXT           "Through he&ader:",IDC_TXT_CREATE,18,60,68,8
+    EDITTEXT        IDC_CREATENAME,89,59,100,13,ES_AUTOHSCROLL | 
+                    ES_OEMCONVERT,0,HIDC_CREATENAME
+    LTEXT           "Through he&ader:",IDC_TXT_USE,18,89,68,8
+    EDITTEXT        IDC_USENAME,89,88,100,13,ES_AUTOHSCROLL | ES_OEMCONVERT,
+                    0,HIDC_USENAME
+END
+
+IDDP_COMPILER_CUSTOM DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "&Disable language extensions",IDC_OPTEXT,"Button",
+                    BS_3STATE | WS_TABSTOP,5,11,167,10,0,HIDC_OPTEXT
+    CONTROL         "Enable &function-level linking",IDC_OPTINCLINK,"Button",
+                    BS_3STATE | WS_TABSTOP,5,24,189,10,0,HIDC_OPTINCLINK
+    CONTROL         "E&liminate duplicate strings",IDC_STRPOOL,"Button",
+                    BS_3STATE | WS_TABSTOP,5,37,158,10,0,HIDC_STRPOOL
+    CONTROL         "Enable &minimal rebuild",IDC_ENABLE_MR,"Button",
+                    BS_3STATE | WS_TABSTOP,5,50,150,10,0,HIDC_ENABLE_MR
+    CONTROL         "Enable &incremental compilation",IDC_ENABLE_GI,"Button",
+                    BS_3STATE | WS_TABSTOP,5,63,194,10,0,HIDC_ENABLE_GI
+    CONTROL         "Suppress startup b&anner and information messages",
+                    IDC_CPLRNOLOGO,"Button",BS_3STATE | WS_TABSTOP,5,76,194,
+                    10,0,HIDC_CPLRNOLOGO
+END
+
+IDDP_COMPILER_DEBUG DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Debug info:",IDC_TXT_DEBUG,5,6,95,8
+    COMBOBOX        IDC_DEBUG,5,16,188,44,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_DEBUG
+END
+
+IDDP_COMPILER_CUSTOMCPP DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Pointer-to-member representation",IDC_TXT_PTRGRP,5,5,
+                    188,67
+    LTEXT           "Representation &method:",IDC_TXT_PTRMBR1,12,18,143,8,
+                    NOT WS_GROUP
+    COMBOBOX        IDC_PTRMBR1,12,28,176,38,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_PTRMBR1
+    LTEXT           "&General purpose representation:",IDC_TXT_PTRMBR2,12,44,
+                    173,8
+    COMBOBOX        IDC_PTRMBR2,12,54,176,50,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_PTRMBR2
+    CONTROL         "&Enable exception handling",IDC_ENABLE_EH,"Button",
+                    BS_3STATE | WS_TABSTOP,12,75,170,10,0,HIDC_ENABLE_EH
+    CONTROL         "Enable Run-Time Type &Information (RTTI)",
+                    IDC_ENABLE_RTTI,"Button",BS_3STATE | WS_TABSTOP,12,87,
+                    168,10,0,HIDC_ENABLE_RTTI
+    CONTROL         "Disable &construction displacements",IDC_VTORDISP,
+                    "Button",BS_3STATE | WS_TABSTOP,12,99,168,10,0,
+                    HIDC_VTORDISP
+END
+
+IDDP_GRP_GENERAL DIALOG DISCARDABLE  3, 20, 250, 62
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Folder &name:",IDC_STATIC,3,7,63,8
+    EDITTEXT        IDC_GRP_NAME,70,6,177,13,ES_AUTOHSCROLL
+    LTEXT           "File e&xtensions:",IDC_STATIC,3,35,63,8
+    EDITTEXT        IDC_GROUPFILTER,70,34,177,13,ES_AUTOHSCROLL
+END
+
+IDDP_PROJ_COMPILER DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Warning &level:",IDC_TXT_WARN,5,5,90,8
+    COMBOBOX        IDC_OPTWARN,5,16,88,58,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_OPTWARN
+    LTEXT           "Optimi&zations:",IDC_TXT_OPTIMIZE,108,5,88,8
+    COMBOBOX        IDC_OPTIMIZE,108,16,88,72,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_OPTIMIZE
+    CONTROL         "War&nings as errors",IDC_WARNASERR,"Button",BS_3STATE | 
+                    WS_TABSTOP,5,34,90,10,0,HIDC_WARNASERR
+    CONTROL         "&Generate browse info",IDC_LISTBSC,"Button",BS_3STATE | 
+                    WS_TABSTOP,108,34,88,10,0,HIDC_LISTBSC
+    LTEXT           "De&bug info:",IDC_TXT_DEBUG,5,50,88,8
+    COMBOBOX        IDC_DEBUG,5,61,191,50,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_DEBUG
+    LTEXT           "Prepro&cessor definitions:",IDC_TXT_MACROS,5,80,136,8
+    EDITTEXT        IDC_MACROS,5,90,190,13,ES_AUTOHSCROLL,0,HIDC_MACROS
+END
+
+IDDP_PROJ_LINKER DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Output file &name:",IDC_TXT_OUTNAME,5,6,111,8
+    EDITTEXT        IDC_OUT,5,16,190,13,ES_AUTOHSCROLL,0,HIDC_OUT
+    LTEXT           "Object/&library modules:",IDC_TXT_LIBS,5,34,124,8
+    EDITTEXT        IDC_LIBS,5,44,190,13,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_LIBS
+    CONTROL         "&Generate debug info",IDC_LNK_DBGFULL,"Button",
+                    BS_3STATE | WS_TABSTOP,5,64,88,10,0,HIDC_LNK_DBGFULL
+    CONTROL         "Ignore all default li&braries",IDC_EXLIB,"Button",
+                    BS_3STATE | WS_TABSTOP,94,64,105,10,0,HIDC_EXLIB
+    CONTROL         "Link &incrementally",IDC_INCLINK,"Button",BS_3STATE | 
+                    WS_TABSTOP,5,78,87,10,0,HIDC_INCLINK
+    CONTROL         "Generate &mapfile",IDC_MAPGEN,"Button",BS_3STATE | 
+                    WS_TABSTOP,94,78,102,10,0,HIDC_MAPGEN
+    CONTROL         "&Enable profiling",IDC_PROFILE,"Button",BS_3STATE | 
+                    WS_TABSTOP,5,92,85,10,0,HIDC_PROFILE
+    CONTROL         "&Doesn't produce .LIB",IDC_IGNOREEXPORTLIB,"Button",
+                    BS_3STATE | WS_TABSTOP,94,92,102,10,0,
+                    HIDC_IGNOREEXPORTLIB
+END
+
+IDDP_LINKER_DEBUG DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Mapfile &name:",IDC_TXT_MAPNAME,5,6,91,8
+    EDITTEXT        IDC_MAPNAME,5,17,190,12,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_MAPNAME
+    CONTROL         "&Generate mapfile",IDC_MAPGEN,"Button",BS_3STATE | 
+                    WS_TABSTOP,100,5,74,10,0,HIDC_MAPGEN
+    GROUPBOX        "Debug Info",IDC_TXT_DBGGRP,5,35,190,64
+    CONTROL         "&Debug info",IDC_LNK_DBGFULL,"Button",BS_3STATE | 
+                    WS_TABSTOP,11,48,88,10,0,HIDC_LNK_DBGFULL
+    CONTROL         "&Microsoft format",IDC_LNK_DBGCV,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,11,61,96,10,0,
+                    HIDC_LNK_DBGCV
+    CONTROL         "&COFF format",IDC_LNK_DBGCOFF,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,11,72,85,10,0,
+                    HIDC_LNK_DBGCOFF
+    CONTROL         "&Both formats",IDC_LNK_DBGBOTH,"Button",
+                    BS_AUTORADIOBUTTON | WS_TABSTOP,11,83,98,10,0,
+                    HIDC_LNK_DBGBOTH
+    CONTROL         "Separate &types",IDC_LAZYPDB,"Button",BS_3STATE | 
+                    WS_TABSTOP,100,48,74,10,0,HIDC_LAZYPDB
+END
+
+IDDP_PROJ_LIB DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Output file &name:",IDC_N50,5,5,120,8
+    EDITTEXT        IDC_LIBOUT,5,16,188,13,ES_AUTOHSCROLL,0,HIDC_LIBOUT
+    CONTROL         "S&uppress startup banner",IDC_LIBNOLOGO,"Button",
+                    BS_3STATE | WS_TABSTOP,5,92,97,10,0,HIDC_LIBNOLOGO
+END
+
+IDDP_PROJ_RESCOMPILE DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Resource file &name:",IDC_REST1,5,6,91,8
+    EDITTEXT        IDC_RESOUTNAME,5,16,90,12,ES_AUTOHSCROLL,0,
+                    HIDC_RESOUTNAME
+    LTEXT           "&Language:",IDC_REST4,105,6,46,8
+    COMBOBOX        IDC_RESLANGID,105,16,90,52,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_RESLANGID
+    LTEXT           "&Additional resource include directories:",IDC_REST2,5,
+                    35,172,8
+    EDITTEXT        IDC_RESINCLUDES,5,46,190,12,ES_AUTOHSCROLL,0,
+                    HIDC_RESINCLUDES
+    CONTROL         "Ignore standard &include paths",IDC_RESIGNPATH,"Button",
+                    BS_3STATE | WS_TABSTOP,5,65,168,10,0,HIDC_RESIGNPATH
+    LTEXT           "Prepro&cessor definitions:",IDC_REST3,5,80,157,8
+    EDITTEXT        IDC_RESMACNAMES,5,91,190,12,ES_AUTOHSCROLL,0,
+                    HIDC_RESMACNAMES
+END
+
+IDDP_LINKER_INPUT DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Object/library &modules:",IDC_TXT_LIBS,5,5,159,8,NOT 
+                    WS_GROUP
+    EDITTEXT        IDC_LIBS,5,15,190,12,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_LIBS
+    LTEXT           "&Ignore libraries:",IDC_TXT_IGNLIBS,5,32,82,8,NOT 
+                    WS_GROUP
+    EDITTEXT        IDC_IGNLIBS,5,43,190,12,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_IGNLIBS
+    CONTROL         "Ignore &all default libraries",IDC_EXLIB,"Button",
+                    BS_3STATE | WS_TABSTOP,92,31,107,10,0,HIDC_EXLIB
+    LTEXT           "&Force symbol references:",IDC_TXT_INCLSYM,5,59,185,8,
+                    NOT WS_GROUP
+    EDITTEXT        IDC_INCLSYM,5,70,190,12,ES_AUTOHSCROLL,0,HIDC_INCLSYM
+    LTEXT           "A&dditional library path:",IDC_TXT_LIBPATH,5,87,181,8
+    EDITTEXT        IDC_LIBPATH,5,98,190,12,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_LIBPATH
+END
+
+IDDP_LINKER_CUSTOM DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Use program &database",IDC_USEPDB,"Button",BS_3STATE | 
+                    WS_TABSTOP,5,18,114,10,0,HIDC_USEPDB
+    CONTROL         "Link &incrementally",IDC_INCLINK,"Button",BS_3STATE | 
+                    WS_TABSTOP,5,5,88,10,0,HIDC_INCLINK
+    LTEXT           "Program database &name:",IDC_TXT_PDBNAME,19,31,103,8
+    EDITTEXT        IDC_PDBNAME,19,42,177,12,ES_AUTOHSCROLL | ES_OEMCONVERT,
+                    0,HIDC_PDBNAME
+    LTEXT           "Output file n&ame:",IDC_TXT_OUTNAME,5,60,90,8
+    EDITTEXT        IDC_OUT,5,71,191,12,ES_AUTOHSCROLL | ES_OEMCONVERT,0,
+                    HIDC_OUT
+    CONTROL         "&Force file output",IDC_FORCE,"Button",BS_3STATE | 
+                    WS_GROUP | WS_TABSTOP,102,59,91,10,0,HIDC_FORCE
+    CONTROL         "&Print progress messages",IDC_VERBOSE,"Button",
+                    BS_3STATE | WS_TABSTOP,5,87,150,10,0,HIDC_VERBOSE
+    CONTROL         "S&uppress startup banner",IDC_LINKNOLOGO,"Button",
+                    BS_3STATE | WS_TABSTOP,5,100,158,10,0,HIDC_LINKNOLOGO
+END
+
+IDDP_PROJ_BSCMAKE DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Browse info file &name:",IDC_BSCT1,5,5,155,8
+    EDITTEXT        IDC_BSCOUTNAME,5,16,189,13,ES_AUTOHSCROLL,0,
+                    HIDC_BSCOUTNAME
+    CONTROL         "&Build browse info file",IDC_BSCMAKE_NOTDEFERRED,"Button",
+                    BS_3STATE | WS_TABSTOP,5,38,186,10,0,
+                    HIDC_BSCMAKE_NOTDEFERRED
+    CONTROL         "Suppress startup b&anner",IDC_BSCNOLOGO,"Button",
+                    BS_3STATE | WS_TABSTOP,5,52,129,10,0,HIDC_BSCNOLOGO
+END
+
+IDDP_PROJ_NO_PROPS DIALOG DISCARDABLE  3, 20, 250, 62
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "No properties",IDC_STATIC,0,27,250,8
+END
+
+IDDP_DEBUG_OPTIONS DIALOGEX 3, 20, 200, 154
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Executable for debug session:",IDC_CALLING_PROG_TXT,5,
+                    5,189,8
+    EDITTEXT        IDC_CALLING_PROG,5,16,177,13,ES_AUTOHSCROLL,0,
+                    HIDC_CALLING_PROG
+    LTEXT           "&Working directory:",IDC_PROG_WORKDIR_TXT,5,35,189,8
+    EDITTEXT        IDC_PROG_WORKDIR,5,46,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_PROG_WORKDIR
+    LTEXT           "Program arg&uments:",IDC_PROG_ARGS_TXT,5,65,189,8
+    EDITTEXT        IDC_PROG_ARGS,5,76,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_PROG_ARGS
+    LTEXT           "Remote executable path and file &name:",
+                    IDC_REMOTE_TARGET_TXT,5,95,189,8
+    EDITTEXT        IDC_REMOTE_TARGET,5,106,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_REMOTE_TARGET
+    CONTROL         "",IDC_DEBUG_BROWSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    185,16,12,14,0,HIDC_DEBUG_BROWSE
+END
+
+IDDP_TOOL_GENERAL DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Reset",IDC_SET_DEFAULT,145,6,50,14,0,0,
+                    HIDC_SET_DEFAULT
+    CONTROL         "E&xclude file from build",IDC_ITEM_EXCLUDE,"Button",
+                    BS_3STATE | WS_TABSTOP,5,26,137,10,0,HIDC_ITEM_EXCLUDE
+    LTEXT           "&Microsoft Foundation Classes:",IDC_USEMFC_TEXT,5,43,
+                    180,8,NOT WS_VISIBLE,0,HIDC_USEMFC_TEXT
+    COMBOBOX        IDC_PROJ_USEMFC,5,54,190,49,CBS_DROPDOWNLIST | NOT 
+                    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP,0,HIDC_PROJ_USEMFC
+    GROUPBOX        "Output directories",IDC_STATIC,5,74,190,74
+    LTEXT           "&Intermediate files:",IDC_OUTDIRS_INTTXT,11,88,161,8
+    EDITTEXT        IDC_OUTDIRS_INT,11,99,179,13,ES_AUTOHSCROLL,0,
+                    HIDC_OUTDIRS_INT
+    LTEXT           "Output &files:",IDC_OUTDIRS_TRGTXT,11,118,56,8
+    EDITTEXT        IDC_OUTDIRS_TRG,11,129,179,13,ES_AUTOHSCROLL,0,
+                    HIDC_OUTDIRS_TRG
+    CONTROL         "Always use &custom build step",IDC_ITEM_NOTOOL,"Button",
+                    BS_3STATE | NOT WS_VISIBLE | WS_TABSTOP,5,8,133,10,0,
+                    HIDC_ITEM_NOTOOL
+    CONTROL         "Allow per-configuration &dependencies",
+                    IDC_PERCONFIG_DEPS,"Button",BS_3STATE | NOT WS_VISIBLE | 
+                    WS_TABSTOP,5,155,137,10,0,HIDC_PERCONFIG_DEPS
+END
+
+IDDP_PRELINK_POSTBUILD_OPTIONS DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Pre-link description:",IDC_STATIC,5,5,80,8
+    EDITTEXT        IDC_PRELINK_DESC,89,3,103,13,ES_AUTOHSCROLL,0,
+                    HIDC_PRELINK_DESC
+    LTEXT           "Pre-link command(s):",IDC_PRELINK_CMDS,5,20,187,51,
+                    SS_SUNKEN,0,HIDC_PRELINK_CMDS
+    LTEXT           "Post-build description:",IDC_STATIC,5,78,80,8
+    EDITTEXT        IDC_POSTBUILD_DESC,89,76,103,13,ES_AUTOHSCROLL,0,
+                    HIDC_POSTBUILD_DESC
+    LTEXT           "Post-build command(s):",IDC_POSTBUILD_CMDS,5,93,187,51,
+                    SS_SUNKEN,0,HIDC_POSTBUILD_CMDS
+END
+
+IDD_PROJECT_TARGET DIALOGEX 0, 0, 173, 119
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Targets"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Target:",IDC_STATIC,6,6,102,8
+    LISTBOX         IDC_TARGET_LIST,6,17,106,64,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    DEFPUSHBUTTON   "OK",IDOK,122,6,45,15
+    PUSHBUTTON      "Cancel",IDCANCEL,122,23,45,15
+    PUSHBUTTON      "&New...",IDC_NEW_TARGET,122,44,45,15,0,0,
+                    HIDC_NEW_TARGET
+    PUSHBUTTON      "&Delete",IDC_DELETE_TARGET,122,61,45,15,0,0,
+                    HIDC_DELETE_TARGET
+    PUSHBUTTON      "&Rename...",IDC_CHANGE_TARGET,122,78,45,15,0,0,
+                    HIDC_CHANGE_TARGET
+    LTEXT           "Platform/Type:",IDC_PLATFORM_STATIC,6,84,76,8
+    LTEXT           "",IDC_PLATFORM_TYPE,7,96,105,18,SS_NOPREFIX
+END
+
+IDD_RENAME_TARGET DIALOGEX 0, 0, 163, 63
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Rename Configuration"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Old name:",IDC_STATIC_OLDTARGET,7,7,89,8
+    LTEXT           "",IDC_OLD_TARGET,7,17,89,8
+    LTEXT           "&New name:",IDC_STATIC,7,33,86,8
+    EDITTEXT        IDC_RENAME_NEWTARGET,7,43,89,12,ES_AUTOHSCROLL,0,
+                    HIDC_RENAME_NEWTARGET
+    DEFPUSHBUTTON   "OK",IDOK,106,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,106,24,50,14
+END
+
+IDDP_PROJ_MKTYPLIB DIALOGEX 3, 20, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Output file &name:",IDC_MTLTEXT1,5,5,92,8
+    EDITTEXT        IDC_MTLOUTPUTTLB,5,16,92,13,ES_AUTOHSCROLL,0,
+                    HIDC_MTLOUTPUTTLB
+    LTEXT           "Output h&eader file name:",IDC_MTLTEXT2,104,5,95,8
+    EDITTEXT        IDC_MTLOUTPUTINC,104,16,92,13,ES_AUTOHSCROLL,0,
+                    HIDC_MTLOUTPUTINC
+    LTEXT           "&Additional include directories:",IDC_STATIC,5,34,92,8
+    EDITTEXT        IDC_MTLINCLUDES,5,45,92,13,ES_AUTOHSCROLL,0,
+                    HIDC_MTLINCLUDES
+    CONTROL         "Stubless &Proxies",IDC_MTLOICF,"Button",BS_3STATE | 
+                    WS_TABSTOP,104,45,92,10,0,HIDC_MTLOICF
+    LTEXT           "Prepro&cessor definitions:",IDC_STATIC,5,63,80,8
+    EDITTEXT        IDC_MTLMACROS,5,74,92,13,ES_AUTOHSCROLL,0,HIDC_MTLMACROS
+    LTEXT           "UU&ID File:",IDC_STATIC,104,63,95,8
+    EDITTEXT        IDC_MTLOUTPUTUUID,104,74,92,13,ES_AUTOHSCROLL,0,
+                    HIDC_MTLOUTPUTUUID
+    CONTROL         "S&uppress startup banner",IDC_MTLNOLOGO,"Button",
+                    BS_3STATE | WS_TABSTOP,5,92,92,10,0,HIDC_MTLNOLOGO
+    CONTROL         "&MkTypLib compatible",IDC_MTLCOMPATIBLE,"Button",
+                    BS_3STATE | WS_TABSTOP,103,92,80,10,0,HIDC_MTLCOMPATIBLE
+END
+
+IDD_PROJECT_BATCH_BUILD DIALOGEX 0, 0, 244, 125
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Batch Build"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Project configurations:",IDC_STATIC,7,7,102,8
+    LISTBOX         IDC_TARGET_LIST,7,17,150,101,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    DEFPUSHBUTTON   "&Build",IDOK,186,7,50,14
+    PUSHBUTTON      "&Rebuild All",IDC_REBUILD_BATCH,186,24,50,14,0,0,
+                    HIDC_REBUILD_BATCH
+    PUSHBUTTON      "&Clean",IDC_CLEAN_BATCH,186,41,50,14,0,0,
+                    HIDC_CLEAN_BATCH
+    PUSHBUTTON      "Cancel",IDCANCEL,186,58,50,14
+
+    CONTROL         "&Selection only", IDC_SELECT_BATCH,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,165,109,75,10,0,
+                    HIDC_SELECT_BATCH
+END
+
+IDD_DIALOGBAR_PROJECT DIALOGEX 0, 0, 150, 17
+STYLE WS_CHILD
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "T&arget:",IDC_TARGET_STATIC,3,4,25,8
+    COMBOBOX        IDC_PROJ_TARGET_DUMMY,31,2,107,53,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_PROJ_TARGET_DUMMY
+END
+
+IDD_TOOL_OPTION_TAB DIALOGEX 0, 0, 200, 64
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Categor&y:",IDC_PAGE_CATEGORY,5,7,33,8
+    COMBOBOX        IDC_MINI_PAGE,40,6,96,80,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_MINI_PAGE
+    LTEXT           "Settings:",IDC_OPTIONTXT,5,20,185,8
+    EDITTEXT        IDC_OPTSTR,5,31,190,31,ES_MULTILINE | ES_WANTRETURN | 
+                    WS_VSCROLL,0,HIDC_OPTSTR
+    PUSHBUTTON      "&Reset",IDC_SET_DEFAULT,145,5,50,14,0,0,
+                    HIDC_SET_DEFAULT
+END
+
+IDD_CUSTOM_BUILD_TAB DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Input file:",IDC_STATIC,5,5,47,8
+    LTEXT           "<multiple selection>",IDC_CUSTOM_INPUT,57,5,138,8,
+                    SS_NOPREFIX,0,HIDC_CUSTOM_INPUT
+    LTEXT           "&Description:",IDC_STATIC,5,22,48,8
+    EDITTEXT        IDC_CUSTOM_DESC,57,20,138,13,ES_AUTOHSCROLL,0,
+                    HIDC_CUSTOM_DESC
+    LTEXT           "&Commands",IDC_STATIC,5,38,190,14
+    EDITTEXT        IDC_CUSTOM_CMDS,5,52,187,36,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL,0,HIDC_CUSTOM_CMDS
+    LTEXT           "&Outputs",IDC_STATIC,5,94,190,13
+    EDITTEXT        IDC_CUSTOM_OUTPUT,5,108,189,38,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL,0,HIDC_CUSTOM_OUTPUT
+    CONTROL         "D&irectory",IDC_DIR_MACRO,"Button",BS_OWNERDRAW,5,154,
+                    50,14,0,HIDC_DIR_MACRO
+    CONTROL         "&Files",IDC_FILE_MACRO,"Button",BS_OWNERDRAW,65,154,50,
+                    14,0,HIDC_FILE_MACRO
+    PUSHBUTTON      "De&pendencies...",IDC_USER_DEPS,125,154,64,14,NOT 
+                    WS_TABSTOP,0,HIDC_USER_DEPS
+END
+
+IDDP_FILE_GENERAL DIALOG DISCARDABLE  3, 20, 250, 62
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "File name:",IDC_STATIC,3,7,57,8
+    EDITTEXT        IDC_FILE_NAME,60,6,187,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Last modified:",IDC_STATIC,3,21,57,8
+    LTEXT           "",IDC_FILE_DATE,60,21,190,9
+    LTEXT           "Persist as:",IDC_STATIC,3,35,57,8
+    EDITTEXT        IDC_ORG_FILE_NAME,60,34,187,13,ES_AUTOHSCROLL
+    LTEXT           "Status:",IDC_SCC_STATUS_TEXT,3,49,57,8
+    EDITTEXT        IDC_SCC_STATUS,60,48,187,13,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDDP_DEP_GENERAL DIALOG DISCARDABLE  0, 0, 250, 62
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "File name:",IDC_STATIC,3,7,57,8
+    EDITTEXT        IDC_FILE_NAME,60,6,187,13,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Last modified:",IDC_STATIC,3,21,57,8
+    LTEXT           "",IDC_FILE_DATE,60,21,190,9
+END
+
+IDDP_LINKER_WIN32_OUTPUT DIALOGEX 0, 0, 200, 110
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Base address:",IDC_TXT_BASE,5,5,87,8,NOT WS_GROUP
+    EDITTEXT        IDC_BASEADDR,5,16,90,12,ES_AUTOHSCROLL,0,HIDC_BASEADDR
+    LTEXT           "&Entry-point symbol:",IDC_TXT_ENTRY,104,5,95,8,NOT 
+                    WS_GROUP
+    EDITTEXT        IDC_ENTRYPOINT,104,16,90,12,ES_AUTOHSCROLL,0,
+                    HIDC_ENTRYPOINT
+    LTEXT           "Reser&ve:",IDC_TXT_STK_RES,11,44,56,8
+    EDITTEXT        IDC_STACKRESERVE,11,54,84,12,ES_AUTOHSCROLL,0,
+                    HIDC_STACKRESERVE
+    GROUPBOX        "Stack allocations",IDC_TXT_STACKGRP,5,32,189,40
+    LTEXT           "&Commit:",IDC_TXT_STK_COM,106,44,26,8
+    EDITTEXT        IDC_STACKCOMMIT,106,54,82,12,ES_AUTOHSCROLL,0,
+                    HIDC_STACKCOMMIT
+    GROUPBOX        "Version information",IDC_TXT_VERGRP,5,76,189,28
+    LTEXT           "&Major:",IDC_TXT_VERMAJ,11,90,25,8
+    EDITTEXT        IDC_VERMAJOR,38,88,57,12,ES_AUTOHSCROLL,0,HIDC_VERMAJOR
+    LTEXT           "Mi&nor:",IDC_TXT_VERMIN,106,90,24,8
+    EDITTEXT        IDC_VERMINOR,131,88,57,12,ES_AUTOHSCROLL,0,HIDC_VERMINOR
+END
+
+IDD_NEW_PROJ_GRP DIALOGEX 9, 26, 202, 62
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "New Folder"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Name of the new folder:",IDC_STATIC,7,7,125,8,NOT 
+                    WS_GROUP
+    EDITTEXT        IDC_GROUPNAME,7,17,125,12,ES_AUTOHSCROLL,0,
+                    HIDC_GROUPNAME
+    LTEXT           "File e&xtensions:",IDC_STATIC,7,33,125,8
+    EDITTEXT        IDC_GROUPFILTER,7,43,125,12,ES_AUTOHSCROLL,0,
+                    HIDC_GROUPFILTER
+    DEFPUSHBUTTON   "OK",IDOK,145,7,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,145,24,50,14
+END
+
+IDD_NEW_TARGET DIALOGEX 0, 0, 225, 120
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "New Project"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Project &name:",IDC_STATIC,7,7,147,8
+    EDITTEXT        IDC_NEWTARGET_NAME,7,17,147,13,ES_AUTOHSCROLL,0,
+                    HIDC_NEWTARGET_NAME
+    LTEXT           "Project &type:",IDC_STATIC,7,35,147,8
+    COMBOBOX        IDC_NEWTARGET_TARGETTYPE,7,45,147,38,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_NEWTARGET_TARGETTYPE
+    LTEXT           "&Platforms:",IDC_STATIC,7,62,147,8
+    LISTBOX         IDC_NEWTARGET_PLATFORMS,7,72,147,40,WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_NEWTARGET_PLATFORMS
+    DEFPUSHBUTTON   "OK",IDOK,164,7,48,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,164,24,48,14
+    PUSHBUTTON      "&Options...",IDC_NEWTARGET_OPTIONS,164,41,48,14,0,0,
+                    HIDC_NEWTARGET_OPTIONS
+END
+
+IDD_NO_CMN_OPTIONS DIALOG DISCARDABLE  0, 0, 185, 93
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Common settings do not exist for the selected items.",
+                    IDC_STATIC,26,37,134,18,NOT WS_GROUP
+    GROUPBOX        "",IDC_STATIC,0,0,185,92
+END
+
+IDD_REMOTE_TARG_NAME DIALOG DISCARDABLE  0, 0, 301, 63
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Remote Executable Path And File Name"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "",IDC_REMOTE_TARGET_TXT,7,7,221,18
+    LTEXT           "Remote executable path and file &name:",IDC_STATIC,7,32,
+                    171,8
+    EDITTEXT        IDC_REMOTE_TARGET,7,43,225,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,244,7,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,244,24,50,14
+END
+
+IDD_EXE_FOR_DEBUG DIALOGEX 0, 0, 267, 62
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Executable For Debug Session"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Please specify the name of the executable file to be used for the debug session.",
+                    IDC_CALLING_PROG_TXT2,7,7,187,21,SS_NOPREFIX
+    LTEXT           "&Executable file name:",IDC_CALLING_PROG_TXT,7,32,126,8
+    EDITTEXT        IDC_CALLING_PROG,7,42,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_CALLING_PROG
+    DEFPUSHBUTTON   "OK",IDOK,210,7,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,210,24,50,14
+    CONTROL         "",IDC_DEBUG_BROWSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    198,41,12,14,0,HIDC_DEBUG_BROWSE
+END
+
+IDD_TARGET_OPTIONS DIALOGEX 0, 0, 250, 127
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Target Options"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Target files",IDC_STATIC,7,7,178,59
+    CONTROL         "&Default:",IDC_TARGETOPTS_FILESDEF,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,14,18,42,10,0,
+                    HIDC_TARGETOPTS_FILESDEF
+    CONTROL         "&Copy:",IDC_TARGETOPTS_FILESCOPY,"Button",
+                    BS_AUTORADIOBUTTON,14,32,42,10,0,
+                    HIDC_TARGETOPTS_FILESCOPY
+    CONTROL         "&Mirror:",IDC_TARGETOPTS_FILESMIRROR,"Button",
+                    BS_AUTORADIOBUTTON,14,47,42,10,0,
+                    HIDC_TARGETOPTS_FILESMIRROR
+    LTEXT           "(No Files generated)",
+                    IDC_TARGETOPTIONS_FILESDEFAULT_TXT,58,18,120,8
+    COMBOBOX        IDC_TARGETOPTS_COPYFROM,58,31,120,30,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_TARGETOPTS_COPYFROM
+    COMBOBOX        IDC_TARGETOPTS_MIRRORFROM,58,47,120,30,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_TARGETOPTS_MIRRORFROM
+    GROUPBOX        "Settings",IDC_STATIC,7,68,178,51
+    CONTROL         "D&efault:",IDC_TARGETOPTS_SETTINGSDEF,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,13,79,42,10,0,
+                    HIDC_TARGETOPTS_SETTINGSDEF
+    CONTROL         "Debug &build",IDC_TARGETOPTS_DEBUG,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,26,92,66,10,0,
+                    HIDC_TARGETOPTS_DEBUG
+    CONTROL         "C&opy Common Settings",IDC_TARGETOPTS_SETTINGSCOPY,
+                    "Button",BS_AUTORADIOBUTTON,14,105,110,10
+    LTEXT           "(Target type settings)",
+                    IDC_TARGETOPTIONS_SETTINGSDEFAULT_TXT,58,79,120,8
+    DEFPUSHBUTTON   "OK",IDOK,198,7,45,14
+    PUSHBUTTON      "Cancel",IDCANCEL,198,24,45,14
+END
+
+IDD_FIND_MODULE DIALOGEX 36, 24, 261, 169
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Find Module"
+FONT 8, "Helv", 0, 0, 0x1
+BEGIN
+    LTEXT           "File &name:",1090,6,29,76,9
+    EDITTEXT        1152,6,39,90,12,ES_AUTOHSCROLL,0,0xbe8b0480
+    LISTBOX         1120,6,55,90,62,LBS_SORT | LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | 
+                    LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Directories:",IDC_STATIC,101,29,92,9
+    LTEXT           "",1088,101,41,92,9,SS_NOPREFIX
+    LISTBOX         1121,101,55,92,62,LBS_SORT | LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | 
+                    LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP,0,
+                    0xbe8b0461
+    LTEXT           "List files of &type:",1089,6,120,90,9
+    COMBOBOX        1136,6,130,90,60,CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | 
+                    WS_BORDER | WS_VSCROLL | WS_TABSTOP,0,0xbe8b0470
+    LTEXT           "Dri&ves:",1091,101,120,92,9
+    COMBOBOX        1137,101,130,92,68,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | 
+                    CBS_AUTOHSCROLL | CBS_SORT | CBS_HASSTRINGS | WS_BORDER | 
+                    WS_VSCROLL | WS_TABSTOP,0,0xbe8b0471
+    DEFPUSHBUTTON   "OK",IDOK,204,7,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,204,24,50,14,WS_GROUP
+    CONTROL         "Prompt before loading additional DLLs",
+                    IDC_FIND_MODULE_PROMPT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,6,152,135,10,0,HIDC_FIND_MODULE_PROMPT
+    LTEXT           "Please enter the local path for the remote module named:",
+                    IDC_STATIC,6,7,185,8
+    LTEXT           "",1092,6,18,92,9,SS_NOPREFIX
+END
+
+IDDP_DEBUG_CATEGORY DIALOGEX 0, 0, 200, 20
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Categor&y:",IDC_PAGE_CATEGORY,5,8,31,8
+    COMBOBOX        IDC_MINI_PAGE,40,6,96,69,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_MINI_PAGE
+END
+
+IDDP_DEBUG_ADD_DLL DIALOGEX 0, 0, 200, 154
+STYLE WS_CHILD | WS_VISIBLE | WS_DISABLED
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Modules:",IDC_GRID_HOLDER,5,7,189,105,SS_SUNKEN,0,
+                    HIDC_GRID_HOLDER
+    CONTROL         "&Try to locate other DLLs",IDC_LOAD_DLL_PROMPT,"Button",
+                    BS_3STATE | WS_TABSTOP,5,136,176,10,0,
+                    HIDC_LOAD_DLL_PROMPT
+    LTEXT           "Place a check in the first column to load the module's symbols at the start of a debug session.",
+                    IDC_STATIC,5,115,187,18
+END
+
+IDD_SELECT_TARGET DIALOGEX 0, 0, 243, 125
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Set Active Project Configuration"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Project configurations:",IDC_STATIC,7,7,169,8
+    LISTBOX         IDC_TARGET_LIST,7,17,169,101,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    DEFPUSHBUTTON   "OK",IDOK,186,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,186,24,50,14
+    LTEXT           "",IDC_PLATFORM_TYPE,228,48,8,8,SS_NOPREFIX | NOT 
+                    WS_VISIBLE | NOT WS_GROUP
+END
+
+IDDP_TARGREF_GENERAL DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Reset",IDC_SET_DEFAULT,145,6,50,14,0,0,
+                    HIDC_SET_DEFAULT
+    CONTROL         "E&xclude project dependency from build",
+                    IDC_TARGREF_EXCLUDE,"Button",BS_3STATE | WS_TABSTOP,5,26,
+                    140,10,0,HIDC_TARGREF_EXCLUDE
+END
+
+IDDP_EXTTARGET_OPTIONS DIALOGEX 0, 0, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Reset",IDC_SET_DEFAULT,145,5,50,14,NOT WS_VISIBLE,0,
+                    HIDC_SET_DEFAULT
+    LTEXT           "&Build command line:",IDC_BUILDCMD_TEXT,5,26,162,8
+    EDITTEXT        IDC_EXTOPTS_CMDLINE,5,37,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_CMDLINE
+    LTEXT           "Rebuild &all options:",IDC_REBUILDALL_TEXT,5,56,169,8
+    EDITTEXT        IDC_EXTOPTS_REBUILDOPT,5,67,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_REBUILDOPT
+    LTEXT           "Output file &name:",IDC_TARGET_TXT,5,86,69,8
+    EDITTEXT        IDC_EXTOPTS_TARGET,5,97,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_TARGET
+    LTEXT           "Bro&wse info file name:",IDC_EXTOPTS_BSCNAME_TXT,5,116,
+                    99,8
+    EDITTEXT        IDC_EXTOPTS_BSCNAME,5,127,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_EXTOPTS_BSCNAME
+END
+
+IDDP_TOOL_FILES DIALOG DISCARDABLE  3, 20, 250, 62
+STYLE WS_CHILD | WS_DISABLED
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Tool:",IDC_TOOLS_TXT,3,3,36,8
+    LISTBOX         IDC_TOOLS,3,13,65,33,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Files:",IDC_TOOL_FILES_TXT,74,3,37,8
+    LISTBOX         IDC_TOOL_FILES,74,13,167,33,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Last modified date:",IDC_STATIC,74,50,65,8
+    LTEXT           "<timestamp>",IDC_FILE_DATE,146,50,100,9
+END
+
+IDD_PLATFORMS DIALOGEX 0, 0, 181, 80
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Platforms"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,124,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,124,24,50,14
+    LTEXT           "Select the platforms supported in your external makefile",
+                    IDC_PLATFORM_TEXT,7,7,106,25
+    LTEXT           "&Platforms:",IDC_STATIC,7,31,34,8
+    LISTBOX         IDC_PLATFORMS,7,40,106,33,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP,0,
+                    HIDC_PLATFORMS
+END
+
+IDD_CUSTOM_TOOLS DIALOGEX 0, 0, 195, 142
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Custom Tools"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Tools:",IDC_STATIC,7,7,73,8
+    LISTBOX         IDC_TOOLS_LIST,7,18,120,104,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP,0,
+                    HIDC_TOOLS_LIST
+    CONTROL         "&Available to all projects",IDC_BUILDER_SPECIFIC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,125,122,10,0,
+                    HIDC_BUILDER_SPECIFIC
+    DEFPUSHBUTTON   "OK",IDOK,138,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,138,24,50,14
+    PUSHBUTTON      "&New...",IDC_NEW_TOOL,138,41,50,14,0,0,HIDC_NEW_TOOL
+    PUSHBUTTON      "&Edit...",IDC_EDIT_TOOL,138,58,50,14,0,0,HIDC_EDIT_TOOL
+    PUSHBUTTON      "&Delete",IDC_DELETE_TOOL,138,75,50,14,0,0,
+                    HIDC_DELETE_TOOL
+END
+
+IDD_EDIT_TOOL DIALOGEX 0, 0, 229, 192
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Edit Tool"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Tool &name:",IDC_STATIC,7,7,36,8
+    EDITTEXT        IDC_EDITTOOL_NAME,7,17,155,13,ES_AUTOHSCROLL,0,
+                    HIDC_EDITTOOL_NAME
+    LTEXT           "&Command(s):",IDC_STATIC,7,35,41,8
+    EDITTEXT        IDC_EDITTOOL_EXE,7,45,155,26,ES_MULTILINE | 
+                    ES_AUTOHSCROLL,0,HIDC_EDITTOOL_EXE
+    PUSHBUTTON      "&Browse...",IDC_EDITTOOL_BROWSE,172,41,50,14,0,0,
+                    HIDC_EDITTOOL_BROWSE
+    LTEXT           "&Menu text:",IDC_STATIC,7,75,34,8
+    EDITTEXT        IDC_EDITTOOL_MENU,7,85,155,13,ES_AUTOHSCROLL,0,
+                    HIDC_EDITTOOL_MENU
+    LTEXT           "M&acro prefix:",IDC_STATIC,7,103,45,8
+    EDITTEXT        IDC_EDITTOOL_PREFIX,7,113,155,13,ES_AUTOHSCROLL,0,
+                    HIDC_EDITTOOL_PREFIX
+    EDITTEXT        IDC_EDITTOOL_INPUT,7,141,155,13,ES_AUTOHSCROLL,0,
+                    HIDC_EDITTOOL_INPUT
+    EDITTEXT        IDC_EDITTOOL_OUTPUT,7,169,155,13,ES_AUTOHSCROLL,0,
+                    HIDC_EDITTOOL_OUTPUT
+    PUSHBUTTON      "&Directory",IDC_EDITTOOL_DIRMACRO,172,58,50,14,0,0,
+                    HIDC_EDITTOOL_DIRMACRO
+    PUSHBUTTON      "&File name",IDC_EDITTOOL_FILEMACRO,172,75,50,14,0,0,
+                    HIDC_EDITTOOL_FILEMACRO
+    DEFPUSHBUTTON   "OK",IDOK,172,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,172,24,50,14
+    LTEXT           "&Output file format(s):",IDC_STATIC,7,159,97,8
+    LTEXT           "&Input file filter(s):",IDC_STATIC,7,131,86,8
+END
+
+IDDP_PROPERTIES_TARGETS DIALOG DISCARDABLE  3, 20, 250, 62
+STYLE WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Target filter:",IDC_STATIC,6,9,43,8
+    COMBOBOX        IDC_TARGET,50,7,142,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_GRAPH_DIALOG DIALOG DISCARDABLE  0, 0, 600,400 
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Build Dependency Graph"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "",IDC_GRAPH_FRAME,"Static",SS_BLACKFRAME | NOT 
+                    WS_VISIBLE,7,7,480,370
+    SCROLLBAR       IDC_GRAPH_VSCRL,490,7,11,370,SBS_VERT
+    SCROLLBAR       IDC_GRAPH_HSCRL,7,380,480,11
+    DEFPUSHBUTTON   "&Close",IDOK,510,7,50,14
+    GROUPBOX        "Legend",IDC_STATIC,510,24,74,136
+    CONTROL         "",IDC_GRAPH_LEGEND,"Static",SS_BLACKFRAME | NOT 
+                    WS_VISIBLE,514,36,60,116
+    CONTROL         "&Show dependencies",IDC_GRAPH_SHOWDEPS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,510,172,81,10
+END
+
+IDD_INSERTPROJ_COPY DIALOGEX 0, 0, 197, 116
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Add Project Configuration"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Configuration:",IDC_STATIC,7,7,121,8
+    EDITTEXT        IDC_PROJ_NAME,7,17,121,13,ES_AUTOHSCROLL,0,
+                    HIDC_PROJ_NAME
+    LTEXT           "C&opy settings from:",IDC_STATIC,7,35,121,8
+    COMBOBOX        IDC_TARGET_LISTCOMBO,7,45,121,45,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP,0,
+                    HIDC_TARGET_LISTCOMBO
+    LTEXT           "&Platform:",IDC_STATIC,7,62,113,8
+    COMBOBOX        IDC_TARGET_PLATFORM,7,72,121,38,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP,0,
+                    HIDC_TARGET_PLATFORM
+    DEFPUSHBUTTON   "OK",IDOK,140,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,140,24,50,14
+    LTEXT           "The new configuration will be called:",IDC_STATIC,7,90,
+                    183,8
+    LTEXT           "",IDC_STATIC_CONFIG_NAME,7,101,183,8,SS_NOPREFIX
+END
+
+IDD_UPDATE_ALLDEP DIALOGEX 0, 0, 225, 125
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Update All Dependencies"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Project configurations:",IDC_STATIC,7,7,102,8
+    LISTBOX         IDC_TARGET_LIST,7,17,150,101,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    DEFPUSHBUTTON   "OK",IDOK,167,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,167,24,50,14
+END
+
+IDD_UPDATE_BROWSE DIALOG DISCARDABLE  0, 0, 282, 82
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            "",IDC_UPATE_BROWSE_ICON,7,7,18,20
+    CONTROL         "<.bsc filename>",IDC_BSCNAME,"Static",SS_LEFTNOWORDWRAP | 
+                    SS_NOPREFIX | WS_GROUP,35,7,240,8
+    LTEXT           "Browse information is not available for this project.",
+                    IDC_STATIC,35,20,240,8
+    DEFPUSHBUTTON   "&Yes",IDYES,86,61,50,14
+    PUSHBUTTON      "&No",IDNO,146,61,50,14
+    LTEXT           "Do you want your build settings altered (if necessary) and your project rebuilt to generate browse information?",
+                    IDC_STATIC,35,33,240,18
+END
+
+IDD_PROJECTS DIALOGEX 0, 0, 219, 96
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Configurations"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Projects and configurations:",IDC_STATIC,7,7,88,8
+    CONTROL         "Treeview1",IDC_CONFIGURATIONS_TREE,"SysTreeView32",
+                    TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | 
+                    TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | WS_BORDER | 
+                    WS_TABSTOP,7,17,145,72,0,HIDC_CONFIGURATIONS_TREE
+    DEFPUSHBUTTON   "Close",IDOK,162,7,50,14
+    PUSHBUTTON      "&Add...",IDC_ADD,162,24,50,14,0,0,HIDC_ADD
+    PUSHBUTTON      "&Remove",IDC_REMOVE,162,41,50,14,0,0,HIDC_REMOVE
+END
+
+IDD_ADD_CFG_DEP DIALOGEX 0, 0, 243, 105
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Add Subproject"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Project configuration:",IDC_STATIC,7,7,68,8
+    LISTBOX         IDC_TARGET_LIST,7,17,169,40,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    LTEXT           "Creates a reference to the chosen project. This project is built first if it is out of date when the containing project is built.",
+                    IDC_STATIC,9,70,167,27
+    DEFPUSHBUTTON   "OK",IDOK,186,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,186,24,50,14
+    LTEXT           "",IDC_PLATFORM_TYPE,228,89,8,8,SS_NOPREFIX | NOT 
+                    WS_VISIBLE | NOT WS_GROUP
+END
+
+IDD_SUBPROJECTS DIALOGEX 0, 0, 209, 121
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Project Dependencies"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Select project to &modify:",IDC_STATIC,7,7,135,8
+    COMBOBOX        IDC_PROJECT,7,18,135,70,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_PROJECT
+    LTEXT           "&Dependent on the following project(s):",IDC_STATIC,7,
+                    36,135,8,0,0,HIDC_STATIC
+    LISTBOX         IDC_SUBPROJECTS,7,47,135,67,LBS_SORT | 
+                    LBS_OWNERDRAWVARIABLE | LBS_HASSTRINGS | 
+                    LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | WS_VSCROLL | 
+                    WS_HSCROLL | WS_TABSTOP,0,HIDC_SUBPROJECTS
+    DEFPUSHBUTTON   "OK",IDOK,152,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,152,26,50,14
+END
+
+IDDP_JAVA_DEBUG_ADDL_CLASSES DIALOGEX 0, 0, 200, 154
+STYLE WS_CHILD | WS_VISIBLE | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Classes:",IDC_GRID_HOLDER,5,7,189,105,SS_SUNKEN,0,
+                    HIDC_GRID_HOLDER
+    CONTROL         "&Try to locate other classes",IDC_LOAD_DLL_PROMPT,
+                    "Button",BS_3STATE | NOT WS_VISIBLE | WS_TABSTOP,5,136,
+                    176,10,0,HIDC_LOAD_DLL_PROMPT
+    LTEXT           "Place a check in the first column to load the class's symbols at the start of a debug session.",
+                    IDC_STATIC,5,115,187,18
+END
+
+IDDP_JAVA_DEBUG_BROWSER DIALOGEX 3, 20, 200, 154
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Browser:",IDC_JAVA_BROWSER_TXT,5,5,190,8
+    EDITTEXT        IDC_JAVA_BROWSER,5,15,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_BROWSER
+    RADIOBUTTON     "&Use parameters from HTML page",
+                    IDC_JAVA_USE_HTML_PARAMS,12,45,167,10,0,0,
+                    HIDC_JAVA_USE_HTML_PARAMS
+    LTEXT           "H&TML page:",IDC_JAVA_HTML_PAGE_TXT,24,58,164,8
+    EDITTEXT        IDC_JAVA_HTML_PAGE,24,68,164,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_HTML_PAGE
+    RADIOBUTTON     "&Enter parameters below",IDC_JAVA_USE_USER_PARAMS,12,87,
+                    157,10,0,0,HIDC_JAVA_USE_USER_PARAMS
+    LTEXT           "&Parameters:",IDC_JAVA_PARAMS_HOLDER,12,101,176,44,
+                    SS_SUNKEN,0,HIDC_JAVA_PARAMS_HOLDER
+    GROUPBOX        "Parameters",IDC_STATIC,5,32,190,118
+END
+
+IDDP_JAVA_DEBUG_GENERAL DIALOGEX 3, 20, 200, 154
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Class for debugging/executing:",
+                    IDC_JAVA_CALLING_PROG_TXT,5,5,190,8
+    EDITTEXT        IDC_JAVA_CALLING_PROG,5,15,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_CALLING_PROG
+    CONTROL         "&Browser (applets only)",IDC_JAVA_USE_BROWSER,"Button",
+                    BS_AUTORADIOBUTTON,12,64,176,10,0,HIDC_JAVA_USE_BROWSER
+    CONTROL         "Stand-&alone interpreter (applications only)",
+                    IDC_JAVA_USE_STANDALONE,"Button",BS_AUTORADIOBUTTON,12,
+                    77,176,10,0,HIDC_JAVA_USE_STANDALONE
+    GROUPBOX        "Debug/Execute project under",IDC_STATIC,5,51,190,70
+    LTEXT           "Use the Category drop down to set browser and stand-alone interpreter options.",
+                    IDC_STATIC,12,93,176,24
+    LTEXT           "Java class names are case sensitive.",IDC_STATIC,5,33,
+                    190,8
+END
+
+IDDP_JAVA_DEBUG_STANDALONE DIALOGEX 3, 20, 200, 154
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "S&tand-alone interpreter:",IDC_JAVA_STANDALONE_TXT,5,5,
+                    190,8
+    EDITTEXT        IDC_JAVA_STANDALONE,5,15,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_STANDALONE
+    LTEXT           "Stand-alone &interpreter arguments:",IDC_STATIC,5,32,
+                    190,8
+    EDITTEXT        IDC_JAVA_STANDALONE_ARGS,5,43,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_STANDALONE_ARGS
+    LTEXT           "&Program arguments:",IDC_JAVA_PROG_ARGS_TXT,5,60,190,8
+    EDITTEXT        IDC_JAVA_PROG_ARGS,5,71,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_PROG_ARGS
+END
+
+IDDP_JAVA_TOOL_GENERAL DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Reset",IDC_SET_DEFAULT,145,6,50,14,0,0,
+                    HIDC_SET_DEFAULT
+    CONTROL         "E&xclude file from build",IDC_ITEM_EXCLUDE,"Button",
+                    BS_3STATE | WS_TABSTOP,5,26,190,10,0,HIDC_ITEM_EXCLUDE
+    LTEXT           "&Class path directories:",IDC_JAVA_EXTRA_CLASSPATH_TXT,
+                    5,42,190,8
+    EDITTEXT        IDC_JAVA_EXTRA_CLASSPATH,5,53,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_EXTRA_CLASSPATH
+    LTEXT           "&Output directory:",IDC_OUTDIRS_TRGTXT,5,71,190,8
+    EDITTEXT        IDC_OUTDIRS_TRG,5,82,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_OUTDIRS_TRG
+END
+
+IDD_JAVA_DEBUG_INFO DIALOGEX 0, 0, 267, 159
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Information For Debugging Class"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Specify the name of the class file and how to debug the project.",
+                    IDC_JAVA_INSTRUCTIONS,7,7,187,24,SS_NOPREFIX
+    LTEXT           "&Class file name:",IDC_JAVA_CLASSFILENAME,7,36,190,8
+    EDITTEXT        IDC_JAVA_CLASS_FILE_NAME,7,46,190,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_CLASS_FILE_NAME
+    CONTROL         "&Browser",IDC_JAVA_USE_BROWSER,"Button",
+                    BS_AUTORADIOBUTTON,14,95,176,10,0,HIDC_JAVA_USE_BROWSER
+    EDITTEXT        IDC_JAVA_BROWSER,25,106,165,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_BROWSER
+    CONTROL         "Stand-&alone interpreter",IDC_JAVA_USE_STANDALONE,
+                    "Button",BS_AUTORADIOBUTTON,14,124,176,10,0,
+                    HIDC_JAVA_USE_STANDALONE
+    EDITTEXT        IDC_JAVA_STANDALONE,25,135,165,13,ES_AUTOHSCROLL,0,
+                    HIDC_JAVA_STANDALONE
+    DEFPUSHBUTTON   "OK",IDOK,210,7,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,210,24,50,14
+    GROUPBOX        "Debug project under",IDC_JAVA_DEBUGUSING_GRP,7,82,190,
+                    72
+    LTEXT           "Java class names are case sensitive.",IDC_STATIC,7,64,
+                    190,8
+END
+
+IDD_SELECT_CONFIG DIALOGEX 0, 0, 243, 125
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Select project configuration(s) to modify"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Project configurations:",IDC_STATIC,7,7,169,8
+    LISTBOX         IDC_TARGET_LIST,7,17,169,101,LBS_MULTIPLESEL | 
+                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | 
+                    LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | WS_VSCROLL | 
+                    WS_HSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    DEFPUSHBUTTON   "OK",IDOK,186,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,186,24,50,14
+END
+
+IDD_PROFILE DIALOGEX 77, 66, 284, 122
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Profile"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,226,8,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,226,24,50,14
+    GROUPBOX        "Profile Type",IDC_PROF_Type,8,4,210,50
+    CONTROL         "Function &timing",IDC_PROF_FnTiming,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,15,14,86,10,0,
+                    HIDC_PROF_FnTiming
+    CONTROL         "&Function coverage",IDC_PROF_FnCover,"Button",
+                    BS_AUTORADIOBUTTON,15,27,86,10,0,HIDC_PROF_FnCover
+    CONTROL         "&Line coverage",IDC_PROF_LnCover,"Button",
+                    BS_AUTORADIOBUTTON,15,41,86,10,0,HIDC_PROF_LnCover
+    CONTROL         "&Merge",IDC_PROF_Merge,"Button",BS_AUTORADIOBUTTON,118,
+                    14,86,10,0,HIDC_PROF_Merge
+    CONTROL         "&Custom",IDC_PROF_Custom,"Button",BS_AUTORADIOBUTTON,
+                    118,27,86,10,0,HIDC_PROF_Custom
+    CONTROL         "Function &sampling",IDC_PROF_FnSampling,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,118,41,86,10,0,
+                    HIDC_PROF_FnSampling
+    GROUPBOX        "Custom Settings",IDC_STATIC,8,60,210,28
+    PUSHBUTTON      "&Browse...",IDC_PROF_Browse,13,71,50,14,WS_DISABLED,0,
+                    HIDC_PROF_Browse
+    COMBOBOX        IDS_PROF_Custom,71,72,142,50,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | CBS_SORT | WS_DISABLED | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDS_PROF_Custom
+    LTEXT           "&Advanced settings:",16631,8,92,100,8
+    EDITTEXT        IDC_PROF_Advanced,8,102,210,13,ES_AUTOHSCROLL,0,
+                    HIDC_PROF_Advanced
+END
+
+IDDP_PRELINK_OPTIONS DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Pre-link description:",-1,5,5,80,8
+    EDITTEXT        IDC_PRELINK_DESC,89,3,103,13,ES_AUTOHSCROLL,0,
+                    HIDC_PRELINK_DESC
+    LTEXT           "Pre-link command(s):",IDC_PRELINK_CMDS,5,20,187,149,
+                    SS_SUNKEN,0,HIDC_PRELINK_CMDS
+END
+
+IDDP_POSTBUILD_OPTIONS DIALOGEX 3, 20, 200, 173
+STYLE WS_CHILD | WS_DISABLED
+EXSTYLE WS_EX_CONTEXTHELP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Post-build description:",-1,5,5,80,8
+    EDITTEXT        IDC_POSTBUILD_DESC,89,3,103,13,ES_AUTOHSCROLL,0,
+                    HIDC_POSTBUILD_DESC
+    LTEXT           "Post-build command(s):",IDC_POSTBUILD_CMDS,5,20,187,149,
+                    SS_SUNKEN,0,HIDC_POSTBUILD_CMDS
+END
+
+IDD_USER_DEPS DIALOGEX 0, 0, 228, 101
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "User-defined dependencies"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,171,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,171,24,50,14
+    LTEXT           "User-defined dependencies",IDC_USER_DEPS_GRID,7,7,155,
+                    87,SS_SUNKEN,0,HIDC_USER_DEPS_GRID
+END
+
+IDD_SELECT_PROJECTS DIALOGEX 0, 0, 225, 140
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Export Makefile(s)"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "&Projects",IDC_STATIC,7,7,102,8,0,0,HIDC_STATIC
+    LISTBOX         IDC_TARGET_LIST,7,17,150,101,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,0,HIDC_TARGET_LIST
+    DEFPUSHBUTTON   "OK",IDOK,167,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,167,24,50,14
+    PUSHBUTTON      "&Select All",IDC_SELECT_ALL,167,41,50,14,0,0,
+                    HIDC_SELECT_ALL
+    CONTROL         "&Write dependencies when writing makefiles",
+                    IDC_EXPORT_DEPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    123,218,10,0,HIDC_EXPORT_DEPS
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""ids.h""\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""dlgs.h""\r\n"
+    "#include ""optncplr.h2""\r\n"
+    "#include ""optnbsc.h2""\r\n"
+    "#include ""optnrc.h2""\r\n"
+    "#include ""optnlib.h2""\r\n"
+    "#include ""optnlink.h2""\r\n"
+    "#include ""optnmtl.h2""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""vproj.rc2""  \t// non-App Studio edited resources\r\n"
+    "#include ""vproj.rcs""\r\n"
+    "1 TYPELIB DISCARDABLE ""bld.tlb""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SINGLE_ITEM         BITMAP  DISCARDABLE     "..\\RES\\SINGLE.BMP"
+IDB_PROJTOOLS           BITMAP  DISCARDABLE     "..\\RES\\PROJTOOL.BMP"
+IDB_SCC_STATUS          BITMAP  DISCARDABLE     "..\\RES\\SCCSUPP.BMP"
+IDB_FOLDER_ITEM         BITMAP  DISCARDABLE     "..\\RES\\folder.bmp"
+IDB_PANEGLYPH_BITMAP    BITMAP  DISCARDABLE     "..\\RES\\btnglyph.bmp"
+IDB_PROJLARGETOOLS      BITMAP  DISCARDABLE     "..\\RES\\projlarg.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDACCEL_PROJECT ACCELERATORS DISCARDABLE 
+BEGIN
+    VK_CANCEL,      IDM_PROJECT_STOP_BUILD, VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          IDM_PROJECT_EXECUTE,    VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_DDCOPYMULTIFILE     CURSOR  DISCARDABLE     "..\\RES\\COPYMULT.CUR"
+IDC_DDCOPYFILE          CURSOR  DISCARDABLE     "..\\RES\\COPYSING.CUR"
+IDC_DDMULTIFILE         CURSOR  DISCARDABLE     "..\\RES\\MOVEMULT.CUR"
+IDC_DDFILE              CURSOR  DISCARDABLE     "..\\RES\\MOVESING.CUR"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_PRJ_TEMPLATE        ICON    DISCARDABLE     "..\\RES\\PROJECT.ICO"
+IDR_APPLICATION         ICON    DISCARDABLE     "..\\RES\\applicat.ico"
+IDR_DLL                 ICON    DISCARDABLE     "..\\RES\\dll.ico"
+IDR_LIBRARY             ICON    DISCARDABLE     "..\\RES\\library.ico"
+IDR_CONSOLE             ICON    DISCARDABLE     "..\\RES\\console.ico"
+IDR_QUICKWIN            ICON    DISCARDABLE     "..\\RES\\quickwin.ico"
+IDR_STANDARDGRAPHICS    ICON    DISCARDABLE     "..\\RES\\standard.ico"
+IDR_ASLM                ICON    DISCARDABLE     "..\\RES\\aslm.ico"
+IDR_EXTERNAL            ICON    DISCARDABLE     "..\\RES\\external.ico"
+IDR_JAVAWORKSPACE       ICON    DISCARDABLE     "..\\RES\\javawks.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDDP_OPTIONS_BUILD, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        TOPMARGIN, 5
+    END
+
+    IDDP_COMPILER_LISTFILE, DIALOG
+    BEGIN
+        VERTGUIDE, 18
+    END
+
+    IDDP_COMPILER_PCH, DIALOG
+    BEGIN
+        VERTGUIDE, 18
+    END
+
+    IDDP_LINKER_CUSTOM, DIALOG
+    BEGIN
+        VERTGUIDE, 19
+        VERTGUIDE, 196
+    END
+
+    IDD_RENAME_TARGET, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 156
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+
+    IDD_PROJECT_BATCH_BUILD, DIALOG
+    BEGIN
+        RIGHTMARGIN, 218
+        VERTGUIDE, 7
+        VERTGUIDE, 167
+        BOTTOMMARGIN, 118
+    END
+
+    IDD_TOOL_OPTION_TAB, DIALOG
+    BEGIN
+        VERTGUIDE, 195
+    END
+
+    IDD_CUSTOM_BUILD_TAB, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 195
+        VERTGUIDE, 65
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 168
+    END
+
+    IDDP_LINKER_WIN32_OUTPUT, DIALOG
+    BEGIN
+        VERTGUIDE, 95
+    END
+
+    IDD_NEW_PROJ_GRP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 195
+        VERTGUIDE, 132
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_NEW_TARGET, DIALOG
+    BEGIN
+        RIGHTMARGIN, 221
+        VERTGUIDE, 7
+        VERTGUIDE, 154
+        VERTGUIDE, 164
+        VERTGUIDE, 212
+        BOTTOMMARGIN, 113
+        HORZGUIDE, 7
+    END
+
+    IDD_REMOTE_TARG_NAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+
+    IDD_EXE_FOR_DEBUG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 266
+        VERTGUIDE, 7
+        VERTGUIDE, 260
+        HORZGUIDE, 7
+        HORZGUIDE, 55
+    END
+
+    IDD_TARGET_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        VERTGUIDE, 14
+        VERTGUIDE, 59
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 120
+    END
+
+    IDD_FIND_MODULE, DIALOG
+    BEGIN
+        VERTGUIDE, 7
+        VERTGUIDE, 254
+        BOTTOMMARGIN, 162
+        HORZGUIDE, 7
+    END
+
+    IDD_SELECT_TARGET, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+
+    IDD_PLATFORMS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 174
+        VERTGUIDE, 123
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 73
+    END
+
+    IDD_CUSTOM_TOOLS, DIALOG
+    BEGIN
+        RIGHTMARGIN, 187
+        VERTGUIDE, 7
+        VERTGUIDE, 188
+        HORZGUIDE, 7
+        HORZGUIDE, 135
+    END
+
+    IDD_EDIT_TOOL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 222
+        VERTGUIDE, 162
+        VERTGUIDE, 172
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_GRAPH_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 410
+        VERTGUIDE, 326
+        VERTGUIDE, 343
+        VERTGUIDE, 410
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 182
+        HORZGUIDE, 36
+    END
+
+    IDD_INSERTPROJ_COPY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 190
+        VERTGUIDE, 128
+        VERTGUIDE, 139
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 109
+        HORZGUIDE, 72
+    END
+
+    IDD_UPDATE_ALLDEP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 174
+        VERTGUIDE, 123
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 96
+    END
+
+    IDD_UPDATE_BROWSE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 275
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
+
+    IDD_PROJECTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 212
+        VERTGUIDE, 152
+        VERTGUIDE, 162
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+        HORZGUIDE, 89
+    END
+
+    IDD_ADD_CFG_DEP, DIALOG
+    BEGIN
+        RIGHTMARGIN, 236
+        VERTGUIDE, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+        HORZGUIDE, 97
+    END
+
+    IDD_SUBPROJECTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 202
+        VERTGUIDE, 152
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDDP_JAVA_DEBUG_BROWSER, DIALOG
+    BEGIN
+        VERTGUIDE, 5
+        VERTGUIDE, 12
+        VERTGUIDE, 24
+        VERTGUIDE, 188
+        VERTGUIDE, 195
+    END
+
+    IDDP_JAVA_DEBUG_GENERAL, DIALOG
+    BEGIN
+        VERTGUIDE, 5
+        VERTGUIDE, 12
+        VERTGUIDE, 188
+        VERTGUIDE, 195
+    END
+
+    IDDP_JAVA_DEBUG_STANDALONE, DIALOG
+    BEGIN
+        VERTGUIDE, 5
+        VERTGUIDE, 12
+        VERTGUIDE, 24
+        VERTGUIDE, 188
+        VERTGUIDE, 195
+    END
+
+    IDDP_JAVA_TOOL_GENERAL, DIALOG
+    BEGIN
+        VERTGUIDE, 5
+        VERTGUIDE, 195
+    END
+
+    IDD_JAVA_DEBUG_INFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 266
+        VERTGUIDE, 7
+        VERTGUIDE, 14
+        VERTGUIDE, 25
+        VERTGUIDE, 190
+        VERTGUIDE, 197
+        VERTGUIDE, 260
+        BOTTOMMARGIN, 156
+        HORZGUIDE, 7
+    END
+
+    IDD_SELECT_CONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+
+    IDD_PROFILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 277
+        VERTGUIDE, 217
+        VERTGUIDE, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 115
+    END
+
+    IDD_USER_DEPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 221
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 94
+    END
+
+    IDD_SELECT_PROJECTS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 174
+        VERTGUIDE, 123
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 96
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDDP_OPTIONS_DIRECTORIES DLGINIT
+BEGIN
+    IDC_DIRS_OPTIONS, 0x403, 4, 0
+0x7865, 0x0065, 
+    IDC_DIRS_OPTIONS, 0x403, 4, 0
+0x696c, 0x0062, 
+    IDC_DIRS_OPTIONS, 0x403, 4, 0
+0x6e69, 0x0063, 
+    IDC_DIRS_OPTIONS, 0x403, 7, 0
+0x6f73, 0x7275, 0x6563, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TARGET_FOLDER       "Project Folder"
+    IDS_LIBMGR_TOOL_UI      "Lib Manager"
+    IDS_DIRS_SOURCE         "Source files"
+    IDS_OUTDIR_NULL         """$(OS)"" == ""Windows_NT"""
+    IDS_DEL_CONFIG          "%1\n\nRemove this project configuration?"
+    IDS_NO_VALID_CFG_DEPS   "%1\n\nNone of the configurations can be dependencies of this configuration."
+    IDS_NO_MATCHING_CONFIG  "No Matching Configuration"
+    IDS_ADDCONFIG           "Project Configuration..."
+    IDS_DEL_PROJECT         "%1\n\nRemove this project?"
+    IDS_ERR_NEWDEP          "Cannot create subproject."
+    IDS_ADDPROJECT          "Project..."
+    IDS_SP_FILES            " files"
+    IDS_NEW_MAKEFILE_INST   "The makefile name or some other command line may be specified in\nthe Project Settings dialog. Would you like to go there now?"
+    IDS_ERR_CUSTOM_OUTPUT   "The custom build setting requires an output file."
+    IDS_PANE_NAME           "FileView"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ERR_File_Not_Found      "'%s'\nFile not found."
+    IDS_DIRS_CLASSES        "Class files"
+    IDS_NO_DEBUG_EXE        "%s\n\nThis executable file does not exist."
+    IDS_DEBUG_BROWSE_TITLE  "Browse"
+    IDS_AUTO_CANT_SPAWN_BUILD 
+                            "A build cannot be started because another build is already in progress."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WARN_PROJ_READ_ONLY "%s\n\nThis project file has read-only attributes. You will not be able to save your changes to this project."
+    IDS_WARN_PROJS_READ_ONLY "%s\n\nThese project files have read-only attributes. You will not be able to save your changes."
+    IDS_CONVERT_MAKEFILE    "%s\n\nThis project was generated by a previous version of Visual C++. Continuing will convert it to a Developer Studio workspace."
+    IDS_WARN_DEP_DOES_NOT_EXIST 
+                            "Warning: Dependent file ""%s"" does not exist."
+    IDS_INVALID_CONFIGNAME  "Invalid name for a configuration."
+    IDS_INVALID             "<invalid name>"
+    IDS_GET_REMTARG_BUILD   "As part of the build process, the remote target will be updated. This action requires the remote executable filename."
+    IDS_UPDATING_DEPENDENCIES "Updating dependencies"
+    IDS_UPDATING_DEPENDENCIES_OWIN "Done updating dependencies."
+    IDS_BUILD_TOOLBAR       "Build"
+    IDS_ERROR_NO_PLATFORMS  "No primary platforms are available.\nThe build system will be disabled. It is likely that a build system 'add-on' platform (.pkg), installed by Setup, failed to load."
+    IDS_ADDFILES_OK         "Add"
+    IDS_EXE_NOT_SUPPORTED   "The executable file %s is recognized as belonging to a platform that has not been installed as an 'add-on' DLL by Setup.\nYou will not be able to debug this executable file."
+    IDS_SAME_TARGET         "The source files ""%s"" and ""%s"" are both configured to produce the output file ""%s"".\nThe project cannot be built."
+    IDS_BUILD_MINIBAR       "Build MiniBar"
+    IDS_BASE_GROUP_NAME     "Source Files"
+    IDS_GROUP_CUSTOMIZER    "%s No. %i"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUILDPRJ_SIG_STRING "Microsoft Developer Studio Generated Build File, Format Version "
+    IDS_EXPORTING_MAKEFILE  "Writing exported makefile "
+    IDS_READ_EXPORTED_FILE  "The file %s is missing and cannot be loaded as an internal project."
+    IDS_CONVERT_MAKEFILE4   "%s\n\nThis project was generated by a previous version of Developer Studio and must be converted to the new format."
+    IDS_AUTO_NODEFCFGNAME   "Could not find the active configuration name."
+    IDS_AUTO_BADCFG         "An invalid configuration object was provided."
+    IDS_PRELINK_POSTBUILD   "Pre-link/Post-build"
+    IDS_JAVA_PARAM_COL_NAME "Name"
+    IDS_JAVA_PARAM_COL_VALUE "Value"
+    IDS_JAVA_HTMLVIEWER     "iexplore.exe"
+    IDS_JAVA_PARAMS_AS_HTML "<param name=%s value=%s>\r\n"
+    IDS_JAVA_DEBUG_ADDL_CLASSES "Additional classes"
+    IDS_JAVA_BROWSE_CLASS   "Browse for Class"
+    IDS_JAVA_FILTER_CLASS   "Classes (.class)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MULTI_SELECTION     "<multiple selection>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_NULL                "NULL"
+    IDS_WIN95_NULL          "nul"
+    IDS_ERROR_OPEN          "Cannot open file."
+    IDS_V2_WIN32X86_PLATFORM "Win32 (x86)"
+    IDS_V2_MAC68K_PLATFORM  "Macintosh"
+    IDS_V2_WIN32_PLATFORM   "Win32"
+    IDS_V2_MACPPC_PLATFORM  "Macintosh (PowerPC)"
+    IDS_PROJNAME_EXISTS     "A project configuration already exists with this name."
+    IDS_CANT_LOAD_WORKSPACE "The workspace file "
+    IDS_VCP_NOT_FOUND       "%s\nWorkspace File not Found. Unable to open workspace."
+    IDS_TURN_OFF_BROWSE     "You can speed up your builds by disabling compiled browse information, and using Developer Studio's ClassView information instead. Do you want to disable compiled browse information?"
+    IDS_CONVERT_PORT2       "\n\nDo you want to convert the project?"
+    IDS_CONVERT_PORT4       "\n\n(Yes will also automatically convert any other projects in the workspace)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_RENAME_HEADER       "You are about to rename a header file, ""%s"".\n\nThis file may be included in one or more project source files, which you will also have to modify to refer to the new file name.\n\nAre you sure you want to rename this file?"
+    IDS_RENAME_RESOURCE     "You are about to rename a resource file, ""%s"".\n\nThis file may be included in one or more project resource scripts, which you will also have to modify to refer to the new file name.\n\nAre you sure you want to rename this file?"
+    IDS_CONFIG_HEADER0_INT  "This is not a valid makefile. To build this project using NMAKE,"
+    IDS_CONFIG_HEADER1_INT  "use the Export Makefile command and run"
+    IDS_V5_JAVA_PLATFORM    "Java Virtual Machine"
+    IDS_V4_MACPMC_PLATFORM  "Power Macintosh"
+    IDS_V4_MIPS_PLATFORM    "Win32 (MIPS)"
+    IDS_CONFIG_HEADER2_INT  "NMAKE /f """
+    IDS_WRITE_PROJECTS      "Save project file(s)"
+    IDS_NO_PROJ_SEL         "No projects were checked. This command requires at least one project to be checked."
+    IDS_ERR_DUPE_PROJ       "The project being converted contains a 'target' with the same name as a project that already exists in the workspace.\n\nThis project cannot be inserted into the current workspace."
+    IDS_TEMPLATE_FILES      "Template Files"
+    IDS_TEMPLATE_FILES_FILTER "<templates>"
+    IDS_HELP_FILES          "Help Files"
+    IDS_OPT_UNKNOWN_CONFIG  "The options file (.opt) for this workspace specified a project configuration""%s"" that no longer exists. The configuration will be set to""%s."""
+    IDS_CONVERSION_FAILED   "%s\n\nThis makefile could not be converted to a Developer Studio project."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WRAP_MAKEFILE       "%s\n\nContinuing will create a new Developer Studio project to wrap this makefile. You will be prompted to save after the new project has been created.\n\nDo you want to continue?"
+    IDS_CONVERTED1          "The project ""%s"" has been successfully converted and the following new project file(s) added to the workspace:\n\n"
+    IDS_CONVERTED2          "\nNever delete these project files (%s) or you will have to recreate your project. You can still export .mak files, but these cannot be read back in without the corresponding %s files.\n\n"
+    IDS_CONVERTED3          "In order for ClassView and other features to work correctly, you must include your project header files and resource files in the project. The conversion process tries to import the appropriate files into your project, however it is impossible to anticipate every situation.\n\n"
+    IDS_CONVERTED4          "If you see an External Dependencies folder in your project after conversion, this will include files that were not recognized as belonging in the project. You should carefully review these files and drag and drop into the project any that were missed.\n\n"
+    IDS_CONVERTED5          "Similarly, if the converted project contains files which should really be external dependencies, simply delete them from the project and they will automatically be added to the External Dependencies folder."
+    IDS_DISCARD_UNSUPPORTED "This project file contains configurations for platforms that are no longer supported by Visual C++."
+    IDS_DISCARD_UNSUPPORTED1 
+                            " Conversion of this project will remove unsupported configurations from the project. However"
+    IDS_DISCARD_UNSUPPORTED2 
+                            " your original project file will be saved so you can still use it with older versions of the product."
+    IDS_DISCARD_UNSUPPORTED_LAST 
+                            "\n\nProceed with conversion?"
+    IDS_DISCARD_JAVA        "This file contains a Visual J++ project and cannot be read by Visual C++.\n\n"
+    IDS_DISCARD_JAVA_LAST   "Please use Visual J++ to read and convert this project file."
+    IDS_NOGOOD_PLATFORMS    "This project file only contains configurations for platforms that are no longer supported by Visual C++.\n\nThis project file cannot be converted."
+    IDS_V4_PPC_PLATFORM     "Win32 (PowerPC)"
+    IDS_EXPORTDEPS_SIG_STRING 
+                            "Microsoft Developer Studio Generated Dependency File, included by "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CONFIGS             "Modify..."
+    IDS_ALL_CONFIGS         "All Configurations"
+    IDS_MULTI_CONFIGS       "Multiple Configurations..."
+    IDS_NO_CONFIGS_SELECTED "You must select at least one configuration."
+    IDS_V2_WIN3280X86_PLATFORM "Win32 (80x86)"
+    IDS_RENAME_DENIED       "The project file %s cannot be renamed."
+    IDS_RENAME_FAILED       "The file %s could not be renamed."
+    IDS_RENAME_BADDEST      "The file %s cannot be renamed to %s."
+    IDS_BAD_PATH            "%s\n\nThe specified path is invalid."
+    IDS_SOURCE_FILES        "Source Files"
+    IDS_SOURCE_FILES_FILTER "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;for;f90"
+    IDS_HEADER_FILES        "Header Files"
+    IDS_HEADER_FILES_FILTER "h;hpp;hxx;hm;inl;fi;fd"
+    IDS_RESOURCE_FILES      "Resource Files"
+    IDS_RESOURCE_FILES_FILTER 
+                            "ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BUILD_STOP          "Stop &Build\t"
+    IDS_CANNOT_ADD_EXTCONFIG 
+                            "Cannot add new configuration for external project"
+    IDS_BUILD_LOG           "Writing Build Log"
+    IDS_ADD_FILES_INTO_PROJECT "Add &Files to Project..."
+    IDS_ADD_FILES_INTO_FOLDER "Add &Files to Folder..."
+    IDS_WARN_RESET_DEFAULT_ORGPATH 
+                            "The Persist As expression '%s' does not evaluate to '%s'.\n\nThis field only lets you change the format in which the filename is written to the project file, not rename it.\n\nDo you want to reset it to the previous value?"
+    IDS_MISSING_ENV_VAR     "The following environment variables were not found"
+    IDS_SCCGET_NONEXISTANT_FILE 
+                            "Project file %s does not exist.\nDo you want to try to get it from source control?"
+    IDS_JAVA_SOURCE_FILES_FILTER "java;html"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GROUP_CUSTOMIZER_KEY " No. "
+    IDS_OPEN_FOR_SCAN_FAILED "Error opening file %s to scan dependencies: %s."
+    IDS_SCAN_ERROR          "Error scanning file %s for dependencies."
+    IDS_INCLUDE_NOT_FOUND   "%s(%d): Could not find the file %s."
+    IDS_READ_PROJECT_FILE   "The file %s has been modified and cannot be loaded as a Developer Studio project."
+    IDS_OPEN_PROJECT_FILE   "The file could not be opened as a Developer Studio project."
+    IDS_CONFIG_HEADER1      "You can specify a configuration when running NMAKE"
+    IDS_CONFIG_HEADER2      "by defining the macro CFG on the command line. For example:"
+    IDS_CONFIG_HEADER3      "NMAKE /f ""%s"" CFG=""%s"""
+    IDS_CONFIG_HEADER4      "Possible choices for configuration are:"
+    IDS_CONFIG_HEADER5      """%s"" (based on ""%s"")"
+    IDS_CONFIG_HEADER6      "An invalid configuration is specified."
+    IDS_MAKEFILE_SIG_STRING "Microsoft Developer Studio Generated NMAKE File, Format Version "
+    IDS_MAKEFILE_BAD_FORMAT "%s\n\nThis makefile was not generated by Developer Studio."
+    IDS_MAKEFILE_UNKNOWN_BASE 
+                            "This project file refers to an unknown project type ""%s"" for the configuration""%s."""
+    IDS_VCP_UNKNOWN_CONFIG  "The old project configuration file for this project specified a project configuration""%s"" that no longer exists. The configuration will be set to""%s."""
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ADDING_FILES        "Inserting files into project "
+    IDS_MAK_CUSTOM_BEGIN    "Begin Custom Macros"
+    IDS_MAK_CUSTOM_END      "End Custom Macros"
+    IDS_BUILD               "Build"
+    IDS_EXPORT_SIG_STRING   "Microsoft Developer Studio Generated NMAKE File, Based on "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROPERTIES_TARGETS  "Target Node"
+    IDS_MBCS_DEFINE         "_MBCS"
+    IDS_WIN32_LIBS          "user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib"
+    IDS_OLE2_LIBS           "ole32.lib oleaut32.lib uuid.lib"
+    IDS_MFCDLL_DEFINE       "_AFXDLL"
+    IDS_WINDLL_DEFINE       "_WINDLL"
+    IDS_MFCUSRDLL_DEFINE    "_USRDLL"
+    IDS_ODBC_LIBS           "odbc32.lib odbccp32.lib"
+    IDS_WIN32_LIBS_CORE     "kernel32.lib"
+    IDS_BROWSEDLG_TITLE     "Browse"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_REG_TOOLPREFIX      "Macro_Prefix"
+    IDS_INVALID_PROJECT_LOCALPATH 
+                            "%s.\nThe file could not be opened as a project file.\nThe local path is invalid."
+    IDS_CUSTOM_BUILD_TITLE  "Custom Build"
+    IDS_CANNOT_BUILD_DEP    "Build : warning : failed to (or don't know how to) build '%s'\n"
+    IDS_NO_TOOL_DEP         "The file does not exist."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PtrMbr22            "Point to Single-Inheritance Classes"
+    IDS_PROJ_OPEN_FOR_WRITE_FAIL "Error opening project file for save."
+    IDS_REG_TOOLPERFIFABLE  "Perform_If_Able"
+    IDS_COMMON              "Common"
+    IDS_REG_TOOLINTERNAL    "Internal"
+    IDS_REG_TOOLEXE         "Executable Path"
+    IDS_REG_TOOLMENU        "Menu Text"
+    IDS_REG_TOOLDEFERRED    "Deferred"
+    IDS_DEST_CLW            "Class Wizard Info File"
+    IDS_SETTINGSFOR         "&Settings For:"
+    IDS_MFC_NOT_INSTALLED   "This project may require the Microsoft Foundation classes to build successfully. These have not yet been installed. Please re-run Setup to install these classes.\nWould you like to open the project anyway?"
+    IDS_REG_PLATCURRENTTL   "Current TL"
+    IDS_MAKEFILE_NO_KNOWN_TARGETS 
+                            "This project does not contain any configurations whose platforms are supported by this installation of Developer Studio. You will need to create a new supported configuration before you will be able to build, run, or debug your project."
+    IDS_MAKEFILE_UNKNOWN_TARGETS 
+                            "This project contains configurations whose platforms are not supported by this installation of Developer Studio. You will not be able to build, run, debug or modify these configurations."
+    IDS_CREATE_FILE         "Project file %s does not exist.\nDo you want to create a new file?"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CANNOT_CREATE_FILE  "File %s cannot be created."
+    IDS_ERR_OPENING_MAK_AS_TEXT 
+                            "A file may be opened by only one editor at a time. This project is already open in the workspace."
+    IDS_GET_REMTARG         "In order to debug remotely or update the remote target, the remote executable file name is required."
+    IDS_GET_CALLING_PROG_DEBUG 
+                            "Please specify the executable file for the debug session."
+    IDS_GET_CALLING_PROG    "Please specify the executable file."
+    IDS_NO_PARTIAL_PATHNAMES 
+                            "The remote target ""%s"" is invalid.\nPartial path names are not allowed."
+    IDS_MUST_SPECIFY_VOLUME_NAME 
+                            "The remote target ""%s"" is invalid.\nPlease include a volume name."
+    IDS_DESC_INCR_LINKING   "Linking..."
+    IDS_REG_PLATTL          "Transports"
+    IDS_FILEREG_STATUS_ERROR "Error getting status of file ""%s"": %s."
+    IDS_FILEREG_STATUS_ERROR_EX "Error getting status of file ""%s"": %i."
+    IDS_FILE_ALREADY_IN_PROJECT 
+                            "One or more files could not be added to the specified project.\n\nThese files already exist in the project:%s"
+    IDS_REG_TOOLDBG         "Debugging"
+    IDS_NO_TARGET_DEPS_TO_ADD 
+                            "There are no available projects that can be added as dependencies."
+    IDS_REG_TOOLINPUT       "Input_Spec."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_EXTTARG_PROJTYPE    "Makefile"
+    IDS_BUILD_DUPTARGET     "A project configuration with this name already exists."
+    IDS_SAVE_READ_ONLY      "%s\n\nThis file is read-only.\nYour changes will not be saved."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MORE_FILES          "<more files...>"
+    IDS_REG_TOOLOUTPUT      "Output_Spec."
+    IDS_DESC_PERFORMING     "Performing"
+    IDS_PROJ_TRG_NONEXISTANT "The file does not exist."
+    IDS_FILE_ITEM_NONEXISTANT "The source file does not exist."
+    IDS_NO_TOOL_OUTPUT      "The output file does not exist."
+    IDS_PEROPT_NA           "Inheritance description not available."
+    IDS_FAIL_VCSPAWN        "Error spawning 'vcspawn.exe'. The build could not be performed."
+    IDS_UNSUPPORTED         "\r\n (Not Supported)"
+    IDS_FAIL_SPAWN          "Error spawning %*.*s"
+    IDS_TERMINATE_USER_REQ  "%*.*s terminated at user request."
+    IDS_FAIL_EXECUTE        "Error executing %*.*s."
+    IDS_TOOL_HAS_NO_RSP_SUPPORT 
+                            "Command line is too long (tool does not support response files)."
+    IDS_BSCMAKE_TOOL        "Browser Database Maker"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SOURCE_CONTROL      "Source Control"
+    IDS_ERROR_DIR_NOT_EXIST "The directory '%s' does not exist."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_LIBMGR_TOOL         "Library Manager"
+    IDS_LINKCOFF_TOOL       "COFF Linker"
+    IDS_MKTYPLIB_TOOL       "OLE Type Library Maker"
+    IDS_RESCOMPILER32_TOOL  "Win32 Resource Compiler"
+    IDS_REG_PLATATTRIBTL    "TL Attributes"
+    IDS_REG_PLATDESCTL      "TL Description"
+    IDS_REG_PLATNM          "Execution Models (non-native)"
+    IDS_REG_PLATEE          "Expression Evaluators"
+    IDS_REG_PLATEM          "Execution Models"
+    IDS_REG_PLATATTRIBNM    "NM Attributes"
+    IDS_REG_PLATCURRENTEE   "Current EE"
+    IDS_REG_PLATCURRENTEM   "Current EM"
+    IDS_REG_PLATCURRENTSH   "Current SH"
+    IDS_REG_PLATSH          "Symbol Handlers"
+    IDS_NO_TOOL_INPUT       "The input file does not exist."
+    IDS_CPOP_BUILD          "Build %s"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CPOP_COMPILE        "&Compile %s"
+    IDS_CPOP_PROJSETTINGS   "Settings..."
+    IDS_PROJECT_OPTIONS     "Project Settings"
+    IDS_PROJECT_AND         ", and "
+    IDS_PROJECT_ANDNOT      ", and not "
+    IDS_PROJECT_REPLACES    " replaces "
+    IDS_PREVFOLDER          "Previous Folder"
+    IDS_PROJECT             "Project"
+    IDS_FILEITEM            "Source File"
+    IDS_DEPFILE             "Header File"
+    IDS_DUPES_IN_SELECTION  "The selection contained one or more duplicate files. Settings from the first instance of each file will be used."
+    IDS_UNDO_ADD_FILES      "Insert Project Files"
+    IDS_UNDO_ADD_GROUP      "Add Folder"
+    IDS_UNDO_DROP           "Drop"
+    IDS_PROJECT_FILES       "Insert Files into Project"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SysExcludeHeaderFile "SYSINCL*.*"
+    IDS_WARN_RESET_DEFAULT_PROPERTIES 
+                            "Are you sure you want to reset the settings of the selected items?  This will restore the settings used when the items were created."
+    IDS_CANT_COMPILE_NO_TOOL 
+                            "Cannot compile the file '%s'; no compile tool is associated with the file extension."
+    IDS_SAVE_VCP_FOR_EXEPROJ "Do you want to save state information for %s?"
+    IDS_MULTIPLE_DEFS       "Multiple Windows definition (.def) files have been specified for this project. '%s' exists in the current project, and '/DEF:%s' exists in the current linker settings.\nThe file specified by '/DEF:' will be used for the build.\nContinue?"
+    IDS_BAD_HEX_NUMBER      "Format of hex number '%s' is incorrect. It may only contain characters 0-9 and A-F (a-f). A '0x' prefix is optional. The maximum allowed hex number is 0xFFFFFFFF."
+    IDS_BAD_DEC_NUMBER      "Format of decimal number '%s' is incorrect. It may only contain characters 0-9. It must be positive, the '+' prefix is optional. The maximum allowed decimal number is 4,294,967,295."
+    IDS_BAD_OCT_NUMBER      "Format of octal number '%s' is incorrect. It may contain characters 0-7. A '0c' prefix is optional. The maximum allowed octal number is 0c37777777777."
+    IDS_BUILD_UPTODATE      "%s is up-to-date."
+    IDS_MKTYPLIB            "MIDL"
+    IDS_DESC_MKTYPLIB_COMPILING "Creating Type Library..."
+    IDS_DEST_TLB            "Type Library File"
+    IDS_DEST_INCLUDE        "Include File"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DEST_UUID           "UUID File"
+    IDS_BUILD_TARGETNAME    "--------------------Configuration: %s--------------------"
+    IDS_BUILD_BATCH_CONTINUE 
+                            "Do you want to continue building the remaining configurations?"
+    IDS_WarnLevel0          "None"
+    IDS_WarnLevel1          "Level 1 *"
+    IDS_WarnLevel2          "Level 2"
+    IDS_WarnLevel3          "Level 3"
+    IDS_WarnLevel4          "Level 4"
+    IDS_Optimize0           "Default"
+    IDS_Optimize1           "Disable (Debug)"
+    IDS_Optimize2           "Maximize Speed"
+    IDS_Optimize3           "Minimize Size"
+    IDS_Optimize4           "Customize"
+    IDS_DebugInfo0          "None"
+    IDS_DebugInfo1          "Line Numbers Only"
+    IDS_DebugInfo2          "C7 Compatible"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DebugInfo3          "Program Database"
+    IDS_ListAsm0            "No Listing"
+    IDS_ListAsm1            "Assembly-Only Listing"
+    IDS_ListAsm2            "Assembly, Machine Code, and Source"
+    IDS_ListAsm3            "Assembly with Machine Code"
+    IDS_ListAsm4            "Assembly with Source Code"
+    IDS_SOUND_BUILD_ERROR   "BuildError"
+    IDS_SOUND_BUILD_ERROR2  "Build Error"
+    IDS_SOUND_BUILD_WARNING "BuildWarning"
+    IDS_SOUND_BUILD_WARNING2 "Build Warning"
+    IDS_SOUND_BUILD_COMPLETE "BuildComplete"
+    IDS_SOUND_BUILD_COMPLETE2 "Build Complete"
+    IDS_SOUND_BUILD_UPTODATE "BuildUpToDate"
+    IDS_SOUND_BUILD_UPTODATE2 "Build Up To Date"
+    IDS_DebugInfo4          "Program Database for Edit and Continue"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_Inline0             "Disable *"
+    IDS_Inline1             "Only __inline"
+    IDS_Inline2             "Any Suitable"
+    IDS_OptimizeOpt0        "Assume No Aliasing"
+    IDS_OptimizeOpt1        "Assume Aliasing Across Function Calls"
+    IDS_OptimizeOpt2        "Global Optimizations"
+    IDS_OptimizeOpt3        "Generate Intrinsic Functions"
+    IDS_OptimizeOpt4        "Improve Float Consistency"
+    IDS_OptimizeOpt5        "Favor Small Code"
+    IDS_OptimizeOpt6        "Favor Fast Code"
+    IDS_OptimizeOpt7        "Frame-Pointer Omission"
+    IDS_OptimizeOpt8        "Full Optimization"
+    IDS_PtrMbr10            "Best-Case Always *"
+    IDS_PtrMbr11            "General-Purpose Always"
+    IDS_PtrMbr20            "Point to Any Class *"
+    IDS_PtrMbr21            "Point to Single- and Multiple-Inheritance Classes"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CAT_OPTIMIZE        "Optimizations"
+    IDS_DIRS_INCLUDE        "Include files"
+    IDS_CANNOT_DELETE_DEPS  "Dependency groups and dependency files cannot be deleted directly."
+    IDS_CAT_PCH             "Precompiled Headers"
+    IDS_CAT_CUSTOMCPP       "C++ Language"
+    IDS_CAT_CUSTOMLINK      "Customize"
+    IDS_COULD_NOT_GET_TEMP_PATH 
+                            "Warning: Could not get path for temporary files. Current directory will be used instead."
+    IDS_COULD_NOT_GET_CWD   "Error: Could not create temporary files path from current directory. Temporary files cannot be created."
+    IDS_COULD_NOT_GET_TEMP_NAME "Error: Could not get temporary file name."
+    IDS_COULD_NOT_OPEN_TEMP_FILE "Error opening temporary file:"
+    IDS_COULD_NOT_DELETE_TEMP_FILE "Error deleting temporary file:"
+    IDS_GET_COMMAND_LINE_FAILED 
+                            "Error: Could not generate command line for the %s tool."
+    IDS_DIR_CHANGE_IN_BUILD "A build is in progress. This build will not be affected by changes in the directory settings."
+    IDS_PROJ_SAVING_FAILED  "Error saving project file."
+    IDS_TAKE_BUILD_SNAPSHOT "Taking a snapshot of the workspace."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_NO_OPEN_PRJ_BUILDING 
+                            "You cannot open a project of this type while a build is in progress.  Select the Stop Build command before attempting to open a project of this type."
+    IDS_CONFIG_DEFAULT_HEADER2 "No configuration specified. Defaulting to %s."
+    IDS_FILE_ALREADY_PRESENT 
+                            "The selection contained files that are already present in the specified project."
+    IDS_ADD_FILE_ANYWAY     "%s\n\nThis file does not exist. Do you want a reference added to the project anyway?"
+    IDS_EXTTARG_BAD_PROJ_NAME 
+                            "%s\n\nThe external makefile already has this name. You should supply a different name for the project file that wraps the external makefile."
+    IDS_NO_CLOSE_WKS_BUILDING 
+                            "You cannot close the workspace while a build is in progress. Select the Stop Build command before closing the workspace."
+    IDS_NO_CLOSE_PRJ_BUILDING 
+                            "You cannot close a project while a build is in progress. Select the Stop Build command before closing the project."
+    IDS_NO_CHANGE_CONFIG_BUILDING 
+                            "You cannot change the active project while a build is in progress. Select the Stop Build command before changing the active project."
+    IDS_NO_CREATE_PRJ_BUILDING 
+                            "You cannot create a new project of this type while a build is in progress.  Select the Stop Build command before attempting to create a new project of this type."
+    IDS_CLOSE_ALL_WINDOWS   "Do you want to close all document windows?"
+    IDS_CAT_WIN32_OUTPUT    "Output"
+    IDS_DIRECTORIES         "Directories"
+    IDS_CAT_DEBUG           "Debug"
+    IDS_NO_PROPS            " "
+    IDS_PROJMENU_COMPILE    "&Compile %s\t"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJMENU_BUILD      "&Build %s\t"
+    IDS_DLL_COL_PRELOAD     "Preload"
+    IDS_DEBUG_OPTIONS       "Debug"
+    IDS_DEBUG_ADD_DLL       "Additional DLLs"
+    IDS_NO_EMPTY_GROUP      "Folder name cannot be blank."
+    IDS_CMD_REQUIRES_PROJ   "This build command requires an active project workspace. Would you like to create a default project workspace?"
+    IDS_WARN_OVERWRITE_EXISTING_PROJ 
+                            "%s\n\nA project with this name already exists. Continuing with this operation will overwrite that project. Are you sure you want to continue?"
+    IDS_CONV_PROJLIBGROUP   "Object/Library Files"
+    IDS_READING_PROJECT     "Reading project file "
+    IDS_WRITING_PROJECT     "Writing project file "
+    IDS_NOT_IN_PROJ_QUERY_ADD 
+                            "%s\n\nThis file is not included in the project. Would you like to add it?"
+    IDS_FILE_NOT_IN_PROJ_CANT_SCAN 
+                            "%s\n\nCannot update dependencies for this file because it is not part of the project."
+    IDS_FILE_NOT_IN_PROJ_CANT_COMPILE 
+                            "%s\n\nCannot compile this file because it is not part of the project."
+    IDS_DLL_COL_LOCALNAME   "Local Name"
+    IDS_TXT_DEF_OPT         "Default Settings"
+    IDS_DLL_COL_REMOTENAME  "Remote Name"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PROJ_DELETEING_FILES "Deleting output files for rebuild."
+    IDS_PROJ_COULD_NOT_DELETE_FILE "Error: Could not delete file ""%s"" %s"
+    IDS_PROJ_SUGGEST_REBUILD 
+                            "The project settings have changed since the last build. Would you like to rebuild the affected files?"
+    IDS_DIR_NOT_EXIST       "%s\n\nThis directory does not exist.\nAdd the directory anyway?"
+    IDS_BAD_DIR_SPEC        "Illegal directory specification"
+    IDS_BUILD_COMPLETE      "%s - %i error(s), %i warning(s)"
+    IDS_COMPILER32          "C/C++"
+    IDS_LINKCOFF            "Link"
+    IDS_RESCOMPILER32       "Resources"
+    IDS_MFC_NONE            "Not Using MFC"
+    IDS_MFC_LIBRARY         "Use MFC in a Static Library"
+    IDS_MFC_DLL             "Use MFC in a Shared DLL"
+    IDS_CONFIG_HEADER0      "Invalid configuration ""$(CFG)"" specified."
+    IDS_TOOLS               "Tools"
+    IDS_DEPENDENCIES        "Dependencies"
+    IDS_RESOURCES           "Resources"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CLOSE               "Close"
+    IDS_JAVA_PAGE_BROWSER   "Browser"
+    IDS_JAVA_CLASS_INFO_TITLE "Information For Running Class"
+    IDS_JAVA_CLASS_INFO_GRP_RUN "Run project under"
+    IDS_JAVA_PAGE_STANDALONE "Stand-alone interpreter"
+    IDS_JAVA_STANDALONE_EXE "jview.exe"
+    IDS_JAVA_BROWSER_EXE    "iexplore.exe"
+    IDS_DLL_EXT             ".dll"
+    IDS_POSTBUILD           "Post-build step"
+    IDS_CANT_WRAP_JAVA      "The Java Virtual Machine platform does not support external make files"
+    IDS_EXT_DEPENDENCIES    "External Dependencies"
+    IDS_JAVA_CLASS_EXT      ".class"
+    IDS_ADD_FOLDER          "Insert Ne&w Folder..."
+    IDS_PRELINK             "Pre-link step"
+    IDS_ERR_BAD_FOLDER      "The name ""%s"" is reserved and cannot be used as a folder name."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DEBUG_CONFIG        "Debug"
+    IDS_RELEASE_CONFIG      "Release"
+    IDS_MODULE_BROWSE_TITLE "Browse for Local Module"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WRN_SETBROWSEINFO   "The Browser Information file will not be created unless ""Generate browse info"" is checked on the C/C++ settings page for the target or at least one file."
+    IDS_WRN_SETEXPORTMAKEFILE 
+                            "Exporting the makefile when writing the project file causes the project to be scanned for dependencies every time the project is saved. This process will slow down saving the project."
+    IDS_JAVA_TEMP_HTML_PAGE "<html>\r\n<! NOTE - this file was generated by Microsoft Developer Studio because no HTML file was specified.\r\n"
+    IDS_JAVA_TEMP_HTML_PAGE1 
+                            "DO NOT EDIT this file. It will be regenerated each time you launch your applet.\r\nTo create a permanent HTML file,\r\n"
+    IDS_JAVA_TEMP_HTML_PAGE2 
+                            "\t1. Create a new text file and save it\r\n\t2. Insert the file into your project\r\n"
+    IDS_JAVA_TEMP_HTML_PAGE3 
+                            "\t3. Select ""Settings..."" from the ""Project"" menu\r\n\t\ta. Choose the ""Debug"" tab\r\n\t"
+    IDS_JAVA_TEMP_HTML_PAGE4 
+                            "\tb. Set the ""Category"" to ""Browser""\r\n\t\tc. In the ""Parameters"" \n\n\n\n\n\nsection, select ""Use"
+    IDS_JAVA_TEMP_HTML_PAGE5 
+                            " parameters from HTML page""\r\n\t\td. Specify the new HTML file name in the edit box for ""HTML page""\r\n>\r\n"
+    IDS_JAVA_TEMP_HTML_PAGE6 
+                            "<head>\r\n<title>%s</title>\r\n</head>\r\n<body>\r\n<hr>\r\n<applet\r\ncode=%s\r\nwidth=200\r\nheight=200>\r\n%s\r\n"
+    IDS_JAVA_TEMP_HTML_PAGE_LAST "</applet>\r\n<hr>\r\n</body>\r\n</html>\r\n"
+    IDS_AUTO_CANT_ADD_FILE "The file cannot be added to the project"
+    IDS_AUTO_CANT_ADD_CONFIGURATION "The configuration cannot be added to the project"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GROUP               "Folder"
+    IDS_FILE_INCL_TOGGLE    "Only a single %s file may be marked as included in the build. Mark %s as included in the build and exclude the other %s file(s)?"
+    IDS_INPUTS              "Inputs"
+    IDS_OUTPUTS             "Outputs"
+    IDS_FILE_TYPE_EXISTS    "Multiple %s files exist in this project. Only one can be marked as included in the build. The others will be excluded from the build."
+    IDS_BSCMAKE             "Browse Info"
+    IDS_BAD_PLATFORMS       "You must select at least one platform that your external makefile supports."
+    IDS_LIBMGR              "Library"
+    IDS_DESC_COMPILING      "Compiling..."
+    IDS_DESC_RC_COMPILING   "Compiling resources..."
+    IDS_DESC_LINKING        "Linking..."
+    IDS_DESC_BSCMAKING      "Creating browse info file..."
+    IDS_DESC_LIBING         "Creating library..."
+    IDS_DEFFERED_MECR       "&Update remote output file"
+    IDS_BATCH_BLD_NO_MECR   "Build target not copied to remote machine during a batch build."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_RESSCRIPT_CANT_OPEN "Cannot open the '%s' resource script for the project."
+    IDS_CONFIG_DEFAULT_HEADER0 """$(CFG)"" == """""
+    IDS_CONV_SRCGRP         "Source Files"
+    IDS_CONFIG_DEFAULT_HEADER1 "CFG"
+    IDS_NO_EXIT_SPAWN_ACTIVE 
+                            "You cannot close a workspace while a build is in progress. Select the Stop Build command before closing."
+    IDS_CANNOT_DELETE_TOP_PROJECT "The main project folder cannot be deleted."
+    IDS_NO_SOURCE_FILE_BUILD "There is no source file to build."
+    IDS_COULD_NOT_CREATE_DIR 
+                            "Build : warning : could not create output directory '%s'\n"
+    IDS_DEFFERED_BSCMAKE    "&Build browse info file"
+    IDS_USERCANCELED        "Tool execution canceled by user."
+    IDS_SOURCE_MISSING      "Some of the input files that the %s tool uses do not exist. Would you like to do a full build instead?"
+    IDS_DO_NOT_EDIT_MAKEFILE "** DO NOT EDIT **"
+    IDS_OPTIONTXT           "&Options:"
+    IDS_OLD_MAKEFILE_SIG_STRING 
+                            "Microsoft Visual C++ Generated NMAKE File, Format Version "
+    IDS_CAT_CUSTOM          "Customize"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CUSTOMBUILD_TOOL    "Custom Build"
+    IDS_CUSTOMBUILD_DESC    "Performing Custom Build Step on $(InputPath)"
+    IDS_BSCMAKE_TOOL_UI     "Bsc Maker"
+    IDS_MKTYPLIB_TOOL_UI    "Midl"
+    IDS_RESCOMPILER32_TOOL_UI "Win32 Rc Compiler"
+    IDS_CAT_LISTFILE        "Listing Files"
+    IDS_CAT_PREPROCESS      "Preprocessor"
+    IDS_DESC_CLEANING       "Deleting intermediate files and output files for project '%s'."
+    IDS_MECR                "Copy"
+    IDS_NO_OPEN_SPAWN_ACTIVE 
+                            "You cannot open a workspace while a build is in progress. Select the Stop Build command before opening."
+    IDS_DIRS_EXECUTABLE     "Executable files"
+    IDS_ADD_FILE_AS_REF     "%s\n\nThis file is generated by an existing target. Do you wish to add a reference to this target instead of the actual file?"
+    IDS_DIRS_LIB            "Library files"
+    IDS_ILLEGAL_PROJECT_FILE 
+                            "%s\n\nThis file type cannot be added to the project."
+    IDS_CAT_DEBUGOPT        "Debug and Run-Time"
+    IDS_CAT_INPUT           "Input"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CREATE_DOTS         "&Create..."
+    IDS_CREATE_NODOTS       "&Create"
+    IDS_OVERWRITE_FILE      "%1 already exists. Do you want to replace it?"
+    IDS_CANT_DELETE_FILE    "Can't write to %1."
+    IDS_SELECT_PLATFORM     "Please select at least one platform for your project."
+    IDS_PATH_TOO_LONG       "Intermediate object directories cannot be created under this long path. Please choose a shorter path."
+    IDS_SUBDIR_ERROR        "Error creating a new subdirectory with the project name."
+    IDS_DIRECT_IS_FILE      "A file already exists with the same name as your new project name."
+    IDS_NO_PERMISSION       "You do not have proper access to create the new subdirectory."
+    IDS_INVALID_SUBDIR      "Invalid name for new subdirectory."
+    IDS_INVALID_PROJ        "Invalid name for new project."
+    IDS_DIRECT_CHANGE       "Error changing to directory %1."
+    IDS_DUPE_DIR_SPEC       "Directory already specified."
+    IDS_TOOMANY_FILES       "Please select fewer files and try again."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_TXT_PRJ_OPT         "Project Settings"
+    IDS_NO_EMPTY_TARGET     "Project configuration name cannot be blank."
+    IDS_DEST_CANNOT_BE_DIR  "Invalid destination for %s\nOutput destination cannot be a directory."
+    IDS_DEST_IS_DIR         "Please clarify destination for %s\nDoes this output destination specify a directory?"
+    IDS_DROP_DURING_BUILD   "Files cannot be dropped onto the workspace window during a build."
+    IDS_DEST_BAD_EXTENSION  "Invalid destination for %s\nThe output file must have the extension '%s'."
+    IDS_DEST_BAD_PATH       "Invalid destination for %s\nThe output destination '%s' is not a valid path."
+    IDS_DEST_SBR            "Source Browse Info Files"
+    IDS_DEST_RES            "Resource File"
+    IDS_DEST_BSC            "Browse Info File"
+    IDS_DEST_TRG            "Target File"
+    IDS_DEST_MAP            "Mapfile"
+    IDS_ExcludeHeaderFile   "MSVCINCL.DAT"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FILTER_DLLS         "DLLs (.dll)"
+    IDS_FILTER_OCXS         "OLE Controls (.ocx)"
+    IDS_FILTER_ALL          "All Files (*.*)"
+    IDS_BACKUP_MAKEFILE     "\nA backup copy of your original project file will be made at %s."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FILTER_COMMON_BLD   "Common Files (.mak)"
+    IDS_FILTER_PROJECTS     "Projects (.dsp)"
+    IDS_FILTER_EXECUTABLES  "Executable Files (.exe)"
+    IDS_FILTER_DUMPFILE		"Dump Files (.dmp)"
+    IDS_FILTER_ODL          "Object Description Files (.odl)"
+    IDS_FILTER_LIB          "Library Files (.lib)"
+    IDS_FILTER_OBJ          "Object Files (.obj)"
+    IDS_FILTER_MAKEFILES    "Makefiles (.mak)"
+    IDS_FILTER_BAS          "Visual Basic Files (.bas;.cls;.ctl;.dob;.dsr;.frm;.mod;.pag)"
+    IDS_FILTER_VBASIC       "Visual Basic (.vbp)"
+    IDS_OPENAS_PROJECT      "Makefile"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_AUTO_CANT_REMOVE_SETTINGS 
+                            "The tool settings cannot be removed as requested."
+    IDS_AUTO_CANT_ADD_BUILD_STEP "The custom build step cannot be added"
+    IDS_AUTO_CFG_NOTEXIST   "%1\n\nThis configuration no longer exists."
+    IDS_AUTO_PRJ_NOTEXIST   "%1\n\nThis project no longer exists."
+    IDS_AUTO_CFG_NOTSUPPORTED 
+                            "%1\n\nThis configuration uses an unsupported platform."
+    IDS_NO_SPACES_HERE      "Exported makefiles will not work correctly if spaces exist in Output or Intermediate Directories."
+    IDS_NO_MACROS_HERE      "Environment Variables are not allowed in Output or Intermediate Directories."
+    IDS_PROFILE             "&Profile...\t "
+    IDS_STOP_PROFILE        "Sto&p Profile\tCtrl+Break"
+    IDS_NO_PROFILE          "The project is not up-to-date or was not built with profiling enabled. To enable profiling, choose Settings from the Project menu, click the Link tab, select the General category, and click the Enable Profiling checkbox. Rebuild your project."
+    OWIN_PROFILE            "Profile"
+    INI_ProfilerInstalled   "ProfilerInstalled"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_AUTO_CONFIG_INVALID "The configuration object being used is no longer valid."
+    IDS_AUTO_CANT_ADD_SETTINGS 
+                            "The tool settings cannot be added as requested."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_HTML_COMMANDLINE    "<h3>Command Lines</h3>\n"
+    IDS_NORMAL_COMMANDLINE  "[Command Lines]\n"
+    IDS_HTML_OUTPUTWINDOW   "<h3>Output Window</h3>\n"
+    IDS_NORMAL_OUTPUTWINDOW "[Output Window]\n"
+    IDS_HTML_HEADER         "<html>\n<body>\n<pre>\n<h1>Build Log</h1>\n"
+    IDS_NORMAL_HEADER       "[Build Log]\n"
+    IDS_HTML_FOOTER         "</pre>\n</body>\n</html>\n"
+    IDS_CREATING_TEMPFILE   "Creating temporary file ""%s"" with contents\n[\n%s]\n"
+    IDS_CREATING_COMMANDLINE "Creating command line ""%s""\n"
+    IDS_RESULTS             "<h3>Results</h3>\n"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_HS_CONFIGS_COUNT    "Gets the number of configurations in the project"
+    IDS_HS_CONFIGS_PARENT   "Returns the project containing the configurations"
+    IDS_HS_CONFIGS_ITEM     "Returns a specific configuration by name or index"
+    IDS_HS_CONFIGS          "Represents all the configurations on a specific project"
+    IDS_HS_CONFIG           "Represents a library or executable program that you can build as part of a project"
+    IDS_HS_CONFIG_NAME      "Returns the name of the configuration as displayed in the FileView"
+    IDS_HS_CONFIG_PARENT    "Returns the project containing this configuration"
+    IDS_HS_CONFIG_ADDSTEP   "Adds a custom build step to this configuration, which is executed after the configuration is built"
+    IDS_HS_CONFIG_ADDTOOL   "Changes the settings of a specified tool, such as the Visual C++ compiler, for all corresponding files in the configuration"
+    IDS_HS_CONFIG_REMOVETOOL 
+                            "Removes settings of a specified tool, such as the Visual C++ compiler, for all corresponding files in the configuration"
+    IDS_HS_BLDPROJ          "Represents a group of related files that can include one or more configurations"
+    IDS_HS_BLDPROJ_CONFIGS  "Returns the set of configurations in this project"
+    IDS_HS_BLD_LIB          "Visual Studio 97 Project System"
+    IDS_HS_CONFIG_CONFIGURATIONS "Dependent project configurations collection"
+    IDS_HS_CONFIG_MAKEDEF   "Make the current settings of this config the defaults"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_HS_CONFIG_RES       "Reserved"
+    IDS_HS_BLDPROJ_ADDFILE   "Adds a file to the project"
+    IDS_HS_BLDPROJ_ADDCONFIG "Adds a configuration to the project"
+    IDS_HS_FILE_ADDSTEP   "Adds a custom build step to a file"
+    IDS_HS_FILE_ADDTOOL   "Changes the settings for a file in the project"
+    IDS_HS_FILE_REMOVETOOL "Removes settings for a files in the project"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_BLD_HLP_MAKE0        "\t/MAKE [<target>] [...]\t- build specified target(s)\n"
+    IDS_BLD_HLP_MAKE1        "\t      [<project> - <platform> <configname>]\n"
+    IDS_BLD_HLP_MAKE2        "\t      [[<project>|ALL] - [DEBUG|RELEASE|ALL]]\n"
+    IDS_BLD_HLP_CLEAN        "\t      /CLEAN\t\t- delete intermediate files but don't build\n"
+    IDS_BLD_HLP_REBUILD      "\t      /REBUILD\t\t- clean and build\n"
+    IDS_BLD_HLP_NORECURSE    "\t      /NORECURSE\t- don't build dependent projects\n"
+    IDS_BLD_HLP_USEENV       "\t/USEENV\t\t\t- ignore tools.options.directories settings\n" 
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_WRN_UNKNOWN_PROJECT "Warning: ignoring unknown project: "
+    IDS_WRN_UNKNOWN_TARGET  "Warning: ignoring unknown target: "
+    IDS_WRN_UNSUPPORTED_TARGET
+                            "Warning: ignoring unsupported target: "
+    IDS_WRN_DEFAULT_TARGET  "Building default target: "
+    IDS_ERR_CANT_CONVERT    "Error: ""%s""\nThis old-style project file cannot be safely converted from the command line.\nPlease use Developer Studio interactively to open and convert this project.\n"
+    IDS_ERR_NO_TARGETS      "Error: There are no valid targets to build."
+    IDS_WRN_NO_BUILD        "Warning: Skipping build phase."
+    IDS_READ_FUTURE_FORMAT  "%s\n\nThis project was generated by a newer version of the product than you are running.\n\nIn order to read this project, you must upgrade to a newer version of the product."
+    IDS_ERR_CANNOTADD_FILE  "The file is already in the project."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "vproj.rc2"  	// non-App Studio edited resources
+#include "vproj.rcs"
+1 TYPELIB DISCARDABLE "bld.tlb"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

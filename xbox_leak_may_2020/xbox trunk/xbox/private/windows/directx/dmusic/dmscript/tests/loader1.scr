@@ -1,0 +1,32 @@
+<script language=vbscript directmusicversion=8.0.0.0>
+
+dim Pass
+dim SegmentFromFile
+
+sub TLoadSegment
+	Pass = False
+
+	'Load a segment by filename
+	set SegmentFromFile = LoadSegment("sample.sgt")
+	set SegmentFromName = LoadSegment("Sample")
+	if SegmentFromFile is SegmentFromName then
+		Pass = True
+	end if
+end sub
+
+sub TSetSearchDirectory
+	' will cause subsequent tests to fail unless object is cached
+	SetSearchDirectory "c:\"
+end sub
+
+sub TReleaseObject
+	TLoadSegment
+	ReleaseObject SegmentFromFile
+	set SegmentFromName = LoadSegment("Sample")
+end sub
+
+sub TClearCache
+	TLoadSegment
+	ClearCache
+	set SegmentFromName = LoadSegment("Sample")
+end sub

@@ -1,0 +1,185 @@
+TARGETNAME=xboxdash
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XDK_LIB_PATH=$(BASEDIR)\public\xdk\lib-aug01
+XDK_INC_PATH=$(BASEDIR)\public\xdk\inc-aug01
+
+PRIVATE_LIB_PATH=$(BASEDIR)\private\lib\aug01\*
+
+SYNCHRONIZE_DRAIN=1
+
+#PERFFLAGS=/fastcap
+#C_DEFINES=$(C_DEFINES) -D_PROFILE
+
+USE_LIBCMT=1
+NTDEBUGTYPE=coff
+INCLUDES=\
+        $(INCLUDES); \
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+        ..\..\ntos\inc; \
+        ..\..\ntos\xapi\inc; \
+        $(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+        $(PRIVATE_INC_PATH)\crypto; \
+        ..\dvd\dongle\dvdlib
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE=std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj
+
+# Ravisent DVD driver libraries...
+C_DEFINES=$(C_DEFINES) -D_DVDPLAYER -D_RAVISENTDVD
+DVDLIB=..\dvd\dongle\lib\*\dvdlib$(D).lib
+USE_STL=1
+USE_MAPSYM=1
+
+SOURCES_CORE=\
+        main.cpp \
+        Xbox.cpp \
+        Debug.cpp \
+        FileUtil.cpp \
+        ActiveFile.cpp \
+        Node.cpp \
+        ArrayProps.cpp \
+        Object.cpp \
+        Array.cpp \
+        Date.cpp \
+        Files.cpp \
+        String.cpp \
+        Math.cpp \
+        DefUse.cpp \
+        Lexer.cpp \
+        Class.cpp \
+        Compiler.cpp \
+        Parser.cpp \
+        Runner.cpp \
+        Lerper.cpp \
+        Disc.cpp \
+        Config.cpp \
+        recovery.cpp \
+        SettingsFile.cpp \
+        Locale.cpp \
+        MemUtil.cpp \
+        xip.cpp \
+        CopyGames.cpp \
+        ISO639.cpp
+
+SOURCES_BASIC_NODES=\
+        ScreenSaver.cpp \
+        Joystick.cpp \
+        Settings.cpp \
+        TimeSensor.cpp \
+        TitleCollection.cpp \
+        MusicCollection.cpp \
+        SavedGameGrid.cpp \
+        Memory.cpp \
+        CopyDest.cpp
+
+SOURCES_BASIC_3D=\
+        Group.cpp \
+        Viewpoint.cpp \
+        Screen.cpp \
+        Background.cpp \
+        NavInfo.cpp \
+        Camera.cpp \
+        Shape.cpp \
+        hud.cpp \
+        Text.cpp \
+        MaxMat.cpp \
+        Layer.cpp \
+        Keyboard.cpp \
+        Mesh.cpp
+
+SOURCES_AUDIO=\
+        Audio.cpp \
+        DSound.cpp \
+        cdda.cpp \
+        AudioPump.cpp \
+        AudioVisualizer.cpp \
+        wma8.cpp
+
+SOURCES_TMAP=\
+        DynTexture.cpp \
+        DeltaField.cpp \
+        fft.cpp \
+        surfx.cpp \
+        smooth.cpp \
+        StarField.cpp \
+        DotField.cpp \
+        Image.cpp \
+        Texture.cpp
+
+SOURCES_CDPLAYER=\
+        ntiosvc.cpp \
+        xcdplay.cpp
+
+SOURCES_ADV_3D=\
+        Falloff.cpp \
+        Level.cpp \
+        Interpolator.cpp
+
+SOURCES_DVDPLAYER=dvd2.cpp
+
+SOURCES=$(SOURCES_CORE) \
+        $(SOURCES_BASIC_NODES) \
+        $(SOURCES_BASIC_3D) \
+        $(SOURCES_ADV_3D) \
+        $(SOURCES_TMAP)
+
+#
+# Optional XApp Components
+#
+
+SOURCES=$(SOURCES) $(SOURCES_AUDIO)
+C_DEFINES=$(C_DEFINES) -D_AUDIO
+
+SOURCES=$(SOURCES) $(SOURCES_CDPLAYER)
+C_DEFINES=$(C_DEFINES) -D_CDPLAYER
+
+SOURCES=$(SOURCES) $(SOURCES_DVDPLAYER)
+
+!if defined(COOL_XDASH)
+C_DEFINES=$(C_DEFINES) -DCOOL_XDASH
+!endif
+
+XIPSUMFILE=..\dash\obj\xipsums.bin
+XLATEPATH=..\dash
+
+XNOHARDDISK=1
+XE_FLAGS=\
+        $(XE_FLAGS) /TESTID:0xFFFE0000 /TESTRATINGS:0xFFFFFFFF \
+        /TESTREGION:0x7FFFFFFF \
+        "/TESTNAME:Xbox Dashboard" /INITFLAGS:0x00000004 /LIMITMEM \
+        /INSERTFILE:$(XIPSUMFILE),XIPS,R \
+        /INSERTFILE:$(XLATEPATH)\english.txt,EnglishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\japanese.txt,JapaneseXlate,N \
+        /INSERTFILE:$(XLATEPATH)\german.txt,GermanXlate,N \
+        /INSERTFILE:$(XLATEPATH)\french.txt,FrenchXlate,N \
+        /INSERTFILE:$(XLATEPATH)\spanish.txt,SpanishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\italian.txt,ItalianXlate,N
+
+!if defined(COOL_XDASH)
+XE_FLAGS=$(XE_FLAGS) /TESTMEDIATYPES:0x80000001
+!else
+XE_FLAGS=$(XE_FLAGS) /TESTMEDIATYPES:1
+!endif
+
+#
+# Windows Media Audio Encode Library for Xbox...
+#
+
+WMALIB=  ..\wmaenc\wma_only_xbox$(D).lib
+
+TARGETLIBS=\
+        $(XDK_LIB_PATH)\d3d8$(D).lib \
+        $(XDK_LIB_PATH)\d3dx8$(D).lib \
+        $(XDK_LIB_PATH)\xgraphics$(D).lib \
+        $(XDK_LIB_PATH)\dsound$(D).lib \
+        $(PRIVATE_LIB_PATH)\xapilibp$(D).lib \
+        $(PRIVATE_LIB_PATH)\dashrecovery$(D).lib \
+        $(DVDLIB) \
+        $(WMALIB)

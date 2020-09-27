@@ -1,0 +1,33 @@
+TARGETNAME=uftest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+PROJNAME="XRL UploadFile Test"
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:$(PROJNAME)
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+C_DEFINES=$(C_DEFINES) -DXONLINE_BUILD_LIBX
+
+INCLUDES=\
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\private\online\kerb;\
+    $(BASEDIR)\private\online\util;\
+    $(BASEDIR)\private\online;\
+    $(BASEDIR)\private\ntos\net;\
+    $(BASEDIR)\private\online\test\common;
+
+SOURCES=\
+    xmain.cpp
+
+TARGETLIBS=\
+    $(BASEDIR)\private\online\test\common\obj\i386\testutil$(D).lib \
+    $(LIBRARY_PATH)\xonline$(D).lib
+    

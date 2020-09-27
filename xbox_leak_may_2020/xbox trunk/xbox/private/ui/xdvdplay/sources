@@ -1,0 +1,27 @@
+MAJORCOMP = xbox
+MINORCOMP = xdvdplay
+
+TARGETNAME = xdvdplay
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE = windows
+UMENTRY = winmain
+
+USE_MSVCRT = 1
+
+INCLUDES = $(INCLUDES);d:\dxmedia\include;d:\DXMedia\classes\base
+
+UMLIBS = \
+        $(BASEDIR)\public\sdk\lib\*\user32.lib\
+        $(BASEDIR)\public\sdk\lib\*\gdi32.lib\
+        $(BASEDIR)\public\sdk\lib\*\strmiids.lib\
+        $(BASEDIR)\public\sdk\lib\*\ole32.lib
+
+SOURCES = winmain.cpp\
+          xdvdplay.cpp\
+          xdvdplay.rc
+
+!IF "$(NTNOPCH)" == ""
+PRECOMPILED_INCLUDE = pch.cpp
+!ENDIF
+

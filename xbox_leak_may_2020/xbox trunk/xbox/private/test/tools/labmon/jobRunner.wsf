@@ -1,0 +1,78 @@
+<!--
+/*****************************************************************************
+
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+Module Name:
+
+    jobRunner.wsf
+
+Abstract:
+
+    Executes the specified job
+
+Author:
+
+    Josh Poley (jpoley)
+
+Notes:
+
+*****************************************************************************/
+-->
+<PACKAGE>
+
+<JOB ID="ScriptMain">
+<SCRIPT LANGUAGE="JScript" SRC="utils.js"/>
+<SCRIPT LANGUAGE="JScript">
+
+main();
+
+function main()
+    {
+    var records = WScript.CreateObject("ADODB.Recordset");
+    var jobID = null;
+    var script = null;
+    var result;
+
+    try // top level try / catch
+        {
+        // Get Job ID
+        jobID = GetArgument("jobid");
+
+        // Get Script
+        script = UrlDecode(GetArgument("script"));
+
+        shell.Environment("Process")("Path") = shell.ExpandEnvironmentStrings("%_NTDRIVE%%_NTROOT%/public/idw;%_NTDRIVE%%_NTROOT%/public/mstools;%_NTDRIVE%%_NTROOT%/public/tools;%PATH%");
+        try
+            {
+            result = shell.Run(shell.ExpandEnvironmentStrings("%SystemRoot%/system32/cmd.exe /T:17 /C " + script), 0, true);
+            }
+        catch(e)
+            {
+            result = e.number;
+            }
+
+        if(jobID == null || jobID == "") return;
+
+        var SQLQuery = "SELECT * FROM Scheduler WHERE [Job ID]=" + jobID;
+        records.Open(SQLQuery, driver, 1, 2); // forward, record locking
+        if(!records.EOF) 
+            {
+            var d = new Date();
+            records("Last Run On") = d.getVarDate();
+            records("Last Result") = result;
+            records.Update();
+            records.Close();
+            }
+        }
+    catch(e) // top level try / catch
+        {
+        shell.LogEvent(2, "XBOX LAB JobRunner: " + e.description + " (" + e.number + ")");
+        }
+    }
+
+
+</SCRIPT>
+</JOB>
+
+</PACKAGE>

@@ -1,0 +1,98 @@
+; Implements per-vertex motion-blur.
+; Vertices with normals pointing away from direction of
+; motion get transformed with previous transform, thus ripping 
+; object apart. The object is thus spread from previous frame 
+; to current frame. We also modify alpha-channel of these vertices 
+; to achieve a blending effect that looks like motion blur.
+;
+; Transforms a vertex with current and previous transform.
+; If difference is larger than object-extend-based constant, 
+; then use the vertex normal to decide which one to use (normal 
+; pointing away from movement-direction: use previous, else 
+; current.)  Modulate color-alpha depending on whether we used
+; current or previous transform.  Finally, light vertex with 
+; passed-in directional light.
+
+
+#include "MotionBlur.h"
+
+#define R_PREV_CLIP_POSITION  r0
+#define R_PREV_WORLD_POSITION r1
+#define R_CURR_CLIP_POSITION  r2
+#define R_CURR_WORLD_POSITION r3
+#define R_MOTION_VECTOR       r4
+#define R_TEMP1               r5
+#define R_TEMP2               r6
+#define R_CURR_WORLD_NORMAL   r7
+#define R_CURR_WEIGHT         r8
+#define R_PREV_WEIGHT         r9
+#define R_DIFFUSE_COLOR       r10
+
+vs.1.0
+
+; Transform position with previous world-transform
+dp4 R_PREV_WORLD_POSITION.x, v0, c[CV_PREV_WORLD_TXF_0]
+dp4 R_PREV_WORLD_POSITION.y, v0, c[CV_PREV_WORLD_TXF_1]
+dp4 R_PREV_WORLD_POSITION.z, v0, c[CV_PREV_WORLD_TXF_2]
+dp4 R_PREV_WORLD_POSITION.w, v0, c[CV_PREV_WORLD_TXF_3]
+
+; Transform position with previous view/projection-transform
+dp4 R_PREV_CLIP_POSITION.x, v0, c[CV_PREV_VIEW_PROJ_0]
+dp4 R_PREV_CLIP_POSITION.y, v0, c[CV_PREV_VIEW_PROJ_1]
+dp4 R_PREV_CLIP_POSITION.z, v0, c[CV_PREV_VIEW_PROJ_2]
+dp4 R_PREV_CLIP_POSITION.w, v0, c[CV_PREV_VIEW_PROJ_3]
+
+; Transform position with current world-transform
+dp4 R_CURR_WORLD_POSITION.x, v0, c[CV_CURR_WORLD_TXF_0]
+dp4 R_CURR_WORLD_POSITION.y, v0, c[CV_CURR_WORLD_TXF_1]
+dp4 R_CURR_WORLD_POSITION.z, v0, c[CV_CURR_WORLD_TXF_2]
+dp4 R_CURR_WORLD_POSITION.w, v0, c[CV_CURR_WORLD_TXF_3]
+
+; Transform position with current view/projection-transform
+dp4 R_CURR_CLIP_POSITION.x, v0, c[CV_CURR_VIEW_PROJ_0]
+dp4 R_CURR_CLIP_POSITION.y, v0, c[CV_CURR_VIEW_PROJ_1]
+dp4 R_CURR_CLIP_POSITION.z, v0, c[CV_CURR_VIEW_PROJ_2]
+dp4 R_CURR_CLIP_POSITION.w, v0, c[CV_CURR_VIEW_PROJ_3]
+
+; take the transform difference in world-space
+; zero if transforms are the same!
+add R_MOTION_VECTOR, R_CURR_WORLD_POSITION, - R_PREV_WORLD_POSITION
+
+; transform normal into view-space
+dp3 R_CURR_WORLD_NORMAL.x, v3, c[CV_CURR_WORLD_TXF_0]
+dp3 R_CURR_WORLD_NORMAL.y, v3, c[CV_CURR_WORLD_TXF_1]
+dp3 R_CURR_WORLD_NORMAL.z, v3, c[CV_CURR_WORLD_TXF_2]
+
+; dot the difference with the projected vertex normal
+dp3 R_TEMP1, R_MOTION_VECTOR, R_CURR_WORLD_NORMAL
+
+; if R_TEMP1 < 0, set PREV_WEIGHT to 1, else 0
+slt R_PREV_WEIGHT, R_TEMP1, c[CV_ZERO]
+
+; if R_TEMP1 >= 0, set CURR_WEIGHT to 1, else 0
+sge R_CURR_WEIGHT, R_TEMP1, c[CV_ZERO]  
+
+
+mul R_TEMP2, R_PREV_WEIGHT, R_PREV_CLIP_POSITION
+mad oPos,    R_CURR_WEIGHT, R_CURR_CLIP_POSITION, R_TEMP2
+
+; first drop the z-component of motion vector
+mov R_MOTION_VECTOR.z, c[CV_ZERO]
+dp3 R_TEMP1, R_MOTION_VECTOR, R_MOTION_VECTOR
+
+rsq R_TEMP2, R_TEMP1
+rcp R_TEMP1, R_TEMP2				; r5 now contains length(motion vec)
+
+mul R_TEMP2, R_TEMP1, c[CV_OBJECT_EXTEND].x
+add R_TEMP1, c[CV_OBJECT_EXTEND].y, - R_TEMP2	; R_TEMP1 now contains 1 - length(motion vec)/extent
+
+max R_DIFFUSE_COLOR, c[CV_PREV_COLOR], R_TEMP1
+
+mul R_DIFFUSE_COLOR, R_PREV_WEIGHT, R_DIFFUSE_COLOR
+mad oD0,             R_CURR_WEIGHT, c[CV_CURR_COLOR], R_DIFFUSE_COLOR
+
+; Copy uv texture coords
+mov oT0, v7
+
+
+

@@ -1,0 +1,66 @@
+//=--------------------------------------------------------------------------=
+// Extensibility.IDL
+//=--------------------------------------------------------------------------=
+// Copyright  1995-2001  Microsoft Corporation.  All Rights Reserved.
+//
+// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF 
+// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO 
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A 
+// PARTICULAR PURPOSE.
+//=--------------------------------------------------------------------------=
+//
+// ODL file for the control(s) and automation object(s) in this inproc server
+//
+#include <olectl.h>
+
+//=--------------------------------------------------------------------------=
+// the libid for this type libray
+//
+[
+	uuid(AC0714F2-3D04-11d1-AE7D-00A0C90F26F4),
+	helpstring("Add-in Object Library"),
+	lcid(0x0000),
+	version(1.0)
+]
+library ExtensibilityObjects 
+{
+	// standard imports
+	//
+	importlib("STDOLE2.TLB");
+	importlib(STDTYPE_TLB);
+
+
+	// Connection Modes
+	//
+	typedef [ uuid(289E9AF1-4973-11d1-AE81-00A0C90F26F4) ]
+	enum ext_ConnectMode
+	{
+		ext_cm_AfterStartup	= 0,
+		ext_cm_Startup		= 1,
+		ext_cm_External		= 2,
+		ext_cm_CommandLine	= 3,
+		ext_cm_Solution     = 4,
+		ext_cm_UISetup      = 5
+	} ext_ConnectMode;
+
+	typedef [ uuid(289E9AF2-4973-11d1-AE81-00A0C90F26F4) ]
+	enum ext_DisconnectMode
+	{
+		ext_dm_HostShutdown	    = 0,
+		ext_dm_UserClosed	    = 1,
+		ext_dm_UISetupComplete  = 2,
+		ext_dm_SolutionClosed   = 3
+	} ext_DisconnectMode;
+
+	// event interface for CAddinDesigner/CAddinInstance objects ...
+	//
+	[ uuid(B65AD801-ABAF-11d0-BB8B-00A0C90F2744), odl, dual ]
+	interface IDTExtensibility2 : IDispatch
+	{
+		[id(1)] HRESULT OnConnection( [in] IDispatch _far * Application, [in] ext_ConnectMode ConnectMode, [in] IDispatch _far *  AddInInst, [in] SAFEARRAY (VARIANT)* custom);
+		[id(2)] HRESULT OnDisconnection([in] ext_DisconnectMode RemoveMode,	[in] SAFEARRAY (VARIANT)* custom);
+		[id(3)] HRESULT OnAddInsUpdate([in] SAFEARRAY (VARIANT)* custom); 
+		[id(4)] HRESULT OnStartupComplete([in] SAFEARRAY (VARIANT)* custom); 
+		[id(5)] HRESULT OnBeginShutdown([in] SAFEARRAY (VARIANT)* custom); 
+	}
+};

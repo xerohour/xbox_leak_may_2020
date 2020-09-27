@@ -1,0 +1,92 @@
+TARGETNAME=wmvdec$(D)
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+TARGETTYPE=LIBRARY
+
+C_DEFINES=\
+    $(C_DEFINES) \
+    -DWMA_RC_NOTSUPPORTED \
+    -DWMA_OWN_GetMoreData \
+    -DENABLE_LPC \
+    -DENABLE_ALL_ENCOPT \
+    -D__NO_SCREEN__ \
+    -DWMFAPI_NO_DRM \
+    -DBUILD_INT_FLOAT \
+    -D_SLIM_C_ \
+    -DOUTPUT_YUY2 \
+    -D__STREAMING_MODE_DECODE_ \
+    -D_WMV_TARGET_X86_ \
+    -D__NO_SPEECH__ \
+    -D_Embedded_x86 \
+    -D_WMVONLY_ \
+    -DWMC_NO_BUFFER_MODE \
+    -FIwmvver.h
+
+!if !$(FREEBUILD)
+C_DEFINES=$(C_DEFINES) -DSDE_WANTS_ASSERTS #-DWMV_MEMORY_DEBUGGING
+!endif
+
+SOURCES=\
+    autoprofile.c \
+    dectables.c \
+    fft.c \
+    float.c \
+    lowrate_common.c \
+    lpc.c \
+    lpc_variants.c \
+    msaudio.c \
+    wavfileio.c \
+    wmaos.c \
+    config.c \
+    entropydec.c \
+    equalizer.c \
+    huffdec.c \
+    msaudiodec.c \
+    strmdec_wma.c \
+    wmadecS_api.c \
+    win32.c \
+    x86.c \
+    \
+    wmf.c \
+    wmfdecode.c \
+    wmfparse.c \
+    wmcguid.cpp \
+    \
+    blkdec_wmv.cpp \
+    deblock.cpp \
+    decolorconv_wmv.cpp \
+    dectable.cpp \
+    dectable_mp4x.cpp \
+    frmdec_wmv.cpp \
+    headdec.cpp \
+    huffdec_wmv.cpp \
+    idctdec_wmv2.cpp \
+    init_wmv.cpp \
+    intradec.cpp \
+    localhuffman_wmv.cpp \
+    motioncomp_wmv.cpp \
+    postfilter_wmv.cpp \
+    share.cpp \
+    spatialpredictor_wmv.cpp \
+    strmdec_wmv.cpp \
+    tables_wmv.cpp \
+    vopdec_mp4x.cpp \
+    wmvdec.cpp \
+    frmdec_x86.cpp \
+    idctdec_wmv2_x86.cpp \
+    intradec_x86.cpp \
+    loopfilter_wmv_x86.cpp \
+    motioncomp_wmv_x86.cpp \
+    postfilter_wmv_x86.cpp \
+    \
+    wmvxmo.cpp
+
+INCLUDES=\
+    $(INCLUDE); \
+    .\include; \
+    $(BASEDIR)\private\ntos\inc
+
+MSC_WARNING_LEVEL=/W3
+
+NTTARGETFILES=\
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib
+

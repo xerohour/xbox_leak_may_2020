@@ -1,0 +1,60 @@
+HKLM
+{
+	%REGROOTBEGIN%
+	NoRemove CLSID
+	{
+		ForceRemove '{A54AAE92-30C2-11D3-87BF-A04A4CC10000}' = s 'Win64 Platform Class'
+		{
+			val InprocServer32 = s '%MODULE%'
+		}
+	}
+
+	'VC'
+	{
+		'VC_OBJECTS_PLATFORM_INFO'
+		{
+			ForceRemove 'Win64' = s '{A54AAE92-30C2-11D3-87BF-A04A4CC10000}'
+			{
+				Directories
+				{
+					 val 'Path Dirs' = s '%EXEPATH%'
+					 val 'Library Dirs' = s '%LIB%'
+					 val 'Include Dirs' = s '%INCLUDE%'
+					 val 'Source Dirs' = s '%SOURCE%'
+					 val 'Reference Dirs' = s ''
+				}
+				ToolDefaultExtensionLists
+				{
+					val 'VCCLCompilerTool' = s '*.cpp;*.cxx;*.cc;*.c'
+					val 'VCLinkerTool' = s '*.obj;*.res;*.lib;*.rsc'
+					val 'VCLibrarianTool' = s '*.obj;*.res;*.lib;*.rsc'
+					val 'VCMIDLTool' = s '*.idl;*.odl'
+					val 'VCCustomBuildTool' = s '*.bat'
+					val 'VCResourceCompilerTool' = s '*.rc'
+					val 'VCPreBuildEventTool' = s '*.bat'
+					val 'VCPreLinkEventTool' = s '*.bat'
+					val 'VCPostBuildEventTool' = s '*.bat'
+					val 'VCBscMakeTool' = s '*.sbr'
+					val 'VCNMakeTool' = s ''
+					val 'VCWebServiceProxyGeneratorTool' = s '*.sdl;*.wsdl'
+					val 'VCWebDeploymentTool' = s ''
+				}
+			}
+		}
+	}
+	%REGROOTEND%
+}
+
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove '{A54AAE92-30C2-11D3-87BF-A04A4CC10000}' = s 'Win64 Platform Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+		}
+	}
+}

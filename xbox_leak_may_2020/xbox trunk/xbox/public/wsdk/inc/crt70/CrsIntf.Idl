@@ -1,0 +1,901 @@
+// Copyright (c) 1997 - 1999 Microsoft Corporation
+
+// CrsApi.idl : IDL source for CrsApi.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (CrsApi.tlb) and marshalling code.
+
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Constants
+
+// event severity codes
+const LONG	CRSEVENT_SEVERITY_SUCCESS		= 0;
+const LONG	CRSEVENT_SEVERITY_INFORMATIONAL	= 1;
+const LONG	CRSEVENT_SEVERITY_WARNING		= 2;
+const LONG  CRSEVENT_SEVERITY_ERROR			= 3;
+
+// event categories
+const LONG	CRSEVENT_CATEGORY_GENERAL		= 0;
+const LONG	CRSEVENT_CATEGORY_FILE			= 1;
+const LONG	CRSEVENT_CATEGORY_REPLICATION	= 2;
+const LONG	CRSEVENT_CATEGORY_ADMIN			= 3;
+const LONG	CRSEVENT_CATEGORY_SUMMARY		= 4;
+
+// event filter constants
+const USHORT	EVFLAG_FILE_EVENTS			=	0x1;
+const USHORT	EVFLAG_ADMIN_EVENTS			=	0x2;
+const USHORT	EVFLAG_SUMMARY_EVENTS		=	0x4;
+const USHORT	EVFLAG_REPLICATION_EVENTS	=	0x8;
+const USHORT	EVFLAG_ALL					=	0xFF;
+
+// Days of the week for IReplicationSchedule
+const LONG	CRS_SCHEDULE_DAY_MONDAY			= 0x1;
+const LONG	CRS_SCHEDULE_DAY_TUESDAY		= 0x2;
+const LONG	CRS_SCHEDULE_DAY_WEDNESDAY		= 0x4;
+const LONG	CRS_SCHEDULE_DAY_THURSDAY		= 0x8;
+const LONG	CRS_SCHEDULE_DAY_FRIDAY			= 0x10;
+const LONG	CRS_SCHEDULE_DAY_SATURDAY		= 0x20;
+const LONG	CRS_SCHEDULE_DAY_SUNDAY			= 0x40;
+const LONG  CRS_SCHEDULE_DAILY				= 0xFF;
+
+
+
+interface IReplicationProject;
+interface IReplicationInstance;
+interface IReplicationRoute;
+interface IReplicationClient;
+interface IReplicationClientError;
+interface IReplicationItem;
+interface IReplicationSchedule;
+interface IReplicationPostingAcceptor;
+
+	[
+		object,
+		uuid(ABEB9802-DB7A-11d0-A800-00C04FC9DAA5),
+		dual,
+		helpstring("IReplicationServer Interface"),
+		pointer_default(unique)
+	]
+
+interface IReplicationServer : IDispatch
+{
+	import "oaidl.idl";
+	import "crstypes.h";
+
+	cpp_quote("#ifndef _LPREPLICATIONROUTESDEFINED")
+	cpp_quote("#define _LPREPLICATIONROUTESDEFINED")
+	typedef [unique] IReplicationRoute *LPREPLICATION_ROUTE;
+	cpp_quote("#endif ")
+
+	cpp_quote("#ifndef _LPREPLICATIONSERVERDEFINED")
+	cpp_quote("#define _LPREPLICATIONSERVERDEFINED")
+	typedef IReplicationServer *LPREPLICATION_SERVER;
+	cpp_quote("#endif ")
+
+	cpp_quote("#ifndef _LPREPLICATIONPROJECTDEFINED")
+	cpp_quote("#define _LPREPLICATIONPROJECTDEFINED")
+	typedef IReplicationProject *LPREPLICATION_PROJECT;
+	cpp_quote("#endif ")
+
+	cpp_quote("#ifndef _LPREPLICATIONINSTANCEDEFINED")
+	cpp_quote("#define _LPREPLICATIONINSTANCEDEFINED")
+	typedef IReplicationInstance *LPREPLICATION_INSTANCE;
+	cpp_quote("#endif ")
+
+
+    //
+    // Methods relating to projects
+    //
+
+	[helpstring("Initializes IReplicationServer.")]
+	HRESULT Initialize( [in] BSTR pszServer);
+
+	[helpstring("Initializes IReplicationServer using different security context and timeout (in milliseconds).")]
+	HRESULT InitializeEx( [in] BSTR pszServer,
+				[in] BSTR pszUserName,
+				[in] BSTR pszPassword,
+				[in] LONG lTimeout);
+
+	[helpstring("Open or create a project.")]
+    HRESULT OpenProject( [in, string]  BSTR pszProject,
+						 [in]          CRS_PROJECT_CREATION cpcCreationFlags,
+						 [out, retval] VARIANT *pvInfProject);
+
+	[helpstring("Deletes a project.")]
+    HRESULT DeleteProject( [in, string] BSTR pszProject);
+
+	[helpstring("Enumerates through all projects on a server.")]
+    HRESULT EnumProjects(  [in, out]     VARIANT *pvIterator,
+                           [out, retval] VARIANT *pvInfProject);
+
+
+	//
+	// Methods relating to other servers
+	//
+	HRESULT EnumServers(  [in, out]     VARIANT *pvIterator,
+						  [in]			CRS_SERVER_TYPES Flags,
+                          [out, retval] VARIANT *pvbstrServer);
+
+
+	//
+	// Methods relating to Posting Acceptor
+	//
+	[helpstring("Returns IDispatch for PA.")]
+	HRESULT OpenPostingAcceptor([out, retval] VARIANT *pvIDispPA);
+
+
+    //
+    // Methods relating to service
+    //
+
+	[helpstring("Starts the CRS service.")]
+    HRESULT Start();
+
+	[helpstring("Stops the CRS service.")]
+    HRESULT Stop();
+	[helpstring("Pauses the CRS service.")]
+    HRESULT Pause();
+	[helpstring("Continues the CRS service.")]
+    HRESULT Continue();
+                          
+    //
+    // Methods relating to global settings
+    //
+
+	[helpstring("Gets a global parameter.")]
+	HRESULT Get( [in, string]  BSTR     pszParmName,
+	             [out, retval] VARIANT *pvParmValue);
+
+	[helpstring("Sets a global parameter.")]
+	HRESULT Put( [in, string] BSTR    pszParmName,
+	             [in]         VARIANT vParmValue);
+
+	[helpstring("Enumerates through all global parameters.")]
+	HRESULT Enum( [in, out]     VARIANT *pvIterator,
+	              [out]         VARIANT *pvParmName,
+	              [out, retval] VARIANT *pvParmValue);
+
+	[helpstring("Commits changes to the global parameters.")]
+	HRESULT Commit();
+
+    //
+    // Methods relating to routes
+    //
+	[helpstring("Adds/Opens a route.")]
+	HRESULT AddRoute( [in, string]  BSTR     pszRoute, 
+					  [out, retval] VARIANT *pvRoute );
+
+	[helpstring("Deletes a route.")]
+	HRESULT DeleteRoute( [in, string] BSTR   pszRoute );
+
+	[helpstring("Enumerates through all routes.")]
+	HRESULT EnumRoutes( [in, out]     VARIANT *pvIterator,
+						[out, retval] VARIANT *pvRoute);
+
+	//
+	// Event sink configuration
+	//
+
+	[helpstring("Adds a new event sink.")]
+	HRESULT AddEventSink( [in, string]  BSTR bstrSink, 
+					  [out, retval] VARIANT *pvdispSink );
+
+	[helpstring("Removes an event sink")]
+	HRESULT DeleteEventSink( [in, string] BSTR bstrSink );
+
+	[helpstring("Enumerates through all event sinks.")]
+	HRESULT EnumEventSinks( [in, out]     VARIANT *pvIterator,
+							[out, retval] VARIANT *pvdispSink);
+
+    //
+    // Methods relating to replications
+    //
+
+	[helpstring("Enumerates through the current list of replications.")]
+    HRESULT EnumReplications( [in, string] BSTR    pszMatchProject,
+                              [in]         LONG    lMatchState,
+                              [in,out]     VARIANT *pvIterator,
+                              [out,retval] VARIANT *pvReplInfo);
+
+    //
+    // Methods relating to user access
+    //
+
+	[helpstring("Returns the access rights of the currently logged on user.")]
+    HRESULT CheckAccess( [out,retval]        VARIANT *pvlAccessMask);
+
+
+	[helpstring("Maps a URL to a project.")]
+	HRESULT MapUrl( [in, string] BSTR bstrUrl,
+					 [out] VARIANT *vbstrSuffix, 
+					 [out, retval] VARIANT *vdispProject );
+
+	[helpstring("Translates an event code to a string description, severity, and category.")]
+	HRESULT TranslateEventCode( [in] LONG lEventCode, 
+								[out] VARIANT* vbstrDescription,
+								[out] VARIANT* vlSeverity,
+								[out] VARIANT* vlCategory );
+
+	[helpstring("Clears an event store (or all if none is specified)")]
+	HRESULT ClearEvents( [in, string] BSTR bstrEventSink );
+
+    //
+    // Properties for IReplicationServer...
+    //
+
+	[helpstring("Turns transaction processing on or off")]	
+	[propput] HRESULT UseTransactions( [in, string]   BSTR  pszTrans);
+	
+	[helpstring("Returns state of transaction processing.")]
+	[propget] HRESULT UseTransactions( [out, retval]  VARIANT *pvTrans);
+	
+	[helpstring("Returns the current server name")]
+	[propget] HRESULT ServerName( [out, retval] VARIANT *pvServer );
+
+	[helpstring("Returns the current protocol version")]
+	[propget] HRESULT Version( [out, retval] VARIANT *pvVersion );
+	
+	[helpstring("converts a VT_DATE from GMT to the local time zone")] 
+	HRESULT EventTimeToLocalTime([in] VARIANT vdateEventTime, [out, retval] VARIANT* pvdateLocalTime);
+
+};
+
+
+
+	[
+		object,
+		uuid(ABEB9803-DB7A-11d0-A800-00C04FC9DAA5),
+		dual,
+		helpstring("IReplicationProject Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationProject : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+	//
+	// IReplicationProject methods
+	//
+
+	[helpstring("Gets a specific parameter of a project.")]
+	HRESULT Get( [in, string]  BSTR     pszParmName,
+	             [out, retval] VARIANT *pvParmValue);
+
+	[helpstring("Sets a specific parameter for a project.")]
+	HRESULT Put( [in, string] BSTR    pszParmName,
+	             [in]         VARIANT vParmValue);
+
+	[helpstring("Enumerates through all parameters for a project.")]
+	HRESULT Enum( [in, out]         VARIANT *pvIterator,
+	              [in, out]         VARIANT *pvParmName,
+	              [out, retval]     VARIANT *pvParmValue);
+
+	[helpstring("Commits changes to an open project or creates a new project.")]
+	HRESULT Commit();
+
+	[helpstring("Starts a replication.")]
+    HRESULT Start( [in] LONG lFlags,
+    			   [out, retval] VARIANT *pvReplInst );
+
+	[helpstring("Cancels replication started.")]
+    HRESULT Cancel();
+
+	[helpstring("Rolls back a replication.")]
+    HRESULT Rollback( [in] LONG lNumRollbacks);
+
+	[helpstring("Enumerates through all replications for a project.")]
+	HRESULT EnumReplications( [in]         LONG    lState,
+                              [in,out]     VARIANT *pvIterator,
+                              [out,retval] VARIANT *pvReplInfo);
+
+
+	[helpstring("Enumerates through objects in a project.")]
+	HRESULT EnumItems( [in]         BSTR     bstrSubdir,
+                       [in,out]     VARIANT *pvIterator,
+                       [out,retval] VARIANT *pvItemInfo);
+
+
+	[helpstring("Adds a scheduled replication for this project.")]
+	HRESULT AddSchedule([out, retval] VARIANT* pvdispSchedule);
+
+	[helpstring("Enumerates scheduled replications on this project.")]
+	HRESULT EnumSchedules(	[in,out]		VARIANT* pvlIterator,
+							[out, retval]	VARIANT* pvdispSchedule);
+
+    //
+    // Methods relating to transactions
+    //
+
+	[helpstring("Apply transactions for the project")]
+	HRESULT ApplyTransaction( [in] LONG lFlags );
+
+    //
+    // Methods relating to user access
+    //
+
+	[helpstring("Returns the access rights of the logged on user to the project.")]
+    HRESULT CheckAccess( [out,retval]        VARIANT *pvlAccessMask);
+
+
+	[helpstring("Grants a user or group access to the project.")]
+    HRESULT GrantAccess( [in, string] BSTR pszUser,
+                         [in]         LONG lAccessMask);
+
+	[helpstring("Removes access to the project for a user or group.")]
+    HRESULT RemoveAccess([in, string] BSTR pszUser);
+
+	HRESULT EnumAccess( [in,out]      VARIANT *pvIterator,
+						[out]         VARIANT *pvAccess,
+						[out, retval] VARIANT *pvUserName);
+
+
+	[helpstring("Adds a destination to a project.")]
+	HRESULT AddDestination( [in, string] BSTR pszDestination );
+
+	[helpstring("Enumerates through all the destinations for a project.")]
+	HRESULT EnumDestination( [in, out] VARIANT *pvIterator,
+							 [out, retval] VARIANT *pvDest);
+
+	[helpstring("Removes a destination from a project.")]
+	HRESULT RemoveDestination( [in, string] BSTR pszDestination);
+
+	//
+	// Project properties
+	//
+
+	[helpstring("Sets the name of the project.")]
+	[propput] HRESULT Name( [in,string]  BSTR pszName);
+
+	[helpstring("Gets the name of the project.")]
+	[propget] HRESULT Name( [out, retval] VARIANT *pvName);
+
+	[helpstring("Sets the replication method for the project.")]
+	[propput] HRESULT ReplicationMethod( [in,string] BSTR pszMethod);
+
+	[helpstring("Gets the replication method for the project.")]
+	[propget] HRESULT ReplicationMethod( [out, retval] VARIANT *pvMethod);
+
+	[helpstring("Sets the local directory for the project.")]
+	[propput] HRESULT LocalDirectory( [in,string] BSTR pszLocalDir);
+	[helpstring("Gets the local directory for the project.")]
+	[propget] HRESULT LocalDirectory( [out, retval] VARIANT *pvLocalDir);
+
+	[helpstring("Sets the flags for the project.")]
+	[propput] HRESULT Flags( [in] LONG lFlags);
+
+	[helpstring("Gets the flags for the project.")]
+	[propget] HRESULT Flags( [out, retval] VARIANT *pvFlags);
+
+	[helpstring("retrieves an IReplicationClient for this project")] 
+	HRESULT StartReplicationClient([in] LONG lReserved, [out, retval] VARIANT* pvRetVar);
+};
+
+
+
+
+[
+	object,
+	uuid(ABEB9808-DB7A-11d0-A800-00C04FC9DAA5),
+	dual,
+	helpstring("IReplicationItem Interface"),
+	pointer_default(unique)
+]
+	interface IReplicationItem : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+	[helpstring("Name of the object.")]
+	[propget] HRESULT Name(              [out, retval] VARIANT *pvName);
+
+	[helpstring("Attributes.")]
+	[propget] HRESULT Attributes(        [out, retval] VARIANT *pvAttrs);
+
+	[helpstring("Creation time.")]
+	[propget] HRESULT CreationTime(      [out, retval] VARIANT *pvCreationTime);
+
+	[helpstring("Last access time.")]
+	[propget] HRESULT LastAccessTime(    [out, retval] VARIANT *pvLastAccessTime);
+
+	[helpstring("Last modified time.")]
+	[propget] HRESULT LastModifiedTime(  [out, retval] VARIANT *pvLastModified);
+
+	[helpstring("Size (low)")]
+	[propget] HRESULT SizeLow(           [out, retval] VARIANT *pvSizeLow);
+
+	[helpstring("Size (high)")]
+	[propget] HRESULT SizeHigh(          [out, retval] VARIANT *pvSizeHigh);
+
+};
+
+
+[
+	object,
+	uuid(82D36BA0-1B37-11d1-8C8C-00C04FC2D3B9),
+	dual,
+	helpstring("IReplicationSchedule Interface"),
+	pointer_default(unique)
+]
+	interface IReplicationSchedule : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+		[helpstring("Commits the schedule to the project.")]
+		HRESULT Commit();
+
+		[helpstring("Removes the schedule from the project.")]
+		HRESULT Remove();
+
+		[helpstring("Sets the project to replicate on this schedule.")]
+		[propput] HRESULT Project( [in] BSTR bstrProject);
+
+		[helpstring("Gets the project to replicate on this schedule.")]
+		[propget] HRESULT Project( [out, retval] VARIANT *pvbstrProject);
+
+		[helpstring("Sets the scheduled action to run once at this date and time.")]
+		[propput] HRESULT RunOnce( [in] VARIANT vdateRunOnce);
+
+		[helpstring("Gets the date and time this scheduled action will run.")]
+		[propget] HRESULT RunOnce( [out, retval] VARIANT *pvdate);
+
+		[helpstring("Sets the scheduled action on this project (replicate or apply).")]
+		[propput] HRESULT ScheduledAction( [in] CRS_SCHEDULE_ACTION Action);
+
+		[helpstring("Gets the scheduled action on this project (replicate or apply).")]
+		[propget] HRESULT ScheduledAction( [out, retval] VARIANT *pvAction);
+
+		[helpstring("Sets the scheduled hour (unused for RunOnce replications).")]
+		[propput] HRESULT Hour( [in] LONG lHour);
+
+		[helpstring("Gets the scheduled hour (unused for RunOnce replications).")]
+		[propget] HRESULT Hour( [out, retval] VARIANT* pvlHour);
+
+		[helpstring("Sets the scheduled minute (unused for RunOnce replications).")]
+		[propput] HRESULT Minute( [in] LONG lMinute);
+
+		[helpstring("Gets the scheduled minute (unused for RunOnce replications).")]
+		[propget] HRESULT Minute( [out, retval] VARIANT* pvlMinute);
+
+		[helpstring("Sets the scheduled days of the week (unused for RunOnce replications).")]
+		[propput] HRESULT Days( [in] LONG lDays);
+
+		[helpstring("Gets the scheduled days of the week (unused for RunOnce replications).")]
+		[propget] HRESULT Days( [out, retval] VARIANT* pvlDays);
+
+		[helpstring("Gets the string description of this schedule.")]
+		[propget] HRESULT Description( [out, retval] VARIANT *pvbstrDescription);
+		
+		[helpstring("TRUE if this schedule is to be applied one time only (the RunOnce property is set)")] 
+		[propget] HRESULT IsRunOnce([out, retval] VARIANT *pVal);
+
+	};
+
+[
+	object,
+	uuid(ABEB980A-DB7A-11d0-A800-00C04FC9DAA5),
+	dual,
+	helpstring("IReplicationEventSinkConfig Interface"),
+	pointer_default(unique)
+]
+	interface IReplicationEventSinkConfig : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+		[helpstring("Commits any changes to the event sink")]
+		HRESULT Commit();
+
+		[helpstring("Registers this sink to receive this event code")]
+		HRESULT RegisterForEvent([in] LONG lCode);
+
+		[helpstring("Unregisters this sink to receive this event code")]
+		HRESULT UnRegisterForEvent([in] LONG lCode);
+
+		[helpstring("Registers this sink to receive this event code")]
+		HRESULT IsRegisteredForEvent([in] LONG lCode, [out, retval] VARIANT* pvboolReg);
+
+		[helpstring("Sink name")]
+		[propput] HRESULT Name( [in] BSTR bstrName );
+
+		[helpstring("Sink Name")]
+		[propget] HRESULT Name( [out, retval] VARIANT *pvbstrName );
+
+		[helpstring("CLSID/ProgId")]
+		[propput] HRESULT CLSID( [in] BSTR bstrCLSID );
+
+		[helpstring("CLSID/ProgId")]
+		[propget] HRESULT CLSID( [out, retval] VARIANT *pvbstrCLSID );
+
+		[helpstring("Sets the event filter for project name.")]
+		[propput] HRESULT ProjectFilter( [in, string] BSTR bstrProject);
+
+		[helpstring("Gets the event filter for project name.")]
+		[propget] HRESULT ProjectFilter( [out, retval] VARIANT *pvbstrProject);
+
+		[helpstring("Sets the data source")]
+		[propput] HRESULT DataSource( [in] BSTR bstrDSN);
+
+		[helpstring("Gets the data source")]
+		[propget] HRESULT DataSource( [out, retval] VARIANT *pvbstrDSN);
+
+		[helpstring("Sets the user name")]
+		[propput] HRESULT UserName( [in] BSTR bstrUser);
+
+		[helpstring("Gets the user name")]
+		[propget] HRESULT UserName( [out, retval] VARIANT *pvbstrUser);
+
+		[helpstring("Sets the password")]
+		[propput] HRESULT Password( [in] BSTR bstrPassword);
+
+		[helpstring("Gets the password")]
+		[propget] HRESULT Password( [out, retval] VARIANT *pvbstrPassword);
+
+		[helpstring("Sets the server to which to forward events")]
+		[propput] HRESULT Server( [in] BSTR bstrServer);
+
+		[helpstring("Gets the server to which to forward events")]
+		[propget] HRESULT Server( [out, retval] VARIANT *pvbstrServer);
+		
+		[helpstring("Gets whether the event sink is disabled")] 
+		[propget] HRESULT Disabled([out, retval] VARIANT *pVal);
+
+		[helpstring("Sets whether the event sink is disabled")] 
+		[propput] HRESULT Disabled([in] VARIANT newVal);
+		
+		[helpstring("Gets whether the event sink handles events synchronously")] 
+		[propget] HRESULT Synchronous([out, retval] VARIANT *pVal);
+
+		[helpstring("Sets whether the event sink handles events synchronously")] 
+		[propput] HRESULT Synchronous([in] VARIANT newVal);
+		
+		[helpstring("Gets the OLEDB provider CLSID")] 
+		[propget] HRESULT ProviderCLSID([out, retval] VARIANT *pVal);
+		
+		[helpstring("Sets the OLEDB provider CLSID")] 
+		[propput] HRESULT ProviderCLSID([in] BSTR newVal);
+
+		[helpstring("Gets the number of days to keep events")] 
+		[propget] HRESULT EventLifetime([out, retval] VARIANT *pvlEventLifetime);
+
+		[helpstring("Sets the number of days to keep events before they are deleted from the database")] 
+		[propput] HRESULT EventLifetime([in] LONG lEventLifetime);
+};
+
+
+	[
+		object,
+		uuid(ABEB9807-DB7A-11d0-A800-00C04FC9DAA5),
+		dual,
+		helpstring("IReplicationInstance Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationInstance : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+	//
+	// Methods relating to replication instances
+	//
+
+	[helpstring("Cancels the replication if it is running.")]
+    HRESULT Cancel();
+
+	[helpstring("Updates the statistics for a replication.")]
+    HRESULT Query();
+
+	//
+	// Properties of IReplicationInstance
+	//
+
+	[helpstring("The replication ID.")]
+	[propget] HRESULT ID(                [out, retval] VARIANT *pvID);
+
+	[helpstring("Name of the project.")]
+	[propget] HRESULT Name(              [out, retval] VARIANT *pvName);
+
+	[helpstring("Flags the replication was started with.")]
+	[propget] HRESULT Flags(			 [out, retval] VARIANT *pvFlags);
+
+	[helpstring("Current state of the replication.")]
+	[propget] HRESULT State(             [out, retval] VARIANT *pvState);
+
+	[helpstring("Current status of the replication.")]
+	[propget] HRESULT Status(             [out, retval] VARIANT *pvState);
+
+	[helpstring("Start time of the replication.")]
+	[propget] HRESULT StartTime(         [out, retval] VARIANT *pvStartTime);
+
+	[helpstring("Finish time of the replication.")]
+	[propget] HRESULT EndTime(         [out, retval] VARIANT *pvEndTime);
+
+	[helpstring("Files sent.")]
+	[propget] HRESULT FilesSent(         [out, retval] VARIANT *pvFilesSent);
+
+	[helpstring("Bytes sent.")]
+	[propget] HRESULT BytesSent(         [out, retval] VARIANT *pvBytesSent);
+
+	[helpstring("Files received.")]
+	[propget] HRESULT FilesReceived(     [out, retval] VARIANT *pvFilesReceived);
+
+	[helpstring("Bytes received.")]
+	[propget] HRESULT BytesReceived(     [out, retval] VARIANT *pvBytesReceived);
+
+	[helpstring("File errors.")]
+	[propget] HRESULT FilesErrored(      [out, retval] VARIANT *pvFilesErrored);
+
+	[helpstring("Bytes of the errored files.")]
+	[propget] HRESULT FilesErroredBytes( [out, retval] VARIANT *pvFilesErroredBytes);
+
+	[helpstring("Files without changes.")]
+	[propget] HRESULT FilesMatched(      [out, retval] VARIANT *pvFilesMatched);
+
+	[helpstring("Size of the unchanged files.")]
+	[propget] HRESULT FilesMatchedBytes( [out, retval] VARIANT *pvFilesMatchedBytes);
+
+	};
+
+
+
+	[
+		object,
+		uuid(ABEB9804-DB7A-11d0-A800-00C04FC9DAA5),
+		dual,
+		helpstring("IReplicationRoute Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationRoute : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+	[helpstring("Gets a parameter for a route.")]
+	HRESULT Get( [in, string]  BSTR     pszParm,
+	             [out, retval] VARIANT *pvParmValue);
+
+	[helpstring("Sets a parameter for a route.")]
+	HRESULT Put( [in, string] BSTR    pszParm,
+	             [in]         VARIANT vParmValue);
+
+	[helpstring("Enumerates all the parameters for a route.")]
+	HRESULT Enum( [in, out]      VARIANT *pvIterator,
+	              [in, out]      VARIANT *pvParm,
+	              [out, retval]  VARIANT *pvParmValue);
+
+	[helpstring("Commits changes to an existing route or creates a new route.")]
+	HRESULT Commit( );
+
+	[helpstring("Adds a destination for a route.")]
+	HRESULT AddDestination( [in,string] BSTR pszDestination );
+
+	[helpstring("Enumerates through the list of destinations for a route.")]
+	HRESULT EnumDestination( [in, out] VARIANT     *pvIterator,
+							 [out, retval] VARIANT *pvDest);
+
+	[helpstring("Removes a destination from a route.")]
+	HRESULT RemoveDestination( [in,string] BSTR pszDestination);
+
+	[helpstring("Gets the name of the route.")]
+	[propget] HRESULT Name(          [out,retval] VARIANT *pvName);
+
+	[helpstring("Sets the name of the route.")]
+	[propput] HRESULT Name(          [in,string]  BSTR pszName);
+
+	[helpstring("Gets the base directory.")]
+	[propget] HRESULT BaseDirectory( [out,retval] VARIANT *pvName);
+
+	[helpstring("Sets the base directory for the route.")]
+	[propput] HRESULT BaseDirectory( [in,string] BSTR pszName);
+
+};
+
+	[
+		object,
+		uuid(B24F0372-9692-11D0-BAD5-00C04FD7082F),
+		dual,
+		helpstring("IReplicationClient Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationClient : IDispatch
+	{
+		[helpstring("method Initialize")] 
+		HRESULT Initialize([in, string] BSTR pszProject);
+
+		[helpstring("method Connect")] 
+		HRESULT Connect();
+		
+		[helpstring("method SendFile")] 
+		HRESULT SendFile([in, string] BSTR pszFile);
+
+		[helpstring("method SendFiles")] 
+		HRESULT SendFiles([in] VARIANT* pvFileArray);
+
+		[helpstring("method DeleteFile")] 
+		HRESULT DeleteFile([in, string] BSTR pszFile);
+
+		[helpstring("method Commit")] 
+		HRESULT Commit();
+
+		[helpstring("method Abort")] 
+		HRESULT Abort();
+
+		[helpstring("Disconnects from all destinations")]
+		HRESULT Disconnect();
+
+		[helpstring("retrieves an array of IReplicationClientError objects")] 
+		HRESULT GetExtendedErrorInfo([out, retval] VARIANT * pvErrorArray);
+
+		[propget, helpstring("property FastMode")] HRESULT FastMode([out, retval] VARIANT *pVal);
+		[propput, helpstring("property FastMode")] HRESULT FastMode([in] BOOL newVal);
+		[propget, helpstring("property Force")] HRESULT Force([out, retval] VARIANT *pVal);
+		[propput, helpstring("property Force")] HRESULT Force([in] BOOL newVal);
+		[propget, helpstring("property ACLs")] HRESULT ACLs([out, retval] VARIANT *pVal);
+		[propput, helpstring("property ACLs")] HRESULT ACLs([in] BOOL newVal);
+		[propget, helpstring("property NumDestinations")] HRESULT NumDestinations([out, retval] VARIANT *pVal);
+		[propget, helpstring("property SkipLockedFiles")] HRESULT SkipLockedFiles([out, retval] VARIANT *pVal);
+		[propput, helpstring("property SkipLockedFiles")] HRESULT SkipLockedFiles([in] BOOL newVal);
+	};
+
+	[
+		object,
+		uuid(414CC9F0-9F37-11d0-BADA-00C04FD7082F),
+		dual,
+		helpstring("IReplicationClientError Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationClientError : IDispatch
+	{
+		[propget, helpstring("property ErrorCode")] HRESULT ErrorCode([out, retval] VARIANT *pVal);
+		[propput, helpstring("property ErrorCode")] HRESULT ErrorCode([in] long newVal);
+		[propget, helpstring("property Description")] HRESULT Description([out, retval] VARIANT *pVal);
+		[propput, helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, helpstring("property Destination")] HRESULT Destination([out, retval] VARIANT *pVal);
+		[propput, helpstring("property Destination")] HRESULT Destination([in] BSTR newVal);
+		[propget, helpstring("property FileName")] HRESULT FileName([out, retval] VARIANT *pVal);
+		[propput, helpstring("property FileName")] HRESULT FileName([in] BSTR newVal);
+		[propget, helpstring("property Project")] HRESULT Project([out, retval] VARIANT *pVal);
+		[propput, helpstring("property Project")] HRESULT Project([in] BSTR newVal);
+		[propget, helpstring("property Source")] HRESULT Source([out, retval] VARIANT *pVal);
+		[propput, helpstring("property Source")] HRESULT Source([in] BSTR newVal);
+	};
+
+	[
+		object,
+		uuid(5163ce6b-1d76-11d1-a32b-0000f8014963),
+		dual,
+		helpstring("IReplicationPostingAcceptor Interface"),
+		pointer_default(unique)
+	]
+	interface IReplicationPostingAcceptor : IDispatch
+	{
+		import "oaidl.idl";
+		import "crstypes.h";
+
+	//
+	// IReplicationPostingAcceptor methods
+	//
+
+	[helpstring("Gets a specific parameter of the Posting Acceptor.")]
+	HRESULT Get( [in, string]  BSTR     pszParmName,
+	             [out, retval] VARIANT *pvParmValue);
+
+	[helpstring("Sets a specific parameter for the Posting Acceptor.")]
+	HRESULT Put( [in, string] BSTR    pszParmName,
+	             [in]         VARIANT vParmValue);
+
+	[helpstring("Enumerates through all parameters for the Posting Acceptor.")]
+	HRESULT Enum( [in, out]         VARIANT *pvIterator,
+	              [in, out]         VARIANT *pvParmName,
+	              [out, retval]     VARIANT *pvParmValue);
+
+};
+
+
+[
+	uuid(ABEB9809-DB7A-11d0-A800-00C04FC9DAA5),
+	version(1.0),
+	helpstring("Site Server 3.0 Content Deployment Object Library")
+]
+library CRSAPILib
+{
+	importlib("stdole2.tlb");
+
+	[
+		uuid(66D6D7ED-22D2-11D0-9B98-00C04FD5CD09),
+		helpstring("ReplicationServer Class"),
+	]
+	coclass CReplicationServer
+	{
+		[default] interface IReplicationServer;
+	};
+
+	[
+		uuid(66D6D7F2-22D2-11D0-9B98-00C04FD5CD09),
+		helpstring("ReplicationProject Class")
+	]
+	coclass CReplicationProject
+	{
+		[default] interface IReplicationProject;
+	};
+
+	[
+		uuid(66D6D7F7-22D2-11D0-9B98-00C04FD5CD09),
+		helpstring("ReplicationInstance Class")
+	]
+	coclass CReplicationInstance
+	{
+		[default] interface IReplicationInstance;
+	};
+
+	[
+		uuid(66D6D7FC-22D2-11D0-9B98-00C04FD5CD09),
+		helpstring("ReplicationRoute Class")
+	]
+	coclass CReplicationRoute
+	{
+		[default] interface IReplicationRoute;
+	};
+
+	[
+		uuid(B24F0373-9692-11D0-BAD5-00C04FD7082F),
+		helpstring("ReplicationClient Class")
+	]
+	coclass CReplicationClient
+	{
+		[default] interface IReplicationClient;
+	};
+
+	[
+		uuid(6AF9D110-9F37-11d0-BADA-00C04FD7082F),
+		helpstring("ReplicationClientError Class")
+	]
+	coclass CReplicationClientError
+	{
+		[default] interface IReplicationClientError;
+	};
+
+
+	[
+		uuid(66D6D7FD-22D2-11D0-9B98-00C04FD5CD09),
+		helpstring("ReplicationEventSinkConfig Class")
+	]
+	coclass CReplicationEventSinkConfig
+	{
+		[default] interface IReplicationEventSinkConfig;
+	};
+
+
+	[
+		uuid(66D6D7FE-22D2-11D0-9B98-00C04FD5CD09),
+		helpstring("ReplicationItem Class")
+	]
+	coclass CReplicationItem
+	{
+		[default] interface IReplicationItem;
+	};
+
+	[
+		uuid(4E28F5F0-1B3C-11d1-8C8C-00C04FC2D3B9),
+		helpstring("ReplicationSchedule Class")
+	]
+	coclass CReplicationSchedule
+	{
+		[default] interface IReplicationSchedule;
+	};
+
+	[
+		uuid(055f638a-1d77-11d1-a32b-0000f8014963),
+		helpstring("ReplicationPostingAcceptor Class")
+	]
+	coclass CReplicationPostingAcceptor
+	{
+		[default] interface IReplicationPostingAcceptor;
+	};
+
+};

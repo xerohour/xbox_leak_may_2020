@@ -1,0 +1,829 @@
+//
+//
+#include "resource.h"
+#include <winres.h>
+#include <commctrl.h>
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+#include <xboxverp.h>
+#define VER_FILETYPE    VFT_APP
+#define VER_FILESUBTYPE VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "xbshlext.dll"
+#define VER_INTERNALNAME_STR        "xbshlext.dll"
+#include "common.ver"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_XBOXFOLDER          REGISTRY DISCARDABLE    "XboxFolder.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//  MUST READ!!!! IF YOU TOUCH ICONS OR THEIR IMAGE FILES. DO *NOT* MODIFY ANY
+//  OF THE ICONS OR THEIR IMAGE FILES BEFORE READING ABOUT BUG 10152 AT THE TOP
+//  OF RESOURCE.H
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_REPLACE             ICON    DISCARDABLE     "replace.ico"           //INTERNAL  (DO NOT REPLACE WITH SHELL)
+IDI_DELETE              ICON    DISCARDABLE     "nuke.ico"              //INTERNAL  (DO NOT REPLACE WITH SHELL)
+IDI_MOVE                ICON    DISCARDABLE     "move.ico"              //INTERNAL  (DO NOT REPLACE WITH SHELL)
+IDI_MULDOC              ICON    DISCARDABLE     "muldoc.ico"            //INTERNAL  (DO NOT REPLACE WITH SHELL)
+IDI_CAMERA              ICON    DISCARDABLE     "camera.ico"            //INTERNAL  (DO NOT REPLACE WITH SHELL)
+IDI_REBOOT              ICON    DISCARDABLE     "reboot.ico"            //INTERNAL  (DO NOT REPLACE WITH SHELL)
+IDI_RESERVED_207        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_RESERVED_208        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_RESERVED_209        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_RESERVED_210        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_RESERVED_211        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_RESERVED_212        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_RESERVED_213        ICON    DISCARDABLE     "placeholder.ico"       //PLACEHOLDER
+IDI_MAIN                ICON    DISCARDABLE     "xbox.ico"              //SHELL
+IDI_ADD_CONSOLE         ICON    DISCARDABLE     "newcsl.ico"            //SHELL
+IDI_CONSOLE             ICON    DISCARDABLE     "console.ico"           //SHELL
+IDI_CONSOLE_DEFAULT     ICON    DISCARDABLE     "console-default.ico"   //SHELL
+IDI_VOLUME              ICON    DISCARDABLE     "volume.ico"            //SHELL
+IDI_FOLDER              ICON    DISCARDABLE     "folder.ico"            //SHELL
+IDI_XBE                 ICON    DISCARDABLE     "xbe.ico"               //SHELL
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    
+    //
+    //  Column headers names for various detail views
+    //
+    IDS_COLUMN_HEADER_NAME              "Name"
+    IDS_COLUMN_HEADER_IPADDR            "IP Address"
+    IDS_COLUMN_HEADER_TYPE              "Type"
+    IDS_COLUMN_HEADER_FREE_CAPACITY     "Free Space"
+    IDS_COLUMN_HEADER_TOTAL_CAPACITY    "Total Capacity"
+    IDS_COLUMN_HEADER_SIZE              "Size"
+    IDS_COLUMN_HEADER_MODIFIED          "Modified"
+    IDS_COLUMN_HEADER_CREATED           "Created"         // Not Currently Used
+    IDS_COLUMN_HEADER_ATTRIBUTES        "Attributes"
+
+    // Context Menu Strings
+    IDS_CM_NEW                "&New"
+    IDS_CM_REBOOT             "Re&boot"
+    IDS_CM_LAUNCH             "&Launch"
+    IDS_CM_OPEN               "&Open"
+    IDS_CM_EXPLORE            "E&xplore"
+    IDS_CM_REBOOT_WARM        "&Warm"
+    IDS_CM_REBOOT_SAME_TITLE  "Warm to &active title"
+    IDS_CM_REBOOT_COLD        "&Cold"
+    IDS_CM_CAPTURE            "Screen &Capture"
+    IDS_CM_SETDEFAULT         "Set as de&fault Xbox"
+    IDS_CM_SECURITY           "&Security"
+    IDS_CM_CUT                "Cu&t"
+    IDS_CM_COPY               "&Copy"
+    IDS_CM_PASTE              "&Paste"
+    IDS_CM_DELETE             "&Delete"
+    IDS_CM_RENAME             "Rena&me"
+    IDS_CM_NEW_FOLDER         "&Folder"
+    IDS_CM_NEW_CONSOLE        "X&box"
+    IDS_CM_PROPERTIES         "P&roperties"
+    
+    IDS_CMH_LAUNCH             "Launches the selected XBE file."
+    IDS_CMH_OPEN               "Opens the selected item in the current window."
+    IDS_CMH_EXPLORE            "Opens the selected item in a new window."
+    IDS_CMH_REBOOT_WARM        "Does a warm reboot of the selected Xbox Development Console."
+    IDS_CMH_REBOOT_SAME_TITLE  "Does a warm reboot of the selected Xbox Development Console restarting the currently active title."
+    IDS_CMH_REBOOT_COLD        "Does a cold reboot of the selected Xbox Development Console."
+    IDS_CMH_CAPTURE            "Capture the current screen image of the selected Xbox Development Console."
+    IDS_CMH_SETDEFAULT         "Set the selected Xbox Development Console as the default for use with other tools."
+    IDS_CMH_SECURITY           "Display the security property page for the selected Xbox Development Console."
+    IDS_CMH_CUT                "Removes the selected items and copies them onto the Clipboard."
+    IDS_CMH_COPY               "Copies the selected items to the Clipboard. To put them in the new location, use the Paste command."
+    IDS_CMH_PASTE              "Inserts the items you have copied or cut into the selected location."
+    IDS_CMH_DELETE             "Deletes the selected items."
+    IDS_CMH_RENAME             "Renames the selected item."
+    IDS_CMH_NEW_FOLDER         "Creates a new folder in the selected location."
+    IDS_CMH_NEW_CONSOLE        "Launches the wizard to add an Xbox Development Console to Xbox Neighborhood."
+    IDS_CMH_PROPERTIES         "Displays the properties of the selected items."
+    
+    //
+    //  Progress Strings
+    //
+    IDS_FILE_COPY_PROGRESS_TITLE        "Copying..."
+    IDS_FILE_MOVE_PROGRESS_TITLE        "Moving..."
+    IDS_FILE_COPY_PROGRESS_PREPARING    "Calculating the time to copy the files."
+    IDS_FILE_MOVE_PROGRESS_PREPARING    "Calculating the time to move the files."
+    IDS_FILE_PROGRESS_TARGET            "to '%hs' on '%hs'"
+    IDS_FILE_PROGRESS_CANCEL            "Canceling..."
+    IDS_FILE_DELETE_PROGRESS_TITLE      "Deleting..."
+    IDS_FILE_DELETE_PROGRESS_STATUS     "Deleting:"
+    
+    //
+    //  Drive types
+    //
+
+    IDS_DRIVETYPE_MEMORY_UNIT           "Memory Unit"
+    IDS_DRIVETYPE_MAIN_ROOT             "Main Partition [Internal]"
+    IDS_DRIVETYPE_BOOT                  "Launch Volume [current title]"
+    IDS_DRIVETYPE_DEVELOPMENT           "Game Development Volume"
+    IDS_DRIVETYPE_TITLE_ROOT            "Title Volume [root]"
+    IDS_DRIVETYPE_TITLE_CURRENT         "Title Volume [current title]"
+    IDS_DRIVETYPE_SAVED_CURRENT         "Saved Game Volume [current title]"
+    IDS_DRIVETYPE_SAVED_ROOT            "Saved Game Volume [root]"
+    IDS_DRIVETYPE_SCRATCH               "Scratch Volume"
+    IDS_DRIVETYPE_DASH                  "Xbox Dashboard Volume [internal]"
+    IDS_DRIVETYPE_UNKNOWN               "Volume"
+
+
+    //
+    // Confirmation Strings
+    //
+    
+    IDS_CONFIRM_REMOVE_CONSOLE_CAPTION   "Remove Xbox Console"
+    IDS_CONFIRM_REMOVE_CONSOLE           "Are you sure that you want to remove '%s' from Xbox Neighborhood?"
+    IDS_CONFIRM_REMOVE_MULTIPLE_CONSOLES "Are you sure that you want to remove these %d consoles from Xbox Neighborhood?"
+    IDS_CONFIRM_REMOVE_DEFAULT_CONSOLE   "You are attempting to delete your default Xbox console.  Many Xbox tools will not \
+function without a default Xbox console.  Are you sure you want to delete '%hs'?"
+    IDS_CONFIRM_RO_FILE_MOVE_CAPTION     "Confirm File Move"
+    IDS_CONFIRM_RO_FILE_MOVE             "Are you sure you want to move the read-only file '%s'?"
+    IDS_CONFIRM_RO_FOLDER_MOVE_CAPTION   "Confirm Folder Move"
+    IDS_CONFIRM_RO_FOLDER_MOVE           "Are you sure you want to move the read-only folder '%s'?"
+    IDS_CONFIRM_FOLDER_REPLACE_CAPTION   "Confirm Replace Folder"
+    IDS_CONFIRM_FOLDER_REPLACE           "This folder already contains a folder named '%s'."
+    IDS_CONFIRM_DELETE_CAPTION           "Confirm Delete"
+    IDS_CONFIRM_DELETE                   "Are you sure you want to permanently delete '%s'?"
+    IDS_CONFIRM_DELETE_RO                "The file %s is a read-only file.  Are you sure you want to permanently delete it?"
+    IDS_CONFIRM_DELETE_FOLDER_CAPTION    "Confirm Folder Delete"
+    IDS_CONFIRM_DELETE_FOLDER            "Are you sure you want to remove the folder '%s' and permanently delete its contents?"
+    IDS_CONFIRM_DELETE_RO_FOLDER         "The folder %s is a read-only folder.  Are you sure you want to remove it and permanently delete its contents?"
+    IDS_CONFIRM_DELETE_MULTIPLE_CAPTION  "Confirm Multiple Delete"
+    IDS_CONFIRM_DELETE_MULTIPLE          "Are you sure you want to permanently delete these '%d' items?"
+    IDS_CONFIRM_RENAME_CAPTION           "Confirm Rename"
+    IDS_CONFIRM_RENAME_RO_FILE           "Are you sure you want to rename the read-only file '%s' to '%s'?"
+    IDS_CONFIRM_DESKTOP_SHORTCUT_CAPTION "Create Shortcut"
+    IDS_CONFIRM_DESKTOP_SHORTCUT         "Shortcuts may not be created in Xbox Neighborhood.\n\n Would you like to create a shortcut on the desktop?"
+
+    //
+    // helper strings for confirmation dialogs
+    //
+
+    IDS_THISFOLDER                      "this folder"
+    IDS_THESELECTEDITEMS                "the selected items"
+    IDS_READONLY                        "set read-only, "
+    IDS_NOTREADONLY                     "unset read-only, "
+    IDS_HIDE                            "hide, "
+    IDS_UNHIDE                          "unhide, "
+
+
+    //
+    //  Strings and Captions for Error and Notification Boxes
+    //
+
+    IDS_GENERIC_CAPTION                 "Xbox NeighborHood"
+    IDS_CANNOT_DELETE_ROOT              "The only way to remove the Xbox Neighborhood Icon from the desktop is to uninstall it."
+    IDS_CANNOT_DELETE_ADD_XBOX          "'Add Xbox' may not be deleted from Xbox Neighborhood"
+    IDS_CONSOLE_NOT_FOUND               "'%hs' could not be found."
+    IDS_CONSOLE_NOT_AVAILABLE           "'%hs' is not available.  Ensure that the console is powered on and connected to the network."
+    IDS_SECURE_CONNECTION_FAILED        "Could not establish secure connection with '%hs': %hs."
+    IDS_COULDNT_UNLOCK_CONSOLE          "Could not unlock '%hs': %hs"
+    IDS_COULDNT_LOCK_CONSOLE            "Could not lock '%hs': %hs"
+    IDS_CANNOT_REMOVE_LAST_MANAGER      "Cannot apply changes: At least one machine must have manage permission for 'h%s'."
+    IDS_COULDNT_APPLY_SECURITY_CHANGES  "A failure occured applying security changes, some of the changes may have been applied: %hs."
+    IDS_PASSWORD_SET_CAPTION            "Set Password"
+    IDS_PASSWORD_SET                    "Successfully changed the adminstrator password of '%hs'."
+    IDS_COULDNT_SET_PASSWORD            "Could not change the adminstrator password of '%hs': %hs."
+    IDS_COULDNT_REBOOT                  "Could not reboot '%hs': %hs"
+    IDS_COULDNT_GET_SCREEN_SHOT         "Could not capture a screen shot from '%hs': %hs."
+    IDS_RENAME_ERROR_CAPTION            "Error Renaming File or Folder"
+    IDS_RENAME_ERROR_ILLEGAL_CHARACTERS "Rename Failed: illegal characters in new filename"
+    IDS_RENAME_XBDM_ERROR               "Rename Failed: %hs"
+    IDS_TRANSFER_FAILED                 "Could not transfer to '%s': %s."
+    IDS_TRANSFER_FAILED_CAPTION         "Error transferring files"
+    IDS_ERROR_LOW_MEMORY                "An operation failed due to low memory conditions."
+    IDS_COULDNT_REPLACE_DIR_W_FILE      "A folder named %s already exists in the target location.  Cannot replace a folder with a file."
+    IDS_COULDNT_REPLACE_DIR_W_FILE_MULTI "A folder named %s already exists in the target location.  Cannot replace a folder with a file.\nWould you like to continue transferring remaining files?"
+    IDS_COULDNT_REPLACE_FILE            "Couldn't replace %s in the target location: %s"
+    IDS_COULDNT_CREATE_TARGET_DIR       "Couldn't create %s in the target location: %s"
+    IDS_CREATE_TEMP_FILE_FAILED         "Failed to create a temporary file.  This may mean that the local harddisk is full."
+    IDS_COULDNT_CONNECT_TO_XBOX         "Could not connect to '%s': %s."
+    IDS_COULDNT_MOVE_FILE               "Could not move file '%s': %s."
+    IDS_COULDNT_READ_SOURCE_FILE        "Could not access the source file '%s': %s."
+    IDS_TRANSFER_ILLEGAL_FILENAME       "Could not transfer '%s': it contains characters not supported by the Xbox filesystem."
+    IDS_TRANSFER_ILLEGAL_FILENAME_W     "Could not transfer '%ls': it contains characters not supported by the Xbox filesystem."
+    IDS_ERROR_PASTE_CAPTION             "Paste Error"
+    IDS_NOTHING_TO_PASTE                "The clipboard does not contain anything that may be pasted to the Xbox filesystem."
+    IDS_ERROR_CREATE_FOLDER_CAPTION     "Error Creating New Folder"
+    IDS_ERROR_CREATE_FOLDER             "Could not create a new folder: %s."
+    IDS_ERROR_OPENNING_FOLDER_CAPTION   "Error Exploring Xbox Neighborhood"
+    IDS_ERROR_OPENNING_FOLDER           "Couldn't open %s: %s"
+    IDS_ERROR_VOLUME_FULL               "Volume %s on %s is full"
+
+    //
+    //  General Page for File\Folder
+    //
+    IDS_CONTAINS_FORMAT                 "%d Files, %d Folders"
+    IDS_FILETYPE_VARIOUS                "Various"
+    
+    //
+    //  General Page for Console
+    //
+    IDS_DEFAULT_TITLE                   "<default>"
+    IDS_TITLE_NOT_AVAILABLE             "<not available>"
+
+    //
+    //  Security Page for Console
+    //
+    
+    IDS_SECURITY_PERMISSIONS_FOR        "Permissions for %hs"
+    IDS_SECURITY_UNLOCK_WARNING         "This will unlock '%hs' and allow access from any machine.  This change will take place immediately.  Press OK to proceed."
+    IDS_SECURITY_UNLOCK_WARNING_CAPTION "Confirm unlocking an Xbox Development Kit"
+    IDS_SECURITY_LOCK_WARNING           "This will lock '%hs' and allow access only from this machine.  This change will take place immediately.  Press OK to proceed."
+    IDS_SECURITY_LOCK_WARNING_CAPTION   "Confirm locking an Xbox Development Kit"
+
+    //
+    //  Add Console Wizard Strings
+    //
+
+    IDS_ADDCONSOLE_GETNAME_TITLE         "Specifying an Xbox Development Kit"
+    IDS_ADDCONSOLE_GETNAME_SUBTITLE      "The wizard needs to know which Xbox Development Kit to add."
+    IDS_ADDCONSOLE_ACCESSDENIED_TITLE    "This machine does not have access to the specified Xbox Development Kit."
+    IDS_ADDCONSOLE_ACCESSDENIED_SUBTITLE "If you know the Adminstrator password, you may give this machine access now."
+    IDS_ADDCONSOLE_MAKEDEFAULT_TITLE     "Choosing this Xbox as default."
+    IDS_ADDCONSOLE_MAKEDEFAULT_SUBTITLE  "The default Xbox is used by Visual Studio, and other Xbox development tools."
+    IDS_ADDCONSOLE_MAKEDEFAULT_QUESTION  "Would you like to use '%s' as the default Xbox?"
+
+    //
+    //  Strings for Status Bar
+    //
+
+    IDS_STATUS_OBJECT_COUNT_FORMAT      "%d objects"
+    IDS_STATUS_SELOBJECT_COUNT_FORMAT   "%d objects selected"
+    IDS_STATUS_VOLUME                   "Free Space: %s Total Size: %s"
+    IDS_STATUS_FILE                     "Type: %s Date Modified: %s Size: %s"
+
+    //
+    //  Access Permission Names
+    //  
+    IDS_PERMISSION_READ                 "Read"
+    IDS_PERMISSION_WRITE                "Write"
+    IDS_PERMISSION_CONFIGURE            "Configure"
+    IDS_PERMISSION_CONTROL              "Control"
+    IDS_PERMISSION_MANAGE               "Manage"
+
+    //
+    //  Misc Strings
+    //
+    IDS_ROOT_SHORT_CUT_NAME             "\\Xbox Neighborhood.lnk"
+    IDS_ROOT_SHORT_CUT_DESCRIPTION      "Explore Xbox Neighborhood"
+    IDS_LITERAL_YES                     "Yes"
+    IDS_LITERAL_NO                      "No"
+    IDS_LITERAL_THIS_COMPUTER           "this computer"
+    IDS_NEW_FOLDER                      "New Folder"
+    IDS_NEW_FOLDER_TEMPLATE             "New Folder (%d)"
+    IDS_NORMAL_NAME_FORMAT              "%s on %s"
+
+    //
+    //  Preloaded Strings
+    //
+    IDS_PRELOAD_FOLDER_TYPE_NAME          "File Folder"
+    IDS_PRELOAD_FILESIZE_FORMAT_BYTES     "%0.0lf bytes"
+    IDS_PRELOAD_FILESIZE_FORMAT_KB        "%0.2lf KB"
+    IDS_PRELOAD_FILESIZE_FORMAT_MB        "%0.2lf MB"
+    IDS_PRELOAD_FILESIZE_FORMAT_GB        "%0.2lf GB"
+    IDS_PRELOAD_FILEBYTESIZE_FORMAT1      ",%d"
+    IDS_PRELOAD_FILEBYTESIZE_FORMAT2      " bytes"
+    IDS_PRELOAD_XBOX_ZONE_NAME            "Xbox Neighborhood"
+    IDS_PRELOAD_STATUS_ADD_CONSOLE_FORMAT "Adds Xbox development consoles to Windows Explorer"
+
+    //
+    //  Error code string used by FormatUtils::XboxErrorString 
+    //
+    IDC_E_UNEXPECTED, "An unexpected error has occurred"
+    IDC_E_INVALIDARG, "Invalid argument"
+    IDC_XBDM_UNDEFINED, "Undefined network error"
+    IDC_XBDM_MAXCONNECT, "Maximum number of Xbox connections exceeded"
+    IDC_XBDM_NOSUCHFILE, "No such file exists on the Xbox"
+    IDC_XBDM_MEMUNMAPPED, "Xbox memory unmapped"
+    IDC_XBDM_NOTHREAD, "No such Xbox thread id"
+    IDC_XBDM_INVALIDCMD, "Unexpected Xbox network error"
+    IDC_XBDM_NOTSTOPPED, "Thread not stopped"
+    IDC_XBDM_MUSTCOPY, "File must be copied, not moved"
+    IDC_XBDM_BADFILENAME, "Illegal filename"
+    IDC_XBDM_CANNOTCREATE, "Cannot create file"
+    IDC_XBDM_CANNOTACCESS, "Cannot access file"
+    IDC_XBDM_ALREADYEXISTS, "File already exists"
+    IDC_XBDM_DIRNOTEMPTY, "Directory not empty"
+    IDC_XBDM_DEVICEFULL, "Device is full"
+    IDC_XBDM_NOTDEBUGGABLE, "Title is not debuggable"
+    IDC_XBDM_CANNOTCONNECT, "Cannot connect to Xbox"
+    IDC_XBDM_CONNECTIONLOST, "Connection to Xbox lost"
+    IDC_XBDM_FILEERROR, "Unexpected file error"
+    IDC_XBDM_NOXBOXNAME, "No address for Xbox has been set"
+    IDC_XBDM_NOERRORSTRING, "Unknown Error"
+    IDC_XBDM_NOMODULE, "No such module"
+    IDC_XBDM_NOTXBEFILE, "File is not an Xbox executable image"
+    IDC_XBDM_MEMSETINCOMPLETE, "Not all requested memory could be written"
+    IDC_XBDM_BADCOUNTTYPE "Counter type invalid"
+    IDC_XBDM_COUNTUNAVAILABLE "Counter data not available"
+
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialogs
+//
+
+//
+//  Dialog to confirm replacing of a file(s).
+//
+IDD_CONFIRM_REPLACE DIALOGEX DISCARDABLE  0, 0, 338, 141
+STYLE DS_MODALFRAME|(DS_SETFONT|DS_FIXEDSYS)| DS_SETFOREGROUND | DS_CENTER | DS_3DLOOK |
+      WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Confirm File Replace"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Yes", IDC_XB_YES,46,120,53,14
+    PUSHBUTTON      "Yes to &All", IDC_XB_YESTOALL,104,120,53,14
+    PUSHBUTTON      "&No", IDC_XB_NO,161,120,53,14
+    PUSHBUTTON      "No to All", IDC_XB_NOTOALL,219,120,53,14
+    PUSHBUTTON      "Cancel", IDC_XB_CANCEL,277,120,53,14
+    ICON            IDI_REPLACE,-1,10,10,18,20
+
+    LTEXT           "This folder already contains a file named '%s'.",
+                    IDC_XB_FILENAME,41,10,222,22,SS_NOPREFIX
+
+    LTEXT           "Would you like to replace the existing file",-1,
+                    41,35,180,10, SS_NOPREFIX
+
+    LTEXT           "(no details available)", IDC_XB_FILESIZE, 79,51,194,8, SS_NOPREFIX
+    LTEXT           "modified: %s", IDC_XB_FILETIME, 79,59,194,8, SS_NOPREFIX
+    ICON            "", IDC_XB_FILEICON,51,49,18,20
+
+    LTEXT           "with this one?",-1,41,75,180,10, SS_NOPREFIX
+    LTEXT           "(no details available)", IDC_XB_FILESIZE2, 79,91,194,8, SS_NOPREFIX
+    LTEXT           "modified: %s", IDC_XB_FILETIME2, 79,99,194,8, SS_NOPREFIX
+    ICON            "", IDC_XB_FILEICON2,51,89,18,20
+END
+
+IDD_CONFIRM_FOLDER_REPLACE  DIALOGEX DISCARDABLE  0, 0, 338, 96
+STYLE DS_MODALFRAME|(DS_SETFONT|DS_FIXEDSYS) | DS_SETFOREGROUND | DS_CENTER | DS_3DLOOK |
+      WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Confirm Folder Replace"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Yes", IDC_XB_YES,46,75,53,14
+    PUSHBUTTON      "Yes to &All", IDC_XB_YESTOALL,104,75,53,14
+    PUSHBUTTON      "&No", IDC_XB_NO,161,75,53,14
+    PUSHBUTTON      "No to All", IDC_XB_NOTOALL,219,75,53,14
+    PUSHBUTTON      "Cancel", IDC_XB_CANCEL,277,75,53,14
+    ICON            IDI_MOVE,-1,10,10,18,20
+    LTEXT           "",IDC_XB_TEXT,41,10,222,22,SS_NOPREFIX
+    LTEXT           "If the files in the existing folder have the same name as files in the", -1,41,40,222,8,SS_NOPREFIX
+    LTEXT           "folder you are moving or copying, they will be replaced.  Do you still", , -1,41,48,222,8,SS_NOPREFIX
+    LTEXT           "want to move or copy the folder.", -1,41,56,222,10,SS_NOPREFIX
+END
+
+//
+//  Dialog to confirm moving of a [read-only] file(s).
+//
+IDD_CONFIRM_MOVE DIALOGEX DISCARDABLE  0, 0, 338, 81
+STYLE DS_MODALFRAME|(DS_SETFONT|DS_FIXEDSYS) | DS_SETFOREGROUND | DS_CENTER | DS_3DLOOK |
+      WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Confirm File Move"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Yes", IDC_XB_YES,46,60,53,14
+    PUSHBUTTON      "Yes to &All", IDC_XB_YESTOALL,104,60,53,14
+    PUSHBUTTON      "&No", IDC_XB_NO,161,60,53,14
+    PUSHBUTTON      "No to All", IDC_XB_NOTOALL,219,60,53,14
+    PUSHBUTTON      "Cancel", IDC_XB_CANCEL,277,60,53,14
+    ICON            IDI_MOVE,-1,10,10,18,20
+    LTEXT           "",IDC_XB_TEXT,41,10,222,22,SS_NOPREFIX
+END
+
+//
+//  Dialog to confirm deleting of a file(s).
+//  The same template is used for deleting a single file, multiple files,
+//  or folders.   However, different messages are presented.
+//
+IDD_CONFIRM_DELETE DIALOGEX DISCARDABLE  0, 0, 280, 81
+STYLE DS_MODALFRAME|(DS_SETFONT|DS_FIXEDSYS) | DS_SETFOREGROUND | DS_CENTER | DS_3DLOOK |
+      WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Confirm Delete"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Yes", IDC_XB_YES,161,60,53,14
+    PUSHBUTTON      "&No", IDC_XB_NO,219,60,53,14
+    ICON            IDI_DELETE,-1,10,10,18,20
+    LTEXT           "", IDC_XB_TEXT,41,10,222,22,SS_NOPREFIX
+END
+
+//
+//  General Property Page for Xbox volumes
+//
+IDD_DRV_GENERAL DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "General"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_VOLUME,IDC_DRV_ICON,7,7,21,20
+    LTEXT           "Drive:",IDC_STATIC,40,11,22,8
+    LTEXT           "",IDC_DRV_LETTER1,82,11,140,8
+    LTEXT           "Type:",IDC_DRV_TYPE_TXT,40,27,40,8
+    LTEXT           "",IDC_DRV_TYPE,82,27,140,10
+    LTEXT           "",IDC_STATIC,7,45,213,1,NOT WS_VISIBLE | NOT WS_GROUP
+    CONTROL         "z",IDC_DRV_USEDCOLOR,"Button",BS_OWNERDRAW | 
+                    WS_DISABLED | WS_BORDER,7,55,10,9
+    LTEXT           "Used space:",IDC_DRV_USEDBYTES_TXT,21,55,46,9
+    RTEXT           "---",IDC_DRV_USEDBYTES,69,55,85,9
+    RTEXT           "",IDC_DRV_USEDMB,161,55,35,9
+    CONTROL         "",IDC_DRV_FREECOLOR,"Button",BS_OWNERDRAW | WS_DISABLED | 
+                    WS_BORDER,7,69,10,9
+    LTEXT           "Free space:",IDC_DRV_FREEBYTES_TXT,21,69,46,9
+    RTEXT           "---",IDC_DRV_FREEBYTES,69,69,85,9
+    RTEXT           "",IDC_DRV_FREEMB,161,69,35,9
+    CONTROL         "",IDC_DRV_TOTSEP,"Static",SS_ETCHEDHORZ,7,87,213,1
+
+    LTEXT           "Capacity:",IDC_DRV_TOTBYTES_TXT,21,95,46,10
+    RTEXT           "---",IDC_DRV_TOTBYTES,69,95,85,9
+    RTEXT           "",IDC_DRV_TOTMB,161,95,35,9
+    CONTROL         "",IDC_DRV_PIE,"Button",BS_OWNERDRAW | WS_DISABLED,68,
+                    118,82,39
+    CONTROL         "",IDC_DRV_TOTSEP2,"Static",SS_ETCHEDHORZ,7,174,213,1
+END
+
+//
+//  General Property Page for Files on an Xbox
+//
+IDD_FILEPROP DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            "",IDC_ITEMICON,7,7,21,20
+    // for accessibility, we need a hidden static text label for the rename editbox
+    LTEXT           "File name:",IDC_STATIC,50,11,0,0,NOT WS_VISIBLE
+    EDITTEXT        IDC_NAMEEDIT,56,11,164,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,32,213,1
+    
+    LTEXT           "Type of file:",IDC_STATIC,7,40,42,9
+    EDITTEXT        IDC_FILETYPE,56,40,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,72,213,1
+
+    LTEXT           "Location:",IDC_STATIC,7,80,42,9
+    EDITTEXT        IDC_LOCATION,56,80,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Size:",IDC_STATIC,7,96,42,9
+    EDITTEXT        IDC_FILESIZE,56,96,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,128,213,1
+
+    LTEXT           "Created:",IDC_STATIC,7,136,42,9
+    EDITTEXT        IDC_CREATED,56,136,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Modified:",IDC_STATIC,7,152,42,9
+    EDITTEXT        IDC_LASTMODIFIED,56,152,164,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,184,213,1
+
+    LTEXT           "Attributes:",IDC_STATIC,7,192,42,9
+    CONTROL         "&Read-only",IDC_READONLY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,56,192,50,10
+    CONTROL         "&Hidden",IDC_HIDDEN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,109,192,50,10
+END
+
+//
+//  General Property Page for Folders on an Xbox
+//
+IDD_FOLDERPROP DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_FOLDER,IDC_STATIC,7,7,21,20
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,32,213,1
+    // for accessibility, we need a hidden static text label for the rename editbox
+    LTEXT           "Folder name:",IDC_STATIC,50,11,0,0,NOT WS_VISIBLE
+    EDITTEXT        IDC_NAMEEDIT,56,11,164,14,ES_AUTOHSCROLL
+
+    LTEXT           "Type:",IDC_STATIC,7,40,42,9
+    EDITTEXT        IDC_FILETYPE,56,40,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Location:",IDC_STATIC,7,56,42,9
+    EDITTEXT        IDC_LOCATION,56,56,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Size:",IDC_STATIC,7,72,42,9
+    EDITTEXT        IDC_FILESIZE,56,72,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Contains:",IDC_STATIC,7,104,42,9
+    LTEXT           "",IDC_CONTAINS,56,104,164,14
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,120,213,1
+
+    LTEXT           "Created:",IDC_STATIC,7,128,42,9
+    EDITTEXT        IDC_CREATED,56,128,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,144,213,1
+
+    LTEXT           "Attributes:",IDC_STATIC,7,152,42,9
+    CONTROL         "&Read-only",IDC_READONLY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,56,152,50,10
+    CONTROL         "&Hidden",IDC_HIDDEN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,56,166,50,10
+END
+
+//
+//  General Property Page for Multiple Files on an Xbox
+//
+IDD_FILEMULTPROP DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_MULDOC,IDC_STATIC,7,7,21,20
+    LTEXT           "",IDC_CONTAINS,56,11,164,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,32,213,1
+
+    LTEXT           "Type:",IDC_STATIC,7,40,49,9
+    EDITTEXT        IDC_FILETYPE,56,40,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Location:",IDC_STATIC,7,56,49,9
+    EDITTEXT        IDC_LOCATION,56,56,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Size:",IDC_STATIC,7,72,49,9
+    EDITTEXT        IDC_FILESIZE,56,72,164,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER | NOT WS_TABSTOP
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,104,213,1
+
+    LTEXT           "Attributes:",IDC_STATIC,7,112,32,8
+    CONTROL         "&Read-only",IDC_READONLY,"Button",BS_AUTO3STATE | 
+                    WS_TABSTOP,56,112,50,10
+    CONTROL         "&Hidden",IDC_HIDDEN,"Button",BS_AUTO3STATE | 
+                    WS_TABSTOP,56,126,50,10
+END
+
+IDD_ATTRIBS_RECURSIVE DIALOGEX DISCARDABLE  10, 10, 257, 132
+STYLE DS_MODALFRAME | (DS_SETFONT|DS_FIXEDSYS) | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Confirm Attribute Changes"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "You have chosen to make the following attribute change(s):",
+                    IDC_STATIC,7,7,243,10
+
+    EDITTEXT        IDC_ATTRIBSTOAPPLY,35,23,215,18,ES_MULTILINE | 
+                    ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+
+    LTEXT           "Do you want to apply this change to %s only, or do you want to apply it to all subfolders and files as well?",
+                    IDC_RECURSIVE_TXT,7,47,243,20
+
+    CONTROL         "Apply changes to %s only",IDC_NOTRECURSIVE,"Button",
+                    BS_AUTORADIOBUTTON,35,71,210,10
+    CONTROL         "Apply changes to %s, subfolders and files",
+                    IDC_RECURSIVE,"Button",BS_AUTORADIOBUTTON,35,85,210,10
+
+    DEFPUSHBUTTON   "OK",IDOK,146,111,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,200,111,50,14
+END
+
+
+IDD_CONSOLE_GENERAL DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_CONSOLE,IDC_ITEMICON,7,7,21,20
+    LTEXT           "", IDC_NAMEEDIT,50,11,164,10
+    CONTROL         "", IDC_STATIC,"Static",SS_ETCHEDHORZ,7,30,213,1
+    
+    LTEXT           "IP Address:",IDC_STATIC,7,36,55,12
+    LTEXT           "",IDC_IPADDRESS,66,36,56,12
+    CONTROL         "", IDC_STATIC,"Static",SS_ETCHEDHORZ,7,52,213,1
+
+    LTEXT           "Current Title:", IDC_STATIC, 7,58,55,12
+    EDITTEXT        IDC_RUNNINGTITLE,66,57,150,14, ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "Title IP Address: ",IDC_ALTIPADDRESS_TEXT,7,74,55,12
+    LTEXT           "",IDC_ALTIPADDRESS,66,74,55,12
+END
+
+IDD_CONSOLE_SETTING DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "Settings"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_MAIN,IDC_STATIC,7,7,21,20
+    LTEXT           "Video Mode:",IDC_STATIC, 7,30,164,12
+    LTEXT           "Audio Mode:",IDC_STATIC, 7,42,164,12
+
+END
+
+// This is a template for a multi-modal property page - there are three modes:
+// Xbox Not Locked, Locked But the user doesn't have permission to manage,
+// the user has permission to manage.
+//
+// This is created from one template as the mode can change while the page is displayed:
+// the user can lock an unlocked box, the user can enter a password to gain temporary manage
+// permission.
+//
+IDD_CONSOLE_SECURITY DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "Security"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    // These represent the full UI with manage permissions.
+    LTEXT           "Machine &names:",IDC_SECURITY_MACHINES,7,7,105,8
+    CONTROL         "",IDC_SECURITY_USERLIST,"SysListView32",
+                    LVS_REPORT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_TABSTOP |
+                    WS_VSCROLL | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING, 7,17,213,66,
+                    WS_EX_CLIENTEDGE
+    PUSHBUTTON      "A&dd...",IDC_SECURITY_ADD,116,87,50,14
+    PUSHBUTTON      "&Remove",IDC_SECURITY_REMOVE,170,87,50,14
+    LTEXT           "",IDC_SECURITY_ACCESS_TEXT,7,107,105,8
+    CONTROL         "",IDC_SECURITY_ACCESS,"SysListView32",
+                    LVS_REPORT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_TABSTOP, 7,117,213,72,
+                    WS_EX_CLIENTEDGE
+    PUSHBUTTON      "&Unlock",IDC_SECURITY_UNLOCK,7,194,65,14
+    PUSHBUTTON      "&Change Password",IDC_SECURITY_CHANGE_PASSWORD,77,194,65,14
+
+    // If there are no Access permssions - the code hides
+    // all of the above, except IDC_CONSOLE_ACCESS, and shows the following:
+    LTEXT           "This machine does not have manage permission.  Enter the the Adminstrator Password and click Manage to alter permissions.",
+                    IDC_SECURITY_MANAGE_TEXT,7,7,210,8
+    LTEXT           "&Password: ", IDC_SECURITY_PASSWORD_TEXT, 7, 20, 50, 8
+    EDITTEXT        IDC_SECURITY_PASSWORD_EDIT,61,18,100,12,ES_AUTOHSCROLL|ES_PASSWORD
+    PUSHBUTTON      "&Manage",IDC_SECURITY_MANAGE_BUTTON,165,17,55,14
+
+    // If the box is not locked, all of the above is hidden, and only the following
+    // is shown.
+    LTEXT           "This Xbox Development Kit is not locked.  Click Lock to lock it.", IDC_SECURITY_UNLOCKED_TEXT,30,30,180,28
+    PUSHBUTTON      "&Lock",IDC_SECURITY_LOCK_BUTTON,30,61,55,14
+END
+
+IDD_USERNAME_PROMPT DIALOGEX DISCARDABLE  0, 0, 150, 59
+STYLE DS_MODALFRAME | (DS_SETFONT|DS_FIXEDSYS) | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Machine to Permissions List"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Enter machine name:", IDC_STATIC, 15,10,125,8
+    EDITTEXT        IDC_XB_TEXT, 15,22,120,12, ES_AUTOHSCROLL, WS_TABSTOP
+    DEFPUSHBUTTON   "&OK", IDOK, 15,40,55,14
+    PUSHBUTTON      "Cancel", IDCANCEL, 80,40,55,14
+END
+
+IDD_PASSWORD_PROMPT DIALOGEX DISCARDABLE  0, 0, 180, 78
+STYLE DS_MODALFRAME | (DS_SETFONT|DS_FIXEDSYS) | DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Administrator Password"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Password and confirm password must match.", IDC_SECURITY_PASSWORD_MISMATCH, 15, 16, 153, 8, NOT WS_VISIBLE
+    LTEXT           "Enter a new adminstrator password:", IDC_STATIC, 15, 7, 153, 8
+    LTEXT           "&Password:", IDC_STATIC, 15,29,80,8
+    EDITTEXT        IDC_SECURITY_PASSWORD_EDIT, 100,29,70,12, ES_AUTOHSCROLL | ES_PASSWORD | WS_TABSTOP
+    LTEXT           "&Confirm Password:", IDC_STATIC, 15,45,80,8
+    EDITTEXT        IDC_SECURITY_CONFIRM_PASSWORD, 100,43,70,12, ES_AUTOHSCROLL | ES_PASSWORD | WS_TABSTOP
+    DEFPUSHBUTTON   "&OK", IDOK, 15,59,55,14
+    PUSHBUTTON      "Cancel", IDCANCEL, 80,59,55,14
+END
+
+IDD_CONSOLE_ADVANCED DIALOGEX DISCARDABLE  0, 0, 227, 215
+STYLE DS_MODALFRAME |(DS_SETFONT|DS_FIXEDSYS)| DS_NOIDLEMSG | DS_3DLOOK | WS_POPUP | WS_CAPTION
+CAPTION "Advanced"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    GROUPBOX        "Reboot",IDC_STATIC,7,7,212,60
+    ICON            IDI_REBOOT,IDC_STATIC,13,22,21,20
+    LTEXT           "Reboot Xbox Development Console.",IDC_STATIC,40,22,160,12
+    CONTROL         "Restart Currently Running Title", IDC_RUNNINGTITLE,"Button", BS_AUTOCHECKBOX, 42, 34, 120, 12
+    CONTROL         "Warm",  IDC_WARMBOOT,"Button", BS_AUTORADIOBUTTON, 42, 46, 40, 12
+    CONTROL         "Cold",  IDC_COLDBOOT,"Button", BS_AUTORADIOBUTTON, 84, 46, 40, 12
+    PUSHBUTTON      "Reboot",IDC_REBOOT,161,45,50,14
+    
+    
+    GROUPBOX        "Screen Capture",IDC_STATIC,7,70,212,57
+    ICON            IDI_CAMERA,IDC_STATIC,13,85,21,20
+    LTEXT           "Capture a snapshot of the current display.",IDC_STATIC,40,85,160,17
+    PUSHBUTTON      "&Capture",IDC_CAPTURE,161,105,50,14
+END
+
+
+IDD_ADDCONSOLE_WELCOME DIALOGEX 0, 0, 317, 193
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Add New Xbox Development Kit"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Welcome to the Add Xbox Development Kit Wizard", IDC_XB_TITLE, 115, 8, 190, 32
+    LTEXT           "With this wizard, you may add an Xbox Development Kit to 'Xbox Neighborhood'.",
+                    IDC_STATIC, 115, 42, 190, 32
+    LTEXT           "To continue, click Next.", IDC_STATIC, 115, 67, 188, 8
+END
+   
+IDD_ADDCONSOLE_GETNAME  DIALOGEX 0, 0, 317, 143
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Add New Xbox Development Kit"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Specify an Xbox Development Kit.  When you are done, click Next.", IDC_STATIC, 21, 1, 275, 26
+    LTEXT           "Xbox n&ame or IP address:", IDC_STATIC, 21, 30, 85, 12
+    LTEXT           "If the Xbox Development Kit is on the same local subnetwork as this computer, the Xbox Development kit may be specified by \
+name or IP address.  Otherwise, the IP address must be used.  The XDK Launcher displays the IP address.", IDC_STATIC, 40, 55, 260, 50
+    EDITTEXT        IDC_ADDCONSOLE_NAME,106,29,120,14,ES_AUTOHSCROLL
+END
+
+IDD_ADDCONSOLE_ACCESSDENIED DIALOGEX 0, 0, 317, 143
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Add New Xbox Development Kit"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Adminstrator &Password: ", IDC_STATIC, 21, 2, 100, 12
+    EDITTEXT        IDC_ADDCONSOLE_PASSWORD,124,1,100,14,ES_AUTOHSCROLL|ES_PASSWORD
+    GROUPBOX        "Permissions: ", IDC_STATIC, 21, 24, 174, 50
+    CONTROL         "&Read", IDC_ADDCONSOLE_READ,"Button", BS_AUTOCHECKBOX,           25,  32, 65, 12
+    CONTROL         "&Write", IDC_ADDCONSOLE_WRITE,"Button", BS_AUTOCHECKBOX,         110, 32, 65, 12
+    CONTROL         "Con&figure", IDC_ADDCONSOLE_CONFIGURE,"Button", BS_AUTOCHECKBOX, 25,  46, 65, 12
+    CONTROL         "Con&trol", IDC_ADDCONSOLE_CONTROL,"Button", BS_AUTOCHECKBOX,     110, 46, 65, 12
+    CONTROL         "&Manage", IDC_ADDCONSOLE_MANAGE,"Button", BS_AUTOCHECKBOX,       25,  60, 65, 12
+    
+    LTEXT           "If you do not know the Adminstrator password, you may not proceed.  You may click Back to specify a different Xbox \
+Development Kit or you may click Cancel to exit this wizard.", IDC_STATIC, 21, 80, 250, 24.
+    LTEXT           "Changes to access permissions will take effect only when you click Finish on the last page of this wizard.", IDC_STATIC, 21, 110, 250, 24.
+END
+
+IDD_ADDCONSOLE_MAKEDEFAULT DIALOGEX 0, 0, 317, 143
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Add New Xbox Development Kit"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT    "", IDC_ADDCONSOLE_MAKEDEFAULT, 21, 1, 275, 24
+    CONTROL  "&Yes", IDC_ADDCONSOLE_YES, "Button", BS_AUTORADIOBUTTON,  21, 26, 275, 12
+    CONTROL  "N&o",  IDC_ADDCONSOLE_NO,  "Button",  BS_AUTORADIOBUTTON, 21, 40, 275, 12
+END
+
+IDD_ADDCONSOLE_FINISH DIALOGEX 0, 0, 317, 193
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Add New Xbox Development Kit"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LTEXT           "Completing the Add Xbox Develoment Kit Wizard", IDC_XB_TITLE, 115, 8, 190, 32
+    LTEXT           "Add Xbox Development Kit: ", IDC_STATIC, 115, 42, 90, 12
+    LTEXT           "", IDC_ADDCONSOLE_NAME, 208, 42, 105, 12
+    LTEXT           "Make Default Xbox:", IDC_STATIC, 115, 54, 90, 12
+    LTEXT           "", IDC_ADDCONSOLE_MAKEDEFAULT, 208, 53, 105, 12
+    LTEXT           "New Permissions:", IDC_ADDCONSOLE_PERMISSIONS_CAPTION, 115, 66, 90, 24
+    LTEXT           "", IDC_ADDCONSOLE_PERMISSIONS,  208, 66, 105, 36
+    LTEXT           "Click on Finish to perform the above changes.", IDC_ADDCONSOLE_COMPLETE, 115, 181, 190, 12
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+//
+// Shortcut Menu for Right Mouse Drap-Drop
+//
+IDM_CONTEXT_MENU_DROP MENU
+{
+    POPUP ""
+    BEGIN
+    MENUITEM "&Copy Here",    DROPEFFECT_COPY
+    MENUITEM "&Move Here",    DROPEFFECT_MOVE
+    MENUITEM SEPARATOR
+    MENUITEM "Cancel",  DROPEFFECT_NONE
+    END
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Animations
+//
+IDA_COPY      AVI     copy.avi   // FS->Xbox  Animation
+IDA_DELETE    AVI     del.avi    // Xbox->Air (Hard Delete)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmaps
+//
+
+IDB_WATERMARK BITMAP  xwmark.bmp
+IDB_HEADER    BITMAP  xheader.bmp
+
+
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////

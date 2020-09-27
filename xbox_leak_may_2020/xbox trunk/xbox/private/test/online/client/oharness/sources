@@ -1,0 +1,46 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+!include ..\sources.inc
+!include $(BASEDIR)\private\test\buildxbe\harness\sources
+
+TARGETNAME=oharness
+
+SOURCES=main.cpp \
+        modules.cpp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+
+XE_FLAGS=/TESTID:0x0ABADFED /INITFLAGS:3 /TESTNAME:"Xbox Test Harness"
+LINKER_FLAGS=/map:harness.map
+
+TESTMODULES=	$(TEST_ONLINE_LIBS)\xrlfunc.lib \
+		$(TEST_ONLINE_LIBS)\svrsim.lib \
+		$(BASEDIR)\private\online\client\lib\i386\httpsget.lib \
+		$(BASEDIR)\private\online\client\lib\i386\xrl.lib \
+		$(BASEDIR)\private\online\client\lib\i386\xonauth.lib \
+		$(BASEDIR)\private\online\client\lib\i386\xonauthp.lib \
+		$(BASEDIR)\private\online\common\lib\i386\xonsharc.lib

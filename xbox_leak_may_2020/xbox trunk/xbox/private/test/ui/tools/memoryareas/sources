@@ -1,0 +1,53 @@
+!IF 0
+
+Copyright (c) 2001  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=XShell
+MINORCOMP=MEMA
+
+TARGETNAME=memoryareas
+TARGETTYPE=LIBRARY
+UMTYPE=xbox
+
+USE_LIBCMT=1
+
+TARGETPATH=..\obj
+
+INCLUDES= \
+    ..\inc; \
+    $(BASEDIR)\private\ui\inc; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\xapi\inc;
+
+LINKLIBS = \
+    $(BASEDIR)\private\ui\obj\*\dashst.lib    
+
+! IF DEFINED(_XBOXTEST)
+C_DEFINES = $(C_DEFINES) -D_XBOXTEST=1
+! ENDIF
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+SOURCES= \
+    memoryarea.cpp \
+    harddrive.cpp \
+    memoryunit.cpp \
+    gametitles.cpp
+
+PRECOMPILED_INCLUDE=memarpch.h
+PRECOMPILED_PCH=memarpch.pch
+PRECOMPILED_OBJ=memarpch.obj
+

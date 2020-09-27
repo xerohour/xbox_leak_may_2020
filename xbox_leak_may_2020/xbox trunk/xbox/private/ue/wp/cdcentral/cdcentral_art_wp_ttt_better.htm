@@ -1,0 +1,107 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Better Coastlines</H2>
+
+<P><I>Dave McCoy, Graphics Techniques Consultant, Xbox Content and Design Team</I></P>
+
+<P>While the appearance of water is getting a lot better in games, I've never been happy with most coastlines. The Xbox&#8482; video game console from Microsoft allows for a lot of per-pixel lighting effects that can make water look incredibly realistic. But fully exploiting these effects requires that the water be a separate set of polygons to allow different surface characteristics to be applied. Water approaches using separate polygons often result in a crude look where water and land meet, given the mesh resolutions that are typically used for terrain. Here's a technique to make water blend in with the land a little better, a technique that is fully compatible with geometry reflections, texture scrolling, and other common water effects.
+I start with the usual terrain mesh.</P>
+
+<IMG src="/content/img/better1.jpg" WIDTH="366" HEIGHT="274" BORDER="0" ALT="">
+ 
+<P>I add some water at an arbitrary height.</P>
+
+<IMG src="/content/img/better2.jpg" WIDTH="366" HEIGHT="275" BORDER="0" ALT="">
+ 
+<P>I'll throw on some tiled texture and give the water some transparency variation and specular qualities to get what passes for water in a lot of games.</P>
+
+<IMG src="/content/img/better3.jpg" WIDTH="365" HEIGHT="276" BORDER="0" ALT="">
+ 
+<P>Okay, I admit I could have used a higher mesh and some texturing around the bank to make it look better than this, but I wanted to emphasize how dramatically the terrain-water mesh interface goes to pot.</P>
+
+<P>Many artists have tinkered around with splitting terrain at the waterline to produce mirrored reflection effects. We're going to do this kind of split for this technique. So divide the terrain into above and below waterline. I'm going to use static water in this example, but if you really want the waterline to move up and down, this approach is extendable to allow for it (e-mail <A HREF="mailto:content@xbox.com"> content@xbox.com</A> if you want to discuss it).</P>
+
+<P>I use multi-texturing to apply an additional texture horizontally to the terrain below the water. This texture will be a multiplier on the base tile dirt texture used on the terrain.</P>
+
+<IMG src="/content/img/better4.jpg" WIDTH="38" HEIGHT="155" BORDER="0" ALT="">
+ 
+<P>Applying this texture  creates the effect of the terrain under the water getting darker and murkier with depth. You could instead (or also) map on caustics or other kinds of texture effects.</P>
+
+<P>Now draw just the water surface and the multi-textured terrain below.</P>
+
+<IMG src="/content/img/better5.jpg" WIDTH="377" HEIGHT="284" BORDER="0" ALT="">
+ 
+<P>I'm just using a blue fade for my sky. It makes sense, for my purposes, to draw it at the same time as I draw the water. For draw efficiency, I made the water's shape conform to the ground-water border, but as long as you make the water surface exceed the size of its borders with the ground, the technique will work.</P>
+
+<P>This will be a multi-pass technique. At this point you would also draw any objects you might want reflected in the water. Our stencil buffer sample, StencilMirror, shows how to add reflected objects if you want them. This technique is designed to allow for them.</P>
+
+<P>Back above the water, add a small apron to the terrain&#8482;at the  waterline. Merge the vertices of this  apron with the terrain so that any dynamic lighting will be consistent. The size of the apron depends strictly on the size of the crenellations you want at the water's edge. You could add lily pads and other stuff not connected to the apron farther out in the water if you wanted them.</P>
+
+<IMG src="/content/img/better6.jpg" WIDTH="390" HEIGHT="274" BORDER="0" ALT="">
+ 
+<P>I've shown the apron green for clarity. For the finished scene, the apron uses the dirt texture of the ground and receives an alpha mask to provide the irregular edge with the water. I've used an overall alpha mask projected on the apron in the shape of the coastline, but a smaller, more general purpose, parametrically mapped mask could be a better option for many users. The resolution of the alpha mask doesn't have to be high for the effect to work well. Here is the 256 &times; 256 &times; 8 bit mask I used.</P>
+
+<IMG src="/content/img/better7.jpg" WIDTH="365" HEIGHT="400" BORDER="0" ALT="">
+ 
+<P>Composite the above-water terrain along with its transition apron on top of the water image and you get this:</P>
+
+<IMG src="/content/img/better8.jpg" WIDTH="417" HEIGHT="314" BORDER="0" ALT="">
+ 
+<P>Obviously the results could be improved by providing variation in the water near the bank, transition textures in the apron, vegetation, and so on, but this example demonstrates the basic technique. It's a two-pass process, but it's nice because it is compatible with reflections, objects floating on the water, and other effects as well. Also, there is little overdraw with the second pass and transparent areas are minimized, so the efficiency is high.</P>
+
+<P>Depending on the scale and nature of the effect you're looking for you can achieve different results with different mask transitions. Here's a soft 128 &times; 128 mask. Generally I find that softer masks are better for shallow banks, and sharper ones, for steeper banks.</P>
+
+<IMG src="/content/img/better9.jpg" WIDTH="418" HEIGHT="315" BORDER="0" ALT="">
+ 
+<P>Here's a quick recap of the technique</P>
+
+<P>Authoring:</P>
+<OL>
+<LI>Split terrain geometry into above and below waterline
+<LI>Create water surface
+<LI>Add apron to above waterline terrain
+<LI>Alpha map apron
+</OL>
+
+<P>Real-time</P>
+<OL>
+<LI>Draw objects below water and water surface
+<LI>Add any objects reflected by water
+<LI>Clear Z-buffer
+<LI>Overdraw above waterline terrain with alpha mapped apron
+<LI>Fish, swim, etc. :^)
+</OL>
+<BR>
+
+<SMALL>Thursday, January 25, 2001</SMALL>
+
+
+
+</td>
+
+
+
+
+
+	

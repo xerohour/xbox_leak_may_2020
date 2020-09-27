@@ -1,0 +1,46 @@
+[Version]
+Signature="$Chicago$"
+Class=MEDIA
+ClassGUID="{4d36e96c-e325-11ce-bfc1-08002be10318}"
+Provider=%MSFT%
+
+[Manufacturer]
+%MSFT%=MSFT
+
+[MSFT]
+%Disk 1%=Disk 1
+
+[Disk 1]
+DriverVer=04/30/2001,1.0.0.0
+AddReg=Disk 1.AddReg
+CopyFiles=Disk 1.CopyFiles
+Reboot
+
+[Disk 1.NT]
+DriverVer=04/30/2001,1.0.0.0
+AddReg=Disk 1.AddReg
+CopyFiles=Disk 1.CopyFiles
+Reboot
+
+[Disk 1.NT.Services]
+AddService=,0x2
+
+[Disk 1.AddReg]
+HKR,"Drivers\msacm.xbadpcm\xbadpcm.acm", Driver,,xbadpcm.acm
+HKR,"Drivers\msacm.xbadpcm\xbadpcm.acm", Description,,%Disk 1%
+
+[Disk 1.CopyFiles]
+xbadpcm.acm
+
+[DestinationDirs]
+Disk 1.CopyFiles = 11
+
+[SourceDisksNames]
+1 = "Disk 1","",1
+
+[SourceDisksFiles]
+xbadpcm.acm=1
+
+[Strings]
+Disk 1="Xbox ADPCM Audio CODEC"
+MSFT="Microsoft"

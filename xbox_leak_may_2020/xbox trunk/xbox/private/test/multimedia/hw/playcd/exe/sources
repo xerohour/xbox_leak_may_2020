@@ -1,0 +1,22 @@
+TARGETNAME=playcd
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING -DCAPTURE
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc;            \
+                    $(BASEDIR)\private\ui\xapp\ddk;                    \
+                    $(BASEDIR)\private\test\multimedia\wma\wavout                
+
+TARGETLIBS =        $(LIBRARY_PATH)\dsound$(D).lib                     \
+                    $(BASEDIR)\private\test\lib\*\waveout$(D).lib
+
+SOURCES= 			                                       \
+    ..\ntiosvc.cpp                                                     \
+    ..\cdda.cpp                                                        \
+    ..\playcd.cpp

@@ -1,0 +1,45 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    User mode
+
+Revision History:
+
+!ENDIF
+
+
+MAJORCOMP=windows
+MINORCOMP=base
+
+TARGETNAME=memperf
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=console
+USE_MSVCRT=1
+C_DEFINES=$(C_DEFINES) -D_UNDER_NT
+
+SOURCES=main.cpp \
+        ..\memperf.cpp \
+        version.rc
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         $(BASEDIR)\private\test\kernel\utils; \
+         $(BASEDIR)\private\test\tools\tsc
+
+TARGETLIBS=$(SDK_LIB_PATH)\msvcrt.lib \
+           $(BASEDIR)\private\test\lib\*\tsc.lib

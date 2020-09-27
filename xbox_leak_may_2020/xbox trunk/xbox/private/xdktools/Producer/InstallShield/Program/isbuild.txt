@@ -1,0 +1,500 @@
+This text file contains the necessary infomation to use ISBuild.exe and Compile.exe as
+command line utilities in your automated build process.  
+
+NOTE:  This release of ISBuild must be used with Build 221 of InstallShield 5.0 
+       Professional.  It is not backward-compatible with eariler builds of 
+       InstallShield 5.0 Professional.
+
+Table of Contents:
+   ISBuild.exe Overview
+   ISBuild.exe Error Messages
+   Command Line Compiler
+   Command Line Tools Batch File Example
+
+*****     *****     *****     *****     *****     *****     *****    *****    *****
+
+ISBUILD.EXE OVERVIEW
+
+ISBuild.exe is a command line utility that you can run from the DOS prompt or a batch 
+file to build your setup.  ISBuild.exe is located in the folder <InstallShield 
+location>\Program. It must be in the same folder as Ide.exe; do not remove ISBuild.exe 
+from this location.
+
+Add this directory to your PATH statement before running ISBuild.exe. For example, if 
+you have installed InstallShield to the default folder, C:\Program Files\
+InstallShield\InstallShield5.5 Professional Edition, you would add the following line 
+to your Autoexec.bat file: PATH=C:\PROGRA~1\INSTAL~1\INSTAL~1.1PR\PROGRAM;%PATH%
+
+On Windows NT you would add this value using the Environment tab of the System icon 
+in the Control Panel.
+
+When you run ISBuild.exe, you are rebuilding the setup according to the values that 
+you supplied in the Media Build Wizard for a specified media name.  That is, before 
+you can run ISBuild.exe you must complete the Media Build Wizard.  
+
+When you run the Media Build Wizard and plan to rebuild your setup with ISBuild.exe, 
+you cannot specify a new location for the built media files. You must leave it at the 
+default setting. Then, when you run ISBuild.exe you can specify an alternate location 
+with the -b command-line parameter, described below.
+
+Note:  If you have a large setup that requires a lot of time to build, you can build 
+it quickly with the Media Build Wizard before inserting file links into your file 
+groups. You can then insert the file links and run ISBuild.exe unattended to build 
+the setup.
+
+Command-line parameters
+
+You can override some of the values supplied in the Media Build Wizard by passing the 
+command-line parameters listed below to ISBuild.exe. 
+
+Either a slash (/) or a dash (-) must precede the command-line parameters. Separate 
+multiple command-line parameters with a space.  But do not put a space inside a 
+command-line parameter (for example, -bTest is valid, but not -b Test).
+
+When using long paths and file names, enclose the expressions in double quotation 
+marks (for example, ISBuild.exe -b"My Test").  The enclosing double quotation marks 
+tell the operating system that spaces within the quotation marks are not to be treated
+as delimiters. 
+
+ISBuild.exe command line parameters are not case sensitive; upper- or lowercase 
+letters can be used.
+
+Parameter               Description
+
+-m<media name>          The media name that you entered in the Media Build Wizard - 
+                        Media Name panel. When specifying a name with a space in it, 
+                        enclose the expression in double quotation marks (for example, 
+                        "Test Setup").
+
+                        This parameter is required.
+
+-p<project location>	The fully qualified path to the setup project. UNC paths are 
+                        acceptable. The root folder of the project is where the .ipr 
+                        file resides. For example, if your project is named Setup_1 
+                        and it resides in the default location, then Setup_1.ipr might 
+                        be located in the following folder:  
+                        -p"C:\My Installations\Setup_1"
+
+                        This parameter is required.
+
+	                Because the project (.ipr) file and the project location may 
+                        not have identical short file name equivalents, this parameter 
+                        should always be specified as a long file name.
+
+-b<path>                The fully qualified path to the folder where you want 
+                        the output folders and files to be placed. UNC paths are 
+                        acceptable. The built setup's files will be located in 
+                        the Disk Images\Disk1 subfolder of the location you specify.
+
+                        This parameter is optional. 
+
+                        If you do not use it, ISBuild.exe will place the output 
+                        folders and files in the location specified in the Media 
+                        Build Wizard.
+
+-s                      Runs ISBuild.exe in silent mode. The banner, status, and 
+                        error messages will not appear at the command prompt. 
+      
+                        This parameter is optional. 
+
+*****     *****     *****     *****     *****     *****     *****    *****    *****
+
+ISBUILD.EXE ERROR MESSAGES
+
+Following are the error messages returned by ISBuild.exe, along with troubleshooting 
+tips.
+
+Number	    Error Message and Description
+
+Error B1    Both the -p and -m options are required.  
+
+            Either the project location or media name is missing from the 
+            command-line expression. Both options are required. Make sure that you 
+            specify the project location and the media name immediately following 
+            the -p and -m options. Use double quotation marks for long file names.
+
+Error B2    No alternate build location specified with the -b option.
+
+            The -b option was specified without an alternate build location. Make 
+            sure that you specify the build location immediately following the -b 
+            option. Use double quotation marks for long file names.
+
+Error B3    No project location specified with the -p option.
+
+            The project location is missing. This option is required. Make sure that 
+            you specify the project location immediately following the -p option. 
+            Use double quotation marks for long file names.
+
+Error B4    No media name specified with the -m option.
+
+            The media name is missing. This option is required. Make sure that you 
+            specify the media name immediately following the -m option. Use double 
+            quotation marks for long file names.
+
+Error B5    Unable to load text substitution file %s.
+
+            ISBuild cannot find the text substitution file, which is generated by 
+            the IDE, in the project location. Make sure the project location 
+            specified is for a valid InstallShield project and you have access rights 
+            to that location.
+
+Error B6    Unable to load component definition file %s.
+
+            ISBuild cannot find the component definition files, which are generated 
+            by the IDE, in the project location. Make sure the project location 
+            specified is for a valid InstallShield project and you have access rights 
+            to that location.
+
+Error B7    Unable to load file group definition file %s.
+
+            ISBuild cannot find the file group definition files, which are generated 
+            by the IDE, in the project location. Make sure the project location 
+            specified is for a valid InstallShield project and you have access rights
+            to that location.
+
+Error B8    Unable to load project file %s.
+
+            ISBuild cannot find the project file, which is generated by the IDE, in 
+            the project location. Make sure the project location specified is for a 
+            valid InstallShield project and you have access rights to that location.
+
+Error B9    Incomplete quote found before -%s parameter.
+
+            An opening or closing quotation mark is missing from a long file name or 
+            command-line parameter. Make sure that both opening and closing quotation 
+            marks are used properly for long file names and command-line options.
+
+Error B100  Invalid syntax found in the path %s.
+
+            This path is not a valid DOS path or long file name. Make sure that all 
+            characters in the path are valid.
+
+Error B101  Path specified, %s, must be relative to the file media library.
+
+            This path is not a relative path or is not relative to the file media 
+            library, which is usually located in the Disk1 folder. This error happens 
+            when the "Data as files" option is specified in the Media Build Wizard 
+            and the CD-ROM Folder property for a component is not a relative path. 
+            Do not use a relative path for a component's CD-ROM Folder property.
+
+Error B102  Component, %s, cannot be found.
+
+            This component cannot be found in the file media library. The component 
+            definition file may be corrupted or not accessible. Load the project in 
+            the IDE and see if all project information is still intact. Try to build 
+            the project using the Media Build Wizard.
+
+Error B103  Unable to compress data. Check if the compression exists.
+
+            ISBuild cannot find the compression library or it fails to compress files
+            when the Compressed file group property is chosen. If InstallShield is 
+            installed properly, you should be able to find the compression library 
+            (Zdata*.dll) in the <InstallShield location>\Program folder. If ISBuild 
+            fails to compress a certain file, contact technical support and send us 
+            that file.
+
+Error B104  Unable to create the folder %s.
+
+            ISBuild is unable to create this folder. Make sure that you have access 
+            rights to the folder and it is a valid path.
+
+Error B105  Unable to delete the folder %s.
+
+            ISBuild is unable to delete this folder. Make sure that you have access 
+            rights to the folder, the path is valid, and no other application, such 
+            as Explorer or DOS, is accessing this folder.
+
+Error B106  Unable to find the folder %s.
+
+            This folder cannot be found or enumerated. This folder may not exist or 
+            you don't have access rights to enumerate its contents. Make sure that 
+            you have used a valid path to this folder and you have the access rights 
+            to enumerate its contents.
+
+Error B107  Source directory string is empty or not found.
+
+            ISBuild cannot find the path to the InstallShield files or user-defined 
+            setup files. The path is empty, or it does not exist. Make sure that 
+            InstallShield is installed properly and all setup files you inserted into 
+            the IDE still exist.
+
+Error B108  Target directory string is empty or not found.
+
+            ISBuild is unable to access the target folder where the built media files 
+            are going to be placed. Make sure that you have access rights to the 
+            build location.
+
+Error B109  Unable to determine media size.
+
+            ISBuild is unable to determine the size of the media files you are 
+            building. The media name specified may not exist or the media definition 
+            file may be corrupted. Make sure that the media name you specified has 
+            already been built by the Media Build Wizard. Try building it again.
+
+Error B110  Not enough disk space.
+
+            There is not enough disk space to store the built setup. Make sure that 
+            you have enough disk space on the drive where you are building the setup.
+
+Error B111  Unable copy file from %s to %s.
+
+            ISBuild is unable to copy a file from the source to the target folder. 
+            This error usually occurs when a file in the build location is in use or 
+            marked as read-only and cannot be overwritten. Make sure that no file in 
+            the build location is in use or marked as read-only.
+
+Error B112  Unable to create file %s.
+
+            ISBuild is unable to create this file in the build location. Make sure 
+            that you have access rights to the build location.
+
+Error B113  Unable to load file %s.
+
+            ISBuild is unable to load this file. Make sure that this file exists.
+
+Error B114  Unable to create memory mapping file %s.
+
+            ISBuild is unable to create a memory mapping file for the file media 
+            library. Make sure that you have rights to create files in the build 
+            location and your system has enough disk space to store the mapping.
+
+Error B115  Unable to find the temporary file %s.
+
+            ISBuild is unable to find a temporary file name for the file media 
+            library to be built. Contact technical support.
+
+Error B116  Unable to load a predefined definition file.
+
+            ISBuild is unable to find a predefined file group or component definition
+            file. Make sure that InstallShield is installed properly and ISBuild is 
+            in the <InstallShield location>\Program folder. Try using the full path 
+            in front of ISBuild.
+
+Error B117  Unable to open file %s.
+
+            ISBuild is unable to open this file. Make sure that you have full access 
+            right to the location. If this file is a source file, make sure that no 
+            other user is modifying the file. If it is a target file, make sure that 
+            this file is marked as read-only and you have the rights to modify this 
+            file.
+
+Error B119  Unable to find the default language.
+
+            ISBuild is unable to find the language specified. Make sure that 
+            InstallShield is installed properly and ISBuild is in the <InstallShield 
+            location>\Program folder. Try using the full path in front of ISBuild.
+
+Error B120  Media size is not large enough to store all the data.
+
+            The media size you specified is not large enough to store the setup files 
+            inserted into the Setup Files pane of the IDE. InstallShield needs disk 
+            space in the Disk1 folder to store information about files, paths, 
+            components, file groups, setup types, and so on, in Data1.cab. This error 
+            usually occurs when too much information needs to be stored, and a small 
+            media size, such as 1.44 MB, is specified. 
+
+            Try to reduce in size or remove some of the files that you inserted into 
+            the Setup Files pane of the IDE. Make sure that your setup files are in 
+            the <target language>\<target platform> folders so that they will be 
+            compressed by ISBuild. Or you can select a larger media size, such as a 
+            CD-ROM.
+
+Error B121  Unable to rename the backup folder.
+
+            ISBuild is unable to restore the backup folder back to Disk Images after 
+            the build failed. ISBuild always backs up the existing Disk Images folder 
+            to bldback before performing a new build. If the new build succeeded, the 
+            backup folder is deleted. If the new build failed, the backup folder is 
+            renamed. You can manually delete the current Disk Images folder and 
+            rename bldback back to Disk Images.
+
+Error B122  Unable to convert file date/time.
+
+            ISBuild is unable to convert the local date/time of the source files to 
+            the DOS date/time format. Contact technical support and send us the file.
+
+Error B123  Program is terminated by the user.
+
+            The build process is terminated by you or another application. If it is 
+            not intentional, contact technical support.
+
+*****     *****     *****     *****     *****     *****     *****    *****    *****
+
+COMMAND LINE COMPILER
+
+In addition to the integrated compiler, which is executed from the InstallShield IDE,
+InstallShield includes a command line compiler that can be invoked from the DOS 
+prompt or from a DOS batch file. This utility, called Compile.exe, is located in the 
+InstallShield Program directory. 
+
+Once a setup project has been completely defined, Compile.exe can be used together 
+with ISbuild.exe, a command line media builder, to create a setup media image without 
+starting the InstallShield IDE. 
+
+Syntax
+
+Compile script_file [ ins_file ] [ switches ]
+
+Parameters
+
+script_file
+
+Specifies the name of the setup script. This filename can include a drive designation 
+and path. Normally, the filename will be setup.rul.
+
+ins_file
+
+Specifies the filename to assign to the compiled script. If this parameter is not 
+specified, the output file is given the name of the script file and the extenstion 
+.ins.
+
+Switches
+
+The following optional switches can be passed to the compiler:
+
+/d or -d     Defines a constant.  This switch must be followed by an expression in 
+             the following format: identifier=value
+
+             The identifier must be a valid InstallScript identifier; the value must 
+             be a constant. No space is permitted between the switch and the 
+             expression or within the expression. 
+
+/e or -e     Specifies the maximum number of error messages. The default value is 50. When the maximum number of error messages have been generated, compilation stops.
+
+/g or -g     Specifies that a debug file should be produced. This file is given the 
+             name of the setup and extension .dbg.
+
+/i or -i     Specifies a path to the location of script files that are included in 
+             the compile.
+
+/n or -n     Disables CRC checking on the .ins file. When CRC checking is enabled, 
+             the .ins file is tested at run time and if found to be corrupt, the 
+             setup is aborted and an error message is displayed. CRC checking is 
+             enabled by default.
+
+/v or -v     Sets the warning level to one of the following values:
+
+             0   Displays no warning messages.
+
+             1   Displays any system warning message that InstallShield is unable to 
+                 handle.
+
+             2   Displays Level 1 messages, plus a message if string length exceeds 
+                 the limit.
+
+             3   Displays all warning messages. This is the default.
+
+/w or -w     Specifies the maximum number of warning messages. The default value is 
+             50. When the maximum number of warning messages have been generated, 
+             compilation stops.
+
+Comments
+
+Unless you are logged to the InstallShield Program directory, you must either use the 
+DOS PATH command to place the InstallShield Program directory in the DOS search path 
+before invoking the compiler or specify the fully-qualified name of the compiler in 
+the DOS command. 
+
+When specifying filenames, you can use either short or long filenames; however, long 
+filenames must be enclosed within double quotation marks.
+
+Examples
+
+The following command line compiles the script setup.rul that is located in the 
+"C:\My Installations\Test Pad\Script Files" folder. Because this script uses Sd 
+dialogs, the switch -I is used to indicate the location of the Sd dialog support 
+files. 
+
+Compile -I"C:\Program Files\InstallShield\InstallShield 5.0 Professional Edition\
+Include" "C:\My Installations\Test Pad\Script Files\Setup.rul"
+
+*****     *****     *****     *****     *****     *****     *****    *****    *****
+
+COMMAND LINE TOOLS BATCH FILE EXAMPLE
+
+
+: This DOS batch file is designed to create a distribution diskette
+: for an example setup project called Test Pad. To run this batch 
+: file, you must first create that project and build the setup from  
+: the InstallShield IDE. Follow the instructions in Chapter 3 of 
+: Getting Started. 
+
+: This batch file assumes that InstallShield 1.1 was installed in  
+: the default target folder and that the setup project Test Pad is 
+: stored in the folder "C:\My Installations".
+
+: 
+: The following main steps are carried out in order. If an error 
+: occurs during the compile or build, the distribution diskette is 
+: not created: 
+: 
+: Step 1. Compile the setup script
+: Step 2. Build the media. 
+: Step 3. Copy the setup files to a diskette in drive A.
+: 
+: Output from the Compile and Build tools is redirected to the file 
+: ISBuild.rpt. If errors occur, view this file for further information.
+: 
+
+: Turn off command echo to display.
+  @Echo off
+
+
+: Save the current search path
+  Set SavePath=%Path%
+
+: Set the search path to find InstallShield's command line tools
+  Path C:\Progra~1\Instal~1\Instal~1.1pr\Program;%PATH%
+
+: Execute the command line compiler
+  Compile -I"C:\Program Files\InstallShield\InstallShield 5.1 Professional Edition\
+  Include" "C:\My Installations\Test Pad\Script Files\setup.rul" > ISBuild.rpt
+
+: Test for success. Quit if there was a compiler error.
+  If errorlevel 1 goto CompilerErrorOccurred
+
+
+: Build the media
+  ISbuild -p"C:\My Installations\Test Pad" -m"Test Pad" >> ISBuild.rpt
+
+: Test for success. Quit if there was a build error.
+  If errorlevel 1 goto BuildErrorOccurred
+
+: Prompt the user to place a diskette in drive A.
+  Echo Insert a blank formatted diskette in drive A. 
+  Pause Then press any key to create the distribution diskette.
+
+: Copy the setup files to the diskette in drive A.
+  XCopy c:\myinst~1\testpa~1\media\testpa~1\diskim~1\disk1\*.* A:\
+
+
+: Skip over the error handling and exit
+  Goto Done
+
+: Report the compiler error; then exit
+  :CompilerErrorOccurred
+  Echo Error on compile; media not built. 
+  Pause Press any key to view report.
+  Type ISBuild.rpt | More
+  Goto Done
+
+: Report the build error; then exit
+  :BuildErrorOccurred
+  Echo Error on build; media not built. 
+  Pause Press any key to view report.
+  Type ISBuild.rpt | More
+
+  :Done
+: Restore the search path
+  Path=%SavePath%
+  Set SavePath=
+
+
+
+
+
+
+
+
+
+

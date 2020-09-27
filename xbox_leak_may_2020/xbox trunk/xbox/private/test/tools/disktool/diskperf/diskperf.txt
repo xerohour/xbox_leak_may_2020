@@ -1,0 +1,222 @@
+Perf variations: Write block size: 
+        small: < 512 bytes 
+        medium:~4KB)
+        large: > 16KB)
+        mixed: - random mixture of small, medium, and large
+
+Interesting CreateFile() flags: 
+        FILE_FLAG_WRITE_THROUGH (should have no impact)
+        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING (with & without overlapped) 
+        - note that blocks must be sector aligned and block size must be an integral multiple of sector size
+        FILE_FLAG_SEQUENTIAL_SCAN (should only matter if the cache is being used - FILE_FLAG_NO_BUFFERING doesn't use the cache)
+
+functions we need:
+        - SizeCache - to create memory pressure to control cache size
+        - CacheFlush - use then release all memory to force cache flush - TracySh will provide
+        
+variations:
+        all writes (all sizes and flags)
+        all reads  (all sizes and flags)
+        writes then reads (all sizes and flags)
+        writes then reads, using a growing file (all sizes and flags)
+        writes then reads, using a growing queue of files to thrash out the cache (all sizes and flags)
+        CD-ROM read rate (all sizes and flags - need special CD?)
+        DVD read rate  (all sizes and flags - need special DVD?)
+        Delete speed (especially on a full disk to simulate cache clear on startup)
+        
+other variations:
+        file create slowdown as number of directory entries increases
+        directory create slowdown as number of directoy entries increases
+        try random access within a file while varying cache size
+        reads from different parts of the disk using low-level read commands
+        reads from different parts of the CD-ROM using low-level read commands
+        reads from different parts of the DVD using low-level read commands
+
+this is nearly 300 variations, make the results easily portable to excel, 
+that way we can easily track by build and catch changes
+
+
+        Variation #1
+                all writes (all sizes and flags)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+
+        Variation #2
+                all reads  (all sizes and flags)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #3
+                writes then reads (all sizes and flags)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #4
+                writes, then flush, then reads (all sizes and flags)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #5
+                writes then reads, using a growing file (all sizes and flags)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #6
+                writes then reads, using a growing queue of files to thrash out the cache (all sizes and flags)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #7
+                CD-ROM read rate (all sizes and flags - need special CD?)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes (make a special CD):
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #8
+                DVD read rate  (all sizes and flags - need special DVD?)
+                flags:
+                        FILE_FLAG_WRITE_THROUGH
+                        FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_OVERLAPPED, FILE_FLAG_NO_BUFFERING
+                        FILE_FLAG_SEQUENTIAL_SCAN
+                sizes (make a special CD):
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+        
+        Variation #9
+                Delete speed (especially on a full disk to simulate cache clear on startup)
+                sizes:
+                        128b
+                        256b
+                        512b
+                        4k
+                        10k
+                        100k
+                        1000k
+                        10000k
+                        100000k
+
+        Variation #10
+                file create slowdown as number of files in a directory increases
+        
+        Variation #11
+                directory create slowdown as number of directory entries increases
+
+        Variation #12
+                try random access within a file while varying cache size
+                
+        Variation #13
+                reads from different parts of the disk using low-level read commands
+        
+        Variation #14
+                reads from different parts of the CD-ROM using low-level read commands
+        
+        Variation #15
+                reads from different parts of the DVD using low-level read commands
+                
+        Variation #16
+                stream contents of CD-ROM to disk
+                
+        Variation #17
+                stream contents of DVD to disk
+
+
+other:
+        re-write?

@@ -1,0 +1,611 @@
+// vsedo.idl : IDL source for edo
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (edo2.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+//EDO stuff...
+typedef unsigned long MSIHANDLE;
+
+interface IEmColumn;
+interface IEmColumnCollection;
+interface IEmColumnError;
+interface IEmColumnErrorCollection;
+interface IEmDatabase;
+interface IEmFileCleanupSink;
+interface IEmMsiDatabase;
+interface IEmRow;
+interface IEmRowCollection;
+interface IEmPreview;
+interface IEmPreviewDlg;
+
+
+interface IEmSummaryProperty;
+interface IEmSummaryPropertyCollection;
+
+interface IEmTable;
+
+interface IEmTableCollection;
+interface IEmTableColumn;
+interface IEmTableColumnCollection;
+
+
+
+typedef
+[
+	uuid(84144409-E7DD-11d2-AC78-00C04F680D5A),
+	helpstring("emMsiDatabaseMode")
+]
+enum emMsiDatabaseMode
+{
+	[helpstring("emdmOpenReadOnly")]	emdmOpenReadOnly = 0,
+	[helpstring("emdmOpenTransact")]	emdmOpenTransact = 1,
+	[helpstring("emdmOpenDirect")]		emdmOpenDirect = 2,
+	[helpstring("emdmCreate")]			emdmCreate = 3,
+	[helpstring("emdmCreateDirect")]	emdmCreateDirect = 4
+} emMsiDatabaseMode;
+
+
+
+typedef
+[
+	uuid(8414440A-E7DD-11d2-AC78-00C04F680D5A),
+	helpstring("emColumnType")
+]
+enum emColumnType
+{
+	[helpstring("emctInteger")]	emctInteger = 0,
+	[helpstring("emctString")]	emctString = 1,
+	[helpstring("emctBinary")]	emctBinary = 2,
+} emColumnType;
+
+
+typedef
+[
+	uuid(8414440B-E7DD-11d2-AC78-00C04F680D5A),
+	helpstring("emSummaryIndices")
+]
+enum emSummaryIndices
+{
+		[helpstring("emsiCodePage")]			emsiCodePage			= 0x0001,
+		[helpstring("emsiTitle")]				emsiTitle				= 0x0002,
+		[helpstring("emsiSubject")]				emsiSubject				= 0x0003,
+		[helpstring("emsiAuthor")]				emsiAuthor				= 0x0004,
+		[helpstring("emsiKeywords")]			emsiKeywords			= 0x0005,
+		[helpstring("emsiComments")]			emsiComments			= 0x0006,
+		[helpstring("emsiTemplate")]			emsiTemplate			= 0x0007,
+		[helpstring("emsiLastSavedBy")]			emsiLastSavedBy			= 0x0008,
+		[helpstring("emsiRevisionNum")]			emsiRevisionNum			= 0x0009,
+		[helpstring("emsiLastPrinted")]			emsiLastPrinted			= 0x000B,
+		[helpstring("emsiCreateTime")]			emsiCreateTime			= 0x000C,
+		[helpstring("emsiLastSaveTime")]		emsiLastSaveTime		= 0x000D,
+		[helpstring("emsiPageCount")]			emsiPageCount			= 0x000E,
+		[helpstring("emsiMSISourceType")]		emsiMSISourceType		= 0x000F,
+		[helpstring("emsiCharacterCount")]		emsiCharacterCount		= 0x0010,
+		[helpstring("emsiCreatingApplication")]	emsiCreatingApplication	= 0x0012,
+		[helpstring("emsiSecurity")]			emsiSecurity			= 0x0013
+} emSummaryIndices;
+
+
+
+
+
+//***********************************************************************
+//	IEmDatabase
+//
+//		Interface for general database management stuffs!  Methods for:
+//
+//		Open() -- opens a DARWIN database; input parameters are database name and mode, modes are:
+//			MSIDBOPEN_CREATEDIRECT
+//			MSIDBOPEN_CREATE
+//			MSIDBOPEN_DIRECT
+//			MSIDBOPEN_READONLY
+//			MSIDBOPEN_TRANSACT
+//			Will need to defines these modes somewhere.
+//
+//		Close() -- closes a database w/o commiting
+//
+//		Commit() -- commits changes to a database
+//
+//		ApplyTransform() -- applies a transform to a database; must have write permission; must give
+//			transform file and error conditions to suppress; error conditions are:
+//			0x0001	Adding a row that already exists.
+//			0x0002	Deleting a row that doesn't exist.
+//			0x0004	Adding a table that already exists.
+//			0x0008	Deleting a table that doesn't exist.
+//			0x0010	Updating a row that doesn't exist
+//
+//		Import() -- doesn't do anything now
+//
+//		Export() -- doesn't do anything now
+//
+//		GenerateTransform() -- Given a database, generates a transform against it.  Error and
+//			validation conditions are given as input parameters.  See MSI help file for
+//			codes.
+//
+//		Merge() -- merges another database into this database
+//
+//	Properties:
+//
+//		ReadOnly -- returns true if the database is read only
+//		SummaryInfo -- returns the summary info object
+//		UIPreview -- returns the UIPreview object
+//		EmTables -- returns the collection of tables
+//
+//***********************************************************************
+[
+	object,
+	uuid(8414440C-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmDatabase Interface"),
+	pointer_default(unique)
+]
+interface IEmDatabase : IDispatch
+{
+		[id(4), helpstring("method Commit")] HRESULT Commit();
+		[propget, id(5), helpstring("property IsReadOnly")] HRESULT IsReadOnly([out, retval] VARIANT_BOOL *ReadOnly);
+		[propget, id(6), helpstring("property SummaryInfo")] HRESULT Summary([out, retval] IEmSummaryPropertyCollection **Summary);
+		[propget, id(7), helpstring("property UIPreview")] HRESULT UIPreview([out, retval] IEmPreview **Preview);
+		[propget, id(8), helpstring("property Tables")] HRESULT Tables([out, retval] IEmTableCollection **TableCollection);
+		[id(9), helpstring("method SetDirty")] HRESULT SetDirty();
+		[propget, id(10), helpstring("property IsDirty")] HRESULT IsDirty([out, retval] VARIANT_BOOL *pVal);
+		[propget, id(11), helpstring("property IsOpen")] HRESULT IsOpen([out, retval] VARIANT_BOOL *pVal);
+};
+
+[
+	object,
+	uuid(8414440D-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmMsiDatabase Interface"),
+	pointer_default(unique)
+]
+interface IEmMsiDatabase : IEmDatabase
+{
+		// Leaving IDs out to not interfere with inherited IEmDatabase...
+		[helpstring("method Open")] HRESULT Open([in] BSTR Database, [in] emMsiDatabaseMode Mode);
+		[propget, helpstring("property Handle")] HRESULT Handle([out, retval] MSIHANDLE* hMsiDatabase);
+		[helpstring("method SetCodePage")] HRESULT SetCodePage([in] long CodePage);
+		[helpstring("method GetCodePage")] HRESULT GetCodePage([out, retval] long *pVal);
+		[propget, helpstring("property FileName")] HRESULT FileName([out, retval] BSTR *pVal);
+		[helpstring("method Merge")] HRESULT Merge([in] IEmMsiDatabase *Database);
+};
+
+
+
+
+
+
+//***********************************************************************
+//	IEmTableCollection
+//
+//		This is the collection of table objects.  It allows you to make table-related changes
+//		such as adding & removing a table, enumerating through the list of tables, and make
+//		custom queries to table(s).
+//
+//		Add() -- adds a table
+//
+//		Item() -- given a table name, returns an object that allows you to manipulate the table
+//
+//		Remove() -- removes a table
+//
+//		Query() -- given a custom SQL query, returns a EmTable object that allows you to
+//			get (and perhaps set) information about the table.
+//
+//		Properties:
+//			Count -- count of number of items in the table
+//			NewEnum -- returns an enumerator that allows you to step through the list of tables
+//		
+//***********************************************************************
+[
+	object,
+	uuid(8414440E-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmTableCollection Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmTableCollection : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *Count);
+	[id(4), helpstring("method Add")] HRESULT Add([in]BSTR Name, [out, retval] IEmTable **Table);
+	[id(0), helpstring("method Item")] HRESULT Item([in] VARIANT *variant, [out, retval] IEmTable **Table);
+	[id(6), helpstring("method Remove")] HRESULT Remove([in] VARIANT *variant);
+	[id(7), helpstring("method Query")] HRESULT Query([in] BSTR SQL, [out, retval] IEmTable **Table);
+};
+
+
+
+//***********************************************************************
+//	IEmTable
+//
+//		This object allows you to access certain properties of a table, and provides
+//		access to all the table-related information
+//
+//		Properties:
+//			Name -- returns name of table; is NULL if this object results from a multi-table query
+//			Persistent -- returns TRUE if this table is persisted
+//			Columns -- returns an IEmTableColumns collection that allows you to manipulate the
+//				properties of a table
+//			Rows -- returns an IEmRowCollection object that allow you to get/set information in
+//				the individual rows as well as add/delete rows
+//		
+//***********************************************************************
+[
+	object,
+	uuid(8414440F-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmTable Interface"),
+	pointer_default(unique)
+]
+interface IEmTable : IDispatch
+{
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *Name);
+		[propget, id(3), helpstring("property Columns")] HRESULT Columns([out, retval] IEmTableColumnCollection **Columns);
+		[propget, id(4), helpstring("property Rows")] HRESULT Rows([out, retval] IEmRowCollection **Rows);
+};
+
+
+
+
+//***********************************************************************
+//	IEmSummaryPropertyCollection
+//
+//***********************************************************************
+[
+	object,
+	uuid(84144410-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmSummaryPropertyCollection Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmSummaryPropertyCollection : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *Count);
+	[id(0), helpstring("method Item")] HRESULT Item([in]emSummaryIndices Property, [out, retval] IEmSummaryProperty ** SummaryProperty);
+};
+
+[
+	object,
+	uuid(84144411-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmSummaryProperty Interface"),
+	pointer_default(unique)
+]
+interface IEmSummaryProperty : IDispatch
+{
+		[propget, id(2), helpstring("property ID")] HRESULT ID([out, retval] emSummaryIndices  *ID);
+		[propget, id(3), helpstring("property Value")] HRESULT Value([out, retval] VARIANT *variant);
+		[propput, id(3), helpstring("property Value")] HRESULT Value([in] VARIANT * variant);
+};
+
+
+
+
+
+
+//***********************************************************************
+//	IEmPreview
+//
+//***********************************************************************
+[
+	object,
+	uuid(84144412-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmPreview Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmPreview : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *Count);
+	[id(0), helpstring("method Item")] HRESULT Item([in] VARIANT * variant, [out, retval] IEmPreviewDlg ** PreviewDlg);
+};
+
+[
+	object,
+	uuid(84144413-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmPreviewDlg Interface"),
+	pointer_default(unique)
+]
+interface IEmPreviewDlg : IDispatch
+{
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *Name);
+		[id(3), helpstring("method Show")] HRESULT Show();
+		[id(4), helpstring("method ShowBillboard")] HRESULT ShowBillboard(BSTR Control, BSTR Billboard);
+		[id(5), helpstring("method Close")] HRESULT Close();
+};
+
+
+
+
+
+
+
+//***********************************************************************
+//	IEmRow
+//
+//***********************************************************************
+[
+	object,
+	uuid(84144414-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmRow Interface"),
+	pointer_default(unique)
+]
+interface IEmRow : IDispatch
+{
+		[propget, id(1), helpstring("property Columns")] HRESULT Columns([out, retval] IEmColumnCollection * *Columns);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+		[id(2), helpstring("method Validate")] HRESULT Validate([in, out, optional] IEmColumnErrorCollection **ppColumnError, [out, retval] VARIANT_BOOL *validated);
+		[id(3), helpstring("method ValidateDelete")] HRESULT ValidateDelete([in, out, optional] IEmColumnErrorCollection **ppColumnError, [out, retval] VARIANT_BOOL *validated);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+		[id(4), helpstring("method ReplaceReferences")] HRESULT ReplaceReferences([in] IEmRow *NewRow);
+		[propget, id(5), helpstring("property ReferenceCount")] HRESULT ReferenceCount([out, retval] long *Count);
+};
+
+
+
+
+//***********************************************************************
+//	IEmColumnCollection
+//
+//***********************************************************************
+[
+	object,
+	uuid(84144415-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmColumnCollection Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmColumnCollection : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *Count);
+	[id(0), helpstring("method Item")] HRESULT Item([in] VARIANT *variant, [out, retval] IEmColumn **Column);
+};
+
+
+
+
+//***********************************************************************
+//	IEmColumn
+//
+//***********************************************************************
+[
+	object,
+	uuid(84144416-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmColumn Interface"),
+	pointer_default(unique)
+]
+interface IEmColumn : IDispatch
+{
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *Name);
+		[propget, id(3), helpstring("property Index")] HRESULT Index([out, retval] int *Index);
+		[propget, id(4), helpstring("property Value")] HRESULT Value([out, retval] VARIANT *variant);
+		[propput, id(4), helpstring("property Value")] HRESULT Value([in] VARIANT *variant);
+};
+
+
+
+
+
+
+[
+	object,
+	uuid(84144417-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmTableColumnCollection Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmTableColumnCollection : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+	[id(3), helpstring("method Add")] HRESULT Add([in] BSTR Name, [out, retval] IEmTableColumn **TableColumn);
+	[id(0), helpstring("method Item")] HRESULT Item([in] VARIANT *Column, [out, retval] IEmTableColumn **TableColumn);
+	[id(5), helpstring("method Remove")] HRESULT Remove([in] VARIANT *Column);
+};
+
+
+
+[
+	object,
+	uuid(84144418-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmTableColumn Interface"),
+	pointer_default(unique)
+]
+interface IEmTableColumn : IDispatch
+{
+		[propget, id(1), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Index")] HRESULT Index([out, retval] int *pVal);
+		[propput, id(2), helpstring("property Index")] HRESULT Index([in] int newVal);
+		[propget, id(3), helpstring("property Size")] HRESULT Size([out, retval] int *pVal);
+		[propput, id(3), helpstring("property Size")] HRESULT Size([in] int newVal);
+		[propget, id(4), helpstring("property Nullable")] HRESULT Nullable([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(4), helpstring("property Nullable")] HRESULT Nullable([in] VARIANT_BOOL pVal);
+		[propget, id(5), helpstring("property Type")] HRESULT Type([out, retval] emColumnType *pType);
+		[propput, id(5), helpstring("property Type")] HRESULT Type([in] emColumnType Type);
+		[propget, id(6), helpstring("property PrimaryKey")] HRESULT PrimaryKey([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(6), helpstring("property PrimaryKey")] HRESULT PrimaryKey([in] VARIANT_BOOL pVal);
+		[propget, id(7), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+		[propput, id(7), helpstring("property Description")] HRESULT Description([in] BSTR newVal);
+		[propget, id(8), helpstring("property Category")] HRESULT Category([out, retval] BSTR *pVal);
+		[propput, id(8), helpstring("property Category")] HRESULT Category([in] BSTR newVal);
+		[propget, id(9), helpstring("property ValueSet")] HRESULT ValueSet([out, retval] BSTR *pVal);
+		[propput, id(9), helpstring("property ValueSet")] HRESULT ValueSet([in] BSTR newVal);
+		[propget, id(10), helpstring("property ValueMin")] HRESULT ValueMin([out, retval] long *pVal);
+		[propput, id(10), helpstring("property ValueMin")] HRESULT ValueMin([in] long newVal);
+		[propget, id(11), helpstring("property ValueMax")] HRESULT ValueMax([out, retval] long *pVal);
+		[propput, id(11), helpstring("property ValueMax")] HRESULT ValueMax([in] long newVal);
+		[propget, id(12), helpstring("property LinkTable")] HRESULT LinkTable([out, retval] IEmTable * *pVal);
+		[propput, id(12), helpstring("property LinkTable")] HRESULT LinkTable([in] IEmTable * newVal);
+		[propget, id(13), helpstring("property LinkColumn")] HRESULT LinkColumn([out, retval] IEmTableColumn * *pVal);
+		[propput, id(13), helpstring("property LinkColumn")] HRESULT LinkColumn([in] IEmTableColumn * newVal);
+		[propget, id(14), helpstring("property Localizable")] HRESULT Localizable([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(14), helpstring("property Localizable")] HRESULT Localizable([in] VARIANT_BOOL newVal);
+};
+
+
+
+
+
+
+//***********************************************************************
+//	IEmRowCollection
+//
+//***********************************************************************
+[
+	object,
+	uuid(8414441B-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmRowCollection Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmRowCollection : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *Count);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(3), helpstring("method Where")] HRESULT Where([in, optional] BSTR Where, [in, optional] BSTR OrderBy, [out, retval] IEmRowCollection **RowCollection);
+	[id(4), helpstring("method WhereEx")] HRESULT WhereEx([in, optional] BSTR Where, [in, optional] VARIANT Args, [in, optional] BSTR OrderBy, [out, retval] IEmRowCollection **RowCollection);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[id(5), helpstring("method Add")] HRESULT Add([in] VARIANT *value1, [in, optional] VARIANT *value2, 
+			[in, optional] VARIANT *value3, [in, optional] VARIANT *value4, [in, optional] VARIANT *value5, 
+			[in, optional] VARIANT *value6, [in, optional] VARIANT *value7, [in, optional] VARIANT *value8, 
+			[in, optional] VARIANT *value9, [in, optional] VARIANT *value10, [in, optional] VARIANT *value11, 
+			[in, optional] VARIANT *value12, [in, optional] VARIANT *value13, [in, optional] VARIANT *value14, 
+			[in, optional] VARIANT *value15, [in, optional] VARIANT *value16, [in, optional] VARIANT *value17, 
+			[in, optional] VARIANT *value18, [in, optional] VARIANT *value19, [in, optional] VARIANT *value20, 
+			[in, optional] VARIANT *value21, [in, optional] VARIANT *value22, [in, optional] VARIANT *value23, 
+			[in, optional] VARIANT *value24, [in, optional] VARIANT *value25, [in, optional] VARIANT *value26, 
+			[in, optional] VARIANT *value27, [in, optional] VARIANT *value28, [in, optional] VARIANT *value29, 
+			[in, optional] VARIANT *value30, [in, optional] VARIANT *value31, [in, optional] VARIANT *value32,
+			[out, retval] IEmRow **EmRow);
+
+	[id(6), helpstring("method Copy")] HRESULT Copy([in] IEmRow *DefaultRow,
+			[in] VARIANT *key1, [in, optional] VARIANT * key2, [in, optional] VARIANT * key3, 
+			[in, optional] VARIANT *key4, [in, optional] VARIANT *key5, [in, optional] VARIANT *key6, 
+			[in, optional] VARIANT *key7, [in, optional] VARIANT *key8, [in, optional] VARIANT *key9, 
+			[in, optional] VARIANT *key10, [in, optional] VARIANT *key11, [in, optional] VARIANT *key12, 
+			[in, optional] VARIANT *key13, [in, optional] VARIANT *key14, [in, optional] VARIANT *key15, 
+			[in, optional] VARIANT *key16, [in, optional] VARIANT *key17, [in, optional] VARIANT *key18, 
+			[in, optional] VARIANT *key19, [in, optional] VARIANT *key20, [in, optional] VARIANT *key21, 
+			[in, optional] VARIANT *key22, [in, optional] VARIANT *key23, [in, optional] VARIANT *key24, 
+			[in, optional] VARIANT *key25, [in, optional] VARIANT *key26, [in, optional] VARIANT *key27, 
+			[in, optional] VARIANT *key28, [in, optional] VARIANT *key29, [in, optional] VARIANT *key30, 
+			[in, optional] VARIANT *key31, [in, optional] VARIANT *key32, [out, retval] IEmRow **EmRow);
+
+	[id(0), helpstring("method Item")] HRESULT Item(
+			[in] VARIANT *key1, [in, optional] VARIANT * key2, [in, optional] VARIANT * key3, 
+			[in, optional] VARIANT *key4, [in, optional] VARIANT *key5, [in, optional] VARIANT *key6, 
+			[in, optional] VARIANT *key7, [in, optional] VARIANT *key8, [in, optional] VARIANT *key9, 
+			[in, optional] VARIANT *key10, [in, optional] VARIANT *key11, [in, optional] VARIANT *key12, 
+			[in, optional] VARIANT *key13, [in, optional] VARIANT *key14, [in, optional] VARIANT *key15, 
+			[in, optional] VARIANT *key16, [in, optional] VARIANT *key17, [in, optional] VARIANT *key18, 
+			[in, optional] VARIANT *key19, [in, optional] VARIANT *key20, [in, optional] VARIANT *key21, 
+			[in, optional] VARIANT *key22, [in, optional] VARIANT *key23, [in, optional] VARIANT *key24, 
+			[in, optional] VARIANT *key25, [in, optional] VARIANT *key26, [in, optional] VARIANT *key27, 
+			[in, optional] VARIANT *key28, [in, optional] VARIANT *key29, [in, optional] VARIANT *key30, 
+			[in, optional] VARIANT *key31, [in, optional] VARIANT *key32, [out, retval] IEmRow **EmRow);
+
+	[id(7), helpstring("method Remove")] HRESULT Remove(
+			[in] VARIANT *key1, [in, optional] VARIANT * key2, [in, optional] VARIANT * key3, 
+			[in, optional] VARIANT *key4, [in, optional] VARIANT *key5, [in, optional] VARIANT *key6, 
+			[in, optional] VARIANT *key7, [in, optional] VARIANT *key8, [in, optional] VARIANT *key9, 
+			[in, optional] VARIANT *key10, [in, optional] VARIANT *key11, [in, optional] VARIANT *key12, 
+			[in, optional] VARIANT *key13, [in, optional] VARIANT *key14, [in, optional] VARIANT *key15, 
+			[in, optional] VARIANT *key16, [in, optional] VARIANT *key17, [in, optional] VARIANT *key18, 
+			[in, optional] VARIANT *key19, [in, optional] VARIANT *key20, [in, optional] VARIANT *key21, 
+			[in, optional] VARIANT *key22, [in, optional] VARIANT *key23, [in, optional] VARIANT *key24, 
+			[in, optional] VARIANT *key25, [in, optional] VARIANT *key26, [in, optional] VARIANT *key27, 
+			[in, optional] VARIANT *key28, [in, optional] VARIANT *key29, [in, optional] VARIANT *key30, 
+			[in, optional] VARIANT *key31, [in, optional] VARIANT *key32);
+
+};
+
+
+
+
+
+[
+	object,
+	uuid(8414441C-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmColumnErrorCollection Interface"),
+	pointer_default(unique),
+	oleautomation
+]
+interface IEmColumnErrorCollection : IDispatch
+{
+	[propget, id(-4), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IUnknown **NewEnum);
+	[propget, id(2), helpstring("property Count")] HRESULT Count([out, retval] long *Count);
+	[id(0), helpstring("method Item")] HRESULT Item([in] VARIANT *pVar, [out, retval] IEmColumnError **ppIEmColumnError);
+};
+
+
+[
+	object,
+	uuid(8414441D-E7DD-11d2-AC78-00C04F680D5A),
+	dual,
+	helpstring("IEmColumnError Interface"),
+	pointer_default(unique)
+]
+interface IEmColumnError : IDispatch
+{
+		[propget, id(1), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Index")] HRESULT Index([out, retval] long *pVal);
+		[propget, id(3), helpstring("property Value")] HRESULT Value([out, retval] VARIANT *pVal);
+		[propget, id(4), helpstring("property Error")] HRESULT Error([out, retval] long *pVal);
+};
+
+
+
+
+//****************************************
+// The following interfce IEmFileCleanupSink is used by EDO & Beagle to clean up temporary 
+// files that were left behind for one reason or another...
+[
+	uuid(8414441E-E7DD-11d2-AC78-00C04F680D5A),
+	helpstring("IEmFileCleanupSink Interface"),
+	pointer_default(unique)
+]
+interface IEmFileCleanupSink : IUnknown
+{
+	HRESULT RegisterFile([in] LPOLESTR lpFilename);
+	HRESULT UnregisterFile([in] LPOLESTR lpFilename);
+};
+
+
+
+
+//If this is building the private IDL for the VS EDO package, then we don't
+//need the following definitions.
+cpp_quote("#if !defined(__edo_h__)")
+cpp_quote("#if !defined(_EDOLIB_STDAFX_)")
+cpp_quote("EXTERN_C const __declspec(selectany) GUID CLSID_EmDatabase			= {0x841443FE,0xE7DD,0x11d2,{0xAC,0x78,0x00,0xC0,0x4F,0x68,0x0D,0x5A }};")
+
+cpp_quote("#endif")
+cpp_quote("#endif")
+

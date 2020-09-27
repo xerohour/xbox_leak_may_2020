@@ -1,0 +1,107 @@
+BUGS.TXT
+
+This File contains known bugs in BadMan. Please enter your username next to
+any bug descriptions.
+===========================================================================
+
+**1. If a good parameter invocation of an API fails with either the expected
+**   or unexpected return value, no error message is printed. RamC 3/20/92
+****************************
+*******Fixed 5-7-92*********
+****************************
+
+
+2. Exception wrongly generated - RamC 3/23/92
+
+|>From ramc Tue Mar 10 10:12:21 1992
+|To: johnmil
+|Subject: just wondering
+|Date: Tue, 10 Mar 92 10:11:05 PST
+|
+|
+|There is something strange happening with respect to the APIs
+|generating an exception.
+|
+|When I invoke badman as
+|
+|badman acl.bms -y -g 
+|
+|the API GetAce generates an exception for variation 1 - all good params.
+|
+|But, if I invoke badman as
+|
+|badman acl.bms -y -g -a GetAce
+|
+|the exception is not generated.
+|
+|Why would this be?  This behavior is consistent and I remember
+|seeing it while using another .bms file also.
+|
+|This doesn't seem very serious but could be a sign of some problem.
+|
+|thanks
+|
+|ram
+
+####################################################### 64
+From johnmil Tue Mar 10 10:41:31 1992
+To: ramc
+Subject: Re: just wondering
+Date: Tue, 10 Mar 92 10:40:55 PST
+
+
+I see the same behavior in my memory management tests. There is a bug open
+against the rtlHeap routines, they seem to have problems with the amount
+of allocation/deallocation that goes on in BadMan... It is entirely possible
+the problem could be in BadMan, but since the problem was reported in extensive
+rats tests as well, I'm going to wait for the resolution of the bug before
+I investigate....
+
+                    -john
+
+**3. Inability to detect if the API call succeeded/failed - Ramc 3/23/92
+**
+**|>From ramc Wed Mar 18 10:31:22 1992
+**|To: johnmil
+**|Cc: ntbadman
+**|Subject: how can I say if the API call succeeded/failed?
+**|Date: Wed, 18 Mar 92 10:29:57 PST
+**|
+**|
+**|The prototype for an API specifies FALSE as the return
+**|value on failure.
+**|
+**|Now, I test an API for good parameters.  If the API call
+**|succeeds you don't say anything - so, let us assume silence
+**|means the call succeeded.  But, if the API call fails with
+**|the expected return value - say FALSE in our example -
+**|then also you don't say anything.  So, how can one know
+**|if the API call succeeded/failed?
+**|
+**|The only way seems to be to write a validate routine and
+**|check if the return value is FALSE.
+**|
+**|Any ideas?
+**|
+**|thanks
+**|
+**|ram
+**|
+**
+**
+**####################################################### 123
+**From johnmil Thu Mar 19 08:31:51 1992
+**To: ramc
+**Subject: how can I say if the API call succeeded/failed?
+**Date: Thu, 19 Mar 92 08:31:15 PST
+**
+**
+**!!!!!!!!!! Sounds like a bug in BadMan to me.  I'll try and get it fixed
+**in the next day or two, because it SHOULD be printing a messages saying
+**that it failed in the case you detail below. Keep using badman!!! You're
+**finding all the bugs so I can fix 'em :) thanks,
+**
+**		      john
+****************************
+*******Fixed 5-7-92*********
+****************************

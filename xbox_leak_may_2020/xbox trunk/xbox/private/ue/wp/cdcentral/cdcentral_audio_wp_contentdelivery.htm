@@ -1,0 +1,100 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Delivering the Goods:
+File Management Tricks and Tips</H2> 
+
+<P><I>By Scott Selfon, Audio Content Consultant, Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<p>So you&#39;ve finished writing the content for the first level of your game, and you&#39;re ready to hand it off to the developer. But what exactly are you handing off? And how should you arrange your files so that it will be easy to update the content later? This paper will discuss how the various file types depend on each other, how you can use containers to make content delivery easier, and general tricks and tips for managing content on the Xbox&#8482; video game console from Microsoft.<p>
+<h3>Step 1: Plan Ahead</h3>
+<p>The best idea for content management is to sit down ahead of time with all of the composers and sound designers as well as with the developers who will be integrating this content into the game itself. Use this meeting to decide on (or at least to start thinking about) the following aspects of your content:</p>
+<UL>
+<LI>Basic plan for sound design<BR><BR>
+<UL>
+<LI>Wave files, segments with wave tracks, or segments with DLS collection playback?</LI><BR>
+<LI>Exclusive use of DirectMusic libraries (developer &#34;programs&#34;), or use of Microsoft&#174; DirectX&#174; Audio Scripting (composer/sound designer &#34;programs&#34;)</LI><BR>
+</UL></LI><BR>
+<LI>File naming conventions&#8212;remember, filenames are not limited to the 8.3 format, so the names can be somewhat descriptive. It&#39;s often best to stay away from multiple segments that have the exact same name to avoid confusion. However, don&#39;t get overly detailed with names if the content may be played in multiple circumstances.</LI><BR><BR>
+<LI>Footprint&#8212;how much real estate on the hard disk and in memory is the project giving to audio? How can the active footprint be optimized to get the most sound for this space (streaming, compression, DLS collection management, and so forth)?</LI>
+</UL>
+<h3>Step 2: Authoring</h3>
+<p>You&#39;re now ready to start authoring files. The developer has some idea of the names of segments you&#39;re going to be creating, but you will also have supporting files to keep track of: a segment&#39;s band track, style track, and chordmap track can reference one or more DLS collections (.dlp/.dls ), styles (.stp/.sty), or chordmaps (.cdp/.cdm), respectively. Try to name these supporting files in such a way that you have some idea of what segments refer to them. You might even want to create a table like this one:</p>
+<IMG src="/content/img/contentdelivery_table1.gif">
+<BR><BR>
+<p>While authoring, a few tips and tricks to remember:</p>
+<UL>
+<LI>DLS collection mapping&#8212;if you&#39;re going to use multiple DLS collections, make sure the patch information in individual instruments doesn&#39;t conflict with instruments in other collections. If two such instruments were downloaded at the same time, you might not get the instrument you expected. You have 128&#42;128&#42;128 patch combinations to work with, so don&#39;t be shy about allowing extra room between collections.</LI><BR>
+<LI>Projects&#8212;particularly in &#34;level-based&#34; gameplay, it often makes content creation easier to put each &#34;level&#34; in its own project and work with each one independently.</LI><BR><BR>
+<P style="margin-left:45"><B><I>Note</I></B>&nbsp;&nbsp;&nbsp;Though you can open multiple projects at once, be careful that a segment in one project doesn&#39;t reference supporting content in another project. If that segment is later reopened and the other project is not open, the segment won't know where to find the supporting files and may prompt you or remove the reference.</P></LI>
+<LI>Duplication of files outside of DirectMusic Producer&#8212;whenever possible, avoid duplicating files using Microsoft&#174; Windows&#174; Explorer or MS-DOS prompt commands. A special key (GUID) that should be unique is stored in each file. If you copy that file outside of Producer, you end up having two files with the same key. If they were DLS collections and both ended up in the same directory as a segment requesting the DLS collection with a certain GUID, you might get the wrong collection. Producer&#39;s <B>Copy</B> and <B>Paste</B> commands and project duplicate functions avoid this issue. For your information, Producer will automatically generate a new GUID for any file opened that has a duplicate of an existing file&#39;s GUID.</LI>
+</UL>
+<h3>Step 3: Deciding How to Deliver Your Content &#8211; Containers</h3>
+<p>Once you&#39;re done authoring your content, you will inevitably have more than one file. In some instances, such as wave files or a basic segment with DLS collections, this is sufficient, and you&#39;ll hand off full directories of media to the developer for integration. The developer then needs to make sure that if your segment references a style, a chordmap, another segment, and so on, it knows where to find it. This information could be communicated by using a table similar to the one discussed above. But many times it is much easier if you can just give the developer a single file that includes all of the content that it needs in order to play. DirectMusic allows you to do this by using a <I>container</I>.</p>
+<p>Simply put, a container is a file that includes <I>(embeds)</I> entire other pieces of content. Containers can also be made aware of files without explicitly including them by <I>referencing</I> them. We&#39;ll talk about the differences between embedding and referencing in a moment. First, let&#39;s go through the three kinds of containers:</p>
+<OL>
+<LI>Container files (.cop/.con) create a new container file just like any other kind of file (click <B>File</B> and choose <B>New</B> from the drop-down menu).<BR><BR>
+<IMG src="/content/img/contentdelivery_figure1.gif"></LI> <BR><BR>
+ 
+<LI>Scripts (.spp/.spt) are containers. They can embed the content they use or can affect objects (segments, audiopaths, and so on) that are referenced (content that is not embedded but that they&#39;re aware of). Again, if a segment that is played by a script is not embedded by it, the segment file should be delivered separately to the developer.
+<BR><BR>
+<IMG src="/content/img/contentdelivery_figure2.gif"><BR><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>A script that embeds a segment and two waves, and references several segments and a style that should be separately runtime saved and delivered to the developer.</I></LI><BR><BR>
+<LI>Segments (.sgp/.sgt) can also be containers. A segment is often more useful than a container file because the developer still only needs to play the segment, rather than open a container file, know which segment to get from it, and then play it. Just right click a segment and click <B>New</B> on the shortcut menu, then click <B>Container</B>.
+<BR><BR>
+<IMG src="/content/img/contentdelivery_figure3.gif">&nbsp;&nbsp;<IMG src="/content/img/contentdelivery_figure4.gif"><BR><BR>
+<B>Illustrations</B>&nbsp;&nbsp;<I>Making a segment a container; the resulting segment with an embedded wave file (Audience).</I></LI>
+</OL>
+<p>In all three cases, you can add or remove files by dragging them into one of the two folders, or by choosing <B>Add/Remove Files&#8230;</B> from the right click menu, which brings up a dialog that allows you to add or remove any files in the current project to the container.</p>
+<p>The natural question to ask would be, when would you want to embed content versus reference it? If the content you&#39;ve authored consists of a single segment and supporting files (DLS collection, style, chordmap, and so forth), runtime embedding is a very easy way to deliver a single file for playback. However, in some cases, you will want to deliver multiple files even if only a single segment is played back at a time. The most common scenario is a DLS collection that is used by several segments. You wouldn&#39;t typically want to embed it within both segments, because that would take up twice the room on the DVD or hard disk and potentially cause redundant downloads of the same instrument data. A similar argument could be made for waves that are referenced by several different segments&#39; wave tracks or by several different scripts. In the above cases, you would deliver the segments and the DLS collection (.dls) or waves (.wav) they reference.</p>
+<p>This argument isn't quite as compelling for styles, chordmaps, and other files that are generally small (on the order of 1&#39;s or 10&#39;s of kilobytes), so it&#39;s generally recommended that you package these into the segments that use them unless you are using the same content many times over.</p>
+<p>With regard to runtime referencing, the good news is that you only need to use the Runtime Reference folder for scripts. The Runtime Reference folder allows a script to manipulate content (for instance, play segments) that aren&#39;t embedded in it, which, based on the above scenarios, could happen with some frequency. Note that a segment file implicitly references any content that it uses, so you don't even need to manually drag content into a segment container&#39;s Reference Runtime folder. That is, if a segment refers to a style and you don&#39;t want to embed that style, you don&#39;t even need to create a container, let alone drag the style into it. (Notice that the Reference Runtime folder for segments is actually disabled to emphasize this point.) Even for container files, referencing generally is not needed. Only in scripts might the composer/sound designer use the Reference Runtime folder.</p>
+<p>A last point about embedded files: remember that the folder says &#34;Embed Runtime.&#34; While in DirectMusic Producer, design-time files are not actually embedding each other. To allow the composer/sound designer to continue to edit content (and potentially embed it in multiple containers), all content is referenced (not embedded) until the content is runtime saved. This is another reason to make sure to deliver runtime saved content instead of just using the design-time files from DirectMusic Producer.</p>
+<h3>Step 4: Runtime Save Your Content</h3>
+<p>Remember that any file with a ._ _p extension is a Producer design-time file and should be runtime saved to ensure the content is ready and optimized for in-game use. Key to our discussion, only through a runtime save is embedded content actually packed into containers. For a more thorough discussion of creating run-time files, see the white paper &#34;Getting Started with DirectMusic Producer: MIDI and DLS Collections.&#34;</p>
+ <IMG src="/content/img/contentdelivery_figure5.gif"> 
+<h3>Step 5: What to Deliver</h3>
+<p>If all of the content a segment or script uses is embedded in it, the question of what files to deliver is an easy one: the run-time file contains all of the content you need, and you deliver a single self-contained file (the .sgt or .spt file) to the developer.</p>
+<p>If you referenced content (either via the Reference Runtime folder of a container or by creating a segment that refers to non-embedded content), you will need to deliver it separately. It might help the communication to add a column to the chart shown earlier. The additional column indicates what content actually is embedded versus what needs to be delivered separately:</p>
+<IMG src="/content/img/contentdelivery_table2.gif"><BR><BR> 
+<I>What the content creator will need to deliver&#8212;the two segments and any files that are not embedded in them&#8212;will need to be given to the developer for game integration.</I><BR><BR>
+
+<p>If you placed all of the content in a container, you will need to deliver the container as well as give instructions for what object(s) in the container should be used (downloaded, played, and so on) and when.</p>
+<p>For more information about containers, content support, and run-time files, please consult the DirectMusic Producer help document or the xds.xbox.com DirectMusic FAQ, or send e-mail to <a href="mailto:content@xbox.com">content@xbox.com</a>.</p>
+
+<BR>
+
+<SMALL>Thursday, February 1, 2001</SMALL>
+
+
+
+</td>
+
+
+
+
+
+	

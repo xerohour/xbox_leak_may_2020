@@ -1,0 +1,60 @@
+[TestList]
+dmtest1                           ;DMusic tests
+
+[DMTest1]
+ThreadStackSize=0x10000
+
+
+[DMTest1_Suites]
+DMTest1_DMThread
+
+
+;***************************************************************************************************************
+;***************************************************************************************************************
+[DMTest1_DMThread]
+Valid =1
+WaitAtTestEnd   =1
+InitPerformance = Once
+SkipUserInput = 1
+MaxTestOmit=30
+doworklocalthread = 0
+doworkfrequency = 0
+WaitBetweenTests = 1
+
+[DMTest1_DMThread_TestOmit]
+
+;BUG 5330
+Performance8_AllocPMsg_Valid  
+
+;BUG 3677
+Performance8_IsPlaying_Valid  
+
+;BUG 7177
+Performance8_ReferenceToMusicTime_TempoChange  
+
+;USER AUDIOPATHS NOT SUPPORTED YET
+Script_AudioPath_SetGetVolume            
+Script_AudioPath_SetVolumeListeningTest  
+Script_AudioPathConfig_Create            
+Script_AudioPathConfig_Load              
+
+;BUG 6497
+Script_CallRoutine_Valid_PlayOneScript(Bug6497)
+
+;BUG10124
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_0_3_1r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_0_3_2r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_0_6_1r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_0_6_2r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_1_5_1r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_1_5_2r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_3_6_1r
+Performance8_PlaySegmentEx_ClockTime_Looping_SEGMENT_3_6_2r
+
+;BUG10282
+AudioPath_Activate_Valid_Many(MONO,150)
+AudioPath_Activate_Valid_Many(MONO,160)
+AudioPath_Activate_Valid_Many(MONO,191)
+
+;BUG10543
+AudioPath_Activate_Valid_Many(MONO,128)

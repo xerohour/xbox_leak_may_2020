@@ -1,0 +1,29 @@
+TARGETPATH=objd
+TARGETTYPE=PROGRAM
+TARGETNAME=XSGTest
+UMTYPE=console
+
+C_DEFINES=$(C_DEFINES) -D_UNICODE -DUNICODE -DNT -DXNET_BUILD_LIBXW
+C_DEFINES = $(C_DEFINES) -DWIN32 -D_WINDOWS -D__PERF_CODE__ 
+
+INCLUDES=$(INCLUDES); \
+    $(BASEDIR)\private\inc; \
+    $(BASEDIR)\public\wsdk\inc; \
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\ntos\net; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\ntos\xapi\inc; \
+    $(BASEDIR)\private\genx\xon\inc; \
+    $(BASEDIR)\private\inc\crypto; \
+
+TARGETLIBS=\
+	$(WSDK_LIB_PATH)\ntdll.lib \
+	$(WSDK_LIB_PATH)\user32.lib \
+	$(WSDK_LIB_PATH)\Ws2_32.lib \
+	$(BASEDIR)\private\lib\i386\rsa32.lib \
+	$(BASEDIR)\private\lib\i386\vlan$(D).lib \
+	$(BASEDIR)\public\wsdk\lib\iphlpapi.lib \
+
+SOURCES=	Messages.mc \
+	XSGTest.cpp \
+	XSGTest.rc

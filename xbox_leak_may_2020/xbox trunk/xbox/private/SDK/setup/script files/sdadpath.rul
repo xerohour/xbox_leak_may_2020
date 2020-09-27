@@ -1,0 +1,157 @@
+#ifndef _SDADPATH_RUL_
+#define _SDADPATH_RUL_
+
+//////////////////////////////////////////////////////////////////////////////////
+//                                                                        		//
+//   Function: SdAskDestPath                                              		//
+//                                                                        		//
+//   Descrip:  This dialog will ask user for the destination directory    		//
+//             for installation.                                          		//
+//   Misc:                                                                		//
+//                                                                        		//
+//////////////////////////////////////////////////////////////////////////////////
+function SdAskDestPath(szTitle, szMsg, szDir, nStyle)
+    STRING  szDlg, szDirLoc, szTemp;
+    INT     nId, nTemp;
+    HWND    hwndDlg;
+    BOOL    bDone;
+    NUMBER  nSdDialog, nResult, nLength, nFileResult;
+    STRING  szTempDir;
+
+begin
+
+    szDlg     = SD_DLG_ASKDESTPATH;
+    nSdDialog = SD_NDLG_ASKDESTPATH;
+    szDirLoc  = szDir;
+    szTitle   = @SETUP_DIALOG_TITLE;
+
+    // record data produced by this dialog
+    if (MODE=SILENTMODE) then
+        SdMakeName( szAppKey, szDlg, szTitle, nSdAskDestPath );
+        SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+        if ((nId != BACK) && (nId != CANCEL)) then
+            SilentReadData( szAppKey, "szDir", DATA_STRING, szDir, nTemp );
+        endif;
+
+        return nId;
+    endif;
+
+    //ensure general initialization is complete
+    if (!bSdInit) then
+        SdInit();
+    endif;
+
+    if (EzDefineDialog( szDlg, "", "", SD_NDLG_ASKDESTPATH ) = DLG_ERR) then
+        return -1;
+    endif;
+
+    // Loop in dialog until the user selects a standard button
+    bDone = FALSE;
+
+    while (!bDone)
+
+        nId = WaitOnDialog( szDlg );
+        switch (nId)
+            case DLG_INIT:
+                CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, szDirLoc );
+
+                if(szMsg != "") then
+                    SdSetStatic( szDlg, SD_STA_CHANGEDIRMSG, szMsg );
+                endif;
+
+                    hwndDlg = CmdGetHwndDlg( szDlg );
+                    SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                if(szTitle != "") then
+                    SetWindowText( hwndDlg, szTitle );
+                endif;
+
+            case SD_PBUT_CHANGEDIR:
+                //nTemp = MODE;
+                //MODE  = NORMALMODE;
+                _SelectDir:
+                nResult = SelectDirEx (szTitle, "", "", "", BIF_RETURNONLYFSDIRS | BIF_EDITBOX , szDirLoc);
+                if (nResult != 2) then
+                   	if (szDirLoc == "C:\\" || szDirLoc == "C:\\NUL") then
+                        MessageBox( szDirLoc + " " + @ERROR_PATH_ROOTNUL, SEVERE);
+                        szDirLoc = szDir;
+                        goto _SelectDir;
+
+                    elseif (ExistsDir(szDirLoc) == 0) then
+
+                        szTempDir = szDirLoc;
+                        if (Is(DIR_WRITEABLE,szDirLoc)!= TRUE || CreateTempFile( szTempDir, nFileResult) = 0) then
+                            MessageBox (szDirLoc + "\n " + @ERROR_PATH, SEVERE);
+                            szDirLoc = szDir;
+                            goto _SelectDir;
+                        else
+                            szDir = szDirLoc;
+                        endif;
+                    else
+                        nResult = StrRemoveLastSlash (szDirLoc);
+                        SetDialogTitle (DLG_ASK_YESNO, szTitle);
+                        if (AskYesNo( @MSG_CREATE_DIR1 + "\n" + "\n" + szDirLoc + "\n"+ "\n" + @MSG_CREATE_DIR2, YES) = YES) then
+
+                            // Get the number of characters in the string, and remove last slash.
+                            nLength = StrLengthChars (szDirLoc);
+                            if (nLength > 175 || nResult < 0) then
+                                MessageBox (@MSG_PATHLEN, SEVERE);
+                                szDirLoc = szDir;
+                                goto _SelectDir;
+                            endif;
+                        else
+                            szDirLoc = szDir;
+                            goto _SelectDir;
+                        endif;
+                    endif;
+                endif;
+
+                CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, szDirLoc );
+                //MODE = nTemp;
+            case SD_PBUT_CONTINUE:
+              	//CreateDir.
+            	nResult = CreateDir(szDirLoc);
+              	if (nResult != 0) then
+                	MessageBox(@ERROR_DIR, SEVERE);
+                	szDirLoc = szDir;
+                	goto _SelectDir;
+              	endif;
+              	szDir = szDirLoc;
+              	nId   = NEXT;
+              	bDone = TRUE;
+
+            case BACK:
+              	nId    = BACK;
+              	bDone  = TRUE;
+
+            case DLG_ERR:
+              	SdError( -1, "SdAskDestPath" );
+              	nId   = -1;
+              	bDone = TRUE;
+
+            case DLG_CLOSE:
+              	SdCloseDlg( hwndDlg, nId, bDone );
+
+            default:
+              	// check standard handling
+              	if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                  	bDone = TRUE;
+              	endif;
+        endswitch;
+
+    endwhile;
+    EndDialog( szDlg );
+    ReleaseDialog( szDlg );
+
+    SdUnInit( );
+
+        // record data produced by this dialog
+        SdMakeName( szAppKey, szDlg, szTitle, nSdAskDestPath );
+        SilentWriteData( szAppKey, "szDir", DATA_STRING, szDir, 0 );
+        SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+        return nId;
+
+    end;
+
+#endif

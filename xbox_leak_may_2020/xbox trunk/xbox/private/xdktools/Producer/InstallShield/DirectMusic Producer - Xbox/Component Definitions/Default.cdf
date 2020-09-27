@@ -1,0 +1,349 @@
+[Fonts]
+SELECTED=Yes
+FILENEED=CRITICAL
+HTTPLOCATION=
+STATUS=Copying fonts...
+UNINSTALLABLE=Yes
+TARGET=<WINDIR>\Fonts
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Fonts
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Fonts
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=NEWERDATE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Windows Operating System\Fonts
+
+[Release Program Files]
+SELECTED=Yes
+FILENEED=CRITICAL
+HTTPLOCATION=
+STATUS=Copying program files...
+UNINSTALLABLE=Yes
+TARGET=<TARGETDIR>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Release Program Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Release Program DLLs
+COMMENT=
+INCLUDEINBUILD=Yes
+filegroup1=Release Program Executable Files
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=General Application Destination
+
+[Help Files]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying help files...
+UNINSTALLABLE=Yes
+TARGET=<TARGETDIR>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Help Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Help Files
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=General Application Destination
+
+[Components]
+component9=Release System Files
+component0=Fonts
+component1=Help Files
+component10=dmusprod ini
+component2=Release Program Files
+component11=Tutorial Files\TutorialAppRes
+component3=Tutorial Files
+component4=Tutorial Files\TutorialApp
+component5=Tutorial Files\TutorialAppSrc
+component6=QuickStart Files
+component7=Tutorial Files\FinishedProject
+component8=Tutorial Files\TutorialRawElem
+
+[TopComponents]
+component0=Release System Files
+component1=Help Files
+component2=Release Program Files
+component3=QuickStart Files
+component4=Fonts
+component5=dmusprod ini
+component6=Tutorial Files
+
+[Tutorial Files]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying tutorial document...
+UNINSTALLABLE=Yes
+TARGET=<szUserTutorial>
+member0=Tutorial Files\TutorialApp
+FTPLOCATION=
+member1=Tutorial Files\TutorialAppSrc
+VISIBLE=Yes
+DESCRIPTION=
+member2=Tutorial Files\TutorialAppRes
+member3=Tutorial Files\FinishedProject
+member4=Tutorial Files\TutorialRawElem
+DISPLAYTEXT=Tutorial Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Tutorial doc
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserTutorial>
+
+[SetupType]
+setuptype0=Release
+
+[SetupTypeItem-Release]
+item5=dmusprod ini
+Comment=Release Comment
+item0=Fonts
+item1=Help Files
+item2=Release Program Files
+item3=QuickStart Files
+Descrip=Installs the Release version
+item4=Release System Files
+DisplayText=Release Version
+
+[Tutorial Files\TutorialAppSrc]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying tutorial application...
+UNINSTALLABLE=Yes
+TARGET=<szUserTutorialAppSrc>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Tutorial Application Source Code
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=FarmGameAppSrc
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserTutorialAppSrc>
+
+[Tutorial Files\TutorialApp]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying tutorial application...
+UNINSTALLABLE=Yes
+TARGET=<szUserTutorialApp>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Tutorial Application
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=FarmGameApp
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserTutorialApp>
+
+[QuickStart Files]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying quick start files...
+UNINSTALLABLE=Yes
+TARGET=<szUserQuickStartDocuments>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=QuickStart Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=QuickStart Files
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserQuickStartDocuments>
+
+[Tutorial Files\FinishedProject]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying tutorial project...
+UNINSTALLABLE=Yes
+TARGET=<szUserTutorialFinishedProject>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Tutorial Project
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Tutorial-FinishedProject
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserTutorialFinishedProject>
+
+[Info]
+Type=CompDef
+Version=1.00.000
+Name=
+
+[Tutorial Files\TutorialRawElem]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying tutorial files...
+UNINSTALLABLE=Yes
+TARGET=<szUserTutorialRawElements>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Tutorial Content Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Tutorial-RawElements
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserTutorialRawElements>
+
+[dmusprod ini]
+SELECTED=Yes
+FILENEED=CRITICAL
+HTTPLOCATION=
+STATUS=Updating dmusprod.ini file...
+UNINSTALLABLE=Yes
+TARGET=<WINDIR>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Initialization file
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=dmusprod ini
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=NEVEROVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Windows Operating System
+
+[Release System Files]
+SELECTED=Yes
+FILENEED=CRITICAL
+HTTPLOCATION=
+STATUS=Updating system files...
+UNINSTALLABLE=Yes
+TARGET=<WINSYSDIR>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Release System Files
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=Flex Grid control
+COMMENT=
+INCLUDEINBUILD=Yes
+filegroup1=Release MFC DLLs
+INSTALLATION=NEWERVERSION
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Windows Operating System\Windows System Folder
+
+[Tutorial Files\TutorialAppRes]
+SELECTED=Yes
+FILENEED=STANDARD
+HTTPLOCATION=
+STATUS=Copying tutorial application...
+UNINSTALLABLE=Yes
+TARGET=<szUserTutorialAppRes>
+FTPLOCATION=
+VISIBLE=Yes
+DESCRIPTION=
+DISPLAYTEXT=Tutorial Application Resources
+IMAGE=
+DEFSELECTION=Yes
+filegroup0=FarmGameAppRes
+COMMENT=
+INCLUDEINBUILD=Yes
+INSTALLATION=ALWAYSOVERWRITE
+COMPRESSIFSEPARATE=No
+MISC=
+ENCRYPT=No
+DISK=ANYDISK
+TARGETDIRCDROM=
+PASSWORD=
+TARGETHIDDEN=Script-defined Folders\<szUserTutorialAppRes>
+

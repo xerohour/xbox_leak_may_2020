@@ -1,0 +1,59 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+TARGETNAME=hwtest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=main.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\hardware\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0x103be6d2 /TESTNAME:"Xbox Hardware Test"
+
+TARGETLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\harnesslib.lib \
+           $(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xtestlib.lib \
+           $(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xlog.lib \
+           $(BASEDIR)\private\test\lib\*\ghprof.lib \
+           $(SDK_LIB_PATH)\xnet$(D).lib \
+           $(SDK_LIB_PATH)\d3d8$(D).lib \
+           $(SDK_LIB_PATH)\xgraphics$(D).lib \
+           $(LIBC_LIB) \
+           $(TESTMODULES)
+
+TESTMODULES=$(TESTLIBS)\memsize.lib \
+            $(TESTLIBS)\memtest.lib \
+            $(TESTLIBS)\speedtest.lib \
+            $(TESTLIBS)\disktest.lib \
+            $(TESTLIBS)\floatpt.lib \
+            $(TESTLIBS)\cpuid.lib \
+            $(TESTLIBS)\msr.lib \
+            $(BASEDIR)\private\test\lib\*\launcher.lib

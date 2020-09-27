@@ -1,0 +1,6 @@
+#define IDS_XBCP_ERROR   1001
+#define IDS_XBCP_WARNING 1002
+#define IDS_UNKOPT       1003
+#define IDS_EXTARG       1004
+#define IDS_BADFILEARGS  1005
+#define IDS_GENERICERR   1006

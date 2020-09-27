@@ -1,0 +1,885 @@
+// this file contains all of the settings pages (except the debugger ones and the build options page) for the VC Project System
+
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+// interfaces in this IDL file
+interface IVCProjectConfigurationSettings;
+interface IVCGeneralMakefileSettings;
+interface IVCGeneralFileConfigurationSettings;
+interface IVCCLCompilerOptimizationPage;
+interface IVCCLCompilerPreProcessorPage;
+interface IVCCLCompilerAdvancedPage;
+interface IVCCLCompilerCodeGenPage;
+interface IVCCLCompilerLanguagePage;
+interface IVCCLCompilerPCHPage;
+interface IVCCLCompilerOutputPage;
+interface IVCCLCompilerBrowsePage;
+interface IVCCLCompilerGeneralPage;
+interface IVCLinkerGeneralPage;
+interface IVCLinkerInputPage;
+interface IVCLinkerDebugPage;
+interface IVCLinkerSystemPage;
+interface IVCLinkerOptimizationPage;
+interface IVCLinkerAdvancedPage;
+interface IVCLibrarianPage;
+interface IVCCustomBuildPage;
+interface IVCMidlGeneralPage;
+interface IVCMidlOutputPage;
+interface IVCMidlAdvancedPage;
+interface IVCResourceCompilerPage;
+interface IVCPreBuildEventPage;
+interface IVCPreLinkEventPage;
+interface IVCPostBuildEventPage;
+interface IVCBscMakePage;
+interface IVCNMakePage;
+interface IVCWebServiceGeneralPage;
+interface IVCWebDeploymentGeneralPage;
+interface IXboxDeploymentGeneralPage;
+interface IXboxImageGeneralPage;
+interface IXboxImageCertificatePage;
+interface IXboxImageTitleInfoPage;
+
+#define GUID_MULTIEDIT EA370ABF-D677-11D2-8D1B-00C04F8EEA30
+cpp_quote("extern \"C\" const __declspec(selectany) GUID GUID_MULTIEDIT = { 0xEA370ABF, 0xD677, 0x11D2, { 0x8D, 0x1B, 0x0, 0xc0, 0x4f, 0x8e, 0xea, 0x30 } };")
+
+
+[
+	object,
+	uuid(625C649D-2C7E-11D3-87BF-A0494CC10001),
+	helpstring("VCConfiguration"),
+	dual,
+	pointer_default(unique)
+]
+interface IVCProjectConfigurationSettings : IDispatch
+{
+	[propget, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([out, retval] BSTR *pVal);
+	[propput, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([in] BSTR newVal);
+	[propget, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([out, retval] BSTR *pVal);
+	[propput, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([in] BSTR newVal);
+	[propget, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([out, retval] ConfigurationTypes* pconfigType);		// configuration type: application, DLL, etc.
+	[propput, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([in] ConfigurationTypes configType);
+	[propget, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([out, retval] VARIANT_BOOL* pbBsc);	// build .bsc file
+	[propput, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([in] VARIANT_BOOL bBsc);
+	[propget, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([out, retval] useOfMfc* useMfc);	// how are we using MFC?
+	[propput, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([in] useOfMfc useMfc);
+	[propget, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([out, retval] useOfATL* useATL);	// how are we using ATL?
+	[propput, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([in] useOfATL useATL);
+	[propget, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([out, retval] VARIANT_BOOL* pbUseCRT);	// does the user want to link with the static or dynamic CRT?
+	[propput, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([in] VARIANT_BOOL bUseCRT);
+	[propget, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([out, retval] charSet* poptSetting);	// character set to use: Unicode, MBCS, default
+	[propput, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([in] charSet optSetting);
+	[propget, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([out, retval] VARIANT_BOOL* bManaged);	// is this a managed extensions project?
+	[propput, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([in] VARIANT_BOOL bManaged);
+	[propget, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([out, retval] BSTR* pbstrExt);	// wildcard extension list to delete on clean/rebuild from within the intermediate directory
+	[propput, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([in] BSTR bstrExt);
+	[propget, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([out, retval] VARIANT_BOOL* pbOptimized);	// perform whole program optimization on build; more or less requires optimization turned on to be effective
+	[propput, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([in] VARIANT_BOOL bOptimize);
+};
+
+[
+	object,
+	uuid(625C649E-2C7E-11D3-87BF-A0494CC10001),
+	helpstring("VCGeneralMakefileSettings"),
+	dual,
+	pointer_default(unique)
+]
+interface IVCGeneralMakefileSettings : IDispatch
+{
+	[propget, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([out, retval] ConfigurationTypes* pconfigType);		// configuration type: application, DLL, etc.
+	[propput, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([in] ConfigurationTypes configType);
+};
+
+[
+	object,
+	uuid(A54AAE8A-30C2-11D3-87BF-A04A4CC10001),
+	dual,
+	helpstring("VCFileConfiguration"),
+	pointer_default(unique)
+]
+interface IVCGeneralFileConfigurationSettings : IDispatch
+{
+	[propget, id(VCFCFGID_ExcludedFromBuild), helpstringcontext(VCFCFGID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] VARIANT_BOOL* pbExcludedFromBuild);
+	[propput, id(VCFCFGID_ExcludedFromBuild), helpstringcontext(VCFCFGID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] VARIANT_BOOL bExcludedFromBuild);
+	[propget, id(VCFCFGID_Tool), helpstringcontext(VCFCFGID_Tool)] HRESULT Tool([out, retval] int *pVal);
+	[propput, id(VCFCFGID_Tool), helpstringcontext(VCFCFGID_Tool)] HRESULT Tool([in] int newVal);
+};
+
+/***************************************************************************/
+
+[
+	object,
+	uuid(3DC89BC3-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerOptimizationPage : IDispatch 
+{
+	[propget, id(VCCLID_Optimization), helpstringcontext(VCCLID_Optimization)] HRESULT Optimization([out, retval] optimizeOption* poptSetting);	// see optimizeOption enum (/O1, /O2, /Od, /Ox)
+	[propput, id(VCCLID_Optimization), helpstringcontext(VCCLID_Optimization)] HRESULT Optimization([in] optimizeOption optSetting);
+	[propget, id(VCCLID_GlobalOptimizations), helpstringcontext(VCCLID_GlobalOptimizations)] HRESULT GlobalOptimizations([out, retval] enumGlobalOptimizationsBOOL* pbGlobalOpt);	// (/Og, /Og-) enable/disable global optimizations; incompatible with all RTC options, GZ, ZI, EEf
+	[propput, id(VCCLID_GlobalOptimizations), helpstringcontext(VCCLID_GlobalOptimizations)] HRESULT GlobalOptimizations([in] enumGlobalOptimizationsBOOL bGlobalOpt);
+	[propget, id(VCCLID_InlineFunctionExpansion), helpstringcontext(VCCLID_InlineFunctionExpansion)] HRESULT InlineFunctionExpansion([out, retval] inlineExpansionOption* poptSetting);	// see inlineExpansionOption enum (/Ob0, /Ob1, /Ob2)
+	[propput, id(VCCLID_InlineFunctionExpansion), helpstringcontext(VCCLID_InlineFunctionExpansion)] HRESULT InlineFunctionExpansion([in] inlineExpansionOption optSetting);
+	[propget, id(VCCLID_EnableIntrinsicFunctions), helpstringcontext(VCCLID_EnableIntrinsicFunctions)] HRESULT EnableIntrinsicFunctions([out, retval] enumEnableIntrinsicFunctionsBOOL* pbEnableIntrinsic);	// (/Oi, /Oi-) enable/disable intrinsic functions; works best with /Og
+	[propput, id(VCCLID_EnableIntrinsicFunctions), helpstringcontext(VCCLID_EnableIntrinsicFunctions)] HRESULT EnableIntrinsicFunctions([in] enumEnableIntrinsicFunctionsBOOL bEnableIntrinsic);
+	[propget, id(VCCLID_ImproveFloatingPointConsistency), helpstringcontext(VCCLID_ImproveFloatingPointConsistency)] HRESULT ImproveFloatingPointConsistency([out, retval] enumImproveFloatingPointConsistencyBOOL* pbImproveFloat);	// (/Op, /Op-) (don't) improve floating-point consistency
+	[propput, id(VCCLID_ImproveFloatingPointConsistency), helpstringcontext(VCCLID_ImproveFloatingPointConsistency)] HRESULT ImproveFloatingPointConsistency([in] enumImproveFloatingPointConsistencyBOOL bImproveFloat);
+	[propget, id(VCCLID_FavorSizeOrSpeed), helpstringcontext(VCCLID_FavorSizeOrSpeed)] HRESULT FavorSizeOrSpeed([out, retval] favorSizeOrSpeedOption* poptSetting);	// (/Os, Ot) favor size/speed; works best with /Og
+	[propput, id(VCCLID_FavorSizeOrSpeed), helpstringcontext(VCCLID_FavorSizeOrSpeed)] HRESULT FavorSizeOrSpeed([in] favorSizeOrSpeedOption optSetting);
+	[propget, id(VCCLID_OmitFramePointers), helpstringcontext(VCCLID_OmitFramePointers)] HRESULT OmitFramePointers([out, retval] enumOmitFramePointersBOOL* poptSetting);	// (/Oy, Oy-) enable/disable frame pointer omission
+	[propput, id(VCCLID_OmitFramePointers), helpstringcontext(VCCLID_OmitFramePointers)] HRESULT OmitFramePointers([in] enumOmitFramePointersBOOL optSetting);
+	[propget, id(VCCLID_EnableFiberSafeOptimizations), helpstringcontext(VCCLID_EnableFiberSafeOptimizations)] HRESULT EnableFiberSafeOptimizations([out, retval] enumEnableFiberSafeOptimizationsBOOL* enable);	// (/GT) generate fiber-safe TLS accesses
+	[propput, id(VCCLID_EnableFiberSafeOptimizations), helpstringcontext(VCCLID_EnableFiberSafeOptimizations)] HRESULT EnableFiberSafeOptimizations([in] enumEnableFiberSafeOptimizationsBOOL enable);
+	[propget, id(VCCLID_OptimizeForProcessor), helpstringcontext(VCCLID_OptimizeForProcessor)] HRESULT OptimizeForProcessor([out, retval] ProcessorOptimizeOption* poptSetting);	// see ProcessorOptimizeOption enum (/G5, /G6, /GB)
+	[propput, id(VCCLID_OptimizeForProcessor), helpstringcontext(VCCLID_OptimizeForProcessor)] HRESULT OptimizeForProcessor([in] ProcessorOptimizeOption optSetting);
+	[propget, id(VCCLID_OptimizeForWindowsApplication), helpstringcontext(VCCLID_OptimizeForWindowsApplication)] HRESULT OptimizeForWindowsApplication([out, retval] enumOptimizeForWindowsApplicationBOOL* poptSetting);	// optimize for Windows app (/GA)
+	[propput, id(VCCLID_OptimizeForWindowsApplication), helpstringcontext(VCCLID_OptimizeForWindowsApplication)] HRESULT OptimizeForWindowsApplication([in] enumOptimizeForWindowsApplicationBOOL optSetting);
+};
+
+[
+	object,
+	uuid(3DC89BC4-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerPreProcessorPage : IDispatch 
+{
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_PreprocessorDefinitions), helpstringcontext(VCCLID_PreprocessorDefinitions)] HRESULT PreprocessorDefinitions([out, retval] BSTR* pbstrDefines);		// (/D[name]) defines, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_PreprocessorDefinitions), helpstringcontext(VCCLID_PreprocessorDefinitions)] HRESULT PreprocessorDefinitions([in] BSTR bstrDefines);
+	[propget, id(VCCLID_IgnoreStandardIncludePath), helpstringcontext(VCCLID_IgnoreStandardIncludePath)] HRESULT IgnoreStandardIncludePath([out, retval] enumIgnoreStandardIncludePathBOOL* pbIgnoreInclPath);	// (/X) ignore standard include path
+	[propput, id(VCCLID_IgnoreStandardIncludePath), helpstringcontext(VCCLID_IgnoreStandardIncludePath)] HRESULT IgnoreStandardIncludePath([in] enumIgnoreStandardIncludePathBOOL bIgnoreInclPath);
+	[propget, id(VCCLID_GeneratePreprocessedFile), helpstringcontext(VCCLID_GeneratePreprocessedFile)] HRESULT GeneratePreprocessedFile([out, retval] preprocessOption* poptSetting);	// see preprocessOption enum (/P, /EP /P)
+	[propput, id(VCCLID_GeneratePreprocessedFile), helpstringcontext(VCCLID_GeneratePreprocessedFile)] HRESULT GeneratePreprocessedFile([in] preprocessOption optSetting);
+	[propget, id(VCCLID_KeepComments), helpstringcontext(VCCLID_KeepComments)] HRESULT KeepComments([out, retval] enumKeepCommentsBOOL* pbkeepComments);	// (/C) don't strip comments, requires one of /E, /EP, /P switches
+	[propput, id(VCCLID_KeepComments), helpstringcontext(VCCLID_KeepComments)] HRESULT KeepComments([in] enumKeepCommentsBOOL bkeepComments);
+};
+
+[
+	object,
+	uuid(3DC89BC5-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerAdvancedPage : IDispatch 
+{
+	[propget, id(VCCLID_CallingConvention), helpstringcontext(VCCLID_CallingConvention)] HRESULT CallingConvention([out, retval] callingConventionOption* poptSetting);	// see callingConventionOption enum (/Gd, /Gr, /Gz)
+	[propput, id(VCCLID_CallingConvention), helpstringcontext(VCCLID_CallingConvention)] HRESULT CallingConvention([in] callingConventionOption optSetting);
+	[propget, id(VCCLID_CompileAs), helpstringcontext(VCCLID_CompileAs)] HRESULT CompileAs([out, retval] CompileAsOptions* pcompileAs);	// see CompileAsOptions enum (/TC, /TP; /Tc, /Tp)
+	[propput, id(VCCLID_CompileAs), helpstringcontext(VCCLID_CompileAs)] HRESULT CompileAs([in] CompileAsOptions compileAs);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_DisableSpecificWarnings), helpstringcontext(VCCLID_DisableSpecificWarnings)] HRESULT DisableSpecificWarnings([out, retval] BSTR* pbstrWarnings);		// (/Wd<warn>) disable specific warnings (multi-prop)
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_DisableSpecificWarnings), helpstringcontext(VCCLID_DisableSpecificWarnings)] HRESULT DisableSpecificWarnings([in] BSTR bstrWarnings);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_ForcedIncludeFiles), helpstringcontext(VCCLID_ForcedIncludeFiles)] HRESULT ForcedIncludeFiles([out, retval] BSTR* pbstrName);	// (/FI![name]) name forced include file, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_ForcedIncludeFiles), helpstringcontext(VCCLID_ForcedIncludeFiles)] HRESULT ForcedIncludeFiles([in] BSTR bstrName);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_ForcedUsingFiles), helpstringcontext(VCCLID_ForcedUsingFiles)] HRESULT ForcedUsingFiles([out, retval] BSTR* pbstrName);	// (/FU![name]) name forced #using file, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_ForcedUsingFiles), helpstringcontext(VCCLID_ForcedUsingFiles)] HRESULT ForcedUsingFiles([in] BSTR bstrName);
+	[propget, id(VCCLID_ShowIncludes), helpstringcontext(VCCLID_ShowIncludes)] HRESULT ShowIncludes([out, retval] enumShowIncludesBOOL* pbShowInc);	// (/showIncludes)
+	[propput, id(VCCLID_ShowIncludes), helpstringcontext(VCCLID_ShowIncludes)] HRESULT ShowIncludes([in] enumShowIncludesBOOL bShowInc);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_UndefinePreprocessorDefinitions), helpstringcontext(VCCLID_UndefinePreprocessorDefinitions)] HRESULT UndefinePreprocessorDefinitions([out, retval] BSTR* pbstrUndefines);	// (/U[name]) undefine predefined macro, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_UndefinePreprocessorDefinitions), helpstringcontext(VCCLID_UndefinePreprocessorDefinitions)] HRESULT UndefinePreprocessorDefinitions([in] BSTR bstrUndefines);	
+	[propget, id(VCCLID_UndefineAllPreprocessorDefinitions), helpstringcontext(VCCLID_UndefineAllPreprocessorDefinitions)] HRESULT UndefineAllPreprocessorDefinitions([out, retval] enumUndefineAllPreprocessorDefinitionsBOOL* pbPredefinedMacros);	// (/u) undefine all predefined macros 
+	[propput, id(VCCLID_UndefineAllPreprocessorDefinitions), helpstringcontext(VCCLID_UndefineAllPreprocessorDefinitions)] HRESULT UndefineAllPreprocessorDefinitions([in] enumUndefineAllPreprocessorDefinitionsBOOL bPredefinedMacros);
+};
+
+[
+	object,
+	uuid(3DC89BC7-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerCodeGenPage : IDispatch 
+{
+	// Code Generation; /MP, /MPlowpri deliberately left out (since we require /FD or /Gm to be thrown)
+	[propget, id(VCCLID_StringPooling), helpstringcontext(VCCLID_StringPooling)] HRESULT StringPooling([out, retval] enumStringPoolingBOOL* poptSetting);	// (/GF) enable read-only string pooling
+	[propput, id(VCCLID_StringPooling), helpstringcontext(VCCLID_StringPooling)] HRESULT StringPooling([in] enumStringPoolingBOOL optSetting);
+	[propget, id(VCCLID_MinimalRebuild), helpstringcontext(VCCLID_MinimalRebuild)] HRESULT MinimalRebuild([out, retval] enumMinimalRebuildBOOL* pbMinimalRebuild);	// (/Gm, /FD) enable minimal rebuild vs. generate dependencies, /Gm requires /ZI or /Zi
+	[propput, id(VCCLID_MinimalRebuild), helpstringcontext(VCCLID_MinimalRebuild)] HRESULT MinimalRebuild([in] enumMinimalRebuildBOOL bMinimalRebuild);
+	[propget, id(VCCLID_ExceptionHandling), helpstringcontext(VCCLID_ExceptionHandling)] HRESULT ExceptionHandling([out, retval] enumExceptionHandlingBOOL* poptSetting);	// enable C++ EH (/EHsc)
+	[propput, id(VCCLID_ExceptionHandling), helpstringcontext(VCCLID_ExceptionHandling)] HRESULT ExceptionHandling([in] enumExceptionHandlingBOOL optSetting);
+	[propget, id(VCCLID_SmallerTypeCheck), helpstringcontext(VCCLID_SmallerTypeCheck)] HRESULT SmallerTypeCheck([out, retval] enumSmallerTypeCheckBOOL* pbSmallerType);	// (/RTCc) convert to smaller types check, incompatible with Og, O1, O2, Ox
+	[propput, id(VCCLID_SmallerTypeCheck), helpstringcontext(VCCLID_SmallerTypeCheck)] HRESULT SmallerTypeCheck([in] enumSmallerTypeCheckBOOL bSmallerType);
+	[propget, id(VCCLID_BasicRuntimeChecks), helpstringcontext(VCCLID_BasicRuntimeChecks)] HRESULT BasicRuntimeChecks([out, retval] basicRuntimeCheckOption* poptSetting);	// basic runtime checks (/RTCs, /RTCu, /RTC1)
+	[propput, id(VCCLID_BasicRuntimeChecks), helpstringcontext(VCCLID_BasicRuntimeChecks)] HRESULT BasicRuntimeChecks([in] basicRuntimeCheckOption optSetting);
+	[propget, id(VCCLID_RuntimeLibrary), helpstringcontext(VCCLID_RuntimeLibrary)] HRESULT RuntimeLibrary([out, retval] runtimeLibraryOption* poptSetting);	// see runtimeLibraryOption enum (/MD, /MDd, /ML, /MLd, /MT, /MTd)
+	[propput, id(VCCLID_RuntimeLibrary), helpstringcontext(VCCLID_RuntimeLibrary)] HRESULT RuntimeLibrary([in] runtimeLibraryOption optSetting);
+	[propget, id(VCCLID_StructMemberAlignment), helpstringcontext(VCCLID_StructMemberAlignment)] HRESULT StructMemberAlignment([out, retval] structMemberAlignOption* poptSetting);	// see structMemberAlignOption enum (/Zp[num])
+	[propput, id(VCCLID_StructMemberAlignment), helpstringcontext(VCCLID_StructMemberAlignment)] HRESULT StructMemberAlignment([in] structMemberAlignOption optSetting);
+	[propget, id(VCCLID_BufferSecurityCheck), helpstringcontext(VCCLID_BufferSecurityCheck)] HRESULT BufferSecurityCheck([out, retval] enumBufferSecurityCheckBOOL* bSecure);	// (/GS) enable buffer overrun checks; buffer security from hackers
+	[propput, id(VCCLID_BufferSecurityCheck), helpstringcontext(VCCLID_BufferSecurityCheck)] HRESULT BufferSecurityCheck([in] enumBufferSecurityCheckBOOL bSecure);
+	[propget, id(VCCLID_EnableFunctionLevelLinking), helpstringcontext(VCCLID_EnableFunctionLevelLinking)] HRESULT EnableFunctionLevelLinking([out, retval] enumEnableFunctionLevelLinkingBOOL* enable);	// (/Gy) enable function level linking (no explicit off)
+	[propput, id(VCCLID_EnableFunctionLevelLinking), helpstringcontext(VCCLID_EnableFunctionLevelLinking)] HRESULT EnableFunctionLevelLinking([in] enumEnableFunctionLevelLinkingBOOL enable);
+};
+
+[
+	object,
+	uuid(3DC89BC8-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerLanguagePage : IDispatch 
+{
+	// Language
+	[propget, id(VCCLID_DisableLanguageExtensions), helpstringcontext(VCCLID_DisableLanguageExtensions)] HRESULT DisableLanguageExtensions([out, retval] enumDisableLanguageExtensionsBOOL* pbDisableExtensions);	// (/Za, /Ze) disable/enable language extensions (/Ze default)
+	[propput, id(VCCLID_DisableLanguageExtensions), helpstringcontext(VCCLID_DisableLanguageExtensions)] HRESULT DisableLanguageExtensions([in] enumDisableLanguageExtensionsBOOL bDisableExtensions);
+	[propget, id(VCCLID_DefaultCharIsUnsigned), helpstringcontext(VCCLID_DefaultCharIsUnsigned)] HRESULT DefaultCharIsUnsigned([out, retval] enumDefaultCharIsUnsignedBOOL* pbIsUnsigned);	// (/J) default char type is unsigned
+	[propput, id(VCCLID_DefaultCharIsUnsigned), helpstringcontext(VCCLID_DefaultCharIsUnsigned)] HRESULT DefaultCharIsUnsigned([in] enumDefaultCharIsUnsignedBOOL bIsUnsigned);
+	[propget, id(VCCLID_TreatWChar_tAsBuiltInType), helpstringcontext(VCCLID_TreatWChar_tAsBuiltInType)] HRESULT TreatWChar_tAsBuiltInType([out, retval] enumTreatWChar_tAsBuiltInTypeBOOL* pbBuiltInType);	// (/Zc:wchar_t) treat wchar_t as built-in type
+	[propput, id(VCCLID_TreatWChar_tAsBuiltInType), helpstringcontext(VCCLID_TreatWChar_tAsBuiltInType)] HRESULT TreatWChar_tAsBuiltInType([in] enumTreatWChar_tAsBuiltInTypeBOOL bBuiltInType);
+	[propget, id(VCCLID_ForceConformanceInForLoopScope), helpstringcontext(VCCLID_ForceConformanceInForLoopScope)] HRESULT ForceConformanceInForLoopScope([out, retval] enumForceConformanceInForLoopScopeBOOL* pbConformance);	// (/Zc:forScope) check for conformance of vars for 'for' scope
+	[propput, id(VCCLID_ForceConformanceInForLoopScope), helpstringcontext(VCCLID_ForceConformanceInForLoopScope)] HRESULT ForceConformanceInForLoopScope([in] enumForceConformanceInForLoopScopeBOOL bConformance);
+	[propget, id(VCCLID_RuntimeTypeInfo), helpstringcontext(VCCLID_RuntimeTypeInfo)] HRESULT RuntimeTypeInfo([out, retval] enumRTTIBOOL* pbRTTI);	// (/GR, /GR-) enable/disable C++ RTTI
+	[propput, id(VCCLID_RuntimeTypeInfo), helpstringcontext(VCCLID_RuntimeTypeInfo)] HRESULT RuntimeTypeInfo([in] enumRTTIBOOL bRTTI);
+};
+
+[
+	object,
+	uuid(3DC89BC9-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerPCHPage : IDispatch 
+{
+	// Precompiled Headers
+	[propget, id(VCCLID_UsePrecompiledHeader), helpstringcontext(VCCLID_UsePrecompiledHeader)] HRESULT UsePrecompiledHeader([out, retval] pchOption* poptSetting);	// see pchOption enum (/Yc, /YX)
+	[propput, id(VCCLID_UsePrecompiledHeader), helpstringcontext(VCCLID_UsePrecompiledHeader)] HRESULT UsePrecompiledHeader([in] pchOption optSetting);
+	[propget, id(VCCLID_PrecompiledHeaderThrough), helpstringcontext(VCCLID_PrecompiledHeaderThrough)] HRESULT PrecompiledHeaderThrough([out, retval] BSTR* pbstrFile);	// optional argument to UsePrecompiledHeader property specifying file to use to generate/use PCH
+	[propput, id(VCCLID_PrecompiledHeaderThrough), helpstringcontext(VCCLID_PrecompiledHeaderThrough)] HRESULT PrecompiledHeaderThrough([in] BSTR bstrFile);
+	[propget, id(VCCLID_PrecompiledHeaderFile), helpstringcontext(VCCLID_PrecompiledHeaderFile)] HRESULT PrecompiledHeaderFile([out, retval] BSTR* pbstrPCH);	// (/Fp[name]) name the precompiled header file, can be directory location or leave off .pch extension
+	[propput, id(VCCLID_PrecompiledHeaderFile), helpstringcontext(VCCLID_PrecompiledHeaderFile)] HRESULT PrecompiledHeaderFile([in] BSTR bstrPCH);
+};
+
+[
+	object,
+	uuid(3DC89BCA-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerOutputPage : IDispatch 
+{
+	// Output Files; /Fe deliberately left out
+	[propget, id(VCCLID_ExpandAttributedSource), helpstringcontext(VCCLID_ExpandAttributedSource)] HRESULT ExpandAttributedSource([out, retval] enumExpandAttributedSourceBOOL* pbExpandAttributedSource);	// (/Fx) expand attributed source code into a listing file (<file>.mrg.cpp)
+	[propput, id(VCCLID_ExpandAttributedSource), helpstringcontext(VCCLID_ExpandAttributedSource)] HRESULT ExpandAttributedSource([in] enumExpandAttributedSourceBOOL pExpandAttributedSource);
+	[propget, id(VCCLID_AssemblerOutput), helpstringcontext(VCCLID_AssemblerOutput)] HRESULT AssemblerOutput([out, retval] asmListingOption* poptSetting);	// see asmListingOption enum (/FA, /FAc, /FAs, /FAcs)
+	[propput, id(VCCLID_AssemblerOutput), helpstringcontext(VCCLID_AssemblerOutput)] HRESULT AssemblerOutput([in] asmListingOption optSetting);
+	[propget, id(VCCLID_AssemblerListingLocation), helpstringcontext(VCCLID_AssemblerListingLocation)] HRESULT AssemblerListingLocation([out, retval] BSTR* pbstrName);	// (/Fa[name]) specify directory and/or name for listing file from AssemblerOutput property
+	[propput, id(VCCLID_AssemblerListingLocation), helpstringcontext(VCCLID_AssemblerListingLocation)] HRESULT AssemblerListingLocation([in] BSTR bstrName);
+	[propget, id(VCCLID_ObjectFile), helpstringcontext(VCCLID_ObjectFile)] HRESULT ObjectFile([out, retval] BSTR* pbstrName);	// (/Fo[name]) name obj file
+	[propput, id(VCCLID_ObjectFile), helpstringcontext(VCCLID_ObjectFile)] HRESULT ObjectFile([in] BSTR bstrName);
+	[propget, id(VCCLID_ProgramDataBaseFileName), helpstringcontext(VCCLID_ProgramDataBaseFileName)] HRESULT ProgramDataBaseFileName([out, retval] BSTR* pbstrName);	// (/Fd[file]) name PDB file.  can be directory name
+	[propput, id(VCCLID_ProgramDataBaseFileName), helpstringcontext(VCCLID_ProgramDataBaseFileName)] HRESULT ProgramDataBaseFileName([in] BSTR bstrName);
+};
+
+[
+	object,
+	uuid(3DC89BCC-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerBrowsePage : IDispatch 
+{
+	[propget, id(VCCLID_BrowseInformation), helpstringcontext(VCCLID_BrowseInformation)] HRESULT BrowseInformation([out, retval] browseInfoOption* poptSetting);	// see browseInfoOption enum, (/FR[name], /Fr[name])
+	[propput, id(VCCLID_BrowseInformation), helpstringcontext(VCCLID_BrowseInformation)] HRESULT BrowseInformation([in] browseInfoOption optSetting);
+	[propget, id(VCCLID_BrowseInformationFile), helpstringcontext(VCCLID_BrowseInformationFile)] HRESULT BrowseInformationFile([out, retval] BSTR* pbstrFile);		// optional name to go with BrowseInformation property
+	[propput, id(VCCLID_BrowseInformationFile), helpstringcontext(VCCLID_BrowseInformationFile)] HRESULT BrowseInformationFile([in] BSTR bstrFile);
+};
+
+[
+	object,
+	uuid(3DC89BCD-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCLCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCLCompilerGeneralPage : IDispatch 
+{
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_AdditionalIncludeDirectories), helpstringcontext(VCCLID_AdditionalIncludeDirectories)] HRESULT AdditionalIncludeDirectories([out, retval] BSTR* pbstrIncludePath);	// (/I![path]) directory to add to include path, may have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_AdditionalIncludeDirectories), helpstringcontext(VCCLID_AdditionalIncludeDirectories)] HRESULT AdditionalIncludeDirectories([in] BSTR bstrIncludePath);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCLID_AdditionalUsingDirectories), helpstringcontext(VCCLID_AdditionalUsingDirectories)] HRESULT AdditionalUsingDirectories([out, retval] BSTR* pbstrIncludePath);	// (/AI![path]) directory to add to LIBPATH, may have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCLID_AdditionalUsingDirectories), helpstringcontext(VCCLID_AdditionalUsingDirectories)] HRESULT AdditionalUsingDirectories([in] BSTR bstrIncludePath);
+	[propget, id(VCCLID_DebugInformationFormat), helpstringcontext(VCCLID_DebugInformationFormat)] HRESULT DebugInformationFormat([out, retval] debugOption* poptSetting);	// see debugOption enum (/Z7, Zd, /ZI, /Zi)
+	[propput, id(VCCLID_DebugInformationFormat), helpstringcontext(VCCLID_DebugInformationFormat)] HRESULT DebugInformationFormat([in] debugOption optSetting);
+	[propget, id(VCCLID_CompileAsManaged), helpstringcontext(VCCLID_CompileAsManaged)] HRESULT CompileAsManaged([out, retval] compileAsManagedOptions* poptSetting);	// (/clr[:noAssembly])
+	[propput, id(VCCLID_CompileAsManaged), helpstringcontext(VCCLID_CompileAsManaged)] HRESULT CompileAsManaged([in] compileAsManagedOptions optSetting);
+	[propget, id(VCCLID_SuppressStartupBanner), helpstringcontext(VCCLID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([out, retval] enumSuppressStartupBannerBOOL* pbNoLogo);	// (/nologo, /nologo-) enable/disable suppression of copyright message
+	[propput, id(VCCLID_SuppressStartupBanner), helpstringcontext(VCCLID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([in] enumSuppressStartupBannerBOOL bNoLogo);
+	[propget, id(VCCLID_WarningLevel), helpstringcontext(VCCLID_WarningLevel)] HRESULT WarningLevel([out, retval] warningLevelOption* poptSetting);	// see warningLevelOption enum (/W0 - /W4)
+	[propput, id(VCCLID_WarningLevel), helpstringcontext(VCCLID_WarningLevel)] HRESULT WarningLevel([in] warningLevelOption optSetting);
+	[propget, id(VCCLID_Detect64BitPortabilityProblems), helpstringcontext(VCCLID_Detect64BitPortabilityProblems)] HRESULT Detect64BitPortabilityProblems([out, retval] enumDetect64BitPortabilityProblemsBOOL* pbDetect64BitPortabilityProblems);	// (/Wp64) detect 64 bit portability problems
+	[propput, id(VCCLID_Detect64BitPortabilityProblems), helpstringcontext(VCCLID_Detect64BitPortabilityProblems)] HRESULT Detect64BitPortabilityProblems([in] enumDetect64BitPortabilityProblemsBOOL bDetect64BitPortabilityProblems);
+	[propget, id(VCCLID_WarnAsError), helpstringcontext(VCCLID_WarnAsError)] HRESULT WarnAsError([out, retval] enumWarnAsErrorBOOL* pbWarnAsError);	// (/WX, /WX-) treat warnings as errors
+	[propput, id(VCCLID_WarnAsError), helpstringcontext(VCCLID_WarnAsError)] HRESULT WarnAsError([in] enumWarnAsErrorBOOL bWarnAsError);
+};
+
+[
+	object,
+	uuid(3DC89BD0-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerGeneralPage : IDispatch
+{
+	// general
+	[propget, id(VCLINKID_OutputFile), helpstringcontext(VCLINKID_OutputFile)] HRESULT OutputFile([out, retval] BSTR* pbstrOut);	// (/OUT:[file]) change the output file name (default is based on 1st lib or obj name on cmd line)
+	[propput, id(VCLINKID_OutputFile), helpstringcontext(VCLINKID_OutputFile)] HRESULT OutputFile([in] BSTR bstrOut);
+	[propget, id(VCLINKID_ShowProgress), helpstringcontext(VCLINKID_ShowProgress)] HRESULT ShowProgress([out, retval] linkProgressOption* poptSetting);	// see linkProgressOption enum (/VERBOSE)
+	[propput, id(VCLINKID_ShowProgress), helpstringcontext(VCLINKID_ShowProgress)] HRESULT ShowProgress([in] linkProgressOption optSetting);
+	[propget, id(VCLINKID_Version), helpstringcontext(VCLINKID_Version)] HRESULT Version([out, retval] BSTR* pbstrVersion);	// (/VERSION:major[.minor]) put this version number into header of created image
+	[propput, id(VCLINKID_Version), helpstringcontext(VCLINKID_Version)] HRESULT Version([in] BSTR bstrVersion);
+	[propget, id(VCLINKID_LinkIncremental), helpstringcontext(VCLINKID_LinkIncremental)] HRESULT LinkIncremental([out, retval] linkIncrementalType* poptSetting);	// (/INCREMENTAL:YES, /INCREMENTAL:NO, not set)
+	[propput, id(VCLINKID_LinkIncremental), helpstringcontext(VCLINKID_LinkIncremental)] HRESULT LinkIncremental([in] linkIncrementalType optSetting);
+	[propget, id(VCLINKID_SuppressStartupBanner), helpstringcontext(VCLINKID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([out, retval] enumSuppressStartupBannerUpBOOL* pbNoLogo);	// (/NOLOGO) enable suppression of copyright message (no explicit off)
+	[propput, id(VCLINKID_SuppressStartupBanner), helpstringcontext(VCLINKID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([in] enumSuppressStartupBannerUpBOOL bNoLogo);
+	[propget, id(VCLINKID_IgnoreImportLibrary), helpstringcontext(VCLINKID_IgnoreImportLibrary)] HRESULT IgnoreImportLibrary([out, retval] enumBOOL* pbIgnoreExportLib);	// ignore any export lib created
+	[propput, id(VCLINKID_IgnoreImportLibrary), helpstringcontext(VCLINKID_IgnoreImportLibrary)] HRESULT IgnoreImportLibrary([in] enumBOOL bIgnoreExportLib);
+	[propget, id(VCLINKID_RegisterOutput), helpstringcontext(VCLINKID_RegisterOutput)] HRESULT RegisterOutput([out, retval] enumBOOL* pbRegister);	// register the primary output of the build
+	[propput, id(VCLINKID_RegisterOutput), helpstringcontext(VCLINKID_RegisterOutput)] HRESULT RegisterOutput([in] enumBOOL bRegister);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_AdditionalLibraryDirectories), helpstringcontext(VCLINKID_AdditionalLibraryDirectories)] HRESULT AdditionalLibraryDirectories([out, retval] BSTR* pbstrLibPath);	// (/LIBPATH:[dir]) specify path to search for libraries on, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_AdditionalLibraryDirectories), helpstringcontext(VCLINKID_AdditionalLibraryDirectories)] HRESULT AdditionalLibraryDirectories([in] BSTR bstrLibPath);
+};
+
+[
+	object,
+	uuid(3DC89BD1-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerInputPage : IDispatch 
+{
+	// input
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_AdditionalDependencies), helpstringcontext(VCLINKID_AdditionalDependencies)] HRESULT AdditionalDependencies([out, retval] BSTR* pbstrDependencies);	// additional things to add to the link line (comdlg32.lib, etc.)
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_AdditionalDependencies), helpstringcontext(VCLINKID_AdditionalDependencies)] HRESULT AdditionalDependencies([in] BSTR bstrDependencies);
+	[propget, id(VCLINKID_IgnoreAllDefaultLibraries), helpstringcontext(VCLINKID_IgnoreAllDefaultLibraries)] HRESULT IgnoreAllDefaultLibraries([out, retval] enumIgnoreAllDefaultLibrariesBOOL* pbNoDefaults);	// (/NODEFAULTLIB) ignore all default libraries
+	[propput, id(VCLINKID_IgnoreAllDefaultLibraries), helpstringcontext(VCLINKID_IgnoreAllDefaultLibraries)] HRESULT IgnoreAllDefaultLibraries([in] enumIgnoreAllDefaultLibrariesBOOL bNoDefaults);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_IgnoreDefaultLibraryNames), helpstringcontext(VCLINKID_IgnoreDefaultLibraryNames)] HRESULT IgnoreDefaultLibraryNames([out, retval] BSTR* pbstrLib);	// (/NODEFAULTLIB:[name]) ignore particular default library, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_IgnoreDefaultLibraryNames), helpstringcontext(VCLINKID_IgnoreDefaultLibraryNames)] HRESULT IgnoreDefaultLibraryNames([in] BSTR bstrLib);
+	[propget, id(VCLINKID_ModuleDefinitionFile), helpstringcontext(VCLINKID_ModuleDefinitionFile)] HRESULT ModuleDefinitionFile([out, retval] BSTR* pbstrDefFile);	// (/DEF:file) use/specify module definition file
+	[propput, id(VCLINKID_ModuleDefinitionFile), helpstringcontext(VCLINKID_ModuleDefinitionFile)] HRESULT ModuleDefinitionFile([in] BSTR bstrDefFile);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_AddModuleNamesToAssembly), helpstringcontext(VCLINKID_AddModuleNamesToAssembly)] HRESULT AddModuleNamesToAssembly([out, retval] BSTR* pbstrNonAssy);	// (/ASSEMBLYMODULE:file) imports a non-assembly file
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_AddModuleNamesToAssembly), helpstringcontext(VCLINKID_AddModuleNamesToAssembly)] HRESULT AddModuleNamesToAssembly([in] BSTR bstrNonAssy);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_EmbedManagedResourceFile), helpstringcontext(VCLINKID_EmbedManagedResourceFile)] HRESULT EmbedManagedResourceFile([out, retval] BSTR* pbstrRes);	// (/ASSEMBLYRESOURCE:file) link an assembly resource file
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_EmbedManagedResourceFile), helpstringcontext(VCLINKID_EmbedManagedResourceFile)] HRESULT EmbedManagedResourceFile([in] BSTR bstrRes);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_ForceSymbolReferences), helpstringcontext(VCLINKID_ForceSymbolReferences)] HRESULT ForceSymbolReferences([out, retval] BSTR* pbstrSymbol);	// (/INCLUDE:[symbol]) force symbol reference, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_ForceSymbolReferences), helpstringcontext(VCLINKID_ForceSymbolReferences)] HRESULT ForceSymbolReferences([in] BSTR bstrSymbol);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLINKID_DelayLoadDLLs), helpstringcontext(VCLINKID_DelayLoadDLLs)] HRESULT DelayLoadDLLs([out, retval] BSTR* pbstrDLLName);	// (/DELAYLOAD:[dll_name]) delay load specified DLL, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLINKID_DelayLoadDLLs), helpstringcontext(VCLINKID_DelayLoadDLLs)] HRESULT DelayLoadDLLs([in] BSTR bstrDLLName);
+};
+
+[
+	object,
+	uuid(3DC89BD4-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerDebugPage : IDispatch 
+{
+	// debug
+	[propget, id(VCLINKID_GenerateDebugInformation), helpstringcontext(VCLINKID_GenerateDebugInformation)] HRESULT GenerateDebugInformation([out, retval] enumGenerateDebugInformationBOOL* pbDebug);	// (/DEBUG) generate debug info
+	[propput, id(VCLINKID_GenerateDebugInformation), helpstringcontext(VCLINKID_GenerateDebugInformation)] HRESULT GenerateDebugInformation([in] enumGenerateDebugInformationBOOL bDebug);
+	[propget, id(VCLINKID_ProgramDatabaseFile), helpstringcontext(VCLINKID_ProgramDatabaseFile)] HRESULT ProgramDatabaseFile([out, retval] BSTR* pbstrFile);	// (/PDB:file) use program database
+	[propput, id(VCLINKID_ProgramDatabaseFile), helpstringcontext(VCLINKID_ProgramDatabaseFile)] HRESULT ProgramDatabaseFile([in] BSTR bstrFile);
+	[propget, id(VCLINKID_StripPrivateSymbols), helpstringcontext(VCLINKID_StripPrivateSymbols)] HRESULT StripPrivateSymbols([out, retval] BSTR* pbstrStrippedPDB);	// (/PDBSTRIPPED) strip private symbols from PDB
+	[propput, id(VCLINKID_StripPrivateSymbols), helpstringcontext(VCLINKID_StripPrivateSymbols)] HRESULT StripPrivateSymbols([in] BSTR bstrStrippedPDB);
+	[propget, id(VCLINKID_GenerateMapFile), helpstringcontext(VCLINKID_GenerateMapFile)] HRESULT GenerateMapFile([out, retval] enumGenerateMapFileBOOL* pbMap);	// (/MAP[:file]) generate map file during linking
+	[propput, id(VCLINKID_GenerateMapFile), helpstringcontext(VCLINKID_GenerateMapFile)] HRESULT GenerateMapFile([in] enumGenerateMapFileBOOL bMap);
+	[propget, id(VCLINKID_MapFileName), helpstringcontext(VCLINKID_MapFileName)] HRESULT MapFileName([out, retval] BSTR* pbstrMapFile);	// optional argument to GenerateMapFile property
+	[propput, id(VCLINKID_MapFileName), helpstringcontext(VCLINKID_MapFileName)] HRESULT MapFileName([in] BSTR bstrMapFile);
+	[propget, id(VCLINKID_MapExports), helpstringcontext(VCLINKID_MapExports)] HRESULT MapExports([out, retval] enumMapExportsBOOL* pbExports);	// (/MAPINFO:EXPORTS) include exported functions in map info
+	[propput, id(VCLINKID_MapExports), helpstringcontext(VCLINKID_MapExports)] HRESULT MapExports([in] enumMapExportsBOOL bExports);
+	[propget, id(VCLINKID_MapLines), helpstringcontext(VCLINKID_MapLines)] HRESULT MapLines([out, retval] enumMapLinesBOOL* pbLines);	// (/MAPINFO:LINES) include line number info in map info
+	[propput, id(VCLINKID_MapLines), helpstringcontext(VCLINKID_MapLines)] HRESULT MapLines([in] enumMapLinesBOOL bLines);
+
+};
+
+[
+	object,
+	uuid(3DC89BD5-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerSystemPage : IDispatch 
+{
+	// System
+	[propget, id(VCLINKID_SubSystem), helpstringcontext(VCLINKID_SubSystem)] HRESULT SubSystem([out, retval] subSystemOption* poptSetting);	// see subSystemOption enum (/SUBSYSTEM)
+	[propput, id(VCLINKID_SubSystem), helpstringcontext(VCLINKID_SubSystem)] HRESULT SubSystem([in] subSystemOption optSetting);
+	[propget, id(VCLINKID_HeapReserveSize), helpstringcontext(VCLINKID_HeapReserveSize)] HRESULT HeapReserveSize([out, retval] long* pnReserveSize);	// (/HEAP:reserve[,commit]) total heap allocation size in virtual memory
+	[propput, id(VCLINKID_HeapReserveSize), helpstringcontext(VCLINKID_HeapReserveSize)] HRESULT HeapReserveSize([in] long nReserveSize);
+	[propget, id(VCLINKID_HeapCommitSize), helpstringcontext(VCLINKID_HeapCommitSize)] HRESULT HeapCommitSize([out, retval] long* pnCommitSize);	// (/HEAP:reserve[,commit]) total heap allocation size in physical memory
+	[propput, id(VCLINKID_HeapCommitSize), helpstringcontext(VCLINKID_HeapCommitSize)] HRESULT HeapCommitSize([in] long nCommitSize);
+	[propget, id(VCLINKID_StackReserveSize), helpstringcontext(VCLINKID_StackReserveSize)] HRESULT StackReserveSize([out, retval] long* pnReserveSize);	// (/STACK:reserve[,commit]) total stack allocation size in virtual memory
+	[propput, id(VCLINKID_StackReserveSize), helpstringcontext(VCLINKID_StackReserveSize)] HRESULT StackReserveSize([in] long nReserveSize);
+	[propget, id(VCLINKID_StackCommitSize), helpstringcontext(VCLINKID_StackCommitSize)] HRESULT StackCommitSize([out, retval] long* pnCommitSize);	// (/STACK:reserve[,commit]) total stack allocation size in physical memory
+	[propput, id(VCLINKID_StackCommitSize), helpstringcontext(VCLINKID_StackCommitSize)] HRESULT StackCommitSize([in] long nCommitSize);
+	[propget, id(VCLINKID_LargeAddressAware), helpstringcontext(VCLINKID_LargeAddressAware)] HRESULT LargeAddressAware([out, retval] addressAwarenessType* poptSetting);	// (/LARGEADDRESSAWARE[:NO]) tells the linker the app can handle addresses greater than 2GB
+	[propput, id(VCLINKID_LargeAddressAware), helpstringcontext(VCLINKID_LargeAddressAware)] HRESULT LargeAddressAware([in] addressAwarenessType optSetting);
+	[propget, id(VCLINKID_TerminalServerAware), helpstringcontext(VCLINKID_TerminalServerAware)] HRESULT TerminalServerAware([out, retval] termSvrAwarenessType* poptSetting);	// (/TSAWARE, /TSAWARE:NO, not set) not in docs
+	[propput, id(VCLINKID_TerminalServerAware), helpstringcontext(VCLINKID_TerminalServerAware)] HRESULT TerminalServerAware([in] termSvrAwarenessType optSetting);
+	[propget, id(VCLINKID_SwapRunFromCD), helpstringcontext(VCLINKID_SwapRunFromCD)] HRESULT SwapRunFromCD([out, retval] enumSwapRunFromCDBOOL* pbRun);	// swap swap run from CD (/SWAPRUN:CD)
+	[propput, id(VCLINKID_SwapRunFromCD), helpstringcontext(VCLINKID_SwapRunFromCD)] HRESULT SwapRunFromCD([in] enumSwapRunFromCDBOOL bRun);
+	[propget, id(VCLINKID_SwapRunFromNet), helpstringcontext(VCLINKID_SwapRunFromNet)] HRESULT SwapRunFromNet([out, retval] enumSwapRunFromNetBOOL* pbRun);	// swap swap run from the net (/SWAPRUN:NET)
+	[propput, id(VCLINKID_SwapRunFromNet), helpstringcontext(VCLINKID_SwapRunFromNet)] HRESULT SwapRunFromNet([in] enumSwapRunFromNetBOOL bRun);
+};
+
+[
+	object,
+	uuid(3DC89BD6-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerOptimizationPage : IDispatch 
+{
+	// optimization
+	[propget, id(VCLINKID_OptimizeReferences), helpstringcontext(VCLINKID_OptimizeReferences)] HRESULT OptimizeReferences([out, retval] optRefType* poptSetting);	// (/OPT:REF, /OPT:NOREF, not set) eliminate/keep functions & data never referenced
+	[propput, id(VCLINKID_OptimizeReferences), helpstringcontext(VCLINKID_OptimizeReferences)] HRESULT OptimizeReferences([in] optRefType optSetting);
+	[propget, id(VCLINKID_EnableCOMDATFolding), helpstringcontext(VCLINKID_EnableCOMDATFolding)] HRESULT EnableCOMDATFolding([out, retval] optFoldingType* poptSetting);	// (/OPT:ICF, /OPT:NOICF) eliminate/keep redundant COMDAT data (data folding)
+	[propput, id(VCLINKID_EnableCOMDATFolding), helpstringcontext(VCLINKID_EnableCOMDATFolding)] HRESULT EnableCOMDATFolding([in] optFoldingType optSetting);
+	[propget, id(VCLINKID_OptimizeForWindows98), helpstringcontext(VCLINKID_OptimizeForWindows98)] HRESULT OptimizeForWindows98([out, retval] optWin98Type* poptSetting);	// (/OPT:WIN98, /OPT:NOWIN98, not set) 
+	[propput, id(VCLINKID_OptimizeForWindows98), helpstringcontext(VCLINKID_OptimizeForWindows98)] HRESULT OptimizeForWindows98([in] optWin98Type optSetting);
+	[propget, id(VCLINKID_FunctionOrder), helpstringcontext(VCLINKID_FunctionOrder)] HRESULT FunctionOrder([out, retval] BSTR* pbstrOrder);	// (/ORDER:@[file]) place functions in order specified in file
+	[propput, id(VCLINKID_FunctionOrder), helpstringcontext(VCLINKID_FunctionOrder)] HRESULT FunctionOrder([in] BSTR bstrOrder);
+};
+
+[
+	object,
+	uuid(3DC89BD7-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerAdvancedPage : IDispatch 
+{
+	[propget, id(VCLINKID_EntryPointSymbol), helpstringcontext(VCLINKID_EntryPointSymbol)] HRESULT EntryPointSymbol([out, retval] BSTR* pbstrEntry);	// (/ENTRY:[symbol]) set entry point address for EXE or DLL; incompatible with /NOENTRY
+	[propput, id(VCLINKID_EntryPointSymbol), helpstringcontext(VCLINKID_EntryPointSymbol)] HRESULT EntryPointSymbol([in] BSTR bstrEntry);
+	[propget, id(VCLINKID_ResourceOnlyDLL), helpstringcontext(VCLINKID_ResourceOnlyDLL)] HRESULT ResourceOnlyDLL([out, retval] enumResourceOnlyDLLBOOL* pbNoEntry);	// (/NOENTRY) no entry point.  required for resource-only DLLs; incompatible with /ENTRY
+	[propput, id(VCLINKID_ResourceOnlyDLL), helpstringcontext(VCLINKID_ResourceOnlyDLL)] HRESULT ResourceOnlyDLL([in] enumResourceOnlyDLLBOOL bNoEntry);
+	[propget, id(VCLINKID_SetChecksum), helpstringcontext(VCLINKID_SetChecksum)] HRESULT SetChecksum([out, retval] enumSetChecksumBOOL* pbRelease);	// (/RELEASE) set the checksum in the header of a .exe
+	[propput, id(VCLINKID_SetChecksum), helpstringcontext(VCLINKID_SetChecksum)] HRESULT SetChecksum([in] enumSetChecksumBOOL bRelease);
+	[propget, id(VCLINKID_BaseAddress), helpstringcontext(VCLINKID_BaseAddress)] HRESULT BaseAddress([out, retval] BSTR* pbstrAddress);	// (/BASE:{address| filename,key}) base address to place program at; can be numeric or string
+	[propput, id(VCLINKID_BaseAddress), helpstringcontext(VCLINKID_BaseAddress)] HRESULT BaseAddress([in] BSTR bstrAddress);
+	[propget, id(VCLINKID_TurnOffAssemblyGeneration), helpstringcontext(VCLINKID_TurnOffAssemblyGeneration)] HRESULT TurnOffAssemblyGeneration([out, retval] enumTurnOffAssemblyGenerationBOOL* pbTurnOffAssemblyGeneration);	// (/NOASSEMBLY) cause the output file to be built without an assembly
+	[propput, id(VCLINKID_TurnOffAssemblyGeneration), helpstringcontext(VCLINKID_TurnOffAssemblyGeneration)] HRESULT TurnOffAssemblyGeneration([in] enumTurnOffAssemblyGenerationBOOL bTurnOffAssemblyGeneration);
+	[propget, id(VCLINKID_SupportUnloadOfDelayLoadedDLL), helpstringcontext(VCLINKID_SupportUnloadOfDelayLoadedDLL)] HRESULT SupportUnloadOfDelayLoadedDLL([out, retval] enumSupportUnloadOfDelayLoadedDLLBOOL* pbSupportUnload);	// (/DELAY:UNLOAD) use to allow explicit unloading of the DLL
+	[propput, id(VCLINKID_SupportUnloadOfDelayLoadedDLL), helpstringcontext(VCLINKID_SupportUnloadOfDelayLoadedDLL)] HRESULT SupportUnloadOfDelayLoadedDLL([in] enumSupportUnloadOfDelayLoadedDLLBOOL bSupportUnload);
+	[propget, id(VCLINKID_ImportLibrary), helpstringcontext(VCLINKID_ImportLibrary)] HRESULT ImportLibrary([out, retval] BSTR* pbstrImportLib);	// (/IMPLIB:[library]) generate specified import library
+	[propput, id(VCLINKID_ImportLibrary), helpstringcontext(VCLINKID_ImportLibrary)] HRESULT ImportLibrary([in] BSTR bstrImportLib);
+	[propget, id(VCLINKID_MergeSections), helpstringcontext(VCLINKID_MergeSections)] HRESULT MergeSections([out, retval] BSTR* pbstrMerge);	// (/MERGE:from=to) merge section 'from' into section 'to'
+	[propput, id(VCLINKID_MergeSections), helpstringcontext(VCLINKID_MergeSections)] HRESULT MergeSections([in] BSTR bstrMerge);
+	[propget, id(VCLINKID_TargetMachine), helpstringcontext(VCLINKID_TargetMachine)] HRESULT TargetMachine([out, retval] machineTypeOption* poptSetting);	// (/MACHINE:type) specify target platform
+	[propput, id(VCLINKID_TargetMachine), helpstringcontext(VCLINKID_TargetMachine)] HRESULT TargetMachine([in] machineTypeOption optSetting);
+};
+
+[
+	object,
+	uuid(3DC89BD9-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLinkerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLinkerMIDLPage : IDispatch 
+{
+	[propget, id(VCLINKID_MidlCommandFile), helpstringcontext(VCLINKID_MidlCommandFile)] HRESULT MidlCommandFile([out, retval] BSTR* pbstrMidlCmdFile);	// (/midl:<@midl cmd file>) specify response file for MIDL commands to use
+	[propput, id(VCLINKID_MidlCommandFile), helpstringcontext(VCLINKID_MidlCommandFile)] HRESULT MidlCommandFile([in] BSTR bstrMidlCmdFile);
+	[propget, id(VCLINKID_IgnoreEmbeddedIDL), helpstringcontext(VCLINKID_IgnoreEmbeddedIDL)] HRESULT IgnoreEmbeddedIDL([out, retval] enumIgnoreEmbeddedIDLBOOL* pbIgnoreIDL);	// (/ignoreidl) ignore .idlsym sections of .obj files
+	[propput, id(VCLINKID_IgnoreEmbeddedIDL), helpstringcontext(VCLINKID_IgnoreEmbeddedIDL)] HRESULT IgnoreEmbeddedIDL([in] enumIgnoreEmbeddedIDLBOOL bIgnoreIDL);
+	[propget, id(VCLINKID_MergedIDLBaseFileName), helpstringcontext(VCLINKID_MergedIDLBaseFileName)] HRESULT MergedIDLBaseFileName([out, retval] BSTR* pbstrIDLFile);	// (/idlout:<filename>) name intermediate IDL output file
+	[propput, id(VCLINKID_MergedIDLBaseFileName), helpstringcontext(VCLINKID_MergedIDLBaseFileName)] HRESULT MergedIDLBaseFileName([in] BSTR bstrIDLFile);
+	[propget, id(VCLINKID_TypeLibraryFile), helpstringcontext(VCLINKID_TypeLibraryFile)] HRESULT TypeLibraryFile([out, retval] BSTR* pbstrTLBFile);	// (/tlbout:<filename>) name intermediate typelib output file
+	[propput, id(VCLINKID_TypeLibraryFile), helpstringcontext(VCLINKID_TypeLibraryFile)] HRESULT TypeLibraryFile([in] BSTR bstrTLBFile);
+	[propget, id(VCLINKID_TypeLibraryResourceID), helpstringcontext(VCLINKID_TypeLibraryResourceID)] HRESULT TypeLibraryResourceID([out, retval] long* pnResourceID);	// (/tlbid:[id]) ID to assign the .tlb file in the compiled resources
+	[propput, id(VCLINKID_TypeLibraryResourceID), helpstringcontext(VCLINKID_TypeLibraryResourceID)] HRESULT TypeLibraryResourceID([in] long nResourceID);
+};
+
+[
+	object,
+	uuid(3DC89BE0-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCLibrarianTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCLibrarianPage : IDispatch	
+{
+// option names not case sensitive, but option arguments are
+	[propget, id(VCLIBID_OutputFile), helpstringcontext(VCLIBID_OutputFile)] HRESULT OutputFile([out, retval] BSTR* pbstrOut);	// (/OUT:[file]) change the output file name (default is based on 1st lib or obj name on cmd line)
+	[propput, id(VCLIBID_OutputFile), helpstringcontext(VCLIBID_OutputFile)] HRESULT OutputFile([in] BSTR bstrOut);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLIBID_AdditionalDependencies), helpstringcontext(VCLIBID_AdditionalDependencies)] HRESULT AdditionalDependencies([out, retval] BSTR* pbstrDependencies);	// additional inputs to the librarian tool such as extra libraries
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLIBID_AdditionalDependencies), helpstringcontext(VCLIBID_AdditionalDependencies)] HRESULT AdditionalDependencies([in] BSTR bstrDependencies);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLIBID_AdditionalLibraryDirectories), helpstringcontext(VCLIBID_AdditionalLibraryDirectories)] HRESULT AdditionalLibraryDirectories([out, retval] BSTR* pbstrLibPath);	// (/LIBPATH:[dir]) specify path to search for libraries on, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLIBID_AdditionalLibraryDirectories), helpstringcontext(VCLIBID_AdditionalLibraryDirectories)] HRESULT AdditionalLibraryDirectories([in] BSTR bstrLibPath);
+	[propget, id(VCLIBID_SuppressStartupBanner), helpstringcontext(VCLIBID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([out, retval] enumSuppressStartupBannerUpBOOL* pbNoLogo);	// (/NOLOGO) enable suppression of copyright message (no explicit off)
+	[propput, id(VCLIBID_SuppressStartupBanner), helpstringcontext(VCLIBID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([in] enumSuppressStartupBannerUpBOOL bNoLogo);
+	[propget, id(VCLIBID_ModuleDefinitionFile), helpstringcontext(VCLIBID_ModuleDefinitionFile)] HRESULT ModuleDefinitionFile([out, retval] BSTR* pbstrDefFile);	// (/DEF:file)
+	[propput, id(VCLIBID_ModuleDefinitionFile), helpstringcontext(VCLIBID_ModuleDefinitionFile)] HRESULT ModuleDefinitionFile([in] BSTR bstrDefFile);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLIBID_IgnoreAllDefaultLibraries), helpstringcontext(VCLIBID_IgnoreAllDefaultLibraries)] HRESULT IgnoreAllDefaultLibraries([out, retval] enumIgnoreAllDefaultLibrariesBOOL* pbNoDefault);	// (/NODEFAULTLIB) no default libraries; not in docs
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLIBID_IgnoreAllDefaultLibraries), helpstringcontext(VCLIBID_IgnoreAllDefaultLibraries)] HRESULT IgnoreAllDefaultLibraries([in] enumIgnoreAllDefaultLibrariesBOOL bNoDefault);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLIBID_IgnoreDefaultLibraryNames), helpstringcontext(VCLIBID_IgnoreDefaultLibraryNames)] HRESULT IgnoreDefaultLibraryNames([out, retval] BSTR* pbstrLib);	// (/NODEFAULTLIB:[name]) ignore particular default library; can have multiple; not in docs
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLIBID_IgnoreDefaultLibraryNames), helpstringcontext(VCLIBID_IgnoreDefaultLibraryNames)] HRESULT IgnoreDefaultLibraryNames([in] BSTR bstrLib);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLIBID_ExportNamedFunctions), helpstringcontext(VCLIBID_ExportNamedFunctions)] HRESULT ExportNamedFunctions([out, retval] BSTR* pbstrSymbols);	// (/EXPORT:[symbol]) export function, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLIBID_ExportNamedFunctions), helpstringcontext(VCLIBID_ExportNamedFunctions)] HRESULT ExportNamedFunctions([in] BSTR bstrSymbols);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCLIBID_ForceSymbolReferences), helpstringcontext(VCLIBID_ForceSymbolReferences)] HRESULT ForceSymbolReferences([out, retval] BSTR* pbstrSymbol);	// (/INCLUDE:[symbol]) force symbol reference, can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCLIBID_ForceSymbolReferences), helpstringcontext(VCLIBID_ForceSymbolReferences)] HRESULT ForceSymbolReferences([in] BSTR bstrSymbol);
+};
+
+[
+	object,
+	uuid(3DC89BE2-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCCustomBuildTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCCustomBuildPage : IDispatch
+{
+	// General
+	[propget, id(VCCUSTID_CommandLine), helpstringcontext(VCCUSTID_CommandLine)] HRESULT CommandLine([out, retval] BSTR *pVal);
+	[propput, id(VCCUSTID_CommandLine), helpstringcontext(VCCUSTID_CommandLine)] HRESULT CommandLine([in] BSTR newVal);
+	[propget, id(VCCUSTID_Description), helpstringcontext(VCCUSTID_Description)] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(VCCUSTID_Description), helpstringcontext(VCCUSTID_Description)] HRESULT Description([in] BSTR newVal);
+	[propget, id(VCCUSTID_Outputs), helpstringcontext(VCCUSTID_Outputs)] HRESULT Outputs([out, retval] BSTR *pVal);
+	[propput, id(VCCUSTID_Outputs), helpstringcontext(VCCUSTID_Outputs)] HRESULT Outputs([in] BSTR newVal);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCCUSTID_AdditionalDependencies), helpstringcontext(VCCUSTID_AdditionalDependencies)] HRESULT AdditionalDependencies([out, retval] BSTR *pVal);
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCCUSTID_AdditionalDependencies), helpstringcontext(VCCUSTID_AdditionalDependencies)] HRESULT AdditionalDependencies([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(3DC89BF0-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCMidlTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCMidlGeneralPage : IDispatch
+{
+	// general (/ms_ext, /c_ext left out because they're archaic); @response deliberately left out
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCMIDLID_PreprocessorDefinitions), helpstringcontext(VCMIDLID_PreprocessorDefinitions)] HRESULT PreprocessorDefinitions([out, retval] BSTR* pbstrDefines);	// (/D![macro]) define macro for MIDL.  can have multiple.
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCMIDLID_PreprocessorDefinitions), helpstringcontext(VCMIDLID_PreprocessorDefinitions)] HRESULT PreprocessorDefinitions([in] BSTR bstrDefines);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCMIDLID_AdditionalIncludeDirectories), helpstringcontext(VCMIDLID_AdditionalIncludeDirectories)] HRESULT AdditionalIncludeDirectories([out, retval] BSTR* pbstrIncludePath);	// (/I![path]) directory to add to include path, may have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCMIDLID_AdditionalIncludeDirectories), helpstringcontext(VCMIDLID_AdditionalIncludeDirectories)] HRESULT AdditionalIncludeDirectories([in] BSTR bstrIncludePath);
+	[propget, id(VCMIDLID_IgnoreStandardIncludePath), helpstringcontext(VCMIDLID_IgnoreStandardIncludePath)] HRESULT IgnoreStandardIncludePath([out, retval] enumMidlIgnoreStandardIncludePathBOOL* pbIgnore);	// (/no_def_idir) ignore current and INCLUDE path
+	[propput, id(VCMIDLID_IgnoreStandardIncludePath), helpstringcontext(VCMIDLID_IgnoreStandardIncludePath)] HRESULT IgnoreStandardIncludePath([in] enumMidlIgnoreStandardIncludePathBOOL bIgnore);
+	[propget, id(VCMIDLID_MkTypLibCompatible), helpstringcontext(VCMIDLID_MkTypLibCompatible)] HRESULT MkTypLibCompatible([out, retval] enumMkTypLibCompatibleBOOL* pbCompatible);	// (/mktyplib203) forces compatibility with mktyplib.exe version 2.03
+	[propput, id(VCMIDLID_MkTypLibCompatible), helpstringcontext(VCMIDLID_MkTypLibCompatible)] HRESULT MkTypLibCompatible([in] enumMkTypLibCompatibleBOOL bCompatible);
+	[propget, id(VCMIDLID_WarningLevel), helpstringcontext(VCMIDLID_WarningLevel)] HRESULT WarningLevel([out, retval] midlWarningLevelOption* poptSetting);	// see midlWarningLevelOption enum (/W0 - /W4)
+	[propput, id(VCMIDLID_WarningLevel), helpstringcontext(VCMIDLID_WarningLevel)] HRESULT WarningLevel([in] midlWarningLevelOption optSetting);
+	[propget, id(VCMIDLID_WarnAsError), helpstringcontext(VCMIDLID_WarnAsError)] HRESULT WarnAsError([out, retval] enumWarnAsErrorBOOL* pbWarnAsError);	// (/WX) treat warnings as errors
+	[propput, id(VCMIDLID_WarnAsError), helpstringcontext(VCMIDLID_WarnAsError)] HRESULT WarnAsError([in] enumWarnAsErrorBOOL bWarnAsError);
+	[propget, id(VCMIDLID_SuppressStartupBanner), helpstringcontext(VCMIDLID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([out, retval] enumSuppressStartupBannerBOOL* pbNoLogo);	// (/nologo) enable suppression of copyright message
+	[propput, id(VCMIDLID_SuppressStartupBanner), helpstringcontext(VCMIDLID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([in] enumSuppressStartupBannerBOOL bNoLogo);
+	[propget, id(VCMIDLID_DefaultCharType), helpstringcontext(VCMIDLID_DefaultCharType)] HRESULT DefaultCharType([out, retval] midlCharOption* poptSetting);	// see midlCharOption enum (/char)
+	[propput, id(VCMIDLID_DefaultCharType), helpstringcontext(VCMIDLID_DefaultCharType)] HRESULT DefaultCharType([in] midlCharOption optSetting);
+	[propget, id(VCMIDLID_TargetEnvironment), helpstringcontext(VCMIDLID_TargetEnvironment)] HRESULT TargetEnvironment([out, retval] midlTargetEnvironment* poptSetting);	// (/env win64 vs. /env win32) target Win64 (or Win32) environment
+	[propput, id(VCMIDLID_TargetEnvironment), helpstringcontext(VCMIDLID_TargetEnvironment)] HRESULT TargetEnvironment([in] midlTargetEnvironment optSetting);
+	[propget, id(VCMIDLID_GenerateStublessProxies), helpstringcontext(VCMIDLID_GenerateStublessProxies)] HRESULT GenerateStublessProxies([out, retval] enumGenerateStublessProxiesBOOL* poptSetting);	// (/Oicf)
+	[propput, id(VCMIDLID_GenerateStublessProxies), helpstringcontext(VCMIDLID_GenerateStublessProxies)] HRESULT GenerateStublessProxies([in] enumGenerateStublessProxiesBOOL optSetting);
+};
+
+[
+	object,
+	uuid(3DC89BF2-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCMidlTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCMidlOutputPage : IDispatch
+{
+	// output file names
+	[propget, id(VCMIDLID_OutputDirectory), helpstringcontext(VCMIDLID_OutputDirectory)] HRESULT OutputDirectory([out, retval] BSTR* pbstrOut);	// (/out dir) directory to place output files in; default: project directory
+	[propput, id(VCMIDLID_OutputDirectory), helpstringcontext(VCMIDLID_OutputDirectory)] HRESULT OutputDirectory([in] BSTR bstrOut);
+	[propget, id(VCMIDLID_HeaderFileName), helpstringcontext(VCMIDLID_HeaderFileName)] HRESULT HeaderFileName([out, retval] BSTR* pbstrHeaderFile);	// (/h[eader] filename) specify name of header file generated; default: <idlfile>.h
+	[propput, id(VCMIDLID_HeaderFileName), helpstringcontext(VCMIDLID_HeaderFileName)] HRESULT HeaderFileName([in] BSTR bstrHeaderFileName);
+	[propget, id(VCMIDLID_DLLDataFileName), helpstringcontext(VCMIDLID_DLLDataFileName)] HRESULT DLLDataFileName([out, retval] BSTR* pbstrDLLData);	// (/dlldata filename) specify name of DLLDATA file generated; default: dlldata.c
+	[propput, id(VCMIDLID_DLLDataFileName), helpstringcontext(VCMIDLID_DLLDataFileName)] HRESULT DLLDataFileName([in] BSTR bstrDLLData);
+	[propget, id(VCMIDLID_InterfaceIdentifierFileName), helpstringcontext(VCMIDLID_InterfaceIdentifierFileName)] HRESULT InterfaceIdentifierFileName([out, retval] BSTR* pbstrIID);	// (/iid filename) specify name of IID file; default: <idlfile>_i.c
+	[propput, id(VCMIDLID_InterfaceIdentifierFileName), helpstringcontext(VCMIDLID_InterfaceIdentifierFileName)] HRESULT InterfaceIdentifierFileName([in] BSTR bstrIID);
+	[propget, id(VCMIDLID_ProxyFileName), helpstringcontext(VCMIDLID_ProxyFileName)] HRESULT ProxyFileName([out, retval] BSTR* pbstrProxyFile);	// (/proxy filename) specify name of proxy file; default: <idlfile>_p.c
+	[propput, id(VCMIDLID_ProxyFileName), helpstringcontext(VCMIDLID_ProxyFileName)] HRESULT ProxyFileName([in] BSTR bstrProxyFile);
+	[propget, id(VCMIDLID_GenerateTypeLibrary), helpstringcontext(VCMIDLID_GenerateTypeLibrary)] HRESULT GenerateTypeLibrary([out, retval] enumGenerateTypeLibraryBOOL* poptSetting);
+	[propput, id(VCMIDLID_GenerateTypeLibrary), helpstringcontext(VCMIDLID_GenerateTypeLibrary)] HRESULT GenerateTypeLibrary([in] enumGenerateTypeLibraryBOOL optSetting);
+	[propget, id(VCMIDLID_TypeLibraryName), helpstringcontext(VCMIDLID_TypeLibraryName)] HRESULT TypeLibraryName([out, retval] BSTR* pbstrTLBFile);	// (/tlb filename) specify name of TLB file; default: <idlfile>.tlb
+	[propput, id(VCMIDLID_TypeLibraryName), helpstringcontext(VCMIDLID_TypeLibraryName)] HRESULT TypeLibraryName([in] BSTR bstrTLBFile);
+};
+
+[
+	object,
+	uuid(3DC89BF3-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCMidlTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCMidlAdvancedPage : IDispatch
+{
+	[propget, id(VCMIDLID_EnableErrorChecks), helpstringcontext(VCMIDLID_EnableErrorChecks)] HRESULT EnableErrorChecks([out, retval] midlErrorCheckOption* poptSetting);	// see midlErrorCheckOption enum (/error {none|all}) 
+	[propput, id(VCMIDLID_EnableErrorChecks), helpstringcontext(VCMIDLID_EnableErrorChecks)] HRESULT EnableErrorChecks([in] midlErrorCheckOption optSetting);
+	[propget, id(VCMIDLID_ErrorCheckAllocations), helpstringcontext(VCMIDLID_ErrorCheckAllocations)] HRESULT ErrorCheckAllocations([out, retval] enumErrorCheckAllocationsBOOL* pbErrorCheck);	// (/error allocation) check for out of memory errors
+	[propput, id(VCMIDLID_ErrorCheckAllocations), helpstringcontext(VCMIDLID_ErrorCheckAllocations)] HRESULT ErrorCheckAllocations([in] enumErrorCheckAllocationsBOOL bErrorCheck);
+	[propget, id(VCMIDLID_ErrorCheckBounds), helpstringcontext(VCMIDLID_ErrorCheckBounds)] HRESULT ErrorCheckBounds([out, retval] enumErrorCheckBoundsBOOL* pbErrorCheck);	// (/error bounds_check) check size	vs. transmission length specifications
+	[propput, id(VCMIDLID_ErrorCheckBounds), helpstringcontext(VCMIDLID_ErrorCheckBounds)] HRESULT ErrorCheckBounds([in] enumErrorCheckBoundsBOOL bErrorCheck);
+	[propget, id(VCMIDLID_ErrorCheckEnumRange), helpstringcontext(VCMIDLID_ErrorCheckEnumRange)] HRESULT ErrorCheckEnumRange([out, retval] enumErrorCheckEnumRangeBOOL* pbErrorCheck);	// (/error enum) check enum values to be in allowable range; not in docs
+	[propput, id(VCMIDLID_ErrorCheckEnumRange), helpstringcontext(VCMIDLID_ErrorCheckEnumRange)] HRESULT ErrorCheckEnumRange([in] enumErrorCheckEnumRangeBOOL bErrorCheck);
+	[propget, id(VCMIDLID_ErrorCheckRefPointers), helpstringcontext(VCMIDLID_ErrorCheckRefPointers)] HRESULT ErrorCheckRefPointers([out, retval] enumErrorCheckRefPointersBOOL* pbErrorCheck);	// (/error ref) check ref pointers to be non-NULL
+	[propput, id(VCMIDLID_ErrorCheckRefPointers), helpstringcontext(VCMIDLID_ErrorCheckRefPointers)] HRESULT ErrorCheckRefPointers([in] enumErrorCheckRefPointersBOOL bErrorCheck);
+	[propget, id(VCMIDLID_ErrorCheckStubData), helpstringcontext(VCMIDLID_ErrorCheckStubData)] HRESULT ErrorCheckStubData([out, retval] enumErrorCheckStubDataBOOL* pbErrorCheck);	// (/error stub_data) emit additional check for server side data stub validity
+	[propput, id(VCMIDLID_ErrorCheckStubData), helpstringcontext(VCMIDLID_ErrorCheckStubData)] HRESULT ErrorCheckStubData([in] enumErrorCheckStubDataBOOL bErrorCheck);
+	[propget, id(VCMIDLID_ValidateParameters), helpstringcontext(VCMIDLID_ValidateParameters)] HRESULT ValidateParameters([out, retval] enumValidateParametersBOOL* pbValidate);	// (/robust) generate additional information to validate parameters; not in docs
+	[propput, id(VCMIDLID_ValidateParameters), helpstringcontext(VCMIDLID_ValidateParameters)] HRESULT ValidateParameters([in] enumValidateParametersBOOL bValidate);
+	[propget, id(VCMIDLID_StructMemberAlignment), helpstringcontext(VCMIDLID_StructMemberAlignment)] HRESULT StructMemberAlignment([out, retval] midlStructMemberAlignOption* poptSetting);	// see midlStructMemberAlignOption enum (/Zp[num])
+	[propput, id(VCMIDLID_StructMemberAlignment), helpstringcontext(VCMIDLID_StructMemberAlignment)] HRESULT StructMemberAlignment([in] midlStructMemberAlignOption optSetting);
+	[propget, id(VCMIDLID_RedirectOutputAndErrors), helpstringcontext(VCMIDLID_RedirectOutputAndErrors)] HRESULT RedirectOutputAndErrors([out, retval] BSTR* pbstrOutput);	// (/o file) redirect output from screen to a file
+	[propput, id(VCMIDLID_RedirectOutputAndErrors), helpstringcontext(VCMIDLID_RedirectOutputAndErrors)] HRESULT RedirectOutputAndErrors([in] BSTR bstrOutput);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCMIDLID_CPreprocessOptions), helpstringcontext(VCMIDLID_CPreprocessOptions)] HRESULT CPreprocessOptions([out, retval] BSTR* pbstrOpt);	// (/cpp_opt"[option]") C-compiler preprocessor option to pass to MIDL.  must be in exact format for desired switches
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCMIDLID_CPreprocessOptions), helpstringcontext(VCMIDLID_CPreprocessOptions)] HRESULT CPreprocessOptions([in] BSTR bstrOpt);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCMIDLID_UndefinePreprocessorDefinitions), helpstringcontext(VCMIDLID_UndefinePreprocessorDefinitions)] HRESULT UndefinePreprocessorDefinitions([out, retval] BSTR* pbstrUndefines);	// (/U![macro]) remove any previous definition of symbol.  can have multiple.
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCMIDLID_UndefinePreprocessorDefinitions), helpstringcontext(VCMIDLID_UndefinePreprocessorDefinitions)] HRESULT UndefinePreprocessorDefinitions([in] BSTR bstrUndefines);
+};
+
+[
+	object,
+	uuid(3DC89C00-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCResourceCompilerTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCResourceCompilerPage : IDispatch		// switches are not case sensitive; there is nothing in help on these switches...
+{
+	// General
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCRCID_PreprocessorDefinitions), helpstringcontext(VCRCID_PreprocessorDefinitions)] HRESULT PreprocessorDefinitions([out, retval] BSTR* pbstrDefines);	// (/d) define symbol; can have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCRCID_PreprocessorDefinitions), helpstringcontext(VCRCID_PreprocessorDefinitions)] HRESULT PreprocessorDefinitions([in] BSTR bstrDefines);
+	[propget, id(VCRCID_Culture), helpstringcontext(VCRCID_Culture)] HRESULT Culture([out, retval] enumResourceLangID* pnLangID);	// (/l [num]) resource language ID
+	[propput, id(VCRCID_Culture), helpstringcontext(VCRCID_Culture)] HRESULT Culture([in] enumResourceLangID nLangID);
+	[custom(GUID_MULTIEDIT, 1), propget, id(VCRCID_AdditionalIncludeDirectories), helpstringcontext(VCRCID_AdditionalIncludeDirectories)] HRESULT AdditionalIncludeDirectories([out, retval] BSTR* pbstrIncludePath);	// (/I![path]) directory to add to include path, may have multiple
+	[custom(GUID_MULTIEDIT, 1), propput, id(VCRCID_AdditionalIncludeDirectories), helpstringcontext(VCRCID_AdditionalIncludeDirectories)] HRESULT AdditionalIncludeDirectories([in] BSTR bstrIncludePath);
+	[propget, id(VCRCID_IgnoreStandardIncludePath), helpstringcontext(VCRCID_IgnoreStandardIncludePath)] HRESULT IgnoreStandardIncludePath([out, retval] enumIgnoreStandardIncludePathBOOL* pbIgnoreInclPath);	// (/X) ignore standard include path
+	[propput, id(VCRCID_IgnoreStandardIncludePath), helpstringcontext(VCRCID_IgnoreStandardIncludePath)] HRESULT IgnoreStandardIncludePath([in] enumIgnoreStandardIncludePathBOOL bIgnoreInclPath);
+	[propget, id(VCRCID_ShowProgress), helpstringcontext(VCRCID_ShowProgress)] HRESULT ShowProgress([out, retval] enumShowProgressBOOL* pbShowProgress);	// (/v) verbose (print progress messages)
+	[propput, id(VCRCID_ShowProgress), helpstringcontext(VCRCID_ShowProgress)] HRESULT ShowProgress([in] enumShowProgressBOOL bShowProgress);
+	[propget, id(VCRCID_ResourceOutputFileName), helpstringcontext(VCRCID_ResourceOutputFileName)] HRESULT ResourceOutputFileName([out, retval] BSTR* pbstrResFile);	// (/fo[file]) name .RES file; default: <rcfile>.res
+	[propput, id(VCRCID_ResourceOutputFileName), helpstringcontext(VCRCID_ResourceOutputFileName)] HRESULT ResourceOutputFileName([in] BSTR bstrResFile);
+};
+
+[
+	object,
+	uuid(3DC89C01-9037-4a77-BA41-748EB74CEB54),
+	helpstring("IVCEventTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCPreBuildEventPage : IDispatch
+{
+	[propget, id(PREBLDID_CommandLine), helpstringcontext(PREBLDID_CommandLine)] HRESULT CommandLine([out, retval] BSTR *pVal);
+	[propput, id(PREBLDID_CommandLine), helpstringcontext(PREBLDID_CommandLine)] HRESULT CommandLine([in] BSTR newVal);
+	[propget, id(PREBLDID_Description), helpstringcontext(PREBLDID_Description)] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(PREBLDID_Description), helpstringcontext(PREBLDID_Description)] HRESULT Description([in] BSTR newVal);
+	[propget, id(PREBLDID_ExcludedFromBuild), helpstringcontext(PREBLDID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] enumBOOL* pbExcludedFromBuild);
+	[propput, id(PREBLDID_ExcludedFromBuild), helpstringcontext(PREBLDID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] enumBOOL bExcludedFromBuild);
+};
+	
+[
+	object,
+	uuid(3DC89C02-9037-4a77-BA41-748EB74CEB54),
+	helpstring("IVCEventTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCPreLinkEventPage : IDispatch
+{
+	[propget, id(PRELINKID_CommandLine), helpstringcontext(PRELINKID_CommandLine)] HRESULT CommandLine([out, retval] BSTR *pVal);
+	[propput, id(PRELINKID_CommandLine), helpstringcontext(PRELINKID_CommandLine)] HRESULT CommandLine([in] BSTR newVal);
+	[propget, id(PRELINKID_Description), helpstringcontext(PRELINKID_Description)] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(PRELINKID_Description), helpstringcontext(PRELINKID_Description)] HRESULT Description([in] BSTR newVal);
+	[propget, id(PRELINKID_ExcludedFromBuild), helpstringcontext(PRELINKID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] enumBOOL* pbExcludedFromBuild);
+	[propput, id(PRELINKID_ExcludedFromBuild), helpstringcontext(PRELINKID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] enumBOOL bExcludedFromBuild);
+};
+	
+[
+	object,
+	uuid(3DC89C03-9037-4a77-BA41-748EB74CEB54),
+	helpstring("IVCEventTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCPostBuildEventPage : IDispatch
+{
+	[propget, id(POSTBLDID_CommandLine), helpstringcontext(POSTBLDID_CommandLine)] HRESULT CommandLine([out, retval] BSTR *pVal);
+	[propput, id(POSTBLDID_CommandLine), helpstringcontext(POSTBLDID_CommandLine)] HRESULT CommandLine([in] BSTR newVal);
+	[propget, id(POSTBLDID_Description), helpstringcontext(POSTBLDID_Description)] HRESULT Description([out, retval] BSTR *pVal);
+	[propput, id(POSTBLDID_Description), helpstringcontext(POSTBLDID_Description)] HRESULT Description([in] BSTR newVal);
+	[propget, id(POSTBLDID_ExcludedFromBuild), helpstringcontext(POSTBLDID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] enumBOOL* pbExcludedFromBuild);
+	[propput, id(POSTBLDID_ExcludedFromBuild), helpstringcontext(POSTBLDID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] enumBOOL bExcludedFromBuild);
+};
+	
+[
+	object,
+	uuid(3DC89C04-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCBscMakeTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCBscMakePage : IDispatch
+{
+	// general; @response deliberately left out
+	[propget, id(VCBSCID_SuppressStartupBanner), helpstringcontext(VCBSCID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([out, retval] enumSuppressStartupBannerBOOL* pbNoLogo);	// (/nologo) enable suppression of copyright message
+	[propput, id(VCBSCID_SuppressStartupBanner), helpstringcontext(VCBSCID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([in] enumSuppressStartupBannerBOOL bNoLogo);
+	[propget, id(VCBSCID_OutputFile), helpstringcontext(VCBSCID_OutputFile)] HRESULT OutputFile([out, retval] BSTR* pbstrOut);	// (/o [file]) change the output file name (default is based on 1st lib or obj name on cmd line)
+	[propput, id(VCBSCID_OutputFile), helpstringcontext(VCBSCID_OutputFile)] HRESULT OutputFile([in] BSTR bstrOut);
+};
+	
+[
+	object,
+	uuid(3DC89C05-9037-4a77-BA41-748EB74CEB54),
+	helpstring("VCNMakeTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCNMakePage : IDispatch
+{
+	// General
+	[propget, id(VCNMAKEID_BuildCommandLine), helpstringcontext(VCNMAKEID_BuildCommandLine)] HRESULT BuildCommandLine([out, retval] BSTR *pVal);
+	[propput, id(VCNMAKEID_BuildCommandLine), helpstringcontext(VCNMAKEID_BuildCommandLine)] HRESULT BuildCommandLine([in] BSTR newVal);
+	[propget, id(VCNMAKEID_ReBuildCommandLine), helpstringcontext(VCNMAKEID_ReBuildCommandLine)] HRESULT ReBuildCommandLine([out, retval] BSTR *pVal);
+	[propput, id(VCNMAKEID_ReBuildCommandLine), helpstringcontext(VCNMAKEID_ReBuildCommandLine)] HRESULT ReBuildCommandLine([in] BSTR newVal);
+	[propget, id(VCNMAKEID_CleanCommandLine), helpstringcontext(VCNMAKEID_CleanCommandLine)] HRESULT CleanCommandLine([out, retval] BSTR *pVal);
+	[propput, id(VCNMAKEID_CleanCommandLine), helpstringcontext(VCNMAKEID_CleanCommandLine)] HRESULT CleanCommandLine([in] BSTR newVal);
+	[propget, id(VCNMAKEID_Output), helpstringcontext(VCNMAKEID_Output)] HRESULT Output([out, retval] BSTR *pVal);
+	[propput, id(VCNMAKEID_Output), helpstringcontext(VCNMAKEID_Output)] HRESULT Output([in] BSTR newVal);
+};
+
+[
+	object,
+	uuid(89640493-0137-4ebe-BAFF-76CDE1A5A912),
+	helpstring("VCWebServiceProxyGeneratorTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCWebServiceGeneralPage : IDispatch
+{
+	// General
+	[propget, id(VCWEBID_Output), helpstringcontext(VCWEBID_Output)] HRESULT Output([out,retval] BSTR *pbstr);
+	[propput, id(VCWEBID_Output), helpstringcontext(VCWEBID_Output)] HRESULT Output([in] BSTR pbstr);
+	[propget, id(VCWEBID_SuppressStartupBanner), helpstringcontext(VCWEBID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([out, retval] enumSuppressStartupBannerBOOL* suppress);		// /nologo
+	[propput, id(VCWEBID_SuppressStartupBanner), helpstringcontext(VCWEBID_SuppressStartupBanner)] HRESULT SuppressStartupBanner([in] enumSuppressStartupBannerBOOL suppress);
+	[propget, id(VCWEBID_GeneratedProxyLanguage), helpstringcontext(VCWEBID_GeneratedProxyLanguage)] HRESULT GeneratedProxyLanguage([out, retval] genProxyLanguage* language);	// generated proxy language: native or managed C++
+	[propput, id(VCWEBID_GeneratedProxyLanguage), helpstringcontext(VCWEBID_GeneratedProxyLanguage)] HRESULT GeneratedProxyLanguage([in] genProxyLanguage language);
+};
+
+[
+	object,
+	uuid(0CCB1756-6A5B-4c37-A4AF-9355425BFCE7),
+	helpstring("VCWebDeploymentTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IVCWebDeploymentGeneralPage : IDispatch
+{
+	// General
+	[propget, id(VCDPLYID_ExcludedFromBuild), helpstringcontext(VCDPLYID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] VARIANT_BOOL* disableDeploy);	// exclude from build? default: yes
+	[propput, id(VCDPLYID_ExcludedFromBuild), helpstringcontext(VCDPLYID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] VARIANT_BOOL disableDeploy);
+	[propget, id(VCDPLYID_RelativePath), helpstringcontext(VCDPLYID_RelativePath)] HRESULT RelativePath([out, retval] BSTR* dir);	// relative path to deploy to
+	[propput, id(VCDPLYID_RelativePath), helpstringcontext(VCDPLYID_RelativePath)] HRESULT RelativePath([in] BSTR dir);
+	[propget, id(VCDPLYID_AdditionalFiles), helpstringcontext(VCDPLYID_AdditionalFiles)] HRESULT AdditionalFiles([out, retval] BSTR* files);	// additional files to deploy
+	[propput, id(VCDPLYID_AdditionalFiles), helpstringcontext(VCDPLYID_AdditionalFiles)] HRESULT AdditionalFiles([in] BSTR files);
+	
+	// Server Side Actions
+	[propget, id(VCDPLYID_UnloadBeforeCopy), helpstringcontext(VCDPLYID_UnloadBeforeCopy)] HRESULT UnloadBeforeCopy([out, retval] VARIANT_BOOL* unloadFirst);	// unload DLL before copying it?
+	[propput, id(VCDPLYID_UnloadBeforeCopy), helpstringcontext(VCDPLYID_UnloadBeforeCopy)] HRESULT UnloadBeforeCopy([in] VARIANT_BOOL unloadFirst);
+	[propget, id(VCDPLYID_RegisterOutput), helpstringcontext(VCDPLYID_RegisterOutput)] HRESULT RegisterOutput([out, retval] VARIANT_BOOL* regDLL);	// register the DLL once it is deployed?
+	[propput, id(VCDPLYID_RegisterOutput), helpstringcontext(VCDPLYID_RegisterOutput)] HRESULT RegisterOutput([in] VARIANT_BOOL regDLL);
+	
+	// Web Application
+	[propget, id(VCDPLYID_VirtualDirectoryName), helpstringcontext(VCDPLYID_VirtualDirectoryName)] HRESULT VirtualDirectoryName([out, retval] BSTR* virtRoot);	// virtual root for deployment
+	[propput, id(VCDPLYID_VirtualDirectoryName), helpstringcontext(VCDPLYID_VirtualDirectoryName)] HRESULT VirtualDirectoryName([in] BSTR virtRoot);
+	[propget, id(VCDPLYID_ApplicationMappings), helpstringcontext(VCDPLYID_ApplicationMappings)] HRESULT ApplicationMappings([out, retval] BSTR* mapping);	// application mappings
+	[propput, id(VCDPLYID_ApplicationMappings), helpstringcontext(VCDPLYID_ApplicationMappings)] HRESULT ApplicationMappings([in] BSTR mapping);
+	[propget, id(VCDPLYID_ApplicationProtection), helpstringcontext(VCDPLYID_ApplicationProtection)] HRESULT ApplicationProtection([out, retval] eAppProtectionOption* option);	// protection level for the app
+	[propput, id(VCDPLYID_ApplicationProtection), helpstringcontext(VCDPLYID_ApplicationProtection)] HRESULT ApplicationProtection([in] eAppProtectionOption option);
+};
+
+[
+	object,
+	uuid(FFCB1756-6A5B-4c37-A4AF-9355425BFCE7),
+	helpstring("XboxDeploymentTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IXboxDeploymentGeneralPage : IDispatch
+{
+	// General
+	[propget, id(XBOXDPLYID_ExcludedFromBuild), helpstringcontext(XBOXDPLYID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] VARIANT_BOOL* disableDeploy);	// exclude from build? default: yes
+	[propput, id(XBOXDPLYID_ExcludedFromBuild), helpstringcontext(XBOXDPLYID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] VARIANT_BOOL disableDeploy);
+	[propget, id(XBOXDPLYID_RemotePath), helpstringcontext(XBOXDPLYID_RemotePath)] HRESULT RemotePath([out, retval] BSTR* dir);	// relative path to deploy to
+	[propput, id(XBOXDPLYID_RemotePath), helpstringcontext(XBOXDPLYID_RemotePath)] HRESULT RemotePath([in] BSTR dir);
+	[propget, id(XBOXDPLYID_AdditionalFiles), helpstringcontext(XBOXDPLYID_AdditionalFiles)] HRESULT AdditionalFiles([out, retval] BSTR* files);	// additional files to deploy
+	[propput, id(XBOXDPLYID_AdditionalFiles), helpstringcontext(XBOXDPLYID_AdditionalFiles)] HRESULT AdditionalFiles([in] BSTR files);
+};
+
+[
+	object,
+	uuid(FF089BD0-9037-4a77-BA41-748EB74CEB54),
+	helpstring("XboxImageTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IXboxImageGeneralPage : IDispatch
+{
+	// general
+	[propget, id(XBOXIMAGEID_FileName), helpstringcontext(XBOXIMAGEID_FileName)] HRESULT FileName([out, retval] BSTR* pbstrFileName);
+	[propput, id(XBOXIMAGEID_FileName), helpstringcontext(XBOXIMAGEID_FileName)] HRESULT FileName([in] BSTR bstrFileName);
+	[propget, id(XBOXIMAGEID_XBEFlags), helpstringcontext(XBOXIMAGEID_XBEFlags)] HRESULT XBEFlags([out, retval] long* pnFlags);
+	[propput, id(XBOXIMAGEID_XBEFlags), helpstringcontext(XBOXIMAGEID_XBEFlags)] HRESULT XBEFlags([in] long nFlags);
+	[propget, id(XBOXIMAGEID_StackSize), helpstringcontext(XBOXIMAGEID_StackSize)] HRESULT StackSize([out, retval] long* pnStackSize);
+	[propput, id(XBOXIMAGEID_StackSize), helpstringcontext(XBOXIMAGEID_StackSize)] HRESULT StackSize([in] long nStackSize);
+	[propget, id(XBOXIMAGEID_IncludeDebugInfo), helpstringcontext(XBOXIMAGEID_IncludeDebugInfo)] HRESULT IncludeDebugInfo([out, retval] enumBOOL* pbIncludeDebugInfo);
+	[propput, id(XBOXIMAGEID_IncludeDebugInfo), helpstringcontext(XBOXIMAGEID_IncludeDebugInfo)] HRESULT IncludeDebugInfo([in] enumBOOL bIncludeDebugInfo);
+	[propget, id(XBOXIMAGEID_LimitAvailableMemoryTo64MB), helpstringcontext(XBOXIMAGEID_LimitAvailableMemoryTo64MB)] HRESULT LimitAvailableMemoryTo64MB([out, retval] enumBOOL* pbLimitAvailableMemoryTo64MB);
+	[propput, id(XBOXIMAGEID_LimitAvailableMemoryTo64MB), helpstringcontext(XBOXIMAGEID_LimitAvailableMemoryTo64MB)] HRESULT LimitAvailableMemoryTo64MB([in] enumBOOL bLimitAvailableMemoryTo64MB);
+};
+
+[
+	object,
+	uuid(FF189BD0-9037-4a77-BA41-748EB74CEB54),
+	helpstring("XboxImageTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IXboxImageCertificatePage : IDispatch
+{
+	// certificate
+	[propget, id(XBOXIMAGEID_TitleID), helpstringcontext(XBOXIMAGEID_TitleID)] HRESULT TitleID([out, retval] long* pnTitleID);
+	[propput, id(XBOXIMAGEID_TitleID), helpstringcontext(XBOXIMAGEID_TitleID)] HRESULT TitleID([in] long nTitleID);
+	[propget, id(XBOXIMAGEID_XboxGameRegion), helpstringcontext(XBOXIMAGEID_XboxGameRegion)] HRESULT XboxGameRegion([out, retval] long* pnXboxGameRegion);
+	[propput, id(XBOXIMAGEID_XboxGameRegion), helpstringcontext(XBOXIMAGEID_XboxGameRegion)] HRESULT XboxGameRegion([in] long nXboxGameRegion);
+	[propget, id(XBOXIMAGEID_XboxGameRating), helpstringcontext(XBOXIMAGEID_XboxGameRating)] HRESULT XboxGameRating([out, retval] enumXboxGameRating* peXboxGameRating);
+	[propput, id(XBOXIMAGEID_XboxGameRating), helpstringcontext(XBOXIMAGEID_XboxGameRating)] HRESULT XboxGameRating([in] enumXboxGameRating peXboxGameRating);
+};
+
+[
+	object,
+	uuid(FF289BD0-9037-4a77-BA41-748EB74CEB54),
+	helpstring("XboxImageTool"),	// needed for context help
+	dual,
+	pointer_default(unique)
+]
+interface IXboxImageTitleInfoPage : IDispatch
+{
+	// title info
+	[propget, id(XBOXIMAGEID_TitleInfo), helpstringcontext(XBOXIMAGEID_TitleInfo)] HRESULT TitleInfo([out, retval] BSTR* pbstrTitleInfo);
+	[propput, id(XBOXIMAGEID_TitleInfo), helpstringcontext(XBOXIMAGEID_TitleInfo)] HRESULT TitleInfo([in] BSTR bstrTitleInfo);
+	[propget, id(XBOXIMAGEID_TitleName), helpstringcontext(XBOXIMAGEID_TitleName)] HRESULT TitleName([out, retval] BSTR* pbstrTitleName);
+	[propput, id(XBOXIMAGEID_TitleName), helpstringcontext(XBOXIMAGEID_TitleName)] HRESULT TitleName([in] BSTR bstrTitleName);
+	[propget, id(XBOXIMAGEID_TitleImage), helpstringcontext(XBOXIMAGEID_TitleImage)] HRESULT TitleImage([out, retval] BSTR* pbstrTitleImage);
+	[propput, id(XBOXIMAGEID_TitleImage), helpstringcontext(XBOXIMAGEID_TitleImage)] HRESULT TitleImage([in] BSTR bstrTitleImage);
+	[propget, id(XBOXIMAGEID_SaveGameImage), helpstringcontext(XBOXIMAGEID_SaveGameImage)] HRESULT SaveGameImage([out, retval] BSTR* pbstrSaveGameImage);
+	[propput, id(XBOXIMAGEID_SaveGameImage), helpstringcontext(XBOXIMAGEID_SaveGameImage)] HRESULT SaveGameImage([in] BSTR bstrSaveGameImage);
+};
+

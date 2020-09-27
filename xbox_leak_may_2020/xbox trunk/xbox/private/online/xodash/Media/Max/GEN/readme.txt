@@ -1,0 +1,1 @@
+This directory includes all the General purpose Max files, like dialogs, progress bar, etc.

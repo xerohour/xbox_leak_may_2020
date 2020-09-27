@@ -1,0 +1,78 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+</td><td>
+
+<H2>More Realistic Car Shadows</H2>
+<P><I>By Dave McCoy, Graphic Techniques Consultant, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<H3>The Old Days</H3>
+Not so long ago, when you wanted an object to have a shadow, you used an oval or some other amorphous shape. The shadow never changed shape and wasn't very accurate, but volumetric shadows and even projected bitmap shadows weren't possible yet. At least the shadow helped to plant the object on the ground.
+
+<H3>New Shadows</H3>
+<p>Now that we have a little more processing speed, we can calculate more accurate shadows through various techniques. Here, a projected texture shadow accurately reflects the 3-D shape of a car and the position of the light source. </p>
+<img src="/content/img/CarShadow_Fig1.jpg" width="640" height="480" border="0" alt="">
+
+<H3>Sky Lighting</H3>
+<p>The projected shadow illustrated above is calculated using a one-dimensional directional light source for the sun. In actual outdoor environments, the sun is the brightest source of light; however, a significant amount of light is also contributed by the diffuse light bouncing around in the atmosphere (sky lighting) and off other objects. This diffuse light is typically represented by ambient lighting. </p>
+
+<p>This ambient light also casts shadows. For a car driving on the road, this shadowing can be readily simulated using the "old days" shadow mentioned above: an amorphous shape underneath the object casting the shadow.</p>
+
+<p>Here is a simple painted bitmap representing that shadow shape for a car. I'll call it a sky shadow.</p>
+<img src="/content/img/CarShadow_Fig2.jpg" width="256" height="256" border="0" alt="">
+<p>Something like this shape can work for about any car as long as the darker blobs are scaled to be just inside and under the tires. The shadow is darkest there because little sky light shines into these locations.</p>
+<p>This simple bitmap sky shadow is applied to the road underneath the car.</p>
+
+<img src="/content/img/CarShadow_Fig3.jpg" width="640" height="480" border="0" alt="">
+
+<p>This darkened area represents an absence of bounced lighting that is coming from every direction, so it doesn't matter how the vehicle is oriented relative to the sun-the sky shadow never changes shape. If the car were to leave the road, the shadow should be lightened to represent sky light that could then reach the road underneath the car. </p>
+
+<H3>Combining the Shadows</h3>
+<p>On a sunny day, both the soft sky shadow and the sharper point source sun shadow are present, so we apply both to the road and get the following result:</p>
+<img src="/content/img/CarShadow_Fig4.jpg" width="640" height="480" border="0" alt="">
+<p>This combination of the pre-painted sky shadow and the calculated sun shadow provides a nice effect that roots the vehicle to the road much more effectively than either shadow alone. As mentioned above, the sky shadow does not change regardless of the sun angle, so it can be combined with any sun shadow and produce a realistic result.</p>
+
+<img src="/content/img/CarShadow_Fig5.jpg" width="640" height="480" border="0" alt="">
+
+<p>As lighting conditions change, the two shadows would increase or decrease in relative strength. Generally, the sun shadow will change in reaction to changing lighting conditions much more than the sky shadow will.</p>
+
+<p>For this paper, I painted a static sky shadow with the front wheels pointed straight ahead; however, modifying the bitmap with vaguer tire darkened areas, morphing between multiple bitmaps, or articulating the sky shadow would allow you to handle turning front wheels.</p>
+
+<p>This technique is not confined to cars, of course. With modification, it could be used for many kinds of objects that are lit by both point and area lights.</p>
+
+<P><I>As always, if you have any questions or suggested revisions to this article, please contact</I> <a href="mailto:content@xbox.com">content@xbox.com</a>. </P>
+
+
+<BR>
+
+<SMALL>Wednesday, August 22, 2001</SMALL>
+
+
+
+</td>
+
+
+</TD>
+
+
+
+	

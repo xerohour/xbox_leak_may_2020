@@ -1,0 +1,34 @@
+[InstallShield Silent]
+Version=v6.00.000
+File=Response File
+[File Transfer]
+OverwrittenReadOnly=NoToAll
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-DlgOrder]
+Dlg0={958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdWelcome-0
+Count=6
+Dlg1={958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdLicense-0
+Dlg2={958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdAskDestPath-0
+Dlg3={958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdSelectFolder-0
+Dlg4={958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdStartCopy-0
+Dlg5={958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdFinish-0
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdWelcome-0]
+Result=1
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdLicense-0]
+Result=1
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdAskDestPath-0]
+szDir=D:\Program Files\Microsoft Xbox SDK
+Result=1
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdSelectFolder-0]
+szFolder=Microsoft Xbox SDK
+Result=1
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdStartCopy-0]
+Result=1
+[Application]
+Name=Microsoft Xbox SDK
+Version=0.12.0.0
+Company=Microsoft
+Lang=0009
+[{958CD46E-504C-4D7B-8336-EA13AAE02B15}-SdFinish-0]
+Result=1
+bOpt1=0
+bOpt2=0

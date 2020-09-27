@@ -1,0 +1,63 @@
+; XDK Setup
+;
+; Copyright Microsoft Corporation.  All Rights Reserved.
+[Version]
+Class=IEXPRESS
+SEDVersion=3
+
+[Options]
+PackagePurpose=InstallApp
+ShowInstallProgramWindow=1
+HideExtractAnimation=0
+UseLongFileName=1
+InsideCompressed=0
+CAB_FixedSize=0
+CAB_ResvCodeSigning=0
+RebootMode=I
+InstallPrompt=%InstallPrompt%
+DisplayLicense=%DisplayLicense%
+FinishMessage=%FinishMessage%
+TargetName=%TargetName%
+FriendlyName=%FriendlyName%
+AppLaunched=%AppLaunched%
+PostInstallCmd=%PostInstallCmd%
+SourceFiles=SourceFiles
+KeepCabinet=1
+
+[Strings]
+#ifdef DBG
+InstallPrompt=Would you like to install the debug build of the Microsoft Xbox SDK?
+#else  // DBG
+InstallPrompt=Would you like to install the Microsoft Xbox SDK?
+#endif // DBG
+DisplayLicense=
+FinishMessage=Installation finished.
+TargetName=XDKSetup.exe
+#ifdef DBG
+FriendlyName=Microsoft Xbox SDK (Debug Build)
+#else  // DBG
+FriendlyName=Microsoft Xbox SDK
+#endif // DBG
+AppLaunched="rundll32.exe advpack.dll,LaunchINFSection xdk.inf"
+; This is needed
+PostInstallCmd=<None>
+
+FILE300="imagebld.exe"
+
+FILE700="ReadMe1st.txt"
+
+FILE800="xdk.inf"
+
+[SourceFiles]
+Source_Setup=.
+Source_IDW=\xboxbins\idw
+Source_XDKDropsDocBin=\\XDK\Drops\Doc\Bin
+
+[Source_IDW]
+%FILE300%=
+
+[Source_XDKDropsDocBin]
+%FILE700%=
+
+[Source_Setup]
+%FILE800%=

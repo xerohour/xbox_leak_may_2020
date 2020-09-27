@@ -1,0 +1,265 @@
+//Microsoft App Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "multipad.h"
+
+/////////////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDMULTIPAD              ICON    DISCARDABLE     "MP300.ICO"
+IDNOTE                  ICON    DISCARDABLE     "NOTE300.ICO"
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDMULTIPAD MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New",                        IDM_FILENEW
+        MENUITEM "&Open...",                    IDM_FILEOPEN
+        MENUITEM "&Save",                       IDM_FILESAVE
+        MENUITEM "Save &As...",                 IDM_FILESAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print",                      IDM_FILEPRINT
+        MENUITEM "Printer Se&tup...",           IDM_FILESETUP
+        MENUITEM SEPARATOR
+        MENUITEM "S&hort Menus",                IDM_FILEMENU
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_FILEEXIT
+        MENUITEM SEPARATOR
+        MENUITEM "&About Multipad...",          IDM_HELPABOUT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tAlt+BkSp",             IDM_EDITUNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tShift+Del",             IDM_EDITCUT
+        MENUITEM "&Copy\tCtrl+Ins",             IDM_EDITCOPY
+        MENUITEM "&Paste\tShift+Ins",           IDM_EDITPASTE
+        MENUITEM "&Delete\tDel",                IDM_EDITCLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Select All",                 IDM_EDITSELECT
+        MENUITEM "&Word Wrap",                  IDM_EDITWRAP
+    END
+    POPUP "&Search"
+    BEGIN
+        MENUITEM "&Find...",                    IDM_SEARCHFIND
+        MENUITEM "&Next\tF3",                   IDM_SEARCHNEXT
+        MENUITEM "&Previous\tF4",               IDM_SEARCHPREV
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Tile",                       IDM_WINDOWTILE
+        MENUITEM "&Cascade",                    IDM_WINDOWCASCADE
+        MENUITEM "Arrange &Icons",              IDM_WINDOWICONS
+        MENUITEM "Close &All",                  IDM_WINDOWCLOSEALL
+    END
+END
+
+IDMULTIPAD2 MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New",                        IDM_FILENEW
+        MENUITEM "&Open...",                    IDM_FILEOPEN
+        MENUITEM "&Save",                       IDM_FILESAVE
+        MENUITEM "Save &as...",                 IDM_FILESAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...",                   IDM_FILEPRINT
+        MENUITEM SEPARATOR
+        MENUITEM "&Full Menus",                 IDM_FILEMENU
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDM_FILEEXIT
+        MENUITEM SEPARATOR
+        MENUITEM "&About Multipad...",          IDM_HELPABOUT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tAlt+BkSp",             IDM_EDITUNDO
+        MENUITEM SEPARATOR
+        MENUITEM "&Cut\tShift+Del",             IDM_EDITCUT
+        MENUITEM "Co&py\tCtrl+Ins",             IDM_EDITCOPY
+        MENUITEM "&Paste\tShift+Ins",           IDM_EDITPASTE
+        MENUITEM "&Delete\tDel",                IDM_EDITCLEAR
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Arrange",                    IDM_WINDOWTILE
+    END
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDMULTIPAD ACCELERATORS MOVEABLE PURE 
+BEGIN
+    VK_INSERT,      IDM_EDITCOPY,           VIRTKEY, CONTROL
+    VK_INSERT,      IDM_EDITPASTE,          VIRTKEY, SHIFT
+    VK_DELETE,      IDM_EDITCUT,            VIRTKEY, SHIFT
+    VK_BACK,        IDM_EDITUNDO,           VIRTKEY, ALT
+    VK_F5,          IDM_EDITTIME,           VIRTKEY 
+    VK_F3,          IDM_SEARCHNEXT,         VIRTKEY 
+    VK_F4,          IDM_SEARCHPREV,         VIRTKEY 
+    VK_F1,          IDM_HELPHELP,           VIRTKEY 
+    VK_F1,          IDM_HELPSPOT,           VIRTKEY, SHIFT
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_FILEOPEN DIALOG DISCARDABLE  20, 20, 204, 118
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "File Open"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "Open File &Name ",-1,8,6,65,12
+    EDITTEXT        IDD_FILENAME,74,6,80,12,ES_AUTOHSCROLL
+    LTEXT           "Path",IDD_PATH,74,24,82,10
+    LTEXT           "&Files",-1,6,23,55,10
+    LISTBOX         IDD_FILES,5,34,61,74,LBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Directories",-1,74,37,58,10
+    LISTBOX         IDD_DIRS,73,50,61,58,LBS_SORT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,160,6,40,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,160,26,40,14,WS_GROUP
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  25, 23, 184, 78
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Multipad"
+FONT 8, "Helv"
+BEGIN
+    CTEXT           "Microsoft Windows",-1,0,5,184,8
+    CTEXT           "Multipad",-1,0,15,184,8
+    CTEXT           "Version 3.00",-1,0,34,184,8
+    CTEXT           "Copyright \251 1990-1991 Microsoft Corp.",-1,0,47,184,9
+    DEFPUSHBUTTON   "OK",IDOK,76,60,32,14,WS_GROUP
+    ICON            IDMULTIPAD,-1,25,14,16,21
+END
+
+IDD_FIND DIALOG DISCARDABLE  18, 13, 167, 69
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Find"
+FONT 8, "Helv"
+BEGIN
+    RTEXT           "&Find:",100,6,12,31,10,NOT WS_GROUP
+    EDITTEXT        IDD_SEARCH,43,11,114,12
+    CHECKBOX        "&Case Sensitive",IDD_CASE,19,28,137,12
+    DEFPUSHBUTTON   "&Next",IDOK,11,48,45,14
+    PUSHBUTTON      "&Previous",IDD_PREV,63,48,45,14
+    PUSHBUTTON      "C&ancel",IDCANCEL,116,48,43,14
+END
+
+IDD_SAVEAS DIALOG DISCARDABLE  29, 19, 169, 116
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Save As"
+FONT 8, "Helv"
+BEGIN
+    LTEXT           "Save &As Filename :",IDD_SAVEFROM,6,5,95,12
+    EDITTEXT        IDD_SAVETO,5,17,95,12,ES_AUTOHSCROLL
+    LTEXT           "&Directories",-1,6,42,77,10
+    LISTBOX         IDD_DIRS,5,55,90,50,LBS_SORT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "&OK",1,112,10,40,14,WS_GROUP
+    PUSHBUTTON      "&Cancel",2,112,30,40,14,WS_GROUP
+    LTEXT           "",IDD_PATH,6,31,99,10
+END
+
+IDD_PRINT DIALOG DISCARDABLE  56, 61, 128, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Print"
+FONT 8, "Helv"
+BEGIN
+    RTEXT           "Printing",100,2,6,44,8,NOT WS_GROUP
+    LTEXT           "",IDD_PRINTTITLE,51,6,78,8,NOT WS_GROUP
+    RTEXT           "on the",102,4,15,43,8,NOT WS_GROUP
+    LTEXT           "",IDD_PRINTDEVICE,51,15,78,8,NOT WS_GROUP
+    RTEXT           "on",104,21,24,26,8,NOT WS_GROUP
+    LTEXT           "",IDD_PRINTPORT,51,24,78,8,NOT WS_GROUP
+    DEFPUSHBUTTON   "Cancel",IDOK,75,46,47,14
+END
+
+#ifdef APSTUDIO_INVOKED
+//////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""multipad.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // APSTUDIO_INVOKED
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CANTOPEN            "Can't open the file '%s'"
+    IDS_CANTREAD            "Can't read the file '%s'"
+    IDS_CANTCREATE          "Can't create the file '%s'"
+    IDS_CANTWRITE           "Can't write the file '%s'"
+    IDS_ILLFNM              "Invalid filename: '%s'"
+    IDS_ADDEXT              ".TXT"
+    IDS_CLOSESAVE           "%s has been changed.  Save file before closing?"
+    IDS_CANTFIND            "Can't find '%s'"
+    IDS_HELPNOTAVAIL        "Can't load Windows Help application"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_CLIENTTITLE         "MultiPad MDI Demonstration App, Version 0.01"
+    IDS_UNTITLED            "Untitled"
+    IDS_APPNAME             "Multipad"
+    IDS_PRINTJOB            "Multipad - "
+    IDS_PRINTERROR          "Cannot print %s!"
+END
+
+
+#ifndef APSTUDIO_INVOKED
+////////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

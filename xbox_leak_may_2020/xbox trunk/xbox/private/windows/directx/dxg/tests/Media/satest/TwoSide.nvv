@@ -1,0 +1,74 @@
+; Transforms a vertex and lights it with a single directional light,
+; on both sides, in eye space.
+; An extra normal comes in with each vertex to indicate the 
+; face normal.
+; Hence this example won't work with indexed primitives.
+
+#include "lighting.h"
+
+#define R_FACE_NORMAL r4
+#define R_NORMAL r0
+#define R_EYE_VECTOR r3
+
+vs.1.0
+
+; Transform to clip space
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+; Transform to eye space
+dp4 r3.x, v0, c[CV_WORLDVIEW_0]
+dp4 r3.y, v0, c[CV_WORLDVIEW_1]
+dp4 r3.z, v0, c[CV_WORLDVIEW_2]
+dp4 r3.w, v0, c[CV_WORLDVIEW_3]
+
+; Transform normal to eye space
+dp3 r0.x, v1, c[CV_WORLDVIEWIT_0]
+dp3 r0.y, v1, c[CV_WORLDVIEWIT_1]
+dp3 r0.z, v1, c[CV_WORLDVIEWIT_2]
+
+; Transform face normal to eye space
+dp3 r4.x, v2, c[CV_WORLDVIEWIT_0]
+dp3 r4.y, v2, c[CV_WORLDVIEWIT_1]
+dp3 r4.z, v2, c[CV_WORLDVIEWIT_2]
+
+; Normalize transformed normal
+dp3 R_NORMAL.w, R_NORMAL, R_NORMAL
+rsq R_NORMAL.w, R_NORMAL.w												
+mul R_NORMAL, R_NORMAL, R_NORMAL.w
+
+; Normalize transformed face normal
+dp3 R_FACE_NORMAL.w, R_FACE_NORMAL, r0
+rsq R_FACE_NORMAL.w, R_FACE_NORMAL.w												
+mul R_FACE_NORMAL, R_FACE_NORMAL, R_FACE_NORMAL.w
+
+; Normalize the vector to the eye.
+dp3 R_EYE_VECTOR.w, R_EYE_VECTOR, R_EYE_VECTOR
+rsq R_EYE_VECTOR.w, R_EYE_VECTOR.w
+mul R_EYE_VECTOR, -R_EYE_VECTOR, R_EYE_VECTOR.w
+
+; Dot face normal with eye vector (from eye to vertex)
+dp3 r1, R_FACE_NORMAL, R_EYE_VECTOR
+
+; (front_facing ? 1 : 0) into R6.x
+sge r6.x, r1.x, c[CV_ZERO].x
+
+; (front_facing ? 0 : 1) into R6.y
+slt r6.y, r1.x, c[CV_ZERO].x
+
+; Get the intensity of the lighting for the front face
+; Dot normal with light direction in eye space
+dp3 r5.x, R_NORMAL, c[CV_LIGHT1_DIRECTION]
+dp3 r5.y, -R_NORMAL, c[CV_LIGHT1_DIRECTION]
+
+; Put front and back colors into R7 and R8
+mul r7, r5.x, c[CV_FRONTCOLOR]
+mul r8, r5.y, c[CV_BACKCOLOR]
+
+; Pick the right color
+; and add the front and back lighting calculation together
+mul r7, r7, r6.x
+mad oD0, r8, r6.y, r7
+

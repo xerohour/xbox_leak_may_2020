@@ -1,0 +1,23 @@
+HKCR
+{
+	$$Safe_root$$Mgr.$$Safe_root$$Mgr.1 = s '$$Safe_root$$Mgr Class'
+	{
+		CLSID = s '{$$STRIPMGR_CLSID$$}'
+	}
+	$$Safe_root$$Mgr.$$Safe_root$$Mgr = s '$$Safe_root$$Mgr Class'
+	{
+		CurVer = s '$$Safe_root$$Mgr.$$Safe_root$$Mgr.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {$$STRIPMGR_CLSID$$} = s '$$Safe_root$$Mgr Class'
+		{
+			ProgID = s '$$Safe_root$$Mgr.$$Safe_root$$Mgr.1'
+			VersionIndependentProgID = s '$$Safe_root$$Mgr.$$Safe_root$$Mgr'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+	}
+}

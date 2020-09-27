@@ -1,0 +1,18 @@
+TARGETNAME = netxmo$(D)
+TARGETTYPE = LIBRARY
+TARGETPATH = $(BASEDIR)\public\sdk\lib
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+INCLUDES=$(INCLUDES);$(PRIVATE_INC_PATH);$(SDK_INC_PATH);
+INCLUDES=$(INCLUDES);$(BASEDIR)\private\ntos\inc
+
+C_DEFINES = $(C_DEFINES) -DKERNEL_MODE
+
+TARGETLIBS= \
+    ..\lib\$(O)\xnettest.lib \
+    $(LIBRARY_PATH)\xnet$(D).lib
+
+SOURCES=\
+    netxmo.cpp 

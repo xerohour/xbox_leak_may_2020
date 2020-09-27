@@ -1,0 +1,53 @@
+TARGETNAME = XTextTest
+PROJNAME   = XTextTest
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+			
+
+
+USE_NATIVE_EH=1
+USE_STL = 1
+
+XLATEPATH = $(BASEDIR)\private\online\xodash\locale
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:0xFFFE0000 /INITFLAGS:0x00000000 \
+	     /INSERTFILE:$(XLATEPATH)\english.ini,EnglishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\japanese.ini,JapaneseXlate,N \
+        /INSERTFILE:$(XLATEPATH)\german.ini,GermanXlate,N \
+        /INSERTFILE:$(XLATEPATH)\french.ini,FrenchXlate,N \
+        /INSERTFILE:$(XLATEPATH)\spanish.ini,SpanishXlate,N \
+        /INSERTFILE:$(XLATEPATH)\italian.ini,ItalianXlate,N
+
+
+INCLUDES   = $(INCLUDES);\
+	$(BASEDIR)\private\online\xodash\xodashlib;\
+        $(BASEDIR)\private\online\xodash;\
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+        $(BASEDIR)\private\ntos\inc; \
+        $(BASEDIR)\private\ntos\xapi\inc; \
+        $(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+		
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE= std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj
+
+
+LINKLIBS   = \
+             $(BASEDIR)\private\online\xodash\XODashLib\obj\i386\XODashLib.lib\
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib\
+	     $(SDK_LIB_PATH)\dsound$(D).lib \
+	     D:\xbox\private\lib\i386\xapilibp$(D).lib \
+
+ 
+
+SOURCES	=    	    xodash.cpp \
+		    main.cpp \
+
+
+
+USE_LIBCMT=1

@@ -1,0 +1,23 @@
+TARGETNAME=brainbox
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XE_FLAGS=/TESTNAME:"Brain Box Test"
+
+LINKER_FLAGS=/MAP
+
+INCLUDES=$(INCLUDES);$(BASEDIR)\PRIVATE\INC;..\..\INC;$(BASEDIR)\PRIVATE\NTOS\DD\USB\BRAINBOX;
+
+SOURCES= \
+    main.cpp
+
+USE_NOLIB=1
+
+LINKLIBS=\
+    $(XDK_LIB_PATH)\d3d8$(D).lib\
+    $(XDK_LIB_PATH)\d3dx8$(D).lib\
+    $(XDK_LIB_PATH)\xgraphics$(D).lib\
+    $(SDK_LIB_PATH)\brainbox.lib\
+    ..\..\lib\obj\i386\usbtst.lib
+

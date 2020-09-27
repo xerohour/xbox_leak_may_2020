@@ -1,0 +1,19 @@
+TARGETNAME=OnlineAccounts$(D)
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+TARGETTYPE=LIBRARY
+
+MSC_WARNING_LEVEL=/W3 /WX
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+INCLUDES = $(PRIVATE_INC_PATH); \
+           	    ..\..\inc; \
+		    $(BASEDIR)\private\ntos\inc;                       \
+		    $(BASEDIR)\private\ntos\net;                       \
+		    $(BASEDIR)\private\inc\crypto;                     \
+                    $(BASEDIR)\private\online;                         \
+                    $(BASEDIR)\private\online\kerb
+            
+OBJLIBFILES = $(BASEDIR)\private\lib\*\xapilibp$(D).lib
+                                
+SOURCES = ..\OnlineAccounts.cpp
+                                                   

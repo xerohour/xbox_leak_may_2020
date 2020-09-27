@@ -1,0 +1,84 @@
+# Copyright (c) 1998 Microsoft Corporation
+#
+# Need:
+# - 16-bit SDK
+# - mmddk.h (\root\dev\ddk\inc)
+# - verinfo.h
+# - 16-bit RC.EXE
+#
+
+!if [set PATH=;]
+!endif
+!if [set INCLUDE=;]
+!endif
+!if [set LIB=;]
+!endif
+PATH=;
+INCLUDE=;
+LIB=;
+
+PATH=$(DXROOT)\public\tools\c816\bin;$(DXROOT)\public\tools\winnt\x86\mstools
+INCLUDE=$(DXROOT)\public\tools\c816\inc;$(DXROOT)\dev\inc16;$(DXROOT)\dev\sdk\inc16;$(DXROOT)\dev\ddk\inc;$(DXROOT)\inc;$(DXROOT)\public\ddk\inc;$(DXROOT)\public\sdk\inc16
+LIB=$(DXROOT)\public\tools\c816\lib;$(DXROOT)\dev\lib16;$(DXROOT)\dev\sdk\lib16;$(DXROOT)\public\sdk\lib16;$(DXROOT)\ddk\lib16
+LIBS=libw mmsystem kernel
+
+!if "$(NTDEBUG)" == ""
+DEFS=
+!else
+DEFS=-DDEBUG_RETAIL=1 -DDEBUG=1
+!endif
+
+CFLAGS=-DWIN16 -DWINVER=0x0400 /Alnw /GD -G3s -Fd$* -Fo$@ -Fc -Fl -c $(DEFS)
+AFLAGS=-D?MEDIUM -D?QUIET -c -Zm -Fo$@ $(DEFS)
+RFLAGS=$(DEFS)
+
+OBJDIR=.\$(rabid)\i386
+
+{.}.c{$(OBJDIR)}.obj:
+    cl $(CFLAGS) $(@B).c
+
+{.}.asm{$(OBJDIR)}.obj:
+    ml $(AFLAGS) $(@B).asm
+
+OBJS=$(OBJDIR)\libentry.obj $(OBJDIR)\alloc.obj $(OBJDIR)\debug.obj $(OBJDIR)\device.obj $(OBJDIR)\dmthunk.obj $(OBJDIR)\dmusic16.obj $(OBJDIR)\equeue.obj \
+$(OBJDIR)\list.obj $(OBJDIR)\locks.obj $(OBJDIR)\midiin.obj $(OBJDIR)\midiout.obj $(OBJDIR)\timerwnd.obj $(OBJDIR)\dmhelp.obj \
+$(OBJDIR)\mmdevldr.obj
+
+all: $(OBJDIR)\dmusic16.dll
+
+$(OBJDIR)\dmusic16.res: dmusic16.rc
+    $(DXROOT)\public\tools\c816\bin\rc $(RFLAGS) -r -fo $@ dmusic16.rc
+
+$(OBJDIR)\dmusic16.dll: $(OBJS)  $(OBJDIR)\dmusic16.res
+    link @<<
+$(OBJS: =+
+),
+$(OBJDIR)\dmusic16.dll /AL:16/onerror:noexe/NODEF,
+$(OBJDIR)\dmusic16.map,
+$(LIBS),
+dmusic16.def
+<<
+    $(DXROOT)\public\tools\c816\bin\rc $(OBJDIR)\dmusic16.res $@
+    mapsym -o $(@:dll=sym) $(OBJDIR)\dmusic16.map
+
+$(OBJDIR)\alloc.obj:    alloc.c
+$(OBJDIR)\debug.obj:    debug.c
+$(OBJDIR)\device.obj:   device.c
+$(OBJDIR)\dmusic16.obj: dmusic16.c
+$(OBJDIR)\equeue.obj:   equeue.c
+$(OBJDIR)\list.obj:     list.c
+$(OBJDIR)\locks.obj:    locks.c
+$(OBJDIR)\midiin.obj:   midiin.c
+$(OBJDIR)\midiout.obj:  midiout.c
+$(OBJDIR)\timerwnd.obj: timerwnd.c
+
+$(OBJDIR)\dmhelp.obj:   dmhelp.asm
+$(OBJDIR)\libentry.obj: libentry.asm
+$(OBJDIR)\mmdevldr.obj: mmdevldr.asm
+$(OBJDIR)\uldiv.obj:    uldiv.asm
+
+$(OBJDIR)\dmthunk.obj:  $(OBJDIR)\dmthunk.asm
+    ml -c -DIS_16 -Fo$(OBJDIR)\dmthunk.obj $(OBJDIR)\dmthunk.asm
+
+$(OBJDIR)\dmthunk.asm:    ..\dmusic32\dmthunk.thk
+    thunk -o $(OBJDIR)\dmthunk.asm ..\dmusic32\dmthunk.thk

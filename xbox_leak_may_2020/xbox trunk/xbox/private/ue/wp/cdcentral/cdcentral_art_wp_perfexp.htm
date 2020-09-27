@@ -1,0 +1,221 @@
+<TR><td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><Td><H2>Graphic Performance</H2>
+<I>By Dave McCoy</I>
+
+<H3>Introduction</H3>
+<P>Numerous issues can dramatically affect graphic performance. Different games will place very different requirements on the geometry and pixel-fill abilities of the Xbox. This being the case, it is not possible to offer anything more than general guidelines about performance. </P>
+<P>However, with those caveats in place, this paper will try to provide that kind of guidance about performance expectations for games on the Xbox&#8482; video game system from Microsoft.</P>
+
+<H3>Triangle Performance</H3>
+<P>Relatively speaking, the Xbox is a triangle monster compared to other platforms.  We have received reports from experienced developers achieving 14 million to 19 million triangles per second on current hardware. Given these developers' experience and the nature of the games, this is probably toward the high end of what we can expect on current hardware. </P>
+<P>Final hardware will have an additional hardware pipe, and clock speed for the chip will go up by 25 percent, so final hardware should be capable of up to 2.5 times the vertex transform performance of current dev kits; however, pixel fill rate and other issues also will limit how many triangles per second can be drawn.</P>
+<P>Generally, about 25 million triangles per second should be middle range performance on final hardware for developers using the hardware correctly but not employing numerous available tricks that could further speed performance. This number is well below theoretical maximum performance, and takes into account various factors that are necessary for game graphics and that prevent the hardware from operating at top speed. With great effort and top-notch optimization, developers should be capable of creating performance in the 30 million to 35 million triangles per second range, though this level will take very careful optimization and significant time with the hardware to develop more sophisticated techniques optimized to the hardware.</P>
+<P>Doing the math on the numbers:</P>
+<P>Currently reported: 14 million triangles per second / 60 frames per second = 233,333 triangles per frame</P>
+<P>Currently reported: 19 million triangles per second / 60 frames per second = 316,666 triangles per frame</P>
+<P>Projected on final hardware: 25 million triangles per second / 60 frames per second = 416,666 triangles per frame</P>
+<P>Different parts of game databases will have different performance levels. For games such as racing or other vehicle-based games, the previous numbers should be fairly consistent for the environment and the game objects. For continuous mesh characters, these numbers will go down.</P>
+<P>Among the largest factors that will slow triangle performance is the use of bones in continuous meshes. Thus, all the triangles used in characters will slow performance. Developers are currently  reporting about 7 million triangles per second for continuous meshes using bones. Ten million triangles per second will be reasonable for typical optimized meshes on final hardware. For the numbers in the suggested budgets that follow,  I will, therefore, consider each triangle in a continuous mesh with bone animation to be effectively 2.5 conventional triangles. I can only assume that the recurring 666 ending of the various numbers in this report has something to do with the apocalypse.</P>
+<P>Again looking at the triangle performance numbers on a per frame basis:</P>
+<P>Currently reported:7 million triangles per second / 60 triangles per frame = 116,666 triangles per frame</P>
+<P>Projected on final hardware:10 million triangles per second / 60 triangles per frame = 166,666 triangles per frame</P>
+<P>Obviously, games will not typically consist only of continuous mesh characters or non-articulated static elements. Assuming a game with a 50/50 mix of continuous mesh and conventional mesh geometry:</P>
+<P>Pessimistic current performance: 174,999 triangles per frame</P>
+<P>Projected reasonable final performance: 291,666 triangles per frame</P>
+<P>For a fighting game, more of the triangles used would probably be in the characters and would be closer to the continuous mesh numbers.</P>
+<P>Here are some hypothetical numbers for a fighting game:</P>
+<TABLE width="100%"> 
+<td>2 characters, continuous mesh: 25,000 triangles each&nbsp;&nbsp;&nbsp;</TD><TD align="right">50,000 triangles per frame</TD></TR>
+<TR><TD>2 character reflections: 25,000 triangles each</TD><TD align="right">50,000 triangles per frame</TD></TR>
+<TR><TD>2 character shadows: 5,000 triangles each</TD><TD align="right">10,000 triangles per frame</TD></TR>
+<TR><TD>&times; 2.5 for equivalent to non-boned triangles</TD><TD align="right">275,000 triangles per frame</TD></TR>
+<TR><TD>Environment</TD><TD align="right">120,000 triangles per frame</TD></TR>
+</TABLE> 
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">395,000 triangles per frame</TD></TR>
+</TABLE>
+<P>I've done a number of pessimistic things in this estimation for a little headroom, such as rendering the reflections with the same model as the characters and using very large character shadow budgets. I would expect lower triangle use for these but, again, wanted to allow a very large margin of error. </P>
+<P>For reference, here's what a 25,000 triangle human looks like without texture. Raven in the Raven and Rex demo was about 12,000.</P>
+<IMG src="/content/img/perfexp_fig2.jpg"><BR><BR>
+<IMG src="/content/img/perfexp_fig1.jpg"><BR><BR>
+
+
+<P>Triangle budgets for a number of other hypothetical games are listed below. For fighting games, in which the main characters are in your face almost all the time, levels of detail (LODs) are not necessarily required. For budgets on these other game types, I have assumed the use of three to five LODs. For purposes of budgeting, I am assuming that the average number of triangles a character will require is half of the maximum number used in the most detailed LOD. The triangle count of the most detailed LOD is the number I have listed below. The numbers are not for all objects in the database, but for all objects visible on screen at any one time. I am assuming vertex compression and appropriate precision values that will result in a reasonably sized database. I am also assuming commonly used, but efficient use of, techniques for determining which objects lie within the viewing frustrum.</P>
+
+<H4>Team Shooter</H4>
+<P>32 characters on screen
+
+<TABLE width="100%">
+<TR><TD>Continuous mesh characters, 41 bones: 4000 triangles maximum LOD</TD><TD align="right">64,000 continuous mesh triangles</TD></TR>
+<TR><TD>Character reflections: identical to characters, but not all visible per frame</TD><TD align="right">32,000 continuous mesh triangles</TD></TR>
+<TR><TD>&times; 2.5 for equivalent to non-boned triangles</TD><TD align="right">240,000 triangles</TD></TR>
+<TR><TD>Character shadows: 800 triangles each</TD><TD align="right">25,600 triangles</TD></TR>
+<TR><TD>Terrain, buildings and other static elements</TD><TD align="right">120,000 triangles</TD></TR>
+<TR><TD>Misc effects and overhead</TD><TD align="right">20,000 triangles</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">415,600 triangles</TD></TR>
+</TABLE></P>
+<P>This assumes very little elegance in handling reflections and effects. There are lots of opportunities to optimize above this point. </P>
+<H4>Racing Game</H4>
+<P>12 vehicles on screen
+<TABLE width="100%">
+<TR><TD>Cars: 12,000 triangles with 2,000 triangles for procedural tires</TD><TD align="right">84,000 triangles</TD></TR>
+<TR><TD>Car shadows: 2000 triangles</TD><TD align="right">24,000 triangles</TD></TR>
+<TR><TD>Car reflections</TD><TD align="right">36,000 triangles</TD></TR>
+<TR><TD>Pit crew and other close objects</TD><TD align="right">40,000 triangles</TD></TR>
+<TR><TD>Terrain (2 km visible)</TD><TD align="right">80,000 triangles</TD></TR>
+<TR><TD>Terrain reflections</TD><TD align="right">40,000 triangles</TD></TR>
+<TR><TD>Miscellaneous dynamic objects (barrels, cones, construction horses)</TD><TD align="right">12,000 triangles</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">316,000 triangles</TD></TR>
+</TABLE></P>
+<P>This again assumes little optimization. It does assume some trickery in handling terrain reflections.</P>
+
+<H4>Sports Game</H4>
+<P>24 principle characters on screen
+<TABLE width="100%">
+<TR><TD>Players/referees, continuous mesh: 6000 triangles per character highest LOD</TD><TD align="right">72,000 triangles</TD></TR>
+<TR><TD>Sideline characters, continuous mesh</TD><TD align="right">40,000 triangles</TD></TR>
+<TR><TD>&times; 2.5 for equivalent to non-boned triangles</TD><TD align="right">280,000 triangles</TD></TR>
+<TR><TD>All character (player/non-player shadows: 48 &times; 1200 triangles each</TD><TD align="right">57,000 triangles</TD></TR>
+<TR><TD>Stadium and crowds</TD><TD align="right">64,000 triangles</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">401,000 triangles</TD></TR>
+</TABLE></P>
+<H3>Texture Budgets</H3>
+<P>Fortunately texture use does not require as much hypothesizing about final hardware as polygon use. It pretty much comes down to memory and appropriate use of existing features. The texture storage abilities of the Xbox are so much higher than previous consoles that comparisons to high-end PCs are more appropriate than to existing platforms. The 64-MB unified memory and texture compression of the Xbox allow for larger texture budgets than even super high-end PCs. Fully exploiting the ability of the Xbox to deliver more and larger textures can result in significant improvements to the visual fidelity of games, including sharp, crisp surface appearance; avoidance of tiling artifacts; detailed light maps; greater variety in object appearance; and other visual qualities that are readily apparent to consumers. Given the abilities of the Xbox, games on this platform have little need to compromise on any area of texture use.</P>
+<P>An error I have observed commonly enough to comment on is under-allocating  environment or terrain textures. These textures significantly affect visual fidelity because they are typically often repeated or stretched out over large surfaces that are viewed edge on.</P>
+<P>Generally, games on the Xbox should budget at least 16 megabytes for texture. Budgets of 16 megabytes to 24 megabytes should be common. Depending on the other memory requirements of the game (geometry, collision data, audio, code) a few games may choose to allocate even more memory to texture. Hardware compression of textures can multiply texture sizes by up to six times. With compression, 8 MB of memory can result in up to 48 MB of texture storage, enough to store 16 1024 &times; 1024 24-bit compressed.</P>
+<P>Compression can introduce some artifacts that may make it unsuitable for some textures, such as normal maps and light maps. In some cases, palette-based textures can be used to keep memory footprint down where compression artifacts are objectionable. </P>
+<P>Like estimates in other areas, these budgets provide reasonable wiggle room. It is extremely unlikely that geometry, audio, code, and other resources would consume remaining memory resources after these textures were allocated. Additionally, like other estimates, these numbers represent baselines. It is expected that many developers will significantly exceed them, but allocation below these levels would likely result in unacceptable fidelity compromises.</P>
+<H4>Fighting Game - Texture Budgets</H4>
+<P>2 on-screen characters
+<TABLE width="100%">
+<TR><TD>4 1024 &times; 2048 compressed 32-bit color/specular</TD><TD align="right">5.25 MB for both characters</TD></TR>
+<TR><TD>2 &nbsp;512 &times; 1024 24-bit uncompressed normal</TD><TD align="right">3 MB for both characters</TD></TR>
+<TR><TD>6 1024 &times; 1024 24-bit compressed color environment map</TD><TD align="right">3 MB</TD></TR>
+<TR><TD>1 2048 &times; 2048 32 bit compressed objects color/specular texture</TD><TD align="right">2.6 MB</TD></TR>
+<TR><TD>1 1024 &times; 1024 24-bit uncompressed objects normal texture</TD><TD align="right">3 MB</TD></TR>
+<TR><TD>1 1024 &times; 1024 32-bit compressed effects color/alpha texture</TD><TD align="right">0.67 MB</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">17.52 MB</TD></TR>
+<TR><TD>With mip maps</TD><TD align="right">23.36 MB</TD></TR>
+</TABLE></P>
+<P>This texture budget would result in very high fidelity texturing. This budget assumes an HDTV-capable game, so it uses a high-resolution environment map.</P>
+<H4>Shooter - Texture Budgets</H4>
+<P>32 on-screen characters
+<TABLE width="100%">
+<TR><TD>32 512 &times; 256 24-bit compressed color textures</TD><TD align="right">2 MB for all characters</TD></TR>
+<TR><TD>8 &nbsp;512 &times; 256 8-bit uncompressed indexed normal texture</TD><TD align="right">1 MB for all characters</TD></TR>
+<TR><TD>16 512 &times; 512 24-bit compressed spherical environment maps</TD><TD align="right">2  MB</TD></TR>
+<TR><TD>1 4096 &times; 4096 24-bit compressed environment color texture</TD><TD align="right">8 MB</TD></TR>
+<TR><TD>1 1024 &times; 1024 24-bit uncompressed environment bump texture</TD><TD align="right">3 MB</TD></TR>
+<TR><TD>1 1024 &times; 1024 32-bit compressed color/alpha effects texture</TD><TD align="right">1 MB</TD></TR>
+<TR><TD>1 1024 &times; 1024 8-bit uncompressed light map</TD><TD align="right">1 MB</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">18.0 MB</TD></TR>
+<TR><TD>With mip maps</TD><TD align="right">24.0 MB</TD></TR>
+</TABLE></P>
+<P>This budget allows each character to have a unique color scheme and numerous unique bump map characteristics. It also provides for dynamic texture changes in the environment to allow for persistent damage and other texture "bruising" effects.</P>
+<H4>Racing Game - Texture Budgets</H4>
+<P>12 on-screen cars
+<TABLE width="100%">
+<TR><TD>12 512 &times; 512 32-bit car compressed color/alpha decal textures</TD><TD align="right">2 MB</TD></TR>
+<TR><TD>12 512 &times; 256 8-bit uncompressed dirt textures</TD><TD align="right">1.5 MB</TD></TR>
+<TR><TD>16 512 &times; 512 32-bit compressed color pit crew textures</TD><TD align="right">2.6 MB</TD></TR>
+<TR><TD>4 4096 &times; 256 24-bit compressed color environment map textures</TD><TD align="right">2 MB</TD></TR>
+<TR><TD>1 2048 &times; 2048 24-bit compressed environment color texture</TD><TD align="right">2 MB</TD></TR>
+<TR><TD>1 2048 &times; 2048 8-bit indexed uncompressed environment normal texture</TD><TD align="right">4 MB</TD></TR>
+<TR><TD>1 1048 &times; 1048 8-bit uncompressed light map</TD><TD align="right">1 MB</TD></TR>
+<TR><TD>1 2048 &times; 1024 32-bit compressed color/alpha crowd textures</TD><TD align="right">1.3 MB</TD></TR>
+<TR><TD>1 2048 &times; 1024 32-bit compressed color/alpha effects textures</TD><TD align="right">1.3 MB</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">17.7 MB</TD></TR>
+<TR><TD>With mip maps</TD><TD align="right">23.6 MB</TD></TR>
+</TABLE></P>
+<P>This game uses several large textures that store reflection maps for the entire length of the course. These will be mapped on the cars depending on their position on the track. It also uses unique dirt textures for each car, allowing them to be uniquely dynamically grimed over the course of the race. Persistent texture bruising on the track (skid marks, and so on) is also budgeted.</P>
+
+<H4>Sports Game - Texture Budgets</H4>
+<P>32 on-screen characters
+<TABLE width="100%">
+<TR><TD>4 512 &times; 1024 32-bit compressed team uniform color/specular textures</TD><TD align="right">1.3 MB</TD></TR>
+<TR><TD>2 512 &times; 1024 24-bit uncompressed character normal textures</TD><TD align="right">3 MB</TD></TR>
+<TR><TD>22 512 &times; 256 32-bit compressed player uniform markings color/specular textures</TD><TD align="right">1.8 MB</TD></TR>
+<TR><TD>22 256 &times; 256 8-bit uncompressed dirt textures</TD><TD align="right">1.3 MB</TD></TR>
+<TR><TD>22 256 &times; 512 32-bit compressed face color/specular textures</TD><TD align="right">1.8 MB</TD></TR>
+<TR><TD>16 256 &times; 512 32-bit compressed sideline character color/alpha textures</TD><TD align="right">1.3 MB</TD></TR>
+<TR><TD>1 2048 &times; 2048 32-bit compressed crowd color/alpha texture</TD><TD align="right">2.6 MB</TD></TR>
+<TR><TD>1 2048 &times; 1024 24-bit compressed field color texture</TD><TD align="right">1 MB</TD></TR>
+<TR><TD>1 1024 &times; 1024 24-bit compressed stadium color texture</TD><TD align="right">0.5  MB</TD></TR>
+<TR><TD>1 2048 &times; 2048 8-bit uncompressed light map</TD><TD align="right">4 MB</TD></TR>
+</TABLE>
+<hr noshade>
+<TABLE width="100%">
+<TR><TD>Total</TD><TD align="right">18.6 MB</TD></TR>
+<TR><TD>With mip maps</TD><TD align="right">24.8 MB</TD></TR>
+</TABLE></P>
+<P>This budget allows for a number of unique uniform characteristics and naturally unique player markings. It also provides for unique faces for each player. The field can be dynamically degraded as the game is played. The budget provides for enough variety in texture that the game crowds should not appear to repeat and can be animated. </P>
+
+<H3>Pixel Fill Performance</H3>
+<P>This section will be numbers first and caveats next, because there are a lot of caveats. </P>
+<P>The best-case maximum fill rate for the Xbox is 1,000,000,000 pixels per second. With all inefficiencies and overhead considered, typical performance will probably be in the neighborhood of 360,000,000 pixels per second.</P>
+<P>With typical lighting and texturing, there should be sufficient performance to draw every pixel on the screen 15 to 20 times and maintain 60 Hz. </P>
+<P>Here are some significant factors that can affect fill rate:
+<UL>
+<LI>Very small triangles will not be filled as fast as big triangles.</LI><BR><BR>
+<LI>Highest performance occurs when one or two textures are applied to a polygon. My pixel fill rates assume a reasonable mix of two texture applications and more expensive four-texture applications to various surfaces. Five to six texture applications on a single polygon will cut pixel fill-rate by a third. A number of games with complex lighting and complex surfaces could see this reduction. Seven to eight textures will cut performance in half. Games that are trying for very complex surfaces and lighting will see this lowered level of performance.</LI><BR><BR>
+<LI>Translucent objects will cut pixel fill rates in half.</LI><BR><BR>
+<LI>Environment mapped objects with bumpy surfaces will slow fill rate to about 1/10 of typical performance.</LI><BR><BR>
+<LI>Fur, hair, procedural grass, and other similar surfaces can cut performance up to 1/16 of regular fill rates on surfaces that use them.</LI>
+
+</UL></P>
+<P>Generally if games are using a lot of any of these features, they may run into pixel fill rate problems. Fortunately good developers are so used to having to make due with less performance than the Xbox offers that they have numerous strategies to avoid trouble. They'll still have to use these techniques but will have a lot more headroom on the Xbox than they've had before. If none of these features are in broad use and developers are limited by pixel fill, investigation into what is limiting fill rates is warranted.</P>
+
+
+<BR><BR>
+
+<SMALL>Friday, May 18, 2001</SMALL>
+
+
+
+</td>
+
+
+
+
+
+	

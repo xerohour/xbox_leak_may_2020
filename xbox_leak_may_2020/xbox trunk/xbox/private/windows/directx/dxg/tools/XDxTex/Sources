@@ -1,0 +1,58 @@
+TARGETNAME=XDxTex
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=windows
+UMENTRY=winmain
+
+TARGETLIBS= $(BASEDIR)\Public\wsdk\lib\comctl32.lib    \
+            $(BASEDIR)\Public\wsdk\lib\comdlg32.lib    \
+            $(BASEDIR)\Public\wsdk\lib\version.lib     \
+            $(BASEDIR)\Public\wsdk\lib\ddraw.lib       \
+            $(BASEDIR)\Public\wsdk\lib\uuid.lib        \
+            $(BASEDIR)\Public\wsdk\lib\winspool.lib    \
+            $(BASEDIR)\Public\wsdk\lib\shell32.lib     \
+            $(BASEDIR)\Public\wsdk\lib\d3d8.lib \
+            $(LIBRARY_PATH)\*\xgraphics$(D).lib \
+!if !$(FREEBUILD)
+            $(BASEDIR)\Public\wsdk\lib\d3dx8dt.lib \
+!else
+            $(BASEDIR)\Public\wsdk\lib\d3dx8.lib \
+!endif
+            $(BASEDIR)\Public\wsdk\lib\dxguid.lib \
+
+INCLUDES=$(WSDK_INC_PATH)\atlmfc; \
+         $(WSDK_INC_PATH); \
+
+SOURCES=ChildFrm.cpp \
+        Dialogs.cpp     \
+        Dxtex.cpp     \
+        DxtexDoc.cpp  \
+        DxtexView.cpp \
+        MainFrm.cpp  \
+        DxTex_razzle.rc
+
+
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+C_DEFINES = $(C_DEFINES) -DDEBUG
+!endif
+
+
+
+USE_MFC=1
+PLATFORM_MFC_VER = 0x0421
+USE_MSVCRT=1
+WIN32_IE_VERSION=0x0400
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+MFC_LIBS=  \
+          $(WSDK_LIB_PATH)\mfc42d.lib \
+          $(WSDK_LIB_PATH)\mfcd42d.lib \
+          $(WSDK_LIB_PATH)\mfcn42d.lib \
+          $(WSDK_LIB_PATH)\mfco42d.lib \
+          $(WSDK_LIB_PATH)\mfcs42d.lib
+!else
+MFC_LIBS=  \
+          $(WSDK_LIB_PATH)\mfc42.lib \
+          $(WSDK_LIB_PATH)\mfcs42.lib
+!endif
+
+MFC_INCLUDES=$(WSDK_INC_PATH)\mfc42

@@ -1,0 +1,889 @@
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 1
+
+
+
+1                          ; ******************************************************************
+2                          ;
+3                          ;       Unpublished work.  Copyright 2000 Dolby Laboratories Inc.
+4                          ;       All Rights Reserved.
+5                          ;
+6                          ;       File:                   Suprexec.asm
+7                          ;
+8                          ;   Contents:           Superexec for Dolby Game Encoder
+9                          ;
+10                         ;       Author:                 jmw
+11                         ;
+12                         ;       Revision:               1.00
+13                         ;
+14                         ;       History:
+15                         ;
+16                         ;               Rev 1.00        8/16/2000 3:51:37 PM            jmw
+17                         ;       Created.
+18                         ;
+19                         ;
+20                         ; ******************************************************************
+21     
+22                                   page    132,66,3,3
+23                                                   opt     cre,loc,cc,cex,mex,mu,so
+24     
+26     
+27                                                   section SuperExec
+28     
+29                                         ;**** include files ************************************************
+30     
+390    
+391                                        ;**** Development Switches *****************************************
+392    
+393                                                  IF      @DEF('SIM_XBOX_SYS_MEM')
+395                                                  ENDIF
+396    
+397                                        ;*** Switches (leave defined for X-Box) ****************************
+398    
+399                                                  DEFINE  PERF_COUNTERS '1'
+400                                                  DEFINE  INFINITE_LOOP_IF_TIME_OVERRUN '1'
+401                                                                                            ;DEFINE         ERRHALT              
+                                           '1'             ; Halt on loader error
+402    
+403                                        ;**** Development External References ******************************
+404    
+405                                                  IF      @DEF('RTSYS')                     ; Dolby development HW only
+407                                                  ENDIF
+408    
+409                                                  IF      @DEF('SIM_XBOX_SYS_MEM')          ; Motorola simulator only
+414                                                  ENDIF
+415    
+416                                        ;**** equates ******************************************************
+417    
+418    
+419                                        ;MAX_EP_CYCLES                          equ             1060000 ;200mhz
+420                                        ;MAX_EP_CYCLES                          equ             850000  ;160mhz
+421                                        MAX_EP_CYCLES
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 2
+Dolby Super Exec
+
+
+422       0ACDA0                                     equ     708000                            ;133mhz
+423    
+424                                        STACK_EXTSZ
+425       000020                                     equ     32                                ; stack extension size
+426                                        CONFIG_SIZE
+427       000020                                     equ     32                                ; config data size
+428                                        SE_NUM_BLOCKS
+429       000006                                     equ     6                                 ; number of blocks per frame (6)
+430       001000                           PMEMSIZE  equ     $001000                           ; p: is 4k words
+431       000100                           YMEMSIZE  equ     $000100                           ; y: is 256 words
+432       FFFFFF                           TRASHWORD equ     $ffffff                           ; overwrite memory with this word
+433    
+434                                        MONO_DNMIX_CODE
+435       000001                                     equ     $000001                           ;
+436                                        STEREO_DNMIX_CODE
+437       000002                                     equ     $000002                           ;
+438    
+439                                        ;       IF      @DEF('PERF_COUNTERS')
+440                                        ;MAX_TIMES_IGNORE_TIMER_AFTER_REBOOT            equ             0
+441                                        ;       ENDIF   ;       IF      @DEF('PERF_COUNTERS')
+442    
+443                                        ;*******************************************************************
+444                                        ;       Super Exec sets up stack extension at top of x: RAM.
+445    
+446                                                  mode    rel
+447       X:000000                                   org     x(201):                           ; place stack at top of RAM.
+448    
+449       X:000000                         stack_ext ds      STACK_EXTSZ                       ; stack extension
+450    
+451                                        ;*******************************************************************
+452                                        ;       Config List from System. Place immediately below stack extension.
+453    
+454                                                  mode    rel
+455       X:000000                                   org     x(204):
+456    
+457                                        config_list
+458       X:000000                                   ds      CONFIG_SIZE
+459    
+461    
+462                                        ;**** code *********************************************************
+463                                        ;       Start Program Code Here.
+464    
+465                                                  mode    rel
+466       P:000000                                   org     p(202):
+467    
+468                                        SuperExec:
+469    
+470       P:000000 050C08  [4 -        4]            bra     <SEStart                          ; skip over local variables
+471    
+472                                        ;       Local Variables
+473    
+474  d                                     supexec_blknum
+475  d    P:000001 000000                            dc      0                                 ; to sync all functions to same block
+.
+476  d    P:000002 000001                  surr_reset dc     1                                 ; surround reset flag - init to one (
+!)
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 3
+Dolby Super Exec
+
+
+477  d    P:000003 000001                  game_reset dc     1                                 ; game encoder reset flag - init to o
+ne (!)
+478    
+479                                                  IF      @DEF('PERF_COUNTERS')
+480  d                                     elapsed_time
+481  d    P:000004 000000                            dc      0
+482  d    P:000005 000000                  prev_time dc      0
+483  d                                     suprexec_temp
+484  d    P:000006 CCCCCC                            dc      $cccccc                           ; $cccccc is no time overflow, $bbbbb
+b if exceed 5.33 ms.
+485  d    P:000007 000000                  count     dc      0                                 ; allows algorithm to exceed 5.33 ms 
+during reboot only.
+486                                                  ENDIF                                     ; IF @DEF('PERF_COUNTERS')
+487    
+488                                        ;*******************************************************************
+489                                        ;       Start SuperExec Program Code.
+490    
+491                                        SEStart:
+492    
+493                                                  IF      @DEF('PERF_COUNTERS')
+494                                                                                            ; init timer variables
+495    
+496       P:000008 240000  [1 -        5]            move              #0,x0
+497       P:000009 077084  [7 -       12]            move              x0,p:elapsed_time
+                   000004
+498       P:00000B 077084  [7 -       19]            move              x0,p:prev_time
+                   000005
+499    
+500                                                                                            ; setup timer registers
+501    
+502       P:00000D 07F432  [2 -       21]            movep             #$FFFFFF,x:TIMER1_TERMINAL_COUNT
+                   FFFFFF
+503       P:00000F 07F430  [2 -       23]            movep             #1,x:TIMER1_CONFIG
+                   000001
+504    
+505                                                                                            ; start the timer from 0
+506       P:000011 07F431  [2 -       25]            movep             #1,x:TIMER1_CONTROL
+                   000001
+507                                                  ENDIF                                     ; IF @DEF('PERF_COUNTERS')
+508    
+509    
+510                                        ;       Enable Stack extension.
+511    
+512       P:000013 0500BB  [1 -       26]            movec             #0,sp                   ; reset the stack pointer
+513       P:000014 05F42A  [2 -       28]            movec             #stack_ext,ep           ; init extension pointer register
+                   000000
+514       P:000016 0520B8  [1 -       29]            movec             #STACK_EXTSZ,sz         ; init stack size register
+515       P:000017 0AFA74  [2 -       31]            bset    #20,omr                           ; enable stack extension
+516    
+517                                        ;       Enable any counters, etc. at reset.
+518    
+519       P:000018 200013  [1 -       32]            clr     a                                 ; a0 = 0
+520       P:000019 077088  [7+1 -     40]            move              a0,p:supexec_blknum     ; start with block zero at reset
+                   000001
+521       P:00001B 000008  [1 -       41]            inc     a                                 ; a0 = 1
+522       P:00001C 077088  [7+1 -     49]            move              a0,p:surr_reset         ; explicitly set reset flag
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 4
+Dolby Super Exec
+
+
+                   000002
+523       P:00001E 077088  [7 -       56]            move              a0,p:game_reset         ; explicitly set reset flag
+                   000003
+524    
+525                                        ;       Initialize the loader
+526    
+527       P:000020 56F400  [2 -       58]            move              #>LID_LOADER_INIT,a     ; Packet ID
+                   000000
+528       P:000022 0BF080  [4 -       62]            jsr     LOADERBASE                        ; Call the Loader
+                   000000
+529    
+530    
+531    
+532                                        ;       Clear the start frame bit
+533                                                  EPClearStartFrameBit
+534   +   P:000024 08F485  [2 -       64]            movep             #2,x:INTERRUPT_REGISTER ; "Write-1-To-Clear-One"
+                   000002
+535    
+536    
+537                                        ;*******************************************************************
+538                                        ;       Enter Endless Loop to process each of the four possible Functions
+539                                        ;       in series.      Note that we might not process the function; it depends upon
+540                                        ;       the corresponding flag in the config_list.
+541    
+542                                        ;       1. Dolby Surround OR Downmix Function if Surround Not Enabled
+543                                        ;       2. Dolby Game Encoder Function 1
+544                                        ;       3. Dolby Game Encoder Function 2
+545                                        ;       4. Dolby Game Encoder Function 3
+546    
+547                                        SELoop:
+548    
+549                                                  IF      @DEF('PERF_COUNTERS')
+550       P:000026 07F08E  [7 -       71]            move              p:count,a
+                   000007
+551       P:000028 014180  [1 -       72]            add     #1,a
+552       P:000029 07708E  [7+1 -     80]            move              a,p:count
+                   000007
+553                                                  ENDIF                                     ;       IF @DEF('PERF_COUNTERS')
+554    
+555                                        ; Write the idle bit
+556                                                  EPSetIdleBit
+557   +   P:00002B 08F484  [2 -       82]            movep             #1,x:PROCESSING_CONTROL_REGISTER ; "Write-1-To-Clear-One"
+                   000001
+558    
+559                                        ;       Wait for Start Frame bit.
+560       P:00002D 200013  [1 -       83]            clr     a
+561                                        waitframe:
+562       P:00002E 014180  [1 -       84]            add     #1,a
+563       P:00002F 0A8581  [4 -       88]            jclr    #kStartFrameBit,x:INTERRUPT_REGISTER,waitframe
+                   00002E
+564    
+565                                                  IF      @DEF('PERF_COUNTERS')
+566                                                                                            ;************************************
+***********************************
+567       P:000031 44F000  [2 -       90]            move              x:TIMER1_COUNT,x0
+                   FFFFB3
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 5
+Dolby Super Exec
+
+
+568       P:000033 077084  [12 -      102]           movem             x0,p:prev_time
+                   000005
+569                                                                                            ;************************************
+***********************************
+570                                                  ENDIF                                     ; IF @DEF('PERF_COUNTERS')
+571    
+572    
+573                                        ClearStartFrameBit:
+574                                        ; Clear GP Start Block (bit 1)
+575                                                  EPClearStartFrameBit
+576   +   P:000035 08F485  [2 -      104]            movep             #2,x:INTERRUPT_REGISTER ; "Write-1-To-Clear-One"
+                   000002
+577    
+578    
+579                                        ;       Increment the ping-pong for pcm input
+580    
+581       P:000037 56F400  [2 -      106]            move              #>LID_PING_PONG,a       ; Packet ID
+                   00000B
+582       P:000039 0BF080  [4 -      110]            jsr     LOADERBASE                        ; Call the Loader
+                   000000
+583    
+584    
+585                                                  IF      @DEF('PERF_COUNTERS')
+586                                                                                            ;************************************
+***********************************
+587                                                                                            ;
+588                                                                                            ; This section checks to see if we ex
+ceed time limit,
+589                                                                                            ; and if we did, it enters INFINITE L
+OOP (a VERY HARD CRASH).
+590                                                                                            ;
+591       P:00003B 56F000  [2 -      112]            move              x:TIMER1_COUNT,a        ; calculate time algorithm took to ru
+n
+                   FFFFB3
+592       P:00003D 07F084  [12 -      124]           movem             p:prev_time,x0
+                   000005
+593       P:00003F 200044  [1 -      125]            sub     x0,a
+594       P:000040 07708C  [12+1 -    138]           movem             a1,p:elapsed_time       ; save it in elapsed time
+                   000004
+595    
+596       P:000042 44F400  [2 -      140]            move              #MAX_EP_CYCLES,x0       ; compare elapsed time to max allowed
+                   0ACDA0
+597       P:000044 0C1FF8  [1 -      141]            cmpu    x0,a
+598       P:000045 0597C1  [4 -      145]            blt     <SELoop                           ; if algoithm did NOT exceed, keep pr
+ocessing.
+599    
+600                                        ;        move    p:count,a                      ; if algorithm DID exceed, check if this 
+happened
+601                                        ;                                                                       ; immediately aft
+er chip rebooted.
+602                                        ;        cmp     #>MAX_TIMES_IGNORE_TIMER_AFTER_REBOOT,a
+603                                        ;        blt     <SELoop                                ; If it did, ignore.
+604    
+605       P:000046 44F400  [2 -      147]            move              #$bbbbbb,x0             ; MAJOR FAILURE!  Algorithm exceed 5.
+33 ms allowed time.
+                   BBBBBB
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 6
+Dolby Super Exec
+
+
+606       P:000048 077084  [7 -      154]            move              x0,p:suprexec_temp      ; write tag to indicate failure.
+                   000006
+607    
+608                                                  IF      @DEF('INFINITE_LOOP_IF_TIME_OVERRUN')
+609                        
+610       P:00004A 050C00  [4 -      158]            bra     <*                                ; HARD CRASH - INFINITE LOOP to isola
+te problem during debugging.
+611                        
+612                                                  ENDIF                                     ; IF @DEF('INFINITE_LOOP_IF_TIME_OVER
+RUN')
+613    
+614                                                  IF      @DEF('ERRHALT')
+616                                                  ENDIF
+617                                                                                            ;************************************
+***********************************
+618                                                  ENDIF                                     ;       IF @DEF('PERF_COUNTERS')
+619    
+620    
+621                                                                                            ; stop here
+622                                                                                            ;bra    <SELoop
+623       P:00004B 050C00  [4 -      162]            bra     <*
+624    
+625    
+626    
+627                                        ;*******************************************************************
+628                                                  endsec                                    ; SuperExec
+629                                                  end                                       ; end of file
+
+0    Errors
+0    Warnings
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 7
+Dolby Super Exec
+
+
+Define symbols:
+
+Symbol           Definition
+
+INFINITE_LOOP_IF.'1'
+PERF_COUNTERS....'1'
+
+
+Macros:
+
+Name          Definition       Section
+                 Line
+
+EPClearDataRAM...367           SuperExec
+EPClearInterrupt.327           SuperExec
+EPClearProcessin.335           SuperExec
+EPClearSampleCon.343           SuperExec
+EPClearStartFram.359           SuperExec
+EPSetIdleBit.....351           SuperExec
+EPWritePC........376           SuperExec
+
+
+Relocatable Sections:
+
+Name
+
+SuperExec
+
+
+Symbols:
+
+Name             Type    Value         Section           Attributes
+
+COMMAND_GET_REGI.int     FFFFC0        SuperExec         ABS
+COMMAND_PUT_REGI.int     FFFFC1        SuperExec         ABS
+CONFIG_SIZE......int     000020        SuperExec         ABS
+ClearStartFrameB.int   P:000035        SuperExec         REL
+FIFOIN_CONTROL_R.int     FFFFC9        SuperExec         ABS
+FIFOOUT_CONTROL_.int     FFFFC8        SuperExec         ABS
+GLOBAL_SAMPLE_CO.int     FFFFC6        SuperExec         ABS
+INTERRUPT_REGIST.int     FFFFC5        SuperExec         ABS
+INTERRUPT_TABLE_.int     FF0000        SuperExec         ABS
+LDR_ACT_ALLOC....int     000000        SuperExec         ABS
+LDR_ACT_FROM_DSP.int     000006        SuperExec         ABS
+LDR_ACT_FROM_DSP.int     000002        SuperExec         ABS
+LDR_ACT_FROM_DSP.int     000004        SuperExec         ABS
+LDR_ACT_MAX......int     000006        SuperExec         ABS
+LDR_ACT_MIN......int     000000        SuperExec         ABS
+LDR_ACT_TO_DSPP..int     000005        SuperExec         ABS
+LDR_ACT_TO_DSPX..int     000001        SuperExec         ABS
+LDR_ACT_TO_DSPY..int     000003        SuperExec         ABS
+LDR_ERR_ACTION...int     000002        SuperExec         ABS
+LDR_ERR_ALLOC....int     000004        SuperExec         ABS
+LDR_ERR_ID.......int     000001        SuperExec         ABS
+LDR_ERR_LENGTH...int     000003        SuperExec         ABS
+LDR_ERR_NONE.....int     000000        SuperExec         ABS
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 8
+Dolby Super Exec
+
+
+LDR_HDR_SIZE.....int     000004        SuperExec         ABS
+LDR_HEAP_ADDR....int     00001C        SuperExec         ABS
+LDR_HEAP_SIZE....int     00001D        SuperExec         ABS
+LDR_NUM_DATA.....int     000012        SuperExec         ABS
+LDR_OFF_PCM_C....int     000001        SuperExec         ABS
+LDR_OFF_PCM_L....int     000000        SuperExec         ABS
+LDR_OFF_PCM_LFE..int     000005        SuperExec         ABS
+LDR_OFF_PCM_LS...int     000003        SuperExec         ABS
+LDR_OFF_PCM_LT...int     000000        SuperExec         ABS
+LDR_OFF_PCM_R....int     000002        SuperExec         ABS
+LDR_OFF_PCM_RS...int     000004        SuperExec         ABS
+LDR_OFF_PCM_RT...int     000001        SuperExec         ABS
+LDR_PINGPONG_OFF.int     000016        SuperExec         ABS
+LDR_SYSTABLE_SIZ.int     00001E        SuperExec         ABS
+LDR_TABLE_SIZE...int     000040        SuperExec         ABS
+LID_AC3_PREAMBLE.int     00000D        SuperExec         ABS
+LID_AC3_ZEROS....int     00000C        SuperExec         ABS
+LID_BUF_AC3......int     000009        SuperExec         ABS
+LID_BUF_DATA.....int     00000E        SuperExec         ABS
+LID_BUF_LTRT.....int     000008        SuperExec         ABS
+LID_BUF_PCM......int     000007        SuperExec         ABS
+LID_CONFIG_LIST..int     00000A        SuperExec         ABS
+LID_LOADER_INIT..int     000000        SuperExec         ABS
+LID_MAX..........int     00001F        SuperExec         ABS
+LID_MAX_PROG.....int     000006        SuperExec         ABS
+LID_MIN..........int     000000        SuperExec         ABS
+LID_PING_PONG....int     00000B        SuperExec         ABS
+LID_PROG_DGAME1..int     000002        SuperExec         ABS
+LID_PROG_DGAME2..int     000003        SuperExec         ABS
+LID_PROG_DGAME3..int     000004        SuperExec         ABS
+LID_PROG_DMMONO..int     000005        SuperExec         ABS
+LID_PROG_DMSTERE.int     000006        SuperExec         ABS
+LID_PROG_DSURRE..int     000001        SuperExec         ABS
+MAILBOX_IN.......int     FFFFC3        SuperExec         ABS
+MAILBOX_OUT......int     FFFFC2        SuperExec         ABS
+MAX_EP_CYCLES....int     0ACDA0        SuperExec         ABS
+MONO_DNMIX_CODE..int     000001        SuperExec         ABS
+NV_PAPU_EPOFBASE.int     003024        SuperExec         ABS
+NV_PAPU_EPOFBASE.int     003034        SuperExec         ABS
+NV_PAPU_EPOFBASE.int     003044        SuperExec         ABS
+NV_PAPU_EPOFBASE.int     003054        SuperExec         ABS
+NV_PAPU_EPOFCUR0.int     00302C        SuperExec         ABS
+NV_PAPU_EPOFCUR1.int     00303C        SuperExec         ABS
+NV_PAPU_EPOFCUR2.int     00304C        SuperExec         ABS
+NV_PAPU_EPOFCUR3.int     00305C        SuperExec         ABS
+NV_PAPU_EPOFEND0.int     003028        SuperExec         ABS
+NV_PAPU_EPOFEND1.int     003038        SuperExec         ABS
+NV_PAPU_EPOFEND2.int     003048        SuperExec         ABS
+NV_PAPU_EPOFEND3.int     003058        SuperExec         ABS
+PMEMSIZE.........int     001000        SuperExec         ABS
+PROCESSING_CONTR.int     FFFFC4        SuperExec         ABS
+SAMPLE_CONTROL_R.int     FFFFCA        SuperExec         ABS
+SELoop...........int   P:000026        SuperExec         REL
+SEStart..........int   P:000008        SuperExec         REL
+SE_IN_ACMODE.....int     000005        SuperExec         ABS
+SE_IN_BW.........int     000008        SuperExec         ABS
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 9
+Dolby Super Exec
+
+
+SE_IN_COMPR......int     00000F        SuperExec         ABS
+SE_IN_COMPRE.....int     00000E        SuperExec         ABS
+SE_IN_DIALNORM...int     000007        SuperExec         ABS
+SE_IN_DO_DOWNMIX.int     000003        SuperExec         ABS
+SE_IN_DO_GAME....int     000002        SuperExec         ABS
+SE_IN_DO_SURROUN.int     000001        SuperExec         ABS
+SE_IN_DSURMOD....int     000012        SuperExec         ABS
+SE_IN_DYNRNG.....int     00000D        SuperExec         ABS
+SE_IN_DYNRNGE....int     00000C        SuperExec         ABS
+SE_IN_FSCODE.....int     000004        SuperExec         ABS
+SE_IN_HPF........int     00000B        SuperExec         ABS
+SE_IN_LFE........int     000006        SuperExec         ABS
+SE_IN_LFELPF.....int     00000A        SuperExec         ABS
+SE_IN_LPF........int     000009        SuperExec         ABS
+SE_IN_MAX........int     000018        SuperExec         ABS
+SE_IN_RESERVED_1.int     000013        SuperExec         ABS
+SE_IN_RESERVED_2.int     000014        SuperExec         ABS
+SE_IN_RESERVED_3.int     000015        SuperExec         ABS
+SE_IN_RESERVED_4.int     000016        SuperExec         ABS
+SE_IN_RESERVED_5.int     000017        SuperExec         ABS
+SE_IN_SIZE.......int     000000        SuperExec         ABS
+SE_IN_SURR_GAIN..int     000011        SuperExec         ABS
+SE_IN_SURR_GE....int     000010        SuperExec         ABS
+SE_NUM_BLOCKS....int     000006        SuperExec         ABS
+STACK_EXTSZ......int     000020        SuperExec         ABS
+STEREO_DNMIX_COD.int     000002        SuperExec         ABS
+SuperExec........int   P:000000        SuperExec         REL
+TIMER1_CONFIG....int     FFFFB0        SuperExec         ABS
+TIMER1_CONTROL...int     FFFFB1        SuperExec         ABS
+TIMER1_COUNT.....int     FFFFB3        SuperExec         ABS
+TIMER1_TERMINAL_.int     FFFFB2        SuperExec         ABS
+TIMER2_CONFIG....int     FFFFB4        SuperExec         ABS
+TIMER2_CONTROL...int     FFFFB5        SuperExec         ABS
+TIMER2_COUNT.....int     FFFFB7        SuperExec         ABS
+TIMER2_TERMINAL_.int     FFFFB6        SuperExec         ABS
+TRASHWORD........int     FFFFFF        SuperExec         ABS
+YMEMSIZE.........int     000100        SuperExec         ABS
+config_list......int   X:000000        SuperExec         REL
+count............int   P:000007        SuperExec         REL
+elapsed_time.....int   P:000004        SuperExec         REL
+game_reset.......int   P:000003        SuperExec         REL
+kAbortFrameBit...int     000000        SuperExec         ABS
+kAddressErrorBit.int     00000B        SuperExec         ABS
+kCounter.........int     000000        SuperExec         ABS
+kDMAComplete1Bit.int     000004        SuperExec         ABS
+kDMAComplete2Bit.int     000005        SuperExec         ABS
+kDMAComplete3Bit.int     000006        SuperExec         ABS
+kDMAEndOfListBit.int     000007        SuperExec         ABS
+kDMAErrorBit.....int     00000A        SuperExec         ABS
+kEPMemory_Base...int     000000        SuperExec         ABS
+kEPMemory_Base_B.int     FF0000        SuperExec         ABS
+kEPMemory_Base_C.int     FFF000        SuperExec         ABS
+kEPMemory_Base_P.int     002800        SuperExec         ABS
+kEPMemory_Base_X.int     000000        SuperExec         ABS
+kEPMemory_Base_Y.int     001800        SuperExec         ABS
+kEPMemory_Size_P.int     001000        SuperExec         ABS
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 10
+Dolby Super Exec
+
+
+kEPMemory_Size_X.int     000C00        SuperExec         ABS
+kEPMemory_Size_Y.int     000100        SuperExec         ABS
+kFIFO_Channels1..int     000000        SuperExec         ABS
+kFIFO_Channels2..int     000001        SuperExec         ABS
+kFIFO_Channels4..int     000002        SuperExec         ABS
+kFIFO_Channels6..int     000003        SuperExec         ABS
+kFIFO_SampleForm.int     000000        SuperExec         ABS
+kFIFO_SampleForm.int     000001        SuperExec         ABS
+kFIFO_SampleForm.int     000002        SuperExec         ABS
+kFIFO_SampleForm.int     000003        SuperExec         ABS
+kFifoOut0_Defaul.int     000012        SuperExec         ABS
+kFrameLength.....int     000020        SuperExec         ABS
+kMailInUpdateBit.int     000003        SuperExec         ABS
+kPCValue.........int     000000        SuperExec         ABS
+kProcessingContr.int     000001        SuperExec         ABS
+kProcessingContr.int     000000        SuperExec         ABS
+kPutUpdateBit....int     000002        SuperExec         ABS
+kStartFrameBit...int     000001        SuperExec         ABS
+kTimer1Bit.......int     000008        SuperExec         ABS
+kTimer2Bit.......int     000009        SuperExec         ABS
+prev_time........int   P:000005        SuperExec         REL
+stack_ext........int   X:000000        SuperExec         REL
+supexec_blknum...int   P:000001        SuperExec         REL
+suprexec_temp....int   P:000006        SuperExec         REL
+surr_reset.......int   P:000002        SuperExec         REL
+waitframe........int   P:00002E        SuperExec         REL
+
+
+Symbol cross-reference listing:
+
+Name             Line number (* is definition)
+COMMAND_GET_REGI.  291*  
+COMMAND_PUT_REGI.  292*  
+CONFIG_SIZE......  426*    457   
+ClearStartFrameB.  573*  
+FIFOIN_CONTROL_R.  248*  
+FIFOOUT_CONTROL_.  247*  
+GLOBAL_SAMPLE_CO.  322*  
+INTERRUPT_REGIST.  230*    534     563     576   
+INTERRUPT_TABLE_.  223*  
+LDR_ACT_ALLOC....  100*  
+LDR_ACT_FROM_DSP.  106*  
+LDR_ACT_FROM_DSP.  102*  
+LDR_ACT_FROM_DSP.  104*  
+LDR_ACT_MAX......  108*  
+LDR_ACT_MIN......   98*  
+LDR_ACT_TO_DSPP..  105*  
+LDR_ACT_TO_DSPX..  101*  
+LDR_ACT_TO_DSPY..  103*  
+LDR_ERR_ACTION...  126*  
+LDR_ERR_ALLOC....  128*  
+LDR_ERR_ID.......  125*  
+LDR_ERR_LENGTH...  127*  
+LDR_ERR_NONE.....  124*  
+LDR_HDR_SIZE.....   57*  
+LDR_HEAP_ADDR....   92*  
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 11
+Dolby Super Exec
+
+
+LDR_HEAP_SIZE....   93*  
+LDR_NUM_DATA.....   86*  
+LDR_OFF_PCM_C....  113*  
+LDR_OFF_PCM_L....  112*  
+LDR_OFF_PCM_LFE..  117*  
+LDR_OFF_PCM_LS...  115*  
+LDR_OFF_PCM_LT...  119*  
+LDR_OFF_PCM_R....  114*  
+LDR_OFF_PCM_RS...  116*  
+LDR_OFF_PCM_RT...  120*  
+LDR_PINGPONG_OFF.   94*  
+LDR_SYSTABLE_SIZ.   91*  
+LDR_TABLE_SIZE...   90*  
+LID_AC3_PREAMBLE.   83*  
+LID_AC3_ZEROS....   82*  
+LID_BUF_AC3......   77*  
+LID_BUF_DATA.....   84*     86      91      92      93   
+LID_BUF_LTRT.....   76*  
+LID_BUF_PCM......   75*  
+LID_CONFIG_LIST..   79*  
+LID_LOADER_INIT..   64*    527   
+LID_MAX..........   62*     86      90   
+LID_MAX_PROG.....   73*  
+LID_MIN..........   61*  
+LID_PING_PONG....   81*     94     581   
+LID_PROG_DGAME1..   67*  
+LID_PROG_DGAME2..   68*  
+LID_PROG_DGAME3..   69*  
+LID_PROG_DMMONO..   70*  
+LID_PROG_DMSTERE.   71*  
+LID_PROG_DSURRE..   66*  
+MAILBOX_IN.......  296*  
+MAILBOX_OUT......  295*  
+MAX_EP_CYCLES....  421*    596   
+MONO_DNMIX_CODE..  434*  
+NV_PAPU_EPOFBASE.  281*  
+NV_PAPU_EPOFBASE.  282*  
+NV_PAPU_EPOFBASE.  283*  
+NV_PAPU_EPOFBASE.  284*  
+NV_PAPU_EPOFCUR0.  269*  
+NV_PAPU_EPOFCUR1.  270*  
+NV_PAPU_EPOFCUR2.  271*  
+NV_PAPU_EPOFCUR3.  272*  
+NV_PAPU_EPOFEND0.  275*  
+NV_PAPU_EPOFEND1.  276*  
+NV_PAPU_EPOFEND2.  277*  
+NV_PAPU_EPOFEND3.  278*  
+PMEMSIZE.........  430*  
+PROCESSING_CONTR.  315*    557   
+SAMPLE_CONTROL_R.  249*  
+SELoop...........  547*    598   
+SEStart..........  470     491*  
+SE_IN_ACMODE.....  158*  
+SE_IN_BW.........  161*  
+SE_IN_COMPR......  168*  
+SE_IN_COMPRE.....  167*  
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 12
+Dolby Super Exec
+
+
+SE_IN_DIALNORM...  160*  
+SE_IN_DO_DOWNMIX.  156*  
+SE_IN_DO_GAME....  155*  
+SE_IN_DO_SURROUN.  154*  
+SE_IN_DSURMOD....  171*  
+SE_IN_DYNRNG.....  166*  
+SE_IN_DYNRNGE....  165*  
+SE_IN_FSCODE.....  157*  
+SE_IN_HPF........  164*  
+SE_IN_LFE........  159*  
+SE_IN_LFELPF.....  163*  
+SE_IN_LPF........  162*  
+SE_IN_MAX........  178*  
+SE_IN_RESERVED_1.  172*  
+SE_IN_RESERVED_2.  173*  
+SE_IN_RESERVED_3.  174*  
+SE_IN_RESERVED_4.  175*  
+SE_IN_RESERVED_5.  176*  
+SE_IN_SIZE.......  153*  
+SE_IN_SURR_GAIN..  170*  
+SE_IN_SURR_GE....  169*  
+SE_NUM_BLOCKS....  428*  
+STACK_EXTSZ......  424*    449     514   
+STEREO_DNMIX_COD.  436*  
+SuperExec........  468*  
+TIMER1_CONFIG....  298*    503   
+TIMER1_CONTROL...  301*    506   
+TIMER1_COUNT.....  307*    567     591   
+TIMER1_TERMINAL_.  304*    502   
+TIMER2_CONFIG....  299*  
+TIMER2_CONTROL...  302*  
+TIMER2_COUNT.....  308*  
+TIMER2_TERMINAL_.  305*  
+TRASHWORD........  432*  
+YMEMSIZE.........  431*  
+config_list......  457*  
+count............  485*    550     552   
+elapsed_time.....  480*    497     594   
+game_reset.......  477*    523   
+kAbortFrameBit...  231*  
+kAddressErrorBit.  242*  
+kCounter.........  193*  
+kDMAComplete1Bit.  235*  
+kDMAComplete2Bit.  236*  
+kDMAComplete3Bit.  237*  
+kDMAEndOfListBit.  238*  
+kDMAErrorBit.....  241*  
+kEPMemory_Base...  211*    212     213     214   
+kEPMemory_Base_B.  220*  
+kEPMemory_Base_C.  289*  
+kEPMemory_Base_P.  214*  
+kEPMemory_Base_X.  212*  
+kEPMemory_Base_Y.  213*  
+kEPMemory_Size_P.  218*  
+kEPMemory_Size_X.  216*  
+kEPMemory_Size_Y.  217*  
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 13
+Dolby Super Exec
+
+
+kFIFO_Channels1..  251*  
+kFIFO_Channels2..  252*  
+kFIFO_Channels4..  253*  
+kFIFO_Channels6..  254*  
+kFIFO_SampleForm.  256*  
+kFIFO_SampleForm.  257*  
+kFIFO_SampleForm.  258*  
+kFIFO_SampleForm.  259*  
+kFifoOut0_Defaul.  266*  
+kFrameLength.....  191*  
+kMailInUpdateBit.  234*  
+kPCValue.........  192*  
+kProcessingContr.  317*  
+kProcessingContr.  316*  
+kPutUpdateBit....  233*  
+kStartFrameBit...  232*    563   
+kTimer1Bit.......  239*  
+kTimer2Bit.......  240*  
+prev_time........  482*    498     568     592   
+stack_ext........  449*    513   
+supexec_blknum...  474*    520   
+suprexec_temp....  483*    606   
+surr_reset.......  476*    522   
+waitframe........  561*    563   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Motorola DSP56300 Assembler  Version 6.3.0   101-12-05  13:49:19  .\suprexec.asm  Page 14
+Dolby Super Exec
+
+
+                         Memory Utilization Report
+
+
+X Memory
+
+Start    End         Length  Type       Label             Section           Overlay Address
+000000   00001F          32  DATA       config_list       SuperExec
+000000   00001F          32  DATA       stack_ext         SuperExec                         *Overlap*
+000020   FFFFFF    16777184  UNUSED
+
+
+P Memory
+
+Start    End         Length  Type       Label             Section           Overlay Address
+000000   000000           1  CODE                         SuperExec
+000001   000001           1  CONST      supexec_blknum    SuperExec
+000002   000002           1  CONST      surr_reset        SuperExec
+000003   000003           1  CONST      game_reset        SuperExec
+000004   000004           1  CONST      elapsed_time      SuperExec
+000005   000005           1  CONST      prev_time         SuperExec
+000006   000006           1  CONST      suprexec_temp     SuperExec
+000007   000007           1  CONST      count             SuperExec
+000008   00004B          68  CODE                         SuperExec
+00004C   FFFFFF    16777140  UNUSED

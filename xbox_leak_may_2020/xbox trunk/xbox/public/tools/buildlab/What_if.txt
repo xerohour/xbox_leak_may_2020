@@ -1,0 +1,56 @@
+What if, or To Do...
+
+[rebuild harness]
+open CHK Razzle window
+follow dev/test build instructions
+run "cpbuild -h" to copy the harness to pvt release share
+duplicate steps in Fre Razzle window for Fre build
+
+[build break or component fix]
+open CHK Razzle window
+follow dev's build instructions
+run "cpbuild" to copy the build to pvt release share
+duplicate steps in FRE and RET
+
+[rebuild recovery cd]
+as soon as you know the recovery cd needs to be rebuilt,
+delete %XBLD_PVT%\%_BUILDVER%\checked\rec*.iso
+from Chk Razzle "dailyCHK -lq burn" to rebuild internal
+from Fre Razzle "dailyFRE -lq burn" to rebuild external
+
+[rebuild docs]
+from Fre Razzle
+sync as necessary
+"dailyFre -lq builddocs"
+
+[rebuild setup]
+if the build has been moved to release, move it back to pvtrelease
+delete XboxSDK\, XboxSDK.iso, and XDKSetup*.exe from XBLD_PVT\_BUILDVER\
+
+from Fre Razzle
+sync as necessary
+"dailyFre -lq buildSDK"
+
+"dailyFre -lq buildSDK -t" will test sdksetup for missing files
+check the bottom of XBLD_LOG for errors
+
+close the razzle window before trying to move the build to release
+
+[ready to release]
+move latest.txt and _BUILDVER\ from XBLD_PVT to XBLD_REL
+
+[run BVTs]
+copy XBLD_PVT\_BUILDVER\checked\recovery.iso to machine with burner
+burn recovery.iso using CD-RW
+run recovery
+\\xstress\stress\stress.exe
+set Source to pvtrelease  'Only Open Debugger' will copy the latest
+debugger version to %TEMP% and open it.
+"prepbvt.cmd 1 -x <ip addr of xbox>" will copy the harness, test media,
+and testini to xbox, and start bvts.
+when harness is done, "getresults.cmd 1 -x <ip addr of xbox>" will copy
+test logs from the xbox to _BUILDVER\checked\results
+
+the "1" in prepbvt and getresults refers to testing a checked build
+if testing free, use a "3" instead.
+

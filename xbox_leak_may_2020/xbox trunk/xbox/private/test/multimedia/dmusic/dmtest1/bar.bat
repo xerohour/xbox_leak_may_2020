@@ -1,0 +1,1 @@
+call %_NTDRIVE%%_NTROOT%\private\test\buildxbe\dmharn\bat\bcr %1

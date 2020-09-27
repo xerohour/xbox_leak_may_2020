@@ -1,0 +1,49 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+UMTYPE=windows
+
+TARGETNAME=cryptcab
+TARGETPATH=$(BASEDIR)\private\lib
+TARGETTYPE=LIBRARY
+
+USE_MSVCRT=1
+
+LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4006 /MAP
+
+INCLUDES=\
+    $(BASEDIR)\private\ntos\net;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\public\wsdk\inc; \
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    $(BASEDIR)\private\ntos\xapi\k32;\
+    $(BASEDIR)\private\sdktools\content\inc;\
+    $(BASEDIR)\public\sdk\inc; \
+
+OBJLIBFILES=\
+        lib\fcil.lib \
+        lib\fdil.lib
+
+SOURCES=\
+        cryptcab.c          \
+	dgstfile.c          \
+	rebldcab.c          \
+        cmdlist.c           \
+        cmdnew.c            \
+        cmdext.c            \
+        wildcard.c          \
+        lists.c             \
+        memory.c            \
+        fciutil.c           \
+        fdiutil.c           \
+        callback.c          \
+	metadata.c          \
+
+
+C_DEFINES = $(C_DEFINES)
+

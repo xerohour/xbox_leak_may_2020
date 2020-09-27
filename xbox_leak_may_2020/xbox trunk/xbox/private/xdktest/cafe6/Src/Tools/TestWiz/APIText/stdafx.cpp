@@ -1,0 +1,9 @@
+/////////////////////////////////////////////////////////////////////////////
+// stdafx.cpp
+//
+// email	date		change
+// enriquep	10/28/94	created
+//
+// copyright 1994 Microsoft
+
+#include "stdafx.h"

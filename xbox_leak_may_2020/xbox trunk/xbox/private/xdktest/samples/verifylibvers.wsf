@@ -1,0 +1,151 @@
+<job>
+<script language="VBScript" src="common.vbs"/>
+<script language="VBScript">
+'
+' VerifyLibVers
+' emmang@xbox.com
+'
+Const SCRIPTNAME = "VerifyLibVers"
+Const BATCHBAT = "c:\verifylibvers.bat"
+Const BATCHLOG = "c:\verifylibvers.txt"
+Const BATCHTMP = "c:\verifylibvers.tmp"
+
+Dim gfileBatch, gChoice
+Main()
+
+Sub Main
+    On Error Resume Next
+
+    If Not Init() Then
+        Exit Sub
+    End If
+
+    ' create the batch file which will be filled with link commands
+    Set gfileBatch = gobjFileSystem.CreateTextFile(BATCHBAT, True)
+    gfileBatch.WriteLine("@rem auto-generated batch file")
+    gfileBatch.WriteLine("@if exist " & BATCHTMP & " del " & BATCHTMP)
+    ProcessSubdirs(gstrXDKInstall & "\xbox\lib")
+    gfileBatch.WriteLine(":done")
+    gfileBatch.WriteLine("@if exist " & ABORTFILE & " del /q " & ABORTFILE)
+    gfileBatch.Close
+    gobjShell.Run BATCHBAT, 5, True
+    ParseOutput()
+    
+    ' see the results
+    gChoice = gobjShell.PopUp("View " & BATCHLOG & " in Notepad?" & _
+        vbCrLf & "(5 second timeout => NO)", _
+        5, SCRIPTNAME, (32 + 4))
+    If (gChoice = 6) Then
+        gobjShell.Run "notepad " & BATCHLOG, 5, True
+    End If
+End Sub
+
+Sub ProcessSingleFile(objFile)
+    strExt = gobjFileSystem.GetExtensionName(objFile.Path)
+    strExt = lcase(strExt)
+    If (strExt = "lib") Then
+    ' add lib to list of library files to examine
+        gfileBatch.WriteLine(Chr(34) & gstrXDKInstall & _
+                "\xbox\bin\vc7\link.exe" & Chr(34) & _
+                " /DUMP /SECTION:.XBLD /RAWDATA:SHORTS " & _
+                Chr(34) & objFile.Path & Chr(34) & " >> " & BATCHTMP)
+        gfileBatch.WriteLine("@if exist " & ABORTFILE & " goto done")
+
+        gfileBatch.WriteLine(Chr(34) & gstrXDKInstall & _
+                "\xbox\bin\vc7\link.exe" & Chr(34) & _
+                " /DUMP /SECTION:.XBLD$A /RAWDATA:SHORTS " & _
+                Chr(34) & objFile.Path & Chr(34) & " >> " & BATCHTMP)
+        gfileBatch.WriteLine("@if exist " & ABORTFILE & " goto done")
+
+        gfileBatch.WriteLine(Chr(34) & gstrXDKInstall & _
+                "\xbox\bin\vc7\link.exe" & Chr(34) & _
+                " /DUMP /SECTION:.XBLD$V /RAWDATA:SHORTS " & _
+                Chr(34) & objFile.Path & Chr(34) & " >> " & BATCHTMP)
+        gfileBatch.WriteLine("@if exist " & ABORTFILE & " goto done")
+    End If
+End Sub
+
+Sub ParseOutput()
+    On Error Resume Next
+
+    Set streamRawResult = gobjFileSystem.OpenTextFile(BATCHTMP)
+    Set streamOut = gobjFileSystem.CreateTextFile(BATCHLOG, True)
+    Set objDictFiles = CreateObject("Scripting.Dictionary")
+    Set objDictGlobalVersions = CreateObject("Scripting.Dictionary")
+    Set objDictVersions = CreateObject("Scripting.Dictionary")
+    strCurrentFile = ""
+    countSourceFiles = 0
+
+    if (streamRawResult.AtEndOfStream) Then
+        WScript.Echo Err.Description & vbCrLf & Err.Source
+        Exit Sub
+    End If
+
+    Do While Not streamRawResult.AtEndOfStream 
+        strLine = streamRawResult.ReadLine
+        If (0 = StrComp("Dump of file ", Left(strLine, 13), vbTextCompare)) Then
+            strCurrentFile = Right(strLine, Len(strLine) - 13)
+            strCurrentFile = gobjFileSystem.GetFileName(strCurrentFile)
+            objDictVersions.RemoveAll
+        ElseIf (0 = StrComp("RAW DATA ", Left(strLine, 9), vbTextCompare)) Then
+            strLine = streamRawResult.ReadLine
+            strLib = Mid(strLine, 54, 8)
+            strVer = Mid(strLine, 33, 19)
+            intFirstDot = InStr(1, strLib, ".", vbTextCompare)
+            If Not (intFirstDot = 0) Then
+                strLib = Left(strLib, intFirstDot - 1)
+            End If
+            If Not objDictVersions.Exists(strLib) Then
+                objDictVersions.Add strLib, strVer
+                If objDictFiles.Exists(strCurrentFile) Then
+                    objDictFiles.Item(strCurrentFile) = objDictFiles.Item(strCurrentFile) & vbCrLf & strLine
+                Else
+                    objDictFiles.Item(strCurrentFile) = strLine
+                End If
+            End If
+            If Not objDictGlobalVersions.Exists(strLib) Then
+                objDictGlobalVersions.Add strLib, strVer
+            ElseIf Not (objDictGlobalVersions.Item(strLib) = strVer) Then
+                streamOut.WriteLine("*** Version mismatch: " & _
+                    "File=" & strCurrentFile & " " & _
+                    "Libcode=" & strLib & " " & _
+                    "Expected=" & objDictGlobalVersions.Item(strLib) & " " & _
+                    "Actual=" & strVer)
+            End If
+        End If
+    Loop
+
+    streamRawResult.Close
+
+   streamOut.WriteLine("The following library version stamps were found" & vbCrLf)
+    arrLibs = objDictGlobalVersions.Keys
+    For i = 0 to objDictGlobalVersions.Count - 1
+        strTemp = objDictGlobalVersions.Item(arrLibs(i))
+        strTemp = Mid(strTemp, 16, 1)
+        If (strTemp = "0") Then
+            strTemp = "UNAPPROVED"
+        ElseIf (strTemp = "2") Then
+            strTemp = "CONDITIONAL"
+        ElseIf (strTemp = "4") Then
+            strTemp = "APPROVED"
+        ElseIf (strTemp = "8") Then
+            strTemp = "UNAPPROVED - DEBUG"
+        End If
+
+        strBlank = "          "
+        strBlank = Left(strBlank, Len(strBlank) - Len(arrLibs(i)))
+        streamOut.WriteLine(arrLibs(i) & strBlank & strTemp)
+    Next
+    streamOut.WriteLine("")
+
+    streamOut.WriteLine("The following are the .XBLD sections found per file.")
+    streamOut.WriteLine("Multiple .XBLD sections indicate a bug." & vbCrLf)
+    arrFiles = objDictFiles.Keys
+    For i = 0 to objDictFiles.Count - 1
+        streamOut.WriteLine(arrFiles(i) & vbCrLf & objDictFiles.Item(arrFiles(i)) & vbCrLf)
+    Next
+
+    streamOut.Close
+End Sub
+</script>
+</job>

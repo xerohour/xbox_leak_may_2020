@@ -1,0 +1,46 @@
+TARGETNAME=media4
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+USE_STL = 1
+LINK_DSSTDFX = 1
+
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING -DWIN32 -D_XBOX
+
+XE_FLAGS=/TESTNAME:"Media Stress 4" /TESTID:0xA7049955
+
+INCLUDES = \
+    $(PRIVATE_INC_PATH); \
+    $(SDK_INC_PATH); \
+    $(BASEDIR)\private\test\inc; \
+    $(BASEDIR)\private\test\multimedia\inc; \
+    $(BASEDIR)\private\windows\directx\dsound\common
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+TARGETLIBS = \
+    $(TESTLIBS)\medialoader.lib \
+    $(TESTLIBS)\xtestlib.lib \
+    $(LIBRARY_PATH)\dsound$(D).lib \
+    $(LIBRARY_PATH)\d3dx8$(D).lib \
+    $(LIBRARY_PATH)\d3d8$(D).lib \
+    $(LIBRARY_PATH)\xgraphics$(D).lib \
+    $(LIBRARY_PATH)\xapilib$(D).lib \
+    $(LIBRARY_PATH)\xnet$(D).lib \
+    $(LIBRARY_PATH)\xboxkrnl.lib \
+
+SOURCES = \
+    ..\media.cpp \
+    ..\Ball.cpp \
+    ..\InvertedBall.cpp \
+    ..\Camera.cpp \
+    ..\scene.cpp \
+    ..\helpers.cpp \
+    ..\bitfont.cpp \
+    ..\input.cpp \
+    ..\spark.cpp
+
+

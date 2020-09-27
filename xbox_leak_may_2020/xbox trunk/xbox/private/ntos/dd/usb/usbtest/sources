@@ -1,0 +1,21 @@
+TARGETNAME=usbtest
+TARGETTYPE=LIBRARY
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+!ifdef TRACE_USB_MEMORY_USAGE
+C_DEFINES=$(C_DEFINES) -DUSB_TRACE_MEMORY_ALLOCATE_FREE
+!endif
+
+!ifndef EXCLUDE_ISOCHRONOUS_SUPPORT
+C_DEFINES=$(C_DEFINES) -DOHCD_ISOCHRONOUS_SUPPORTED
+!endif
+
+
+MSC_WARNING_LEVEL=/W3
+
+INCLUDES=..\inc;$(BASEDIR)\private\ntos\inc;$(DDK_INC_PATH);..\usbd;..\xidex;..\usbhub;..\ohcd
+
+SOURCES=usbtest.cpp\
+		hubtest.cpp\
+		xidtest.cpp
+        

@@ -1,0 +1,69 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+TARGETNAME=UsbSimRec
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+SYNCHRONIZE_DRAIN=1
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+
+SOURCES=dukelistener.cpp \
+        scriptwriter.cpp \
+        simmessenger.cpp \
+        usbsimrec.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTID:0x12345678 /INITFLAGS:3 /TESTNAME:"USB Sim Recorder"
+
+TARGETLIBS=\
+           $(SDK_LIB_PATH)\xboxkrnl.lib \
+           $(SDK_LIB_PATH)\xnet$(D).lib \
+           $(BASEDIR)\public\xdk\lib\LIBCIMTD.LIB \
+           $(SDK_LIB_PATH)\xapilibd.lib \
+           $(BASEDIR)\private\test\lib\*\xnetref$(D).lib \
+           $(SDK_LIB_PATH)\dplay8$(D).lib \
+           $(SDK_LIB_PATH)\d3d8$(D).lib \
+           $(SDK_LIB_PATH)\d3dx8$(D).lib \
+           $(SDK_LIB_PATH)\xfont$(D).lib \
+           $(SDK_LIB_PATH)\dsound$(D).lib \
+           $(SDK_LIB_PATH)\dmusic$(D).lib \
+           $(SDK_LIB_PATH)\netxmo$(D).lib \
+           $(SDK_LIB_PATH)\xgraphics$(D).lib \
+           $(SDK_LIB_PATH)\echoxmo$(D).lib \
+           $(TESTLIBS)\usbsim.lib \
+           $(TESTLIBS)\xtestlib.lib
+
+
+

@@ -1,0 +1,220 @@
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!include $(BASEDIR)\private\vc6addon\ide\sources.inc
+
+MAJORCOMP=pkg
+MINORCOMP=devshl
+
+TARGETNAME=devshl$(D)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETPATHLIB=$(IDE_ROOT)\lib
+
+!if "$(_VCBUILD)"=="1"
+MISCFILES=$(TARGETPATHLIB)\$(TARGET_DIRECTORY)\$(TARGETNAME).lib
+!endif
+
+C_DEFINES=$(C_DEFINES) /D_AFXEXT /DPKG_LOAD_TIME
+
+USE_MFC=1
+USE_ATL=1
+
+UMTYPE=windows
+
+COFFBASE = devshl
+DLLDEF=$O\$(TARGETNAME).def
+DLLENTRY=_DllMainCRTStartup
+
+CMDFILE=vshell
+
+CONDITIONAL_INCLUDES=vshell.rcs
+INCLUDES=$(O);$(IDE_INCLUDES);$(IDE_ROOT)\pkgs\include;$(MFC_SRCDIR)
+
+MKTYPLIB_FLAGS=$(MKTYPLIB_FLAGS) /w0
+
+SYNCHRONIZE_BLOCK=1
+
+!ifndef RCFILE
+RCFILE=vshell
+!endif
+
+SOURCES= \
+    about.cpp       \
+	allpage2.cpp     \
+    autoapp.cpp     \
+	autocol.cpp             \
+	autodocd.cpp    \
+	autodocs.cpp    \
+	autofrm.cpp             \
+    autoprjs.cpp    \
+    autosave.cpp    \
+	autostat.cpp	\
+	autowind.cpp    \
+	autowins.cpp    \
+    barbdr.cpp      \
+	barchoic.cpp    \
+    barctrl.cpp     \
+    barcust.cpp     \
+    bardlgs.cpp     \
+    bardockx.cpp    \
+    barglob.cpp     \
+    barprxy.cpp     \
+	btnctl.cpp      \
+	btnextra.cpp	\
+	bwizdlg.cpp             \
+	bwizmgr.cpp             \
+    checklis.cpp    \
+    cbitem.cpp      \
+    cbmenu.cpp      \
+    cbpopup.cpp     \
+	cbverb.cpp              \
+    cmdcache.cpp    \
+    cmdtable.cpp    \
+    custbtn.cpp     \
+    customiz.cpp    \
+    custprxy.cpp    \
+    dlgbase.cpp     \
+    dllinit.cpp     \
+    docauto.cpp     \
+    dockapi.cpp     \
+    dockman.cpp     \
+    docobctr.cpp    \
+    docobdoc.cpp    \
+    docobfhk.cpp    \
+    docobtpl.cpp    \
+    docobvw.cpp     \
+    dockwnds.cpp    \
+    drptcoll.cpp    \
+    dualimpl.cpp    \
+    envrvar.cpp     \
+    errcont.cpp     \
+    fcdialog.cpp    \
+    fileadd.cpp     \
+    filechng.cpp    \
+    filecmd.cpp     \
+    filenew.cpp     \
+    filesave.cpp    \
+    findctrl.cpp    \
+    findspec.cpp    \
+    floatwnd.cpp    \
+    fmtinfo.cpp     \
+    fnwiztpl.cpp        \
+    gotodlg.cpp     \
+    grid.cpp        \
+	guids.cpp       \
+    help.cpp        \
+    helpkey.cpp     \
+    iconlist.cpp    \
+    imeutil.cpp     \
+    imgwell.cpp     \
+    initexit.cpp    \
+	intrnlap.cpp    \
+    ipcfrmhk.cpp    \
+    ipcmpctr.cpp    \
+    ipcmpdoc.cpp    \
+    ipcmpvw.cpp     \
+    ipcslob.cpp     \
+    ipcundo.cpp     \
+    keycust.cpp     \
+    keymap.cpp      \
+    main.cpp        \
+    mainfrm.cpp     \
+    menubtn.cpp     \
+    menuprxy.cpp    \
+	mmonitor.cpp	\
+    msgboxes.cpp    \
+    multslob.cpp    \
+    newwsdlg.cpp    \
+    oldbar.cpp      \
+    oldstat.cpp     \
+    oleref.cpp      \
+    opendocs.cpp    \
+    package.cpp     \
+    partdoc.cpp     \
+    partfrm.cpp     \
+    partmpl.cpp     \
+    partvw.cpp      \
+    path.cpp        \
+    prodinfo.cpp    \
+    profile.cpp     \
+    propbag.cpp     \
+    proppage.cpp    \
+    provider.cpp    \
+    prxycust.cpp    \
+    re_mi.cpp       \
+    reparse.cpp     \
+    sbar.cpp        \
+    sfind.cpp       \
+    sheet.cpp       \
+    shellrec.cpp \
+    slob.cpp        \
+    slobdrag.cpp    \
+    slobwnd.cpp     \
+    smenu.cpp       \
+    spawner.cpp     \
+    spopup.cpp      \
+    stdfont.cpp     \
+    stgfile.cpp     \
+    tabdlg.cpp      \
+    tap.cpp         \
+	tbeditcb.cpp    \
+    test.cpp        \
+	textpat.cpp     \
+    tipctrl.cpp     \
+    tipdlg.cpp      \
+    tipmgr.cpp      \
+    toolcust.cpp    \
+    toolexpt.cpp    \
+    tools.cpp       \
+    transbut.cpp    \
+    treectl.cpp     \
+    undo.cpp        \
+    undoctl.cpp     \
+    util.cpp        \
+    widgetsb.cpp    \
+    workspc.cpp     \
+    xboxhelp.cpp    \
+    keywords.cpp    \
+    $(RCFILE).rc
+
+TARGETLIBS=   \
+    $(IDE_ROOT)\lib\*\compmgr$(D).lib  \
+    $(IDE_ROOT)\lib\*\msf512$(D).lib  \
+    $(SDK_LIB_PATH)\largeint.lib \
+    $(SDK_LIB_PATH)\uuid.lib     \
+    $(SDK_LIB_PATH)\ole32.lib    \
+    $(SDK_LIB_PATH)\oleaut32.lib \
+    $(SDK_LIB_PATH)\kernel32.lib \
+    $(SDK_LIB_PATH)\gdi32.lib    \
+    $(SDK_LIB_PATH)\user32.lib   \
+    $(SDK_LIB_PATH)\winmm.lib    \
+    $(SDK_LIB_PATH)\shell32.lib  \
+    $(SDK_LIB_PATH)\comdlg32.lib \
+    $(SDK_LIB_PATH)\comctl32.lib \
+    $(SDK_LIB_PATH)\advapi32.lib \
+    $(SDK_LIB_PATH)\version.lib	\
+    $(SDK_LIB_PATH)\htmlhelp.lib \
+	$(IDE_ROOT)\lib\*\image$(D).lib
+
+NTTARGETFILE0=
+	
+
+PRECOMPILED_INCLUDE=stdafx.h
+PRECOMPILED_PCH=stdafx.pch
+#PRECOMPILED_OBJ=stdafx.obj
+PRECOMPILED_CXX=1

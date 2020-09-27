@@ -1,0 +1,29 @@
+TARGETNAME=DsoundDRT
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+SYNCHRONIZE_DRAIN = 1
+USE_STL = 1
+LINK_DSSTDFX = 1
+
+XE_FLAGS=/TESTNAME:"DsoundDRT" /TESTID:0xA7049955
+
+C_DEFINES=$(C_DEFINES) -DNOLOGGING
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc
+
+TARGETLIBS = \
+	$(LIBRARY_PATH)\dsound$(D).lib \
+	$(LIBRARY_PATH)\xapilib$(D).lib \
+	$(LIBRARY_PATH)\xnet$(D).lib \
+	$(LIBRARY_PATH)\xboxkrnl.lib \
+	$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xtestlib.lib \
+	$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\xnetrefi$(D).lib \
+	$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)\medialoader.lib \
+
+SOURCES= 			                                       \
+    ..\DsoundDRT.cpp                                                   \
+    ..\util.cpp

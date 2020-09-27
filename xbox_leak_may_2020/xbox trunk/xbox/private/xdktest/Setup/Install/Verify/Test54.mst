@@ -1,0 +1,166 @@
+'$include 'install.inc'
+
+
+Scenario "Verify Uninstall after SDK Clean Updater Setup restores Include/Library/Source/Bin Paths correctly"
+	Dim XboxKey$, Win32Key$
+	Dim Win32Include$, Win32Library$, Win32Path$, Win32Source$
+	Dim XboxInclude$, XboxLibrary$, XboxPath$, XboxSource$
+	Dim temp$
+	Dim pass%
+	Dim xdkpath$
+
+	Win32Key = "HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Build System\Components\Platforms\Win32 (x86)\Directories"
+	XboxKey  = "HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Build System\Components\Platforms\Xbox\Directories"
+	pass     = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Grab snapshot of Directory keys
+	'
+	if RegistryKeyExists(Win32Key) then
+		if RegistryValueExists(Win32Key, "Include Dirs") then
+			Win32Include = RegistryGetValue(Win32Key, "Include Dirs")
+		end if
+		if RegistryValueExists(Win32Key, "Library Dirs") then
+			Win32Library = RegistryGetValue(Win32Key, "Library Dirs")
+		end if
+		if RegistryValueExists(Win32Key, "Path Dirs") then
+			Win32Path = RegistryGetValue(Win32Key, "Path Dirs")
+		end if
+		if RegistryValueExists(Win32Key, "Source Dirs") then
+			Win32Source = RegistryGetValue(Win32Key, "Source Dirs")
+		end if
+	end if
+	if RegistryKeyExists(XboxKey) then
+		if RegistryValueExists(XboxKey, "Include Dirs") then
+			XboxInclude = RegistryGetValue(XboxKey, "Include Dirs")
+		end if
+		if RegistryValueExists(XboxKey, "Library Dirs") then
+			XboxLibrary = RegistryGetValue(XboxKey, "Library Dirs")
+		end if
+		if RegistryValueExists(XboxKey, "Path Dirs") then
+			XboxPath = RegistryGetValue(XboxKey, "Path Dirs")
+		end if
+		if RegistryValueExists(XboxKey, "Source Dirs") then
+			XboxSource = RegistryGetValue(XboxKey, "Source Dirs")
+		end if
+	end if
+	'
+	' Run install
+	'
+	Install(BuildNumber, true, false)
+	'
+	' Now, uninstall to clean up
+	'
+	Uninstall
+	'
+	' Make sure we uninstalled
+	'
+	if IsInstalled then
+		FAIL "Uninstall failed"
+	end if
+	'
+	' Now compare keys
+	'
+	if RegistryKeyExists(Win32Key) then
+		if RegistryValueExists(Win32Key, "Include Dirs") then
+			temp = RegistryGetValue(Win32Key, "Include Dirs")
+			if temp <> Win32Include then
+				LOG #10, "Uninstall did not restore Win32 Include directory correctly"
+				LOG #10, "    Old Key = "+Win32Include
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+		if RegistryValueExists(Win32Key, "Library Dirs") then
+			temp = RegistryGetValue(Win32Key, "Library Dirs")
+			if temp <> Win32Library then
+				LOG #10, "Uninstall did not restore Win32 Library directory correctly"
+				LOG #10, "    Old Key = "+Win32Library
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+		if RegistryValueExists(Win32Key, "Path Dirs") then
+			temp = RegistryGetValue(Win32Key, "Path Dirs")
+			if temp <> Win32Path then
+				LOG #10, "Uninstall did not restore Win32 Path directory correctly"
+				LOG #10, "    Old Key = "+Win32Path
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+		if RegistryValueExists(Win32Key, "Source Dirs") then
+			temp = RegistryGetValue(Win32Key, "Source Dirs")
+			if temp <> Win32Source then
+				LOG #10, "Uninstall did not restore Win32 Source directory correctly"
+				LOG #10, "    Old Key = "+Win32Source
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+	end if
+	if RegistryKeyExists(XboxKey) then
+		if RegistryValueExists(XboxKey, "Include Dirs") then
+			temp = RegistryGetValue(XboxKey, "Include Dirs")
+			if temp <> XboxInclude then
+				LOG #10, "Uninstall did not restore Xbox Include directory correctly"
+				LOG #10, "    Old Key = "+XboxInclude
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+		if RegistryValueExists(XboxKey, "Library Dirs") then
+			temp = RegistryGetValue(XboxKey, "Library Dirs")
+			if temp <> XboxLibrary then
+				LOG #10, "Uninstall did not restore Xbox Library directory correctly"
+				LOG #10, "    Old Key = "+XboxLibrary
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+		if RegistryValueExists(XboxKey, "Path Dirs") then
+			temp = RegistryGetValue(XboxKey, "Path Dirs")
+			if temp <> XboxPath then
+				LOG #10, "Uninstall did not restore Xbox Path directory correctly"
+				LOG #10, "    Old Key = "+XboxPath
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+		if RegistryValueExists(XboxKey, "Source Dirs") then
+			temp = RegistryGetValue(XboxKey, "Source Dirs")
+			if temp <> XboxSource then
+				LOG #10, "Uninstall did not restore Xbox Source directory correctly"
+				LOG #10, "    Old Key = "+XboxSource
+				LOG #10, "    Cur Key = "+temp
+				pass = false
+			end if
+		end if
+	end if
+
+	if NOT pass then
+		FAIL "Uninstall did not restore Directory registry values to original values"
+	end if
+Scenario cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

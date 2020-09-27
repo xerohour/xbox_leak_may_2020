@@ -1,0 +1,52 @@
+; Lerps between 2 input meshes and lights the result with
+; a directional light
+; This example does the lerp in model space
+#include "morph.h"
+
+#define R_LERPED_POSITION r7
+#define R_LERPED_NORMAL r8
+#define R_EYE_POSITION r2
+#define R_EYE_DISTANCE r4
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+dp4 R_EYE_POSITION.x, v0, c[CV_WORLDVIEW_0]
+dp4 R_EYE_POSITION.y, v0, c[CV_WORLDVIEW_1]
+dp4 R_EYE_POSITION.z, v0, c[CV_WORLDVIEW_2]
+dp4 R_EYE_POSITION.w, v0, c[CV_WORLDVIEW_3]
+
+; Write out the model texture coordinates
+mov oT0.xy, v2
+
+; Set tex = eye-pos with x,z scaled 1/2
+mul oT1.xy, R_EYE_POSITION.xz, c[CV_TEXTURESCALE].y
+
+; Transform normal to eye space
+dp3 r1.x, v1, c[CV_WORLDVIEWIT_0]
+dp3 r1.y, v1, c[CV_WORLDVIEWIT_1]
+dp3 r1.z, v1, c[CV_WORLDVIEWIT_2]
+
+; Normalize transformed normal
+dp3 r1.w, r1, r1
+rsq r1.w, r1.w											
+mul r1, r1,r1.w	
+
+; Calculate light intensity - note alpha is set correctly as well
+dp3 r3, r1, c[CV_LIGHT1_DIRECTION]
+add oD0, c[CV_LIGHT1_AMBIENT], r3 
+
+; Get distance from camera to eye 
+dp3 R_EYE_DISTANCE, R_EYE_POSITION, R_EYE_POSITION
+rsq R_EYE_DISTANCE, R_EYE_DISTANCE
+rcp R_EYE_DISTANCE, R_EYE_DISTANCE
+
+; fogend - d / fogend-fogstart
+add r6, c[CV_FOGDATA].y, -R_EYE_DISTANCE.y
+mul oFog, r6, c[CV_FOGDATA].z
+

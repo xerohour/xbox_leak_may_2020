@@ -1,0 +1,41 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+
+
+!include ..\sources.inc
+
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+XE_FLAGS=$(XE_FLAGS) /TESTNAME:"Security Gateway Data Test" /TESTID:0xA7049955
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\xonline$(S)$(D).lib              \
+    $(SDK_LIB_PATH)\OnlineAccounts$(D).lib           \
+    $(BASEDIR)\private\test\lib\*\xtestlib.lib       \
+    $(BASEDIR)\private\test\lib\*\xmem.lib           \
+    $(BASEDIR)\private\test\lib\*\xnetref$(D).lib    \
+    $(BASEDIR)\private\test\lib\*\xonlineref$(D).lib \
+    $(BASEDIR)\private\test\lib\*\xlog.lib           \
+    $(BASEDIR)\private\test\lib\*\datamask.lib       \
+    $(BASEDIR)\private\test\lib\*\sgdata.lib         \
+
+SOURCES=\
+    main.c  \

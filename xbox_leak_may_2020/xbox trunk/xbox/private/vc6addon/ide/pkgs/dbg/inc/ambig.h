@@ -1,0 +1,1 @@
+BOOL FAR PASCAL EXPORT DlgResolveAmbig(HWND,unsigned,UINT,LONG) ;

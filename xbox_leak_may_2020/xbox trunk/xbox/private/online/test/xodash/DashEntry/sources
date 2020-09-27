@@ -1,0 +1,53 @@
+TARGETNAME = DashEntry
+PROJNAME   = DashEntry
+TARGETPATH = obj
+TARGETTYPE= PROGRAM
+UMTYPE     = xboxapp
+				
+TITLEID    = 0xffff0000
+
+
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+USE_NATIVE_EH=1
+
+
+
+USE_LIBCMT=1
+
+
+
+INCLUDES   = $(INCLUDES);$(BASEDIR)\private\atg\samples\common\include ; \
+		$(PRIVATE_INC_PATH); \
+      	$(BASEDIR)\private\inc;\
+    	$(BASEDIR)\private\inc\crypto;\
+    	$(BASEDIR)\private\ntos\inc;\
+    	$(BASEDIR)\private\ntos\xapi\inc;\
+    	$(BASEDIR)\private\online\kerb;\
+    	$(BASEDIR)\private\online\util;\
+    	$(BASEDIR)\private\online;\
+    	$(BASEDIR)\private\ntos\net;\
+    	$(BASEDIR)\private\online\test\common;\
+        $(XDK_INC_PATH); \
+        $(PRIVATE_INC_PATH); \
+     	$(SDK_INC_PATH); \
+        $(DDK_INC_PATH); \
+
+PRECOMPILED_CXX=1
+PRECOMPILED_INCLUDE= std.h
+PRECOMPILED_PCH=std.pch
+PRECOMPILED_OBJ=std.obj		
+
+LINKLIBS   = \
+           $(BASEDIR)\private\atg\samples\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+             $(XDK_LIB_PATH)\dsound$(D).lib
+
+TARGETLIBS=\
+    $(LIBRARY_PATH)\xonline$(D).lib
+
+SOURCES    = \
+	DashEntry.cpp \
+

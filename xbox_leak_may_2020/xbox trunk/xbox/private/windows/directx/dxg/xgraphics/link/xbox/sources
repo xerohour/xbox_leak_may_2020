@@ -1,0 +1,30 @@
+!include "..\sources.inc"
+
+WHICHBUILD=xbox
+
+SYNCHRONIZE_BLOCK=1
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=
+
+!ifndef SD_BUILD
+
+TARGETPATH=$(BASEDIR)\public\sdk\lib
+
+!else
+
+TARGETPATH=obj
+
+!endif
+
+!ifdef SD_BUILD
+
+PASS1_PUBLISH =\
+    { $(O)\$(TARGETNAME).lib=$(SDK_LIB_PATH)\$(TARGETNAME).lib }
+
+!endif
+
+MISCFILES = $(TARGET)
+
+NTTARGETFILES=\
+    $(XDK_LIB_PATH)\$(TARGETNAME).lib

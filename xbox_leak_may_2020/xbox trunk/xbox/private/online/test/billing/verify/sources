@@ -1,0 +1,27 @@
+TARGETNAME=offerverify
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /FAcs
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:"Offerings - Verify" /TESTID:1234
+
+USE_LIBCMT=1
+ 
+SYNCRHONIZE_DRAIN=1
+
+INCLUDES=\
+    $(BASEDIR)\public\sdk\inc; \
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\ntos\xapi\inc;\
+    ..\..\common
+
+SOURCES=\
+    main.cpp
+
+TARGETLIBS=\
+    $(BASEDIR)\private\online\test\common\obj\i386\testutil$(D).lib \
+    $(LIBRARY_PATH)\xonline$(D).lib    

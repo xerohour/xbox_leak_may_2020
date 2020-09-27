@@ -1,0 +1,70 @@
+resman failure injection mechanism
+
+how to build with rmfailure enabled:
+   
+    Must compile resman with -DDEBUG_RM_FAILURES set.
+    An easy way to do this is to put the following in
+    your build script (that invokes blddisp)
+    
+        set RM_EXTRA_C_DEBUG_DEFINES=-DDEBUG_RM_FAILURES
+
+    then build a checked nt4 or nt5 build
+
+how to use
+
+    every file that has a test needs to
+
+        #include <rmfail.h>
+
+    add tests to the file
+    For example:
+
+        //
+        // Connect to dma buffer.
+        //    
+        status = dmaValidateObjectName(pDev, Data,
+                                       Object->ChID,
+                                       &(Object->NotifyXlate));
+
+***     RM_FAILURE_DMA(13, status = RM_ERR_OBJECT_TYPE_MISMATCH);
+
+        if (status)
+        {
+            osError(Object, Offset, Data, status);
+            return (status);
+        }
+
+    Looking at rmfail.h, you'll see that the base failure number for
+    the DMA failures is 100.  So this will be test 113.
+
+    Enable the test as desired using rmfail.pl:
+
+        rmfail.pl set '113:10 198'
+
+    The above setting would have test 113 fail (fire) on 10th pass,
+    and test 198 would fire on the first pass.
+
+    A more complete example is:
+
+        127 128:18 129:50% 200-300b:10% 199d
+
+        trigger failure 127 on first invocation
+        trigger failure 128 on 18th pass
+        trigger failure 129 with a 50% probability on each pass
+        trigger failures 200 thru 300 with 10% each AND break ('b') into debugger
+        trigger failure 199 on first pass AND do not disable it ('d')
+
+    Optionally set RM_FAILURES_SEED to seed the random number generator.
+    Otherwise it will be seeded w/ the current time.
+
+    Any RM_FAILURE's encountered before RM_FAILURE_ENABLE() will
+    harmlessly do nothing.
+    At startup, RmFailuresEnable() will parse the RM_FAILURES string
+    and produce debug output indicating tests being probed.
+
+
+current limitations
+    works on NT4 & NT5 only
+    requires checked build
+        (eventually will log msgs to eventlog on 'free' build)
+    registry is read at reboot only for now

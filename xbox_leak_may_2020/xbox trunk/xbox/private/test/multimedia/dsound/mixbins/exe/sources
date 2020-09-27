@@ -1,0 +1,43 @@
+TARGETNAME=mixbins
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+SYNCHRONIZE_DRAIN=1
+
+NTTARGETFILES = \
+	DSP
+
+INCLUDES=\
+	$(INCLUDES); \
+	$(BASEDIR)\private\test\inc; \
+	$(PRIVATE_INC_PATH); \
+	$(BASEDIR)\private\test\multimedia\inc
+
+SOURCES= 			 \
+	..\main.cpp \
+	..\bitfont.cpp \
+	..\meter.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+
+XE_FLAGS=/TESTNAME:"DSound Mixbin Test"
+
+LINK_DSPIMAGE=mixbinsImage
+
+TARGETLIBS=\
+	$(SDK_LIB_PATH)\dsound$(D).lib \
+	$(SDK_LIB_PATH)\d3d8$(D).lib \
+	$(TESTLIBS)\xmem.lib \
+	$(TESTLIBS)\xlog.lib \
+	$(TESTLIBS)\xtestlib.lib \
+	$(TESTLIBS)\xnetrefi$(D).lib \
+	$(SDK_LIB_PATH)\xnet$(D).lib \
+
+
+

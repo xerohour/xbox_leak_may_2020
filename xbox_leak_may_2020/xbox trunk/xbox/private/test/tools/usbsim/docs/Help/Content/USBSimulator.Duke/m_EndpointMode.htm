@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Duke.EndpointMode</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>EndpointMode</H1>
+    <DIV CLASS=BLOCK>
+    Sets the mode of the USB Endpoints on the device.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("void EndpointMode(short mode)");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Parameters</DIV>
+    <DL>
+    <DT><I>mode</I><BR>
+        <TABLE>
+        <TR><TH>Constant</TH><TH>Value</TH><TH>Description</TH></TR>
+        <TR><TD>ENDPOINT_DISABLE</TD><TD>0</TD><TD NOWRAP>Disable the device</TD></TR>
+        <TR><TD>ENDPOINT_ENABLE</TD><TD>1</TD><TD NOWRAP>Set the device to normal operation (default)</TD></TR>
+        <TR><TD>ENDPOINT_AUTOREPEAT</TD><TD>2</TD><TD NOWRAP>Turns Auto Repeat on (the last sent packet is automatically resent when requested)</TD></TR>
+        </TABLE>
+    </DL>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>Note that the above values are exposed through the type library, see the <A HREF="../USBSimulator/Constants.htm">constants</A> page for more information.</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var duke = WScript.CreateObject(\"USBSimulator.Duke\");\n\nduke.port = 1;\nduke.IP = \"157.56.10.18\";\nduke.Plug();\n\nduke.EndpointMode(2); // turn on autorepeat\nduke.SetButtonState(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -32000, 0, 0);\nWScript.Sleep(5000);\n\nduke.Unplug();");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="../USBSimulator/Constants.htm">Constants</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

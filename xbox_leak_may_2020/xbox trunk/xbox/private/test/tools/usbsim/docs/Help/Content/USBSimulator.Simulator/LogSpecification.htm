@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Log Specification</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Log Specification</H1>
+    <DIV CLASS=BLOCK>
+    This is the format of the log file when using the default (<A HREF="m_LogFormat.htm">Simulator.LogFormat(0)</A>).
+    </DIV><P>
+
+<DIV CLASS=BLOCKHEADER>Format</DIV>
+    <DIV CLASS=BLOCK>
+<PRE><FONT COLOR=brown>00052841</FONT> <FONT COLOR=red>010D20C8</FONT> [FROM SIM]: <FONT COLOR=green>// (USB, DATA: IN)</FONT>
+    <FONT COLOR=blue>1, 0, 2, 3</FONT>
+    <FONT COLOR=purple>96 01 02</FONT>
+<FONT COLOR=brown>00052842</FONT> <FONT COLOR=red>010D20C8</FONT> [TO SIM]:   <FONT COLOR=green>// (USB, DATA: DATA1)</FONT>
+    <FONT COLOR=blue>1, 0, 2, 21</FONT>
+    <FONT COLOR=purple>D2 00 14 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</FONT></PRE>
+
+    <P>
+    <TABLE WIDTH=96% CELLPADDING=2>
+        <TR><TH>Color</TH><TH>Description</TH></TR>
+        <TR><TD STYLE="font:6pt courier;color:brown">00052841</TD><TD>Time in milliseconds</TD></TR>
+        <TR><TD STYLE="font:6pt courier;color:red">010D20C8</TD><TD>A session wide unique ID for the virtual device</TD></TR>
+        <TR><TD STYLE="font:6pt courier;color:black">[FROM SIM]</TD><TD>Direction of the packet</TD></TR>
+        <TR><TD STYLE="font:6pt courier;color:green">// (USB, DATA: IN)</TD><TD>Description of the packet</TD></TR>
+        <TR><TD STYLE="font:6pt courier;color:blue">1, 0, 2, 3</TD><TD><A HREF="../Guide/NetworkIO.htm">Packet Header</A> (command, subcommand, endpoint, data size)</TD></TR>
+        <TR><TD STYLE="font:6pt courier;color:purple">96 01 02</TD><TD>Packet Data. If the header command equals 1 then the first byte is the USB PID</TD></TR>
+    </TABLE>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="../USBSimulator.Duke/p_record.htm">Duke.record</A>, <A HREF="m_Log.htm">Log</A>, <A HREF="p_logFilename.htm">logFilename</A>, <A HREF="m_LogFormat.htm">LogFormat</A>, <A HREF="../Guide/NetworkIO.htm">Packet Header</A>, <A HREF="../References/USB.htm">USB Reference</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

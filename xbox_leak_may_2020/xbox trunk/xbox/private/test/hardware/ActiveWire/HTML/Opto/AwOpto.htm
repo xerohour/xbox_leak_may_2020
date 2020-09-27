@@ -1,0 +1,300 @@
+<html>
+
+<head>
+<title>ActiveWire Optoisolator board</title>
+</head>
+
+<body bgcolor="#FFE0FF">
+
+<h1 align="center">ActiveWire Optoisolator Add-on board</h1>
+
+<p align="center"><br>
+Please refer to the pin diagram below. </p>
+<div align="center"><center>
+
+<table border="1" width="800" height="480">
+  <tr>
+    <td align="center">&nbsp;</td>
+    <td colspan="2" align="center">pin#</td>
+    <td colspan="3" align="center">&nbsp;</td>
+    <td colspan="2" align="center">pin# <small><small>(Note*)</small></small></td>
+    <td align="center">&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">+5V</td>
+    <td align="center">1</td>
+    <td align="center">2</td>
+    <td align="center">NC</td>
+    <td rowspan="10" align="center"><img src="AwOpto.gif" alt="ActiveWire Optoisolator board"
+    width="500" height="460"></td>
+    <td align="center">C3</td>
+    <td align="center">20</td>
+    <td align="center">19</td>
+    <td align="center">E3</td>
+  </tr>
+  <tr>
+    <td align="center">NC</td>
+    <td align="center">3</td>
+    <td align="center">4</td>
+    <td align="center">NC</td>
+    <td align="center">GND</td>
+    <td align="center">18</td>
+    <td align="center">17</td>
+    <td align="center">E2</td>
+  </tr>
+  <tr>
+    <td align="center">NC</td>
+    <td align="center">5</td>
+    <td align="center">6</td>
+    <td align="center">NC</td>
+    <td align="center">C2</td>
+    <td align="center">16</td>
+    <td align="center">15</td>
+    <td align="center">E1</td>
+  </tr>
+  <tr>
+    <td align="center">GND</td>
+    <td align="center">7</td>
+    <td align="center">8</td>
+    <td align="center">NC</td>
+    <td align="center">C1</td>
+    <td align="center">14</td>
+    <td align="center">13</td>
+    <td align="center">E0</td>
+  </tr>
+  <tr>
+    <td align="center">NC</td>
+    <td align="center">9</td>
+    <td align="center">10</td>
+    <td align="center">NC</td>
+    <td align="center">C0</td>
+    <td align="center">12</td>
+    <td align="center">11</td>
+    <td align="center">+5v</td>
+  </tr>
+  <tr>
+    <td align="center">I/O0</td>
+    <td align="center">11</td>
+    <td align="center">12</td>
+    <td align="center">+5V</td>
+    <td align="center">C7</td>
+    <td align="center">10</td>
+    <td align="center">9</td>
+    <td align="center">E7</td>
+  </tr>
+  <tr>
+    <td align="center">I/O1</td>
+    <td align="center">13</td>
+    <td align="center">14</td>
+    <td align="center">I/O2</td>
+    <td align="center">GND</td>
+    <td align="center">8</td>
+    <td align="center">7</td>
+    <td align="center">E6</td>
+  </tr>
+  <tr>
+    <td align="center">I/O3</td>
+    <td align="center">15</td>
+    <td align="center">16</td>
+    <td align="center">I/O4</td>
+    <td align="center">C6</td>
+    <td align="center">6</td>
+    <td align="center">5</td>
+    <td align="center">E5</td>
+  </tr>
+  <tr>
+    <td align="center">I/O5</td>
+    <td align="center">17</td>
+    <td align="center">18</td>
+    <td align="center">GND</td>
+    <td align="center">C5</td>
+    <td align="center">4</td>
+    <td align="center">3</td>
+    <td align="center">E4</td>
+  </tr>
+  <tr>
+    <td align="center">I/O6</td>
+    <td align="center">19</td>
+    <td align="center">20</td>
+    <td align="center">I/O7</td>
+    <td align="center">C4</td>
+    <td align="center">2</td>
+    <td align="center">1</td>
+    <td align="center">+5v</td>
+  </tr>
+</table>
+</center></div>
+
+<p align="center"><br>
+<small>( Note* : Pinouts corrected on Jan.25th, 2000. &nbsp; Apologies for any
+confusions.)</small><br>
+<br>
+Input side is connected to the ActiveWire bus connector so that it can be easily plugged
+in to the ActiveWire USB board. </p>
+
+<p align="center">Output is optically isolated bi-polar transistor.&nbsp; <a
+href="http://www.cel.com/pdf/datasheets/ps2501.pdf">See spec of the chip here</a>.<br>
+In above table, 'C#' corresponds to Collector, 'E#' corresponds to Emitter. </p>
+
+<p><br>
+</p>
+
+<hr width="50%">
+
+<p><br>
+</p>
+
+<p align="center">Following example demonstrates controling RC servo motor.<br>
+Please refer to the wiring diagram below. </p>
+
+<p align="center"><img src="AwOptoEx.gif" alt="ActiveWire Optoisolator board Example"
+width="700" height="580"> </p>
+
+<p align="center"><script language="JavaScript"><!--
+
+opened = 0;
+
+function Open (devnum)
+{
+	var	error;
+
+	if (opened)
+		skill.Close();
+
+	debug.value = "Open #" + devnum;
+	error = skill.Open (devnum);
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	opened = 1;
+
+	skill.EnablePort (0xff);
+
+
+	Servo(90);
+	GeneratePwmSignal ();
+}	
+
+
+function Close ()
+{
+	var error;
+
+	debug.value = "Close";
+	error = skill.Close();
+	if (error)
+	{
+		debug.value += " : " + error;
+		return;
+	}
+
+	opened = 0;
+}	
+
+
+PwmSignal = "";
+
+function Servo (degree)
+{
+	if (degree > 180)
+		degree = 180;
+	else if (degree < 0)
+		degree = 0;
+
+	PwmSignal = "";
+	var	width = degree / 2 + 30;
+	for (i=0; i<width; i++)
+		PwmSignal += "ff ff "
+	PwmSignal += "00 00 "
+}
+
+
+function GeneratePwmSignal ()
+{
+	if (opened)
+	{
+		debug.value += skill.OutPortBlock (PwmSignal, PwmSignal.length/3);
+	}
+	
+	setTimeout ("GeneratePwmSignal()", 10);
+}
+
+// --></script></p>
+
+<p align="center">Please select Device# at first. <br>
+Device# is the number sequentially assigned to each board by Windows operating system.<br>
+If you have only 1 board plugged into your system, Device# is 0.<br>
+If you have 2 boards plugged into your system, the first board is 0, the another is 1.<br>
+<br>
+Click in the box below, type in a number, then click Open. <br>
+Device# <input type="text" size="5" name="DevNum" onchange="Open(this.value)"> <br>
+<input type="button" name="Open" value="Open" onclick="Open(DevNum.value)"> <input
+type="button" name="Close" value="Close" onclick="Close()"> <br>
+</p>
+
+<p align="center">Now you can click on either of following radio button, then servo will
+follow your command.<br>
+</p>
+<div align="center"><center>
+
+<table border="0" width="200" height="200">
+  <tr>
+    <td align="left"><p align="left"><input type="radio" value="0" name="degree"
+    onclick="Servo(0)"> 0 degree <br>
+    <input type="radio" value="30" name="degree" onclick="Servo(30)"> 30 degree <br>
+    <input type="radio" value="60" name="degree" onclick="Servo(60)"> 60 degree <br>
+    <input type="radio" value="90" name="degree" onclick="Servo(90)" checked> 90 degree <br>
+    <input type="radio" value="120" name="degree" onclick="Servo(120)"> 120 degree <br>
+    <input type="radio" value="150" name="degree" onclick="Servo(150)"> 150 degree <br>
+    <input type="radio" value="180" name="degree" onclick="Servo(180)"> 180 degree <br>
+    </td>
+  </tr>
+</table>
+</center></div>
+
+<p><br>
+</p>
+
+<p align="center">Below is a debug message.<br>
+If it says ERROR, check your hardware/software.<br>
+<br>
+debug message : <input type="text" size="40" name="debug" value="debug"> <br>
+</p>
+
+<p><br>
+<br>
+</p>
+
+<p align="center">If you see ActiveWire bitmap below, ActiveX control is loaded
+successfully. </p>
+
+<p align="center">
+<object id="skill" name="skill" classid="clsid:95438945-F98A-11D2-AC25-00104B306BEE"
+width="64" height="64">
+</object>
+<input type="button" name="About" value="About..." onclick="skill.AboutBox()"> </p>
+
+<p align="left">If you see broken picture above, either ; </p>
+
+<ol>
+  <li><p align="left">Microsoft Internet Explorer 4.0 or above is required. Download the
+    latest from Microsoft web site.</p>
+  </li>
+  <li><p align="left">Security setting of your Internet Explorer is preventing from loading
+    ActiveX control. Choose View-&gt;Internet Option-&gt;Security, then set Local intra net
+    zone security setting to Low.</p>
+  </li>
+  <li><p align="left">ActiveX control is not installed in your system properly. <a
+    href="http://www.activewireinc.com/download.htm">Download AwusbIO.OCX</a>, and follow
+    instruction.</p>
+  </li>
+  <li><p align="left">ActiveWire USB Windows Driver is not installed properly. <a
+    href="http://www.activewireinc.com/download.htm">Download RegClear.exe</a> and try
+    reinstall driver.</p>
+  </li>
+</ol>
+</body>
+</html>

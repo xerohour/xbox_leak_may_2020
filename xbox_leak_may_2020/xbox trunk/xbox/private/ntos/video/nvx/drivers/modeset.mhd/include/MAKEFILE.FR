@@ -1,0 +1,20 @@
+
+%ENVIRONMENT    DRV16.ENV
+
+%SPECIAL
+all:   ..\code\gtfmath.inc
+
+..\code\gtfmath.inc:    ..\code\gtfmath.h
+    set PATH=$(PATH)
+    echo typedef unsigned long ULONG; > temp.h
+    copy temp.h+..\code\gtfmath.h
+    $(SED) "s/FAR//g" temp.h > temp1.h
+    $(FGREP) -v WINAPI temp1.h > temp.h
+#   Convert the file to a .inc file
+    $(H2INC) /Ht /D_WIN32 /Zngtfmath temp.h
+    copy temp.inc ..\code\gtfmath.inc
+    erase temp.h
+    erase temp1.h
+    erase temp.inc
+%ENDS
+

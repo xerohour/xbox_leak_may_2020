@@ -1,0 +1,151 @@
+XDX, XML DirectX description language
+Version: 0.2
+Date: 2001.10.30
+Author: Jed Lengyel
+
+Current and planned elements.  See the media directory in the xbview
+sample for sample .xdx files.
+
+A full schema specification is still needed (xdx.xsd).
+
+Surrounding container for all the resources:
+    <XDX>
+
+Low-level resources that are subclassed from D3DResource:
+
+    <Texture>       2D texture map
+    <VertexBuffer>  Vertex buffer
+    <IndexBuffer>   Index buffer (lives in system memory, can be compiled to a pushbuffer.)
+    <CubeTexture>   Cube texture map
+    <VolumeTexture> Volume texture map
+    <Image>         2D image (aka Surface)
+    <Palette>       Palette                 (Not yet implemented.)
+    <PushBuffer>    Pre-compiled push buffer tokens.
+    <Fixup>         Fixup                   (Not yet implemented.)
+
+Shader resources:
+    <VertexShader>  Vertex shader declaration, function, and constants
+    <PixelShader>   Pixel shader declaration, function, and constants
+
+Materials describe all the state needed for rendering (except for the
+geometry: vertex buffer, index buffer, and draw ranges.)
+    <Material>
+        <Pass>
+             <VertexShader>
+             <PixelShader>
+             <RenderState>
+             <TextureState>
+
+Parameters to be set in application code:
+    <parameter>                             (Not yet implemented.)
+
+
+
+LOW-LEVEL ANIMATION
+
+Animation descriptions (from animation module of SMIL2.0 specification):
+    <animate>       Key-framed animation
+
+
+    
+
+SKELETON ANIMATION
+
+Skeletons compute hierarchical matrix concatentation:
+    <Frame>         Push/Pop block
+    <Matrix>        4x4 generic matrix
+    <Translate>     Translation
+    <Rotate>        Quaternion rotation
+    <Scale>         Scale
+
+<Skeleton id="Skeleton1" >
+    <Frame name="A">
+       <Matrix>
+       <Translate name="TranslateA" value="1 2 3" />
+       </Matrix>
+       <Frame name="B" />
+	      <Matrix>
+	             <Rotate name="RotateB" value="0 0 0 1" />
+		            <Matrix name="MatrixB1" value="
+			                1 .1 0 0
+				                    0 2 0 0
+							                    0 0 1 0
+                0 0 0 1
+       </Matrix>
+       <Matrix name="MatrixB2">
+                1 0 0 0
+                0 2 .1 0
+                0 0 1 0
+                0 0 0 1
+        </Matrix>
+        </Frame>
+        <Rotate name="RotateC" value=".7 0 0 .7" />
+    </Frame>
+</Skeleton>
+
+<animation id="Animation1">
+<animate element="Skeleton1/TranslateA" values="2 3 4; 3 4 5; 4 5 6;" />
+<animate element="Skeleton1/RotateC" values="0 0 0 1; 0 0.7 0 0.7; 0 0 0 1" />
+</animation>
+
+<animation id="Animation2">
+<animate element="Skeleton1/TranslateA" values="4 4 4; 5 5 5; 6 6 6;" />
+<animate element="Skeleton1/*/RotateB" values="0 0 0 1; 0 0 0.7 0.7; 0 0 0 1" />
+</animation>
+
+<animation id="Blend1_2">
+</animation>
+
+MESH
+
+The <mesh> tag wraps vertex buffers, index buffers, and materials in a
+format that is convenient for analyses such as mesh simplification and
+triangle stripifying.  Instead of the raw format string that describes
+the layout of the data as in vertex buffers, we define a set of
+commonly used names to give meaning to the vertex data.  This is like
+D3DFVF's, but with several more formats defined.  The <mesh> maps
+directly to the low-level XDX <VertexBuffer> <IndexBuffer> and <Draw>
+tags.
+
+<mesh>
+        <vertexbuffer idref="VB1" names="xyz normal tex0" />
+                <!-- Inserts vertex buffer here. The 'names' attribute will replace previous names. -->
+        
+        <indexbuffer primitive="TRIANGLELIST" idref="IB1" />
+                <!-- Inserts index buffer as faces here, note 'primitive' attribute. -->
+                
+        <!-- Direct vertex definition -->
+        <v index="1">
+           xyz="x y z"
+           xyzrhw="x y z w"
+           normal="nx ny nz"
+           diffuse="r g b a"
+           specular="r g b a"
+           tex0="t0x t0y t0z t0w"
+           tex1="t1x t1y t1z t1w"
+           tex2="t2x t2y t2z t2w"
+           tex3="t3x t3y t3z t3w"
+           tex4="t4x t4y t4z t4w"
+           tex5="t5x t5y t5z t5w"
+           tex6="t6x t6y t6z t6w"
+           tex7="t7x t7y t7z t7w"
+           weight="b1 b2 b3"
+           index="i1 i2 i3 i4"
+           psize="p"
+           S0="sx sy sz"
+           T0="tx ty tz"
+           S0xT0="stx sty stz"
+           normal2="n2x n2y n2z"
+           names="offset planar_direction"
+           format="FLOAT3 FLOAT2">
+           <!-- The 'names' and 'format' attributes describe the data
+                not given in the standard attributes -->
+           x y z a b
+            </v>
+            
+        <!-- Direct face definition -->
+        <face>1 2 3</face>   <!-- does not need to be triangular, but some analysis passes will triangulate -->
+        
+        <subset material="Material1" start="0" count="100" />   <!-- start and count are face indices -->
+        <subset material="Material2" start="100" count="20" />
+</mesh>

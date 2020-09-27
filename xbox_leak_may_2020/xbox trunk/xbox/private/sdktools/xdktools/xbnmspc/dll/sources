@@ -1,0 +1,171 @@
+!IF 0
+
+Copyright (c) 1997-1999 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+History:
+    Common ccshell makefile and cleanup 15-Apr-96 Scott Hysom (scotth)
+    Created 27-Sep-94 by Bob Day (bobday)
+    from template created 12-Apr-1990 by Steve Wood (stevewo)
+
+NOTE:   Commented description of this file is in \nt\public\oak\bin\sources.tpl
+
+!ENDIF
+
+TARGETNAME      = XBNMSPC
+TARGETPATH      = obj
+TARGETTYPE      = DYNLINK
+UMTYPE		= windows
+
+WIN32_WINNT_VERSION=0x0400
+WIN32_WIN95_VERSION=0x0400
+WIN32_IE_VERSION=0x0501
+SUBSYSTEM_VERSION=4.00
+
+SYNCHRONIZE_DRAIN=1
+
+INCLUDES=.;..\inc;..\inc\public;$(WSDK_INC_PATH);$(WSDK_INC_PATH);$(WSDK_INC_PATH)\ATL30
+W2K_LIB_PATH=..\lib\public
+
+# make sure shlwapi.lib is before shell32.lib for override.
+TARGETLIBS      = \
+     $(WSDK_LIB_PATH)\gdi32.lib     \
+     $(WSDK_LIB_PATH)\user32.lib    \
+     $(WSDK_LIB_PATH)\kernel32.lib  \
+     $(WSDK_LIB_PATH)\ole32.lib     \
+     $(WSDK_LIB_PATH)\oleaut32.lib  \
+     $(WSDK_LIB_PATH)\uuid.lib      \
+     $(WSDK_LIB_PATH)\wininet.lib   \
+     $(WSDK_LIB_PATH)\msrating.lib  \
+     $(WSDK_LIB_PATH)\urlmon.lib    \
+     $(W2K_LIB_PATH)\shlwapip.lib   \
+     $(W2K_LIB_PATH)\shdocvwp.lib   \
+     $(W2K_LIB_PATH)\shell32p.lib   \
+     $(W2K_LIB_PATH)\comctlp.lib    \
+     $(WSDK_LIB_PATH)\advapi32.lib  \
+     $(WSDK_LIB_PATH)\htmlhelp.lib  \
+     ..\lib\$(O)\shguid.lib   \
+                  ..\lib\$(O)\shguidp.lib  \
+                  ..\lib\$(O)\stocklib.lib
+NOT_LEAN_AND_MEAN=1		
+C_DEFINES       = $(C_DEFINES) -DWIN32 -D_WIN32 -DPOSTSPLIT -DUSE_MIRRORING
+C_DEFINES       = $(C_DEFINES) -DUNICODE_SHDOCVW
+C_DEFINES       = $(C_DEFINES) -DNT
+C_DEFINES       = $(C_DEFINES) -DUNICODE -D_UNICODE
+C_DEFINES       = $(C_DEFINES) -DNO_PRIVATE_HEADERS
+C_DEFINES       = $(C_DEFINES) -DFEATURE_IE40 -DNASH
+
+# ------ Debug Only Defines --------
+
+!if "$(FREEBUILD)" == "0"
+C_DEFINES       = $(C_DEFINES) -DDEBUG
+LINKER_NOICF      = 1           # ICF is s-l-o-w
+
+# Check for missing PURE directives in interface decls (debug only)
+C_DEFINES       = $(C_DEFINES) -DNO_NOVTABLE
+
+# Define FULL_DEBUG for asserts to break by default
+!  if "$(FULL_DEBUG)" == "1"
+C_DEFINES       = $(C_DEFINES) -DFULL_DEBUG 
+!  endif
+
+# Allow someone to have ATL_DEBUG_REFCOUNT and ATL_DEBUG_QI set 
+# in their environment to turn this on
+!  if "$(ATL_DEBUG_REFCOUNT)" == "1"
+C_DEFINES       = $(C_DEFINES) -D_ATL_DEBUG_REFCOUNT
+!  endif
+
+!  if "$(ATL_DEBUG_QI)" == "1"
+C_DEFINES       = $(C_DEFINES) -D_ATL_DEBUG_QI
+!  endif
+
+!endif
+
+
+DLLDEF          = $(O)\xboxfld.def
+DLLBASE         = 0x71200000
+
+# DELAYLOAD     = WININET.DLL;MSRATING.DLL
+
+DLLENTRY        = DllEntry
+
+PRECOMPILED_INCLUDE = priv.h
+PRECOMPILED_CXX=1
+
+# 
+CHOPPING_BLOCK_SOURCES=encoding.cpp  \
+                       ftppidl.cpp
+
+SOURCES         = \
+                  account.cpp   \
+                  cobjsafe.cpp  \
+                  cookie.cpp    \
+                  cowsite.cpp   \
+                  debug.cpp     \
+                  dllload.cpp   \
+                  dllreg.cpp    \
+                  dialogs.cpp   \
+                  dspsprt.cpp   \
+                  xbox.cpp      \
+                  xboxapi.cpp   \
+                  xboxcf.cpp    \
+                  xboxcm.cpp    \
+                  xboxdhlp.cpp  \
+                  xboxdir.cpp   \
+                  xboxdlg.cpp   \
+                  xboxdrop.cpp  \
+                  xboxefe.cpp   \
+                  xboxeidl.cpp  \
+                  xboxfldr.cpp  \
+                  xboxglob.cpp  \
+                  xboxgto.cpp   \
+                  xboxicon.cpp  \
+                  xboxinet.cpp  \
+                  xboxlist.cpp  \
+                  xboxobj.cpp   \
+                  xboxpidl.cpp  \
+                  xboxpl.cpp    \
+                  xboxprop.cpp  \
+                  xboxresp.cpp  \
+                  xboxsite.cpp  \
+                  xboxstm.cpp   \
+                  xboxurl.cpp   \
+                  xbwebvw.cpp   \
+                  installwv.cpp \
+                  isf.cpp       \
+                  isfvcb.cpp    \
+                  newmenu.cpp   \
+                  offline.cpp   \
+                  olestuff.cpp  \
+                  proxycache.cpp \
+                  passwordapi.cpp \
+                  resource.rc   \
+                  security.cpp  \
+                  statusbr.cpp  \
+                  util.cpp      \
+                  view.cpp	    \
+		          xbnmspc.idl   \
+                  xbnmspc_i.c   \
+                  $(CHOPPING_BLOCK_SOURCES)
+
+
+
+
+#
+# To make binplace copy the file to the drop point (eg, \nt\drop),
+# add the file to MISCFILES.
+#
+
+MISCFILES       = xbox.htt \
+                  xboxnt5.htt

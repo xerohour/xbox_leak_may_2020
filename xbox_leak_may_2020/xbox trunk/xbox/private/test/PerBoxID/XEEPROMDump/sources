@@ -1,0 +1,35 @@
+TARGETNAME=XEEPROMDump
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+USE_LIBCMT=1
+
+XE_FLAGS = $(XE_FLAGS) /TESTID:0xFFCC0000\
+          /TESTNAME:"XEEPROMDump"\
+          /INITFLAGS:0x00000000
+
+#XDBG_COMPILE_LEVEL=5
+
+INCLUDES = \
+    $(BASEDIR)\private\inc; \
+    $(BASEDIR)\private\ntos\inc; \
+    $(BASEDIR)\private\inc\crypto; \
+    $(BASEDIR)\public\sdk\inc;\
+    $(BASEDIR)\public\wsdk\inc;\
+    ..\include;
+
+
+
+LINKLIBS=\
+     ..\xCommon\*\CXboxVideo.lib \
+     $(SDK_LIB_PATH)\xgraphics$(D).lib \
+     $(LIBRARY_PATH)\d3d8$(D).lib \
+     $(LIBRARY_PATH)\d3dx8$(D).lib \
+
+ 
+
+SOURCES=\
+    XEEPROMDump.cpp \
+    CXCrypto.cpp
+

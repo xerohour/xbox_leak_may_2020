@@ -1,0 +1,124 @@
+<style>
+<!--
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<p>How to install Visual Studio 7 with the Xbox XDK</p>
+<p>Starting from a clean system install</p>
+<ol>
+  <li>Install the Xbox XDK for Visual Studio 6<ol>
+    <li>Install Visual Studio 6 e.g.
+    <a href="file://products/public/Products/Developers/Visual_Studio_6.0/Pro/Disk1">
+    \\products\public\Products\Developers\Visual_Studio_6.0\Pro\Disk1</a><ol>
+      <li>Use the key 111-111111 (all 1s).</li>
+      <li>Don't register the environment variables. (VCVARS32.BAT)</li>
+    </ol>
+    </li>
+    <li>Install 
+    <a href="file://products/public/Products/Developers/Visual_Studio_6.0/SrvPack5">
+    Visual Studio 6 Service Pack 5</a></li>
+    <li>Install VS SP5's
+    <a href="file://products/public/Products/Developers/Visual_Studio_6.0/SrvPack5/PP">Processor Pack</a></li>
+    <li>Install any recent version of the <a href="file://xbuilds/release/usa">XDK</a></li>
+  </ol>
+  </li>
+  <li>Install the developers build of Visual Studio .Net RTM Candidate (= build 9466)<ol>
+  <li>
+  Read
+  \\cpvsbuild\Drops\v7.0\raw\9466\vs\devprocess.html and follow the 
+  directions....<ol>
+  <li>Ignore the doc when it says you can use a template. I had problems when I tried to use a template like DD_VCIDE_DEV . Try not 
+  using a template, e.g.:<p>
+  <a href="file://cpvsbuild/drops/v7.0/raw/current/vs/public/tools/enlistvs.bat">
+  \\cpvsbuild\drops\v7.0\raw\current\vs\public\tools\enlistvs.bat</a> vsdrive e:</p>
+  <p>&nbsp;</li>
+  <li>For Windows XP, the correct way to set up the build shell shortcut seems 
+  to be:<ul>
+    <li>Target: %SystemRoot%\system32\cmd.exe /k
+    <a href="file:///e:/vs70/vs/public/tools/myvsenv.bat">
+    e:\vs70\vs\public\tools\myvsenv.bat</a></li>
+    <li>Start in: <a href="file:///e:/vs70">e:\vs70</a></li>
+  </ul>
+  </li>
+  <li>For some reason, the myvsenv.bat file doesn't run vsenv.bat, which sets up 
+  all the aliases (like bindir). You should run it by hand, or edit
+  <a href="file:///e:/vs70/vs/public/tools/myvsenv.bat">
+  e:\vs70\vs\public\tools\myvsenv.bat</a> and add the following at the end:<blockquote>
+    <p>call vsenv</p>
+  </blockquote>
+  </li>
+  <li>To get the prebuilt sources, do:<blockquote>
+    <p>vsdaily NoSync<br>
+    getdrop nosync</blockquote>
+  </li>
+  <li>You may have to run vsdaily twice -- it will tell you if you need to 
+  reboot your machine and run it again.</li>
+  <li>To get the vc sources, do:<blockquote>
+    <p>sd client -t DD_VCIDE_DEV </p>
+    <p>And close the source depot client text editor window.</p>
+    <p>Then</p>
+    <p>cd <a href="file:///e:/vs70/vs/src">e:\vs70\vs</a><br>
+    sd sync ...</p>
+  </blockquote>
+  </li>
+  <li>The Visual C compiler team has their own, seperate source depot. To get 
+  their sources, do one of the following:<p>Approach 1</p>
+  <p>xcopy /s <a href="file://cpvsbuild/Drops/v7.0/raw/9466/vs/src/vc/langapi">
+  \\cpvsbuild\Drops\v7.0\raw\9466\vs\src\vc\langapi</a> E:\VS70\vs\src\vc</p>
+  <p>Approach 2</p>
+  <p>Contact Dan Spalding, asking for read-only permission to the lang5 source 
+  depot server.</p>
+  <blockquote>
+    <pre><span style="font-family: Arial; color: #000080">vc
+md </span><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">langapi
+cd langapi
+notepad sd.ini
+
+	The contents of sd.ini should be
+		sdport=lang5:2112
+		sdclient=</span></font><span style="font-family: Arial; color: #000080">YOURSDCLIENT</span><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">
+		sdformeditor=sdforms.exe</span></font></pre>
+    <pre><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;sd client</span></font></pre>
+    <pre><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;	The contents of your sd client for this directory should be</span></font></pre>
+    <pre><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">		//depot/main/vc/langapi/ncb/... //</span></font><span style="font-family: Arial; color: #000080">YOURSDCLIENT</span><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">/ncb/...
+		//depot/main/vc/langapi/shared/... //</span></font><span style="font-family: Arial; color: #000080">YOURSDCLIENT</span><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">/shared/...
+		//depot/main/vc/langapi/include/... //</span></font><span style="font-family: Arial; color: #000080">YOURSDCLIENT</span><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">/include/...
+		//depot/main/vc/langapi/attribute/include/... //</span></font><span style="font-family: Arial; color: #000080">YOURSDCLIENT</span><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">/attribute/include/...</span></font></pre>
+    <pre><font face="Arial" color="navy" size="2"><span style="FONT-SIZE: 10pt; COLOR: navy; FONT-FAMILY: Arial">&nbsp;sd sync ...</span></font></pre>
+  </blockquote>
+  <p>&nbsp;</li>
+  <li>As a sanity check, see if you can build the visual c ide<blockquote>
+    <p>vc ide<br>
+    build -eDcz</p>
+  </blockquote>
+  <p>&nbsp;</li>
+</ol>
+  </li>
+</ol>
+  </li>
+  <li>Install Xbox sources. (See <a href="http://xbox/docs/xcomer.doc">XBox 
+  Newcomer Orientation doc</a> )</li>
+  <li>Copy the contents of xbox\private\vc7addons to the vs.net sources using 
+  the script e:\xbox\private\vc7addon\tools\copyxboxtovs.bat</li>
+  <li>Rebuild and re-register the visual studio C++ ide:</li><blockquote>
+    <p>vc ide<br>
+    build -eDcz<br>
+    bindir<br>
+    vsreg</p>
+  </blockquote>
+  </li>
+  <li>Launch VS.Net<blockquote>
+    <p>bindir<br>
+    devenv</p>
+  </blockquote>
+  </li>
+  <li>Create an Xbox Application project (call it something like Game 1) But 
+  don't build it yet.</li>
+  <li>From the xbox build environment, set up the default Xbox name by doing<blockquote>
+    <p>&nbsp;xbdir -x MYXBOXNAME xe:\</p>
+  </blockquote>
+  </li>
+  <li>Build the Xbox project.</li>
+    </ol>
+<p>&nbsp;</p>

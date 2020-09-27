@@ -1,0 +1,24 @@
+TARGETNAME=dvdverify
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+INCLUDES = $(DDK_INC_PATH);$(BASEDIR)\private\ntos\inc;$(BASEDIR)\private\ntos\idex;$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(PRIVATE_INC_PATH)\crypto;$(BASEDIR)\private\cert\lib;$(INCLUDES)
+
+XE_FLAGS=$(XE_FLAGS) /TESTMEDIATYPES:0x80000005 /TESTNAME:"DVDVerify"
+
+SOURCES= \
+    xcbase.c \
+    dvdverify.cpp  \
+    dvdauth.cpp \
+    imagefile.cpp \
+    xboxvideo.cpp
+
+TARGETLIBS= \
+    $(XDK_LIB_PATH)\d3d8$(D).lib  \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+    $(BASEDIR)\private\lib\*\xapilibp$(D).lib \
+    $(WSDK_LIB_PATH)\wsock32.lib
+
+LINKLIBS=$(BASEDIR)\private\lib\*\certutilx.lib

@@ -1,0 +1,55 @@
+TARGETNAME = RRConsole.exe
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = windows
+UMENTRY    = winmain
+
+SDK_INC_PATH=$(WSDK_INC_PATH)
+COMPILER_WARNINGS=/FI$(BASEDIR)\public\sdk\inc\warning.h
+
+TARGETLIBS = $(BASEDIR)\Public\wsdk\lib\comctl32.lib    \
+             $(BASEDIR)\Public\wsdk\lib\comdlg32.lib    \
+             $(BASEDIR)\Public\wsdk\lib\version.lib     \
+			 $(BASEDIR)\Public|wsdk\lib\wsock.lib		\
+			 $(BASEDIR)\Public|wsdk\lib\rsa32.lib		\
+			 $(BASEDIR)\Public|wsdk\lib\GenPerBoxData.lib		
+
+
+
+INCLUDES   = $(BASEDIR)\PRIVATE\ntos\inc;	\
+			 $(BASEDIR)\PRIVATE\inc\crypto; \
+			 $(SDK_INC_PATH);				
+
+SOURCES    = CNetwork.cpp \
+             RRConsole.cpp \
+             RRConsoleDlg.cpp \
+             StdAfx.cpp \
+             RRConsole.rc
+
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+C_DEFINES = $(C_DEFINES) -DDEBUG 
+!endif
+
+
+USE_MFC=1
+PLATFORM_MFC_VER = 42
+USE_MSVCRT=1
+WIN32_IE_VERSION=0x0400
+!if 0
+!if "$(NTDEBUG)"!="" && "$(NTDEBUG)"!="ntsdnodbg"
+MFC_LIBS=  \
+          $(WSDK_LIB_PATH)\mfc42d.lib \
+          $(WSDK_LIB_PATH)\mfcd42d.lib \
+          $(WSDK_LIB_PATH)\mfcn42d.lib \
+          $(WSDK_LIB_PATH)\mfco42d.lib \
+          $(WSDK_LIB_PATH)\mfcs42d.lib
+!else
+MFC_LIBS=  \
+          $(WSDK_LIB_PATH)\mfc42.lib \
+          $(WSDK_LIB_PATH)\mfcs42.lib
+!endif
+!endif
+
+#MFC_INCLUDES=$(WSDK_INC_PATH)\mfc42
+
+USE_LIBCMT=1

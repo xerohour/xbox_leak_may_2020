@@ -1,0 +1,21 @@
+;-----------------------------------------------------------------------------
+; Fur pixel shader for slice texture and hair lighting
+;
+; Copyright (C) 2001 Microsoft Corporation
+; All rights reserved.
+;-----------------------------------------------------------------------------
+ps.1.0
+; v0 = diffuse conditioning term
+
+  tex t0 ; hair texture
+  tex t1 ; hair lighting texture
+
+#ifndef TIMES1
+  mul_x2 r1.rgb, v0, t1		; scale hair lighting by diffuse conditioning
++ mul    r1.a,   v0, t1		;	no 2x on alpha
+  mul_x2 r0.rgb, r1, t0		; modulate hair texture
++ mul    r0.a,   r1, t0		;	no 2x on alpha
+#else
+  mul    r1, v0, t1			; scale hair lighting by diffuse conditioning
+  mul    r0, r1, t0			; modulate hair texture
+#endif

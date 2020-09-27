@@ -1,0 +1,151 @@
+; Each vertex contains
+; v0: (creationTime, lifeTime, periodicity, seed)
+; v1: rgba color 
+
+;
+
+#include "ParticleSystem.h"
+
+vs.1.1
+
+#define ZERO          c[VSC_CONSTANTS].x
+#define SIXTH       - c[VSC_SINE].y
+#define HALF        - c[VSC_COSINE].y
+#define MINUS_HALF    c[VSC_COSINE].y
+#define ONE           c[VSC_COSINE].x
+#define TWO           c[VSC_CONSTANTS].y
+#define PI            c[VSC_CONSTANTS].z
+
+#define TIME_DELTA r0
+
+#define POSITION   r1
+#define DIRECTION  r2
+
+#define PERIOD     r3
+#define RND        r7
+
+#define TEMP1      r4
+#define TEMP2      r5
+#define TEMP3      r6
+
+#define ALPHA      r7
+
+#define SIN_Y            r8
+
+#define USE_BOUNCE       r9.x
+#define NO_BOUNCE        r9.y
+#define BOUNCE_NUM       r9.z
+
+; compute time delta dt: current time - creation time
+; ensure dt >= 0 
+add TIME_DELTA, - c[VSC_CURRENT_TIME].x, v0.x
+max TIME_DELTA, - TIME_DELTA, ZERO 
+
+; now do dt = dt - periodicity * floor(dt/periodicity)
+mul  TEMP1, TIME_DELTA, v0.w
+expp TEMP2, TEMP1
+add  PERIOD, TEMP1, - TEMP2.y
+mad  TIME_DELTA, - PERIOD, v0.z, TIME_DELTA 
+
+; compute direction from original direction, randomized thru seed
+; first compute PERIOD modulo how many rnd vectors we have
+; offset = numRndVec * frc(period/numRndVec)
+mul TEMP1, PERIOD, c[VSC_RND_NUM_VECTORS].y
+expp TEMP1, TEMP1
+mul TEMP1, TEMP1.y, c[VSC_RND_NUM_VECTORS].x
+mov a0.x, TEMP1
+
+; add vertex-seed to constant-seed
+add RND, v1.w, c[a0.x + VSC_RND_START]
+frc RND.xy, RND
+
+; make rnd range from -.5 .. +.49999
+add RND, MINUS_HALF, RND 
+mul RND, RND, c[VSC_RND_VARIANCE]
+
+; multiply by initial velocity modified by random 
+add TEMP1, v1.z, RND.z
+mul DIRECTION, c[VSC_DIRECTION], TEMP1
+
+; compute position as start_position + dt * dt * half_gravity
+;                                    + direction * (2^(decay*dt) - 1) / (decay*ln2)
+; decay is stored in v1.x 1/(decay*ln2) is in v1.y
+mul  TEMP1, TIME_DELTA, c[VSC_HALF_GRAVITY] 
+mad  POSITION, TIME_DELTA, TEMP1, c[VSC_START_POSITION]    ; temp2 is first line now
+
+mul  TEMP3, TIME_DELTA, v1.x
+expp TEMP1, TEMP3.w
+add  TEMP3, TEMP1.z, - TEMP1.w
+mul  TEMP3, v1.y, TEMP3
+mad  POSITION, TEMP3, DIRECTION, POSITION 
+
+; if y < 0 compute y = abs(sin(-y)) * 2^-b
+slt USE_BOUNCE, POSITION.y, ZERO
+sge NO_BOUNCE,  POSITION.y, ZERO
+
+; remap y to -pi..pi
+add  TEMP1.y, POSITION.y, PI
+mul  TEMP1.y, TEMP1.y, c[VSC_CONSTANTS].w
+expp TEMP2.y, TEMP1.y		    ; get fractional part
+mov  TEMP3, ONE
+mad  TEMP1.y, TWO, TEMP2.y, - TEMP3
+mul  TEMP1.y, TEMP1.y, - PI     ; and y = -y
+
+; compute powers of y
+mov SIN_Y.x, ONE                ; y^0
+mul SIN_Y.y, TEMP1.y, TEMP1.y   ; y^2
+mul SIN_Y.z, SIN_Y.y, SIN_Y.y   ; y^4
+mul SIN_Y.w, SIN_Y.y, SIN_Y.z   ; y^6
+mul SIN_Y, TEMP1.y, SIN_Y       ; get all the odd powers
+
+; multiple by sine taylor series coefficients and add all
+mul SIN_Y, c[VSC_SINE], SIN_Y
+dp4 SIN_Y, SIN_Y, ONE 
+
+; compute abs(sin(y))
+max SIN_Y, SIN_Y, - SIN_Y
+
+; figure which bounce we are in: b = - y/pi
+mul BOUNCE_NUM, - POSITION.y, c[VSC_CONSTANTS].w
+add BOUNCE_NUM, BOUNCE_NUM, BOUNCE_NUM
+; and exponentiate the floor: temp1.x = 2^floor(-b)
+expp TEMP1, - BOUNCE_NUM
+mul SIN_Y, SIN_Y, TEMP1.x 
+
+; approximate max height: - 1/g * (d.y/2)^2 
+rcp TEMP1, - c[VSC_HALF_GRAVITY].y
+mul TEMP2, HALF, DIRECTION.y
+mul TEMP2, TEMP2, TEMP2
+mul TEMP1, TEMP1, TEMP2
+
+; multiply max height by arbitrary x < 1 and multiply to SIN_Y
+mul TEMP1, TEMP1, SIXTH
+mul SIN_Y, SIN_Y, TEMP1
+
+mul SIN_Y, USE_BOUNCE, SIN_Y
+mad POSITION.y, NO_BOUNCE, POSITION.y, SIN_Y
+
+mov POSITION.w, c[VSC_START_POSITION]
+
+; Transform position to clip space
+dp4 oPos.x, POSITION, c[VSC_WORLDVIEW_PROJ_0]
+dp4 oPos.y, POSITION, c[VSC_WORLDVIEW_PROJ_1]
+dp4 oPos.z, POSITION, c[VSC_WORLDVIEW_PROJ_2]
+dp4 oPos.w, POSITION, c[VSC_WORLDVIEW_PROJ_3]
+
+; Output color as:
+; alpha = (1 - dt/lifetime) [* .5 * (1 + NO_BOUNCE)]
+; red   = red   * 1
+; green = green * alpha (to fade to red)
+; blue  = blue  * 1
+mov ALPHA, ONE
+mad ALPHA.yw,    TIME_DELTA, - v0.y, ONE
+;add TEMP1, ONE, NO_BOUNCE
+;mul TEMP1, HALF, TEMP1
+;mul ALPHA.yw, ALPHA, TEMP1
+mul ALPHA.y, ALPHA, ALPHA 
+mul oD0, ALPHA, v2
+
+
+; generate arbitrary dot size 
+add oPts,  TWO, TWO

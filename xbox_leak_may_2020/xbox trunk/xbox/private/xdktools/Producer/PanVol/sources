@@ -1,0 +1,43 @@
+!IF 0
+
+Copyright (c) 2001-2002 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    James Dooley (JDooley) 29-Nov-2001
+
+!ENDIF
+
+!include ..\producer.inc
+
+TARGETNAME=PanVol
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+TARGETEXT=ocx
+
+UMTYPE=windows
+DLLDEF=Grid.def
+DLLENTRY=_DllMainCRTStartup
+
+INCLUDES=$(INCLUDES);   \
+		$(O);
+
+SOURCES=\
+Grid.rc \
+Channel.cpp \
+Grid.cpp \
+GridCtl.cpp \
+GridPpg.cpp \
+Grid.odl

@@ -1,0 +1,47 @@
+'$include 'install.inc'
+
+
+scenario "Verify Full install after Full Dec2000 -> Full Mar2001"
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Install December release (3146_Alpha2)
+	'
+	Install("3146", false, false, , "\\xdk\xdktest\XDK_Builds\3146_Alpha2\SDK\setup.exe")
+	'
+	' Install March release (3332_Mar)
+	'
+	Install("3332", false, false, , "\\xdk\xdktest\XDK_Builds\3332_Mar\SDK\setup.exe")
+	'
+	' Install the latest Full build on top
+	'
+	Install(BuildNumber, false, false)
+	'
+	' Clean up if successful
+	'
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if not ValidateFilesOnUninstall then
+			FAIL "Files were not removed on uninstall"
+		end if
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

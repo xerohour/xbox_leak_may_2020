@@ -1,0 +1,315 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_MAIN MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New Project",                ID_FILE_NEW
+        MENUITEM "&Open Project...\tCtrl+O",    ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "&Save Project\tCtrl+S",       ID_FILE_SAVE
+        MENUITEM "Save Project &As...",         ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        POPUP "Recent &Files"
+        BEGIN
+            MENUITEM "&1\tRecent File",             ID_FILE_MRU_FILE1
+            , GRAYED
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+F4",               ID_FILE_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Re&fresh\tF5",                ID_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "Re&name\tF2",                 ID_RENAME
+        MENUITEM "&Remove\tDel",                ID_REMOVE
+        MENUITEM SEPARATOR
+        MENUITEM "Select A&ll\tCtrl+A",         ID_SELECT_ALL
+    END
+    POPUP "&Project"
+    BEGIN
+        MENUITEM "Add &Bank...\tCtrl+B",        ID_BANK_ADD
+        MENUITEM "Add Entries...\tCtrl+E",      ID_ENTRY_ADD
+        MENUITEM SEPARATOR
+        POPUP "Entry &Conversion"
+        BEGIN
+            MENUITEM "A&DPCM\tCtrl+D",              ID_CONVERT_ADPCM
+            MENUITEM "&8-Bit PCM\tCtrl+8",          ID_CONVERT_8BIT
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Play Entries\tSpace",        ID_ENTRY_AUDITION
+        MENUITEM "&Stop Entries\tEsc",          ID_ENTRY_CANCEL_AUDITION
+        MENUITEM SEPARATOR
+        MENUITEM "&Generate Wave Bank Files...\tCtrl+G", 
+                                                ID_PROJECT_GENERATE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About...\tF1",               ID_HELP_ABOUT
+    END
+END
+
+IDM_BANK_POPUP MENU DISCARDABLE 
+BEGIN
+    POPUP "&Bank"
+    BEGIN
+        MENUITEM "Re&name Bank\tF2",            ID_BANK_RENAME
+        MENUITEM "&Remove Bank\tDel",           ID_BANK_REMOVE
+        MENUITEM SEPARATOR
+        MENUITEM "Add Entry...\tCtrl+E",        ID_ENTRY_ADD
+    END
+END
+
+IDM_ENTRY_POPUP MENU DISCARDABLE 
+BEGIN
+    POPUP "&Entry"
+    BEGIN
+        MENUITEM "Re&name Entry\tF2",           ID_ENTRY_RENAME
+        MENUITEM "&Remove Entry\tDel",          ID_ENTRY_REMOVE
+        MENUITEM SEPARATOR
+        POPUP "Entry &Conversion"
+        BEGIN
+            MENUITEM "A&DPCM\tCtrl+D",              ID_CONVERT_ADPCM
+            MENUITEM "&8-Bit PCM\tCtrl+8",          ID_CONVERT_8BIT
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Play Entries\tSpace",        ID_ENTRY_AUDITION
+        MENUITEM "&Stop Entries\tEsc",          ID_ENTRY_CANCEL_AUDITION
+    END
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""version.rc""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDA_MAIN ACCELERATORS DISCARDABLE 
+BEGIN
+    "8",            ID_CONVERT_8BIT,        VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_SELECT_ALL,          VIRTKEY, CONTROL, NOINVERT
+    "B",            ID_BANK_ADD,            VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_CONVERT_ADPCM,       VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_ENTRY_ADD,           VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_PROJECT_GENERATE,    VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_DELETE,              VIRTKEY, NOINVERT
+    VK_ESCAPE,      ID_ENTRY_CANCEL_AUDITION, VIRTKEY, NOINVERT
+    VK_F1,          ID_HELP_ABOUT,          VIRTKEY, NOINVERT
+    VK_F2,          ID_RENAME,              VIRTKEY, NOINVERT
+    VK_F5,          ID_REFRESH,             VIRTKEY, NOINVERT
+    VK_SPACE,       ID_ENTRY_AUDITION,      VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_GENERATE DIALOG DISCARDABLE  0, 0, 214, 73
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "%s"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,157,52,50,14
+    LTEXT           "Generating bank %s",IDC_BANK,42,7,165,8
+    LTEXT           "Processing entry %s",IDC_ENTRY,42,17,165,8
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",WS_BORDER,
+                    42,31,165,10
+    ICON            IDI_PROJECT,IDC_STATIC,7,7,20,20
+END
+
+IDD_AUDITION DIALOG DISCARDABLE  0, 0, 215, 103
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "%s"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_PROJECT,IDC_STATIC,7,7,20,20
+    LTEXT           "&Xbox name or IP address:",IDC_STATIC,42,7,82,8
+    EDITTEXT        IDC_ADDRESS,41,15,165,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,102,42,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,156,42,50,14
+    LTEXT           "",IDC_SEPARATOR,7,67,201,1,SS_SUNKEN | NOT WS_GROUP
+    LTEXT           "Now playing %s",IDC_ENTRY,43,77,165,8
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",WS_BORDER,
+                    43,87,165,10
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 230, 74
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About %s"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON            IDI_PROJECT,IDC_STATIC,7,7,20,20
+    LTEXT           "Microsoft ® %s",IDC_APPNAME,43,7,175,8
+    LTEXT           "Version %s",IDC_VERSION,43,17,175,8
+    LTEXT           "Copyright © 1981-%lu Microsoft Corporation",
+                    IDC_COPYRIGHT,43,27,175,8
+    DEFPUSHBUTTON   "OK",IDOK,173,53,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_GENERATE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 207
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
+    END
+
+    IDD_AUDITION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 208
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 96
+    END
+
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 67
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_PROJECT             ICON    DISCARDABLE     "project.ico"
+IDI_BANK                ICON    DISCARDABLE     "bank.ico"
+IDI_ENTRY               ICON    DISCARDABLE     "entry.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TOOLBAR             BITMAP  DISCARDABLE     "toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_EXIT            "Exits the application"
+    ID_HELP_ABOUT           "Displays information about the application"
+    ID_BANK_ADD             "Adds a new bank to the project"
+    ID_BANK_REMOVE          "Removes the currently selected bank or banks from the project"
+    ID_ENTRY_ADD            "Adds an entry or entries to the current bank"
+    ID_ENTRY_REMOVE         "Removes the currently selected entry or entries from the bank"
+    ID_PROJECT_GENERATE     "Generates all wave bank and header files for the project"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Creates a new project"
+    ID_FILE_OPEN            "Opens an existing project"
+    ID_FILE_SAVE            "Saves the current project"
+    ID_FILE_SAVE_AS         "Saves the current project"
+    IDS_APPTITLE            "Xbox Wave Bundler"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_BANK_RENAME          "Renames the currently selected bank"
+    ID_ENTRY_RENAME         "Renames the currently selected entry"
+    ID_RENAME               "Renames the currently selected item"
+    ID_SELECT_ALL           "Selects all items in the window with focus"
+    ID_CONVERT_8BIT         "Toggles on-the-fly 16- to 8-bit compression for the entry or entries"
+    ID_CONVERT_ADPCM        "Toggles on-the-fly ADPCM compression for the entry or entries"
+    ID_REMOVE               "Removes the currently selected item or items"
+    ID_ENTRY_AUDITION       "Plays the selected entry or entries on the Xbox"
+    ID_REFRESH              "Refreshes all project data"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_ENTRY_CANCEL_AUDITION "Stops any currently playing wave bank entries"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "version.rc"
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

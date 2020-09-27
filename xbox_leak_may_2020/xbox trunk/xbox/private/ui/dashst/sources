@@ -1,0 +1,40 @@
+!IF 0
+
+Copyright (c) 1999  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    Specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+MAJORCOMP=dash
+MINORCOMP=st
+
+TARGETNAME=dashst
+TARGETTYPE=LIBRARY
+UMTYPE=xbox
+
+TARGETPATH=..\obj
+INCLUDES=..\inc;$(BASEDIR)\private\ntos\inc;
+
+! IF DEFINED(_XBOXTEST)
+C_DEFINES = $(C_DEFINES) -D_XBOXTEST=1
+! ENDIF
+
+C_DEFINES=$(C_DEFINES) -D_XAPI_
+MSC_WARNING_LEVEL=/W3 /WX
+
+SOURCES=dashst.c
+
+PRECOMPILED_INCLUDE=dshstpch.h
+PRECOMPILED_PCH=dshstpch.pch
+PRECOMPILED_OBJ=dshstpch.obj
+

@@ -1,0 +1,121 @@
+xvsw.1.1
+; Test auto pairing optimization
+
+; Using mad to seperate seperate tests.
+; MAD is not pairable because it has three input arguments
+; For ease of picking through the disassembly
+;  MAD output is r0 if the pairing should fail.
+;                r1 if the pairing should work.
+;  MAD c argument is unique for each test. 
+
+mov r0,v0
+mov r1,v1
+mov r2,v2
+mov r3,v3
+mov r4,v4
+mov r5,v5
+mov r6,v6
+mov r7,v7
+mov r8,v8
+mov r9,v9
+mov r10,v10
+mov r11,v11
+mov a0.x,v0
+
+;Pairable, the mov should be converted to an imv
+mad r1,r0,r0,c[0] ;96
+mov oPos,r3
+dp3 r0,r1,r2
+
+;Pairable, the mov should be converted to an imv
+mad r1,r0,r0,c[1] ;97
+dp3 r0,r1,r2
+mov oPos,r2
+
+;Pairable, no conflicts, ilu uses register
+mad r1,r0,r0,c[2] ;98
+dp3 r6.w,r7,r8
+rsq r1.x,r4.w  
+
+;Pairable, no conflicts, ilu uses v
+mad r1,r0,r0,c[3] ;99
+dp3 r6.w,r7,r8
+rsq r1.x,v0
+
+
+;Pairable, no conflicts, ilu uses c
+mad r1,r0,r0,c[4] ;100
+dp3 r6.w,r7,r8
+rsq r1.x,c[0]
+
+;Pairable, no conflicts, same v
+mad r1,r0,r0,c[5] ;101
+dp3 r6.w,r7,v0
+rsq r1.x,v0
+
+;Pairable, no conflicts, same c
+mad r1,r0,r0,c[6] ;102
+dp3 r6.w,r7,c[0]
+rsq r1.x,c[0]
+
+; --- Non-pairable test.
+
+;Not pairable - both mac instructions
+mad r0,r0,r0,c[7] ;103
+dp3 r6.w,r7,r8
+dp3 r6.w,r7,r8
+
+;Not pairable - both ilu instructions
+mad r0,r0,r0,c[8] ;104
+rsq r1.x,r2
+rsq r1.x,r2
+
+;Not pairable - b depends upon output of a (temporary)
+mad r0,r0,r0,c[9] ;105
+dp3 r6.w,r6,r6
+rsq r1.x,r6
+
+;Not pairable - b depends upon output of a (output) -- this is secret because r12 is secret
+mad r0,r0,r0,c[10] ;106
+dp3 oPos.w,r6,r6
+rsq r1.x,r12
+
+;Not pairable - b depends upon output of a (constant) -- rw shader
+mad r0,r0,r0,c[11] ;107
+dp3 c[0].x,r6,r6
+rsq r1.x,c[0]
+
+;Not pairable - Input conflict use two different c registers
+mad r0,r0,r0,c[12] ;108
+dp3 r6.w,r6,c[0]
+rsq r1.x,c[1]
+
+;Not pairable - Input conflict use c with and without addressing
+mad r0,r0,r0,c[13] ;109
+dp3 r6.w,r6,c[0]
+rsq r1.x,c[a0.x+0]
+
+;Not pairable - Input conflict use two different v registers
+mad r0,r0,r0,c[14] ;110
+dp3 r6.w,r6,v0
+rsq r1.x,v1
+
+;Not pairable - Output conflict - write to different r registers, and ilu isn't r1
+mad r0,r0,r0,c[15] ;111
+dp3 r6.w,r6,r6
+rsq r2.x,r2
+
+;Not pairable - Output conflict - both write to c registers
+mad r0,r0,r0,c[16] ;112
+dp3 c[0].w,r6,r6
+rsq c[1].x,r2
+
+;Not pairable - Output conflict - both write to c and/or o registers
+mad r0,r0,r0,c[17] ;113
+dp3 c[0].w,r6,r6
+rsq oPos.x,r2
+
+;Not pairable - Output conflict - both write to c and/or o registers
+mad r0,r0,r0,c[18] ;114
+dp3 oPos.w,r6,r6
+rsq oD0.x,r2

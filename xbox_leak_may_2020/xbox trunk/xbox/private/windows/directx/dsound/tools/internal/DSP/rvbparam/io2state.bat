@@ -1,0 +1,1 @@
+@obj\i386\rvbparam.exe "%~1" "%_NTDRIVE%%_NTROOT%\private\windows\directx\dsound\tools\internal\DSP\rvbparam\data\%~1.io" "%_NTDRIVE%%_NTROOT%\private\windows\directx\dsound\dsound\dsp\ini\reverb_%~1_state.ini"

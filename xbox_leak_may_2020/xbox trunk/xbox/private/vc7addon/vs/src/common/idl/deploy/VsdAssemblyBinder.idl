@@ -1,0 +1,79 @@
+// VsdAssemblyBinder.idl : IDL source for Deployment Packaging
+
+// DISPIDs
+typedef
+[
+	uuid(97FC7EE0-7535-11d3-8E49-00C04F6837D0),
+	helpstring("DISPIDs_IVsdAssemblyBinder")
+]
+enum DISPIDs_IVsdAssemblyBinder
+{
+	[helpstring("DISPID_IVsdAssemblyBinder_BindToFile")] DISPID_IVsdAssemblyBinder_BindToFile = 1,
+	[helpstring("DISPID_IVsdAssemblyBinder_BindToAssemblyName")] DISPID_IVsdAssemblyBinder_BindToAssemblyName = 2,
+	[helpstring("DISPID_IVsdAssemblyBinder_CreateDefaultAssemblyName")] DISPID_IVsdAssemblyBinder_CreateDefaultAssemblyName	= 3,
+	[helpstring("DISPID_IVsdAssemblyBinder_CreateApplicationContext")] DISPID_IVsdAssemblyBinder_CreateApplicationContext = 4,
+	[helpstring("DISPID_IVsdAssemblyBinder_EnumAssemblyCache")] DISPID_IVsdAssemblyBinder_EnumAssemblyCache	= 5,
+	[helpstring("DISPID_IVsdAssemblyBinder_FindAssemblyInCache")] DISPID_IVsdAssemblyBinder_FindAssemblyInCache	= 6,
+	[helpstring("DISPID_IVsdAssemblyBinder_BindToAssemblyModule")] DISPID_IVsdAssemblyBinder_BindToAssemblyModule = 7,
+	[helpstring("DISPID_IVsdAssemblyBinder_IsCacheAssembly")] DISPID_IVsdAssemblyBinder_IsCacheAssembly = 8,
+	[helpstring("DISPID_IVsdAssemblyBinder_GetAssemblyName")] DISPID_IVsdAssemblyBinder_GetAssemblyName = 9,
+	[helpstring("DISPID_IVsdAssemblyBinder_GetAssemblyCustomAttributes")] DISPID_IVsdAssemblyBinder_GetAssemblyCustomAttributes = 10,
+	[helpstring("DISPID_IVsdAssemblyBinder_CreateAssemblyName")] DISPID_IVsdAssemblyBinder_CreateAssemblyName	= 11
+} DISPIDs_IVsdAssemblyBinder;
+
+typedef
+[
+	uuid(2322A1FC-D663-45df-9DA3-0F0D5552984D),
+	helpstring("DISPIDs_IVsdAssemblyCustomProperty")
+]
+enum DISPIDs_IVsdAssemblyCustomProperty
+{
+	DISPID_IVsdAssemblyCustomProperty_Name = 1,
+	DISPID_IVsdAssemblyCustomProperty_Value = 2,
+	DISPID_IVsdAssemblyCustomProperty_Type = 3
+} DISPIDs_IVsdAssemblyCustomProperty;
+
+// interface
+[
+object,
+uuid(9E32BF5E-7535-11d3-8E49-00C04F6837D0),
+dual,
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdAssemblyBinder : IDispatch
+{
+	[id(DISPID_IVsdAssemblyBinder_BindToFile), helpstring("method BindToFile")] HRESULT BindToFile([in]BSTR FullPath, [out]IUnknown **Assembly, [out]IUnknown **ApplicationContext);
+	[id(DISPID_IVsdAssemblyBinder_BindToAssemblyName), helpstring("method BindToAssemblyName")] HRESULT BindToAssemblyName([in]IUnknown *AssemblyName, [in]IUnknown *ApplicationContext, [in]BSTR CodeBaseHint, [out]IUnknown **Assembly, [out]IUnknown **ApplicationContextUsed);
+	[id(DISPID_IVsdAssemblyBinder_BindToAssemblyModule), helpstring("method BindToAssemblyModule")] HRESULT BindToAssemblyModule([in]IUnknown *Assembly, [in]IUnknown *AssemblyModuleImport, [out]IUnknown **LocalAssemblyModule);
+	[id(DISPID_IVsdAssemblyBinder_CreateDefaultAssemblyName), helpstring("method CreateDefaultAssemblyName")] HRESULT CreateDefaultAssemblyName([out, retval]IUnknown **ppunkIAssemblyName);
+	[id(DISPID_IVsdAssemblyBinder_CreateApplicationContext), helpstring("method CreateApplicationContext")] HRESULT CreateApplicationContext([in]IUnknown *AssemblyName, [out]IUnknown **ApplicationContext, [in]BSTR AppBase, [in]BSTR PrivateBinPath, [in]BSTR SharedBinPath);
+	[id(DISPID_IVsdAssemblyBinder_EnumAssemblyCache), helpstring("method EnumAssemblyCache")] HRESULT EnumAssemblyCache([out]IUnknown **IEnumAssembly);
+	[id(DISPID_IVsdAssemblyBinder_FindAssemblyInCache), helpstring("method FindAssemblyInCache")] HRESULT FindAssemblyInCache([in]BSTR AssemblyDisplayName, [out]IUnknown **IAssembly);
+	[id(DISPID_IVsdAssemblyBinder_IsCacheAssembly), helpstring("method IsCacheAssembly")] HRESULT IsCacheAssembly([in]BSTR bstrSourcePath, [out]VARIANT_BOOL *GACAssembly);
+	[id(DISPID_IVsdAssemblyBinder_GetAssemblyName), helpstring("method GetAssemblyName")] HRESULT GetAssemblyName([in]BSTR bstrSourcePath, [out]IUnknown **ppunkIAssemblyName);
+	[id(DISPID_IVsdAssemblyBinder_GetAssemblyCustomAttributes), helpstring("method GetAssemblyCustomAttributes")] HRESULT GetAssemblyCustomAttributes([in]BSTR bstrSourcePath, [out]IVsdCollectionSubset **ppProperties);
+	[id(DISPID_IVsdAssemblyBinder_CreateAssemblyName), helpstring("method CreateAssemblyName")] HRESULT CreateAssemblyName([in] BSTR AssemblyDisplayName, [out, retval]IUnknown **ppunkIAssemblyName);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IVsdAssemblyCustomProperty
+////////////////////////////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(EC04A642-69B7-461d-B455-9DC2B7C3AECF),
+	dual,
+	helpstring("IVsdAssemblyCustomProperty Interface"),
+	pointer_default(unique)
+]
+interface IVsdAssemblyCustomProperty : IDispatch
+{
+ 	[propget, id(DISPID_IVsdAssemblyCustomProperty_Name), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdAssemblyCustomProperty_Name), helpstring("property Name")] HRESULT Name([in] BSTR newVal);
+	[propget, id(DISPID_IVsdAssemblyCustomProperty_Value), helpstring("property Value")] HRESULT Value([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdAssemblyCustomProperty_Value), helpstring("property Value")] HRESULT Value([in] BSTR newVal);
+	[propget, id(DISPID_IVsdAssemblyCustomProperty_Type), helpstring("property Type")] HRESULT Type([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdAssemblyCustomProperty_Type), helpstring("property Type")] HRESULT Type([in] long newVal);
+}
+

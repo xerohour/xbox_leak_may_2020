@@ -1,0 +1,61 @@
+// vsdsv.idl : Public IDL source for vsdsv.exe
+//
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+
+cpp_quote("#ifndef VSDSVTYPES")
+cpp_quote("#define VSDSVTYPES")
+#include "vsdsvtypes.h"
+cpp_quote("#endif /* VSDSVTYPES */")
+
+interface IVsDeployMgr;
+interface IVsDeployMgrCallback;
+
+
+[
+	uuid(B103083C-0A90-11D2-9926-0000F8026F55),
+	version(1.0),
+	pointer_default(unique)
+]
+interface IVsDeployMgr : IUnknown
+{
+	// Information:
+	HRESULT get_InstallLog([out]IStream **ppIStream);
+	HRESULT get_MsiMessages([out] VARIANT *pvarMessageTypes, [out] VARIANT *pvarMessages); 
+	HRESULT QueryStatus([out] BOOL *pfBusy);
+	HRESULT IsFinished([out] HRESULT *phrReturn);
+
+	// Deployment action:
+	HRESULT CreateTemporaryDirectory([out] BSTR *pbstrTempDir);
+	HRESULT PushBytesToFile([in] ULONG cbWrite, [in, size_is(cbWrite)] BYTE bData[], LPCOLESTR szFilePath);
+	HRESULT DeleteTemporaryFiles([in] ULONG celt, [in] VARIANT vFilenames, [in] BSTR bstrTempDir);
+	HRESULT RunMSI([in]IVsDeployMgrCallback *pIVsDeployMgrCallback,
+		[in] ULONG ulMainFileIndex,
+		[in] ULONG celt, [in, size_is(celt)] IStream *pIStreamFiles[], VARIANT vFilenames,
+		[in] DWORD dwDeploymentFlags,[in]LPCOLESTR szArgs,[in]LPCOLESTR szProductCode);
+	HRESULT RunMSINoCallback([in] ULONG ulMainFileIndex, [in] ULONG celt,
+		[in] VARIANT vFilenames,
+		[in] DWORD dwDeploymentFlags,[in]LPCOLESTR szArgs,[in]LPCOLESTR szProductCode);
+	HRESULT Cancel([in]IVsDeployMgrCallback *pIVsDeployMgrCallback);
+
+};
+
+[
+	uuid(95373528-FC05-11d2-945F-00C04F683646),
+	version(1.0),
+	pointer_default(unique)
+]
+interface IVsDeployMgrCallback : IUnknown
+{
+	HRESULT OnStartMSI();
+	HRESULT OnEndMSI([in]HRESULT hrRet);
+
+	HRESULT OnStatusMessage([in] LPCOLESTR szMessage);
+	HRESULT OnError([in] LPCOLESTR szMessage);
+	HRESULT OnWarning([in] LPCOLESTR szMessage);
+	HRESULT OnProgress([in]UINT uiMsg, [in]WPARAM wParam, [in]LPARAM lParam);
+	HRESULT OnReportURL([in]LPCOLESTR szKey, [in]LPCOLESTR szURL);
+}
+

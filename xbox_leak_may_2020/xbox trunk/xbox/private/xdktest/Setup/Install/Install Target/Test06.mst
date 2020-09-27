@@ -1,0 +1,58 @@
+'$include 'install.inc'
+
+
+Scenario "SDK Clean Full Setup - Non-default existant target directory, using buttons"
+	Dim xdkpath$
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Remove local install target point
+	'
+	if exists(TempLocalInstallTargetPath, "+d") then
+		killdir(TempLocalInstallTargetPath)
+	end if
+	'
+	' Create directory
+	'
+	mkdir TempLocalInstallTargetPath
+	'
+	' Install to existing temp directory
+	'
+	Install(BuildNumber, false, false, , , TempLocalInstallTargetPath)
+	'
+	'
+	'
+	if not IsInstalled then
+		FAIL "Install failed to "+TempLocalInstallTargetPath
+	else
+		Uninstall
+	end if
+	'
+	' Directory should still exist since it was there in the first place
+	'
+	if NOT exists(TempLocalInstallTargetPath, "+d") then
+		FAIL "Directory '"+TempLocalInstallTargetPath+"' was removed. Previously existing directories should not be removed by uninstall"
+	else
+		KillDir(TempLocalInstallTargetPath)
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+End Scenario
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+ 

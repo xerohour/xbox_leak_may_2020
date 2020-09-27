@@ -1,0 +1,61 @@
+!IF 0
+
+Copyright (c) 1990  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+
+#
+#	Include sources.inc from deploy root.
+#
+!include $(VSROOT)\sources.inc
+
+TARGETNAME=deployguids
+TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+TARGETTYPE=LIBRARY
+
+UMTYPE=windows
+
+SYNCHRONIZE_BLOCK=1
+
+USE_IDLPCH=1
+
+PASS0_HEADERDIR=$(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)
+PASS0_TLBDIR=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+PASS0_DLLDATADIR=$(VSBUILT)\$(BUILT_FLAVOR)\dlldata
+PASS0_PROXYDIR=$(VSBUILT)\$(BUILT_FLAVOR)\proxy
+PASS0_SOURCEDIR=$(O)
+
+# MIDL only finds TLBs in the current directory or the path...
+PATH=$(PATH);$(PASS0_TLBDIR);$(EXTERNAL_ROOT)\tlb
+
+USER_INCLUDES=..\vs;..\vsee
+
+LIBRARIAN_FLAGS=$(LIBRARIAN_FLAGS) -ignore:4006
+
+DEPLOY_IDL_FILES = \
+	vsdcommon.idl \
+	dpkg.idl \
+	VsdPluginObjects.idl \
+	VsdDsv.idl
+
+
+DEPLOY_UUID_C_FILES= \
+	$(PASS0_SOURCEDIR)\vsdcommon.c \
+	$(PASS0_SOURCEDIR)\dpkg.c 
+
+SOURCES= \
+	$(DEPLOY_IDL_FILES) \
+	$(DEPLOY_UUID_C_FILES)
+

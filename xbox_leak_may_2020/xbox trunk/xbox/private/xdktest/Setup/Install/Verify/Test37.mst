@@ -1,0 +1,60 @@
+'$include 'install.inc'
+
+
+scenario "Verify SDK Full Setup includes docs and help files"
+	Dim FileArray$(0,3), RegArray$(0,3)
+	Dim item%, pass%
+	Dim xdkpath$
+
+	pass = true
+	'
+	' Clean up if necessary
+	'
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	end if
+	'
+	' Default install
+	'
+	Install(BuildNumber, false, false)
+	'
+	' Get File Contents
+	'
+	VerifyFile(3, FileArray, RegArray)
+	'
+	' If upper bound > 0 then there were files returned
+	'
+	if ubound(FileArray, 1) <> 0 then
+		for item = lbound(FileArray, 1) to ubound(FileArray, 1)-1
+			if instr(lcase(FileArray(item, 0)), ".doc") <> 0 or _
+				instr(lcase(FileArray(item, 0)), ".chm") <> 0 or _
+				instr(lcase(FileArray(item, 0)), ".chi") <> 0 then
+				LOG #10, "Reference Doc file missing: '"+FileArray(item, 0)+"'"
+				pass = false
+			end if
+		next item
+	end if
+	'
+	' If failed, the flag error
+	'
+	if NOT pass then
+		FAIL "Some doc/help files were not installed properly"
+	end if
+Scenario Cleanup
+	if IsInstalled then
+		xdkpath = GetXDKPath()
+		Uninstall
+		if exists(xdkpath, "+d") then killdir(xdkpath)
+	else
+		Sleep 5
+	end if
+end scenario
+
+
+' *************************
+' ***** END TEST CASE *****
+' *************************
+End
+  

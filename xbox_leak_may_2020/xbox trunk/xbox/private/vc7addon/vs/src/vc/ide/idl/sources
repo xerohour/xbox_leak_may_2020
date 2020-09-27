@@ -1,0 +1,96 @@
+!IF 0
+
+Copyright (c) 1990-1998  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!include $(_NTROOT)\private\vc7addon\vsenv.inc
+!include ..\sources.inc
+
+TARGETNAME=vcidl
+TARGETPATH=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+TARGETTYPE=LIBRARY
+
+UMTYPE=windows
+
+SYNCHRONIZE_BLOCK=1
+
+PASS0_HEADERDIR=$(VSBUILT)\$(BUILT_FLAVOR)\inc\$(TARGET_DIRECTORY)
+PASS0_TLBDIR=$(VSBUILT)\$(BUILT_FLAVOR)\bin\$(TARGET_DIRECTORY)
+PASS0_DLLDATADIR=$(VSBUILT)\$(BUILT_FLAVOR)\dlldata
+PASS0_PROXYDIR=$(VSBUILT)\$(BUILT_FLAVOR)\proxy
+PASS0_SOURCEDIR=$(O)
+PASS0_LIBDIR=$(VSBUILT)\$(BUILT_FLAVOR)\lib\$(TARGET_DIRECTORY)
+
+# MIDL only finds TLBs in the current directory or the path...
+PATH=$(PASS0_TLBDIR);$(EXTERNAL_ROOT)\tlb;$(PATH)
+MIDL_FLAGS=$(MIDL_FLAGS) -no_warn /D USE_NONBROWSABLE
+#-cpp_opt /P
+
+USER_INCLUDES=$(COMMON_ROOT)\idl\vs;$(LANGAPI_ROOT)\attribute\include;$(PKG_ROOT)\res\src\inc;$(VCROOT)\include
+LIBRARIAN_FLAGS=$(LIBRARIAN_FLAGS) -ignore:4006
+
+# These files may be ordered non-alphabetically because some depend on outputs of others
+VC_IDL_FILES= \
+	bined.idl \
+	cxxwiz.idl \
+	cppsvc.idl \
+	dbsvc.idl \
+	exposed.idl \
+	MacroPicker.idl \
+	projbld2.idl \
+	ProjBldPrivate.idl \
+	VCPBErrContext.idl \
+	VCPBObjects.idl \
+	vcpb2.idl \
+	VCProjectPrivateTypeLib.idl \
+	rescom.idl \
+	respkg.idl \
+	vc.idl \
+	vcclsvw.idl \
+	VCCodeModels.idl\
+	vcprojcnvt2.idl \
+	vcwiz.idl \
+	wizardbar.idl \
+	xmlparser.idl
+
+# do.idl
+# These files are ordered identically to their corresponding IDL files above
+VC_UUID_C_FILES= \
+	shell.c \
+	$(PASS0_SOURCEDIR)\bined.c \
+	$(PASS0_SOURCEDIR)\cppsvc.c \
+	$(PASS0_SOURCEDIR)\dbsvc.c \
+	$(PASS0_SOURCEDIR)\exposed.c \
+	$(PASS0_SOURCEDIR)\MacroPicker.c \
+	$(PASS0_SOURCEDIR)\projbld2.c \
+	$(PASS0_SOURCEDIR)\ProjBldPrivate.c \
+	$(PASS0_SOURCEDIR)\VCPBErrContext.c \
+	$(PASS0_SOURCEDIR)\VCPBObjects.c \
+	$(PASS0_SOURCEDIR)\vcpb2.c \
+	$(PASS0_SOURCEDIR)\VCProjectPrivateTypeLib.c \
+	$(PASS0_SOURCEDIR)\rescom.c \
+	$(PASS0_SOURCEDIR)\vc.c \
+	$(PASS0_SOURCEDIR)\vcclsvw.c \
+	$(PASS0_SOURCEDIR)\vcprojcnvt2.c \
+	$(PASS0_SOURCEDIR)\wizardbar.c \
+	$(PASS0_SOURCEDIR)\xmlparser.c
+
+SOURCES= \
+	$(VC_IDL_FILES) \
+	$(VC_UUID_C_FILES)
+
+NTTARGETFILE0= \
+	$(VSBUILT)\$(BUILT_FLAVOR)\Inc\$(TARGET_DIRECTORY)\VCCodeModelsHelpID.h \
+	$(VSBUILT)\$(BUILT_FLAVOR)\Inc\$(TARGET_DIRECTORY)\VCCodeModelsHelpBS.h \

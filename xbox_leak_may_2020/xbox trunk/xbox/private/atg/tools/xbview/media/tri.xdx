@@ -1,0 +1,53 @@
+<?xml version="1.0" ?> 
+<XDX>
+<Texture id="env5" source="textures/env5.bmp" /><!--  Texture to apply to the triangle  -->
+<!--  Triangle geometry   --> 
+<VertexBuffer id="VertexBuffer1" names="xyz tex0" format="FLOAT3 FLOAT2">
+  <v>-0.5 -0.5 0.5  0 1</v> 
+  <v>-0.5  0.5 0.5  0 0</v> 
+  <v>  0.5  0.5 0.5  1 0</v>
+</VertexBuffer>
+<IndexBuffer id="IndexBuffer0">0 1 2</IndexBuffer><!--  Triangle indices --> 
+<!--  Vertex shader transforms to screen space and outputs texture coords  --> 
+<VertexShader id="VSTexture">
+<decl>
+<stream index="0" idref="VertexBuffer1"><!--  Set VertexBuffer1 to stream 0 --> 
+<vreg index="0" format="FLOAT3" />  <!-- Position  --> 
+<vreg index="1" format="FLOAT2" />  <!--  Tex0   --> 
+</stream>
+</decl>
+<asm>
+vs.1.1
+m4x4 oPos, v0, c0 // Transform point to projection space 
+mov oT0.xy,v1.xy // Output texture cords
+</asm> 
+<!-- Transformation matrix  --> 
+<Constant index="0" count="4" parameter="World * View * Projection">
+0.75 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1
+</Constant>
+</VertexShader>
+<PixelShader id="PSTexture"><!--  Pixel shader to apply a texture  --> 
+  <asm>
+ps.1.1
+tex t0 
+mov r0, t0
+</asm> 
+</PixelShader>
+
+<!--  Put together all the state and draw the triangle. --> 
+<Model id="MyTriangle">
+<Pass>
+  <VertexShader idref="VSTexture" /> <!--  Set the vertex shader, which is already bound to VertexBuffer1 --> 
+  <PixelShader idref="PSTexture" /> <!-- Set the pixel shader  --> 
+ <RenderState CullMode="None"> <!--  Set render state  --> 
+  <TextureState Stage="0" idref="env5" /> <!-- Set the current texture  --> 
+  <TextureState Stage="1" ColorOp="Disable" AlphaOp="Disable" /> 
+  </RenderState>
+<!-- For drawing a single triangle, we could omit the IndexBuffer reference and simply draw all the vertices, but this shows how to draw a triangle list. --> 
+  <Draw idref="IndexBuffer0" primitive="TRIANGLELIST" start="0" count="3" /> 
+</Pass>
+</Model>
+</XDX>

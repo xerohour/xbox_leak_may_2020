@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Duke.xidDescriptorLength</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>xidDescriptorLength</H1>
+    <DIV CLASS=BLOCK>
+    This property sets the length USB XID Descriptor buffer.
+    </DIV><P>
+
+<DIV CLASS=SYNTAX><SCRIPT>WriteSyntax("unsigned short xidDescriptorLength");</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>Remarks</DIV>
+    <DIV CLASS=BLOCK>This property is read write, and the default value is 8 bytes.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>Example</DIV>
+    <DIV CLASS=BLOCK><SCRIPT>WriteCode("var duke = WScript.CreateObject(\"USBSimulator.Duke\");\n\n// Display the default XID descriptor\nWScript.Echo( ToBinaryString(duke.xidDescriptor, duke.xidDescriptorLength) );\n\n// Change the XID Descriptor\nduke.xidDescriptor = String.fromCharCode(0xAA, 0xBB, 0xCC, 0xDD, 0xAA, 0xBB, 0xCC, 0xDD);\n\nfunction ToBinaryString(string, length)\n    {\n    var str = \"(\";\n    for(var i=0; i < length; i++)\n        {\n        str += \"0x\" + string.charCodeAt(i).toString(16);\n        if(i!=length-1) str += \", \";\n        }\n\n    return str + \")\";\n    }");</SCRIPT>
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="p_xidDescriptor.htm">xidDescriptor</A>, <A HREF="p_deviceDescriptor.htm">deviceDescriptor</A>, <A HREF="p_configurationDescriptor.htm">configurationDescriptor</A>, <A HREF="p_deviceCapabilities.htm">deviceCapabilities</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

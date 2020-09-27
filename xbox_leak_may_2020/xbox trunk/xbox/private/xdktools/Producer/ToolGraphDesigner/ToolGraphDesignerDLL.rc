@@ -1,0 +1,512 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""..\\shared\\DlgAddPChannel.rc""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+
+// In any debug build, DBG must be defined as 1, to make ntverp.h
+// set up the version resource correctly with the VS_FF_DEBUG flag:
+#if (defined(DEBUG) || defined(RDEBUG)) && !defined(DBG)
+#define DBG 1
+#endif
+
+#include <winver.h>
+
+
+#ifdef WIN9X
+
+#include <verinfo.h>
+
+#define VERSIONNAME                 "TOOLGRAPHDESIGNER.OCX\0"
+#define VERSIONDESCRIPTION          "ToolgraphDesigner ActiveX Control Module\0"
+#define VERSIONTYPE                 VFT_DLL
+#define VERSIONSUBTYPE              VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#else // WINNT
+
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "ToolgraphDesigner ActiveX Control Module\0"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "TOOLGRAPHDESIGNER.OCX\0"
+
+#include "common.ver"
+
+#endif
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ABOUTDLL            ICON    DISCARDABLE     "Res\\AboutDLL.ico"
+IDR_GRAPH_DOCTYPE       ICON    DISCARDABLE     "Res\\GraphNode.ico"
+IDI_GRAPH_DOCTYPE_SEL   ICON    DISCARDABLE     "Res\\GraphNodeSel.ico"
+IDI_GRAPHREF_SEL        ICON    DISCARDABLE     "Res\\GraphRefNodeSel.ico"
+IDI_GRAPHREF            ICON    DISCARDABLE     "Res\\GraphRefNode.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_GRAPH               BITMAP  DISCARDABLE     "Res\\GraphCtl.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TAB_GRAPH DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Graph"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Name:",IDC_STATIC,3,7,37,10
+    EDITTEXT        IDC_NAME,42,5,205,12,ES_AUTOHSCROLL
+END
+
+IDD_ABOUTBOX_GRAPH DIALOG DISCARDABLE  0, 0, 229, 62
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Toolgraph Designer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDI_ABOUTDLL,IDC_STATIC,11,17,20,20
+    LTEXT           "",IDC_FILE_VERSION,40,10,144,14,SS_NOPREFIX
+    LTEXT           "Copyright © 1998-2001 Microsoft Corporation.",
+                    IDC_STATIC,40,25,147,8
+    DEFPUSHBUTTON   "OK",IDOK,190,7,32,14,WS_GROUP
+    LTEXT           "All rights reserved.",IDC_STATIC,40,40,119,8
+END
+
+IDD_DLG_GRAPH DIALOG DISCARDABLE  0, 0, 340, 163
+STYLE DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "",IDC_PCHANNEL_HEADER,"Button",BS_OWNERDRAW,7,7,75,14
+    CONTROL         "",IDC_GRAPH_HEADER,"Button",BS_OWNERDRAW,90,7,131,14
+    CONTROL         "",IDC_TOOL_HEADER,"Button",BS_OWNERDRAW,241,7,87,14
+    LISTBOX         IDC_PCHANNEL_LIST,8,37,73,115,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | 
+                    LBS_WANTKEYBOARDINPUT | LBS_EXTENDEDSEL | 
+                    LBS_DISABLENOSCROLL | NOT WS_BORDER | WS_HSCROLL | 
+                    WS_TABSTOP
+    LISTBOX         IDC_GRAPH_LIST,89,37,139,115,LBS_OWNERDRAWFIXED | 
+                    LBS_NOINTEGRALHEIGHT | LBS_DISABLENOSCROLL | NOT 
+                    WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    LISTBOX         IDC_TOOL_LIST,246,44,84,103,LBS_SORT | 
+                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | 
+                    LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | 
+                    WS_HSCROLL | WS_TABSTOP
+END
+
+IDD_DLG_GUID DIALOG DISCARDABLE  0, 0, 230, 49
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Guid"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,173,28,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,116,28,50,14
+    EDITTEXT        IDC_EDIT_GUID,7,7,216,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Create New GUID",IDC_NEW_GUID,7,28,100,14
+END
+
+IDD_TAB_INFO DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Subject:",IDC_STATIC,3,4,32,10
+    EDITTEXT        IDC_SUBJECT,42,2,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Author:",IDC_STATIC,3,20,32,10
+    EDITTEXT        IDC_AUTHOR,42,18,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Copyright:",IDC_STATIC,3,36,32,10
+    EDITTEXT        IDC_COPYRIGHT,42,34,205,12,ES_AUTOHSCROLL
+    LTEXT           "&Version:",IDC_STATIC,3,51,35,10
+    EDITTEXT        IDC_VERSION_1,42,49,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_2,66,49,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_3,90,49,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_VERSION_4,114,49,22,12,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "&Edit GUID...",IDC_EDIT_GUID,163,49,50,14
+    LTEXT           "&Information:",IDC_STATIC,3,66,37,10
+    EDITTEXT        IDC_INFO,42,65,205,42,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_WANTRETURN | WS_VSCROLL
+END
+
+IDD_TAB_TOOL DIALOG DISCARDABLE  0, 0, 250, 110
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Tool"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Name:",IDC_STATIC,3,7,37,10
+    EDITTEXT        IDC_NAME,42,5,205,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Edit Tool Properties",IDC_BUTTON_TOOL_PROPERTIES,42,26,
+                    80,14
+END
+
+IDD_OLE_PROPPAGE_LARGE DIALOG DISCARDABLE  0, 0, 267, 166
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TAB_GRAPH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_ABOUTBOX_GRAPH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_DLG_GRAPH, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 336
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 159
+    END
+
+    IDD_DLG_GUID, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
+
+    IDD_TAB_INFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_TAB_TOOL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_OLE_PROPPAGE_LARGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 260
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_GRAPH_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Graph"
+    BEGIN
+        MENUITEM "Rename...",                   IDM_RENAME
+        MENUITEM SEPARATOR
+        MENUITEM "Properties",                  IDM_PROPERTIES
+    END
+END
+
+IDR_GRAPH_EDITOR MENU DISCARDABLE 
+BEGIN
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM "&Redo\tCtrl+Y",               ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Select Al&l\tCtrl+A",         IDM_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert\tIns",                ID_EDIT_INSERT
+        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE
+    END
+    MENUITEM SEPARATOR
+    MENUITEM SEPARATOR
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents",                   IDM_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About Toolgraph Designer...", ID_APP_ABOUT
+    END
+END
+
+IDM_GRAPHREF_NODE_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "GraphRef"
+    BEGIN
+        MENUITEM "Properties",                  32775
+    END
+END
+
+IDM_DRAG_RMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Drag"
+    BEGIN
+        MENUITEM "Move",                        IDM_DRAG_MOVE
+        MENUITEM "Copy",                        IDM_DRAG_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "Cancel",                      IDM_DRAG_CANCEL
+    END
+END
+
+IDM_GRAPH_PCHANNELGROUPS MENU DISCARDABLE 
+BEGIN
+    POPUP "PChannelGroup"
+    BEGIN
+        MENUITEM "Add/Remove &PChannels",       IDM_CHANGE_PCHANNEL_GROUP
+        MENUITEM SEPARATOR
+        MENUITEM "Select Al&l\tCtrl+A",         IDM_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert PChannel Group\tIns", IDM_INSERT_PCHANNEL_GROUP
+        MENUITEM "D&elete PChannel Group(s)\tDel", IDM_DELETE_PCHANNEL_GROUP
+    END
+END
+
+IDM_GRAPH_TOOLS MENU DISCARDABLE 
+BEGIN
+    POPUP "Tool"
+    BEGIN
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Select Al&l\tCtrl+A",         IDM_SELECT_ALL
+        MENUITEM SEPARATOR
+        MENUITEM "&Delete Tool(s)\tDel",        ID_EDIT_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "&Insert PChannel Group\tIns", IDM_INSERT_PCHANNEL_GROUP
+        MENUITEM "D&elete PChannel Group(s)",   IDM_DELETE_PCHANNEL_GROUP
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tF11",            IDM_TOOL_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_GRAPH_ACCELS ACCELERATORS DISCARDABLE 
+BEGIN
+    "A",            IDM_SELECT_ALL,         VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_DELETE,         VIRTKEY, NOINVERT
+    VK_INSERT,      ID_EDIT_INSERT,         VIRTKEY, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_SPLITTER            CURSOR  DISCARDABLE     "Res\\Splith.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GRAPH               "Toolgraph Control"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GRAPH_COMPONENT_NAME "Toolgraph Designer"
+    IDS_HELP_FILE_EXT       ".chm"
+    IDS_ERR_INVALIDARG      "IDMUSProdComponent::Initialize() received invalid arguments."
+    IDR_GRAPH_DOCTYPE       "\nToolgraph\nToolgraph\nToolgraph Files (*.tgr;*.tgp)\n.tgr;.tgp\nDirectMusic.Toolgraph\nDirectMusic Toolgraph"
+    IDS_ERR_REGISTER_CF     "Cannot register clipboard formats."
+    IDS_ERR_ADD_CLIPFORMAT  "Cannot register Toolgraph file's clipboard format with Framework."
+    IDS_ERR_ADD_IMAGELIST   "Cannot add Project Tree images to Framework."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Toolgraph Designer"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ERR_MEMORY          "Out of Memory."
+    IDS_ERR_ADD_DOCTYPE     "Cannot register file type with Framework."
+    IDS_ERR_MISSING_CONDUCTOR "Conductor initialization failed."
+    IDS_TOOLGRAPH_TEXT      "Toolgraph"
+    IDS_GRAPH_VERSION_TEXT  "Toolgraph Designer Version %1"
+    IDS_NO_GRAPH            "No Toolgraph"
+    IDS_UNDO_GRAPH_NAME     "Toolgraph Name"
+    IDS_UNDO_GRAPH_GUID     "Toolgraph GUID"
+    IDS_UNDO_GRAPH_LANGUAGE "Toolgraph Language"
+    IDS_UNDO                "&Undo"
+    IDS_UNDO_ACCEL          "\tCtrl+Z"
+    IDS_REDO                "&Redo"
+    IDS_REDO_ACCEL          "\tCtrl+Y"
+    IDS_UNDO_GRAPH_AUTHOR   "Toolgraph Author"
+    IDS_UNDO_GRAPH_COPYRIGHT "Toolgraph Copyright"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_GRAPH_SUBJECT  "Toolgraph Subject"
+    IDS_UNDO_GRAPH_VERSION  "Toolgraph Version"
+    IDS_GRAPH_OBJECT_TEXT   "Toolgraph"
+    IDS_TOOL_TEXT           "Tool"
+    IDS_UNDO_GRAPH_INFO     "Toolgraph Information"
+    IDS_TOOL_PALETTE_TEXT   "Tool Palette"
+    IDS_PCHANNEL_GROUP_TEXT "PChannel Group"
+    IDS_TITLE_CHANGE_PCHANNEL_GROUP "%1 Add/Remove PChannels"
+    IDS_TITLE_INSERT_PCHANNEL_GROUP "%1 Insert PChannel Group"
+    IDS_UNDO_INSERT_PCHANNELGROUP "Insert PChannel Group"
+    IDS_UNDO_CHANGE_PCHANNELGROUP "Add/Remove PChannels"
+    IDS_UNDO_DELETE_PCHANNELGROUP "Delete PChannel Group(s)"
+    IDS_UNDO_INSERT_TOOLS   "Insert Tool(s)"
+    IDS_UNDO_DELETE_TOOLS   "Delete Tool(s)"
+    IDS_UNDO_MOVE_TOOLS     "Move Tool(s)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDM_SELECT_ALL          "Select all items\nSelect All"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_UNDO_CHANGE_PCHANNELS "Change PChannel(s)"
+    IDS_NO_TOOLS_PROMPT     "<Drop tools from Tool Palette here>"
+    IDS_MULTIPLE_TOOLS_SELECTED "Multiple Tools Selected"
+    IDS_UNDO_CHANGE_TOOL_NAME "Change Tool Name"
+    IDS_UNDO_CHANGE_TOOL_PROPERTIES "Change Tool Properties"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_INSERT          "Insert a PChannel Group\nInsert"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_DELETE          "Delete the selection without placing it on the Clipboard\nDelete"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDM_HELP_FINDER         "Display program information, version number and copyright"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "..\shared\DlgAddPChannel.rc"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+

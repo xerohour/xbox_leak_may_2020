@@ -1,0 +1,33 @@
+TARGETNAME=cryptotest
+TARGETPATH=obj
+TARGETTYPE=LIBRARY
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+SYNCRHONIZE_DRAIN=1
+
+
+# These two warnings are out of our control ...
+# warning LNK4049: locally defined symbol XXX imported
+# warning LNK4217: locally defined symbol XXX imported in function XXX
+#LINKER_FLAGS=$(LINKER_FLAGS) /MAP
+LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+
+INCLUDES=\
+    $(BASEDIR)\private\ntos\inc;\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\inc\crypto;\
+    $(BASEDIR)\public\sdk\inc;\
+    $(BASEDIR)\private\test\inc
+
+SOURCES=\
+    cryptotest.cpp
+
+TARGETLIBS=\
+    $(BASEDIR)\private\lib\i386\Xapilibp$(D).lib \
+    $(BASEDIR)\private\lib\i386\rsa32.lib
+
+
+TARGETPATH=$(BASEDIR)\private\test\lib
+

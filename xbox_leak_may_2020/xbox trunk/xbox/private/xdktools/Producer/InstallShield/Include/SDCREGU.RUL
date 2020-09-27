@@ -1,0 +1,120 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : Sdcregu.rul                                               */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdConfirmRegistration */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdConfirmRegistration                                      */
+ /*                                                                        */
+ /*   Descrip:  This dialog will confirm user of registration information. */
+ /*                                                                        */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdConfirmRegistration( szTitle, szName, szCompany, szSerial, nStyle )
+          STRING  szDlg, szTemp;
+          NUMBER  nId, nTemp;
+          BOOL    bDone;
+          HWND    hwndDlg;
+        begin
+
+          szDlg     = SD_DLG_CONFIRMREGISTRATION;
+          nSdDialog = SD_NDLG_CONFIRMREGISTRATION;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdConfirmRegistration );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            return nId;
+          endif;
+
+          // ensure general initialization is complete
+          if (!bSdInit) then
+             SdInit();
+          endif;
+
+          if (EzDefineDialog( szDlg, "", "", SD_NDLG_CONFIRMREGISTRATION ) = DLG_ERR) then
+            return -1;
+          endif;
+
+
+          // Loop in dialog until the user selects a standard button
+          bDone = FALSE;
+
+          while (!bDone)
+
+             nId = WaitOnDialog( szDlg );
+
+             switch (nId)
+             case DLG_INIT:
+                  // assign the static text fields, assume both fonts types
+                  SdSetStatic( szDlg, SD_STA_NAME, szName );
+                  SdSetStatic( szDlg, SD_STA_COMPANY, szCompany );
+                  SdSetStatic( szDlg, SD_STA_SERIAL, szSerial );
+
+                  // hide serial title text if no serial number
+                  if (szSerial = "") then
+                     CtrlSetText( szDlg, SD_STA_SERIALTITLE, "" );
+                  endif;
+
+                  hwndDlg = CmdGetHwndDlg( szDlg );
+                  SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                  if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                  endif;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+             case SD_PBUT_YES:
+                  nId     = YES;
+                  bDone   = TRUE;
+
+             case SD_PBUT_NO:
+                  nId     = NO;
+                  bDone   = TRUE;
+
+             case DLG_ERR:
+                  SdError( -1, "SdConfirmRegistration" );
+                  nId   = -1;
+                  bDone = TRUE;
+
+             case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+             default:
+                  // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                     bDone = TRUE;
+                  endif;
+             endswitch;
+
+          endwhile;
+
+          EndDialog( szDlg );
+          ReleaseDialog( szDlg );
+
+          SdUnInit( );
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdConfirmRegistration );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+          return nId;
+
+        end;

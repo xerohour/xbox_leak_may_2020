@@ -1,0 +1,204 @@
+#define C_VIEWPROJ_X           c0
+#define C_VIEWPROJ_Y           c1
+#define C_VIEWPROJ_Z           c2
+#define C_VIEWPROJ_W           c3
+#define C_EYE_POSITION         c4
+#define C_2                    c4.w
+#define C_EYE_Z_AXIS           c5
+#define C_LOCAL_VIEWER         c5.w
+
+#define C_LIGHT0_POSITION      c6
+#define C_LIGHT0_INV_RADIUS_SQ c6.w
+#define C_LIGHT0_DIRECTION     c7
+#define C_LIGHT0_COLOR         c8
+//#define C_LIGHT0_SPOT_A        c7.w
+//#define C_LIGHT0_SPOT_B        c8.w
+//#define C_LIGHT0_SPOT_C        c12.w
+
+#define C_LIGHT1_POSITION      c9
+#define C_LIGHT1_INV_RADIUS_SQ c9.w
+#define C_LIGHT1_DIRECTION     c10
+#define C_LIGHT1_COLOR         c11
+//#define C_LIGHT1_SPOT_A        c10.w
+//#define C_LIGHT1_SPOT_B        c11.w
+//#define C_LIGHT1_SPOT_C        c14.w
+
+#define C_LIGHT2_DIRECTION     c12
+#define C_LIGHT2_COLOR         c13
+
+#define C_LIGHT3_DIRECTION     c14
+#define C_LIGHT3_COLOR         c15 ; c15.w is UNUSED
+
+#define C_AMBIENT_LIGHT        c16 ; c16.w is UNUSED
+
+//#define C_PFOG_INV_Z_FAR       c13.w
+//#define C_PFOG_GRADIENT        c17.xyzw
+//#define C_PFOG_EYE_GRADIENT    c18
+//#define C_PFOG_EYE_DENSITY     c18.w
+
+//#define C_TEXTURE_ANIM_X       c19 ; c19.z is UNUSED
+//#define C_TEXTURE_ANIM_Y       c20.xyzw
+//#define C_DETAIL_SCALE         c20.z
+
+#define C_NODE_XFORM_X         21
+#define C_NODE_XFORM_Y         22
+#define C_NODE_XFORM_Z         23
+
+#define R_XFORM_X              r0
+#define R_XFORM_Y              r1
+#define R_XFORM_Z              r2
+#define R_POSITION             r3
+#define R_NORMAL               r4
+#define R_LIGHT                r5
+#define R_ATTENUATION0         r6
+#define R_ATTENUATION1         r7
+; we set up the attenuation factors like this
+; so we can multiply them more efficiently...
+#define R_LIGHT0_DIST_ATTEN    r6.x
+#define R_LIGHT0_ANGL_ATTEN    r7.x
+#define R_LIGHT0_SPOT_ATTEN    r6.z
+#define R_LIGHT1_DIST_ATTEN    r6.y
+#define R_LIGHT1_ANGL_ATTEN    r7.y
+#define R_LIGHT1_SPOT_ATTEN    r7.z
+#define R_LIGHT2_ATTEN         r6.w
+#define R_LIGHT3_ATTEN         r7.w
+#define R_LIGHT_VEC            r8
+#define R_EYE_VEC              r9
+#define R_TEMP0                r10
+#define R_TEMP1                r11
+
+#define V_POSITION             v0
+#define V_NORMAL               v1
+#define V_BINORMAL             v2
+#define V_TANGENT              v3
+#define V_TEXCOORD             v4
+#define ZERO                   v4.z
+#define ONE                    v4.w
+#define V_NODE_INDICES         v5
+#define V_NODE_INDEX0          v5.x
+#define V_NODE_INDEX1          v5.y
+#define V_NODE_INDEX2          v5.z
+#define V_NODE_INDEX3          v5.w
+#define V_NODE_WEIGHT0         v6.x
+#define V_NODE_WEIGHT1         v6.y
+#define V_NODE_WEIGHT2         v6.z
+#define V_NODE_WEIGHT3         v6.w
+
+vs.1.1
+
+; (8) build blended transform (2 nodes) -------------------------------------------------
+add R_TEMP0, V_NODE_INDICES, V_NODE_INDICES ; not necessary for compressed vertices
+add R_TEMP0, V_NODE_INDICES, R_TEMP0        ; not necessary for compressed vertices
+mov a0.x, R_TEMP0.x
+mul R_XFORM_X, V_NODE_WEIGHT0, c[a0.x + C_NODE_XFORM_X]
+mul R_XFORM_Y, V_NODE_WEIGHT0, c[a0.x + C_NODE_XFORM_Y]
+mul R_XFORM_Z, V_NODE_WEIGHT0, c[a0.x + C_NODE_XFORM_Z]
+mov a0.x, R_TEMP0.z ; uncompressed vertices use SHORT indices
+mad R_XFORM_X, V_NODE_WEIGHT1, c[a0.x + C_NODE_XFORM_X], R_XFORM_X
+mad R_XFORM_Y, V_NODE_WEIGHT1, c[a0.x + C_NODE_XFORM_Y], R_XFORM_Y
+mad R_XFORM_Z, V_NODE_WEIGHT1, c[a0.x + C_NODE_XFORM_Z], R_XFORM_Z
+
+; (4) transform position ----------------------------------------------------------------
+dp4 R_POSITION.x, V_POSITION, R_XFORM_X
+dp4 R_POSITION.y, V_POSITION, R_XFORM_Y
+dp4 R_POSITION.z, V_POSITION, R_XFORM_Z
+mov R_POSITION.w, ONE ; for plane fog
+
+; (6) transform normal ------------------------------------------------------------------
+dp3 R_NORMAL.x, V_NORMAL, R_XFORM_X
+dp3 R_NORMAL.y, V_NORMAL, R_XFORM_Y
+dp3 R_NORMAL.z, V_NORMAL, R_XFORM_Z
+dp3 R_NORMAL.w, R_NORMAL, R_NORMAL
+rsq R_NORMAL.w, R_NORMAL.w
+mul R_NORMAL.xyz, R_NORMAL, R_NORMAL.w
+
+; (4) output homogeneous point ----------------------------------------------------------
+dp4 oPos.x, R_POSITION, C_VIEWPROJ_X
+dp4 oPos.y, R_POSITION, C_VIEWPROJ_Y
+dp4 oPos.z, R_POSITION, C_VIEWPROJ_Z
+dp4 oPos.w, R_POSITION, C_VIEWPROJ_W
+
+; (1) ambient light ---------------------------------------------------------------------
+mov R_LIGHT, C_AMBIENT_LIGHT
+
+; (8) compute point light 0 attenuation -------------------------------------------------
+add R_LIGHT_VEC.xyz, C_LIGHT0_POSITION, -R_POSITION
+dp3 R_LIGHT_VEC.w, R_LIGHT_VEC, R_LIGHT_VEC
+rsq R_TEMP0.w, R_LIGHT_VEC.w
+mul R_LIGHT_VEC.xyz, R_LIGHT_VEC, R_TEMP0.w
+mad R_LIGHT0_DIST_ATTEN, R_LIGHT_VEC.w, -C_LIGHT0_INV_RADIUS_SQ, ONE
+dp3 R_LIGHT0_ANGL_ATTEN, R_LIGHT_VEC, R_NORMAL
+; dp3 R_TEMP0.w, R_LIGHT_VEC, C_LIGHT0_DIRECTION
+; mul R_TEMP0.w, R_TEMP0.w, C_LIGHT0_SPOT_A
+; add R_LIGHT0_SPOT_ATTEN, R_TEMP0.w, C_LIGHT0_SPOT_B
+mov R_LIGHT0_SPOT_ATTEN, ONE
+
+; (8) compute point light 1 attenuation -------------------------------------------------
+add R_LIGHT_VEC.xyz, C_LIGHT1_POSITION, -R_POSITION
+dp3 R_LIGHT_VEC.w, R_LIGHT_VEC, R_LIGHT_VEC
+rsq R_TEMP0.w, R_LIGHT_VEC.w
+mul R_LIGHT_VEC.xyz, R_LIGHT_VEC, R_TEMP0.w
+mad R_LIGHT1_DIST_ATTEN, R_LIGHT_VEC.w, -C_LIGHT1_INV_RADIUS_SQ, ONE
+dp3 R_LIGHT1_ANGL_ATTEN, R_LIGHT_VEC, R_NORMAL
+; dp3 R_TEMP0.w, R_LIGHT_VEC, C_LIGHT0_DIRECTION
+; mul R_TEMP0.w, R_TEMP0.w, C_LIGHT1_SPOT_A
+; add R_LIGHT1_SPOT_ATTEN, R_TEMP0.w, C_LIGHT1_SPOT_B
+mov R_LIGHT1_SPOT_ATTEN, ONE
+
+; (1) compute distant light 2 attenuation -----------------------------------------------
+dp3 R_LIGHT2_ATTEN, R_NORMAL, -C_LIGHT2_DIRECTION
+
+; (1) compute distant light 3 attenuation -----------------------------------------------
+dp3 R_LIGHT3_ATTEN, R_NORMAL, -C_LIGHT3_DIRECTION
+
+; (4) clamp all light attenuations ------------------------------------------------------
+max R_ATTENUATION0, R_ATTENUATION0, ZERO
+max R_ATTENUATION1, R_ATTENUATION1, ZERO
+min R_ATTENUATION0, R_ATTENUATION0, ONE
+min R_ATTENUATION1, R_ATTENUATION1, ONE
+
+; (8) add light contributions -----------------------------------------------------------
+mov R_LIGHT.xyz, C_AMBIENT_LIGHT
+mul R_TEMP0.xy, R_ATTENUATION0, R_ATTENUATION1
+mul R_TEMP0.x, R_TEMP0.x, R_LIGHT0_SPOT_ATTEN
+mul R_TEMP0.y, R_TEMP0.y, R_LIGHT1_SPOT_ATTEN
+mad R_LIGHT.xyz, R_TEMP0.x, C_LIGHT0_COLOR, R_LIGHT
+mad R_LIGHT.xyz, R_TEMP0.y, C_LIGHT1_COLOR, R_LIGHT
+mad R_LIGHT.xyz, R_LIGHT2_ATTEN, C_LIGHT2_COLOR, R_LIGHT
+mad oD0.xyz, R_LIGHT3_ATTEN, C_LIGHT3_COLOR, R_LIGHT
+
+; (5) output texcoords ------------------------------------------------------------------
+; dp4 R_TEMP0.x, V_TEXCOORD, C_TEXTURE_ANIM_X
+; dp4 R_TEMP0.y, V_TEXCOORD, C_TEXTURE_ANIM_Y
+; mov oT0.xy, R_TEMP0
+mov oT0.xy, V_TEXCOORD
+; mov oT2.xy, R_TEMP0
+; mul oT3.xy, R_TEMP0, C_DETAIL_SCALE
+
+; (1) compute unnormalized eye vector ---------------------------------------------------
+add R_EYE_VEC, -R_POSITION, C_EYE_POSITION
+
+; (9) plane fog -------------------------------------------------------------------------
+; dp3 R_TEMP0.x, R_EYE_VEC, C_PFOG_EYE_GRADIENT
+; dp4 R_TEMP0.y, R_POSITION, C_PFOG_GRADIENT
+; add R_TEMP0.xy, -R_TEMP0, ONE
+; max R_TEMP0.xy, R_TEMP0, ZERO
+; mov R_TEMP0.z, ZERO
+; mov R_TEMP1.xyz, R_TEMP0
+; mul R_TEMP1.y, R_TEMP1.y, C_PFOG_EYE_DENSITY
+; dp3 R_TEMP0.w, R_TEMP0, R_TEMP1
+; add oFog.x, -R_TEMP0.w, ONE
+
+; (2) local viewer eye vector -----------------------------------------------------------
+; add R_EYE_VEC, C_EYE_Z_AXIS, -R_EYE_VEC
+; mad R_EYE_VEC, R_EYE_VEC, C_LOCAL_VIEWER, R_EYE_VEC
+
+; (3) output reflection vector ----------------------------------------------------------
+dp3 R_TEMP0.w, R_EYE_VEC, R_NORMAL
+mul R_TEMP0, R_TEMP0.w, R_NORMAL
+mad oT1.xyz, R_TEMP0.yzx, C_2, -R_EYE_VEC.yzx ; swizzled to make it work on DX8
+;mad oT1.xyz, R_TEMP0, C_2, -R_EYE_VEC
+;mov oT1.xyz, R_NORMAL
+
+; total hack.. do some shading
+; mov oD0, R_NORMAL.z

@@ -1,0 +1,139 @@
+// annclist.odl : type library source for annclist.exe
+
+// This file will be processed by the Make Type Library (mktyplib) tool to
+// produce the type library (annclist.tlb).
+
+//#define DISPID_NEWENUM -4
+//#define DISPID_VALUE 0
+
+import "ocidl.idl";
+
+[ uuid(A03AA29D-E004-11CF-BD21-00AA006156AD), version(1.0) ]
+library Annclist
+{
+	cpp_quote("DEFINE_GUID(CATID_BpcFilter, 0xc863db90, 0x3381, 0x11d0, 0xbd, 0x3c, 0x00, 0xaa, 0x00, 0x61, 0x56, 0xad);")
+	cpp_quote("#include <tchar.h>")
+	cpp_quote("LPCTSTR const ANNCLIST_MESSAGE_STRING = _T(\"Announcement Manager Updates\");")
+
+	importlib("stdole32.tlb");
+	import "sdpblb.Idl";
+
+	typedef enum 
+	{
+		AL_FilterUpdate = 0x1,
+		AL_DataListenerUpdate = 0x2,
+		AL_FilterCollectionUpdate = 0x4,
+		// OR of AL_DataListenerUpdate and AL_FilterCollectionUpdate
+		AL_FullUpdate = 0x7,
+		// Close all user-interface programs.
+		AL_Shutdown = 0x8
+	} AL_Updates; 
+
+	interface IBroadcastAnnouncement;
+	//  Primary dispatch interface for CFilterCollection
+
+	[uuid(f5b56880-e643-11cf-bd23-00aa006156ad), odl, oleautomation, dual, version(1.0), hidden]
+	interface IBroadcastFilter : IDispatch
+	{
+		[propget, id(0)]
+		HRESULT Name([out, retval] BSTR *lpbstrReturn);
+		[id(1)]
+		HRESULT Match([in] IBroadcastAnnouncement *Announcement, [in] VARIANT_BOOL AlreadyMatched, [out] VARIANT_BOOL *Schedule, [out, retval] VARIANT_BOOL *lpfReturn); 
+		[id(2), propput]
+		HRESULT Enabled([in] VARIANT_BOOL Enable);
+		[id(2), propget]
+		HRESULT Enabled([out, retval] VARIANT_BOOL *pfEnabledRet);
+		[id(3), propget]
+		HRESULT Hidden([out, retval] VARIANT_BOOL *lpfReturn);
+		[id(4), propget]
+		HRESULT ListenAll([out, retval] VARIANT_BOOL *lpfReturn);
+		[id(5), propget]
+		HRESULT LastMatched([out, retval] DATE * lpdateReturn);
+		[id(6), propget]
+		HRESULT NumberMatched([out, retval] long * lplReturn);
+		[id(7)]
+		HRESULT GetDisposition([out] BSTR * WorkingDirectory, [out] BSTR * Application, [out] BSTR * Parameters, [out] long  *AdvanceMinutes);
+		[id(8)]
+		HRESULT Delete([in] IBroadcastAnnouncement *Announcement);
+		[id(9)]
+		HRESULT ShowProperties([in] OLE_HANDLE Window);
+		[id(10), propget]
+		HRESULT DataReceptionState([out, retval] VARIANT_BOOL *lpfState);
+	};
+
+	[uuid(A03AA2A6-E004-11CF-BD21-00AA006156AD), odl, dual, oleautomation, hidden]
+	interface  IFilterCollection : IDispatch
+	{
+			[id(DISPID_VALUE)] HRESULT Item([in] long Index, [out, retval] IBroadcastFilter** ppFilterRetVal);
+			[id(1), propget] HRESULT Count([out, retval] long *plRetVal);
+			[id(2)] HRESULT Add([in] BSTR ProgID, [out] IBroadcastFilter **NewFilter, [out, retval] long *plRetVal);
+			[id(3)] HRESULT Remove([in] long Index);
+			[id(DISPID_NEWENUM), restricted, propget] HRESULT _NewEnum([out, retval] IUnknown **ppUnk);
+	};
+
+	//  Class information for CFilterCollection
+
+	[ uuid(A03AA2A7-E004-11CF-BD21-00AA006156AD) ]
+	coclass FilterCollection
+	{
+		[default] interface IFilterCollection;
+	};
+
+
+	//  Primary dispatch interface for CDataListener
+	
+	[ uuid(B4EAAFA0-E3EC-11CF-9EF6-444553540000), odl, oleautomation, dual, hidden]
+	interface IDataListener : IDispatch
+	{
+			[id(DISPID_VALUE), propget] HRESULT Filters([out, retval] IFilterCollection **ppFiltersRetVal);
+			[id(2), propput] HRESULT Running([in] VARIANT_BOOL Run);
+			[id(2), propget] HRESULT Running([out, retval] VARIANT_BOOL *Run);
+			[id(3), propget] HRESULT AutoStart([out, retval] VARIANT_BOOL *AutoStart);
+			[id(3), propput] HRESULT AutoStart([in] VARIANT_BOOL AutoStart);
+			[id(4)] HRESULT SubmitAnnouncement([in] IBroadcastAnnouncement *Announcement,  			    
+												[in] BSTR WorkingDirectory, 
+												[in] BSTR Application, 
+												[in] BSTR Parameters, 
+												[in] long AdvanceMinutes);
+			[id(5)] HRESULT IsBpcTask([in] BSTR TaskName, [out, retval] VARIANT_BOOL *pfRetVal);
+			[id(6), propput] HRESULT ShellIcon([in] VARIANT_BOOL fIcon);
+			[id(6), propget] HRESULT ShellIcon([out, retval] VARIANT_BOOL *fIcon);
+			[id(7)] HRESULT Halt();
+	};
+
+	//  Class information for CDataListener
+
+	[ uuid(B4EAAFA1-E3EC-11CF-9EF6-444553540000) ]
+	coclass DataListener
+	{
+		[default] interface IDataListener;
+	};
+
+
+	//  Primary dispatch interface for CBroadcastAnnouncement
+	[ uuid(9F367668-EA53-11CF-BD24-00AA006156AD), odl, oleautomation, dual, hidden]
+	interface IBroadcastAnnouncement : IDispatch
+	{
+			[id(DISPID_VALUE), propget] HRESULT SAP([out, retval] BSTR *SapPacket);
+			[id(DISPID_VALUE), propput] HRESULT SAP([in] BSTR SapPacket);			
+			[id(5), propget] HRESULT LocalAddress([out, retval] BSTR *Address);
+			[id(5), propput] HRESULT LocalAddress([in] BSTR Address);
+			[id(6), propget] HRESULT Authentication([out] VARIANT *pvSafeArray);
+			[id(7), propget] HRESULT Deletion([out, retval] VARIANT_BOOL *pfDeletion);
+			[id(8), propget] HRESULT UniqueID([out, retval] BSTR *pbstrID);
+	};
+
+	//  Class information for CBroadcastAnnouncement
+
+	[ uuid(9F367669-EA53-11CF-BD24-00AA006156AD) ]
+	coclass BroadcastAnnouncement
+	{
+		[default] interface IBroadcastAnnouncement;
+		interface ITConferenceBlob;
+		interface ITSdp;
+		interface ITConnection;
+		interface ITAttributeList;
+	};
+
+
+}

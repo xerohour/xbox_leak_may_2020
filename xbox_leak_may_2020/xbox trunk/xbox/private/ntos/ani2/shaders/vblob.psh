@@ -1,0 +1,20 @@
+xps.1.1
+
+; Inputs:
+; t0          = surface normal (renormalize and dot with eye)
+; t1          = eye direction
+; c0          = base blob color
+; c1          = ambient color
+
+
+tex t0
+tex t1
+
+dp3 r0, t0_bx2, t1_bx2
+mov r1, r0_sat
+mul r0, 1-r1, 1-r1
+mul r0.rgb, 1-r0, c0.rgb
+add r0.rgb, r0.rgb, c1.rgb
+mov r0.a, c0.a
+
+;mov r0.rgb, t0.rgb

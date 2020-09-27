@@ -1,0 +1,54 @@
+TARGETPATH=obj
+TARGETNAME=xblayout
+TARGETTYPE=PROGRAM
+
+UMTYPE=windows
+UMENTRY=winmain
+
+# Use precompiled header for much faster build
+PRECOMPILED_INCLUDE=StdAfx.h
+PRECOMPILED_CXX=1
+
+SOURCES=\
+  CColorBar.cpp \
+  CDVD.cpp \
+  CDVD_DirEntry.cpp \
+  CDVD_Insert.cpp \
+  CDVD_Persist.cpp \
+  CFile.cpp \
+  CListview.cpp \
+  CListView_OwnerDraw.cpp \
+  CObject.cpp \
+  CStatusBar.cpp \
+  CToolbar.cpp \
+  CWindow.cpp \
+  CWindow_Main.cpp \
+  CWindow_Main_Drag.cpp \
+  CWindow_Scratch.cpp \
+  CWorkspace.cpp \
+  Util.cpp \
+  Profiler.cpp \
+  xbLayout.cpp \
+  xbLayout.rc
+
+
+!if "$(FREEBUILD)" == "1"
+AMCLIB=$(BASEDIR)\private\lib\*\AmcLayoutEngine.lib
+!else
+AMCLIB=$(BASEDIR)\private\lib\*\AmcLayoutEngineD.lib
+!endif
+
+TARGETLIBS = \
+     $(WSDK_LIB_PATH)\comctl32.lib \
+     $(WSDK_LIB_PATH)\gdi32.lib    \
+     $(WSDK_LIB_PATH)\comdlg32.lib \
+     $(WSDK_LIB_PATH)\shell32.lib \
+     $(WSDK_LIB_PATH)\ole32.lib    \
+     $(WSDK_LIB_PATH)\rpcrt4.lib  \
+     $(WSDK_LIB_PATH)\Msimg32.lib \
+     $(AMCLIB)
+
+INCLUDES = \
+     $(BASEDIR)\private\ntos\gdfx;$(WSDK_INC_PATH)
+
+USE_MSVCRT=1

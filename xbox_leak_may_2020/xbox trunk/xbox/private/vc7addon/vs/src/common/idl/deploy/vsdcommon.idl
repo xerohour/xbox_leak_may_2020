@@ -1,0 +1,816 @@
+//-----------------------------------------------------------------------------
+// Microsoft Visual Studio Deployment Code
+//
+// Microsoft Confidential
+// Copyright 1995-2000 Microsoft Corporation. All Rights Reserved.
+//
+// VsdCommon.idl - general deployment interfaces.
+//-----------------------------------------------------------------------------
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "oleidl.idl";
+import "vsshell.idl";
+import "IVsSccProjectProviderBinding.idl";	// [269081] need to use this interface.
+
+// IDLs which define the interfaces we need
+#include "vsddeploy.idl"
+#include "vsdcollection.idl"
+#include "vsdpersist.idl"
+#include "vsdplugin.idl"
+#include "vsdpackage.idl"
+#include "vsdbuild.idl"
+#include "vsdvalidate.idl"
+#include "vsdtasklist.idl"
+#include "vsdMsmCache.idl"
+#include "vsdAssemblyBinder.idl"
+
+// Forward declarations
+interface IVsdDeployable;
+interface IVsdDeployableType;
+interface IVsdDeployment;
+interface IVsdDeploymentEngine;
+interface IVsdEditorSite;
+interface IVsdPlugInSite;
+interface IVsdEditorClient;
+interface IVsdCollectionSubset;
+interface IVsdTaskListManager;
+interface IVsdDeployableTemplate;
+interface IVsdEditorClientServices;
+interface IVsdDeployableTemplate;
+interface IVsdBuildListener;
+interface IVsdProjectCfg;
+
+// vsdPrjCfgCabType enum
+typedef
+[
+	uuid(36A55EDA-2050-11d3-8D6E-00A0C9CFCEE6),
+	helpstring("vsdPrjCfgCabType")
+]
+enum vsdPrjCfgCabType
+{
+	[helpstring("vsdctUnlimited")]  vsdctUnlimited		= 1,
+	[helpstring("vsdctCustom")]		vsdctCustom         = 2,
+} vsdPrjCfgCabType;
+
+// vsdPrjCfgLoginType enum
+typedef
+[
+	uuid(E84D8B1E-3BAB-11d3-8D75-00A0C9CFCEE6),
+	helpstring("vsdPrjCfgLoginType")
+]
+enum vsdPrjCfgLoginType
+{
+	[helpstring("vsdltCurrentUser")]	vsdltCurrentUser    = 1,
+	[helpstring("vsdltThisUser")]		vsdltThisUser		= 2,
+} vsdPrjCfgLoginType;
+
+// DISPIDs
+typedef
+[
+	uuid(54565902-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployment")
+]
+enum DISPIDs_IVsdDeployment
+{
+	[helpstring("DISPID_IVsdDeployment_DeployableTypes")] DISPID_IVsdDeployment_DeployableTypes = 1,
+	[helpstring("DISPID_IVsdDeployment_CreateDeployable")] DISPID_IVsdDeployment_CreateDeployable = 2,
+} DISPIDs_IVsdDeployment;
+
+typedef
+[
+	uuid(54565903-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployableType")
+]
+enum DISPIDs_IVsdDeployableType
+{
+	[helpstring("DISPID_IVsdDeployableType_TypeID")] DISPID_IVsdDeployableType_TypeID		= 0,
+	[helpstring("DISPID_IVsdDeployableType_DisplayName")] DISPID_IVsdDeployableType_DisplayName = 1,
+	[helpstring("DISPID_IVsdDeployableType_LargeIcon")] DISPID_IVsdDeployableType_LargeIcon = 2,
+	[helpstring("DISPID_IVsdDeployableType_SmallIcon")] DISPID_IVsdDeployableType_SmallIcon = 3,
+	[helpstring("DISPID_IVsdDeployableType_HelpFile")] DISPID_IVsdDeployableType_HelpFile	= 4,
+	[helpstring("DISPID_IVsdDeployableType_HelpID")] DISPID_IVsdDeployableType_HelpID		= 5,
+	[helpstring("DISPID_IVsdDeployableType_PlugIns")] DISPID_IVsdDeployableType_PlugIns		= 6,
+} DISPIDs_IVsdDeployableType;
+
+typedef
+[
+	uuid(54565904-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdDeployable")
+]
+enum DISPIDs_IVsdDeployable
+{
+	[helpstring("DISPID_IVsdDeployable_Type")] DISPID_IVsdDeployable_Type					  = 0,
+	[helpstring("DISPID_IVsdDeployable_RootFolder")] DISPID_IVsdDeployable_RootFolder		  = 1,
+	[helpstring("DISPID_IVsdDeployable_PlugIns")] DISPID_IVsdDeployable_PlugIns				  = 2,
+	[helpstring("DISPID_IVsdDeployable_Editors")] DISPID_IVsdDeployable_Editors				  = 3,
+	[helpstring("DISPID_IVsdDeployable_OpenFromFile")] DISPID_IVsdDeployable_OpenFromFile	  = 4,
+	[helpstring("DISPID_IVsdDeployable_SaveToFile")] DISPID_IVsdDeployable_SaveToFile		  = 5,
+	[helpstring("DISPID_IVsdDeployable_Close")] DISPID_IVsdDeployable_Close					  = 6,
+	[helpstring("DISPID_IVsdDeployable_Build")] DISPID_IVsdDeployable_Build					  = 7,
+	[helpstring("DISPID_IVsdDeployable_Validate")] DISPID_IVsdDeployable_Validate			  = 8,
+	[helpstring("DISPID_IVsdDeployable_Deploy")] DISPID_IVsdDeployable_Deploy				  = 9,
+	[helpstring("DISPID_IVsdDeployable_OpenFromStream")] DISPID_IVsdDeployable_OpenFromStream = 10,
+	[helpstring("DISPID_IVsdDeployable_SaveToStream")] DISPID_IVsdDeployable_SaveToStream	  = 11,
+	[helpstring("DISPID_IVsdDeployable_ApplyTemplate")] DISPID_IVsdDeployable_ApplyTemplate   = 12,
+	[helpstring("DISPID_IVsdDeployable_GetSite")] DISPID_IVsdDeployable_GetSite				  = 13,
+	[helpstring("DISPID_IVsdDeployable_GetTaskList")] DISPID_IVsdDeployable_GetTaskList		  = 14,
+	[helpstring("DISPID_IVsdDeployable_Events")] DISPID_IVsdDeployable_Events                 = 15,
+	[helpstring("DISPID_IVsdDeployable_Parent")] DISPID_IVsdDeployable_Parent               = 16,
+	[helpstring("DISPID_IVsdDeployable_MsmCache")] DISPID_IVsdDeployable_MsmCache		= 17,
+	[helpstring("DISPID_IVsdDeployable_AssemblyBinder")] DISPID_IVsdDeployable_AssemblyBinder		= 18
+} DISPIDs_IVsdDeployable;
+
+typedef
+[
+	uuid(114742ED-2A97-11d3-974A-00A0C9A86C2F),
+	helpstring("DISPIDs_IVsdMsiDatabase")
+]
+enum DISPIDs_IVsdMsiDatabase
+{
+	[helpstring("DISPIDs_IVsdMsiDatabase_Execute")] DISPIDs_IVsdMsiDatabase_Execute					= 2,
+	[helpstring("DISPIDs_IVsdMsiDatabase_Statement")] DISPIDs_IVsdMsiDatabase_Statement				= 3,
+	[helpstring("DISPIDs_IVsdMsiDatabase_SetCodePage")] DISPIDs_IVsdMsiDatabase_SetCodePage			= 4,
+	[helpstring("DISPIDs_IVsdMsiDatabase_SetLanguageID")] DISPIDs_IVsdMsiDatabase_SetLanguageID		= 5,
+	[helpstring("DISPIDs_IVsdMsiDatabase_Open")] DISPIDs_IVsdMsiDatabase_Open						= 6,
+	[helpstring("DISPIDs_IVsdMsiDatabase_Close")] DISPIDs_IVsdMsiDatabase_Close						= 7,
+	[helpstring("DISPIDs_IVsdMsiDatabase_Commit")] DISPIDs_IVsdMsiDatabase_Commit					= 8,
+	[helpstring("DISPIDs_IVsdMsiDatabase_Handle")] DISPIDs_IVsdMsiDatabase_Handle					= 9,
+	[helpstring("DISPIDs_IVsdMsiDatabase_SetSchema")] DISPIDs_IVsdMsiDatabase_SetSchema				= 10
+} DISPIDs_IVsdMsiDatabase;
+
+typedef
+[
+	uuid(72EA3B18-44F9-11d3-B89A-00A0C9A8B90C),
+	helpstring("DISPIDs_IVsdMsiOutputs")
+]
+enum DISPIDs_IVsdMsiOutputs
+{
+	[helpstring("DISPIDs_IVsdMsiOutputs_Open")] DISPIDs_IVsdMsiOutputs_Open							= 2,
+	[helpstring("DISPIDs_IVsdMsiOutputs_Outputs")] DISPIDs_IVsdMsiOutputs_Outputs					= 3
+} DISPIDs_IVsdMsiOutputs;
+
+typedef
+[
+	uuid(72EA3B1C-44F9-11d3-B89A-00A0C9A8B90C),
+	helpstring("DISPIDs_IVsdMsiOutput")
+]
+enum DISPIDs_IVsdMsiOutput
+{
+	[helpstring("DISPIDs_IVsdMsiOutput_FilePath")] DISPIDs_IVsdMsiOutput_FilePath					= 2,
+	[helpstring("DISPIDs_IVsdMsiOutput_DiskId")] DISPIDs_IVsdMsiOutput_DiskId						= 3,
+	[helpstring("DISPIDs_IVsdMsiOutput_Size")] DISPIDs_IVsdMsiOutput_Size							= 4,
+	[helpstring("DISPIDs_IVsdMsiOutput_IsModule")] DISPIDs_IVsdMsiOutput_IsModule					= 5,
+	[helpstring("DISPIDs_IVsdMsiOutput_IsKeyOutput")] DISPIDs_IVsdMsiOutput_IsKeyOutput				= 6
+} DISPIDs_IVsdMsiOutput;
+
+typedef
+[
+	uuid(54565906-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdEditorSite")
+]
+enum DISPIDs_IVsdEditorSite
+{
+	[helpstring("DISPID_IVsdEditorSite_Items")] DISPID_IVsdEditorSite_Items										= 0,
+	[helpstring("DISPID_IVsdEditorSite_QueryService")] DISPID_IVsdEditorSite_QueryService						= 2,
+	[helpstring("DISPID_IVsdEditorSite_SelectionChanged")] DISPID_IVsdEditorSite_SelectionChanged				= 3,
+	[helpstring("DISPID_IVsdEditorSite_ShowMessage")] DISPID_IVsdEditorSite_ShowMessage							= 4,
+	[helpstring("DISPID_IVsdEditorSite_ShowDefaultErrorMsg")] DISPID_IVsdEditorSite_ShowDefaultErrorMsg			= 5,
+	[helpstring("DISPID_IVsdEditorSite_ShowHelp")] DISPID_IVsdEditorSite_ShowHelp								= 6,
+	[helpstring("DISPID_IVsdEditorSite_AddTaskItem")] DISPID_IVsdEditorSite_AddTaskItem							= 7,
+	[helpstring("DISPID_IVsdEditorSite_RemoveTaskItem")] DISPID_IVsdEditorSite_RemoveTaskItem					= 8,
+	[helpstring("DISPID_IVsdEditorSite_ClearCategoryTasks")] DISPID_IVsdEditorSite_ClearCategoryTasks			= 9,
+	[helpstring("DISPID_IVsdEditorSite_UpdateStatusBarText")] DISPID_IVsdEditorSite_UpdateStatusBarText			= 10,
+	[helpstring("DISPID_IVsdEditorSite_UpdateStatusBarProgress")] DISPID_IVsdEditorSite_UpdateStatusBarProgress = 11,
+} DISPIDs_IVsdEditorSite;
+
+typedef
+[
+	uuid(54565907-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdEditorClient")
+]
+enum DISPIDs_IVsdEditorClient
+{
+	[helpstring("DISPID_IVsdEditorClient_SetEditorSite")] DISPID_IVsdEditorClient_SetEditorSite					= 0,
+	[helpstring("DISPID_IVsdEditorClient_CanShowObject")] DISPID_IVsdEditorClient_CanShowObject					= 1,
+	[helpstring("DISPID_IVsdEditorClient_ShowObject")] DISPID_IVsdEditorClient_ShowObject						= 2,
+	[helpstring("DISPID_IVsdEditorClient_CreateEditor")] DISPID_IVsdEditorClient_CreateEditor					= 3,
+	[helpstring("DISPID_IVsdEditorClient_EditorSite")] DISPID_IVsdEditorClient_EditorSite					    = 4,
+	[helpstring("DISPID_IVsdEditorClient_CommandText")] DISPID_IVsdEditorClient_CommandText					    = 5
+} DISPIDs_IVsdEditorClient;
+
+typedef
+[
+	uuid(b0557b3f-b7fe-41b4-8495-efe09c9f9441),
+	helpstring("DISPID_IVsdProjectEditorClientWindowManager")
+]
+enum DISPID_IVsdProjectEditorClientWindowManager
+{
+	[helpstring("DISPID_IVsdProjectEditorClientWindowManager_ShowOrCreateEditor")] DISPID_IVsdProjectEditorClientWindowManager_ShowOrCreateEditor				= 0,
+	[helpstring("DISPID_IVsdProjectEditorClientWindowManager_RenameOpenEditors")] DISPID_IVsdProjectEditorClientWindowManager_RenameOpenEditors					= 1
+} DISPID_IVsdProjectEditorClientWindowManager;
+
+
+
+typedef
+[
+	uuid(54565950-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdObjectChangeFireEvent")
+]
+enum DISPIDs_IVsdObjectChangeFireEvent
+{
+	[helpstring("DISPID_IVsdObjectChangeFireEvent_FireOnBeforeObjectChange")] DISPID_IVsdObjectChangeFireEvent_FireOnBeforeObjectChange = 1,
+	[helpstring("DISPID_IVsdObjectChangeFireEvent_FireOnAfterObjectChange")] DISPID_IVsdObjectChangeFireEvent_FireOnAfterObjectChange = 2,
+} DISPIDs_IVsdObjectChangeFireEvent;
+
+typedef
+[
+	uuid(F07DC064-C965-44ef-B061-E267CB15941A),
+	helpstring("DISPIDs_IVsdObjectChangeFireEventEx")
+]
+enum DISPIDs_IVsdObjectChangeFireEventEx
+{
+	[helpstring("DISPID_IVsdObjectChangeFireEventEx_FireOnBeforeObjectChangeEx")] DISPID_IVsdObjectChangeFireEventEx_FireOnBeforeObjectChangeEx = 1,
+	[helpstring("DISPID_IVsdObjectChangeFireEventEx_FireOnAfterObjectChangeEx")] DISPID_IVsdObjectChangeFireEventEx_FireOnAfterObjectChangeEx = 2,
+} DISPIDs_IVsdObjectChangeFireEventEx;
+
+typedef
+[
+	uuid(54565951-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdObjectChangeEvent")
+]
+enum DISPIDs_IVsdObjectChangeEvent 
+{
+	[helpstring("DISPID_IVsdObjectChangeEvent_OnBeforeObjectChange")] DISPID_IVsdObjectChangeEvent_OnBeforeObjectChange = 1,
+	[helpstring("DISPID_IVsdObjectChangeEvent_OnAfterObjectChange")] DISPID_IVsdObjectChangeEvent_OnAfterObjectChange = 2,
+} DISPIDs_IVsdObjectChangeEvent;
+
+
+// Enumerators 
+typedef
+[
+	uuid(A8B15AA1-2A97-11d3-974A-00A0C9A86C2F),
+	helpstring("vsdMsiDatabaseMode")
+]
+enum vsdMsiDatabaseMode
+{
+	[helpstring("vsddmOpenReadOnly")]	vsddmOpenReadOnly = 0,
+	[helpstring("vsddmOpenTransact")]	vsddmOpenTransact = 1,
+	[helpstring("vsddmOpenDirect")]		vsddmOpenDirect = 2,
+	[helpstring("vsddmCreate")]			vsddmCreate = 3,
+	[helpstring("vsddmCreateDirect")]	vsddmCreateDirect = 4
+} vsdMsiDatabaseMode;
+
+typedef
+[
+	uuid(EE71D4C1-C095-41ee-B7F9-121FD51C9BA1),
+	helpstring("vsdBootStrapperType")
+]
+enum vsdBootStrapperType
+{
+	[helpstring("vsdbtNone")] vsdbtNone = 0x0001,
+	[helpstring("vsdbtWindow")] vsdbtWindow = 0x0002,
+	[helpstring("vsdbtWeb")] vsdbtWeb = 0x0003
+} vsdBootStrapperType;
+
+enum __vsdMsiOutputAttributes
+{
+	vsdmoNone				= 0x00000000,
+	vsdmoIncludeLoader      = 0x00000001,   
+	vsdmoIncludeInstMsi     = 0x00000002, 
+	vsdmoIncludeWebLoader	= 0x00000004, 
+	vsdmoIsModule			= 0x00000008,
+};
+
+typedef DWORD vsdMsiOutputAttributes;
+
+enum __vsdBuildAttributes
+{
+	vsdbaMediaCab			= 0x00000001,   
+	vsdbaMergeCab			= 0x00000002, 
+	vsdbaInterfaceCab		= 0x00000004,
+	vsdbaIncludeLoader		= 0x00000008,
+	vsdbaIncludeInstMsi		= 0x00000010,
+
+};
+typedef DWORD vsdBuildAttributes;
+
+enum __vsdObjectChangeType
+{
+	vsdocUnknown			= 0x00000001,
+	vsdocAdd				= 0x00000002,   
+	vsdocRemove				= 0x00000003, 
+	vsdocModify				= 0x00000004,
+
+};
+typedef DWORD vsdObjectChangeType;
+
+typedef
+[
+	uuid(54565909-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdOleMsgButton")
+]
+enum vsdOleMsgButton  
+{
+		[helpstring("vsdmbOK")]					vsdmbOK					= 1,
+		[helpstring("vsdmbOKCANCEL")]			vsdmbOKCANCEL			= 2,
+		[helpstring("vsdmbABORTRETRYIGNORE")]	vsdmbABORTRETRYIGNORE	= 3,
+		[helpstring("vsdmbYESNOCANCEL")]		vsdmbYESNOCANCEL		= 4,
+		[helpstring("vsdmbYESNO")]				vsdmbYESNO				= 5,
+		[helpstring("vsdmbRETRYCANCEL")]		vsdmbRETRYCANCEL		= 6,
+		[helpstring("vsdmbYESALLNOCANCEL")]		vsdmbYESALLNOCANCEL		= 7,
+} vsdOleMsgButton;
+
+
+typedef
+[
+	uuid(5456590a-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdOleMsgDefButton")
+]
+enum vsdOleMsgDefButton  
+{
+		[helpstring("vsdmdbFirst")]			vsdmdbFirst		= 1,
+		[helpstring("vsdmdbSecond")]		vsdmdbSecond	= 2,
+		[helpstring("vsdmdbThird")]			vsdmdbThird		= 3,
+		[helpstring("vsdmdbFourth")]		vsdmdbFourth	= 4,
+} vsdOleMsgDefButton;
+
+
+typedef
+[
+	uuid(5456590b-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("vsdOleMsgIcon")
+]
+enum vsdOleMsgIcon  
+{
+		[helpstring("vsdmiNOICON")]			vsdmiNOICON		= 1,
+		[helpstring("vsdmiCRITICAL")]		vsdmiCRITICAL	= 2,
+		[helpstring("vsdmiQUERY")]			vsdmiQUERY		= 3,
+		[helpstring("vsdmiWARNING")]		vsdmiWARNING	= 4,
+		[helpstring("vsdmiINFO")]			vsdmiINFO		= 5,
+} vsdOleMsgIcon;
+
+typedef
+[
+	uuid(54565978-dbfb-11d2-898d-0000f8064ebb),
+	helpstring("DISPIDs_IVsdProjectCfg")
+]
+enum DISPIDs_IVsdProjectCfg
+{
+	[helpstring("DISPID_IVsdProjectCfg_SetProject")] DISPID_IVsdProjectCfg_SetProject					= 2,
+	[helpstring("DISPID_IVsdProjectCfg_SetCanonicalName")] DISPID_IVsdProjectCfg_SetCanonicalName		= 3,
+	[helpstring("DISPID_IVsdProjectCfg_SetDeployable")] DISPID_IVsdProjectCfg_SetDeployable				= 4,
+	[helpstring("DISPID_IVsdProjectCfg_SetBuildListener")] DISPID_IVsdProjectCfg_SetBuildListener		= 5,
+	[helpstring("DISPID_IVsdProjectCfg_Close")] DISPID_IVsdProjectCfg_Close								= 6,
+	[helpstring("DISPID_IVsdProjectCfg_DisplayName")] DISPID_IVsdProjectCfg_DisplayName					= 7,
+	[helpstring("DISPID_IVsdProjectCfg_IsDebugOnly")] DISPID_IVsdProjectCfg_IsDebugOnly					= 8,
+	[helpstring("DISPID_IVsdProjectCfg_IsReleaseOnly")] DISPID_IVsdProjectCfg_IsReleaseOnly				= 9,
+	[helpstring("DISPID_IVsdProjectCfg_Platform")] DISPID_IVsdProjectCfg_Platform						= 10,
+	[helpstring("DISPID_IVsdProjectCfg_Deployable")] DISPID_IVsdProjectCfg_Deployable					= 11,
+	[helpstring("DISPID_IVsdProjectCfg_OutputFilename")] DISPID_IVsdProjectCfg_OutputFilename			= 12,
+	[helpstring("DISPID_IVsdProjectCfg_PackageFilesAs")] DISPID_IVsdProjectCfg_PackageFilesAs			= 14,
+	[helpstring("DISPID_IVsdProjectCfg_PackageFileSize")] DISPID_IVsdProjectCfg_PackageFileSize			= 15,
+	[helpstring("DISPID_IVsdProjectCfg_Compression")] DISPID_IVsdProjectCfg_Compression					= 16,
+	[helpstring("DISPID_IVsdProjectCfg_SignOutput")] DISPID_IVsdProjectCfg_SignOutput					= 20,
+	[helpstring("DISPID_IVsdProjectCfg_InstallerBootstrapper")] DISPID_IVsdProjectCfg_InstallerBootstrapper	= 24,
+	[helpstring("DISPID_IVsdProjectCfg_CabType")] DISPID_IVsdProjectCfg_CabType							= 25,
+	[helpstring("DISPID_IVsdProjectCfg_RemoteMachine")] DISPID_IVsdProjectCfg_RemoteMachine				= 26,
+	[helpstring("DISPID_IVsdProjectCfg_ApplicationFolderLocation")] DISPID_IVsdProjectCfg_ApplicationFolderLocation	= 27,
+	[helpstring("DISPID_IVsdProjectCfg_LoginType")] DISPID_IVsdProjectCfg_LoginType						= 28,
+	[helpstring("DISPID_IVsdProjectCfg_LoginName")] DISPID_IVsdProjectCfg_LoginName						= 29,
+	[helpstring("DISPID_IVsdProjectCfg_Reboot")] DISPID_IVsdProjectCfg_Reboot							= 30,
+	[helpstring("DISPID_IVsdProjectCfg_Arguments")] DISPID_IVsdProjectCfg_Arguments						= 31,
+	[helpstring("DISPID_IVsdProjectCfg_EnableLogging")] DISPID_IVsdProjectCfg_EnableLogging				= 32,
+	[helpstring("DISPID_IVsdProjectCfg_Log")] DISPID_IVsdProjectCfg_Log									= 33,
+	[helpstring("DISPID_IVsdProjectCfg_PassArguments")] DISPID_IVsdProjectCfg_PassArguments				= 34,
+	[helpstring("DISPID_IVsdProjectCfg_RebootW3Svc")] DISPID_IVsdProjectCfg_RebootW3Svc					= 35,
+	[helpstring("DISPID_IVsdProjectCfg_ShouldBuild")] DISPID_IVsdProjectCfg_ShouldBuild					= 36,
+	[helpstring("DISPID_IVsdProjectCfg_ClearOutputFolder")] DISPID_IVsdProjectCfg_ClearOutputFolder		= 37,
+	[helpstring("DISPID_IVsdProjectCfg_CertificateFile")] DISPID_IVsdProjectCfg_CertificateFile			= 38,
+	[helpstring("DISPID_IVsdProjectCfg_PrivateKeyFile")] DISPID_IVsdProjectCfg_PrivateKeyFile			= 39,
+	[helpstring("DISPID_IVsdProjectCfg_TimeStampServer")] DISPID_IVsdProjectCfg_TimeStampServer			= 40,
+	[helpstring("DISPID_IVsdProjectCfg_InstallAllUsers")] DISPID_IVsdProjectCfg_InstallAllUsers			= 41,
+	[helpstring("DISPID_IVsdProjectCfg_BootstrapperCfg")] DISPID_IVsdProjectCfg_BootstrapperCfg			= 42
+} DISPIDs_IVsdProjectCfg;
+
+typedef
+[
+	uuid(A67F3A7B-EE41-4653-A756-9BA0A01A5247),
+	helpstring("DISPIDs_IVsdCopyableObject")
+]
+enum DISPIDs_IVsdCopyableObject
+{
+		[helpstring("DISPID_IVsdCopyableObject_Copy")] DISPID_IVsdCopyableObject_Copy = 0x0001
+} DISPIDs_IVsdCopyableObject;
+
+
+// Interfaces
+cpp_quote("#define SID_SVsdDeployment IID_IVsdDeployment")
+[
+object,
+uuid(5456590d-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeployment : IDispatch
+{
+	[propget, id(DISPID_IVsdDeployment_DeployableTypes), helpstring("property DeployableTypes")] HRESULT DeployableTypes([out, retval] IVsdCollectionSubset **pVal);	
+	[id(DISPID_IVsdDeployment_CreateDeployable), helpstring("method CreateDeployable")]HRESULT CreateDeployable([in]BSTR DeployableID, [out,retval]IVsdDeployable **ppIVsDeployable);
+}
+
+[
+object,
+uuid(5456590e-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeployableType : IDispatch
+{
+	[propget, id(DISPID_IVsdDeployableType_TypeID), helpstring("property TypeID")] HRESULT TypeID([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDeployableType_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDeployableType_LargeIcon), helpstring("property LargeIcon")] HRESULT LargeIcon([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdDeployableType_SmallIcon), helpstring("property SmallIcon")] HRESULT SmallIcon([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdDeployableType_HelpFile), helpstring("property HelpFile")] HRESULT HelpFile([out, retval] BSTR *pVal);
+	[propget, id(DISPID_IVsdDeployableType_HelpID), helpstring("property HelpID")] HRESULT HelpID([out, retval] long *pVal);
+	[propget, id(DISPID_IVsdDeployableType_PlugIns), helpstring("property PlugIns")] HRESULT PlugIns([out, retval] IVsdCollectionSubset **pVal);
+}
+
+// IMPORTANT: Update file Interop.cs in VsDeployWizard.dll source with any interface changes!
+[
+object,
+uuid(5456590f-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdDeployable : IDispatch
+{
+	[propget, id(DISPID_IVsdDeployable_Type), helpstring("property Type")] HRESULT Type([out, retval] IVsdDeployableType **ppVal);
+	[propget, id(DISPID_IVsdDeployable_RootFolder), helpstring("property RootFolder")] HRESULT RootFolder([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdDeployable_RootFolder), helpstring("property RootFolder")] HRESULT RootFolder([in] BSTR Val);
+	[propget, id(DISPID_IVsdDeployable_PlugIns), helpstring("property PlugIns")] HRESULT PlugIns([out, retval] IVsdCollectionSubset **ppVal);
+	[propget, id(DISPID_IVsdDeployable_Editors), helpstring("property Editors")] HRESULT Editors([out, retval] IVsdCollectionSubset **ppVal);
+	[propget, id(DISPID_IVsdDeployable_Events), helpstring("property Events")] HRESULT Events([out, retval] IVsdCollectionSubset **ppVal);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2039 ) 
+#endif
+	[propget, id(DISPID_IVsdDeployable_Parent), helpstring("property Parent")] HRESULT Parent([out, retval]IUnknown **ppVal);
+	[propput, id(DISPID_IVsdDeployable_Parent), helpstring("property Parent")] HRESULT Parent([in]IUnknown *pVal);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2039 ) 
+#endif
+
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(DISPID_IVsdDeployable_OpenFromFile), helpstring("method OpenFromFile")] HRESULT OpenFromFile([in]BSTR FileName, [in,optional]VARIANT_BOOL ReadOnly);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[id(DISPID_IVsdDeployable_SaveToFile), helpstring("method SaveToFile")] HRESULT SaveToFile([in]BSTR FileName);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2039 ) 
+#endif
+	[id(DISPID_IVsdDeployable_OpenFromStream), helpstring("method OpenFromStream"), hidden] HRESULT OpenFromStream([in]IVsPropertyStreamIn *StreamIn,[in]VARIANT_BOOL ReadOnly);
+	[id(DISPID_IVsdDeployable_SaveToStream), helpstring("method SaveToStream"),hidden] HRESULT SaveToStream([in]IVsPropertyStreamOut *StreamOut);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2039 ) 
+#endif
+	[id(DISPID_IVsdDeployable_Close),  helpstring("method Close")] HRESULT Close();
+	[id(DISPID_IVsdDeployable_Build),  helpstring("method Build")] HRESULT Build([in]IVsdBuildManager *BuildManager, [in]VARIANT_BOOL Background);
+	[id(DISPID_IVsdDeployable_Validate),  helpstring("method Validate")] HRESULT Validate([in]IVsdValidationManager *ValidationManager, [in]VARIANT_BOOL Background);
+	[id(DISPID_IVsdDeployable_Deploy),  helpstring("method Deploy")] HRESULT Deploy([in]IVsdDeploymentManager *DeploymentManager, [in]VARIANT_BOOL Background);
+	[id(DISPID_IVsdDeployable_ApplyTemplate), helpstring("method ApplyTemplate")] HRESULT ApplyTemplate([in]IVsdDeployableTemplate *Template);
+#if (__midl >= 501)
+midl_pragma warning( disable: 2039 ) 
+#endif
+	[id(DISPID_IVsdDeployable_GetSite), helpstring("method GetSite"), hidden] HRESULT GetSite([out]IServiceProvider **ppIServiceProvider);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2039 ) 
+#endif
+	[id(DISPID_IVsdDeployable_GetTaskList), helpstring("method GetTaskList")] HRESULT GetTaskList([out]IVsdTaskList **ppIVsdTaskList);
+	[propget, id(DISPID_IVsdDeployable_MsmCache), helpstring("method MsmCache"), hidden] HRESULT MsmCache([out]IVsdMsmCache **ppIVsdMsmCache);
+	[propget, id(DISPID_IVsdDeployable_AssemblyBinder), helpstring("method AssemblyBinder"), hidden] HRESULT AssemblyBinder([out]IVsdAssemblyBinder **ppIVsdAssemblyBinder);
+}
+
+[
+object,
+uuid(DB750D3F-2A96-11d3-974A-00A0C9A86C2F),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiDatabase : IDispatch
+{
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(DISPIDs_IVsdMsiDatabase_Open), helpstring("method Open")] HRESULT Open([in]BSTR Database, [in, optional]vsdMsiDatabaseMode Mode);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[id(DISPIDs_IVsdMsiDatabase_Close), helpstring("method Close")] HRESULT Close();
+	[id(DISPIDs_IVsdMsiDatabase_Commit), helpstring("method Commit")] HRESULT Commit();
+	[id(DISPIDs_IVsdMsiDatabase_Statement), helpstring("method Statement")] HRESULT Statement([in]BSTR Sql, [in, optional]VARIANT Parameters, [out, retval] IVsdGetNewEnum **pVal);
+	[id(DISPIDs_IVsdMsiDatabase_Execute), helpstring("method Execute")] HRESULT Execute([in]BSTR Sql, [in, optional]VARIANT Parameters);
+	[id(DISPIDs_IVsdMsiDatabase_SetCodePage), helpstring("method SetCodePage")] HRESULT SetCodePage([in]long CodePage);
+	[id(DISPIDs_IVsdMsiDatabase_SetLanguageID), helpstring("method SetLanguageID")] HRESULT SetLanguageID([in]long LanguageID);
+	[id(DISPIDs_IVsdMsiDatabase_SetSchema), helpstring("method SetSchema")] HRESULT SetSchema([in]long Schema);
+	[propget, id(DISPIDs_IVsdMsiDatabase_Handle), helpstring("property Handle")] HRESULT Handle([out, retval] long *Handle);
+}
+
+[
+object,
+uuid(72EA3B1A-44F9-11d3-B89A-00A0C9A8B90C),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiOutputs : IDispatch
+{
+#if (__midl >= 501)
+midl_pragma warning( disable: 2400 ) 
+#endif
+	[id(DISPIDs_IVsdMsiOutputs_Open), helpstring("method Open")] HRESULT Open([in]BSTR FileName, [in, optional]vsdMsiOutputAttributes Attributes);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2400 ) 
+#endif
+	[propget, id(DISPIDs_IVsdMsiOutputs_Outputs), helpstring("property Outputs")] HRESULT Outputs([out, retval] IVsdCollectionSubset **pVal);
+}
+
+[
+object,
+uuid(72EA3B1D-44F9-11d3-B89A-00A0C9A8B90C),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdMsiOutput : IDispatch
+{
+	[propget, id(DISPIDs_IVsdMsiOutput_FilePath), helpstring("property FilePath")] HRESULT FilePath([out, retval] BSTR *pVal);
+	[propget, id(DISPIDs_IVsdMsiOutput_DiskId), helpstring("property DiskId")] HRESULT DiskId([out, retval] long *plVal);
+	[propget, id(DISPIDs_IVsdMsiOutput_Size), helpstring("property Size")] HRESULT Size([out, retval] long *plVal);
+	[propget, id(DISPIDs_IVsdMsiOutput_IsModule), helpstring("property IsModule")] HRESULT IsModule([out, retval] VARIANT_BOOL *pVal);
+	[propget, id(DISPIDs_IVsdMsiOutput_IsKeyOutput), helpstring("property IsKeyOutput")] HRESULT IsKeyOutput([out, retval] VARIANT_BOOL *pVal);
+}
+
+[
+object,
+uuid(54565911-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdEditorSite : IDispatch
+{
+	[propget, id(DISPID_IVsdEditorSite_Items), helpstring("property Items")] HRESULT Items([out, retval]IVsdCollectionSubset **ppVal);
+	
+	[id(DISPID_IVsdEditorSite_QueryService), helpstring("method QueryService")] HRESULT QueryService([in]BSTR ReferenceGUID, [in]BSTR ReferenceIID, [out, retval]IUnknown **ret);
+	[id(DISPID_IVsdEditorSite_SelectionChanged), helpstring("method SelectionChanged")] HRESULT SelectionChanged([in]IDispatch *Editor, [in]long ObjectCount, [in]IDispatch **Objects);
+	[id(DISPID_IVsdEditorSite_ShowMessage), helpstring("method ShowMessage")] HRESULT ShowMessage([in]BSTR Title, [in]BSTR Text, [in]BSTR HelpFile, [in]long HelpContextID, [in]vsdOleMsgButton MessageButton, [in]vsdOleMsgDefButton DefaultMessageButton, [in]vsdOleMsgIcon MessageIcon, [in]BOOL IsSystemAlert, [out, retval]long *ret);
+	[id(DISPID_IVsdEditorSite_ShowHelp), helpstring("method ShowHelp")] HRESULT ShowHelp([in]BSTR HelpFile, [in]long HelpContextID);
+	[id(DISPID_IVsdEditorSite_UpdateStatusBarText), helpstring("method UpdateStatusBarText")] HRESULT UpdateStatusBarText([in]BSTR Text);
+	[id(DISPID_IVsdEditorSite_UpdateStatusBarProgress), helpstring("method UpdateStatusBarProgress")] HRESULT UpdateStatusBarProgress([in]BSTR Label, [in]long AmountCompleted, [in]long Total);
+
+}
+
+[
+object,
+uuid(54565912-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdEditorClient : IDispatch
+{
+	[id(DISPID_IVsdEditorClient_SetEditorSite), helpstring("method SetEditorSite")] HRESULT SetEditorSite([in]IVsdEditorSite *Site);
+	[id(DISPID_IVsdEditorClient_CanShowObject), helpstring("method CanShowObject")] HRESULT CanShowObject([in]IDispatch *Object, [out,retval]VARIANT_BOOL *retval);
+	[id(DISPID_IVsdEditorClient_ShowObject), helpstring("method ShowObject")] HRESULT ShowObject([in]IDispatch *Object);
+	[id(DISPID_IVsdEditorClient_CreateEditor), helpstring("method CreateEditor")] HRESULT CreateEditor([out,retval]IDispatch **retval);
+	[propget, id(DISPID_IVsdEditorClient_EditorSite), helpstring("property EditorSite")] HRESULT EditorSite([out, retval] IVsdEditorSite * *pVal);
+	[propget, id(DISPID_IVsdEditorClient_CommandText), helpstring("property CommandText")] HRESULT CommandText([out, retval] BSTR *pVal);
+}
+
+[
+object,
+uuid(54565952-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdObjectChangeFireEvent : IDispatch
+{
+	[id(DISPID_IVsdObjectChangeFireEvent_FireOnBeforeObjectChange), helpstring("method OnBeforeObjectChange")] HRESULT FireOnBeforeObjectChange([in]IDispatch *EventObject, [in]DISPID ID, [in] VARIANT_BOOL Rollback, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdObjectChangeFireEvent_FireOnAfterObjectChange), helpstring("method OnAfterObjectChange")] HRESULT FireOnAfterObjectChange([in]IDispatch *EventObject, [in]DISPID ID);
+}
+
+[
+object,
+uuid(972BF73B-CCFE-46f1-8C6C-0B7B2B4F51CF),
+dual,
+oleautomation,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdObjectChangeFireEventEx : IDispatch
+{
+	[id(DISPID_IVsdObjectChangeFireEventEx_FireOnBeforeObjectChangeEx), helpstring("method OnBeforeObjectChangeEx")] HRESULT FireOnBeforeObjectChangeEx([in]IDispatch *EventObject, [in]DISPID ID, [in] VARIANT_BOOL Rollback, [in] vsdObjectChangeType ChangeType, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdObjectChangeFireEventEx_FireOnAfterObjectChangeEx), helpstring("method OnAfterObjectChangeEx")] HRESULT FireOnAfterObjectChangeEx([in]IDispatch *EventObject, [in]DISPID ID, [in] vsdObjectChangeType ChangeType);
+}
+
+[
+object,
+uuid(54565953-dbfb-11d2-898d-0000f8064ebb),
+dual,
+oleautomation,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdObjectChangeEvent : IDispatch
+{
+	[id(DISPID_IVsdObjectChangeEvent_OnBeforeObjectChange), helpstring("method OnBeforeObjectChange")] HRESULT OnBeforeObjectChange([in]IDispatch *EventObject, [in]DISPID ID, [in] VARIANT_BOOL Rollback, [out]VARIANT_BOOL *Continue);
+	[id(DISPID_IVsdObjectChangeEvent_OnAfterObjectChange), helpstring("method OnAfterObjectChange")] HRESULT OnAfterObjectChange([in]IDispatch *EventObject, [in]DISPID ID);
+}
+
+[
+	uuid(4D57470C-D257-11d2-B0A1-00A0C9CFCEE6),
+	version(1.0),
+	helpstring("IVsdEditorClientServices Interface"),
+	pointer_default(unique)
+]
+interface IVsdEditorClientServices : IUnknown
+{
+	HRESULT set_ServiceProvider([in] IServiceProvider *pIServiceProvider);
+	HRESULT get_ServiceProvider([out] IServiceProvider **ppIServiceProvider);
+	HRESULT get_CommandGuid([out] GUID *pguid);
+};
+
+[
+	object,
+	uuid(AD59E01D-0752-11d3-973D-00A0C9A86C2F),
+	dual,
+	version(1.0),
+	pointer_default(unique),
+	helpstring("IVsdGetNewEnum Interface"),
+]
+interface IVsdGetNewEnum : IDispatch
+{
+#if (__midl >= 501)
+midl_pragma warning( disable: 2039 ) 
+#endif
+	[propget, id(DISPID_NEWENUM), helpstring("property _NewEnum"), hidden] HRESULT _NewEnum([out, retval] IEnumVARIANT **NewEnum);
+#if (__midl >= 501)
+midl_pragma warning( enable: 2039 ) 
+#endif
+}
+
+[
+object,
+uuid(b0557b3e-b7fe-41b4-8495-efe09c9f9441),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdProjectEditorClientWindowManager : IDispatch
+{
+	[id(DISPID_IVsdProjectEditorClientWindowManager_ShowOrCreateEditor), helpstring("method ShowOrCreateEditor")] HRESULT ShowOrCreateEditor([in]IVsdEditorClient *Client);
+	[id(DISPID_IVsdProjectEditorClientWindowManager_RenameOpenEditors), helpstring("method RenameOpenEditors")] HRESULT RenameOpenEditors([in]BSTR bstrOldName, [in] BSTR bstrNewName);
+}
+
+[
+uuid(010f7437-64e0-4db8-afe7-87577a0a9c6c),
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdFireTrackChange : IUnknown
+{
+	HRESULT FireTrackChange([in] IDispatch *pIDispatch,[in] BOOL fQuery,[in] BOOL fChangeAdd,[out] BOOL *pfContinue); // Tell everyone that we've removed this document.
+}
+
+
+[
+object,
+uuid(54565961-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdDeployableTemplate : IDispatch
+{
+	[propget, id(DISPID_IVsdDeployableTemplate_Deployable), helpstring("property Deployable")] HRESULT Deployable([out, retval] IVsdDeployable **Deployable);
+
+	[id(DISPID_IVsdDeployableTemplate_SetDeployable), helpstring("method SetDeployable")] HRESULT SetDeployable([in]IVsdDeployable *Deployable);
+	[id(DISPID_IVsdDeployableTemplate_Apply), helpstring("method Apply")] HRESULT Apply();
+}
+
+[
+uuid(44114aa0-9b2d-42a2-b01f-68df1938fab2),
+version(1.0),
+pointer_default(unique),
+hidden
+]
+interface IVsdBaseBuilder : IUnknown
+{
+	HRESULT GetDeploymentManager([out]IVsdDeploymentManager** ppIVsdDeploymentManager); 
+}
+
+[
+object,
+uuid(54565982-dbfb-11d2-898d-0000f8064ebb),
+dual,
+version(1.0),
+pointer_default(unique)
+]
+interface IVsdBuildListener : IUnknown
+{
+	HRESULT BuildStart(BOOL fFlush);
+	HRESULT BuildEnd();
+}
+
+// IMPORTANT: Update file Interop.cs in VsDeployWizard.dll source with any interface changes!
+[
+	uuid(5443560f-dbb4-11d2-8724-00a0c9a8b90c),
+	helpstring("IVsdProjectCfg Interface"),
+	pointer_default(unique)
+]
+interface IVsdProjectCfg : IVsProjectCfg
+{
+	[id(DISPID_IVsdProjectCfg_SetProject), helpstring("method SetProject")] HRESULT SetProject([in]IVsProject* pIVsProject);
+	[id(DISPID_IVsdProjectCfg_SetCanonicalName), helpstring("method SetCanonicalName")] HRESULT SetCanonicalName([in] LPCOLESTR szCanonicalName);
+	[id(DISPID_IVsdProjectCfg_SetDeployable), helpstring("method SetDeployable")] HRESULT SetDeployable([in] IVsdDeployable *pDeployable);
+	[id(DISPID_IVsdProjectCfg_SetBuildListener), helpstring("method SetBuildListener")] HRESULT SetBuildListener([in] IVsdBuildListener *pBuildListener);
+	[id(DISPID_IVsdProjectCfg_Close), helpstring("method Close")] HRESULT Close();
+
+	[propget, id(DISPID_IVsdProjectCfg_ShouldBuild), helpstring("property ShouldBuild")] HRESULT ShouldBuild([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_ShouldBuild), helpstring("property ShouldBuild")] HRESULT ShouldBuild([in] BOOL Val);
+	[propput, id(DISPID_IVsdProjectCfg_DisplayName), helpstring("property DisplayName")] HRESULT DisplayName([in] LPCOLESTR szDisplayName);
+	[propput, id(DISPID_IVsdProjectCfg_IsDebugOnly), helpstring("property IsDebugOnly")] HRESULT IsDebugOnly([in] BOOL fIsDebugOnly);
+	[propput, id(DISPID_IVsdProjectCfg_IsReleaseOnly), helpstring("property IsReleaseOnly")] HRESULT IsReleaseOnly([in] BOOL fIsReleaseOnly);
+	[propput, id(DISPID_IVsdProjectCfg_Platform), helpstring("property Platform")] HRESULT Platform([in] REFGUID rguid);
+	[propget, id(DISPID_IVsdProjectCfg_Deployable), helpstring("property Deployable")] HRESULT Deployable([out] IVsdDeployable **ppDeployable);
+
+	[propget, id(DISPID_IVsdProjectCfg_OutputFilename), helpstring("property OutputFilename")] HRESULT OutputFilename([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_OutputFilename), helpstring("property OutputFilename")] HRESULT OutputFilename([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_PackageFilesAs), helpstring("property PackageFilesAs")] HRESULT PackageFilesAs([out, retval] vsdPackageFilesAs *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_PackageFilesAs), helpstring("property PackageFilesAs")] HRESULT PackageFilesAs([in] vsdPackageFilesAs Val);
+	[propget, id(DISPID_IVsdProjectCfg_PackageFileSize), helpstring("property PackageFileSize")] HRESULT PackageFileSize([out, retval] long *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_PackageFileSize), helpstring("property PackageFileSize")] HRESULT PackageFileSize([in] long Val);
+	[propget, id(DISPID_IVsdProjectCfg_Compression), helpstring("property Compression")] HRESULT Compression([out, retval] vsdCompressionOptimization *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_Compression), helpstring("property Compression")] HRESULT Compression([in] vsdCompressionOptimization Val);
+	[propget, id(DISPID_IVsdProjectCfg_SignOutput), helpstring("property SignOutput")] HRESULT SignOutput([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_SignOutput), helpstring("property SignOutput")] HRESULT SignOutput([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_InstallerBootstrapper), helpstring("property InstallerBootstrapper")] HRESULT InstallerBootstrapper([out, retval] vsdBootStrapperType *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_InstallerBootstrapper), helpstring("property InstallerBootstrapper")] HRESULT InstallerBootstrapper([in] vsdBootStrapperType Val);
+	[propget, id(DISPID_IVsdProjectCfg_CabType), helpstring("property CabType")] HRESULT CabType([out, retval] vsdPrjCfgCabType *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_CabType), helpstring("property CabType")] HRESULT CabType([in] vsdPrjCfgCabType Val);
+	[propget, id(DISPID_IVsdProjectCfg_RemoteMachine), helpstring("property RemoteMachine")] HRESULT RemoteMachine([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_RemoteMachine), helpstring("property RemoteMachine")] HRESULT RemoteMachine([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_ApplicationFolderLocation), helpstring("property ApplicationFolderLocation")] HRESULT ApplicationFolderLocation([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_ApplicationFolderLocation), helpstring("property ApplicationFolderLocation")] HRESULT ApplicationFolderLocation([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_LoginName), helpstring("property LoginName")] HRESULT LoginName([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_LoginName), helpstring("property LoginName")] HRESULT LoginName([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_LoginType), helpstring("property LoginType")] HRESULT LoginType([out, retval] vsdPrjCfgLoginType *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_LoginType), helpstring("property LoginType")] HRESULT LoginType([in] vsdPrjCfgLoginType Val);
+	[propget, id(DISPID_IVsdProjectCfg_Reboot), helpstring("property Reboot")] HRESULT Reboot([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_Reboot), helpstring("property Reboot")] HRESULT Reboot([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_Arguments), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_Arguments), helpstring("property Arguments")] HRESULT Arguments([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_EnableLogging), helpstring("property EnableLogging")] HRESULT EnableLogging([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_EnableLogging), helpstring("property EnableLogging")] HRESULT EnableLogging([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_Log), helpstring("property Log")] HRESULT Log([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_Log), helpstring("property Log")] HRESULT Log([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_PassArguments), helpstring("property PassArguments")] HRESULT PassArguments([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_PassArguments), helpstring("property PassArguments")] HRESULT PassArguments([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_RebootW3Svc), helpstring("property RebootW3Svc")] HRESULT RebootW3Svc([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_RebootW3Svc), helpstring("property RebootW3Svc")] HRESULT RebootW3Svc([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_ClearOutputFolder), helpstring("property ClearOutputFolder")] HRESULT ClearOutputFolder([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_ClearOutputFolder), helpstring("property ClearOutputFolder")] HRESULT ClearOutputFolder([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_CertificateFile), helpstring("property CertificateFile")] HRESULT CertificateFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_CertificateFile), helpstring("property CertificateFile")] HRESULT CertificateFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_PrivateKeyFile), helpstring("property PrivateKeyFile")] HRESULT PrivateKeyFile([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_PrivateKeyFile), helpstring("property PrivateKeyFile")] HRESULT PrivateKeyFile([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_TimeStampServer), helpstring("property TimeStampServer")] HRESULT TimeStampServer([out, retval] BSTR *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_TimeStampServer), helpstring("property TimeStampServer")] HRESULT TimeStampServer([in] BSTR Val);
+	[propget, id(DISPID_IVsdProjectCfg_InstallAllUsers), helpstring("property InstallAllUsers")] HRESULT InstallAllUsers([out, retval] BOOL *pVal);
+	[propput, id(DISPID_IVsdProjectCfg_InstallAllUsers), helpstring("property InstallAllUsers")] HRESULT InstallAllUsers([in] BOOL Val);
+	[propget, id(DISPID_IVsdProjectCfg_BootstrapperCfg), helpstring("property BootstrapperCfg")] HRESULT BootstrapperCfg([out, retval] IDispatch **ppVal);
+	[propput, id(DISPID_IVsdProjectCfg_BootstrapperCfg), helpstring("property BootstrapperCfg")] HRESULT BootstrapperCfg([in] IDispatch *pVal);
+};
+
+[
+	object,
+	uuid(FF65FC33-93F9-4395-A2BF-4EE529E744C1),
+	dual,
+	oleautomation,
+	helpstring("IVsdCopyableObject Interface"),
+	pointer_default(unique)
+]
+interface IVsdCopyableObject : IDispatch
+{
+	[id(DISPID_IVsdCopyableObject_Copy), helpstring("method Copy")] HRESULT Copy([out, retval] IDispatch **ppdisp);
+}
+

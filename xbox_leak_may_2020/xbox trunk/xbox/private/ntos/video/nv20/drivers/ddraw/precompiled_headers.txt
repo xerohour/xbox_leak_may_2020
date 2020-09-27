@@ -1,0 +1,39 @@
+Author: Matt Lavoie (mlavoie)
+
+-------------------
+Precompiled Headers
+-------------------
+On 4/6/2001 I changed the headers in the DirectX directory to use precompiled headers
+in a different way.  They had been set to "automatic" style (/YX option) wherein the
+compiler decides where to stop looking for more material to add to a common header as
+it proceeds through the compile list.  I believe this method caused too much "adjustment" 
+on the part of the compiler resulting in poor compile performance.
+
+The method used now requires that every file start with "nvprecomp.h" (See next section for 
+exception).  The compiler will specifically look for #include "nvprecomp.h" in a file and
+ignore EVERYTHING before that.  So programmer beware!  Never put anything before that. Using
+this method, a new file (nvprecomp.cpp) triggers the generation of the precompiled header.
+Then all files use that precompiled info during that build.  The performance increase is dramatic!
+
+On my P4 700, the build of DirectX component for win2k went from 3 minutes to 30 seconds.
+
+----------
+Opting Out
+----------
+Since a header is compiled once if it's in the precompiled header then it cannot compile
+differently for some files than for others.  The classic example here is using a #define to
+cause one file to instantiate objects when including the header, while all other files don't 
+instantiate the objects.  Such a header cannot be precompiled.
+
+Two files presently opt-out of precompiled headers for this reason: nvStereo and ddDrv.  See
+ddraw/common/MAKEFILE to see how opting out is done.
+
+-----------------------------------
+Maintaining the Precompiled Headers
+-----------------------------------
+Only add files that are large compile overhead and/or generally useful headers to nvprecomp.h.
+
+If you have a file that you would like to add to the precompiled header please remove references
+to that header from all other files in the ddraw hierarchy (because they will now get it from the pch).
+
+Beware the file x86.h as it defines some strings that can cause much 'ordinary code' to not compile.

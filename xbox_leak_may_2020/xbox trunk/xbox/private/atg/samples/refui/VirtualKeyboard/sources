@@ -1,0 +1,25 @@
+TARGETNAME = VirtualKeyboard
+PROJNAME   = VirtualKeyboard
+SOURCES    = VirtualKeyboard.cpp
+TITLEID    = 0xffff0101
+
+NTTARGETFILE0 = $(O)\VirtualKeyboard.dsp $(O)\ControllerS.xpr $(O)\Font12.xpr $(O)\Font18.xpr $(O)\Fontarrows.xpr $(O)\Fonteuro.xpr $(O)\Fonteuro.xpr $(O)\Gamepad.xpr $(O)\resource.xpr $(O)\Xboxdings_24.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+USE_STL             = 1
+USE_LIBCMT          = 1
+USE_NATIVE_EH       = 1
+TARGETPATH          = obj
+TARGETTYPE          = PROGRAM
+UMTYPE              = xboxapp
+MSC_WARNING_LEVEL   = /W4
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\dsound$(D).lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib

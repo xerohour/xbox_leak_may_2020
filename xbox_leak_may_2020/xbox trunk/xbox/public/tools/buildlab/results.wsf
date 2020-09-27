@@ -1,0 +1,134 @@
+<!-- /*
+Copyright (C) Microsoft Corporation
+
+Module Name:
+
+    results.wsf
+
+Abstract:
+
+    Starting point for all report generation scripts
+
+Author:
+
+    Josh Poley (jpoley)
+
+Revision History:
+
+*/ -->
+
+<PACKAGE>
+
+
+<JOB ID="Main">
+    <SCRIPT LANGUAGE="JScript" SRC="include/time.js"/>
+    <SCRIPT LANGUAGE="JScript" SRC="include/utils.js"/>
+    <SCRIPT LANGUAGE="JScript" SRC="include/results.js"/>
+
+<SCRIPT LANGUAGE="JScript">
+function FindEmptyColumn(sheet, row)
+    {
+    for(var column=1; 1; column++)
+        {
+        if(sheet.Cells(row, column).Value == "" || sheet.Cells(row, column).Value == undefined) return column;
+        }
+    }
+function FindEmptyRow(sheet, column)
+    {
+    for(var row=1; 1; row++)
+        {
+        if(sheet.Cells(row, column).Value == "" || sheet.Cells(row, column).Value == undefined) return row;
+        }
+    }
+</SCRIPT>
+
+    <SCRIPT LANGUAGE="JScript">
+        var build = GetArgument("Build");
+        //var resultsPath = "//poleyland1/public/" + build + "/results";
+        //var resultsPath = "//xdb01/buildarchive/" + build + "/checked/results";
+        var resultsPath = "//xbuilds/release/usa/" + build + "/checked/results";
+        var perfSheet = "//bmckeex/bvt/xboxperf.xls";
+        var date = new Date();
+        var fso = WScript.CreateObject("Scripting.FileSystemObject");
+        var sheetNames = new Array("Time", "Kernel", "Idle", "DPC", "Interrupt", "TSC");
+        var row, col;
+        var title;
+        var sections, time;
+        var file, line;
+        var writeHeader = false;
+
+        // Open the perf spread sheet
+        excel.Workbooks.Open(perfSheet);
+
+        // Add the build
+        col = FindEmptyColumn(excel.Sheets(sheetNames[0]), 1);
+        for(var i=0; i<sheetNames.length; i++)
+            {
+            excel.Sheets(sheetNames[i]).Cells(1, col).Value = build;
+            }
+        row = undefined;
+
+        // Search for the log files
+        var each = new Enumerator(fso.GetFolder(resultsPath).files);
+        var regx = new RegExp(".*\\.log", "gi");
+
+        // loop through all the files
+        for(; !each.atEnd(); each.moveNext())
+            {
+            name = "" + each.item();
+            //WScript.Echo(name);
+            if(name.search(regx) >= 0)
+                {
+                file = fso.OpenTextFile(name, 1);
+
+                // search the file
+                while(!file.AtEndOfStream)
+                    {
+                    line = file.ReadLine();
+                    if(line.indexOf(",VARIATION TIME,") != -1)
+                        {
+                        try
+                            {
+                            sections = line.split(",");
+                            title = sections[3] + "\\" + sections[4] + "\\" + sections[5] + "\\" + sections[6];
+                            time = sections[7].split(" ");
+                            if(time[0] == "Variation") sheet = 0;
+                            else if(time[0] == "Kernel") sheet = 1;
+                            else if(time[0] == "Idle") sheet = 2;
+                            else if(time[0] == "Dpc") sheet = 3;
+                            else if(time[0] == "Interrupt") sheet = 4;
+                            else if(time[0] == "Tsc") sheet = 5;
+
+                            if(row == undefined) row = excel.Sheets(sheetNames[sheet]).Range("a1:a65535").Find(title);
+                            if(row == undefined)
+                                {
+                                row = excel.Sheets("Time").Range("a1:a65535").Find("");
+                                writeHeader = true;
+                                }
+
+                            if(writeHeader == true) excel.Sheets(sheetNames[sheet]).Cells(row.Row, 1).Value = title;
+                            excel.Sheets(sheetNames[sheet]).Cells(row.Row, col).Value = parseFloat(time[time.length-2]);
+                            }
+                        catch(e)
+                            {
+                            //WScript.Echo("error: " + e.description + "\r\n    " + line);
+                            }
+                        }
+                    else
+                        {
+                        row = undefined;
+                        writeHeader = false;
+                        }
+                    }
+                }
+            }
+
+        // Save the spread sheet
+        excel.ActiveWorkbook.Save();
+        excel.ActiveWorkbook.Saved = true;
+        WScript.Echo("Done " + build);
+
+
+    </SCRIPT>
+</JOB>
+</PACKAGE>

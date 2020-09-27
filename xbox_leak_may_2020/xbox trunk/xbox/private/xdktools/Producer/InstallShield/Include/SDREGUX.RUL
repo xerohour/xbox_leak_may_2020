@@ -1,0 +1,187 @@
+ 
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdregux.rul                                               */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdRegisterUserEx      */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdRegisterUserEx                                           */
+ /*                                                                        */
+ /*   Descrip:  This dialog will ask user for registration infomation.     */
+ /*                                                                        */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdRegisterUserEx( szTitle, szMsg, svName, svCompany, svSerial )
+
+        STRING  szDlg, szTemp;
+        BOOL    bDone;
+        NUMBER  nId, nMessage, nTemp;
+        HWND    hwndDlg;
+
+        begin
+
+           szDlg     = SD_DLG_REGISTERUSEREX;
+           nSdDialog = SD_NDLG_REGISTERUSEREX;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdRegisterUserEx );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "szName", DATA_STRING, svName, nTemp );
+               SilentReadData( szAppKey, "szCompany", DATA_STRING, svCompany, nTemp );
+               SilentReadData( szAppKey, "szSerial", DATA_STRING, svSerial, nTemp );
+            endif;
+
+            return nId;
+          endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_REGISTERUSEREX ) = DLG_ERR) then
+               return -1;
+           endif;
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch(nId)
+              case DLG_INIT:
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_STA_MSG, szMsg );
+                   endif;
+
+                   if( ( svName = "" ) && ( svCompany = "" ) ) then
+                       SdGetUserCompanyInfo( svName, svCompany );
+                       SdRemoveEndSpace( svName );
+                       SdRemoveEndSpace( svCompany );
+                   endif;
+                   CtrlSetText( szDlg, SD_EDIT_NAME, svName );
+                   CtrlSetText( szDlg, SD_EDIT_COMPANY, svCompany );
+                   CtrlSetText( szDlg, SD_EDIT_SERIAL, svSerial );
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_BOLD, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   SdRegExEnableButton( hwndDlg, NEXT, svName,
+                                        svCompany, svSerial );
+
+              case SD_EDIT_NAME:
+                   nMessage = CtrlGetSubCommand( szDlg );
+                   if( nMessage = EDITBOX_CHANGE ) then
+                       CtrlGetText( szDlg, SD_EDIT_NAME, svName );
+                   endif;
+
+                   SdRegExEnableButton( hwndDlg, NEXT, svName,
+                                        svCompany, svSerial );
+
+              case SD_EDIT_COMPANY:
+                   nMessage = CtrlGetSubCommand( szDlg );
+                   if( nMessage = EDITBOX_CHANGE ) then
+                       CtrlGetText( szDlg, SD_EDIT_COMPANY, svCompany );
+                   endif;
+
+                   SdRegExEnableButton( hwndDlg, NEXT, svName,
+                                        svCompany, svSerial );
+
+              case SD_EDIT_SERIAL:
+                   nMessage = CtrlGetSubCommand( szDlg );
+                   if( nMessage = EDITBOX_CHANGE ) then
+                       CtrlGetText( szDlg, SD_EDIT_SERIAL, svSerial );
+                   endif;
+
+                   SdRegExEnableButton( hwndDlg, NEXT, svName,
+                                        svCompany, svSerial );
+
+              case NEXT:
+                   nId    = NEXT;
+                   bDone  = TRUE;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdRegisterUserEx" );
+                   nId    = -1;
+                   bDone  = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                       bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdRegisterUserEx );
+           SilentWriteData( szAppKey, "szName", DATA_STRING, svName, 0 );
+           SilentWriteData( szAppKey, "szCompany", DATA_STRING, svCompany, 0 );
+           SilentWriteData( szAppKey, "szSerial", DATA_STRING, svSerial, 0 );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+       end;
+
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdRegEnableButton                                          */
+ /*                                                                        */
+ /*   Descrip:  This funciton will enable or disable a certain button in   */
+ /*             SdRegisterUserEx dialog.                                   */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdRegExEnableButton( hwndDlg, nControlID, svName, svCompany, svSerial )
+         HWND hwndItem;
+        begin
+
+           hwndItem = GetDlgItem( hwndDlg, nControlID );
+           if (!IsWindow( hwndItem)) then return FALSE; endif;
+
+           SdRemoveEndSpace( svCompany );
+           SdRemoveEndSpace( svName );
+           SdRemoveEndSpace( svSerial );
+
+           if(svName = "" || svCompany = "" || svSerial = "") then
+              EnableWindow( hwndItem, FALSE);
+           else
+              EnableWindow( hwndItem, TRUE);
+           endif;
+
+        end;

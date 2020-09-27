@@ -1,0 +1,57 @@
+/////////////////////////////////////////////////////////////////////////////
+// Internal version of dbgdefs.h compiled into devdbg.odl.
+//  We need a separate internal version to hide helpstringcontext
+//  from the user.  C++ source files should #include dbgdefs.h, NOT this file
+// THE ENUMS IN THIS FILE MUST BE KEPT IN SYNC WITH THOSE IN
+//  IDE\PKGS\INCLUDE\OBJMODEL\DBGDEFS.H
+
+#ifndef __DBGDEFS_ODH__
+#define __DBGDEFS_ODH__
+
+#ifdef __MKTYPLIB__ // if the mktyplib utility is compiling this
+// then leave attributes in place
+
+// NOTE: the HSCB macro is for embedding helpstring IDs into constant declarations
+#define HSCB(xx) [helpstringcontext(xx)]
+#else
+// otherwise, remove them
+#define HSCB(xx)
+#endif
+
+// enum constants
+
+typedef
+HSCB(IDS_HS_DBG_EXECUTION_STATE) enum
+{
+  // debuggee's execution state
+
+	HSCB(IDS_HS_DBG_DSNODEBUGGEE) dsNoDebugee,
+	HSCB(IDS_HS_DBG_DSBREAK) dsBreak,
+	HSCB(IDS_HS_DBG_DSRUNNING) dsRunning,
+}	DsExecutionState;
+
+typedef
+HSCB(IDS_HS_DBG_BREAKPOINT_TYPES) enum
+{
+	HSCB(IDS_HS_DBG_DSLOCATION) dsLocation,
+	HSCB(IDS_HS_DBG_DSLOCATIONWITHTRUEEXPRESSION) dsLocationWithTrueExpression,
+	HSCB(IDS_HS_DBG_DSLOCATIONWITHCHANGEDEXPRESSION) dsLocationWithChangedExpression,
+	HSCB(IDS_HS_DBG_DSTRUEEXPRESSION) dsTrueExpression,
+	HSCB(IDS_HS_DBG_DSCHANGEDEXPRESSION) dsChangedExpression,
+	HSCB(IDS_HS_DBG_DSMESSAGE) dsMessage,
+}	DsBreakpointType;
+
+
+#ifdef __MKTYPLIB__ // if the mktyplib utility is compiling this
+
+#ifdef _DEBUG
+	#define DEVDBG_DLL "devdbgd.pkg"
+#else
+	#define DEVDBG_DLL "devdbg.pkg"
+#endif
+
+
+#endif // __MKTYPLIB__
+
+
+#endif // __DBGDEFS_ODH__

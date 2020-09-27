@@ -1,0 +1,91 @@
+# The MAJORCOMP and MINORCOMP variables are defined
+# so that $(MAJORCOMP)$(MINORCOMP)filename can be used in
+# cross compiling to provide unique filenames in a flat namespace.
+
+MAJORCOMP=test
+MINORCOMP=xkdctest
+
+UMTYPE=console
+
+# The TARGETNAME variable is defined by the developer.  It is the name of
+# the target (component) that is being built by this makefile.  It
+# should NOT include any path or file extension information.
+
+TARGETNAME=xkdctest
+
+# The TARGETPATH and TARGETTYPE variables are defined by the developer.
+# The first specifies where the target is to be build.  The second specifies
+# the type of target (either PROGRAM, DYNLINK, LIBRARY, DRIVER, etc
+# UMAPPL_NOLIB is used when you're only building user-mode
+# apps and don't need to build a library.
+
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+# The INCLUDES variable specifies any include paths that are specific to
+# this source directory.  Separate multiple directory paths with single
+# semicolons.  Relative path specifications are okay.
+
+INCLUDES=\
+	$(BASEDIR)\public\wsdk\inc; \
+	$(BASEDIR)\public\xdk\inc; \
+	$(BASEDIR)\private\online; \
+	$(BASEDIR)\private\online\test\inc; \
+	$(BASEDIR)\private\ntos\net; \
+	$(BASEDIR)\private\ntos\inc; \
+	$(BASEDIR)\private\ntos\xapi\inc; \
+	$(BASEDIR)\private\inc; \
+	$(BASEDIR)\private\inc\crypto; \
+	$(BASEDIR)\private\online\test\inc; \
+	$(BASEDIR)\public\wsdk\inc\atl30; \
+
+# The TARGETLIBS specifies additional libraries to link with you target
+# image.  Each library path specification should contain an asterisk (*)
+# where the machine specific subdirectory name should go.
+
+TARGETLIBS= \
+	$(WSDK_LIB_PATH)\ntdll.lib \
+	$(WSDK_LIB_PATH)\user32.lib \
+	$(BASEDIR)\private\lib\i386\rsa32.lib \
+	$(BASEDIR)\private\lib\i386\vlan$(D).lib \
+	$(SDK_LIB_PATH)\xonlinew$(D).lib \
+	$(WSDK_LIB_PATH)\uuid.lib          	\
+	$(WSDK_LIB_PATH)\ole32.lib		\
+	$(WSDK_LIB_PATH)\oleaut32.lib		\
+#	$(BASEDIR)\private\online\test\lib\TLDBRoutines.lib \
+
+# The SOURCES variable is defined by the developer.  It is a list of all the
+# source files for this component.  Each source file should be on a separate
+# line using the line continuation character.  This will minimize merge
+# conflicts if two developers adding source files to the same component.
+
+SOURCES=\
+	xkdctest.cpp \
+	config.cpp \
+	ticketcache.cpp \
+	accounts.cpp \
+	xktxonlinelogon.cpp \
+	xktxmacscreate.cpp \
+	miscstuff.cpp \
+	xkdctest.rc \
+	xkdctestkerb.cpp \
+	xkdctestdebug.cpp \
+	kerbsockets.cpp \
+	kerberrorcompare.cpp \
+
+# Next specify options for the compiler.
+
+USE_MSVCRT=1
+USE_STATIC_ATL=1
+
+C_DEFINES = $(C_DEFINES) -DXONLINE_BUILD_LIBW
+#C_DEFINES = $(C_DEFINES) -DTONYCHEN_PRIVATE
+
+USER_C_FLAGS=-nologo /EHsc $(USER_C_FLAGS)
+
+MIDL_FLAGS=/no_warn
+
+PRECOMPILED_INCLUDE=xkdctest.h
+PRECOMPILED_PCH=xkdctest.pch
+PRECOMPILED_OBJ=xkdctestpch.obj
+PRECOMPILED_CXX=1

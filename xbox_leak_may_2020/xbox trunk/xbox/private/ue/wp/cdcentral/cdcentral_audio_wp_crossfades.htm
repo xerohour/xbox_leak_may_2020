@@ -1,0 +1,280 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</td><td>
+<H2>Crossfade Solutions Using DirectMusic:<br>
+Volume Controller Curves, Audiopaths, and DirectX Audio Scripting
+</H2>
+<P><I>By Scott Selfon, Audio Content Consultant<br>
+Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of Microsoft&#174; DirectMusic&#174; Producer, the content creation tool for DirectMusic. If you would like to see a specific area addressed, please send an e-mail message to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+<H3>Introduction</H3>
+<P>Crossfading is one of the most standard ways to transition smoothly from one piece of audio to another. While many of the features of Microsoft&#174; DirectMusic&#174; are designed to create more "through-composed" and musical transitions, particularly for MIDI + DLS content, DirectMusic does possess the ability to crossfade between pieces of content&#8212;with certain limitations and caveats to keep in mind. This paper will discuss the two most straightforward ways to effect a crossfade from the content creator's point of view:</p>
+<ol>
+<li>Authoring volume control changes into content. DirectMusic's extensions to existing MIDI control change functionality make implementation easier than with traditional MIDI, and allow for quick crossfades between pre-rendered wave content.</li><BR><BR>
+<li>Using audiopaths to control the volume of all content played on them. Particularly with the features available in DirectX Audio scripting, this option can allow for the creation of dynamic crossfades that can be easily adjusted for wave and/or MIDI source content that uses multiple performance channels.</li>
+</ol>
+<p>In both cases, we'll discuss what the content creator needs to keep in mind for authoring, as well as some general details of what the developer or scripter will need to implement.</p>
+
+<H3>Comments for Your Developer or Scripter</H3>
+
+<P>Before we get started, be aware of a few restrictions of DirectMusic that crossfades could potentially conflict with:</P>
+<OL>
+<LI>Only one primary segment can be playing at a time. But crossfades, by their very nature, involve two or more pieces of content playing simultaneously. Remember that you can layer as many secondary segments on top of a primary segment as you want.<SUP><font size:"9">1</font></SUP>  Therefore, the easiest way to get crossfades is to make all of the content that you wish to crossfade play as secondary segments. You might still want a primary segment playing for other reasons (for example, constant background ambience that remains unaffected, or for measure and beat notifications that these other pieces of content use for synchronization). Secondary segments can play independently of what goes on in the primary segment.<BR><BR>
+<LI>A single tempo can be used per DirectMusic performance at any one time. The tempo can of course change over time, but you cannot have two segments playing simultaneously at unique tempos. This can make crossfades difficult, particularly for MIDI + DLS content: unless the two pieces of content have identical tempos, one of them is going to slow down or speed up. One solution to this is to build smooth tempo changes into your MIDI + DLS content, or use intermediate transition segments that get you from one tempo to another. Another is to use multiple DirectMusic performances, each of which can have its own tempo.
+</ol>
+
+<H3>Building Crossfades into Content</h3>
+
+<P>One of the easiest ways to effect a crossfade between different pieces of material is by authoring content that does it for you. This might involve a smaller effort on the part of the developer or scripter (they're just playing your content when you tell them to), and you can control the exact timing and quality of crossfade curves that are used. Crossfades that are authored into content are generally going to use MIDI continuous controller #7 (volume). You can alternatively use MIDI continuous controller #11 (expression), but as we'll see in a moment, one of the main issues that led to the use of the expression controller in the past can be solved within DirectMusic content.</P>
+<P>For the most basic scenario, we'll have two segments of music to choose from. One of them starts playing, and then, at any time, we can interactively start the other one (silently) and perform a crossfade between them. For the sake of ease, we'll assume we've got two segments created from wave tracks, Seg1 and Seg2.</P>
+<P>The first step is to make sure that the tracks are on independent performance channels (pchannels). Remember that though wave files do not have the limitations of MIDI + DLS (that is, you can play more than one on a channel at a time), every wave played on a pchannel does respond to MIDI controller curves.<SUP><font size:"9">2</font></SUP>  So, we'll place the wave track part from Seg1 on pchannel 1, and the wave track part from Seg2 on pchannel 2. To do this, right click the wave track, click <b>Properties</b>, go to the <b>Wave Part</b> tab, and select a unique pchannel for this part.<sup style="font-size:12">3</font></SUP> 
+<BR><BR>
+<img src="/content/img/Crossfade_fig1.gif" width="398" height="236" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>The property page for a wave part...</i>
+<BR><BR>
+<img src="/content/img/Crossfade_fig2.gif" width="269" height="117" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>...and the wave part itself in the segment. The first "2" in the title bar at the left indicates all waves on this part are going to play on pchannel 2.</i></P>
+
+<P>Now that the two waves are going to play on independent pchannels, we can have each of them play MIDI controller information that fades out the opposite pchannel while fading in their own pchannel. To do this:</P>
+<OL>
+<LI>Add a sequence track to the first segment. You can do this from the keyboard shortcut CTRL+INSERT, or by right clicking in the segment and choosing <b>Add Track(s)&#8230;.</b> </LI><BR><BR>
+<LI>The default sequence track part is on pchannel 1. We want to add an additional track on pchannel 2 (because we're going to be changing the volume on both channels), so right click in the sequence track and choose <b>Add Sequence Part(s)&#8230;</b> (or use the CTRL+SHIFT+INSERT shortcut).</LI><BR><BR>
+<LI>From the dialog that appears, choose pchannel 2, then click <b>Create New Part.</b>
+<BR><BR>
+<img src="/content/img/Crossfade_fig3.gif" width="274" height="125" alt="" border="0">
+<BR><BR>
+The new part is created. The dialog remains open in case we wanted to add more parts, so click <b>Close</b> to close it.</LI><BR><BR>
+
+<LI>Expand the part on pchannel 1 by double clicking on it or clicking the maximize button at the right edge of the track.
+<BR><BR>
+<img src="/content/img/Crossfade_fig4.gif" width="353" height="362" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>The sequence track part on pchannel 1 is maximized. We can see the two strips that make up a sequence track part: the note strip (piano roll) and the CC (continuous controller) strip below it.</i></LI><BR><BR>
+
+<LI>Right click in the CC strip for pchannel 1, and choose <b>Add New CC Track</b>. From the dialog, choose <b>7 Volume - create</b>. "Vol" is now listed in the right half of the CC strip.<BR><BR>
+<LI>Maximize the CC strip to expose the Volume controller strip.<BR><BR>
+<LI>For our wave on pchannel 1, we want to fade it in. So draw a volume curve that goes from 0 to 127 (or whatever relative volume you want) and takes as much time as you want the crossfade to take (for example, 1 bar). To do this, click once in the track, then press INSERT, then drag out the outline of the curve you want.
+<BR><BR>
+<img src="/content/img/Crossfade_fig5.gif" width="272" height="86" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>A volume curve that will fade in pchannel 1. We can open the property page for the curve (right click, click </I><b>Properties</b>) <I>to tweak its values to use different style curves (logarithmic, linear, exponential, and so on).</i></LI><BR><BR>
+
+<LI>Repeat steps 4 through 7 for pchannel 2, but make this volume curve fade out instead of in. As a shortcut, you could copy the curve from pchannel 1 (CTRL+C), paste it into the Volume controller strip of the sequence part on pchannel 2 (CTRL+V), then open its property page and click the <b>Flip Horizontal</b> button to make it fade out instead of in.</LI><BR><BR>
+<LI>Now repeat steps 1 through 8 for the second segment. The only difference is that in steps 7 and 8, we want to flip the two curves, such that pchannel 1 fades <I>out</I> and pchannel 2 fades <I>in</I>.</LI>
+</ol>
+
+<img src="/content/img/Crossfade_fig6.gif" width="394" height="528" alt="" border="0"><BR><BR>
+<P><b>Illustration</b>&nbsp;&nbsp;<i>The "completed" second segment. The first segment would look the same except that the two curves would be flipped.</i></P>
+
+
+<P>This gives us an extremely simplified version of a crossfade. When you play Seg1, it fades out the channel that Seg2's wave was playing on while fading itself in. There are of course several problems with this:</P>
+<OL>
+<LI>If we start playing one of these segments from silence, we probably want it to come in at full volume. Similarly, if our segments loop, we probably don't want to hear the crossfade again.</LI><BR><BR>
+<LI>What if some of our content was already using volume and/or expression controller curves? It would now conflict with our "global" faders.</LI><BR><BR>
+<LI>Most importantly, this solution does not stop the segment that has been crossfaded out&#8212;that's left to the developer or scripter. If we ignored this, we might end up with multiple copies of a piece of music running at the same time, some at full volume, others silently. Worse, if the content looped, we'd get the crossfades happening again at unexpected times. We might also be wasting hardware voices, memory, and, depending on where the content is coming from, DVD or hard disk bandwidth.</LI>
+</ol>
+<P>We'll address the first two issues to start and move into scripting to talk about the third.</P>
+
+
+<H3>Expanded Continuous Controller Functionality and Crossfades</h3>
+<P>The first two issues are specific instances of more general challenges with using MIDI controllers in an interactive piece of music that might change at any time:</P>
+<OL>
+<LI>Sometimes we know where we want a controller to go, but don't know where it's starting from. For instance, if a piece of music is already faded out and we encounter controller information designed to fade it out, we don't want it to suddenly jump up to full volume just to fade out again.</LI><BR><BR>
+<LI>If several layered pieces of content use the same MIDI controllers at the same time, they'll conflict. For instance, if our content had volume curves in it and we now started to do a fade using a volume curve, the traditional MIDI behavior would be for the volume to rapidly jump between the two curves, and whichever one lasted longer would "win out."</LI>
+</ol>
+<P>DirectMusic provides solutions for both of these problems. If we open up the property page for a controller curve, right away we'll notice some differences from traditional MIDI continuous controllers.<BR><BR>
+<img src="/content/img/Crossfade_fig7.gif" width="397" height="236" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>The property page for an individual continuous controller curve.</i>
+</P>
+<P>The bottom two options are the ones that will interest us here. <b>Start From Current</b> provides a solution to the first issue. When this check box is selected, the moment that the curve is about to play, it will replace its "Start value" with whatever the current controller value is. If the content was at full volume, we'll hear it fade out to 0 volume. If the content was already at 0 volume, we get a curve going from value 0 to value 0, which has no effect. This solves the problem of content fading in and out multiple times.</P>
+<P>Note that this also gives us a side benefit: DirectMusic in general optimizes MIDI controller curves so that there aren't hundreds of redundant MIDI controller messages getting sent out to the hardware. So when our curve goes from 0 to 0, we won't get a long stream of identical "0" MIDI messages going down to the hardware of the Xbox&#8482; video game system from Microsoft.</P>
+<P>Next up, let's cover the fairly nebulously labeled <b>Additive Curve ID</b>. This feature addresses the problem of multiple simultaneous controller curves. All curves that have the same ID are applied just like traditional MIDI: if they occur at the same time, they conflict and the perceived value may fluctuate rapidly. But when you give a curve a different ID, it is actually applied on top of any other curves that use other curve IDs. Depending on the controller type, they're not necessarily "added" together, but they both apply in series to the content. For the case of volume controller curves, think of it as multi-stage mixing. Your musical score has volume curves with one additive curve ID (let's say "0"), and your crossfade curves use a different additive curve ID (for instance, "1"). When your crossfade curve is at full volume, it's as though there's no curve at all; the curves within the musical content are applied intact. And when your crossfade curve gets to zero volume, it doesn't matter what curves come through on other curve ID values, the music is still played silently. </P>
+<P>This gives us a solution for the second problem presented above. We author our content such that our crossfade volume controller curves have a different additive curve ID than any volume controller curves used for purely musical reasons, and the two will be applied (pardon the term) additively to the volume level of played content.</P>
+
+<H3>Stopping the Crossfaded Segment</h3>
+<P>Okay, so now the only problem left is stopping a segment once it's been crossfaded to silence. This can be done in several ways, but generally not within the content itself. Perhaps the easiest is to use a notification scheme: you author an indicator into your content that tells the developer that they can stop the other segment now. Depending on who's controlling music behavior (scripter or developer), this can be done in several ways.</P>
+<P>For scripting, it's the most straightforward to just drop a script routine call into a script track in your segment when the curve has finished. Your scripter then uses this routine to stop any other pieces of content that might be playing. For instance, in our scenario above, we'll have our scripter create a routine called "CrossfadeDone," where he'll stop the now silent previous segment. This routine will be covered a little later on.
+<BR><BR>
+<img src="/content/img/Crossfade_fig8.gif" width="346" height="280" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>A script routine call in a script track. The scripter would create a routine by this name (see below) that would stop the previous segment (in this case, Seg2), which is now silent.</i></P>
+
+<P>If we're working with a developer, there's a fairly similar way to indicate that an event has happened by making use of a lyric track. Lyric (text) messages can be used to pass information back to the developer.<SUP><font size:"9">4</font></SUP>
+<BR><BR>
+<img src="/content/img/Crossfade_fig9.gif" width="389" height="283" alt="" border="0">
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>A lyric in a lyric track. When the developer sees a lyric that says "Crossfade Done" (or other text that the content creator and developer agree on ahead of time), they will know that they should stop the (now silent) previous segment.</i></P>
+
+<P>Alternatively, the developer could use a DirectMusic tool to determine when the crossfade is complete without added content implementation. A DirectMusic tool allows the developer to "listen" to all (or select) DirectMusic messages as they're passed down to the Xbox audio hardware. But sifting through all of the playing content listening for volume controller messages that send volume 0 would be non-trivial to implement.</P>
+
+
+<H3>Expanding on Volume Controller Curve Crossfade Functionality</h3>
+<P>We've now created a basic crossfade in content (though there was certainly still some involvement on the part of the developer). Of course, this has its limitations: for one, our crossfades were always a set length. This could be partially solved by using separate secondary segments that *only* have the MIDI curves in them. Then when we wanted to crossfade to a segment, we would start playing the destination segment and this separate crossfade segment at the same time. If we wanted a faster crossfade, we'd just play a different secondary segment that had steeper volume curves. The content creator could come up with a library of segments that only have controller information with various combinations of pchannels and speeds of crossfades as dictated by the potential paths the music could follow in the game. It's often desirable to be able to tweak values graphically rather than having to communicate them to the developer.</p>
+<P>Authoring segments for every combination and length of crossfade that might occur could be time-consuming. It's also limited to what's been authored by the composer. There isn't much room for a completely dynamic crossfade; for instance, as the character walks between two points, crossfading based on their current position would be difficult to author into content because they might turn around or walk more slowly than we anticipated. So for extremely dynamic information or large amounts of content that can crossfade, you may want to look into a programmatic solution by communicating this information to your developer. It is fairly trivial for a developer to dynamically drop volume curves of varying duration and pchannels into an active DirectMusic performance and perform crossfades themselves. You as the content creator would just communicate how quickly the crossfades occurred and what channels each piece of content was using.</P>
+
+<H3>Crossfades via Scripting: Volume Controller Curves</h3>
+<P>Based on what we've discussed above, by triggering secondary segments that alter the volume of channels (as well as remembering to stop the silent content), we can create an adequate crossfade. Let's code up a quick example based on the scenario and content from above.</P>
+<P>To review, we have two segments, Seg1.sgp and Seg2.sgp. Seg1 has a wave on pchannel 1, and Seg2 has a wave on pchannel 2. Both of them have volume curves authored into them (with the <b>Start from Current</b> flag enabled), such that when one starts, the other is faded out. We're going to create a basic script that crossfades between them when the developer (or some piece of content) calls for a certain routine.</P>
+<P>For the sake of readability, we'll use a global variable called SegNum that keeps track of the currently playing segment. If it's 0, neither segment is currently playing. As usual with global variables, we'd want to use an initialization routine to set it to an initial value.</P>
+<PRE style="font-face:courier; font-size:12">
+     dim SegNum
+
+     sub Init
+        SegNum = 0
+     end sub
+</pre>
+
+<P>Next we'll set up the routine that starts up the new segment. Remember that the crossfade (volume controller curve information) is built right into the content, so playing the new segment will fade out the old segment.</P>
+<PRE style="font-face:courier; font-size:12">
+     sub SwitchAndCrossfade
+        If SegNum = 1 then
+          Seg2.Play IsSecondary
+          SegNum = 2
+        Else
+          Seg1.Play IsSecondary
+          SegNum = 1
+        End If
+     end sub
+</pre>
+
+<P>Lastly, we want to remember to stop the segment that was playing prior to the crossfade. We're making use of script tracks in the content as discussed above. We drop the script routine call into the script track of the segment so that it lines up with the end of the controller curve. The routine that it calls could look something like this:</P>
+
+<PRE style="font-face:courier; font-size:12">
+     sub CrossfadeDone
+        If SegNum = 1 then
+          Seg2.Stop AtImmediate
+        ElseIf SegNum = 2 then
+          Seg1.Stop AtImmediate
+        End If
+     end sub
+</pre>
+
+<P>Again, this just stops the segment that was already crossfaded out, so there should be no perceived difference to the listener. Just to review, in this crossfade solution, the developer or other pieces of content tell us to crossfade, and our content takes care of the rest.</P>
+
+<H3>Crossfades via Audiopaths</h3>
+<P>Audiopaths, which are active configurations instructing the Xbox audio hardware how to route specific audio from playback to output, provide a convenient alternative to continuous controllers for crossfades. They are generally easier to work with when we intend to crossfade between multichannel segments. For instance, it would be quite time consuming to author the volume curves necessary to crossfade between several fully orchestrated DLS scores containing 16 or more channels each. Audiopaths often provide a friendlier interface to developers as well. Rather than dropping MIDI volume curves into a performance or listening for notifications, the developer can simply control the volume of multiple audiopaths simultaneously (and with them, the volume of every segment playing on each audiopath).</P>
+<P>This brings up the first key point about audiopaths: each of them can operate independently, at least so far as MIDI controllers are concerned. Each audiopath maps pchannels to its own unique set of physical channels. This means that when using audiopaths, you don't need to worry about unique channels for each piece of content you wish to crossfade between; you can fade in content on channels 1 through 25 of one audiopath even as you fade out content on channels 1 through 16 of another audiopath, for instance. Just remember that within a single audiopath, the same limitations still apply. Also note that DirectMusic performance limitations still apply&#8212;specifically, one primary segment at a time and one shared tempo.</P>
+<P>Audiopaths can be created from standard audiopath configurations or from audiopath configuration files (.aup/.aud) created in DirectMusic Producer.<SUP><font size:"9">5</font></SUP>  Multiple independent audiopaths can be created from a single audiopath configuration file, which comes in handy for things like sound effects and, as we'll soon see, crossfades.</P>
+<P>Let's revisit the scenario that we talked about earlier&#8212;two segments that we want to crossfade between. This time, they'll be DLS-based, and each one will occupy pchannels 1 through 16. We would just instruct our developer or scripter to create an audiopath, either from one of the standard configurations or from an audiopath configuration file we authored,<SUP><font size:"9">6</font></SUP>  and then play our first segment on that audiopath. Then, when we want to crossfade to the other segment, the developer/scripter could create a second audiopath, set it to zero volume, and start playing our second segment. Now, they send the volume of the first segment to zero as they send the volume of the second volume to full. As before, we'd probably want to stop the first segment once it was faded out, and release the audiopath to free up voices and resources.</P>
+
+<H3>Crossfades via Scripting: Audiopaths</h3>
+<P>Audiopaths can make it easier for developers to, among other things, modify the volume of groups of performance channels with a single control point. But for the content creator who is using scripting, audiopaths provide a straightforward interface for fades as well. Many of the same concepts from earlier still apply: the scripter will still want to keep track of whether a segment is still audible and only stop it once it's silent. Similarly, the scripter (or developer) will probably want to destroy an audiopath once nothing is left playing on it.</P>
+<P>DirectX Audio scripting can only use audiopath configuration files; the standard audiopaths require your developer. This is not really an issue, because you can easily create an audiopath configuration file from any of the standard audiopath configurations (as well creating your own from scratch).
+<BR><BR><IMG src="/content/img/Crossfade_fig10.gif" WIDTH="390" HEIGHT="315" ALT="" BORDER="0">
+
+<BR><BR>
+<b>Illustration</b>&nbsp;&nbsp;<i>The dialog that appears when you create a new audiopath configuration file allows you to use any existing audiopath configuration file or any of the standard audiopaths as the basis for this new file.<SUP><font size:"9">7</font></SUP></i></P>
+
+<P>We'll assume we've already created an audiopath configuration file (call it "MusicConfig") and dragged it into the script. Now we want to play our content on it. We'll change things up a bit here for the sake of helping explain the syntax, and say go ahead and start playing the first piece of music at the time that our developer initializes the script. Our initialization and variables could then look like this:</P>
+
+<PRE style="font-face:courier; font-size:12">
+     dim SegNum
+     dim Audiopath1
+     dim Audiopath2
+
+     sub Init
+        set Audiopath1 = MusicConfig.create
+        Audiopath1.SetVolume 0
+        Seg1.Play IsSecondary, Audiopath1
+        SegNum = 1
+     end sub
+</PRE>
+
+<P>The two new variables are where we're going to keep track of potentially two active audiopaths (during the crossfade, both will be active; at other times, only one will). The way to create an actively running audiopath is via the <b>AudiopathConfig.Create</b> method. We set an active audiopath's volume via the <b>Audiopath.SetVolume</b> method. Note that unlike other aspects of DirectMusic, volume on an audiopath is measured in decibels, with 0 being full volume and &#8211;9600 being perceived silence. So we create an audiopath and make sure it's at full volume. Next, we play a segment on it. Note that the second parameter to the <b>Segment.play</b> method is where we specify which audiopath to play it on. If none had been there, the segment would play on the default audiopath. And lastly, so that we can keep track of which segment is playing, we set our SegNum variable to 1.</P>
+<P>The crossfade routine will look fairly similar, but now we have the ability to control volume and duration of the crossfade in the script instead of in the content:</P>
+
+<PRE style="font-face:courier; font-size:12">
+     sub SwitchAndCrossfade
+        If SegNum = 1 then
+          set Audiopath2 = MusicConfig.create
+          Audiopath2.SetVolume -9600
+          Seg2.Play IsSecondary, Audiopath2
+          SegNum = 2
+          Audiopath2.SetVolume 0, 5000
+          Audiopath1.SetVolume -9600, 5000
+        ElseIf SegNum = 2 then
+          set Audiopath1 = MusicConfig.create
+          Audiopath1.SetVolume -9600
+          Seg1.Play IsSecondary, Audiopath1
+          SegNum = 1
+          Audiopath1.SetVolume 0, 5000
+          Audiopath2.SetVolume -9600, 5000
+        End If
+     end sub
+</PRE>
+
+<P>We first create a running audiopath for the "target" segment. This audiopath is set to be silent initially. We start playing the segment on the silent audiopath. Lastly, we increase this audiopath's volume as we decrease the other audiopath's volume. The second parameter to the <b>Audiopath.SetVolume</b> routine is a duration, specified in milliseconds. So we've created a 5,000-millisecond (five-second) crossfade here.</P>
+<P>Lastly, we still need to stop the segments and destroy the audiopaths that we're no longer using. I added the same kind of script routine calls in script tracks to these segments that we had in the early scenario. I set a fixed time (six seconds) that I knew my crossfades wouldn't take longer than, and called the routines at that time. To destroy an active audiopath, set it to the keyword <b>nothing</b>.<SUP><font size:"9">8</font></SUP></P>
+
+<PRE style="font-face:courier; font-size:12">
+     sub CrossfadeDone
+        If SegNum = 1 then
+          Seg2.Stop AtImmediate
+          set Audiopath2 = nothing
+        ElseIf SegNum = 2 then
+          Seg1.Stop AtImmediate
+          set Audiopath1 = nothing
+        End If
+     end sub
+</PRE>
+
+<P>If crossfades were occurring between these pieces of content fairly regularly, we might want to keep both audiopaths active.</P>
+
+<H3>Ducking</h3>
+<P>Everything we've talked about so far could be applied just as easily to the concept of ducking, in which one piece of audio (for instance, music) drops its volume when a more important piece of audio (for instance, dialog) beings playing. The difference is that it's actually a bit easier to manage, because the "ducked" music is still playing, so we don't need to worry about stopping it. Dialog placed in a segment could use script tracks or MIDI controller curves to duck the volume of other aspects of the performance. This could be a good use of audiopaths as well: music would be played on one audiopath, dialog on another, and sound effects on a third. When we're ready to play dialog, we drop the music (and potentially sound effects) using one of the methods described above. When the dialog finishes, we ramp the music back up.</P>
+
+<H3>Wrap Up: Tradeoffs of the Various Crossfade Techniques</h3>
+<P>We've now seen several different ways of accomplishing a crossfade in DirectMusic. At the low level end, we could ask our developer to handle all crossfading, whether via MIDI controller messages on specific performance channels or by using multiple audiopaths. The former will probably use less CPU and resources (because all content is playing on a single audiopath). The latter will require less communication and will be easier for the developer to implement (they don't need to know anything about the content), but now the developer has to manage creating and destroying audiopaths in addition to the crossfade itself.</P>
+<P>There's a similar tradeoff at the opposite end of the spectrum, when the content creator takes significant control of crossfade behavior. On the one hand, the content creator could author MIDI volume curves into the content itself. This is fairly basic to use; the developer or scripter just plays the segment and it crossfades other content out. We also discussed how, in situations where you want more flexibility or an easy way to play a segment without fading other content in and out, you can author one or more separate secondary segments with the crossfade information. The developer or scripter can then choose to play a particular crossfade (speed, curve slope, and so on) based on more dynamic aspects of the game. Using audiopaths can save time but potentially use additional resources, and will require scripting or developer aid. If we use scripting, we can potentially create crossfades that will require no developer implementation time (beyond the actual call to the script to start the crossfade). If we don't use scripting, remember that the developer will have the responsibility of stopping a segment once it's been crossfaded out to silence.</P>
+<BR><BR>
+<i>For more information about DirectMusic Producer, scripting, audiopaths, and DirectMusic concepts, please consult the DirectMusic Producer FAQ, DirectMusic Producer Terminology white paper, or the DirectMusic Producer help document, or send an e-mail message to</i> <a href="mailto:content@xbox.com">content@xbox.com.</a>
+
+<BR><BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;For a more complete discussion of primary versus secondary segments, see the "<a href="/BPProgInfo.asp?Page=content/DMP_comp_main.htm" title="DirectMusic Producer Components"><B>DirectMusic Producer Components</B></a>" white paper. For a discussion of controlling segments, see the <a href="/BPProgInfo.asp?Page=content/xbox_faq_dmp_answers.htm" title="DirectMusic Producer FAQ"><B>DirectMusic Producer FAQ</B></a> on this Web site.</p>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;This applies when multiple segments are played on a single audiopath, which is the most basic playback method. As we'll see a bit later, when two segments are played on separate audiopaths, their MIDI data will never conflict, even if they're playing on what they think are the same MIDI channels.</p> 
+<P style="font-size:12"><SUP>3</SUP>&nbsp;Remember the difference in terminology between <i>parts</i> and <i>tracks</i>. A track can be composed of as many parts as you want. Each part is assigned to a performance channel (think MIDI channel). It's fine to have multiple parts on a single MIDI channel, though MIDI limitations apply (for example, only one DLS instrument at a time; controller curves on the channel will affect all parts).</p>
+<P style="font-size:12"><SUP>4</SUP>&nbsp;Developers can "listen" for lyric messages (DMUS_LYRIC_PMSG) by using a DirectMusic tool.</p>
+<P style="font-size:12"><SUP>5</SUP>&nbsp;For more information about authoring audiopath configuration files, see the white paper "<A HREF="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_audiopathconfig.htm" title="Working the Metal: Audiopath Configurations and the Xbox Media Communications Processor"><B>Working the Metal: Audiopath Configurations and the Xbox Media Communications Processor</B></A>."</p>
+<P style="font-size:12"><SUP>6</SUP>&nbsp;For developers: the standard audiopaths are defined by DMUS_APATH_*.</p>
+<P style="font-size:12"><SUP>7</SUP>&nbsp;DirectMusic Producer defaults to creating 128 channels for each of the standard configurations. If your developer uses the standard audiopath configurations, they can specify how many channels they want. You are authoring your own audiopath configuration file, you can change the number of pchannels by right clicking a mix group and choosing <b>Add/Remove PChannels....</b></P>
+<P style="font-size:12"><SUP>8</SUP>&nbsp;You can actually use this technique to free any object that is no longer needed. Microsoft® DirectX® Audio scripting uses garbage collection for memory management. Because the process could take some processor time, garbage collection occurs only when the developer wishes it to, via the <b>IDirectMusicLoader::CollectGarbage</b> method. Note that because audiopaths are never cached to the loader (we load and unload audiopath configuration files), they do not need to be garbage collected. Assuming the script was the one object referencing this audiopath, it will be released as soon as the variable is set to <b>nothing</b>.</P>
+<BR><BR>
+<SMALL>Monday, May 14, 2001</SMALL>
+
+
+
+</td>
+
+
+</TD>
+
+
+
+	

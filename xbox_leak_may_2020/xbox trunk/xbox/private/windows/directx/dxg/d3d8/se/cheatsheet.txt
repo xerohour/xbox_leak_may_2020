@@ -1,0 +1,86 @@
+1. Look at hardware's pointers for the push buffer
+        dd fd003240 l2  
+    
+   DW1=HW_PUT 
+   DW2=HW_GET
+   If they are equal, DMA pusher is idle.
+   Dump out contents of the push buffer at: 80000000+HW_GET or 80000000+HW_PUT
+
+2. Look at CACHE1 content pointers.  This is what the GPU is actually processing.
+        dd fd003210 l1  -- CACHE1_PUT: Where the parser is adding stuff
+        dd fd003270 l1  -- CACHE1_GET: Where the PGRAPH is picking up stuff
+   Disable the pusher
+        ed fd003220 0
+   Disable the puller
+        ed fd003250 0
+   Calculate the address in cache as: fd003800+CACHE1_PUT*2
+   Dump out DWORDs at the address.  The first DWORD is the method followed by data
+    
+   Dump out the CACHE1_GET contents the same way
+
+   If CACHE1_PUT and CACHE1_GET are the same then everything is caught up
+   
+   Cache1 is 1K (128 method/data DWORD pairs).  It is located at fd003800 and shadowed at fd003c00.
+   The Get pionter can actually point into the the shadow.
+
+3. Dump out PGRAPH status
+        dd fd400700 l1
+    0 indicates graphics is idle, 1s indicate modules that are busy or hung
+
+4. Dump out interrupts are pending.  Look at NV_PMC_INTR_0_* in nv_ref_2a.h to see meanings of the bits
+        dd fd000100 l1
+
+5. Dump out the address where the CRTC is scanning out of
+        dd fd600800 l1
+
+6. Dump out instance memory
+        dd fd710000
+
+7. Dump out FIFO status
+        dd fd002100 l1
+   A value of 00001000 means parse error
+
+8. Debugging parse errors
+        dd fd0032a0 l3
+   DW1=How many bytes transfered before parse error
+   DW2=Last data the parser saw
+   DW3=Command being processed when the parse error occured
+   
+9. Disable interrupts
+        ed fd600140 0   --- disable vblanks
+        ed fd000140 0   --- disable all other interrutps
+        
+10. To tell if its a Micron memory system
+        dd fd101000 l1   --- STRAP_VALUE
+        ? STRAP_VALUE & c0000
+    If the value is 0, its a Micron system
+    
+11. Dump out the current class
+        dd fd40014c l1  -- 97 is kelvin
+        
+12. Dump out the internal PGRAPH fifo cache:
+
+        dd fd4007a0 l8  -- 8 method DWORDs 
+        
+        dd fd4007c0 l8  -- corresponding 8 data DWORDS
+        
+    The contents of this cache should match up to the CACHE1_GET - 0x40.
+    
+13. Dump PGRAPH fifo status
+        
+        dd fd400720 l1
+        
+14. Dump the PMC
+
+        dd fd000200 l1
+        
+15. Dump the D3D device object
+
+        dd d3d__g_pdevice l1 
+        dt D3D::CDevice <result>   
+           
+16. To dump out the current Begin/End state
+
+        dd fd400F5C l1
+        
+    1=means we are inside a begin/end

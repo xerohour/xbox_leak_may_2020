@@ -1,0 +1,24 @@
+TARGETNAME =        dphost
+TARGETPATH =        obj
+TARGETTYPE =        PROGRAM
+UMTYPE =            xboxapp
+                    
+SYNCHRONIZE_DRAIN = 1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od /FAcs
+
+C_DEFINES =         $(C_DEFINES) -DXBOX -DKERNEL_MODE -DUNICODE
+
+INCLUDES =          $(BASEDIR)\public\ddk\inc;\
+                    $(BASEDIR)\public\Xdk\inc;\
+                    $(BASEDIR)\private\online\client\inc
+                    
+
+LINKLIBS =          $(XDK_LIB_PATH)\dplay8$(D).lib\
+!ifdef DPLAY_DOWORK_STATEMN
+                    $(BASEDIR)\private\online\client\lib\*\statemn.lib\
+!endif
+                    $(XDK_LIB_PATH)\xnet$(D).lib
+
+SOURCES =           test.cpp
+                    

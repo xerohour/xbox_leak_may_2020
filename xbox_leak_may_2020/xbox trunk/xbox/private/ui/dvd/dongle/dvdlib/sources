@@ -1,0 +1,46 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+!ENDIF
+
+!IF $(FREEBUILD)
+TARGETNAME=dvdlib
+!ELSE
+TARGETNAME=dvdlibd
+!ENDIF
+
+TARGETPATH=..\lib
+TARGETTYPE=LIBRARY
+
+!ifdef ON_DISK_DONGLE
+C_DEFINES=$(C_DEFINES) -DON_DISK_DONGLE=1
+!endif
+
+SOURCES=dvdlib.cpp
+i386_SOURCES=..\i386\thunks.asm
+
+INCLUDES=$(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         $(PRIVATE_INC_PATH)\crypto; \
+         $(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\ui\xapp
+
+OBJLIBFILES=$(BASEDIR)\private\ntos\rtl\obj\*\xbdmrtl.lib \
+            $(BASEDIR)\private\lib\*\ldi.lib \
+            $(SDK_LIB_PATH)\xdcs.lib
+
+PRECOMPILED_INCLUDE=dvdlibp.h
+PRECOMPILED_CXX=1
+MSC_WARNING_LEVEL=/W4

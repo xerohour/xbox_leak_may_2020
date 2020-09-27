@@ -1,0 +1,147 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdcommul.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdComponentMult       */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdComponentMult                                            */
+ /*                                                                        */
+ /*   Descrip:  This dialog will let user choose different parts of the    */
+ /*             software to install based on the components and sub        */
+ /*             components.                                                */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdComponentMult( szTitle, szMsg, szTargetDir, szComponents )
+          STRING  szDlg, szTemp;
+          HWND    hwndDlg, hwndListBox;
+          NUMBER  nParentView, nChildView;
+          NUMBER  nId, nTemp;
+          BOOL    bDone;
+        begin
+
+           szDlg     = SD_DLG_COMPONENTMULT;
+           nSdDialog = SD_NDLG_COMPONENTMULT;
+
+           // record data produced by this dialog
+           if (MODE=SILENTMODE) then
+             SdMakeName( szAppKey, szDlg, szTitle, nSdComponentMult );
+             SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+             if ((nId != BACK) && (nId != CANCEL)) then
+                SilentReadData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+             endif;
+
+             return nId;
+           endif;
+
+           // ensure general initialization is complete
+           if (!bSdInit) then
+              SdInit();
+           endif;
+
+           if (EzDefineDialog( szDlg, "", "", SD_NDLG_COMPONENTMULT ) = DLG_ERR) then
+              return -1;
+           endif;
+
+
+           // Loop in dialog until the user selects a standard button
+           bDone = FALSE;
+
+           while (!bDone)
+
+              nId = WaitOnDialog( szDlg );
+
+              switch (nId)
+              case DLG_INIT:
+
+                   if( szMsg != "" ) then
+                       SdSetStatic( szDlg, SD_COMPONENT_MSG, szMsg );
+                   endif;
+
+                   hwndDlg = CmdGetHwndDlg( szDlg );
+                   SdGeneralInit( szDlg, hwndDlg, STYLE_NORMAL, szSdProduct );
+
+                   if(szTitle != "") then
+                       SetWindowText(hwndDlg, szTitle);
+                   endif;
+
+                   nParentView = SdCreateComponentView( hwndDlg, SD_LISTBOX, szComponents, szTargetDir );
+                   if (!nParentView) then
+                       SdError( -1, "SdComponentDialogAdv" );
+                       nId = -1;
+                       bDone = TRUE;
+                   endif;
+
+                   nChildView = SdCreateComponentView( hwndDlg, SD_LISTBOX2, szComponents, szTargetDir );
+                   if (!nChildView) then
+                       SdError( -1, "SdComponentDialogAdv" );
+                       nId = -1;
+                       bDone = TRUE;
+                   endif;
+                   
+                   ComponentViewSetInfo( nParentView, COMPONENT_VIEW_CHILDVIEW, nChildView, "");
+                   ComponentViewSetInfo( nChildView, COMPONENT_VIEW_PARENTVIEW, nParentView, "");
+
+                   ComponentViewRefresh( nParentView, 0);
+
+                   hwndListBox = GetDlgItem( hwndDlg, SD_LISTBOX );
+                   SetFocus( hwndListBox );
+
+
+              case SD_PBUT_OK:
+                   if( StrCompare(szTargetDir, "") && !SdComponentDlgCheckSpace( szComponents, szDlg, szTargetDir ) ) then
+                      MessageBox( szSdStr_NotEnoughSpace, WARNING );
+                   else
+                      nId   = OK;
+                      bDone = TRUE;
+                   endif;
+
+              case BACK:
+                   nId    = BACK;
+                   bDone  = TRUE;
+
+              case DLG_ERR:
+                   SdError( -1, "SdComponentMult" );
+                   nId   = -1;
+                   bDone = TRUE;
+
+              case DLG_CLOSE:
+                   SdCloseDlg( hwndDlg, nId, bDone );
+
+              default:
+                   // check standard handling
+                   if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                       bDone = TRUE;
+                   endif;
+              endswitch;
+
+           endwhile;
+
+           EndDialog( szDlg );
+           ReleaseDialog( szDlg );
+           ComponentViewDestroy( nChildView );
+           ComponentViewDestroy( nParentView );
+
+           SdUnInit( );
+
+           // record data produced by this dialog
+           SdMakeName( szAppKey, szDlg, szTitle, nSdComponentMult );
+           SilentWriteData( szAppKey, "Component", DATA_COMPONENT, szComponents, nTemp );
+           SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+           return nId;
+
+        end;
+

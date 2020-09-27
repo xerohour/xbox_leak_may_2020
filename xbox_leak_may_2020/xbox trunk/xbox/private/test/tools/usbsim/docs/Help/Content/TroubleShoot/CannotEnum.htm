@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Device Enumeration Always Fails</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Device Enumeration Always Fails</H1>
+
+<DIV CLASS=BLOCKHEADER>Simulator.GetUSBPorts() returns 0</DIV>
+    <DIV CLASS=BLOCK>
+    The USB Simulator requires some initialization after powerup. This initialization occurs when the simulator receives the IPQuery network command. Until this command is recieved, the simulator will not initialize any of it's USB boards (thus <A HREF="m_GetUSBPorts.htm">GetUSBPorts</A> returns zero).
+    <BR>
+    The <A HREF="../USBSimulator.Simulator/m_GetVersion.htm">Simulator.GetVersion</A> method sends the IPQuery command, so you should always call this method in your script to ensure the USB Simulator is fully ready.
+    </DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="../USBSimulator.Simulator/m_GetVersion.htm">GetVersion</A>, <A HREF="../USBSimulator.Simulator/m_GetUSBPorts.htm">GetUSBPorts</A>, <A HREF="../Guide/NetworkIO.htm">Network Commands</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

@@ -1,0 +1,213 @@
+<TD valign="top" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+
+</TD><Td>
+<H2>Best Practices for Xbox Audio Design:
+Chapter 3 - Xbox Audio Hardware</H2>
+
+<P><I>By Scott Selfon, Audio Content Consultant, Xbox Content and Design Team</I></P>
+
+<P><small>Microsoft Confidential</small></P>
+
+<H3>Introduction</H3>
+<P>This chapter of Best Practices for Xbox Audio Design discusses the audio hardware features of the Xbox&#8482; video game system from Microsoft. Current Xbox Development Kits (XDKs) contain a feature-complete audio hardware implementation. We will point out the architecture and features, as well as how they interface with Microsoft&#174; DirectX&#174; Audio libraries. This chapter will also address other audio considerations relating to hardware, including multi-speaker surround, use of the hard disk, and use of the game disc in relation to audio.</P>
+
+<H3>Audio Hardware: Xbox MCP</H3>
+<P>The Xbox Media Communications Processor (MCP) is the audio equivalent of the Xbox graphics chip in that it is very powerful and is a multi-processor pipelined stage architecture. Four independent hardware processors pertain to audio:<font size:"9"><sup>1</sup></font></P>
+<UL>
+<LI>Setup Engine (direct memory access [DMA] engine)</LI><BR><BR>
+<LI>Voice Processor: fixed-function digital signal processor (DSP) for voice support</LI><BR><BR>
+<LI>Global Processor: fully programmable DSP for effects and other processing</LI><BR><BR>
+<LI>Encode Processor: dedicated DSP for multi-speaker surround encoding</LI>
+</UL>
+<BR><IMG src="/content/img/bp_audiodesign3_fig1.gif" WIDTH="443" HEIGHT="265" ALT="" BORDER="0">
+<BR><BR>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>Overview of Xbox MCP audio processors</I></P>
+<P>The chip supports 256 total hardware voices, each of which can use pulse code modulation (PCM) or adaptive differential pulse code modulation (ADPCM); 192 of those voices are 2-D/WT voices (all Downloadable Sounds Level 2 (DLS-2) capable), and there are 64 3-D Head Relative Transfer Function (HRTF) voices. The chip supports 3-D positional effects (reflection, occlusion, obstruction, reverb) compliant with Interactive 3-D Level 2 (I3DL2) for all 3-D voices. The audio subsystem uses both the unified memory architecture and the hard disk for fast access to huge amounts of audio data.</P>
+<P>The chip accepts 8- and 16-bit data at input and internally uses 24-bit resolution and 48 kHz. It is generally recommended that source audio be recorded at 48 kHz or lower; higher sampling rates will be subject to aliasing. Output sampling rate is 48 kHz, with 20-bit resolution.</P>
+<H3>Setup Engine</H3>
+<P>The Setup Engine provides the Xbox MCP with its connection to the unified memory architecture (UMA) through 16 DMA engines. It also manages the data transfers between the three other processors. The Setup Engine additionally is responsible for "housekeeping" chores, including padding 8- and 16-bit data (accepted as input) to the 24-bit depth used internally. And lastly, it manages parameter ramping for some parameters. The Setup Engine is accessed through Microsoft&#174; DirectSound&#174;.<BR><BR>
+<IMG src="/content/img/bp_audiodesign3_fig2.gif" WIDTH="412" HEIGHT="217" ALT="" BORDER="0"><BR><BR> </P>
+<P><B>Illustration</B>&nbsp;&nbsp;<I>Setup Engine interfaces</I></P>
+<H3>Voice Processor</H3>
+<P>The Voice Processor (VP) is a fixed function DSP for voice support. Input data can come from three sources:<UL>
+<LI>A buffer resident in memory</LI><BR><BR>
+<LI>A stream from the game disc or hard disk (streamed into memory)</LI><BR><BR>
+<LI>Audio data generated internally (which we'll cover in a little bit)&#8212;data from a mixbin or a multipass effect</LI>
+</UL></P>
+<P>The VP consists of 256 hardware PCM/ADPCM voices, which are sample rate converted to 48 kHz using multipoint interpolation. There is no CPU overhead for sample rate conversion, so using multiple sampling rates for source wave data (or sampling rates that are not multiples of 48 kHz) has no negative performance impact. ADPCM decode is performed onboard the chip, so there is no memory footprint or CPU hit for ADPCM use.
+<UL>
+<LI>Sixty-four of the voices are 3-D HRTF<font size:"9"><sup>2</sup></font> voices, which can take mono wave inputs and position these sounds in 3-D acoustic space in real time.</LI><BR><BR>
+<LI>The remaining 192 voices are 2-D and can have either mono or stereo sources. Note that the 64 3-D voices can also be used as 2-D, so you could have up to 448 mono voices (64 + 192 * 2) playing at once if you wanted to, all in hardware.</LI>
+</UL></P>
+<P>Each voice has two programmable DAHDSR (Delay Attack Hold Decay Sustain Release) envelopes (for volume, pitch, or DLS-2 filter cutoff frequency) and two low frequency oscillators (LFOs, which can control amplitude, pitch, or DLS-2 filter cutoff frequency) that conform to the DLS-2 specification. Each voice also has a programmable filter block, with combinations of DLS-2, parametric EQ, and/or I3DL2 filtering possible.
+<UL>
+<LI>DLS-2: low-pass filter; parameters are cutoff frequency and resonance (Q).</LI><BR><BR>
+<LI>Parametric EQ: single band pass/band reject filter; parameters are center frequency, gain, and Q.</LI><BR><BR>
+<LI>I3DL2: low-pass environmental filter for occlusion and obstruction; parameters are alpha (direct) and alpha (reflected).</LI>
+</UL></P>
+<P>The following table shows the filter modes for each kind of buffer.</P><IMG src="/content/img/bp_audiodesign3_table1.gif" WIDTH="530" HEIGHT="160" ALT="" BORDER="0">
+<BR><BR>
+<P>Note that stereo buffers can have DLS-2 or parametric EQ filtering, but not both.</P>
+<P>After the filter block, a mono voice may be split and routed to up to eight destinations (each with separate volume control), known as mixbins. For stereo voices, the left and right channels can be routed to up to four mixbins each. The Xbox MCP has 32 mixbins. Some of these are predefined and represent data that should go directly to a specific channel (for example, left or right surround). In this way, you could do your own multichannel mixes even for the 192 "2-D" voices. Twenty of these mixbins are user definable and generally termed "send mixbins" because these audio mixes can be sent to the Global Processor for real-time effects processing.</P>
+<P>A few additional features of the voice processor that increase its flexibility:
+<UL>
+<LI>Submixing: Any number of voices can be submixed before 3-D and/or effects are applied.
+<BR><BR><IMG src="/content/img/bp_audiodesign3_fig3.gif" WIDTH="514" HEIGHT="406" ALT="" BORDER="0">
+<BR><BR>
+For instance, a helicopter is composed of several sounds, such as blade noise and wind. Each element could be played onto separate 2-D buffers, filtered individually, and then mixed together into a 3-D buffer for real-time surround positioning. So, only one 3-D buffer is used for the potentially multiple sounds originating at a position.</LI><BR><BR>
+<LI>Chaining: Voices can be chained to get multiple filter passes on a single voice or a mix of voices.
+<BR><BR><IMG src="/content/img/bp_audiodesign3_fig4.gif" WIDTH="448" HEIGHT="257" ALT="" BORDER="0">
+<BR><BR></LI>
+</UL></P>
+<H3>Global Processor (Audio Effects Processing)</H3>
+<P>The Global Processor (GP) is a programmable DSP for effects processing. The chip is compatible with custom programs written for the Motorola 56300. We supply several effects, each of which can be instantiated multiple times within a single program, limited only by the size of the GP's memory. The following effects are included:
+<UL>
+<LI>Amplitude modulation</LI><BR><BR>
+<LI>Chorus</LI><BR><BR>
+<LI>Crosstalk</LI><BR><BR>
+<LI>Distortion</LI><BR><BR>
+<LI>Echo</LI><BR><BR>
+<LI>Flanger</LI><BR><BR>
+<LI>IIR2 (Band Pass/Parametric EQ) (a different version than the one available per voice in the Voice Processor)</LI><BR><BR>
+<LI>Mixer</LI><BR><BR>
+<LI>Reverb (music)</LI><BR><BR>
+<LI>Reverb (I3DL2) for environmental modeling of 3-D spaces<font size:"9"><sup>3</sup></font></LI>
+</UL></P>
+<P>Sizes of each effect can be found by looking in the *_state.ini file for each effect. These values (as well as the full capacity of the GP) are used by the XGPImage authoring tool to determine if a GP DSP program can be created that will fit.</P>
+<P>Effects can be applied to any or all of the send mixbins. Effects can also be chained together (that is, apply a flanger, then apply distortion to the output of the flanger effect), again, up to the limits of the size of the GP.</P>
+<P>
+The output of an effect can be:
+<UL>
+<LI>Another effect's input (effect chaining)</LI><BR><BR>
+<LI>Global&#8212;the output of the effect is mixed to the final output stream, which is sent to the Encode Processor (described in the next section)
+<BR><BR><IMG src="/content/img/bp_audiodesign3_fig5.gif" WIDTH="521" HEIGHT="343" ALT="" BORDER="0">
+<BR><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>Global effect signal flow</I></LI><BR><BR>
+<LI>Multipass&#8212;the output of the effect can be used as the input for a voice back in the voice processor. Again, this allows for flexible voice management. Taking the previous example of a helicopter, the blade sound could have a multipass flanger effect applied and then be mixed in with the dry wind noise. The full mix could then be sent to a 3-D voice for real-time positioning.<BR><BR><IMG src="/content/img/bp_audiodesign3_fig6.gif" WIDTH="494" HEIGHT="377" ALT="" BORDER="0"><BR><BR>
+<B>Illustration</B>&nbsp;&nbsp;<I>Multipass effect signal flow</I></LI>
+</UL></P>
+<H3>Encode Processor (Real-time Multi-Speaker Surround)</H3>
+<P>Finally, when all of the sounds are mixed together, the output of the GP is sent into the Encode Processor (EP) for final audio delivery. The EP can deliver audio in one of several formats:
+<UL>
+<LI>Mono</LI><BR><BR>
+<LI>Stereo (2.0)</LI><BR><BR>
+<LI>Dolby&#174; Surround (stereo with matrix encoding - 4.0)</LI><BR><BR>
+<LI>Dolby&#174; Digital (six discrete channels - 5.1)</LI>
+</UL></P>
+<P>The user decides the specific format in their Xbox Dashboard settings. Note that the hardware can automatically mix down multi-channel audio to stereo or mono. However, for pre-rendered sounds (that is, music and ambience that are not going to be dynamically positioned in 3-D space), it is recommended that you author two versions of content:
+<UL>
+<LI>5.1 linear PCM (non-encoded) wave files</LI><BR><BR>
+<LI>4.0 linear PCM wave files</LI>
+</UL>
+</P>
+<P>In this way, you can be assured that the mix you intended is delivered regardless of the user's format.<font size:"9"><sup>4</sup></font></P>
+<H3>Xbox Audio Latency</H3>
+<P>The latencies for the VP, GP, and SE are 32 samples each, which is roughly two-thirds of a millisecond (msec). A full audio path leading from the VP to the input of the EP is approximately 2 to 3 msec. The latency for the EP varies depending on output format, as discussed below.</P>
+<P>The <i>full path latency</i> (time from the developer triggering a sound to the consumer hearing the decoded signal out of their speakers) is approximately:
+<UL>
+<LI>8 msec or less for mono, stereo, and Dolby Surround</LI><BR><BR>
+<LI>47 to 51 msec for Dolby Digital</LI> 
+</UL>
+<P>The Xbox implementation of the Dolby Digital encoder is using a new high-performance encoder we worked with Dolby to optimize for real-time applications. Our initial estimates show that it should require only around 25 msec to encode a 5.1 stream, compared to standard Dolby Digital latencies of more than 100 msec. Since a standard consumer decoder requires, on average, around 20 msec to decode a Dolby Digital stream, the full path latency&#8212;from the time you play a wave using DirectSound or Microsoft&#174; DirectMusic&#174; to the time a user hears the decoded wave output through their speakers&#8212;will be approximately 47 to 51 msec.</P>
+<p>A few separate areas to address here:</p>
+<OL>
+<LI><b>Latency and perception:</b> The general rule of thumb for television and film audio/visual synchronization is that the audio can be up to two SMPTE frames after the visuals and still be considered in sync. That translates to about 67 msec "tolerable" latency, and this is what we have tried to strive for in Xbox, though of course less latency is better.</LI><BR><BR>
+<LI><b>PC comparison to Xbox:</b> The latency on a PC varies quite a bit, but is generally 30 to 80 msec for DirectSound. Engines that sit on top of DirectSound (for example, Miles Sound System or Qmixer) can add significantly more latency to playback. DirectMusic is typically 90 msec or more. By comparison, because DirectMusic and DirectSound for Xbox have been optimized for the Xbox audio hardware, the numbers for DirectMusic and DirectSound on Xbox are negligible (and are included in the "full path" latency value above). If you are satisfied with the latency in your PC games, you should be thrilled on Xbox.</LI><BR><BR>
+<LI><b>Pre-rendered audio:</b> We expose the option for you to write directly to the digital and analog outputs. This would preclude hardware mixing and effects using the Xbox MCP, but for things like cut scenes, it might be appropriate. When writing directly to the digital outputs, you can supply any format you want, including pre-encoded Dolby Digital and Sony DTS.</LI><BR><BR>
+<Li><b>Latency for compressed audio:</b> ADPCM is supported in hardware and is decoded with no CPU hit and no added latency. Microsoft&#174; Windows Media&#8482; Audio (WMA) (and any other third party formats provided via Xbox Media Objects) will probably add some amount of latency (we have not yet characterized WMA latency), so for quick twitch sounds, they may not be appropriate.
+</ol>
+</P>
+<H3>End User Audio Configurations</H3>
+<P>The Xbox hardware has three plugs on the rear panel: power, Ethernet, and integrated audio/video. Three different audio configurations (in four total configurations) will be encountered on end user machines:
+<OL>
+<LI>The Xbox Standard AV Pack, which ships with the system and consists of composite video and L/R RCA audio.</LI><BR><BR>
+<LI>The Xbox Advanced AV Pack, available separately, which consists of S-video, optical audio (toslink), composite video, and L/R RCA audio.</LI><BR><BR>
+<LI>The Xbox High Definition AV Pack, available separately, which is identical to the Xbox Advanced AV Pack, except YPrPb (HDTV component video) replaces S-video.</LI><BR><BR>
+<LI>The Xbox RF Adapter, available separately, which consists solely of an RF output (only mono audio available).</LI>
+</OL></P>
+<P>As previously mentioned, the end user can decide in the Xbox Dashboard what format they want for output&#8212;mono, stereo, Dolby Surround, or Dolby Digital (last option available only on enhanced and component AV adapters).</P>
+<P>If users wish to use headphones, they plug them into their receiver units, not into the Xbox console. Note that we provide HRTF processing optimized for both speakers and headphones. If you wish to optimize for headphones, you should expose an option to players to use headphones, in which case crosstalk should be disabled (via <B>IDirectSound::EnableCrosstalk</B>).</P>
+<H3>Accessing Audio from the Game Disc</H3>
+<P>The Xbox game disc format allows for more than 9 GB of data to be stored. The game disc should be used for audio where latency doesn't matter as much (for example, things like unsynced dialog and streamed ambience). Make use of the hard disk (covered in a moment) for more latency-critical playback, such as sound effects or lip-synced dialog.</P>
+<P>Note that because the disc drive uses constant angular velocity (disc always spins at the same speed), throughput varies based on the data's location on the disc; more throughput is available at the outer edge of the disc than at the innermost tracks. Data that requires more bandwidth should be placed toward the outer edge.</P>
+<P>Because of the relatively high access times for game disc seeking, it is generally recommended that streamed audio tracks be closely paired with the graphics that will be accessed at the same time or be placed on the hard disk for quicker access.
+<BR><BR><IMG src="/content/img/bp_audiodesign3_table2.gif" WIDTH="530" HEIGHT="93" ALT="" BORDER="0">
+<BR><BR></P>
+<P>As far as throughput, a few numbers to compare to:
+<BR><BR><IMG src="/content/img/bp_audiodesign3_table3.gif" WIDTH="524" HEIGHT="79" ALT="" BORDER="0">
+<BR><BR></P>
+<P>Based on these numbers, you could theoretically have between three and ten streams of six-channel audio streamed simultaneously off the game disc (assuming they were positioned close to each other).</P>
+<H3>Using the Hard Disk for Audio</H3>
+<P>As discussed above, the hard disk should be used where latency is critical. You also get additional throughput and minimized access times, which will aid in delivering many smaller sounds for rapid and/or simultaneous playback.</P>
+<P>The 8-GB hard disk is divided into several different partitions, two of which will concern us here. Other partitions are used for things such as saved games and persistent game state data.
+<OL>
+<LI>WMA playlist storage: One partition of the hard disk is used to store audio ripped from the user's own Red Book audio CDs. Using the Xbox Dashboard, the user can place tracks from any audio CD on the hard disk, compressed in WMA format. Titles can then choose to read these WMA files through playlists, either to supplement their own audio tracks or in creative ways that do not affect the existing scores and ambiences authored by the content creator. For some kinds of titles, the user's own soundtrack "mixes" are appropriate for in-game use; other titles may choose to ignore these playlists entirely. No title should assume that playlists will always be available for use.</LI><BR><BR>
+<LI>Utility region: This is the scratch space that is made available to a title upon startup. The title can use the 750-MB partition in any way. This is where audio content from the game disc may be copied for more rapid access. Note that any WMA-compressed audio provided by the game is placed here, not in the WMA playlist area (which is used exclusively for the user's own ripped audio tracks).<BR><BR>
+A word about the utility region: There are actually three separate 750-MB partitions. A title should assume that the utility region it is granted on startup is empty&#8212;there is no concept on Xbox of installation space; in most cases, the partition is wiped when the machine is turned on. However, if a title is booted and one of the three partitions was last used by it (that is, no more than two other unique titles have been played since the last time this one was), it may be granted the same partition it used previously. This will allow quicker startup in such circumstances, because some or all data pulled down from the game disc may still reside on the hard disk. It is up to the particular title to confirm this.</LI>
+</OL></P>
+<H3>CPU Audio Use Considerations</H3>
+<P>WMA files are real-time decompressed using host software. Xbox also supports arbitrary software compression technologies by using the Xbox Media Object interface.</P>
+<P>Note that because Xbox Media Objects run in software, they will have to use some portion of the CPU. We currently estimate that WMA decompression will be 1 to 2 percent of the CPU per stream nominally, but with spikes as high as 10 to 15 percent. Processing power needed by other Xbox Media Objects will vary based on compression scheme.</P>
+<P>ADPCM-encoded wave content is decompressed for playback by the Xbox MCP. There is no CPU hit.</P>
+<P>Three-D positioning of sounds does take a small amount of CPU for the raw mathematical calculations, though the mixing, crosstalk, and filtering are all applied in hardware. To minimize this CPU hit, make sure that all sounds that originate at the same source are played in 2-D voices and then mixed to a single 3-D voice for positioning. This will also make better use of the finite (64) number of 3-D voices.</P>
+
+<H3>UMA Audio Use Considerations</H3>
+<P>The unified memory architecture is a 64-MB shared memory space, which is used by graphics, audio, drivers, the game executable, and other aspects. As far as audio is concerned, the UMA is used for several purposes:
+<UL>
+<LI>Buffers for voices that are read into the Voice Processor<BR><BR>
+<UL>
+<LI>"One-shot" (entire wave in memory): used for DLS instruments and can be used for waves or wave tracks; generally used for short waves, sound effects, and so on.</LI><BR><BR>
+<LI>Streamed from the hard disk or game disc: a read-ahead value can be set programmatically in DirectSound or via the content for DirectMusic wave tracks (example: 100 msec read-ahead on 48-kHz 16-bit stereo wave = 19.2 KB buffer)</LI><BR><BR>
+</UL></LI>
+<LI>Audio data manipulation: Some effects in the global processor may use a separate buffer on the UMA for audio data manipulation. For instance, a reverb has ring-out when audio is no longer sounding back at the VP. This data would reside in a separate buffer on the UMA.</LI><BR><BR>
+<LI>Audio libraries (DirectSound, DirectMusic, DirectX Audio scripting): One concept that differentiates Xbox from the PC is that libraries are compiled directly into the executable. This gives us the benefit of optimizing based on the specific executable. This means that if you use only some features of a library, only those features used are compiled into the title. For instance, using a subset of DirectMusic interfaces and content will result in a smaller footprint than using every possible feature. The current size targets for using every feature of each of the Xbox libraries at launch are as follows:<BR><BR>
+<UL>
+<LI>DirectSound: 40 to 60 KB "all in" (includes Xbox MCP driver)</LI><BR><BR>
+<LI>DirectMusic: 400 KB "all in" (using every possible feature)</LI><BR><BR>
+<LI>DirectX Audio Scripting: 50 KB</LI><BR><BR>
+</UL>Note that DirectMusic sits on top of DirectSound, and DirectX Audio Scripting sits on top of DirectMusic. Again, using scripting does not automatically mean you will have a 510-KB footprint; using a subset of DirectMusic features can drop this number significantly. Note also that these are conservative estimates, and additional optimizations may lower the final library sizes at (or beyond) launch.<BR><BR>
+Note also, as discussed later, that currently the library sizes are larger as they are being optimized.</LI><BR><BR>
+<LI>Storage of HRTF coefficient set for 3-D processing: An additional optimization option made available for 3-D processing is a choice between two HRTF coefficient sets for 3-D positioning. The "full 360 degree" coefficient set provides a high quality, full 360, HRTF effect in 70 KB. Your title may instead choose to use the "azimuth only" coefficient set, which provides processing only in the horizontal plane, but occupies only 7 KB. This allows a title to make the trade-off between more realistic HRTF processing and code size requirements.</LI>
+
+</UL>
+<P>ADPCM-encoded wave content is decompressed for playback onboard the Xbox MCP as it is to be played. There is no additional memory footprint requirement (beyond the space the original ADPCM-encoded wave occupied).</P>
+<P>The Xbox MCP has several memory limitations to be aware of. It is limited to 8 MB of audio data that can be simultaneously played from <i>in-memory</i> buffers, and 16 MB of data that can be simultaneously played <i>overall</i> (in memory + streamed). The in-memory 8-MB limitation applies primarily to one-shot waves (entirely loaded in memory) and DLS waves. Note that you could download a DLS collection larger than 8 MB, but only 8 MB of its waves can be played simultaneously. The limit also only counts each unique source wave that is playing. If, for instance, you had a 1-MB piano sample, playing a three-note chord would still only take 1 MB of the 8-MB limit. ADPCM hardware decompression is not counted toward either limit, only the size of the original compressed file is considered.</P>
+</P>
+
+<hr width="200" align="left">
+<P style="font-size"12">
+<sup>1</sup>&nbsp;The Xbox MCP separately hosts the hard disk, game disc, USB, Ethernet, and Lightning Data Transport (LDT) controllers. These controllers are not addressed in this document.<BR><BR>
+<sup>2</sup>&nbsp;HRTF stands for Head Relative Transfer Functions. HRTF encoding allows for emulation of three-dimensional acoustic placement from only two speakers. In its most basic form, it is generally most effective over headphones. Xbox uses HRTF as the source for encoding real-time 3-D positioned sounds to two- or four-speaker formats.<BR><BR>
+<sup>3</sup>&nbsp;I3DL2 is an industry standard for distance modeling. The Xbox MCP implementation allows for low-level parameter control, or use of high-level presets (cathedral, small room, and so on). Note that I3DL2 reverberation is not geometry based, though a game engine could use geometry to determine real-time value changes for the low-level parameters.<BR><BR>
+<sup>4</sup>&nbsp;For more information on multichannel authoring and implementation, see the white paper entitled <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_surround.htm" title="The Surround Experience: Authoring for and Implementing Multichannel Audio Playback">The Surround Experience: Authoring for and Implementing Multichannel Audio Playback</a></P><BR><BR>
+<BR>
+
+<SMALL>Updated Tuesday, July 17, 2001</SMALL>
+
+</TD>
+
+
+
+
+
+	

@@ -1,0 +1,68 @@
+// Grid.odl : type library source for ActiveX Control project.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(EAB0CD43-9459-11D0-8C10-00A0C92E1CAC), version(1.0),
+  helpfile("Grid.hlp"),
+  helpstring("Grid ActiveX Control module"),
+  control ]
+library GRIDLib
+{
+	importlib(STDOLE_TLB);
+	importlib(STDTYPE_TLB);
+
+	[ uuid(EAB0CD44-9459-11D0-8C10-00A0C92E1CAC),
+	  helpstring("Dispatch interface for Grid Control"), hidden ]
+	dispinterface _DGrid
+	{
+		properties:
+			//{{AFX_ODL_PROP(CGridCtrl)
+			//}}AFX_ODL_PROP
+
+		methods:
+			//{{AFX_ODL_METHOD(CGridCtrl)
+			[id(1)] void BringToFront(long nId);
+			[id(2)] void MoveButton(long nId, short nPan, short nVolume);
+			[id(3)] void RemoveButton(long nId);
+			[id(5)] void SelectButton(long nId, boolean bSelection);
+			[id(6)] void SetEnabled(long nID, boolean bEnable);
+			[id(7)] boolean AddButton(IUnknown* pInstrumentItem);
+			[id(8)] void UpdateButton(short nPChannel);
+			//}}AFX_ODL_METHOD
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	[ uuid(EAB0CD45-9459-11D0-8C10-00A0C92E1CAC),
+	  helpstring("Event interface for Grid Control") ]
+	dispinterface _DGridEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+			//{{AFX_ODL_EVENT(CGridCtrl)
+			[id(1)] void CursorOver(long nId);
+			[id(2)] void Move(long nId, short nPan, short nVolume);
+			[id(3)] void Update(long nId, short nPan, short nVolume);
+			[id(4)] void SelectPChannel(long nId, boolean bSelection, boolean bCtrlDown);
+			[id(5)] void SaveUndoState();
+			[id(6)] void DisplayStatus(short nID);
+			[id(7)] void RightClick(short nX, short nY);
+			[id(8)] void DeleteChannel();
+			//}}AFX_ODL_EVENT
+	};
+
+	[ uuid(EAB0CD46-9459-11D0-8C10-00A0C92E1CAC),
+	  helpstring("Grid Control"), control ]
+	coclass Grid
+	{
+		[default] dispinterface _DGrid;
+		[default, source] dispinterface _DGridEvents;
+	};
+
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

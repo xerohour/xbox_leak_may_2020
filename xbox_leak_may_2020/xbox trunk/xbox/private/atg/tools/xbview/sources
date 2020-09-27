@@ -1,0 +1,25 @@
+TARGETNAME = xbview
+PROJNAME   = xbview
+SOURCES    = xbview.cpp anim.cpp frame.cpp print.cpp resource.cpp xbr.cpp debugcmd.cpp util.cpp
+TITLEID    = 0xffff0611
+
+NTTARGETFILE0 = $(O)\xbview.dsp
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES   = $(INCLUDES);..\..\samples\common\include
+
+LINKLIBS   = \
+             ..\..\samples\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\xbdm.lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+
+USE_LIBCMT=1
+
+

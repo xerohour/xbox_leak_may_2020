@@ -1,0 +1,1 @@
+This directory includes all the Max files for Account signup feature

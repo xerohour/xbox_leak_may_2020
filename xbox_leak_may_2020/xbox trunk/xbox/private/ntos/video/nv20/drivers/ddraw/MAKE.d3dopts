@@ -1,0 +1,107 @@
+#
+# Copyright (c) 1998, NVIDIA Corporation.  All rights reserved.
+#
+# MAKE.d3dopts
+#
+# Generate flags from options. Options common to all classes /
+# architectures are defined in this file. Options specific to a
+# particular class are defined in a MAKE.<class>opts file
+#
+# This file is included from MAKE.d3ddefs
+#
+
+#--------------------------------------------------------------------
+#                     B A S E   O P T I O N S
+#--------------------------------------------------------------------
+
+CBASE     = -nologo -c -W3 -DIS_32 -DWIN32 -D_X86_ -G5 -Gfys
+!if ("$(TARGET_OS)" == "win9x")
+CBASE     = $(CBASE) -Zp -DWIN95 -DNVPE=1
+!else
+CBASE     = $(CBASE) -Zp8 -DWIN32_LEAN_AND_MEAN -DWINNT=1 -DRM_HEAPMGR=1 -DNVD3D -DNVD3D_DX6=1 -D_WIN32_WINNT=0x0500 -DNT_UP=1 -DNT_INST=0 -DWIN32=100 -D_NT1X_=100 -DWINVER=0x0500 -D_WIN32_IE=0x0501 -D_WIN32=1 -DNVPE=1
+!endif
+
+CBASE     = $(CBASE) -YX -Fp$(DIR_OBJ)\$(PROJECT).pch
+ABASE     = -nologo -Zp4 -c -W3 -DIS_32 -DWIN32 -DSTD_CALL \
+            -DBLD_COFF -coff -WX -Zd -Cx -DMASM6
+LIBBASE   = -nologo
+LBASE     = -nologo -dll -nodefaultlib -align:0x1000
+RBASE     = -r -DIS_32 -DWIN32
+MBASE     = -nologo
+
+#--------------------------------------------------------------------
+#                    B U I L D   O P T I O N S
+#--------------------------------------------------------------------
+
+ALST     =
+LIBOPT   =
+ROPT     =
+
+!if "$(DEBUG)" == "retail"
+COPT     = -Gr -Oxa
+AOPT     =
+LOPT     = -debug:none
+!endif # retail
+
+!if "$(DEBUG)" == "debug"
+COPT     = -Z7 -Oy- -Zl -Fd$(DIR_OBJ)\$(PROJECT).pdb -DDEBUG
+AOPT     = -DDEBUG
+LOPT     = -debug /debugtype:CV /pdb:$(DIR_INTERM_BIN)\$(TARGET).pdb
+!endif # debug
+
+!if "$(DEBUG)" == "develop"
+COPT     = -Z7 -Oxa -Zl -Fd$(DIR_OBJ)\$(PROJECT).pdb -DDEVELOP
+AOPT     =
+LOPT     = -debug /debugtype:CV /pdb:$(DIR_INTERM_BIN)\$(TARGET).pdb
+!endif # develop
+
+!if "$(DEBUG)" == "oem"
+COPT     = -Zd -Oxa -Zl -Fd$(DIR_OBJ)\$(PROJECT).pdb -DDEVELOP
+AOPT     =
+LOPT     = -debug /debugtype:CV /pdb:$(DIR_INTERM_BIN)\$(TARGET).pdb
+!endif # oem
+
+!if "$(DEBUG)" == "stat"
+COPT     = -Z7 -Oxa -Zl -Fd$(DIR_OBJ)\$(PROJECT).pdb -DNVSTATDRIVER
+AOPT     = -DNVSTATDRIVER
+LOPT     = -debug /debugtype:CV /pdb:$(DIR_INTERM_BIN)\$(TARGET).pdb
+!endif # stat
+
+#--------------------------------------------------------------------
+#              C O M M A N D - L I N E   O P T I O N S
+#--------------------------------------------------------------------
+
+!ifdef browse
+COPT = $(COPT) -FR
+MOPT = $(MOPT) browse=1
+!endif
+
+!ifdef cod
+CLST = -Fa$(DIR_LST)\$(@B).cod
+MOPT = $(MOPT) cod=1
+!endif
+
+#--------------------------------------------------------------------
+#     A R C H I T E C T U R E - S P E C I F I C   O P T I O N S
+#--------------------------------------------------------------------
+
+!if ("$(NVCLASS)" != "")
+!include $(DIR_BASE)\$(NVCLASS)\MAKE.$(NVCLASS)opts
+!endif
+
+#--------------------------------------------------------------------
+#                            F L A G S
+#--------------------------------------------------------------------
+
+# final concatenated flag sets
+
+CFLAGS     = $(CBASE) $(COPT) $(CLST) $(NVOPT) $(D3DOPT)
+AFLAGS     = $(ABASE) $(AOPT) $(ALST) $(NVOPT) $(D3DOPT)
+LFLAGS     = $(LBASE) $(LOPT)
+LFLAGS     = $(LFLAGS) -merge:.rdata=.text -map:$(DIR_INTERM_BIN)\$(TARGET).map
+LFLAGS     = $(LFLAGS) -def:$(FILE_DEF) -base:0xb00b0000
+LFLAGS     = $(LFLAGS) -machine:i386 -subsystem:windows,4.0 -entry:DllMain@12
+LIBFLAGS   = $(LIBBASE) $(LIBOPT)
+RCFLAGS    = $(RBASE) $(ROPT) $(RCINC) $(D3DOPT)
+MFLAGS     = $(MBASE) $(MOPT)
+

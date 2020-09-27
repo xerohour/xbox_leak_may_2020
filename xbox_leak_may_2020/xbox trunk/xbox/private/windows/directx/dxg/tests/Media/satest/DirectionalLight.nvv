@@ -1,0 +1,90 @@
+; Directional Light, Diffuse and Specular.
+; Viewer is non-local (constant half-vector)
+#include "lighting.h"
+
+#define R_NORMAL r1
+#define R_HALF_VECTOR r8
+#define R_DIFFUSE r5
+#define R_SPECULAR r6
+
+vs.1.0
+
+; Transform position to clip space and output it
+dp4 oPos.x, v0, c[CV_WORLDVIEWPROJ_0]
+dp4 oPos.y, v0, c[CV_WORLDVIEWPROJ_1]
+dp4 oPos.z, v0, c[CV_WORLDVIEWPROJ_2]
+dp4 oPos.w, v0, c[CV_WORLDVIEWPROJ_3]
+
+; Transform normal to eye space
+dp3 R_NORMAL.x, v1, c[CV_WORLDVIEWIT_0]
+dp3 R_NORMAL.y, v1, c[CV_WORLDVIEWIT_1]
+dp3 R_NORMAL.z, v1, c[CV_WORLDVIEWIT_2]
+
+; Normalize transformed normal
+dp3 R_NORMAL.w, R_NORMAL, R_NORMAL
+rsq R_NORMAL.w, R_NORMAL.w												
+mul R_NORMAL, R_NORMAL, R_NORMAL.w	
+
+; Get the material power
+mov r3.w, c[CV_MATPOWER].w
+
+; ** Light 1
+; Dot normal with light vector
+; This is the intensity of the diffuse component
+dp3 r3.x, R_NORMAL, c[CV_LIGHT1_DIRECTION]
+
+; This is the intensity of the specular component
+; Calculate half vector (light vector + constant eye vector)
+mov R_HALF_VECTOR, c[CV_LIGHT1_DIRECTION]
+add R_HALF_VECTOR, R_HALF_VECTOR, c[CV_EYE_VECTOR]
+
+; normalize half-vector
+dp3 R_HALF_VECTOR.w, R_HALF_VECTOR, R_HALF_VECTOR
+rsq R_HALF_VECTOR.w, R_HALF_VECTOR.w												
+mul R_HALF_VECTOR, R_HALF_VECTOR, R_HALF_VECTOR.w	
+
+; Dot normal with half-vector.  
+dp3 r3.yz, R_NORMAL, R_HALF_VECTOR
+
+; Calculate the diffuse & specular factors
+lit r4, r3
+
+; add the (ambient color * ambient light color * ambient intensity(1) )
+mov R_DIFFUSE, c[CV_LIGHT1_AMBIENT]
+
+; add the (diffuse color * diffuse light color * diffuse intensity(R4.y))
+mad R_DIFFUSE, r4.y, c[CV_LIGHT1_DIFFUSE], R_DIFFUSE
+
+; specular (specular color * specular light color * specular intensity(R4.z))
+mul R_SPECULAR, r4.z, c[CV_LIGHT1_SPECULAR]
+
+; ** Light 2
+; Dot normal with light vector
+; This is the intensity of the diffuse component
+dp3 r3.x, R_NORMAL, c[CV_LIGHT2_DIRECTION]
+
+; This is the intensity of the specular component
+; Calculate half vector (light vector + constant eye vector)
+mov R_HALF_VECTOR, c[CV_LIGHT2_DIRECTION]
+add R_HALF_VECTOR, R_HALF_VECTOR, c[CV_EYE_VECTOR]
+
+; normalize half-vector
+dp3 R_HALF_VECTOR.w, R_HALF_VECTOR, R_HALF_VECTOR
+rsq R_HALF_VECTOR.w, R_HALF_VECTOR.w												
+mul R_HALF_VECTOR, R_HALF_VECTOR, R_HALF_VECTOR.w	
+
+; Dot normal with half-vector.  
+dp3 r3.y, R_NORMAL, R_HALF_VECTOR
+
+; Calculate the diffuse & specular factors
+lit r4, r3
+
+; add the (ambient color * ambient light color * ambient intensity(1) )
+add R_DIFFUSE, R_DIFFUSE, c[CV_LIGHT2_AMBIENT]
+
+; add the (diffuse color * diffuse light color * diffuse intensity(R4.y))
+mad oD0, r4.y, c[CV_LIGHT2_DIFFUSE], R_DIFFUSE
+
+; add the (specular color * specular light color * specular intensity(R4.z))
+mad oD1, r4.z, c[CV_LIGHT2_SPECULAR], R_SPECULAR
+

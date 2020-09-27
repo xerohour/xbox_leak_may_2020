@@ -1,0 +1,35 @@
+TARGETNAME =        XVoiceGroup
+TARGETPATH =        obj
+TARGETTYPE =        PROGRAM
+UMTYPE =            xboxapp
+
+TITLEID =           0xffff0999
+PROJNAME =          XVoiceGroup
+
+XE_FLAGS = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+NTTARGETFILE0 = $(O)\xvoicegroup.dsp $(O)\Font.xpr $(O)\Gamepad.xpr
+
+SYNCHRONIZE_DRAIN = 1
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+C_DEFINES =         $(C_DEFINES) -DKERNEL_MODE
+
+
+INCLUDES =          $(BASEDIR)\public\ddk\inc; \
+                    $(BASEDIR)\public\Xdk\inc; \
+                    ..\..\common\include;      \
+
+LINKLIBS =          $(XDK_LIB_PATH)\dplay8v$(D).lib \
+                    $(XDK_LIB_PATH)\dsound$(D).lib \
+                    $(XDK_LIB_PATH)\xnet$(D).lib \
+                    $(XDK_LIB_PATH)\d3d8$(D).lib \
+                    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+                    $(SDK_LIB_PATH)\xvoice$(D).lib \
+                    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+                    ..\..\common\src\obj\*\xbframe.lib \
+
+SOURCES =           xvoicegroup.cpp
+                    
+
+USE_LIBCMT=1

@@ -1,0 +1,64 @@
+TARGETNAME=xmtaxbox
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+XDK_LIB_PATH=$(BASEDIR)\public\xdk\lib-mar02
+XDK_INC_PATH=$(BASEDIR)\public\xdk\inc-mar02
+
+386_STDCALL=0
+
+USE_STL=1
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+USER_C_FLAGS=/EHa
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES= \
+    ..\testlist.cpp \
+    ..\command.cpp \
+    ..\dispatch.cpp \
+    ..\error.cpp \
+    ..\except.cpp \
+    ..\factory.cpp \
+    ..\host.cpp \
+    ..\loops.cpp \
+    ..\message.cpp \
+    ..\parameter.cpp \
+    ..\parser.cpp \
+    ..\sendhost.cpp \
+    ..\store.cpp \
+    ..\testobj.cpp \
+    ..\timer.cpp \
+    ..\tree.cpp \
+    ..\xmta.cpp
+
+INCLUDES= \
+    $(INCLUDES); \
+    ..
+
+XE_FLAGS=$(XE_FLAGS) /NOSETUPHD /TESTREGION:0x80000000
+
+TARGETLIBS= \
+    $(XDK_LIB_PATH)\xnet$(D).lib \
+    $(XDK_LIB_PATH)\d3d8$(D).lib \
+    $(XDK_LIB_PATH)\d3dx8$(D).lib \
+    $(XDK_LIB_PATH)\dsound$(D).lib \
+    $(XDK_LIB_PATH)\xgraphics$(D).lib \
+    $(SDK_LIB_PATH)\writeperboxdata.lib \
+    ..\xgrafx\lib\*\xgrafx.lib \
+    ..\lib\*\xaudio.lib \
+    ..\lib\*\xcpu.lib \
+    ..\lib\*\xhard_disk.lib \
+    ..\lib\*\xlan.lib \
+    ..\lib\*\xmemory.lib \
+    ..\lib\*\xrtc.lib \
+    ..\lib\*\xsmc.lib \
+    ..\lib\*\xtool.lib \
+    ..\lib\*\xtv.lib \
+    ..\lib\*\xusb.lib
+
+PRECOMPILED_INCLUDE=..\stdafx.h
+PRECOMPILED_CXX=1

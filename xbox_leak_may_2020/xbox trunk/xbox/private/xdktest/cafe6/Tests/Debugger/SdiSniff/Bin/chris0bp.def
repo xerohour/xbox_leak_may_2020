@@ -1,0 +1,52 @@
+DSN=CHRISKOZ0 pubs sa
+	looptest			Print  @pchMsg;5
+	employee;employee_insupd	IF (@job_id = 1);2
+	sp_update_employee		update employee;0
+	updt_string			update titles set price=@price;0
+	titles;TrigInsUpd		return;0
+***
+$$$
+Format of the file:
+
+Server_info
+	<Breakpoint 0>
+	<Breakpoint 1>
+	<Breakpoint 2>
+	...
+	<Breakpoint n>
+**
+Format of the <Breakpoint ..>:
+	<SP> || <Table>;<Trigger>	<SQLstmnt>;<NbHitApp>;[ListHit3D];[StepsInto];[StepsOver]
+*
+	<SQL stmnt> - must be the text begining the SQL line of code (blanks trimmed)
+	<NbHitApp>  - number of times it's expected to be hit while app debugging (BP will be disabled if 0)
+	[ListHit3D] - list of BPs expected to be hit in 3D debugging 
+			(0-based index list, don't start 3D debugging if index -1, go to completion if no index)
+	[StepsInto] - no of steps into done while 3D debugging the SP (just after startup), then run to the BP
+	[StepsOver] - no of steps over done after having hit this BP (3D or App), then run
+*
+Example of the <ListHit3D> for BP no4 - ( 2 0 1 4 4 4 ) 
+ means the following BPs from the whole list are hit as follows: BP2, BP0, BP1, then "this BP" (BP4) three times.
+*
+3D debugging performs <StepsInto> StepInto (F8) commands after having started, then 
+ it runs as many times as long is the list <ListHit3D> each time verifying the correct BP from the list is hit.
+ If the list is (-1) 3D debugging starts & runs to completion.
+ If the list is Empty, 3D debugging does not start.
+ If there are any <StepsOver> it performs StepOver (F10) after each BP is hit
+3D debugging stops always by mean of StopDebug unless:
+	[ListHit3D] is empty : it does not start 3D at all
+	[ListHit3D] is -1    : it does start 3D then runs to completion
+
+App debugging ignores [ListHit3D] & [StepsInto] settings. 
+ Only NbHitApp is counted. Stop debugging is issued when all BPs are successfully hit.
+ [StepsOver] settings are ignored as well 
+ (maybe it's worth to add some stepover test but it's not simple in a general, multithreaded case)
+App debugging stops always by mean of StopDebug.
+$$$$$
+NOTE:
+ If you don't want the SP to be started 3D but you want a BP 
+ (hit 2 times by an APP & stepp over 3 times by an App), define the BP as:
+	<SP> <SQLstmnt>;2;-1;0;3
+ If you want the SP to be started 3D but you don't want a BP in it, 
+ define the BP as (it will be disabled):
+	<SP> <SQLstmnt>;0;<listOfBPsHit>;<StepsInto>

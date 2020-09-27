@@ -1,0 +1,434 @@
+TARGET = nv4dd32
+EXT    = dll
+
+#--------------------------------------------------------------------
+#                            P A T H S
+#--------------------------------------------------------------------
+
+ROOTDIR    = ..\..\..\..\..
+TOOLDIR    = $(ROOTDIR)\tools
+TOOLX0DIR  = $(TOOLDIR)\msvc50\bin
+DXDDKDIR   = $(ROOTDIR)\ddk\DirectX6
+DXSDKDIR   = $(ROOTDIR)\sdk\DirectX6
+NVSDKDIR   = $(ROOTDIR)\sdk\nvidia
+MANROOT    = $(ROOTDIR)
+VPEDIR     = $(ROOTDIR)\drivers\common\VPE
+
+INCLUDE    = $(DXSDKDIR)\inc;$(DXDDKDIR)\inc;$(NVSDKDIR)\inc;..\inc;..\..\common\inc;$(VPEDIR);$(ROOTDIR)\drivers\common\win9x\inc;$(ROOTDIR)\tools\msvc50\include;
+LIB        = .\lib;$(DXSDKDIR)\lib;$(DXDDKDIR)\lib;$(TOOLX0DIR)\..\lib;$(ROOTDIR)\sdk\nvidia\NV4\lib;
+
+RCINC	   = -I.. -I$(ROOTDIR)\drivers\common\win9x\inc -I$(ROOTDIR)\drivers\common\nv4\inc -I$(ROOTDIR)\tools\msvc50\include
+
+PATH=$(PATH)
+
+PBIN       = $(ROOTDIR)\bin
+PINC       = $(ROOTDIR)\inc
+PLIB       = $(ROOTDIR)\lib
+
+OBJDIR     = ..\obj
+SRCDIR     = .
+LSTDIR     = ..\lst
+
+#--------------------------------------------------------------------
+#                            T O O L S
+#--------------------------------------------------------------------
+
+OBJ2NMS    = $(TOOLDIR)\ntice\NMSYM
+CC         = $(TOOLX0DIR)\cl
+LINKER     = $(TOOLX0DIR)\link
+RC         = $(TOOLX0DIR)\rc
+ASM        = $(TOOLX0DIR)\ml
+LIBEXE     = lib
+
+# Select the proper way to delete files for Win95/WinNT.
+!if "$(OS)" == "Windows_NT"
+RM_CMND         = del /q 
+!else
+RM_CMND         = del 
+!endif
+
+
+#--------------------------------------------------------------------
+#                          O P T I O N S
+#--------------------------------------------------------------------
+
+#
+# Default retail options
+#
+D3DOPT = -DD3D_PUSH=1 -DNVD3D_DX6 -DxxxCACHE_FREECOUNTxxx
+#D3DOPT = -DD3D_PUSH=1
+# These are the OPTIMIZED (retail and develop) options
+COPT = -Gr -Oxa 
+CLST =
+
+AOPT =
+ALST =
+
+LOPT =-debug:none
+
+ROPT = 
+
+#
+# Reset options for the specified debug build mode.
+#
+
+!ifdef DEBUG
+
+CLST = -Fa$(LSTDIR)\$(@B).cod
+LOPT = -debug /debugtype:CV /pdb:.\nv4dd32.pdb
+
+!   if "$(DEBUG)" == "develop"  # Develop is optimized code with debugging information
+
+COPT = $(COPT) -Zi -Oy- -Zl -DDEBLEVEL=1
+AOPT = $(AOPT)
+ROPT = $(ROPT)
+
+!   else        # Plain debugging code
+
+COPT = -Zi -Oy- -Zl -DDEBLEVEL=1 -DDEBUG
+AOPT = -DDEBUG
+ROPT = 
+
+!   endif
+!endif
+
+#
+# Add NV4 make option
+#
+# I hate aribitrary case sensitivity
+# Only one of the following should be defined.
+# Default is to build NV4
+#
+NV_OPTS  = -DNV4
+MOPTS    = 
+
+#
+# Check for NV4
+#
+!ifdef NV4
+NV_OPTS  = -DNV4=$(NV4)
+MOPTS    = NV4=$(NV4)
+!else
+!ifdef nv4
+NV_OPTS  = -DNV4=$(nv4)
+MOPTS    = NV4=$(nv4)
+!endif
+!endif
+
+
+# Multi-monitor support is now default
+!ifdef  MULTI_MON
+!   if "$(MULTI_MON)"=="NO"
+MM_OPTS = 
+!   else
+MM_OPTS = -DMULTI_MON=$(MULTI_MON)
+!   endif
+!else   # MULTI_MON
+MM_OPTS = -DMULTI_MON=1 -DNVHEAPMGR=1
+!endif  # MULTI_MON
+
+
+#--------------------------------------------------------------------
+#                            F L A G S
+#--------------------------------------------------------------------
+
+# Should -Zp in CFLAGS be -Zp4 as in the AFLAGS?
+
+CBASE   = -nologo -Zp  -c -W3 -DIS_32 -DWIN32 $(NV_OPTS) $(MM_OPTS) -D_X86_ $(D3DOPT) $(CDEBUG) -G5 -Gfys
+CFLAGS  = $(COPT) $(CBASE) $(CLST)
+
+ABASE   = -nologo -Zp4 -c -W3 -DIS_32 -DWIN32 $(NV_OPTS) $(MM_OPTS) -DSTD_CALL -DBLD_COFF -coff -WX -Zd -Cx -DMASM6
+AFLAGS  = $(AOPT) $(ABASE) $(ALST)
+
+LFLAGS  =$(LOPT) -nologo -nodefaultlib -align:0x1000
+
+RCFLAGS =$(ROPT) $(RCINC) -DIS_32 -DWIN32 $(D3DOPT)
+
+MFLAGS  = -nologo $(MOPTS)
+
+
+#--------------------------------------------------------------------
+#                            F I L E S
+#--------------------------------------------------------------------
+
+OBJS    =   $(OBJDIR)\dddrv32.obj     $(OBJDIR)\enablec.obj     \
+            $(OBJDIR)\disablec.obj    $(OBJDIR)\blt832.obj      \
+            $(OBJDIR)\blt1632.obj     $(OBJDIR)\blt3232.obj     \
+            $(OBJDIR)\dvideo32.obj    $(OBJDIR)\d3danti.obj     \
+            $(OBJDIR)\d3dmini.obj     $(OBJDIR)\nv4mini.obj     \
+            $(OBJDIR)\d3dctxt.obj     $(OBJDIR)\nv4ctxt.obj     \
+            $(OBJDIR)\d3drendr.obj    $(OBJDIR)\nv4rendr.obj    \
+            $(OBJDIR)\nv4vx.obj                             	\
+            $(OBJDIR)\d3dtex.obj      $(OBJDIR)\nv4tex.obj      \
+            $(OBJDIR)\nv4tman.obj     $(OBJDIR)\nv4mip.obj      \
+            $(OBJDIR)\d3dstate.obj    $(OBJDIR)\nv4scene.obj    \
+            $(OBJDIR)\nv4tri.obj      $(OBJDIR)\nv4index.obj    \
+            $(OBJDIR)\nv4prim.obj     $(OBJDIR)\nv4prim2.obj    \
+            $(OBJDIR)\nv4point.obj    $(OBJDIR)\nv4line.obj     \
+            $(OBJDIR)\nv4clear.obj    $(OBJDIR)\nv4state.obj    \
+            $(OBJDIR)\nv4multi.obj    $(OBJDIR)\d3ddebug.obj    \
+            $(OBJDIR)\vp.obj                                    \
+            $(OBJDIR)\surfaces.obj    $(OBJDIR)\transinit.obj   \
+			$(OBJDIR)\global.obj      $(OBJDIR)\nv4prof.obj
+            
+
+RAW_OBJS =  $(OBJS:obj\=)           # Subtract $(OBJDIR) from each name
+
+LIBS    =   kernel32.lib    user32.lib      advapi32.lib    thunk32.lib     \
+            gdi32.lib       nvrmapi.lib     nvw32ms.lib     ddraw.lib       libc.lib
+
+DEF     = $(TARGET).def
+
+RES = $(TARGET).res
+
+!ifdef DEBUG
+DEBUGTARGET = $(OBJDIR)\$(TARGET).nms
+!else
+DEBUGTARGET = 
+!endif
+
+
+THIS_MAKE_FILE  = makefile
+
+
+#--------------------------------------------------------------------
+#                      E N V I R O N M E N T
+#--------------------------------------------------------------------
+
+!if [set PATH=$(TOOLX0DIR)]
+!endif
+
+!if [set INCLUDE=$(INCLUDE)]
+!endif
+
+!if [set LIB=$(LIB)]
+!endif
+
+!if [set LINK=]
+!endif
+
+!if [echo CFLAGS=$(COPT) \]
+!endif
+!if [echo        $(CBASE)]
+!endif
+
+!if [echo AFLAGS=$(AOPT) \]
+!endif
+!if [echo        $(ABASE)]
+!endif
+
+!if [$(RM_CMND) $(TEMP)\N*.;]
+!endif
+
+
+#--------------------------------------------------------------------
+#                  E X T E R N A L   T A R G E T S
+#--------------------------------------------------------------------
+
+
+all:    $(OBJDIR)\$(TARGET).$(EXT)   $(DEBUGTARGET)
+
+
+debug:
+        $(MAKE) -f $(MAKEDIR)\$(THIS_MAKE_FILE) $(MFLAGS) DEBUG=  all
+
+
+develop:
+        $(MAKE) -f $(MAKEDIR)\$(THIS_MAKE_FILE) $(MFLAGS) DEBUG=develop  all
+
+
+$(RAW_OBJS:.obj=.debug)   \
+$(OBJS:.obj=.debug):
+        $(MAKE) -f $(MAKEDIR)\$(THIS_MAKE_FILE) $(MFLAGS) DEBUG= $(OBJDIR)\$(@B).obj
+
+
+$(RAW_OBJS:.obj=.develop) \
+$(OBJS:.obj=.develop):
+        $(MAKE) -f $(MAKEDIR)\$(THIS_MAKE_FILE) $(MFLAGS) DEBUG=develop $(OBJDIR)\$(@B).obj
+
+
+clean:  
+        @cd $(OBJDIR)
+        @$(RM_CMND) *.obj
+        @$(RM_CMND) *.res
+        @$(RM_CMND) *.pdb
+        @$(RM_CMND) nv4dd32.dll
+        @$(RM_CMND) nv4dd32.sym
+        @$(RM_CMND) nv4dd32.nms
+        @$(RM_CMND) nv4dd32.exp
+        @$(RM_CMND) nv4dd32.lib
+        @$(RM_CMND) nv4dd32.map
+        @echo *** $(OBJDIR) is clean ***
+        @cd $(MAKEDIR)
+        @$(RM_CMND) *.pdb
+        @cd $(LSTDIR)
+        @$(RM_CMND) *.cod
+        @echo *** $(LSTDIR) is clean ***
+        @cd $(MAKEDIR)
+
+
+#--------------------------------------------------------------------
+#                  I N T E R N A L   T A R G E T S
+#--------------------------------------------------------------------
+
+
+$(OBJDIR)\$(TARGET).$(EXT):  $(OBJS) $(OBJDIR)\$(TARGET).res $(TARGET).def
+        $(LINKER) $(LFLAGS) @<<
+-merge:.rdata=.text
+-out:$(OBJDIR)\$(TARGET).$(EXT)
+-map:$(OBJDIR)\$(TARGET).map
+-base:0xb00b0000
+-dll
+-machine:i386
+-subsystem:windows,4.0
+-entry:DllMain@12
+-def:$(TARGET).def
+$(LIBS)
+$(OBJDIR)\$(TARGET).res
+$(OBJS)
+<<
+
+# Special case to pull source out of common\src directory between NV4 and NV3
+$(OBJDIR)\vp.obj: ..\..\common\src\vp.c
+	$(CC) $(CFLAGS) -Fo$(OBJDIR)\vp.obj ..\..\common\src\vp.c
+$(OBJDIR)\surfaces.obj: ..\..\common\src\surfaces.c
+	$(CC) $(CFLAGS) -Fo$(OBJDIR)\surfaces.obj ..\..\common\src\surfaces.c
+$(OBJDIR)\transinit.obj: ..\..\common\src\transinit.c
+	$(CC) $(CFLAGS) -Fo$(OBJDIR)\transinit.obj ..\..\common\src\transinit.c
+
+
+#--------------------------------------------------------------------
+#                       I N F E R E N C E S
+#--------------------------------------------------------------------
+
+
+.SUFFIXES:
+.SUFFIXES: .lbc .asm .c .cxx .cpp .vxd .exe .dll .drv .h .inc .lbw .lib .sym .rc .res .nms
+
+{$(SRCDIR)}.c{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(SRCDIR)}.c.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$(OBJDIR)\$(@F) $<
+<<
+
+
+{$(ROOTDIR)\misc}.c{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(ROOTDIR)\misc}.c.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$(OBJDIR)\$(@F) $<
+<<
+
+{$(ROOTDIR)\..\misc}.c{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(ROOTDIR)\..\misc}.c.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$(OBJDIR)\$(@F) $<
+<<
+
+{$(ROOTDIR)\misc}.cpp{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(ROOTDIR)\..\misc}.cpp{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(SRCDIR)}.cpp{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+
+{$(SRCDIR)}.cxx{$(OBJDIR)}.obj:
+        @$(CC) @<<
+$(CFLAGS) -Fo$@ $<
+<<
+    
+{$(SRCDIR)}.asm{$(OBJDIR)}.obj:
+        @$(ASM) @<<
+$(AFLAGS) -Fo$@ $<
+<<
+
+{$(SRCDIR)}.asm.obj:
+        @$(ASM) @<<
+$(AFLAGS) -Fo$(OBJDIR)\$(@F) $<
+<<
+        
+{$(PINC)}.asm{$(OBJDIR)}.obj:
+        @$(ASM) @<<
+$(AFLAGS) -Fo$@ $<
+<<
+        
+{$(PINC)}.asm.obj:
+        @$(ASM) @<<
+$(AFLAGS) -Fo$(OBJDIR)\$(@F) $<
+<<
+        
+{$(SRCDIR)}.rc{$(OBJDIR)}.res:
+        @$(RC) $(RCFLAGS) -r -Fo$@ $<
+        
+{$(OBJDIR)}.exe{$(PBIN)}.exe:  
+        @copy $< $(PBIN)
+        @copy $(<R).map $(PBIN) > NUL
+
+{$(OBJDIR)}.dll{$(PBIN)}.dll: 
+        @copy $< $(PBIN)
+        @copy $(<R).map $(PBIN) > NUL
+        
+{$(OBJDIR)}.drv{$(PBIN)}.drv: 
+        @copy $< $(PBIN)
+        @copy $(<R).map $(PBIN) > NUL
+        
+{$(OBJDIR)}.vxd{$(PBIN)}.vxd: 
+        @copy $< $(PBIN)
+        @copy $(<R).map $(PBIN) > NUL
+        
+{$(OBJDIR)}.lib{$(PLIB)}.lib:
+        @copy $< $(PLIB)
+        
+{$(OBJDIR)}.lbw{$(PLIB)}.lbw:
+        @copy $< $(PLIB)
+
+{$(OBJDIR)}.sym{$(PBIN)}.sym:
+        @copy $< $(PBIN)
+
+{$(OBJDIR)}.nms{$(PBIN)}.sym:
+        @copy $< $(PBIN)
+
+{$(OBJDIR)}.asm{$(PINC)}.asm:
+        @copy $< $(PINC)
+        
+{$(OBJDIR)}.h{$(PINC)}.h:
+        @copy $< $(PINC)
+        
+{$(SRCDIR)}.h{$(PINC)}.h:
+        @copy $< $(PINC)
+        
+{$(OBJDIR)}.inc{$(PINC)}.inc:
+        @copy $< $(PINC)
+
+{$(SRCDIR)}.inc{$(PINC)}.inc:
+        @copy $< $(PINC)
+
+{$(SRCDIR)}.h{$(SRCDIR)}.inc:
+        @h2inc -c $< -o $@
+
+{$(OBJDIR)}.dll{$(OBJDIR)}.nms:
+        @$(OBJ2NMS) /TRANSLATE:SOURCE,PACKAGE /OUT:$@ $<
+
+{$(OBJDIR)}.dll.nms:
+        @$(OBJ2NMS) /TRANSLATE:SOURCE,PACKAGE /OUT:$(OBJDIR)\$(@F) $<
+
+

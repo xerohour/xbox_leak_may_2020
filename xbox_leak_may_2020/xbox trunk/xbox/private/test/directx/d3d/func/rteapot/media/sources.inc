@@ -1,0 +1,11 @@
+!include ..\..\..\..\sources.inc
+
+TARGETNAME=m_rtpot
+TARGETTYPE=LIBRARY
+TARGETPATH=$(TEST_LIB_DEST)
+
+USER_C_FLAGS=$(USER_C_FLAGS) /Zm250
+
+SOURCES=\
+    backgrnd.bmp.cpp \
+    hteapot.xdg.cpp

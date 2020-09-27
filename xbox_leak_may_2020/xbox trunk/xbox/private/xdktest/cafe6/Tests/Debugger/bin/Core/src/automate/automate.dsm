@@ -1,0 +1,591 @@
+'**********************************************************************************
+' AUTOMATE.VBS This file is a collection of debugger test macros. 
+'**********************************************************************************
+
+Dim sMacroName
+
+Function GetDescription(ByVal sMacroName)
+	If (sMacroName = "") Then
+		GetDescription = "Tests debugger automation"
+	ElseIf (sMacroName = "DebuggerObjectTest") Then
+		GetDescription = "Tests Debugger object"
+	ElseIf (sMacroName = "BreakpointsCollectionTest") Then
+		GetDescription = "Tests the Breakpoints collection"
+	ElseIf (sMacroName = "BreakpointItemTest") Then
+		GetDescription = "Tests the Breakpoint item object"
+	ElseIf (sMacroName = "MacroRecordingTest") Then
+		GetDescription = "Tests the recording of debugger macros"
+	ElseIf (sMacroName = "test") Then
+		GetDescription = "for little ad-hoc tests"
+	Else
+		GetDescription = "Description unavailable."
+	End If
+End Function
+
+
+'*******************************************************************************
+'*								CONSTANTS AND GLOBALS						   *
+'*******************************************************************************
+
+'TODO(michma) change to Const when that feature is available
+Dim DBG_STATE_STOP
+Dim DBG_STATE_BREAK
+
+Dim BP_STATUS_ON
+Dim BP_STATUS_OFF
+
+Dim DBG_ERR_CANT_EVAL
+Dim	DBG_MSG_CANT_EVAL
+Dim DBG_ERR_INCORRECT_PARAM
+Dim DBG_MSG_INCORRECT_PARAM
+
+Dim STR_FAIL
+Dim	STR_DEV_STUDIO
+
+Dim FUNC_START_Debugger
+Dim FUNC_START_Breakpoints
+Dim FUNC_START_Breakpoint
+Dim FUNC_START_Recording
+
+Dim flagStepThroughTest
+Dim comment
+Dim value
+Dim bps
+Dim bp
+
+
+'*******************************************************************************
+'*									UTILITY MACROS							   *
+'*******************************************************************************
+
+Sub DebuggerIsAtSymbol(symbol)
+	If(Debugger.Evaluate("EIP == " + symbol) <> "1") Then
+		PrintToOutputWindow(STR_FAIL + comment)
+	End If
+End Sub
+
+
+Sub DebuggerStateIs(state)
+	If(Debugger.ProcessState <> state) Then
+		PrintToOutputWindow(STR_FAIL + "debugger state is " + CStr(Debugger.ProcessState))
+	End If
+End Sub
+
+
+Sub BreakpointsCountIs(count)
+	If(bps.Count <> count) Then						  
+		PrintToOutputWindow(STR_FAIL + "breakpoints count is " + CStr(bps.Count))
+	End If	
+End Sub
+
+
+Sub ErrDescriptionIs(desc)
+	If(Err.Description <> desc) Then						  
+		PrintToOutputWindow(STR_FAIL + "error description is " + Err.Description)
+	End If	
+End Sub
+
+	
+Sub ErrNumberIs(number)
+	If(Err.Number <> number) Then						  
+		PrintToOutputWindow(STR_FAIL + "error number is " + CStr(Err.Number))
+	End If	
+End Sub
+
+
+Sub ErrSourceIs(source)
+	If(Err.Source <> source) Then						  
+		PrintToOutputWindow(STR_FAIL + "error source is " + Err.Source)
+	End If	
+End Sub
+
+
+'TODO(michma): will vbs ever support multi-param functions?
+'until then the "value" param is a global
+Sub ExpressionValueIs(expression)
+	On Error Resume Next
+	If(Debugger.Evaluate(expression) <> value) Then
+		PrintToOutputWindow(STR_FAIL + "expression value is " + Debugger.Evaluate(expression))
+	End If
+End Sub
+
+
+Sub ActiveDocumentIs(document)
+	If(Application.ActiveDocument.Name <> document) Then
+		PrintToOutputWindow(STR_FAIL + "active document is " + Application.ActiveDocument.Name)
+	End If
+End Sub
+
+
+Sub CurrentLineIs(current_line)
+	If(Application.ActiveDocument.Selection.CurrentLine <> current_line) Then
+		PrintToOutputWindow(STR_FAIL + "current line is " + CStr(Application.ActiveDocument.Selection.CurrentLine))
+	End If
+End Sub
+
+
+Sub ExpressionIsTrue(expression)
+	If NOT(expression) Then
+		PrintToOutputWindow(STR_FAIL + comment)
+	End If
+End Sub
+
+
+Sub PrintBanner(banner)
+	PrintToOutputWindow("****************************************")
+	PrintToOutputWindow("* " + banner)
+	PrintToOutputWindow("* Time: " + CStr(Time))
+	PrintToOutputWindow("****************************************")
+End Sub
+
+
+Sub StepComment(comment)
+    
+    PrintToOutputWindow("TEST: " + comment)
+
+    If flagStepThroughTest Then
+        
+        ret = InputBox("", "Debugger Automation Snap", comment, 5000, 6000)
+        
+        If ret = "" Then
+			On Error Goto 0
+			Err.Raise(65535)
+        End If
+        
+    End If
+
+End Sub
+
+
+Sub Initialize(dummy)
+	DBG_STATE_STOP = 0
+	DBG_STATE_BREAK = 1
+	BP_STATUS_ON = False
+	BP_STATUS_OFF = True
+	DBG_ERR_CANT_EVAL = -2147168253
+	DBG_MSG_CANT_EVAL = "Cannot evaluate this expression."
+	DBG_ERR_INCORRECT_PARAM = -2147024809 
+	DBG_MSG_INCORRECT_PARAM	= "The parameter is incorrect." + Chr(13) + Chr(10)
+	STR_FAIL = "* FAIL * "
+	STR_DEV_STUDIO = "Microsoft Developer Studio"
+	FUNC_START_Debugger = 11    
+	FUNC_START_Breakpoints = 23
+	FUNC_START_Breakpoint = 29 
+	FUNC_START_Recording = 35
+	FUNC_START_WinMain = 41   
+	set bps = Debugger.Breakpoints
+	flagStepThroughTest = False
+End Sub
+
+
+Sub out(str)
+	PrintToOutputWindow(str)
+End Sub
+
+
+'*******************************************************************************
+'*									TEST MACROS								   *
+'*******************************************************************************
+
+Sub DebuggerObjectTest()
+	
+	'SETUP
+	Initialize(dummy)
+	PrintBanner("DEBUGGER OBJECT: STARTING TEST")
+	
+	'*** TEST ***
+	comment = "verify Debugger.Application == Application"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.Application IS Application)
+
+	'*** TEST ***
+	comment = "verify Debugger.Parent == Application"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.Parent IS Application)
+
+	'*** TEST ***
+	comment = "verify jit is off by default"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.JustInTimeDebugging = False)
+
+	'*** TEST ***
+	comment = "verify rpc is off by default"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.RemoteProcedureCallDebugging = False)
+
+	'*** TEST ***
+	comment = "turn jit on (which will turn rpc on)"
+	StepComment(comment)
+	Debugger.JustInTimeDebugging = True
+	ExpressionIsTrue(Debugger.JustInTimeDebugging = True)
+	ExpressionIsTrue(Debugger.RemoteProcedureCallDebugging = True)
+
+	'*** TEST ***
+	comment = "turn jit off (which will turn rpc off)"
+	StepComment(comment)
+	Debugger.JustInTimeDebugging = False
+	ExpressionIsTrue(Debugger.JustInTimeDebugging = False)
+	ExpressionIsTrue(Debugger.RemoteProcedureCallDebugging = False)
+
+	'*** TEST ***
+	comment = "turn rpc on (which will turn jit on)"
+	StepComment(comment)
+	Debugger.RemoteProcedureCallDebugging = True
+	ExpressionIsTrue(Debugger.JustInTimeDebugging = True)
+	ExpressionIsTrue(Debugger.RemoteProcedureCallDebugging = True)
+
+	'*** TEST ***
+	comment = "turn rpc off (jit will be left on)"
+	StepComment(comment)
+	Debugger.RemoteProcedureCallDebugging = False
+	ExpressionIsTrue(Debugger.JustInTimeDebugging = True)
+	ExpressionIsTrue(Debugger.RemoteProcedureCallDebugging = False)
+	Debugger.JustInTimeDebugging = False
+
+	'*** TEST ***
+	comment = "verify debugger is in stop mode with no project loaded"
+	StepComment(comment)
+	DebuggerStateIs(DBG_STATE_STOP)
+
+	'*** TEST ***
+	'TODO (michma): re-enable when orion: 8109 is fixed.
+	'comment = "start debugging with no project loaded"
+	'StepComment(comment)
+	'Debugger.StepInto
+	'DebuggerStateIs(DBG_STATE_STOP)
+
+	'*** TEST ***
+	'TODO (michma): re-enable when orion: 8109 is fixed.
+	'comment = "start debugging with no project but source loaded"
+	'StepComment(comment)
+	'Application.Documents.Open("automate.cpp")
+	'Debugger.StepInto
+	'DebuggerStateIs(DBG_STATE_STOP)
+	'Application.Documents.CloseAll
+
+	'*** TEST ***
+	comment = "evaluate constant expression with no project loaded"
+	StepComment(comment)
+	value = "2"
+	ExpressionValueIs("1 + 1")
+
+	'*** TEST ***
+	comment = "evaluate variable expression with no project loaded"
+	StepComment(comment)
+	value = ""
+	Err.Clear
+	ExpressionValueIs("i")
+	ErrDescriptionIs(DBG_MSG_CANT_EVAL)
+	ErrNumberIs(DBG_ERR_CANT_EVAL)
+	ErrSourceIs(STR_DEV_STUDIO)
+
+	' open exe and source used to test automation
+	Application.Documents.Open("automate.exe")
+	Application.Documents.Open("automate.cpp")
+
+ 	'*** TEST ***
+    comment = "run to cursor"
+	StepComment(comment)
+    Application.ActiveDocument.Selection.GoToLine(FUNC_START_Debugger + 4)
+    Debugger.RunToCursor
+	DebuggerIsAtSymbol("AFTER_RUN_TO_CURSOR")
+
+	'*** TEST ***
+	comment = "evaluate valid variable expression while debugging"
+	StepComment(comment)
+	value = "0"
+	ExpressionValueIs("i")
+
+	'*** TEST ***
+	comment = "evaluate invalid variable expression while debugging"
+	StepComment(comment)
+	value = ""
+	Err.Clear
+	ExpressionValueIs("j")
+	ErrDescriptionIs(DBG_MSG_CANT_EVAL)
+	ErrNumberIs(DBG_ERR_CANT_EVAL)
+	ErrSourceIs(STR_DEV_STUDIO)
+
+	'TODO(michma)
+	'*** TEST ***
+	comment = "set value of variable expression"
+
+
+	'*** TEST ***
+	comment = "show next statement"
+	StepComment(comment)
+	Application.Documents.CloseAll
+	Debugger.ShowNextStatement
+	ActiveDocumentIs("automate.cpp")
+	CurrentLineIs(FUNC_START_Debugger + 4)
+
+	'*** TEST ***
+    comment = "get radix"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.DefaultRadix = 10)
+	
+	'*** TEST ***
+	comment = "set radix to 16"
+	StepComment(comment)
+	Debugger.DefaultRadix = 16
+	ExpressionIsTrue(Debugger.DefaultRadix = 16)
+	value = "0x00000000"
+	ExpressionValueIs("i")
+
+	'*** TEST ***
+	comment = "set radix to 10"
+	StepComment(comment)
+	Debugger.DefaultRadix = 10
+	ExpressionIsTrue(Debugger.DefaultRadix = 10)
+	value = "0"
+	ExpressionValueIs("i")
+
+	'*** TEST ***
+	comment = "step over function"
+	StepComment(comment)
+    Debugger.StepOver
+	DebuggerIsAtSymbol("AFTER_STEP_OVER")
+
+	'*** TEST ***
+    comment = "step into function"
+	StepComment(comment)
+    Debugger.StepInto
+	DebuggerIsAtSymbol("START_OF_FUNC")
+
+	'*** TEST ***
+    comment = "step out of function"
+	StepComment(comment)
+    Debugger.StepOut
+	DebuggerIsAtSymbol("AFTER_STEP_OUT")
+
+	'*** TEST ***
+    comment = "stop debugger"
+	StepComment(comment)
+    Debugger.Stop
+	DebuggerStateIs(DBG_STATE_STOP)
+
+	'*** TEST ***
+    comment = "stop debugger when it is already stopped"
+	StepComment(comment)
+    Debugger.Stop
+	DebuggerStateIs(DBG_STATE_STOP)
+
+	'*** TEST ***
+    comment = "restart debugger"
+	StepComment(comment)
+    Debugger.restart
+	DebuggerStateIs(DBG_STATE_BREAK)
+	DebuggerIsAtSymbol("WinMain")
+
+	'*** TEST ***
+    comment = "break into debugger when it is already in break mode"
+	StepComment(comment)
+    Debugger.Break
+	DebuggerStateIs(DBG_STATE_BREAK)
+
+	'*** TEST ***
+    comment = "go"
+	StepComment(comment)
+    Debugger.Go
+	DebuggerStateIs(DBG_STATE_STOP)
+
+	'TODO(michma): if Go becomes async, we can test Evaluate while running.
+    
+	'CLEANUP    
+	Application.Documents.CloseAll
+	'TODO(michma): switch to Workspace.Close or similar when available.
+	ExecuteCommand("FileCloseWorkspace")
+	PrintBanner("DEBUGGER OBJECT: ENDING TEST")
+	'TODO(michma): why can't we turn off error-handling 
+	'and raise an exception in another function?
+	Err.Description = "MACRO HAS FINISHED"
+	Err.Raise 65535
+   
+End Sub
+
+
+Sub BreakpointsCollectionTest()
+
+	'SETUP
+	Initialize(dummy)
+	PrintBanner("BREAKPOINTS COLLECTION: STARTING TEST")
+
+	'*** TEST ***
+	comment = "verify Debugger.Breakpoints.Application ==  Application"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.Breakpoints.Application IS Application)
+
+	'*** TEST ***
+	comment = "verify Debugger.Breakpoints.Parent == Debugger"
+	StepComment(comment)
+	ExpressionIsTrue(Debugger.Breakpoints.Parent IS Debugger)
+
+	'*** TEST ***
+	comment = "verify breakpoints count is 0 with no project loaded"
+	StepComment(comment)
+	BreakpointsCountIs(0)
+
+	'*** TEST ***
+	comment = "add bp with no project loaded"
+	StepComment(comment)
+	bps.AddBreakpoint
+	BreakpointsCountIs(0)
+
+	'*** TEST ***
+	comment = "remove all bps with no project loaded"
+	StepComment(comment)
+	bps.RemoveAll
+	BreakpointsCountIs(0)
+
+	'*** TEST ***
+	comment = "add a bp with no project but source loaded"
+	StepComment(comment)
+	Application.Documents.Open("automate.cpp")
+	'TODO(michma): re-enable when orion: 8342 is fixed.
+	'bps.AddBreakpoint
+	BreakpointsCountIs(0)
+
+	'*** TEST ***
+	comment = "remove all bps with no project but source loaded"
+	StepComment(comment)
+	bps.RemoveAll
+	BreakpointsCountIs(0)
+	Application.Documents.CloseAll	
+
+	' open exe and source used to test automation
+	Application.Documents.Open("automate.exe")
+	Application.Documents.Open("automate.cpp")
+
+	'*** TEST ***
+	comment = "add a bp while not debugging, and go"
+	StepComment(comment)
+    Application.ActiveDocument.Selection.GoToLine(FUNC_START_Breakpoints + 3)
+	bps.AddBreakpoint
+	BreakpointsCountIs(1)
+    Debugger.Go
+	DebuggerIsAtSymbol("BreakpointsCollectionTest")
+
+	'*** TEST ***
+	comment = "remove all bps while not debugging"
+	StepComment(comment)
+	Debugger.Stop
+	bps.RemoveAll
+	BreakpointsCountIs(0)
+
+	' TODO(michma): enable when orion:10503 is fixed. 
+	'*** TEST ***
+	'comment = "set breakpoint with selection parameter"
+
+	'*** TEST ***
+    comment = "add bp while debugging, and go"
+	StepComment(comment)
+    Debugger.StepInto
+	Application.ActiveDocument.Selection.GoToLine(FUNC_START_Breakpoints + 3)
+	bps.AddBreakpoint
+	BreakpointsCountIs(1)
+    Debugger.Go
+	DebuggerIsAtSymbol("BreakpointsCollectionTest")
+
+	'*** TEST ***
+    comment = "clear breakpoint with Breakpoints.RemoveAtLine while debugging"
+	StepComment(comment)
+    bps.RemoveAtLine
+	BreakpointsCountIs(0)
+
+	' TODO(michma): enable when orion:10504 is fixed.
+	'*** TEST ***
+	'comment = "remove breakpoint at line with selection parameter"
+
+	'*** TEST ***
+	comment = "clear multiple breakpoints with Breakpoints.RemoveAll"
+	StepComment(comment)
+    Application.ActiveDocument.Selection.GoToLine(FUNC_START_WinMain + 4) 
+	bps.AddBreakpoint
+    Application.ActiveDocument.Selection.GoToLine(FUNC_START_WinMain + 5) 
+	bps.AddBreakpoint
+	bps.RemoveAll
+	BreakpointsCountIs(0)
+
+	'*** TEST ***
+	comment = "use multiple Breakpoints objects and verify consistency"
+	StepComment(comment)
+	Debugger.Breakpoints.AddBreakpoint	
+	BreakpointsCountIs(1)	'uses bps object initialized at start of macro
+	bps.RemoveAll
+	ExpressionIsTrue(Debugger.Breakpoints.Count = 0)
+
+	'CLEANUP
+	Debugger.Stop
+	Application.Documents.CloseAll
+	ExecuteCommand("FileCloseWorkspace")
+	PrintBanner("BREAKPOINTS COLLECTION: ENDING TEST")
+	Err.Description = "MACRO HAS FINISHED"
+	Err.Raise 65535
+
+End Sub
+
+
+Sub BreakpointItemTest()
+	
+	'SETUP
+	On Error Resume Next
+	Initialize(dummy)
+	PrintBanner("BREAKPOINT ITEM: STARTING TEST")
+
+	'open exe and source used to test automation
+	'Application.Documents.Open("c:\snap\core\bin\src\automate.exe")
+	'Application.Documents.Open("c:\snap\core\bin\src\automate.cpp")
+
+	'*** TEST ***
+	'comment = "access a bp that doesn't exist"
+	'StepComment(comment)
+	'set bp = bps.Item(0)
+	'ErrDescriptionIs(DBG_MSG_INCORRECT_PARAM)
+	'ErrNumberIs(DBG_ERR_INCORRECT_PARAM)
+	'ErrSourceIs(STR_DEV_STUDIO)
+
+	'*** TEST ***
+	comment = "verify info for a simple bp"
+	StepComment(comment)
+	Application.ActiveDocument.Selection.GoToLine(FUNC_START_Breakpoint + 1)
+	bps.AddBreakpoint
+	set bp = bps.Item(0)
+	ExpressionIsTrue(bp.Application IS Application)
+	ExpressionIsTrue(bp.Parent IS Debugger)
+	'ExpressionIsTrue(bp.Enabled = BP_STATUS_ON)
+	'ExpressionIsTrue(bp.Location = FUNC_START_Breakpoint + 1)
+	'ExpressionIsTrue(bp.File = "automate.cpp")
+	'ExpressionIsTrue(Debugger.Breakpoints.Item(0).Function = "")
+	'ExpressionIsTrue(bp.Executable = "")
+	'ExpressionIsTrue(bp.Condition = "")
+	'ExpressionIsTrue(bp.Elements = 0)
+	'ExpressionIsTrue(bp.Passcount = 0)
+	'ExpressionIsTrue(bp.Message = "")
+	'ExpressionIsTrue(bp.WindowProcedure = "")
+	'ExpressionIsTrue(bp.Type = 0)
+	
+	'TODO(michma): make sure breakpoint collection changes appropriately when closing
+	'one project and opening another.
+
+	'TODO(michma): open project that has data breakpoints set
+
+	'bps.RemoveAll
+
+	'CLEANUP
+	'Debugger.Stop
+	'Application.Documents.CloseAll
+	'ExecuteCommand("FileCloseWorkspace")
+	'PrintBanner("BREAKPOINTS COLLECTION: ENDING TEST")
+	'Err.Description = "MACRO HAS FINISHED"
+	'Err.Raise 65535
+
+End Sub
+
+dim parent
+
+Sub test()
+	Set bps = Debugger.Breakpoints
+	Set parent = bps.Parent
+End Sub
+
+

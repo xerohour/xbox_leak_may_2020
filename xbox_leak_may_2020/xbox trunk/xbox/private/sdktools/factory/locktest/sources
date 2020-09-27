@@ -1,0 +1,20 @@
+TARGETNAME=LockTest
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+
+SYNCRHONIZE_DRAIN=1
+
+# warning LNK4049: locally defined symbol XXX imported
+# warning LNK4217: locally defined symbol XXX imported in function XXX
+# LINKER_FLAGS=$(LINKER_FLAGS) /IGNORE:4049,4217 /MAP
+
+# C_DEFINES = $(C_DEFINES) -D_NTDRIVER_ -DQUICK_FORMAT
+
+INCLUDES = $(DDK_INC_PATH);$(SDK_INC_PATH);$(PRIVATE_INC_PATH);$(BASEDIR)\private\ntos\inc;$(BASEDIR)\private\inc\crypto;$(INCLUDES)
+
+SOURCES=\
+    LockTest.cpp
+

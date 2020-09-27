@@ -1,0 +1,26 @@
+TARGETNAME = VoiceDSP
+PROJNAME   = VoiceDSP
+SOURCES    = VoiceDSP.cpp
+TITLEID    = 0xffff0503
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES=$(INCLUDES);..\..\common\include
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+LINKLIBS= \
+         ..\..\common\src\obj\*\xbframe.lib \
+         $(XDK_LIB_PATH)\d3dx8$(D).lib \
+         $(XDK_LIB_PATH)\d3d8$(D).lib \
+         $(XDK_LIB_PATH)\xgraphics$(D).lib \
+         $(XDK_LIB_PATH)\dsound$(D).lib \
+         $(XDK_LIB_PATH)\xvoice$(D).lib \
+         $(XDK_LIB_PATH)\xapilib$(D).lib 
+
+
+USE_LIBCMT=1

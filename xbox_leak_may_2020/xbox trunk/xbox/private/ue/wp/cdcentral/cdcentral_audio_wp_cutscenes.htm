@@ -1,0 +1,213 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+
+</td><td>
+<H2>Audio for Cutscenes:<br>
+Authoring and Implementing 5.1 Audio in RAD<BR>Game Tools Bink Video</H2>
+
+<P><I>By Scott Selfon, Audio Content Consultant<br>
+Content and Design Team, Xbox Advanced Technology Group</I></P>
+
+<P><SMALL>Microsoft Confidential</SMALL></P>
+
+<P><I>This is part of a series of &quot;column-style&quot; white papers on various aspects of the Xbox audio system. If you would like to see a specific area addressed, please send e-mail to</I> <a href="mailto:content@xbox.com">content@xbox.com</a>.</P>
+
+<H3>Introduction</h3>
+<p>With support for real-time Dolby® Digital and Dolby® Surround encoding schemes on the Xbox™ video game system from Microsoft, a natural question is how to author pre-rendered six-channel content that can take advantage of this feature. When the content is played back directly by your developer, it's just a matter of authoring six-channel interleaved PCM wave files using tools provided in the Xbox Development Kit (XDK).<SUP font-size:"9">1</SUP> However, when using a proprietary cutscene playback engine, other techniques may need to be employed.
+<p>This white paper discusses such a technique for one popular movie playback engine supported on Xbox, RAD Game Tools' "Bink Video" format. Similar techniques could be used with other engines that support multiple two-channel soundtracks. For more information about the services RAD Game Tools provides, visit their Web site at <a href="http://www.radgametools.com/">http://www.radgametools.com/</a> or contact them by sending e-mail to <a href="mailto:sales@radgametools.com">sales@radgametools.com</a>.
+
+<H3>Bink Video's Multichannel Support</h3>
+<p>Bink Video currently natively supports playback of a single mono or stereo soundtrack in conjunction. It's perceptually lossless compression format does not yet read six-channel wave files. However, it does let you save multiple soundtracks, and it provides interfaces for retrieving data from them, synchronized with playback. This will allow us to "reassemble" a six-channel soundtrack during playback. While this may add some CPU overhead when compared to direct playback (and of course memory overhead versus stereo playback), it should generally be fairly small, as we'll soon see.
+<p><b><I>Note</I></b>&nbsp;&nbsp;&nbsp;RAD intends to build 5.1 playback functionality directly into their authoring and playback tools before October.
+
+<H3>Authoring Multichannel Content for Bink</h3>
+<p>After creating our six-channel movie soundtrack in our movie authoring/rendering tool, we will break the soundtrack into several tracks, each of which can be understood separately by Bink as mono or stereo wave files. For this example, we'll use the following wave file formats:
+<UL>
+<LI>Wave0.wav: Center channel (mono)
+<LI>Wave1.wav: Front-left and front-right channels (stereo)
+<LI>Wave2.wav: Rear-left and rear-right channels (stereo)
+<LI>Wave3.wav: Low Frequency Effects (LFE) (mono)
+</ul>
+<p>Wave0.wav and wave3.wav could have been merged into a single stereo wave, but because the LFE channel generally only has data below 120 Hz, it might compress significantly lower if kept separate. We could also potentially record it at a lower source sampling rate (although, for the sake of the sample code below, everything is maintained at 44.1 kHz).
+<p>Now that we have our four separate waves, we "Bink" our video and then start adding the audio tracks to it. We place each wave in the corresponding track (Wave0.wav in audio track 0, and so on), by specifying the track in the Bink Audio Mixer dialog box.
+<br><Br>
+<p><img src="/content/img/51Cutscenes_fig1.gif" width="493" height="453" alt="" border="0">
+<br><b>Illustration</b> <i>Mixing wave2.wav into track number 2 of ScottFiddle.bik.</i>
+
+<p>If we select the <b>File Info</b> button from the RAD Video Tools application after completing the process, our file might look like this:
+<br><br>
+<p><img src="/content/img/51Cutscenes_fig2.gif" width="377" height="348" alt="" border="0">
+<br><b>Illustration</b> <i>A Bink file with our four audio tracks.</i>
+<p>From here, our content authoring work is done and it's off to the developer to implement the actual playback. The primary information they'll need from the content author is what channels are in what tracks, as well as the sampling rate of each track.<SUP font-size:"9">2</SUP> 
+<p>Xbox provides automatic downmix to stereo or Dolby Surround (as specified in the Xbox Dashboard), but if you want to hand-optimize your downmix, you might consider authoring a separate Dolby Surround and/or stereo track that can be chosen dynamically based on the user's Xbox settings. 
+
+<H3>Implementing Multichannel Audio for Bink</h3>
+<p>Now that we have our four audio tracks saved with the content, the developer can pull them out while playing the movie and reassemble the version 5.1 soundtrack. One possible technique would be to create a six-channel wave file on the fly by re-interleaving the audio as we retrieve it from the tracks. This would give us the benefit of playing back the entire movie while only using three stereo hardware voices. However, the CPU overhead and implementation of re-interleaving a six-channel wave might not be trivial, particularly if the source files were saved at different sampling rates.
+<p>Let's create four Microsoft® DirectSound® buffers and play each of the audio tracks into a separate buffer.
+
+<pre>
+#define NUM_AUD_TRACKS 4 // Number of tracks in our source file.
+typedef struct {
+      LPDIRECTSOUNDBUFFER8    pBuffer;
+      BYTE *                  pbData;
+      DWORD                   dwSize;
+      DWORD                   dwCurrentOffset;
+  } AUDIOBUFFER;
+AUDIOBUFFER buffers[NUM_AUD_TRACKS];
+DWORD       dwLargestChunk = 0;
+BYTE *      pbTempSpace = NULL;
+
+// Two kinds of buffers to create - mono and stereo.
+WAVEFORMATEX wfx_mono, wfx_stereo;
+DSBUFFERDESC dsbdesc_mono, dsbdesc_stereo;
+
+wfx_mono.wFormatTag = WAVE_FORMAT_PCM;
+wfx_mono.nChannels = 1;
+wfx_mono.nSamplesPerSec = 44100;
+wfx_mono.wBitsPerSample = 16;
+wfx_mono.nBlockAlign = wfx_mono.wBitsPerSample / 8 * wfx_mono.nChannels;
+wfx_mono.nAvgBytesPerSec = wfx_mono.nBlockAlign * wfx_mono.nSamplesPerSec;
+wfx_mono.cbSize = 0;
+
+ZeroMemory( &dsbdesc_mono, sizeof( DSBUFFERDESC ) );
+dsbdesc_mono.dwSize = sizeof( DSBUFFERDESC );
+dsbdesc_mono.dwBufferBytes = 0;
+dsbdesc_mono.lpwfxFormat = &wfx_mono;
+
+//...and stereo.
+wfx_stereo.wFormatTag = WAVE_FORMAT_PCM;
+wfx_stereo.nChannels = 2;
+wfx_stereo.nSamplesPerSec = 44100;
+wfx_stereo.wBitsPerSample = 16;
+wfx_stereo.nBlockAlign = wfx_stereo.wBitsPerSample / 8 * wfx_stereo.nChannels;
+wfx_stereo.nAvgBytesPerSec = wfx_stereo.nBlockAlign * wfx_stereo.nSamplesPerSec;
+wfx_stereo.cbSize = 0;
+
+ZeroMemory( &dsbdesc_stereo, sizeof( DSBUFFERDESC ) );
+dsbdesc_stereo.dwSize = sizeof( DSBUFFERDESC );
+dsbdesc_stereo.dwBufferBytes = 0;
+dsbdesc_stereo.lpwfxFormat = &wfx_stereo;
+
+// Hard coded based on our audio format decision - 
+// track 0,3 = mono; track 1,2 = stereo (and all 44.1 kHz).
+DirectSoundCreateBuffer (&dsbdesc_mono, &buffers[0].pBuffer);
+DirectSoundCreateBuffer (&dsbdesc_stereo, &buffers[1].pBuffer);
+DirectSoundCreateBuffer (&dsbdesc_stereo, &buffers[2].pBuffer);
+DirectSoundCreateBuffer (&dsbdesc_mono, &buffers[3].pBuffer);
+
+// Point each buffer at the appropriate mixbin(s).
+buffers[0].pBuffer->SetMixBins (DSMIXBIN_FRONT_CENTER);
+buffers[1].pBuffer->SetMixBins (DSMIXBIN_FRONT_LEFT | DSMIXBIN_FRONT_RIGHT); 
+buffers[2].pBuffer->SetMixBins (DSMIXBIN_BACK_LEFT | DSMIXBIN_BACK_RIGHT);
+buffers[3].pBuffer->SetMixBins (DSMIXBIN_LOW_FREQUENCY);
+</pre>
+
+<p>We should make sure to turn off Bink's sound so that we can manage it ourselves. (Otherwise it would default to play the first track, which in our case would only be the center channel.) This is done using the <b>BinkSetSoundTrack (BINKNOSOUND)</b> call. Then we open the bink file, using the BINKSNDTRACK flag to use the soundtrack we specified (none). We then open each of our audio tracks and ask them how much data they might give us at a time, using the <b>BinkGetTrackMaxSize</b> call. To be safe, we allocate twice that much memory for each buffer. We then set the buffers to start at position zero and loop. As long as we fill the buffer ahead of where the play cursor is currently positioned, we shouldn't have issues with audio breakup. 
+<p>Let's also create a temporary space that we copy the actual audio data into. We'll need this for cases when the data would wrap around from the end of the buffer back to the beginning.
+
+<pre>
+BinkSetSoundTrack(BINKNOSOUND);
+Bink = BinkOpen( filename, BINKSNDTRACK );
+HBINKTRACK HAudTrack[ NUM_AUD_TRACKS ];
+
+// Find out how much space we need to allocate, both per
+// track, and for a scratch area.
+for (int k=0; k < NUM_AUD_TRACKS; k++)
+{
+	HAudTrack[k] = BinkOpenTrack (Bink, k);
+      DWORD dwTrackMax = BinkGetTrackMaxSize(Bink, k);
+      if( dwTrackMax > dwLargestChunk )
+            dwLargestChunk = dwTrackMax;
+
+            // Allocate and set buffer data.  We're allocating twice
+            // as much as the largest chunk of data we'll get.
+            buffers[k].dwCurrentOffset = 0;
+            buffers[k].dwSize = dwTrackMax * 2;
+            buffers[k].pbData = new BYTE[buffers[k].dwSize];
+#if _DEBUG
+// Fill with noise so that we'll hear it if something is
+// wrong.
+            memset( buffers[k].pbData, rand(), buffers[k].dwSize );
+#endif
+            buffers[k].pBuffer->SetBufferData( buffers[k].pbData, buffers[k].dwSize );
+            buffers[k].pBuffer->SetLoopRegion( 0, buffers[k].dwSize );
+	}
+pbTempSpace = new BYTE[dwLargestChunk];
+BOOL bPlaying = FALSE;
+</pre>
+
+<p>Now we're ready to roll. Whenever we get the next video frame (using the <b>BinkDoFrame( bink )</b> call), we'll query through its audio tracks to see if there's data to add to our buffers. Our buffers are a fixed size and looping, so we'll have to be careful to wrap our data around if it would run over the end of the buffer. Again, Bink presents audio data with a frame that may not be actually played with the frame. For instance, with the first frame, approximately .75 seconds may be contained, which will last you quite a few frames. As long as we keep filling the buffers, audio data will be hit by our buffer's position cursor just in time to synchronize with the video.
+<p>On a final note, let's make sure to start playing each of the buffers in a row so that they'll maintain close synchronization.
+
+<pre>
+// Place these instructions between BinkDoFrame ( bink )
+// and BinkNextFrame( Bink ).
+for (k=0; k < NUM_AUD_TRACKS; k++)
+	{
+          DWORD dwSize = BinkGetTrackData( HAudTrack[k], pbTempSpace );
+
+          // Need to wrap around to beginning of buffer.
+          if( dwSize > buffers[k].dwSize - buffers[k].dwCurrentOffset )
+                {
+                    DWORD dwPartialSize = buffers[k].dwSize - buffers[k].dwCurrentOffset;
+                    memcpy( buffers[k].pbData + buffers[k].dwCurrentOffset,
+                            pbTempSpace,
+                            dwPartialSize );
+                    memcpy( buffers[k].pbData,
+                            pbTempSpace + dwPartialSize,
+                            dwSize - dwPartialSize );
+                }
+                else
+                {
+                    memcpy( buffers[k].pbData + buffers[k].dwCurrentOffset, 
+                            pbTempSpace, 
+                            dwSize );
+                }
+
+           buffers[k].dwCurrentOffset = ( buffers[k].dwCurrentOffset + dwSize ) % buffers[k].dwSize;
+	}
+if( !bPlaying )
+    {
+         for( k = 0; k < NUM_AUD_TRACKS; k++ )
+             buffers[k].pBuffer->Play( 0, 0, DSBPLAY_LOOPING );
+         bPlaying = TRUE;
+    }
+</pre>
+
+<H3>Variations on a Theme: Other Multichannel Possibilities</h3>
+<p>With slight modifications, the preceding code could be used for an assortment of possible implementations. For instance, if only a stereo track were authored and we wanted to play it back out of the surrounds as well as the front speakers, we could just create a single stereo buffer and call <b>SetMixBins</b> to include <i>DSMIXBIN_BACK_LEFT</i> and <i>DSMIXBIN_BACK_RIGHT</i>.
+<p>Or, if the user did not have a Dolby Digital decoder and we wanted to do our own remix, we could check the global audio settings flags from <b>XGetAudioFlags</b>, and based on its value either use a separate set of audio tracks or remix the existing tracks using <b>SetMixBinVolumes</b> and <b>SetMixBins</b>. 
+
+<h3>Wrap Up: Other Uses for this Content</h3>
+<p>This technique could be quite useful in other instances, as well. For instance, ADPCM and WMA compression only support stereo waves. Using the exact same process, we could create four ADPCM or WMA waves - two stereo and two mono - and play them back within our game to get version 5.1 audio playback from a compressed footprint. While WMA playback does tend to use significant CPU, if this is the only thing the processor is currently working on, it might be acceptable. You could also experiment with a different sampling rate for each wave; the LFE channel could probably be saved at 240 Hz or possibly lower.
+
+<BR><BR>
+<i>For more information about topics presented here, please consult other chapters of the Xbox Audio Best Practices Guide, the Xbox Development Kit documentation, the white papers in the Audio Designer's Corner, or send an e-mail message to <a href="mailto:content@xbox.com">content@xbox.com.</a></i>
+
+<BR>
+<HR ALIGN="left" WIDTH="300">
+<P style="font-size:12"><SUP>1</SUP>&nbsp;See 'Prerendered Multichannel Audio' in <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_surround.htm" title="The Surround Experience: Authoring for and Implementing Multichannel Audio Playback"><b>The Surround Experience: Authoring for and Implementing Multichannel Audio Playback</b></a> and 'WavMerge' in <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_bp_chap5.htm" title="Chapter 5 &#8211; DirectMusic Producer Introductory Guide for Xbox"><b>Chapter 5 - Xbox Audio Content Development Tools</b></a>.</p>
+<P style="font-size:12"><SUP>2</SUP>&nbsp;For the sake of simplicity, I used 44.1 kHz for each wave. However, depending on your footprint requirements, some channels (in particular the LFE) could use significantly lower sampling rates.</p>
+
+<BR><BR>
+<SMALL>Friday, September 21, 2001</SMALL>
+
+</td>
+

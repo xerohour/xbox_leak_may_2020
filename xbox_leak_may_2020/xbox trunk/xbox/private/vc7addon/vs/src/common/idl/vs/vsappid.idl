@@ -1,0 +1,227 @@
+/****************************************************************************
+ *  The VSSHELL Interfaces
+ *  Copyright (c) 1997-1999, Microsoft Corporation, All Rights Reserved
+ *  Information Contained Herein Is Proprietary and Confidential.
+ ****************************************************************************/
+
+import "vsshell.idl";
+
+// forward declares
+interface IVsAppId;
+interface IVsAppQueryLoad;
+interface IVsDropFilesHandler;
+
+
+//---------------------------------------------------------------------------
+// IVsAppIde
+//   Interface implemented by the stub EXE of an Application Identity (AppID).
+//   The VS Environment will call SetSite before calling any other methods.
+//---------------------------------------------------------------------------
+enum __VSAPROPID
+{
+  VSAPROPID_NIL                              = -1,
+  VSAPROPID_LAST                             = -8500,  // !!!! NOTE !!!! THIS MUST BE THE SAME AS THE FIRST PROP DEFINED
+  VSAPROPID_GuidAppIDPackage                 = -8501,  // GUID of the Application ID Package; e.g. this is used to load resource strings.
+  VSAPROPID_AppName                          = -8502,  // BSTR or I4 localize name of the App used in title bar.
+                                                       // (either a string or a resource id that is loaded from GuidAppIDPackage UILibrary)
+  VSAPROPID_CmdLineOptDialog                 = -8503,  // I4 - Command Line Options dialog resource id in appid package satellite dll
+  VSAPROPID_HideSolutionConcept              = -8504,  // BOOL - default FALSE. TRUE if appid uses the solution, but does show it to the user
+                                                       // !!! can be called before main initialization happen
+  VSAPROPID_ShowStartupDialogs               = -8505,  // BOOL - default TRUE
+  VSAPROPID_ShowIDE                          = -8506,  // BOOL - default TRUE
+                                                       // !!! can be called before main initialization happen
+  VSAPROPID_ShowHierarchyRootInTitle         = -8507,  // BOOL - default TRUE
+  VSAPROPID_SolutionFileExt                  = -8508,  // BSTR - solution file extension (default - ".sln");
+  VSAPROPID_UserOptsFileExt                  = -8509,  // BSTR - solution options file extension (default - ".suo");
+  VSAPROPID_AltMSODLL                        = -8510,  // BSTR - path/filename for alternate MSOx DLL (default - ask MSI), exactly as passed to LoadLibrary
+  VSAPROPID_CreateProjShortcuts              = -8511,  // BOOL - default TRUE should shortcuts to solutions/projects be added to 'recent' folder?
+  VSAPROPID_AppIcon                          = -8512,  // I4 - HICON  for 32x32 icon
+  VSAPROPID_AppSmallIcon                     = -8513,  // I4 - HICON  for 16x16 icon
+  VSAPROPID_DefaultHomePage                  = -8514,  // BSTR - default Home page URL (for Web browser)
+  VSAPROPID_DefaultSearchPage                = -8515,  // BSTR - default Search page URL (for Web browser)
+  VSAPROPID_WBExternalObject                 = -8516,  // IDispatch * (for IDocHostUIHandler::GetExternal), default SApplicationObject
+  VSAPROPID_AppShortName                     = -8517,  // BSTR or I4 localize name of the short version of the App name, less than 32 chars.
+  VSAPROPID_ClsidAppIdServer                 = -8518,  // CLSID under which we're registered as a JIT Debug or Attach Server
+  VSAPROPID_GuidGeneralOutput                = -8519,  // GUID of the "General" output window for the shell. First request for this creates it.
+  VSAPROPID_UseDebugLaunchService            = -8520,  // default FALSE. TRUE if debugger should use SVsDebugLaunch launch service
+  VSAPROPID_GuidDefaultDebugEngine           = -8521,  // GUID of the default debug engine for this appid
+  VSAPROPID_CmdLineOptStrFirst               = -8522,  // I4 - beginning of res id range of the Command Line Options string resource(s) in appid package
+                                                       // satellite dll. used instead of VSAPROPID_CmdLineOptDialog when output piped to console
+  VSAPROPID_CmdLineOptStrLast                = -8523,  // I4 - end of res id range of the Command Line Options string resource(s) in appid package
+                                                       // satellite dll. used instead of VSAPROPID_CmdLineOptDialog when output piped to console
+  VSAPROPID_IsRegisteredAsRuntimeJITDebugger = -8524,  // used to register as a runtime JIT Debugger
+  VSAPROPID_PersistProjExplorerState         = -8525,  // BOOL - default is TRUE.  Persists expansion state of the project explorer
+  VSAPROPID_PredefinedAliasesID              = -8526,  // Deprecated -- use VSAPROPID_PredefinedAliasesString instead
+													   //   (was I4 - resource id in appid package satellite dll of predefined aliases text)
+  VSAPROPID_DisableDynamicHelp               = -8527,  // BOOL - default is FALSE.  Should the Dynamic Help window be shown on F1
+  VSAPROPID_UsesMRUCommandsOnFileMenu        = -8528,  // BOOL - default is TRUE.  Are the MRU commands on the File menu used?
+  VSAPROPID_AllowsDroppedFilesOnMainWindow   = -8529,  // BOOL - default is TRUE.  Should the main window accept dropped files (i.e., WS_EX_ACCEPTFILES)?
+  VSAPROPID_DisableAnswerWizardControl       = -8530,  // BOOL - default is TRUE.  Should the AnswerWizard menubar control be disabled?
+  VSAPROPID_DisableAnsiCodePageCheck         = -8531,  // BOOL - default is FALSE.  Should the Ansi codepage check be used when loading UI libraries?
+  VSAPROPID_DisableInstructionUnitStepping   = -8532,  // Set to TRUE to disable debugger's support for source-instruction stepping.
+  VSAPROPID_UseVisualStudioDialogShortcuts   = -8533,  // BOOL - default is TRUE.  Should the VS shortcuts be used in the Open/Save/Browse dialogs?
+  VSAPROPID_SKUEdition                       = -8534,  // Either a VSASKUEdition or a string. VSASKUEdition if it is a standard version, or a BSTR if a custom version.
+  VSAPROPID_Logo                             = -8535,  // BSTR - logo for command line
+  VSAPROPID_DDEApplication                   = -8536,  // BSTR - application supported in DDE (expected in WM_DDE_INITIATE).  Required for DDE support.
+  VSAPROPID_DDETopic                         = -8537,  // BSTR - topic supported in DDE (expected in WM_DDE_INITIATE)  Required for DDE support.
+  VSAPROPID_VSIPLicenseRequired				       = -8538,  // BOOL - default is FALSE.  If TRUE, about box puts up stuff about VSIP license required
+  VSAPROPID_DropFilesOnMainWindowHandler     = -8539,  // GUID - package GUID, which implements IVSDropFilesHandler to override default behaviour
+  VSAPROPID_CmdLineError                     = -8540,  // BSTR or I4 - error message for invalid cmd line to show before cmd line options help
+                                                       // (either a string or a resource id that is loaded from GuidAppIDPackage UILibrary)
+  VSAPROPID_AllowCurrentUserSafeDomains      = -8541,  // BOOL - default is FALSE. Should security manager add safe domains from HKCU\<appid hive>\VsProtocol\SafeDomains
+  VSAPROPID_TechSupportLink                  = -8542,  // BSTR - should be link to tech support for this appid.
+  VSAPROPID_HideMiscellaneousFilesByDefault  = -8543,  // BOOL - default is FALSE.  Should the Miscellaneous Files project be hidden by default?
+  VSAPROPID_PredefinedAliasesString          = -8544,  // BSTR - predefined aliases for the appid
+  VSAPROPID_ShowRuntimeInAboutBox            = -8545,   // BOOL - default is FALSE.  Should runtime (and runtime ver) show up at the top of about box?
+  VSAPROPID_SubSKUEdition                    = -8546,  // I4 - some combination of the bits defined in VSASubSKUEdition or zero (if none).
+  VSAPROPID_FIRST                            = -8546   // !!!! NOTE !!!! THIS MUST BE THE SAME AS THE LAST PROP DEFINED
+};
+typedef LONG VSAPROPID;
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!     If you want to add a new SKU edition               !!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// If it is based on standard edition - there is no need to add a new VSASKUEdition_ flag; justadd a new VSASubSKUEdition_ bit flag.
+// If it is based on professional edition - its value should be  between VSASKUEdition_Professional and VSASKUEdition_Enterprise
+// If it is based on enterprise edition - its value should be greater than VSASKUEdition_Enterprise
+// If it is an academic edition based on pro - add it to the VSASKUEdition_IsAcademic and make its value larger than AcademicStudent
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Work required in the various files for devenv to be able to load it:
+// - Determine (from the setup team) the name of the core feature in which
+// devenv.exe and the DPC file live (for MORW registration). They will always
+// be the same. For example, the one for the Enterprise SKU is Visual_Studio.NET_Enterprise.
+// - Add a licence key file to vs/src/appid/devenv/LicenseKeys for your SKU, and
+// get setup to register it with your SKU, along with the needed-by-all licensing.vrg
+// file. If you are adding a new standard SKU, you will also need to add the standard.vrg
+// registration file.
+// - Add a key for your SKU to vs/src/appid/inc/utils.h. If it's 
+// a standard SKU, add to StandardEdition (choose the next power-of-two index available); 
+// otherwise, add it to AppEdition enumeration and make sure that it is equal to the 
+// VSASKUEdition_ constant you defined below.
+// - Add an entry for your SKU to vs/src/appid/inc/utils.cpp so that the shell
+// will recognize it during startup. If it's a standard SKU, simply add it anywhere
+// in the s_standardLicenseInfo array. If it's a new SKU, make SURE that the 
+// setup and environment PM teams that you are adding it, and ask them what its 
+// installation precedence is. Insert it in that place to the s_LicenseInfo array.
+// - Add entries to vs/src/appid/devenv/stub/tcdar.inc for your SKU. You will need
+// both a MSOTCFEATUREINFO struct and the corresponding MSOTCFCF structure. You 
+// should not attempt to modify a structure in-memory during startup, as MSO is
+// smart enough to notice this and will fail your load requests.
+// - In the vs/src/appid/devenv/stub/vsmsolic.cpp file, add a case to the 
+// FOverrideDPCFeature() method to handle your SKU and return the appropriate feature 
+// name. This method will be called when the user has modified files on disk, 
+// played with the licensing code, or has changed their hardware signficiantly, and
+// is used to determine which new Darwin Feature to repair.
+// - Again in the vs/src/appid/devenv/stub/vsmsolic.cpp file, add a case to the 
+// InitLicensingAndGimme() method's switch(edition) statement and call gimmeFunc() 
+// with the appropriate MSOTCFCF structure that you created in the tcdar.inc
+// file. This is what actually sets up the licensing infrastructure with the
+// appropriate configuration to check.
+// - Add a new clause to the switch in vs/src/env/core/ideshell.cpp's 
+// CVShell::get_Edition() method to return an English string from the automation
+// model to represent your SKU. Note that this should only be done if you are
+// defining a new non-Standard-based SKU.
+// - Add a case to the switch statement in vs/src/appid/devenv/stub/desplash.cpp's
+// CDevEnvAppId::GetEditionText() method to return a localized string to display
+// in the small box that appears on the splash screen. Again, you should only do this if 
+// you defined a new non-Standard-based SKU.
+// - Rebuild the world, and you should be ready to go! Contact larsberg if
+// you have any problems, questions, or aggrevations with the process.
+
+enum __VSASKUEdition
+{
+	VSASKUEdition_None =                0,
+	VSASKUEdition_Standard =         1000,
+	VSASKUEdition_Professional =     2000,
+  VSASKUEdition_AcademicStudent =  2100,
+	VSASKUEdition_AcademicProfessional = VSASKUEdition_AcademicStudent, // OBSOLETTE, use VSASKUEdition_AcademicStudent
+        // VSASKUEdition_Book is OBSOLETE! This will never, ever be returned to you by
+        // the shell, as the SKU was cut!
+	VSASKUEdition_Book =             2400,
+	VSASKUEdition_DownloadTrial =    2500,
+	VSASKUEdition_Enterprise =       3000
+};
+typedef DWORD VSASKUEdition;
+
+cpp_quote("#define VSASKUEdition_IsStandard(x) ((DWORD)(x) >= (DWORD)VSASKUEdition_Standard && (DWORD)(x) < (DWORD)VSASKUEdition_Professional)")
+cpp_quote("#define VSASKUEdition_IsProfessional(x) ((DWORD)(x) >= (DWORD)VSASKUEdition_Professional && (DWORD)(x) < (DWORD)VSASKUEdition_Enterprise)")
+cpp_quote("#define VSASKUEdition_IsEnterprise(x) ((DWORD)(x) >= (DWORD)VSASKUEdition_Enterprise)")
+cpp_quote("#define VSASKUEdition_IsAcademic(x) ((DWORD)(x) == (DWORD)VSASKUEdition_AcademicStudent)")
+
+enum __VSASubSKUEdition
+{
+  VSASubSKUEdition_None =                 0x0,
+  VSASubSKUEdition_VC =                   0x1,
+  VSASubSKUEdition_VB =                   0x2,
+  VSASubSKUEdition_CSharp =               0x4,
+  VSASubSKUEdition_Architect =            0x8,
+  VSASubSKUEdition_IDE =                  0x10,
+};
+typedef DWORD VSASubSKUEdition;
+
+[
+uuid(1EAA526A-0898-11d3-B868-00C04F79F802),
+version(1.0)
+]
+interface IVsAppId : IUnknown
+{
+  HRESULT SetSite([in] IServiceProvider *pSP);
+  HRESULT GetProperty([in] VSAPROPID propid,
+		      [out] VARIANT *pvar);
+  HRESULT SetProperty([in] VSAPROPID propid,
+		      [in] VARIANT var);
+  HRESULT GetGuidProperty([in] VSAPROPID propid,
+			  [out] GUID *pguid);
+  HRESULT SetGuidProperty([in] VSAPROPID propid,
+			  [in] REFGUID rguid);
+  HRESULT Initialize();  // called after main initialization and before command executing and entering main loop
+}
+
+cpp_quote("#define SID_SVsAppId IID_IVsAppId")
+
+
+//---------------------------------------------------------------------------
+// IVsAppQueryLoad
+//   This is an optional interface that can be implemented on a
+//   VsAppStubExe that wants to limit which VsPackages are allowed to load.
+//   This interface is retrieved by QueryInterface from IVsAppStubExe
+//---------------------------------------------------------------------------
+
+enum __APPIDLOADRESULT
+{
+	APPIDLOADRESULT_Failed			= 0x0001,
+	APPIDLOADRESULT_Allowed			= 0x0002,
+	APPIDLOADRESULT_Skipped			= 0x0004,
+	APPIDLOADRESULT_InternalPackage = 0x0010,
+	APPIDLOADRESULT_ExternalPackage = 0x0020
+};
+typedef DWORD APPIDLOADRESULT;
+
+[
+uuid(1EAA526B-0898-11d3-B868-00C04F79F802),
+version(1.0)
+]
+interface IVsAppQueryLoad: IUnknown
+{
+  HRESULT QueryLoadPackage([in] REFGUID guidPackage, [out, retval] APPIDLOADRESULT* pdwCanLoad);
+  HRESULT QueryLoadUILibrary([in] REFGUID guidPackage, [out, retval] APPIDLOADRESULT* pdwCanLoad);
+  HRESULT OnFailedLoadPackage([in] REFGUID guidPackage );
+}
+
+cpp_quote("#define SID_SVsAppQueryLoad IID_IVsAppQueryLoad")
+
+
+/* this interface is accessed by QI of package identified by VSAPROPID_DropFilesOnMainWindowHandler */
+[
+uuid(41E2D571-C373-4216-89F8-CC7B6E89A339),
+version(1.0),
+local
+]
+interface IVsDropFilesHandler: IUnknown
+{
+  HRESULT ProcessHDrop([in] INT_PTR /*HDROP*/ hDropInfo, [out, retval] DWORD * pdwEffect);
+  // S_OK - drop processed
+  // S_FALSE - requests default behaviour
+}
+

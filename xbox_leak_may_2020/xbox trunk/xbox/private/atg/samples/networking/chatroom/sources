@@ -1,0 +1,35 @@
+TARGETNAME = ChatRoom
+PROJNAME   = ChatRoom
+SOURCES    = ChatRoom.cpp \
+             Voice.cpp
+TITLEID    = 0xFFFF010F
+
+NTTARGETFILE0 = $(O)\ChatRoom.dsp $(O)\Font.xpr $(O)\Gamepad.xpr $(O)\Resource.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000
+
+USE_STL             = 1
+USE_NATIVE_EH       = 1
+
+TARGETTYPE          = PROGRAM
+TARGETPATH          = obj
+UMTYPE              = xboxapp
+
+USER_C_FLAGS=/Gz
+
+C_DEFINES = $(C_DEFINES) -DSUBMIX_VOICES
+
+INCLUDES   = \
+	$(INCLUDES);\
+	$(BASEDIR)\private\atg\samples\common\include;\
+	$(BASEDIR)\public\sdk\inc
+
+LINKLIBS   = \
+             $(BASEDIR)\private\atg\samples\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\xapilib$(D).lib \
+             $(XDK_LIB_PATH)\dsound$(D).lib \
+             $(XDK_LIB_PATH)\xnet$(D).lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib \
+	     $(XDK_LIB_PATH)\xvoice$(D).lib

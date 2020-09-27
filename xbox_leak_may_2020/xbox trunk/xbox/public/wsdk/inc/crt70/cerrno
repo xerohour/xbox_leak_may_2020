@@ -1,0 +1,26 @@
+// cerrno standard header
+#pragma once
+#ifndef _CERRNO_
+#define _CERRNO_
+#include <yvals.h>
+
+#ifdef _STD_USING
+ #undef _STD_USING
+  #include <errno.h>
+ #define _STD_USING
+#else /* _STD_USING */
+ #include <errno.h>
+
+ #if _GLOBAL_USING
+_STD_BEGIN
+  #ifndef errno
+//using std::errno;
+  #endif
+_STD_END
+ #endif /* _GLOBAL_USING */
+#endif /* _CERRNO_ */
+#endif /* _STD_USING */
+/*
+* Copyright (c) 1992-2000 by P.J. Plauger.  ALL RIGHTS RESERVED.
+ * Consult your license regarding permissions and restrictions.
+ V3.09:0009 */

@@ -1,0 +1,50 @@
+!IF 0
+
+Copyright (c) Microsoft Corporation. All rights reserved
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+!ENDIF
+
+
+!if $(FREEBUILD)
+TARGETNAME=mtldrlib
+!else
+TARGETNAME=mtldrlibd
+!endif
+
+TARGETPATH=..\lib
+TARGETTYPE=LIBRARY
+
+SOURCES=sysload.c \
+        mtldrlib.c \
+        random.c
+
+i386_SOURCES=mtldrtls.asm
+
+INCLUDES=$(BASEDIR)\private\ntos\inc; \
+         $(SDK_INC_PATH); \
+         $(PRIVATE_INC_PATH); \
+         ..\inc
+
+MSC_WARNING_LEVEL=/W4 /WX
+PRECOMPILED_INCLUDE=mtldrp.h
+
+SYNCHRONIZE_BLOCK=1
+
+OBJLIBFILES=$(BASEDIR)\private\ntos\rtl\obj\*\xbdmrtl.lib

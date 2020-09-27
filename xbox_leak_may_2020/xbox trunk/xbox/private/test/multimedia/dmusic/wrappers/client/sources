@@ -1,0 +1,36 @@
+TARGETNAME=DMClient
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETTYPE=LIBRARY
+USE_MAPSYM=1
+USE_NATIVE_EH=1
+
+
+SYNCHRONIZE_DRAIN = 1
+
+INCLUDES =          $(PRIVATE_INC_PATH);                               \
+                    ..\;                                               \
+		            ..\trans;						                   \
+					..\..\dmfiler;                                     \
+                    $(BASEDIR)\private\test\inc;                       \
+                    $(BASEDIR)\private\test\multimedia\inc;            \
+                    $(BASEDIR)\private\windows\directx\dsound\waveldr  \
+
+
+#C_DEFINES =         $(C_DEFINES) -DD3D_OVERLOADS -DNOLOG -DXBOX
+C_DEFINES =         $(C_DEFINES) -DD3D_OVERLOADS -DWIN32 -DNTBUILT
+
+USER_C_FLAGS=-GR
+                                            
+SOURCES= 			                                       \
+     ctIUnk.cpp \
+     ctperf8.cpp \
+     ctLoader8.cpp \
+     ctSeg8.cpp \
+	 create.cpp \
+	 copy.cpp \
+	 util.cpp \
+#    ctaudpth.cpp \
+#    ctseg8.cpp
+
+
+

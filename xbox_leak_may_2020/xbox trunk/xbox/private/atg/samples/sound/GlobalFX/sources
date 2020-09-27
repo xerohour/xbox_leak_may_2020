@@ -1,0 +1,26 @@
+TARGETNAME = GlobalFX
+PROJNAME   = GlobalFX
+SOURCES    = GlobalFX.cpp
+TITLEID    = 0xffff0516
+
+NTTARGETFILE0 = $(O)\GlobalFX.dsp $(O)\image.bin $(O)\Font.xpr $(O)\Gamepad.xpr
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID) /INITFLAGS:0x00000000 /INSERTFILE:$(O)\image.bin,DSPImage,RN
+
+MSC_OPTIMIZATION =  $(MSC_OPTIMIZATION) /Od
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+INCLUDES   = $(INCLUDES);..\..\common\include
+
+LINKLIBS   = \
+             ..\..\common\src\obj\*\xbframe.lib \
+             $(XDK_LIB_PATH)\dsound$(D).lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib
+
+
+USE_LIBCMT=1

@@ -1,0 +1,40 @@
+#include <windows.h>
+#if 0
+Copyright (c) 2000 Microsoft Corporation
+#endif
+
+#include "resource.h"
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    IDS_NAME,    "FileOutput"
+END
+
+#ifdef WINNT
+
+#include <windows.h>
+#include <ntverp.h>
+
+#define VER_FILETYPE                VFT_DLL
+#define VER_FILESUBTYPE             VFT2_UNKNOWN
+#define VER_FILEDESCRIPTION_STR     "Microsoft DirectSound Effects"
+#define VER_INTERNALNAME_STR        VER_FILEDESCRIPTION_STR
+#define VER_ORIGINALFILENAME_STR    "FileOutputDMO.dll"
+
+#include "common.ver"
+
+#else	// win95
+
+#include <windows.h>
+#include <verinfo.h>
+
+#define VERSIONNAME               "FileOutputDMO.dll\0"
+#define VERSIONDESCRIPTION        "Microsoft DirectSound Effects\0"
+#define VERSIONTYPE               VFT_DLL
+#define VERSIONSUBTYPE            VFT2_UNKNOWN
+
+#include "verinfo.ver"
+
+#endif
+
+

@@ -1,0 +1,45 @@
+!IF 0
+
+Copyright (c) 2000 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    Netmon parser for Xbox Notification Queue protocol
+
+Author:
+
+    Tristan Jackson (tristanj)
+
+!ENDIF
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE
+
+DLLDEF=xnqparse.def
+DLLENTRY=_DllMainCRTStartup
+
+UMTYPE=nt
+
+TARGETNAME=xnqparse
+TARGETTYPE=DYNLINK
+TARGETPATH=$(BASEDIR)\private\test\lib
+TARGETLIBS= \
+    $(WSDK_LIB_PATH)\kernel32.lib \
+    $(WSDK_LIB_PATH)\nmapi.lib    \
+    $(WSDK_LIB_PATH)\wsock32.lib
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+    $(WSDK_INC_PATH);\
+    $(BASEDIR)\private\online\server\xqserver;\
+    $(BASEDIR)\private\online\server\servhlp
+
+SOURCES=\
+    xnqparse.cpp \
+    xnqparse.rc
+
+USE_CRTDLL=1

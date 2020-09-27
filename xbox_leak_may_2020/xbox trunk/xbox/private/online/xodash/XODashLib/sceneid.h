@@ -1,0 +1,46 @@
+//Copyright (c) Microsoft Corporation.  All rights reserved.
+
+#pragma once
+
+enum eSceneId
+{
+	eNullSceneId = -1,
+	eMainSceneId,
+	eMemorySceneId,
+	eMusicSceneId,
+	eSettingsSceneId,
+	eKeyboardSceneId,
+	eKeypadSceneId,
+	eKeypadPeriodSceneId,
+	eNTS_SettingsId,
+	eNTS_HostnameId,
+	eNTS_HostnameTSId,
+	eNTS_PPPoEId,
+	eNTS_PPPoETSId,
+	eNTS_IPId,
+	eNTS_DNSId,
+	eNTS_DNSTSId,
+	eCellWallSceneId,
+	eMsgBoxSceneId,
+	eProgressBarSceneId,
+	eACT_OnlineId,
+	eACT_IdId,
+	eNTS_StatusId,
+	eNTS_ConfigChoiceId,
+	eNTS_CableHelpId,
+	eNTS_PPPoEHelpId,
+	eNTS_IPHelpId,
+	eNTS_DNSHelpId,
+	eNTS_ServicesHelpId,
+	eACT_CreditId,
+	eACT_CountryId,
+	eACT_BillingId,
+	eGen_Large_PanelId,
+	eGEN_Exp_TumblersId,
+	eGEN_Dob_TumblersId,
+	eGEN_Welcome_PanelId,
+	eACT_Billing_CountryId,
+	eAnimWait,
+	eConnectAnim,
+	eLastSceneId
+}; 

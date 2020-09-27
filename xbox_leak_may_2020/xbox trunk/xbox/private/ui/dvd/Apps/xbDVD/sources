@@ -1,0 +1,42 @@
+TARGETNAME = xbDVD
+PROJNAME   = "ST DVD Player"
+
+SOURCES    = DVDMediaPlayer.cpp \
+             RavDvd.cpp         \
+             XbRavMenu.cpp      \
+             XbSplash.cpp       \
+             XbApp.cpp          \
+             XbFile.cpp         \
+             XbFont.cpp         \
+             XbHelp.cpp         \
+             XbInput.cpp        \
+             XbUtil.cpp         \
+             XbResource.cpp     \
+             XbTga.Cpp
+
+TITLEID    = 0xfffe0100
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /TESTID:$(TITLEID)
+
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+NOT_UNICODE = 1
+
+USE_NATIVE_EH = 1
+
+C_DEFINES  = $(C_DEFINES) -D_USE_OSD
+
+INCLUDES   = $(INCLUDES);inc;..\..;.
+
+USE_STL    = 1
+
+LINKLIBS   = \
+             ..\..\driver\softwarecinemaster\cinemast\$(O)\cinemlib$(D).lib \
+             ..\..\driver\dvdpldrv\common\avf\$(O)\dvdpldrv$(D).lib \
+             $(XDK_LIB_PATH)\xnet$(D).lib   \
+             $(XDK_LIB_PATH)\dsound$(D).lib \
+             $(XDK_LIB_PATH)\d3d8$(D).lib   \
+             $(XDK_LIB_PATH)\d3dx8$(D).lib  \
+             $(XDK_LIB_PATH)\xgraphics$(D).lib

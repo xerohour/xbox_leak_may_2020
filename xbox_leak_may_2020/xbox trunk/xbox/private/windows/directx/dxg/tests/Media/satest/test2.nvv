@@ -1,0 +1,19 @@
+xvs.1.1
+; Test extended range of constant registers
+mov r0,c[0]		    ; Normal
+mov r0,c[95]		; Normal
+mov r0,c[-96]		; First extended constant
+mov r0,c[-1]		; Last extended constant
+; Test ability to write to oB0 and oB1 (BFC0 and BFC1)
+mov oD0,r0
+mov oD1,r0
+mov oB0,r0
+mov oB1,r0
+
+; Test additional instructions
+
+dph r0,r0,c[1]
+rcc r1.x,r0
+
+; Make verifier happy
+mov oPos,v0

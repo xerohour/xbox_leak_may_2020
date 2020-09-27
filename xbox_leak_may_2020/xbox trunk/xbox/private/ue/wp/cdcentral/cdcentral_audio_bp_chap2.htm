@@ -1,0 +1,522 @@
+<td valign="TOP" width="125">
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_info.htm" title="Home">Home</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral.htm" title="Content and Design Central">Content and Design Central</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/cdcentral_despro_corner.htm" title="Designer/Producer's Corner">Designer/Producer's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_art_corner.htm" title="Artist's Corner">Artist's Corner</a><BR>
+
+<a href="/BPProgInfo.asp?Page=content/cdcentral_audio_corner.htm" title="Audio Designer's Corner">Audio Designer's Corner</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_guide_info.htm" 
+title="Xbox Guide">Xbox Guide</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_documentation.htm" title="Publisher Documentation">Publisher Documentation</a></P>
+
+<P><a href="/BPProgInfo.asp?Page=content/pub_insider.htm" title="Xbox Insider">Xbox Insider</a></P>
+
+<BR>
+<BR>
+</td><td><br><br>
+<H2>Best Practices for Xbox Audio Design:<BR>
+Chapter 2 - Xbox Audio Content</H2> 
+
+<P><I>By Scott Selfon, Audio Content Consultant, Xbox Content and Design Team</I></P>
+
+<SMALL>Microsoft Confidential</SMALL>
+
+<H2>Introduction</H2>
+<P>This document will discuss the formats and kinds of audio content that are supported on the Xbox&#8482; video game system from Microsoft. As discussed in chapter 1, the Xbox implements a platform-specific version of the Microsoft&#174; DirectX&#174; 8.0 libraries. Many of the file formats and content specifics supported by the Microsoft&#174; Windows&#174; APIs are supported on Xbox, even while the interfaces to play that content may be modified. If you have questions about content compatibility and authoring, or requests for content support not detailed below, please contact us at <a href="mailto:content@xbox.com">content@xbox.com</a>.</P> 
+<P style="margin-left:15pt"><B><I>Note</I></B>&nbsp;&nbsp;&nbsp;This document is not a complete specification of the Microsoft&#174; DirectSound&#174; and Microsoft&#174; DirectMusic&#174; file formats, but rather a list of the content formats supported. For more detailed information, please consult the Xbox Development Kit (XDK) documentation. </P>
+<H2>DirectSound (Wave) Content for Xbox</H2>
+<P>The Xbox Media Communications Processor (MCP) is a powerful hardware synthesis engine, with advanced audio synthesis and processing capabilities. The goal is to give audio designers much more flexibility when authoring a variety of content while still minimizing disk and memory footprint for the running application. The presence of the Xbox MCP means that many scenarios that would require multiple versions of content to be authored on previous platforms can now use the same source media to accomplish these effects. For instance, the real-time hardware occlusion and obstruction filtering means a single source wave can be used when a sound originates right in front of the player as well as when it comes from behind a door or wall.</P>
+<H3>Comparisons with DirectSound on the Windows Platform</H3>
+<P>Wave files continue to be the preferred format used for DirectSound playback of audio data. However, there are a few differences to note:</P>
+
+<UL>
+<LI>The DirectSound libraries for Xbox system software natively support adaptive differential pulse code modulation (ADPCM) and Microsoft&#174; Windows Media&#8482; Audio (WMA) compression only. Unlike the Windows platform, Xbox system software will not have an Audio Compression Manager (ACM). This means that compression schemes other than those listed below will require the authoring and delivery of an Xbox Media Object along with the title, which will decode the audio data in software.</LI><BR><BR>
+<LI>Xbox supports multichannel source audio. You should use linear uncompressed pulse code modulation (PCM) WaveFormatEx wave files for this.</LI>
+</UL>
+<H3>Wave Formats Supported by Xbox</H3>
+<P>The Xbox supports 8- and 16-bit PCM data, 4-bit Xbox ADPCM data (proprietary format), and WMA-compressed wave data. An Xbox-specific implementation of WAVEFORMATEX is used to specify the number of channels. Up to six interleaved channels of data may be used. The following wave formats and specifications are supported:</P>
+
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<tr>
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>Specification</B></TD>  
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Supported Formats</B></TD>  
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Comments</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Wave format (uncompressed)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Linear PCM</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Wave format (compressed)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>ADPCM, WMA</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>For DLS-2, ADPCM support</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Channels</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Mono, stereo, 4.0, 5.1 (up to six discrete channels)</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Dolby&#174; Digital ("AC-3") encoded source waves not supported as source content within Xbox MCP</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Sampling rate</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>188 Hz to 48 kHz</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Upsampled in hardware to 48 kHz (multipoint interpolation)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Bits per sample</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>8 bits, 16 bits (PCM/WMA)<br>4 bits (ADPCM)</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Xbox MCP uses 24-bit resolution internally, outputs 20-bit</TD>
+</TR>
+  </TABLE>
+
+<H3>Unsupported Wave Formats</H3>
+<P>The Xbox MCP will not support some formats:</P>
+
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<tr>
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>Specification</B></TD>  
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Unsupported Formats</B></TD>  
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Comments</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Wave format (uncompressed)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Pre-encoded formats, such as Dolby Digital and DTS *</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Use 6- or 4-channel PCM for surround</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Wave format (compressed)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>MPEG-1 Layer 3 (MP3), Windows-supported codecs</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Use Xbox Media Objects for custom compression scheme decode (in software)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Channels</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>3 channels, 5 channels, >6 channels</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Use 6 or 4 channel waves (hardware can automatically mix down to stereo)</TD>
+</TR>
+</TABLE>	
+<P>*&nbsp;&nbsp;Note that an application is free to bypass the Xbox MCP entirely and write directly to the analog or digital outputs, which would allow for such custom-encoded formats. Be aware that this would preclude the use of hardware mixing or effects.</P> 
+<H3>Prerecorded Audio Recommendations</H3>
+<P>For prerecorded musical scores and ambience, we recommend delivering two versions of audio:</P>
+<OL><LI>48-kHz PCM wave with six discrete channels (for 5.1 playback)</LI><BR><BR>
+<LI>48-kHz PCM wave with two discrete channels (for stereo playback), optionally Dolby&#174; Surround encoded</LI></OL>
+
+<p>If you want to deliver prerecorded audio in compressed form, remember that each hardware buffer can be routed to up to eight mix bins, including the six specific output channels, as you see fit. For instance, you could create three stereo ADPCM streams (which would be six discrete channels of audio) and map them to 5.1 channels in hardware. This would not be recommended for WMA, because the software decode can spike to 10 to 15 percent of the CPU per WMA voice. Also, watch for bandwidth issues if you don't position the audio streams close to each other on the DVD or hard disk.</p>
+<P>Note that if you wish to deliver only one version of audio, the six-channel mix can be mixed down within the hardware for playback on stereo and Dolby Surround systems. However, keep in mind that certain information may be altered or lost:</P>
+
+<UL><LI>Existing LFE channel is ignored</LI><BR><BR>
+<LI>Discrete left and right surround channels are merged into single mono surround</LI><BR><BR>
+<LI>Nothing will be sent to the center channel unless it is explicitly addressed to the center</LI></UL>
+<P>For real-time, 3-D-positioned audio, mono waves are required.</P>
+<p>For more information on multichannel authoring and implementation, see the white paper entitled <a href="/BPProgInfo.asp?Page=content/cdcentral_audio_wp_surround.htm" title="The Surround Experience: Authoring for and Implementing Multichannel Audio Playback">The Surround Experience: Authoring for and Implementing Multichannel Audio Playback</a></P><BR><BR>
+
+<H3>Looping Waves</H3>
+<P>DirectSound supports a single pair of loop points within a wave, so the entire buffer does not need to be looped. Looping on "one-shot" (in memory) waves is performed in hardware. Four pieces of information must be supplied:</P>
+<UL><LI>Sample start</LI><BR><BR>
+<LI>Loop start</LI><BR><BR>
+<LI>Loop end</LI><BR><BR>
+<LI>Sample end</LI></UL>
+<P>These pieces of information are also what to specify for DLS-2 waves (if you're using DirectMusic).</P>
+<P>Glitch-free looping is guaranteed for PCM waves on any boundary and ADPCM waves on 64 sample boundaries.</P>
+
+<H2>DirectMusic Content for Xbox</H2>
+<P>Though we have attempted to make the programming interface feature set leaner than the Windows APIs, the actual content support will remain mostly intact. Some features (detailed below) have been omitted from launch because they depend on libraries not supported at launch (see chapter 1 of this document).</P>
+<H3>DirectMusic Behavior for Xbox System Software v1.0</H3>
+<P>Audio designers can author DirectMusic content on their development machine, running Windows 2000 with both DirectX 8 and DirectMusic Producer 8 installed. The run-time files created with DirectMusic Producer can then be copied to the Xbox machine, where the content can be played by the DirectMusic libraries.</P> 
+<P>The following DirectX 8 features are not supported for Xbox System Software v1.0 (August), but will be added in a future Xbox System Software release:</P>
+<UL><LI>Effects control using parameter control tracks (effects can be managed via code by developer)</LI><BR><BR>
+<LI>WMA compression of waves in wave tracks</LI><BR><BR>
+<LI>Arbitrary audiopaths (only standard audiopaths will be supported; effects can be authored by the developer)</LI>
+<LI>5.1 audiopaths (content can still be manually panned to six-channel output)
+</UL>
+<P>Attempting to play content using these features may result in an error.</P>
+
+<H3>DirectMusic Content Supported on Xbox (Launch)</H3>
+<H4>Track Types</H4>
+<P>DirectMusic on Xbox supports most of the DirectMusic track types present in Windows DirectMusic, with several limitations or differences:</P>
+
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<tr>
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>Track Type</B></TD>  
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Description</B></TD>  
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Limitations/Differences on Xbox</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Band Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Links DLS-2 custom waves to MIDI sequences</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>No GM.DLS collection supplied with Xbox System Software</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Tempo Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Provides music tempo information</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Time Signature Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Provides musical time signature information</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Sequence Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Basic MIDI sequence</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Wave Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Time-sequenced, variable wave playback</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>ADPCM compression only (WMA in subsequent release)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Script Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Calls script routines</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Full support for Microsoft&#174; Visual Basic&#174; Scripting Edition not included; only AudioVBScript subset is supported</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Style Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Interactive, variable DLS-2 music playback</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Marker Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Sets marker positions</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Groove Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Sets style intensity or use embellishments</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Chord Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Defines a scale and chord over which to play content</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Chordmap Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Defines chord progression paths to use variably</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Signpost Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Uses chord from a specific chordmap signpost group</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Mute Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Selectively mutes/remaps performance channel(s)</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Segment Trigger Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Triggers secondary or primary segments to begin playing</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Lyric Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Allows placement of text lyrics that tools can intercept and use</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+  </TABLE>		
+  <BR>
+<H4>File Formats</H4>
+<P>DirectMusic on Xbox supports a subset of the DirectMusic file types present in Windows DirectMusic.</P>
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>File Format (extensions)</B></TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Description</B></TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Limitations on Xbox</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Chordmap (.cdp/.cdm)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Defines chord progression paths to use variably</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Container (.cop/.con)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Packages up one or more other files for easier delivery and use</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>DLS Collection (.dlp/.dls)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Defines DLS-2 custom wavetable instruments</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Conditional chunks not supported; ADPCM is only compression format supported</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Script (.spp/.spt)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Routines and variables to communicate between content and application</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>VBScript not supported (AudioVBScript only)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Segment (.sgp/.sgt)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Primary playback mechanism, embedded or referenced content</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>See Track Types list</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Style (.stp/.sty)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Collection of rhythmic and melodic patterns, motifs, and embellishments	</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Wave (.wvp/.wav)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Fixed playback of sampled sound that can be played in a segment (or added to a DLS instrument)</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>See wave format restrictions in DirectSound section of this chapter.</TD>
+</TR>
+  </TABLE>	
+
+<H3>Unsupported DirectMusic Content Formats</H3>
+<P>Xbox will not support the following features at launch:</P>
+<UL><LI>DirectX Media Objects (DMOs)&#8212;supplanted by hardware effects in the Xbox MCP and Xbox Media Objects. Your developer can author a GP program that uses these effects and route DirectMusic content to such effects paths. See the section <B>Authoring for Hardware DSP Effects (Global Processor of Xbox MCP)</B> for more details.</LI><BR><BR>
+<LI>DirectX Audio Scripting using VBScript (Xbox will support AudioVBScript only)&#8212;VBScript depends on oleaut32.dll, vbscript.dll, and several other files (~1 MB footprint) not native to Xbox, so it will not be supported.</LI></UL>
+ 
+<H4>Track Types</H4>
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<tr>
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>Track Type</B></TD>  
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Description</B></TD>  
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Reason Omitted</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Parameter Control Track</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Modifies effect parameters</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Not supported for Xbox System Software v1.0; effects can be manipulated programmatically</TD>
+</TR>
+</TABLE>
+<P>All other track types (in segments) will be supported for launch. See table above for limitations.</p>
+
+<H4>File Formats</H4>
+<P>The following file types will not be supported at launch.</P>
+
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>File Format (extensions)</B></TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Description</B></TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Reason Omitted</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Audiopath (.aup/.aud)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Mixes down performance channels, adds audio effects</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Use standard audiopaths for launch</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Band (.bnp/.bnd)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Separates band (DLS-2 instrument lists) files</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Bands in segments provide full feature set</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>MIDI (.smf/.mid/.mff/.rmi)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Standard MIDI sequences</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Import as segment and add band data (no General MIDI collection supplied by console)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Template (.tpp/.tpl)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Legacy (DirectX 7) composable segments</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Supplanted by segments for DirectX 8</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>Toolgraph (.tgp/.tgr)</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Real-time effects on MIDI data</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Can be accomplished in code via IDirectMusicTool8 interface</TD>
+</TR>
+  </TABLE>	
+
+<H3>Authoring for Hardware DSP Effects (Global Processor of Xbox MCP)</H3>
+<P>The Xbox MCP currently natively supports the following effects:</P>
+<UL><LI>Amplitude modulation (mono/stereo)</LI><BR><BR>
+<LI>Chorus (mono/stereo)</LI><BR><BR>
+<LI>Crosstalk</LI><BR><BR>
+<LI>Distortion</LI><BR><BR>
+<LI>Echo (mono/stereo)</LI><BR><BR>
+<LI>Flanger (mono/stereo)</LI><BR><BR>
+<LI>I3DL2 reverb</LI><BR><BR>
+<LI>IIR2 (Band Pass/Parametric EQ*)</LI><BR><BR>
+<LI>"Mini" reverb</LI><BR><BR>
+<LI>Mixer</LI></UL>
+
+<P>*&nbsp;&nbsp;Parametric EQ is also supported on a voice-by-voice basis in the Voice Processor (outside of the Global Processor [GP]). This is discussed in more detail in chapter 3 of the Best Practices for Xbox Audio Design document.</P>
+<P>GP DSP programs can be authored by a developer or content creator using the XGPImage tool supplied with the XDK. Real-time changes to effect parameters and programs are performed programmatically by the developer. To use GP programs with DirectMusic content, the developer can obtain the buffer that a (standard) audiopath is mixing into and assign it to a particular effect chain.
+<P>Note that the parameters for these hardware effects won't always correspond to (software) PC DirectX Media Objects, and the qualities of the hardware effects are different from the software PC DMOs. You'll generally want to experiment with them on the actual Xbox hardware. Several sample applications provided with the XDK should assist you with this.
+
+<H3>DirectMusic Producer Demo Content</H3>
+<P>In a subdirectory of DirectMusic Producer on the XDK CD (and also available at <a href="http://msdn.microsoft.com">http://msdn.microsoft.com</a>), there is a self-extracting executable containing the Demo8 project. This project highlights some of the many features of DirectMusic and how they are exposed in Producer. Because DirectMusic Producer is used to author content for both PC and Xbox titles, some of the content in Demo8 is not applicable to the Xbox. In particular:</P>
+<UL><LI>Much of the content uses instruments from the General MIDI DLS collection (GM.dls), which is delivered with Windows operating systems. This content will not work on Xbox without first authoring custom DLS instruments.</LI></UL>
+<P>In addition, the author should note that the following book-marked content (selected from DirectMusic Producer's Bookmarks Toolbar) has aspects that will be implemented differently or will not be supported on Xbox at launch.</P>
+
+<table cellspacing=0 cellpadding=0 style='margin-left:.2in;border-collapse:
+ collapse;border:none;'>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid windowtext .5pt;
+  padding:0in 5.4pt 0in 5.4pt'><B>Bookmark</B></TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Description</B></TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'><B>Items Not Applicable</B></TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>5 - Bands</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Explains the behavior of bands</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Instruments from GM/GS collection (GM.dls)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>42 - Scripts</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Sample script with routines called by script track</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Script uses VBScript language (only AudioVBScript supported on Xbox)</TD>
+</TR>
+<TR>  
+ <td width=198 valign=top style='width:148.5pt;border:solid black .5pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>47 - Audiopaths</TD>
+ <td width=196 valign=top style='width:147pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Plays content on several audiopaths using effects</TD>
+ <td width=196 valign=top style='width:157.8pt;border:solid windowtext .5pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>Custom audiopaths are not supported for Xbox System Software v1.0</TD>
+</TR>
+</table>
+
+<BR><BR><BR>
+<SMALL>Updated Tuesday, July 17, 2001</SMALL>
+
+
+</td>
+

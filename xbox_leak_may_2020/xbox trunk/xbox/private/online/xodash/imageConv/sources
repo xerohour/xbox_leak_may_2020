@@ -1,0 +1,30 @@
+TARGETNAME=ImageConv
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+UMENTRY=main
+UMTYPE=console
+
+USE_STL = 1
+USE_NATIVE_EH=1
+
+SOURCES= ImageConv.cpp \
+		 Bundler.cpp \
+         Token.cpp \
+         LoadImage.cpp \
+         BaseTexture.cpp \
+         Texture.cpp \
+         VolumeTexture.cpp \
+         Cubemap.cpp \
+         VB.cpp \
+         UserData.cpp
+
+
+TARGETLIBS=$(TARGETLIBS) \
+           $(BASEDIR)\public\wsdk\lib\gdi32.lib \
+           $(BASEDIR)\Public\wsdk\lib\d3d8.lib \
+           $(BASEDIR)\Public\wsdk\lib\d3dx8.lib \
+           $(BASEDIR)\Public\wsdk\lib\user32.lib \
+           $(BASEDIR)\Public\wsdk\lib\i386\xgraphics$(D).lib
+
+
+NO_BINPLACE = 1

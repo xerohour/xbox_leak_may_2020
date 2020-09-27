@@ -1,0 +1,158 @@
+!IF 0
+
+Copyright (c) 1999-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    Xbox
+
+Revision History:
+
+$(HWTESTLIBS)\hdperf_ll.lib \
+$(HWTESTLIBS)\hdperf_sw.lib \
+$(HWTESTLIBS)\Dolphin.lib \
+
+!ENDIF
+
+
+TARGETNAME=hwharness
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=xboxapp
+
+USE_LIBCMT=1
+USE_MAPSYM=1
+
+SYNCHRONIZE_DRAIN=1
+
+SOURCES=main.cpp
+
+TESTLIBS=$(BASEDIR)\private\test\lib\$(TARGET_DIRECTORY)
+HWTESTLIBS=$(BASEDIR)\private\test\hardware\lib\$(TARGET_DIRECTORY)
+
+D3DTESTLIBS=$(_NTDRIVE)\$(_NTROOT)\private\windows\directx\dxg\tests\common\xbox\obj\$(TARGET_DIRECTORY)
+
+INCLUDES=$(INCLUDES);$(BASEDIR)\private\test\inc;
+
+XE_FLAGS=/TESTID:0x00000001 /INITFLAGS:3 /TESTNAME:"HWHarness" \
+		 /INSERTFILE:..\harness\media\chessbrd_chess.bmp,chessbrd_chess.bmp,n \
+		 /INSERTFILE:..\harness\media\chessbrd_edge.bmp,chessbrd_edge.bmp,n \
+		 /INSERTFILE:..\harness\media\chessbrd_lbishop.xdg,chessbrd_lbishop.xdg,n \
+		 /INSERTFILE:..\harness\media\chessbrd_lking.xdg,chessbrd_lking.xdg,n \
+		 /INSERTFILE:..\harness\media\chessbrd_lpawn.xdg,chessbrd_lpawn.xdg,n \
+		 /INSERTFILE:..\harness\media\chessbrd_lqueen.xdg,chessbrd_lqueen.xdg,n \
+		 /INSERTFILE:..\harness\media\chessbrd_lrook.xdg,chessbrd_lrook.xdg,n \
+		 /INSERTFILE:..\harness\media\chessbrd_pine.bmp,chessbrd_pine.bmp,n \
+		 /INSERTFILE:..\harness\media\chessbrd_pine2.bmp,chessbrd_pine2.bmp,n \
+		 /INSERTFILE:..\harness\media\chessbrd_sknight.xdg,chessbrd_sknight.xdg,n \
+		 /INSERTFILE:..\harness\media\clockwrk_backcogs.bmp,clockwrk_backcogs.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog0.bmp,clockwrk_cog0.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog1.bmp,clockwrk_cog1.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog10.bmp,clockwrk_cog10.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog11.bmp,clockwrk_cog11.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog12.bmp,clockwrk_cog12.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog13.bmp,clockwrk_cog13.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog14.bmp,clockwrk_cog14.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog15.bmp,clockwrk_cog15.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog16.bmp,clockwrk_cog16.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog2.bmp,clockwrk_cog2.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog3.bmp,clockwrk_cog3.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog4.bmp,clockwrk_cog4.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog5.bmp,clockwrk_cog5.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog6.bmp,clockwrk_cog6.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog7.bmp,clockwrk_cog7.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog8.bmp,clockwrk_cog8.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_cog9.bmp,clockwrk_cog9.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft0.bmp,clockwrk_shaft0.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft1.bmp,clockwrk_shaft1.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft2.bmp,clockwrk_shaft2.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft3.bmp,clockwrk_shaft3.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft4.bmp,clockwrk_shaft4.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft5.bmp,clockwrk_shaft5.bmp,n \
+		 /INSERTFILE:..\harness\media\clockwrk_shaft6.bmp,clockwrk_shaft6.bmp,n \
+
+
+TARGETLIBS=	$(TESTLIBS)\harnesslib.lib \
+		$(TESTLIBS)\xtestlib.lib \
+		$(TESTLIBS)\xnetref$(D).lib \
+		$(TESTLIBS)\xmem.lib \
+		$(TESTLIBS)\xlog.lib \
+		$(TESTLIBS)\ghprof.lib \
+		$(TESTLIBS)\netsync.lib \
+		$(TESTLIBS)\dxconio.lib \
+		$(TESTLIBS)\xlogconio.lib \
+		$(TESTLIBS)\dsoundtest.lib \
+                $(TESTLIBS)\logframework.lib \
+		$(D3DTESTLIBS)\d3dtestlib.lib \
+		$(SDK_LIB_PATH)\xapilib$(D).lib \
+		$(SDK_LIB_PATH)\xnet$(D).lib \
+		$(SDK_LIB_PATH)\d3d8$(D).lib \
+		$(SDK_LIB_PATH)\d3dx8$(D).lib \
+		$(SDK_LIB_PATH)\dsound$(D).lib \
+		$(SDK_LIB_PATH)\netxmo$(D).lib \
+		$(SDK_LIB_PATH)\xgraphics$(D).lib \
+		$(SDK_LIB_PATH)\echoxmo$(D).lib \
+		$(SDK_LIB_PATH)\waveldr$(D).lib \
+        $(BASEDIR)\private\lib\$(TARGET_DIRECTORY)\rsa32.lib \
+        $(BASEDIR)\private\lib\$(TARGET_DIRECTORY)\xapilibp$(D).lib \
+		$(TESTMODULES)
+
+TESTMODULES=$(HWTESTLIBS)\cpuid.lib \
+		$(HWTESTLIBS)\disktest.lib \
+		$(HWTESTLIBS)\DolphinClassic.lib \
+		$(HWTESTLIBS)\dvdauth.lib \
+		$(HWTESTLIBS)\dvdecc.lib \
+		$(HWTESTLIBS)\dvdperf.lib \
+		$(HWTESTLIBS)\dvdservopage.lib \
+		$(HWTESTLIBS)\hawk.lib \
+		$(HWTESTLIBS)\hdperf.lib \
+		$(HWTESTLIBS)\mempat.lib \
+		$(HWTESTLIBS)\memsize.lib \
+		$(HWTESTLIBS)\memtest.lib \
+		$(HWTESTLIBS)\memval.lib \
+		$(HWTESTLIBS)\msr.lib \
+		$(HWTESTLIBS)\mu.lib \
+		$(HWTESTLIBS)\netdata.lib \
+		$(HWTESTLIBS)\rumble.lib \
+		$(HWTESTLIBS)\speedtest.lib \
+		$(TESTLIBS)\chessbrd.lib \
+		$(TESTLIBS)\clockwrk.lib \
+		$(TESTLIBS)\d3dlocus.lib \
+		$(TESTLIBS)\dsoundtest.lib \
+		$(TESTLIBS)\dsutil.lib \
+		$(TESTLIBS)\idelog.lib \
+		$(TESTLIBS)\launcher.lib \
+		$(TESTLIBS)\memperf.lib \
+		$(TESTLIBS)\misorbit.lib \
+		$(TESTLIBS)\mmstress.lib \
+		$(TESTLIBS)\sdstress.lib \
+		$(TESTLIBS)\waveout$(D).lib
+
+BINPLACE_PLACEFILE=	placefil.txt
+
+MISCFILES=$(BASEDIR)\private\test\inc\xlogconio.h \
+          $(TESTLIBS)\dsoundtest.lib \
+          $(TESTLIBS)\dxconio.lib \
+          $(TESTLIBS)\GhProf.lib \
+          $(TESTLIBS)\harnesslib.lib \
+          $(TESTLIBS)\launcher.lib \
+          $(TESTLIBS)\netsync.lib \
+          $(TESTLIBS)\xmem.lib \
+          $(TESTLIBS)\xlog.lib \
+		  $(TESTLIBS)\xlogconio.lib \
+          $(TESTLIBS)\xtestlib.lib \
+          $(TESTLIBS)\xnetref$(D).lib \
+          testini.ini \
+          emc.ini

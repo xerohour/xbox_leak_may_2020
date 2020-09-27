@@ -1,0 +1,168 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdfinish.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdFinish              */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdFinish                                                   */
+ /*                                                                        */
+ /*   Descrip:  This dialog will inform the user that the installation is  */
+ /*             done.  It will display optionally some selections for      */
+ /*             end installation processing.                               */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdFinish( szTitle, szMsg, szMsg2, szOpt1, szOpt2, bOpt1, bOpt2 )
+          STRING  szDlg, szTemp;
+          INT     nId, list;
+          BOOL    bWin16, bDone;
+          HWND    hwndDlg, hwndRbut, hwndFbut;
+        begin
+
+          szDlg     = SD_DLG_FINISH;
+          nSdDialog = SD_NDLG_FINISH;
+
+          // determine OS to be used for restarting
+          bWin16 = FALSE;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdFinish );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "bOpt1", DATA_NUMBER, szTemp, bOpt1 );
+               SilentReadData( szAppKey, "bOpt2", DATA_NUMBER, szTemp, bOpt2 );
+            endif;
+            return nId;
+          endif;
+
+          // ensure general initialization is complete
+          if (!bSdInit) then
+             SdInit();
+          endif;
+
+          if (EzDefineDialog( szDlg, "", "", SD_NDLG_FINISH) = DLG_ERR) then
+             return -1;
+          endif;
+
+          // Loop in dialog until the user selects a standard button
+          Disable( BACKBUTTON );
+          bDone = FALSE;
+
+          while (!bDone)
+
+             nId = WaitOnDialog( szDlg );
+
+             switch (nId)
+             case DLG_INIT:
+                  hwndDlg = CmdGetHwndDlg( szDlg );
+
+                  if(szMsg != "") then
+                      SdSetStatic( szDlg, SD_STA_MSG1, szMsg );
+                  endif;
+
+                  if(szMsg2 != "") then
+                      SdSetStatic( szDlg, SD_STA_MSG2, szMsg2 );
+                  endif;
+
+                  // set or hide radiobutton information
+                  if (szOpt1 != "") then
+                      CtrlSetText( szDlg, SD_RBUT_LAUNCHREADME, szOpt1 );
+                  else
+                      hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_LAUNCHREADME );
+                      ShowWindow( hwndRbut, SW_HIDE );
+                      bOpt1 = FALSE;
+                  endif;
+
+                  if (szOpt2 != "") then
+                      CtrlSetText( szDlg, SD_RBUT_LAUNCHAPP, szOpt2 );
+                  else
+                      hwndRbut = GetDlgItem( hwndDlg, SD_RBUT_LAUNCHAPP );
+                      ShowWindow( hwndRbut, SW_HIDE );
+                      bOpt2 = FALSE;
+                  endif;
+
+                  // general initialization
+                  SdGeneralInit( szDlg, hwndDlg, 0, szSdProduct );
+
+                  if(szTitle != "") then
+                      SetWindowText( hwndDlg, szTitle );
+                  endif;
+
+                  // set radiobuttons
+                  if (bOpt1) then
+                    CtrlSetState( szDlg, SD_RBUT_LAUNCHREADME, BUTTON_CHECKED );
+                  endif;
+
+                  if (bOpt2) then
+                    CtrlSetState( szDlg, SD_RBUT_LAUNCHAPP, BUTTON_CHECKED );
+                  endif;
+
+                  if ((szOpt1 = "") && (szOpt2 = "")) then
+                     hwndFbut = GetDlgItem( hwndDlg, SD_PBUT_CONTINUE );
+                     SetFocus( hwndFbut );
+                  else
+                     // force product name in radiobuttons
+                     SdPlugInProductName( szDlg, hwndDlg, szSdProduct, SD_RBUT_LAUNCHREADME, 2 );
+                  endif;
+
+             case SD_PBUT_CONTINUE:     // Finish button
+                  nId   = NEXT;
+                  bDone = TRUE;
+
+                  bOpt1 = FALSE; bOpt2 = FALSE;
+                  if (CtrlGetState( szDlg, SD_RBUT_LAUNCHREADME) = BUTTON_CHECKED) then
+                    bOpt1 = TRUE;
+                  endif;
+
+                  if (CtrlGetState( szDlg, SD_RBUT_LAUNCHAPP) = BUTTON_CHECKED) then
+                    bOpt2 = TRUE;
+                  endif;
+
+             case BACK:
+                  nId = BACK; // should be disabled
+
+             case DLG_ERR:
+                  SdError( -1, szDlg );
+                  nId   = -1;
+                  bDone = TRUE;
+
+             case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+             default:
+                  // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                  endif;
+             endswitch;
+
+          endwhile;
+
+          EndDialog( szDlg );
+          ReleaseDialog( szDlg );
+
+          SdUnInit();
+          Enable( BACKBUTTON );
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdFinish );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+          SilentWriteData( szAppKey, "bOpt1", DATA_NUMBER, "", bOpt1 );
+          SilentWriteData( szAppKey, "bOpt2", DATA_NUMBER, "", bOpt2 );
+
+          return nId;
+        end;
+

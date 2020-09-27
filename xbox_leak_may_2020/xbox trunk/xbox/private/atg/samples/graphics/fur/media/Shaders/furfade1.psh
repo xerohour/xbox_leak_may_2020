@@ -1,0 +1,32 @@
+;-----------------------------------------------------------------------------
+; Fur pixel shader for blending between coarse and fine detail textures
+;
+; Copyright (C) 2001 Microsoft Corporation
+; All rights reserved.
+;-----------------------------------------------------------------------------
+ps.1.0
+; v0 = diffuse conditioning term
+; c0 = proportion of coarse LOD texture to blend, 0=detail 1=coarse
+  tex t0 ; fine LOD hair texture
+  tex t1 ; hair lighting texture
+  tex t2 ; coarse LOD hair texture
+#ifndef TIMES1
+  mul_x2 r1.rgb, v0, t1		; scale hair lighting by diffuse conditioning
++ mul    r1.a,   v0, t1		;	no 2x on alpha
+  lrp    r0, c0, t2, t0 	; r0 = c0*t2 + (1-c0)*t0
+  mul_x2 r0.rgb, r1, r0		; modulate by hair texture
++ mul    r0.a,   r1, r0		;	no 2x on alpha
+#else
+
+#ifndef NEVER
+  mul    r1, v0, t1			; scale hair lighting by diffuse conditioning
+  mov r0, t0				; DEBUG: copy hair texture from t0
+  ; lrp    r0, c0, t2, t0 	; r0 = c0*t2 + (1-c0)*t0
+  mul    r0, r1, r0			; modulate by hair texture
+#else
+  mul    r1, v0, t1			; scale hair lighting by diffuse conditioning
+  mul    r0, r1, t0			; modulate hair texture
+#endif
+
+#endif
+

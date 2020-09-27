@@ -1,0 +1,127 @@
+
+ /*=======================================================================*/
+ /*                                                                       */
+ /*           (c) InstallShield Software Corporation (1996-1997)          */
+ /*            (c)  InstallShield Corporation  (1990-1996)                */
+ /*                       Schaumburg, Illinois 60173                      */
+ /*                          All Rights Reserved                          */
+ /*                           InstallShield (R)                           */
+ /*                                                                       */
+ /*   File    : sdadpath.rul                                              */
+ /*                                                                       */
+ /*   Purpose : This file contains the code for the SdAskDestPath         */
+ /*             script dialog function.                                   */
+ /*                                                                       */
+ /*=======================================================================*/
+
+ /*------------------------------------------------------------------------*/
+ /*                                                                        */
+ /*   Function: SdAskDestPath                                              */
+ /*                                                                        */
+ /*   Descrip:  This dialog will ask user for the destination directory    */
+ /*             for installation.                                          */
+ /*   Misc:                                                                */
+ /*                                                                        */
+ /*------------------------------------------------------------------------*/
+function SdAskDestPath(szTitle, szMsg, svDir, nStyle)
+          STRING  szDlg, svDirLoc, szTemp;
+          INT     nId, nTemp;
+          HWND    hwndDlg;
+          BOOL    bDone;
+        begin
+
+          szDlg     = SD_DLG_ASKDESTPATH;
+          nSdDialog = SD_NDLG_ASKDESTPATH;
+          svDirLoc = svDir;
+
+          // record data produced by this dialog
+          if (MODE=SILENTMODE) then
+            SdMakeName( szAppKey, szDlg, szTitle, nSdAskDestPath );
+            SilentReadData( szAppKey, "Result", DATA_NUMBER, szTemp, nId );
+            if ((nId != BACK) && (nId != CANCEL)) then
+               SilentReadData( szAppKey, "szDir", DATA_STRING, svDir, nTemp );
+            endif;
+
+            return nId;
+          endif;
+
+          // ensure general initialization is complete
+          if (!bSdInit) then
+             SdInit();
+          endif;
+
+         if (EzDefineDialog( szDlg, "", "", SD_NDLG_ASKDESTPATH ) = DLG_ERR) then
+            return -1;
+          endif;
+
+          // Loop in dialog until the user selects a standard button
+          bDone = FALSE;
+
+          while (!bDone)
+
+             nId = WaitOnDialog( szDlg );
+
+             switch (nId)
+             case DLG_INIT:
+                  CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+
+                  if(szMsg != "") then
+                      SdSetStatic( szDlg, SD_STA_CHANGEDIRMSG, szMsg );
+                  endif;
+
+                  hwndDlg = CmdGetHwndDlg( szDlg );
+                  SdGeneralInit( szDlg, hwndDlg, nStyle, szSdProduct );
+
+                  if(szTitle != "") then
+                      SetWindowText( hwndDlg, szTitle );
+                  endif;
+
+             case SD_PBUT_CHANGEDIR:
+                  nTemp = MODE;
+                  MODE  = NORMALMODE;
+                  SelectDir( "",
+                             "",
+                             svDirLoc,
+                             TRUE );
+                  CtrlSetText( szDlg, 0x80000000 | SD_STA_DESTDIR, svDirLoc );
+                  MODE = nTemp;
+
+             case SD_PBUT_CONTINUE:
+                  svDir = svDirLoc;
+                  nId   = NEXT;
+                  bDone = TRUE;
+
+             case BACK:
+                  nId    = BACK;
+                  bDone  = TRUE;
+
+             case DLG_ERR:
+                  SdError( -1, "SdAskDestPath" );
+                  nId   = -1;
+                  bDone = TRUE;
+
+             case DLG_CLOSE:
+                  SdCloseDlg( hwndDlg, nId, bDone );
+
+             default:
+                  // check standard handling
+                  if (SdIsStdButton( nId ) && SdDoStdButton( nId )) then
+                      bDone = TRUE;
+                  endif;
+             endswitch;
+
+          endwhile;
+
+          EndDialog( szDlg );
+          ReleaseDialog( szDlg );
+
+          SdUnInit( );
+
+          // record data produced by this dialog
+          SdMakeName( szAppKey, szDlg, szTitle, nSdAskDestPath );
+          SilentWriteData( szAppKey, "szDir", DATA_STRING, svDir, 0 );
+          SilentWriteData( szAppKey, "Result", DATA_NUMBER, "", nId );
+
+          return nId;
+        end;
+

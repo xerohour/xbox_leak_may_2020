@@ -1,0 +1,20 @@
+Important undo/redo information is coded in the undo/redo strings.  It is translation invariant provided you adhere to the following rules:
+
+1. The first word in an IDS_UNDO_XXXX string is the header (the word before the colon).  You must keep it as the first word of the undo string.
+If you translate it you must also provide the identical translation for the corresponding word in one or more of the following single word resources:
+
+IDS_PERSONALITYUNDO_HEADER
+IDS_CHORDMAPUNDO_HEADER
+IDS_SIGNPOSTUNDO_HEADER
+
+2. If you translate any of the words in the body of an IDS_UNDO_XXXX that matches the word in one of the following single word resources,
+you must also provide the indentical translation for the corresponding word in one or more of the following single word resources:
+
+IDS_DELETE_UNDO
+IDS_INSERT_UNDO
+IDS_PASTE_UNDO
+IDS_CUT_UNDO
+
+Note that except for the header (see rule 1) you don't have to maintain the same word order in the undo/redo string translation.
+
+3.  You must do the same for the IDS_UNDO_XXX strings in the ChordMapStripMgr project which have matches for the strings listed in items 1 and 2 above.

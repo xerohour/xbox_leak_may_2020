@@ -1,0 +1,71 @@
+$$IF(PROJTYPE_DLL)
+// $$root$$.odl : $$root$$.dll のタイプ ライブラリのソース
+$$ELSE
+// $$root$$.odl : $$root$$.exe のタイプ ライブラリのソース
+$$ENDIF //PROJTYPE_DLL
+$$IF(VERBOSE)
+
+// このファイルはタイプ ライブラリ ($$root$$.tlb) を作成するために
+// タイプ ライブラリ作成ツール MIDL によって処理されます。
+$$ENDIF
+
+[ uuid($$LIB_CLSID_ODL$$), version(1.0) ]
+library $$Safe_root$$
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+	
+
+$$IF(PROJTYPE_DLL)
+$$ELSE
+$$IF(VERBOSE)
+	//  $$DOC_CLASS$$ の最初のディスパッチ インターフェイス
+	
+$$ENDIF
+	[ uuid($$DISPIID_CLSID_ODL$$) ]
+	dispinterface I$$Safe_root$$
+	{
+		properties:
+$$IF(VERBOSE)
+			// メモ - ClassWizard はこの位置にプロパティ情報を追加します
+			//    このセクションの編集は、慎重におこなってください。
+$$ENDIF
+$$IF(PROJTYPE_DLG)
+			//{{AFX_ODL_PROP($$DLGAUTOPROXY_CLASS$$)
+$$ELSE //!DLG
+			//{{AFX_ODL_PROP($$DOC_CLASS$$)
+$$ENDIF //PROJTYPE_DLG
+			//}}AFX_ODL_PROP
+			
+		methods:
+$$IF(VERBOSE)
+			// メモ - ClassWizard はこの位置にメソッド情報を追加します。
+			//    このセクションの編集は、慎重におこなってください。
+$$ENDIF
+$$IF(PROJTYPE_DLG)
+			//{{AFX_ODL_METHOD($$DLGAUTOPROXY_CLASS$$)
+$$ELSE //!DLG
+			//{{AFX_ODL_METHOD($$DOC_CLASS$$)
+$$ENDIF //PROJTYPE_DLG
+			//}}AFX_ODL_METHOD
+
+	};
+
+$$IF(VERBOSE)
+	//  $$DOC_CLASS$$ のクラス情報
+	
+$$ENDIF
+	[ uuid($$APP_CLSID_REG$$) ]
+$$IF(PROJTYPE_DLG)
+	coclass $$Safe_root$$
+$$ELSE //!DLG
+	coclass $$DOC_COCLASS$$
+$$ENDIF //PROJTYPE_DLG
+	{
+		[default] dispinterface I$$Safe_root$$;
+	};
+$$ENDIF //PROJTYPE_DLL
+
+	//{{AFX_APPEND_ODL}}
+	//}}AFX_APPEND_ODL}}
+};

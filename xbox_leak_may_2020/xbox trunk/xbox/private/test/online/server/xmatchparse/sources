@@ -1,0 +1,43 @@
+!IF 0
+
+Copyright (c) 2000 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    Netmon parser for XTP protocol
+
+Author:
+
+    Tristan Jackson (tristanj)
+
+!ENDIF
+
+C_DEFINES=$(C_DEFINES) -DUNICODE -D_UNICODE
+
+DLLDEF=xtpparse.def
+DLLENTRY=_DllMainCRTStartup
+
+UMTYPE=nt
+
+TARGETNAME=xtpparse
+TARGETTYPE=DYNLINK
+TARGETPATH=obj
+TARGETLIBS= \
+    $(WSDK_LIB_PATH)\kernel32.lib \
+    $(WSDK_LIB_PATH)\nmapi.lib    \
+    $(WSDK_LIB_PATH)\wsock32.lib
+
+INCLUDES=\
+    $(INCLUDES); \
+    $(BASEDIR)\private\test\inc; \
+    $(WSDK_INC_PATH);
+
+SOURCES=\
+    xtpparse.cpp \
+    xtpparse.rc
+
+USE_CRTDLL=1

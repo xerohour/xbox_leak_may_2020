@@ -1,0 +1,61 @@
+!include ..\..\..\sources.nv
+
+TARGETNAME=celsius
+
+!IFNDEF TARGETPATH
+TARGETPATH=$(NV_BASE)\drivers\display\winnt4\dump
+!ELSE
+TARGETPATH=$(TARGETPATH)
+!ENDIF
+
+TARGETTYPE=LIBRARY
+
+!IFDEF SRCDBG
+NTDEBUG=ntsdnodbg
+NTDEBUGTYPE=both
+!ENDIF
+
+!IFNDEF MSC_WARNING_LEVEL
+MSC_WARNING_LEVEL=/W3
+!ENDIF
+
+
+CBASE= -Zp8 -DWINNT=1 -D_WIN32_WINNT=0x0500 -DNT_UP=1 -DNT_INST=0 -DWIN32=100 -DWINVER=0x0500 -D_WIN32_IE=0x0501 -D_WIN32=1
+CBASE=$(CBASE) -DRM_HEAPMGR=1 -D_NT1X_=100
+CBASE=$(CBASE) -DNVD3D -DNVD3D_DX6=1
+
+NVOPT= -DNV4 -DNVARCH=$(NVARCH)
+D3DOPT= -DDX8 -DNVPE
+
+C_DEFINES=$(C_DEFINES) $(CBASE) $(NVOPT) $(D3DOPT) -DDIRECT3D_VERSION=0x0800
+
+INCLUDES=
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\inc
+INCLUDES=$(INCLUDES);..\..\common\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\dx8
+INCLUDES=$(INCLUDES);$(NV_BASE)\sdk\nvidia\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\sdk\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\oak\inc
+INCLUDES=$(INCLUDES);$(BASEDIR)\public\ddk\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\ddraw\celsius\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\ddraw\kelvin\inc
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\display\winnt4\miniport\nv_mini
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\display\winnt4\displays\nv_disp
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\vpe
+INCLUDES=$(INCLUDES);$(NV_BASE)\drivers\common\win9x\inc
+
+SOURCES=\
+nvCelsiusAA.cpp \
+nvCelsiusAlphaCombiner.cpp \
+nvCelsiusColorCombiner.cpp \
+nvCelsiusComp.cpp \
+nvCelsiusInlPrim.cpp \
+nvCelsiusInlStrPrim.cpp \
+nvCelsiusInlTri.cpp \
+nvCelsiusNvTSS.cpp \
+nvCelsiusPrim.cpp \
+nvCelsiusState.cpp \
+nvCelsiusStateHelp.cpp \
+nvCelsiusTables.cpp \
+nvCelsiusVbPrim.cpp \
+nvCelsiusCompileVS_link.cpp

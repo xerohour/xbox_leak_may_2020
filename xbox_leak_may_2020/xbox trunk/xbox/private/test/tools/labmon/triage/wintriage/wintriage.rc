@@ -1,0 +1,72 @@
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+
+IDR_ACCELERATOR ACCELERATORS DISCARDABLE 
+BEGIN
+    "R",            ID_REMOTE,              VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_SENDMAIL,            VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_TRIAGE,              VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_EXIT,                VIRTKEY, CONTROL, NOINVERT
+    "Y",            ID_NOSYM,               VIRTKEY, CONTROL, NOINVERT
+END
+
+IDR_MAINMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       ID_FILE_EXIT
+    END
+    POPUP "&Mail"
+    BEGIN
+        MENUITEM "&Send Failure Mail",          ID_MAIL_SENDFAILUREMAIL
+        , GRAYED
+    END
+END
+
+100 DIALOG 17, 47, 300, 310
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+STYLE WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Triage"
+FONT 8, "MS Shell Dlg"
+MENU IDR_MAINMENU
+BEGIN
+    EDITTEXT        IDC_DEBUGGER_EDIT, 5, 20, 140, 12, ES_AUTOHSCROLL|WS_GROUP|WS_TABSTOP
+    EDITTEXT        IDC_DEBUGGEE_EDIT, 155, 20, 140, 12, ES_AUTOHSCROLL|WS_TABSTOP
+    EDITTEXT        IDC_TITLE_EDIT, 5, 52, 290, 12, ES_AUTOHSCROLL
+    EDITTEXT        IDC_STACK_EDIT, 5, 69, 290, 174, ES_MULTILINE | 
+                    ES_AUTOHSCROLL | WS_VSCROLL | WS_HSCROLL
+    EDITTEXT        IDC_FOLLOWUP_EDIT, 5, 263, 290, 12, ES_AUTOHSCROLL
+    PUSHBUTTON      "&Triage", ID_TRIAGE, 5, 280, 69, 25, WS_DISABLED|WS_TABSTOP
+    PUSHBUTTON      "&Send Mail", ID_SENDMAIL, 79, 280, 69, 25, WS_DISABLED|WS_TABSTOP
+    PUSHBUTTON      "&Remote to Failure", ID_REMOTE, 152, 280, 69, 25, WS_DISABLED|WS_TABSTOP
+    PUSHBUTTON      "E&xit", ID_EXIT, 226, 280, 69, 25, WS_TABSTOP
+    LTEXT           "Debugger:", IDC_DEBUGGER_TXT, 5, 5, 125, 10
+    LTEXT           "Debuggee (Remote Pipe name):", IDC_DEBUGGEE_TXT, 155, 5, 
+                    112, 10
+    AUTOCHECKBOX    "S&ymbol Fixing Enabled", ID_NOSYM, 155, 37, 140, 10
+    LTEXT           "Title:", IDC_TITLE_TXT, 5, 37, 57, 10
+    LTEXT           "Followup:", IDC_FOLLOWUP_TXT, 5, 248, 40, 10
+END
+
+
+
+#endif    // English (U.S.) resources

@@ -1,0 +1,80 @@
+!IF 0
+
+Copyright (c) 1989-1999 Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    Jim Geist (JimGe) 29-Aug-97
+
+NOTE:   Commented description of this file is in \nt\oak\bin\sources.tpl
+
+!ENDIF
+
+MAJORCOMP=windows
+MINORCOMP=directx
+
+TARGETNAME=dmtool
+
+!IF !$(FREEBUILD) && defined( DIRECTX_REDIST )
+TARGETNAME=$(TARGETNAME)d
+!ENDIF
+
+
+
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=xboxdll
+DLLDEF=dmtool.def
+DLLENTRY=DllMain
+USE_MAPSYM=1
+USE_NOLIBS=1
+
+
+!if "$(NTDEBUG)" == "ntsd" || "$(NTDEBUG)" == "cvp" || "$(NTDEBUG)" == "sym"
+
+!if "$(BuildMode)" == "internal"
+C_DEFINES = $(C_DEFINES) -DDEBUG=1
+!else
+C_DEFINES = $(C_DEFINES) -DRDEBUG=1
+!endif
+
+!endif
+
+C_DEFINES= $(C_DEFINES) -D_WIN32
+
+TARGETLIBS=$(TARGETLIBS) \
+           $(SDK_LIB_PATH)\libcmt.lib \
+           $(SDK_LIB_PATH)\uuid.lib
+
+INCLUDES=$(INCLUDES) \
+    ..\shared
+
+SOURCES=\
+alist.cpp                \
+dll.cpp                  \
+duration.cpp             \
+echo.cpp                 \
+guids.cpp                \
+oledll.cpp               \
+param.cpp                \
+swing.cpp				\
+toolhelp.cpp             \
+transpose.cpp			\
+quantize.cpp				\
+timeshift.cpp			\
+velocity.cpp				\
+toolprop_i.c				\
+medparam_i.c				\
+dmtool.rc

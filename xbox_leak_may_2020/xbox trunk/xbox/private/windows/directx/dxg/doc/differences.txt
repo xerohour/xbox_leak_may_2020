@@ -1,0 +1,133 @@
+Xbox D3D Functionality Differences
+----------------------------------
+
+Private data does not persist on surface and volume objects obtained
+from container textures
+
+D3DLOCK_DISCARD is ignored for VBs and textures
+
+D3DPOOL parameters are ignored
+
+AddRef/Release return both internal and external reference counts
+
+D3DSWAPEFFECT_DISCARD does no enforcement on debug builds
+
+UP DrawPrimitive APIs do not set the stream zero settings to NULL
+
+The dwFVF field for CreateVertexBuffer is ignored
+
+The values of many #defines have changed (e.g., packed renderstates)
+
+D3DDEVTYPE_HAL is the only allowed device type (or it is ignored)
+
+D3DBACKBUFFER_TYPE is ignored
+
+The formats passed to CreateDevice and Reset are always mapped to their linear equivalents.
+
+Vertex buffers are limited to 65535 vertices, and D3DFMT_INDEX32 is not 
+supported
+
+
+
+Unsupported in Xbox D3D
+-----------------------
+
+Trivially unsupported:
+
+        GetAdpaterMonitor()
+        GetLOD()
+        SetLOD
+        QueryInterface
+        TestCooperativeLevel
+        RegisterSoftwareDevice
+        GetAvailableTextureMem
+        GetPriority
+        SetPriority
+        PreLoad
+        AddDirtyRect
+        AddDirtyBox
+        D3DCREATE_SOFTWARE_VERTEXPROCESSING
+        D3DCREATE_MIXED_MODE_VERTEXPROCESSING
+        D3DCREATE_MULTI_THREADED
+        D3DCREATE_FPU_PRESERVE
+        
+ProcessVertices() is unsupported
+
+SwapChain objects are unsupported
+
+Windowed mode is unsupported
+
+
+
+Xbox D3D Extensions to Current APIs
+-----------------------------------
+
+GetBackBuffer(-1) gets the front buffer
+
+Constant alpha blend thingie
+
+D3DCLEAR_R, G, B, A
+
+D3DTADDRESS_CLAMPTOEDGE
+
+D3DPT_LINELOOP, D3DPT_QUADLIST, D3DPT_QUADSTRIP, D3DPT_POLYGON
+
+D3DTSS_COLORKEYOP, D3DTSS_COLORKEYCOLOR for color keying
+
+D3DTSS_COLORSIGN for sign texture color values
+
+D3DTSS_ALPHAKILL 
+
+D3DVSD_SKIPBYTES for skipping a number of bytes instead of dwords
+
+Compressed D3DVSDT_ types for CreateVertexShader declaration (D3DVSDT_SHORT1,
+etc.)
+
+D3DVBF_2WEIGHTS2MATRICES, etc.
+
+
+Xbox D3D New APIs
+-----------------
+
+SetPushBufferSize
+
+CreatePalette, ?????????
+
+IsBusy, BlockUntilIdle
+
+MoveResourceMemory
+
+Register, Deregister for prebuilt VBs and textures
+
+MoveResourceMemory for promoting or demoting VBs and textures between AGP
+and video memory
+
+SetShaderConstantMode for giving access to 192 vertex shader constant registers
+
+Draw[Indexed]Vertices[UP] same as Draw[Indexed]Primitive[UP] but takes vertex 
+count
+
+
+
+
+
+
+
+
+
+Something to set the swath width
+
+
+
+Performance Differences
+-----------------------
+
+Vertex buffer switching (via SetStream) is very cheap
+
+Perf overhead of primitives radically changed (e.g., SetTexture, SetTransform)
+
+Xbox D3D is more immediate-mode, and less deferred-processing, than the PC
+implementation.  Consequently, doing stuff like repeatedly setting the same states 
+should be avoided
+
+Get/SetPrivateData() are expensive for all objects even if they're only used on a few

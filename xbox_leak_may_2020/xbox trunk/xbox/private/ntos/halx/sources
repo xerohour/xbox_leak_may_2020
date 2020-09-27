@@ -1,0 +1,59 @@
+!IF 0
+
+Copyright (c) 1989  Microsoft Corporation
+
+Module Name:
+
+    sources.
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+
+Author:
+
+    Steve Wood (stevewo) 12-Apr-1990
+
+NOTE:   Commented description of this file is in \nt\bak\bin\sources.tpl
+
+!ENDIF
+
+MAJORCOMP=ntos
+MINORCOMP=halx
+
+TARGETNAME=halx
+TARGETPATH=$(BASEDIR)\private\ntos\obj
+TARGETTYPE=LIBRARY
+
+INCLUDES=..;$(BASEDIR)\private\ntos\inc;..\ke;..\mmx;$(BASEDIR)\private\inc
+
+MSC_WARNING_LEVEL=/W3 /WX
+
+C_DEFINES=$(C_DEFINES) -D_NTSYSTEM_
+
+SOURCES=
+
+i386_SOURCES=i386\ixclock.asm  \
+             i386\ixcmos.asm   \
+             i386\ixirql.asm   \
+             i386\ixnmi.c      \
+             i386\ixprofil.asm \
+             i386\ixsysbus.c   \
+             i386\ixreboot.c   \
+             i386\ixstall.asm  \
+             i386\ixswint.asm  \
+             i386\ixsysint.asm \
+             i386\mcupdate.asm \
+             i386\pcisetup.c   \
+             i386\pcispace.c   \
+             i386\pmtimer.asm  \
+             i386\sciinta.asm  \
+             i386\smbinta.asm  \
+             i386\smbussci.c   \
+             i386\superio.asm  \
+             i386\xxhal.c      \
+             i386\xxioacc.asm

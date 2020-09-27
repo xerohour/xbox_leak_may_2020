@@ -1,0 +1,72 @@
+<job>
+<script language="VBScript" src="common.vbs"/>
+<script language="VBScript">
+'
+' VerifyDSPs.wsf - Verify that source files in DSPs exist
+' emmang@xbox.com
+'
+Const SCRIPTNAME = "VerifyDSPs"
+Const ForReading = 1
+Dim gcountFiles, gcountDSPs, gcountSourceFiles, gcountMissing
+
+Main()
+
+Sub Main
+    On Error Resume Next
+  
+    If Not Init() Then
+        Exit Sub
+    End If
+
+    If (gstrXDKInstall = "") Then
+        WScript.Echo "Could not locate the XDK"
+        Exit Sub
+    End If
+    gcountFiles = 0
+    gcountDSPs = 0
+    gcountFiles = 0
+    gcountMissing = 0
+ 
+    ProcessSubdirs(gstrXDKInstall)
+    WScript.Echo _
+            "Files in XDK: " & gcountFiles & vbCrLf & _
+            "DSPs processed: " & gcountDSPs & vbCrLf & _
+            "Source files checked: " & gcountSourceFiles & vbCrLf & _
+            "Source files missing: " & gcountMissing
+End Sub
+
+Sub ProcessSingleFile(objFile)
+    On Error Resume Next
+
+    Dim strName, strExt, streamDSP, strLine, strSource
+    gcountFiles = gcountFiles + 1
+    strName = objFile.Path
+    strExt = gobjFileSystem.GetExtensionName(strName)
+    strExt = lcase(strExt)
+    If (strExt = "dsp") Then
+        Set streamDSP = gobjFileSystem.OpenTextFile(strName, ForReading)
+        if (streamDSP.AtEndOfStream) Then
+            WScript.Echo Err.Description & vbCrLf & Err.Source
+            Exit Sub
+        End If
+        gcountDSPs = gcountDSPs + 1
+        Do While Not streamDSP.AtEndOfStream 
+            strLine = streamDSP.ReadLine
+            If (0 = StrComp("SOURCE=", Left(strLine, 7), vbTextCompare)) Then
+                strSource = Right(strLine, Len(strLine) - 7)
+                gcountSourceFiles = gcountSourceFiles + 1
+                If Not (strSource = """$(InputPath)""") Then
+                    If Not gobjFileSystem.FileExists(gobjFileSystem.GetParentFolderName(objFile.Path) & "\" & strSource) Then
+                        WScript.Echo _
+                            "DSP: " & objFile.Path & vbCrLf & _
+                            "Missing file (or incorrect path): " & strSource
+                        gcountMissing = gcountMissing + 1
+                    End If
+                End If
+            End If
+        Loop
+        streamDSP.Close
+    End If
+End Sub
+</script>
+</job>

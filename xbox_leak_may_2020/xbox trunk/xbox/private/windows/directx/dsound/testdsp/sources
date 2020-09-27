@@ -1,0 +1,27 @@
+TARGETNAME = TESTDS
+TARGETTYPE = PROGRAM
+TARGETPATH = obj
+UMTYPE = xboxapp
+
+C_DEFINES = $(C_DEFINES) -DDPF_LIBRARY=\"TESTDSP\"
+
+MSC_OPTIMIZATION = $(MSC_OPTIMIZATION) /Od /FAcs
+
+INCLUDES = \
+    $(SDK_INC_PATH);\
+    $(DDK_INC_PATH);\
+    $(BASEDIR)\private\inc;\
+    $(BASEDIR)\private\ntos\inc;\
+    ..\dsound;\
+    ..\ac97;\
+    ..\codecs\voxware
+    
+!ifdef SILVER
+LINKLIBS = ..\dsound\obj\*\dsound$(D).lib
+!else
+LINKLIBS = $(SDK_LIB_PATH)\dsound$(D).lib
+!endif
+                    
+TARGETLIBS = $(LIBC_LIB)
+
+SOURCES = testds.cpp

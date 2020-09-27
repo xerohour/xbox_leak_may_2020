@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Basic Test</TITLE>
+</HEAD>
+<LINK REL="stylesheet" TYPE="text/css" HREF="../include/help.css">
+<SCRIPT LANGUAGE="javascript" SRC="../include/utils.js"></SCRIPT>
+<SCRIPT>
+sample = "var simulator = WScript.CreateObject(\"USBSimulator.Simulator\");\n" +
+    "var duke = WScript.CreateObject(\"USBSimulator.Duke\");\n" +
+    "var SIMULATOR_IP = \"157.56.10.18\";    // simulator 001\n" +
+    "\n" +
+    "\n" +
+    "main();\n" +
+    "\n" +
+    "function main()\n" +
+    "    {\n" +
+    "    var simStats = VerifySimulator(SIMULATOR_IP);\n" +
+    "    if(simStats == \"\")\n" +
+    "        {\n" +
+    "        WScript.Echo(\"Could not connect to the simulator: \" + SIMULATOR_IP);\n" +
+    "        return;\n" +
+    "        }\n" +
+    "    else if(simStats == \"no USB\")\n" +
+    "        {\n" +
+    "        WScript.Echo(\"There are no active USB boards on the simulator: \" + SIMULATOR_IP);\n" +
+    "        return;\n" +
+    "        }\n" +
+    "    else WScript.Echo(simStats);\n" +
+    "\n" +
+    "    duke.port = 1;\n" +
+    "    duke.IP = SIMULATOR_IP;\n" +
+    "    duke.record = true;\n" +
+    "    duke.buttonDownDelay = 125;\n" +
+    "    duke.buttonUpDelay = 200;\n" +
+    "\n" +
+    "    if(InsertDevice(duke) == false)\n" +
+    "        {\n" +
+    "        WScript.Echo(\"Duke NOT Enumerated\");\n" +
+    "        return;\n" +
+    "        }\n" +
+    "\n" +
+    "    duke.Enable(2);\n" +
+    "    duke.SetButtonState(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -32000, 0, 0);\n" +
+    "    WScript.Sleep(1000);\n" +
+    "\n" +
+    "    duke.Enable(1);\n" +
+    "    duke.Button(\"DPADN\");\n" +
+    "    duke.Button(\"DPADN\");\n" +
+    "    duke.Button(\"X\");\n" +
+    "    WScript.Echo(\"Click to unplug...\");\n" +
+    "    duke.Unplug();\n" +
+    "    }\n" +
+    "\n" +
+    "// Make sure the IP actually points to a USB Simulator\n" +
+    "function VerifySimulator(address)\n" +
+    "    {\n" +
+    "    var version = simulator.GetVersion(address);\n" +
+    "    if(version == \"\")\n" +
+    "        {\n" +
+    "        return \"\";\n" +
+    "        }\n" +
+    "\n" +
+    "    var boards = simulator.GetUSBPorts(address);\n" +
+    "    if(boards == 0)\n" +
+    "        {\n" +
+    "        return \"no USB\";\n" +
+    "        }\n" +
+    "    var numboards = (boards&0x01?1:0) + (boards&0x02?1:0) + (boards&0x04?1:0) + (boards&0x08?1:0) +\n        (boards&0x10?1:0) + (boards&0x20?1:0) + (boards&0x40?1:0) + (boards&0x80?1:0);\n" +
+    "    var simulatorStats = \"Simulator (\" + address + \"):\\n\";\n" +
+    "    simulatorStats += \"  Version:    \" + version + \"\\n\";\n" +
+    "    simulatorStats += \"  MacAddr:    \" + simulator.GetMACAddr(address) + \"\\n\";\n" +
+    "    simulatorStats += \"  USB Boards: \" + numboards + \" (mask: \" + boards + \")\\n\";\n" +
+    "\n" +
+    "    return simulatorStats;\n" +
+    "    }\n" +
+    "\n" +
+    "// Tries 3 times to Enumerate the device\n" +
+    "function InsertDevice(dev)\n" +
+    "    {\n" +
+    "    var retry = 3;\n" +
+    "    var time;\n" +
+    "    do  {\n" +
+    "        dev.Plug();\n" +
+    "        for(time=32; time<1000; time*=2)\n" +
+    "            {\n" +
+    "            WScript.Sleep(time);\n" +
+    "            if(dev.enumerated == true) return true;\n" +
+    "            }\n" +
+    "        dev.Unplug();\n" +
+    "        WScript.Sleep(250);\n" +
+    "        --retry;\n" +
+    "        } while(retry != 0);\n" +
+    "\n" +
+    "    return false;\n" +
+    "    }\n" +
+    "";
+</SCRIPT>
+<BODY>
+
+<SCRIPT>WriteHeader();</SCRIPT>
+
+<H1>Basic Test</H1>
+    <DIV CLASS=BLOCK>
+    </DIV><P>
+
+<DIV CLASS=BLOCK><SCRIPT>WriteCode(sample);</SCRIPT></DIV>
+
+<DIV CLASS=BLOCKHEADER>See Also</DIV>
+    <DIV CLASS=BLOCK>
+    <A HREF="../USBSimulator.Simulator/contents.htm">USBSimulator.Simulator</A>, <A HREF="../USBSimulator.Duke/contents.htm">USBSimulator.Duke</A>
+    </DIV>
+
+<SCRIPT>WriteFooter();</SCRIPT>
+</BODY>
+</HTML>

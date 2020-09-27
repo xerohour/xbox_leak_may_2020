@@ -1,0 +1,43 @@
+///////////////////////////////////////////////////////////
+//
+// HelpUtil.idl	- Defines the IVsHelpUtilities interface.
+//
+// IVsHelpUtilities contains various utility functions for use
+// mainly by the Vegas shell. These functions don't fit into
+// the IVsHelpSys or IVsHelpInit interfaces.
+//
+// Created: 02 Oct 97
+//
+///////////////////////////////////////////////////////////
+//
+// Imports
+//
+import "oaidl.idl";
+import "ocidl.idl";
+
+// Include the vb param switching code.
+#include "vhsdefs.h"
+
+///////////////////////////////////////////////////////////
+//
+// IVsHelpUtilities
+//
+[
+	object,
+	uuid(854d7ac9-bc3d-11d0-b421-00a0c90f9dc4), //NOTE: This guid is reused in HelpPkg.rgs. 
+	helpstring("IVsHelpSystem Interface"),
+	pointer_default(unique)
+]
+interface IVsHelpUtilities : IUnknown
+{
+	[
+		helpstring("Gets the fullpath name given a help filename. Basically does a VHS_Localize.")
+	]
+	HRESULT 
+	BuildFullPathName(
+		[in] LPCOLESTR pszHelpFileName,
+		[out] BSTR* bstrHelpFullPathName,
+		[in] INT_TYPE dwReserved) ;
+
+};
+

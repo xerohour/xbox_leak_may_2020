@@ -1,0 +1,27 @@
+!IF 0
+
+Copyright (C) Microsoft Corporation, 1989 - 2000
+
+!ENDIF
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+TARGETNAME=rc4Hmac
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+USE_LIBCMT=1
+
+INCLUDES=\
+        $(BASEDIR)\private\inc\crypto; \
+        $(BASEDIR)\public\wsdk\inc; \
+        $(BASEDIR)\public\sdk\inc
+         
+SOURCES= \
+        rc4Hmac.cpp \
+        rc4Hmac.rc
+
+LINKLIBS=$(LIBRARY_PATH)\user32.lib   \
+         $(BASEDIR)\private\lib\*\rsa32.lib
+
+UMTYPE=console
+

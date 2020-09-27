@@ -1,0 +1,70 @@
+//
+// This software is supplied under the terms of a licence agreement or 
+// nondisclosure agreement with Intel Corporation and may not be copied 
+// or disclosed except in accordance with the terms of that agreement.  
+// Copyright © 1997 Microsoft Corporation. All Rights Reserved.
+//
+// Filename : Silence.idl
+// Purpose  : Defines the interfaces exposed by the PCM Silence
+//            suppression filter.
+// Contents : ISilenceSuppressor interface specification.
+//
+// Begin ISilenceSuppressor Specification
+import "oaidl.idl";
+
+[
+    object,
+    uuid(40C1D160-52F2-11d0-A874-00AA00B5CA1B),
+    local,
+    helpstring("ISilenceSuppressor Interface"),
+    pointer_default(unique)
+]
+interface ISilenceSuppressor : IUnknown
+{
+    HRESULT GetPostplayTime(
+                [out] LPDWORD lpdwPostplayBufferTime
+                );
+    HRESULT SetPostplayTime(
+                [in]  DWORD   dwPostplayBufferTime
+                );
+
+    HRESULT GetKeepPlayTime(
+                [out] LPDWORD lpdwRunningAverageTime
+                );
+    HRESULT SetKeepPlayTime(
+                [in]  DWORD   dwRunningAverageTime
+                );
+
+    HRESULT GetThresholdIncrementor(
+                [out] LPDWORD lpdwThresholdIncrementor
+                );
+    HRESULT SetThresholdIncrementor(
+                [in]  DWORD   dwThresholdIncrementor
+                );
+
+    HRESULT GetBaseThreshold(
+                [out] LPDWORD lpdwBaseThreshold
+                );
+    HRESULT SetBaseThreshold(
+                [in]  DWORD   dwBaseThreshold
+                );
+
+    HRESULT EnableEvents(
+                [in]  DWORD   dwMask,
+                [in]  DWORD   dwMinimumInterval
+                );
+}
+cpp_quote("EXTERN_C const CLSID CLSID_SilenceSuppressionFilter;")
+cpp_quote("EXTERN_C const CLSID CLSID_SilenceSuppressionProperties;")
+
+cpp_quote("#define AGC_EVENTBASE (100000)")
+
+typedef enum AGC_EVENT
+{
+    AGC_INCREASE_GAIN,
+    AGC_DECREASE_GAIN,
+    AGC_TALKING,
+    AGC_SILENCE
+
+} AGC_EVENT;
+

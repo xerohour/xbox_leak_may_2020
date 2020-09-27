@@ -1,0 +1,60 @@
+!IF 0
+
+Copyright (c) 1989-2000  Microsoft Corporation
+
+Module Name:
+
+    sources
+
+Abstract:
+
+    This file specifies the target component being built and the list of
+    sources files needed to build that component.  Also specifies optional
+    compiler switches and libraries that are unique for the component being
+    built.
+
+Environment:
+
+    XBox
+
+Revision History:
+
+!ENDIF
+
+
+MAJORCOMP=xboxtest
+MINORCOMP=badman
+
+TARGETNAME=badman
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=xboxdll
+
+C_DEFINES=$(C_DEFINES) -UUNICODE
+
+DLLENTRY=_DllMainCRTStartup
+
+SOURCES=dllmain.c       \
+        badman.c        \
+        parser.c        \
+        parsefun.c      \
+        procapi.c
+
+INCLUDES=$(SDK_INC_PATH); \
+         $(BASEDIR)\private\ntos\inc; \
+         $(BASEDIR)\private\test\inc; \
+         ..\..\inc
+
+USE_LIBCMT=1
+
+TARGETLIBS=$(SDK_LIB_PATH)\ntoskrnl.lib \
+           $(LIBC_LIB) \
+           $(BASEDIR)\private\test\lib\*\xlog.lib \
+           $(BASEDIR)\private\test\lib\*\statw32.lib \
+           $(BASEDIR)\private\test\lib\*\timerw32.lib \
+           $(BASEDIR)\private\test\lib\*\kernel32.lib \
+           $(BASEDIR)\private\test\lib\*\xtestlib.lib
+
+PRECOMPILED_INCLUDE=precomp.h
+
+LINKER_FLAGS=$(LINKER_FLAGS) -align:32 -driver

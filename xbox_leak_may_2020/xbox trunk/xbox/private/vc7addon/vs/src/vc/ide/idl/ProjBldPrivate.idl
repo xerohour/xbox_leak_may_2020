@@ -1,0 +1,164 @@
+// ProjBldPrivate.idl : IDL source file for ProjBuildPrivate.tlb
+
+// This file will be processed by the MIDL tool to
+// produce the type library (projbld.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+#include "prjids.h"
+
+// internal Proj/Build object model subset
+interface IVCCfg;
+
+cpp_quote("extern \"C\" const __declspec(selectany) GUID SID_SProjectEngine = { 0x531ADA6BL,0x0EEA,0x11D3,0x8D,0x31,0x00,0xC0,0x4F,0x8E,0xEA,0x30 };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID SID_SENCBuildSpawner = { 0x39642745L,0x908C,0x11D3,0xB9,0x9A,0x00,0xC0,0x4F,0x68,0x5D,0x26 };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID SID_SBuildErrorContext = { 0x39642745L,0x908C,0x11D3,0xB9,0x9A,0x00,0xC0,0x4F,0x68,0x5D,0x27 };")
+cpp_quote("extern \"C\" const __declspec(selectany) GUID GUID_ItemType_VC = { 0x31df8af1L,0xe859,0x43eb,0xac,0xfb,0x23,0x8d,0x73,0x74,0x27,0x1f };")
+
+enum __VCPROPID
+{
+	VCPROPID_NIL = -1,
+	VCPROPID_FIRST = 1000,
+
+	VCPROPID_ProjBldObject = 1000,				// the VC object that goes with this itemid
+	VCPROPID_ProjBldProject = 1001,				// get the IVCProject for this VSITEMID (may be a parent)
+	VCPROPID_ProjBldActiveProjConfig = 1002,	// get the IVCConfiguration for this VSITEMID
+	VCPROPID_ProjBldActiveFileConfig = 1003,	// get the IVCFileConfiguration for this VSITEMID (if it is a file)
+	VCPROPID_ProjBldIncludePath	= 1004,			// get the evaluated include path for this VSITEMID (if it is a file); dependent on tool and active solution config
+	VCPROPID_ProjBldBscFile	= 1005,			// get the evaluated fullpath to the BSC file for this project. dependent on active solution config.
+
+	VCPROPID_LAST = 1005
+};
+typedef LONG VCPROPID;
+
+//----------------------------------------------------------------------
+// IVCCfg properties
+//----------------------------------------------------------------------
+[
+	object,
+	uuid(694C76BC-3EF4-11d3-B278-0050041DB12A),
+	helpstring("IVCCfg Interface"),
+	pointer_default(unique)
+]
+interface IVCCfg : IUnknown
+{
+	HRESULT get_Tool([in] VARIANT toolIndex, [out, retval] IUnknown **ppTool);
+	HRESULT get_Object([out, retval] IDispatch **ppObj);
+};
+
+[
+	object,
+	uuid(2D5D650E-3E0D-11d3-9415-00C04F68FB62),
+	dual,
+	helpstring("VC File Interface"),
+	helpstringcontext(VCFILENODID_Object),
+	pointer_default(unique)
+]
+interface File : IDispatch
+{
+	[propget, id(VCFILENODID_Name), helpstringcontext(VCFILENODID_Name)] HRESULT Name( [out, retval] BSTR *pVal );
+	[propget, id(VCFILENODID_FullPath), helpstringcontext(VCFILENODID_FullPath)] HRESULT FullPath( [out, retval] BSTR *pVal );
+	[propget, id(VCFILENODID_RelativePath), helpstringcontext(VCFILENODID_RelativePath)] HRESULT RelativePath( [out, retval] BSTR *pVal );
+	[propput, id(VCFILENODID_RelativePath), helpstringcontext(VCFILENODID_RelativePath)] HRESULT RelativePath( [in] BSTR newVal );
+	[propget, id(VCFILENODID_DeploymentContent), helpstringcontext(VCFILENODID_DeploymentContent)] HRESULT DeploymentContent( [out, retval] VARIANT_BOOL *pVal );
+	[propput, id(VCFILENODID_DeploymentContent), helpstringcontext(VCFILENODID_DeploymentContent)] HRESULT DeploymentContent( [in] VARIANT_BOOL newVal );
+	[propget, nonbrowsable, hidden, id(VCFILENODID_Extender), helpstringcontext(VCFILENODID_Extender)]  HRESULT Extender([in] BSTR bstrName, [out, retval] IDispatch** ppDisp);
+	[propget, nonbrowsable, hidden, id(VCFILENODID_ExtenderNames), helpstringcontext(VCFILENODID_ExtenderNames)] HRESULT ExtenderNames([out, retval] VARIANT* pvarNames);
+	[propget, nonbrowsable, hidden, id(VCFILENODID_ExtenderCATID), helpstringcontext(VCFILENODID_ExtenderCATID)] HRESULT ExtenderCATID([out, retval] BSTR* pbstrGuid);
+#ifdef AARDVARK
+	[propget, id(VCFILENODID_ExtenderCATID+1)] HRESULT DeploymentLocation( [out, retval] BSTR *pVal );
+	[propput, id(VCFILENODID_ExtenderCATID+1)] HRESULT DeploymentLocation( [in] BSTR newVal );
+#endif // AARDVARK
+};
+
+[
+	object,
+	uuid(2111B8B8-4150-11d3-9416-00C04F68FB62),
+	dual,
+	helpstring("Filter Interface"),
+	helpstringcontext(VCFOLDNODID_Object),
+	pointer_default(unique)
+]
+interface Filter : IDispatch
+{
+	[propget, id(VCFOLDNODID_Name), helpstringcontext(VCFOLDNODID_Name)] HRESULT Name( [out, retval] BSTR *pVal );
+	[propput, id(VCFOLDNODID_Name), helpstringcontext(VCFOLDNODID_Name)] HRESULT Name( [in] BSTR newVal );
+	[propget, id(VCFOLDNODID_Filter), helpstringcontext(VCFOLDNODID_Filter)] HRESULT Filter( [out, retval] BSTR *pVal );
+	[propput, id(VCFOLDNODID_Filter), helpstringcontext(VCFOLDNODID_Filter)] HRESULT Filter( [in] BSTR newVal );
+	[propget, id(VCFOLDNODID_ParseFiles), helpstringcontext(VCFOLDNODID_ParseFiles)] HRESULT ParseFiles([out, retval] VARIANT_BOOL* pbParse);
+	[propput, id(VCFOLDNODID_ParseFiles), helpstringcontext(VCFOLDNODID_ParseFiles)] HRESULT ParseFiles([in] VARIANT_BOOL bParse);
+	[propget, id(VCFOLDNODID_SourceControlFiles), helpstringcontext(VCFOLDNODID_SourceControlFiles)] HRESULT SourceControlFiles([out, retval] VARIANT_BOOL* pbSCC);
+	[propput, id(VCFOLDNODID_SourceControlFiles), helpstringcontext(VCFOLDNODID_SourceControlFiles)] HRESULT SourceControlFiles([in] VARIANT_BOOL bSCC);
+	[propget, nonbrowsable, hidden, id(VCFOLDNODID_Extender), helpstringcontext(VCFOLDNODID_Extender)]  HRESULT Extender([in] BSTR bstrName, [out, retval] IDispatch** ppDisp);
+	[propget, nonbrowsable, hidden, id(VCFOLDNODID_ExtenderNames), helpstringcontext(VCFOLDNODID_ExtenderNames)] HRESULT ExtenderNames([out, retval] VARIANT* pvarNames);
+	[propget, nonbrowsable, hidden, id(VCFOLDNODID_ExtenderCATID), helpstringcontext(VCFOLDNODID_ExtenderCATID)] HRESULT ExtenderCATID([out, retval] BSTR* pbstrGuid);
+#ifdef AARDVARK
+	[propget, id(VCFOLDNODID_ExtenderCATID+2)] HRESULT Directory( [out, retval] BSTR *pVal );
+	[propput, id(VCFOLDNODID_ExtenderCATID+2)] HRESULT Directory( [in] BSTR newVal );
+#endif // AARDVARK
+};
+
+[
+	object,
+	uuid(2111B8BA-4150-11d3-9416-00C04F68FB62),
+	dual,
+	helpstring("Visual C++ Project Interface"),
+	helpstringcontext(VCPRJNODID_Object),
+	pointer_default(unique)
+]
+interface _VCProject : IDispatch
+{
+	[propget, id(VCPRJNODID_Name), helpstringcontext(VCPRJNODID_Name)] HRESULT Name( [out, retval] BSTR *pVal );
+	[propput, id(VCPRJNODID_Name), helpstringcontext(VCPRJNODID_Name)] HRESULT Name( [in] BSTR newVal );
+	[propget, id(VCPRJNODID_ProjectFile), helpstringcontext(VCPRJNODID_ProjectFile)] HRESULT ProjectFile( [out, retval] BSTR *pVal );
+	[propget, id(VCPRJNODID_ProjectDependencies), helpstringcontext(VCPRJNODID_ProjectDependencies)] HRESULT ProjectDependencies( [out, retval] BSTR *pVal );
+	[propget, nonbrowsable, hidden, id(VCPRJNODID_Extender), helpstringcontext(VCPRJNODID_Extender)]  HRESULT Extender([in] BSTR bstrName, [out, retval] IDispatch** ppDisp);
+	[propget, nonbrowsable, hidden, id(VCPRJNODID_ExtenderNames), helpstringcontext(VCPRJNODID_ExtenderNames)] HRESULT ExtenderNames([out, retval] VARIANT* pvarNames);
+	[propget, nonbrowsable, hidden, id(VCPRJNODID_ExtenderCATID), helpstringcontext(VCPRJNODID_ExtenderCATID)] HRESULT ExtenderCATID([out, retval] BSTR* pbstrGuid);
+};
+
+[
+	uuid(BD4E85FC-EC6B-4c87-A15D-8CA3AA5593FF),
+	version(1.0),
+	helpstring("Microsoft Development Environment VC++ Project System Shell 7.0 Private Type Library"),
+	helpstringdll("VCProject.dll")
+]
+library VCPrivateProjectLibrary
+{
+	importlib("stdole2.tlb");
+	importlib("dte.tlb");
+
+	[
+		uuid(2D5D650F-3E0D-11d3-9415-00C04F68FB62),
+	]
+	coclass FileNodeProps
+	{
+		interface File;
+	};	
+	
+	[
+		uuid(2111B8B9-4150-11d3-9416-00C04F68FB62),
+	]
+	coclass FolderNodeProps
+	{
+		interface Filter;
+	};	
+
+	[
+		uuid(2111B8BB-4150-11d3-9416-00C04F68FB62),
+	]
+	coclass ProjectNodeProps
+	{
+		interface _VCProject;
+	};	
+
+	[
+		uuid(F1C25864-3097-11D2-A5C5-00C04F7968B4),
+	]
+	coclass BuildPackage
+	{
+		[default] interface IUnknown;
+	};
+}
+

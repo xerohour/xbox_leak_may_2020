@@ -1,0 +1,56 @@
+
+%ENVIRONMENT    DRV16.ENV
+COMW9XINC  =    ..\..\..\..\common\win9x\inc
+
+%SPECIAL
+all:	gnlogdev.inc    gnboard.inc     gncrtc.inc      tvout.inc
+
+gnlogdev.inc:   gnlogdev.h
+    set PATH=$(PATH)
+    echo #include "..\..\include\sysdata.h" > temp.h
+    copy temp.h+gnlogdev.h tempgld.h
+    $(H2INC) /Ht /Ni /DH2INC /Zngnlogdev tempgld.h
+    $(FGREP) -v INCLUDE tempgld.inc > gnlogdev.inc
+    erase temp.h
+    erase tempgld.h
+    erase tempgld.inc
+
+gnboard.inc:   gnboard.h
+    set PATH=$(PATH)
+    echo #include "..\..\include\sysdata.h" > temp.h
+    copy temp.h+gnboard.h tempgbd.h
+    $(H2INC) /Ht /Ni /DH2INC /Zngnboard tempgbd.h
+    $(FGREP) -v INCLUDE tempgbd.inc > gnboard.inc
+    erase temp.h
+    erase tempgbd.h
+    erase tempgbd.inc
+
+gncrtc.inc:   gncrtc.h
+    set PATH=$(PATH)
+    echo #include "..\..\include\sysdata.h" > temp.h
+    copy temp.h+gncrtc.h tempgcr.h
+    $(H2INC) /Ht /Ni /DH2INC /Zngncrtc tempgcr.h
+    $(FGREP) -v INCLUDE tempgcr.inc > gncrtc.inc
+    erase temp.h
+    erase tempgcr.h
+    erase tempgcr.inc
+
+tvout.inc:  $(COMW9XINC)\tvout.h        $(COMW9XINC)\h2inc.h
+    set PATH=$(PATH)
+#   Copy the tvout.h file down to this directory
+    copy $(COMW9XINC)\tvout.h tvout1.h
+#   Preprocess the file because H2INC is really lame & cpp eats up our macros
+    $(SED) "s/FAR /_far /g;s/BYTE/unsigned char/g;s/DWORD/unsigned long/g;s/WORD/unsigned short/g" tvout1.h > tvout.h
+#   Convert the file to a .inc file
+    $(H2INC) /Ht /DH2INC /D_WIN32 /Zntvout tvout.h
+#   Clean up
+    erase tvout.h
+    erase tvout1.h
+
+spotless:
+  if exist gnlogdev.inc erase gnlogdev.inc
+  if exist gnboard.inc  erase gnboard.inc
+  if exist gncrtc.inc   erase gncrtc.inc
+  if exist tvout.inc    erase tvout.inc
+%ENDS
+

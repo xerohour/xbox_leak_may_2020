@@ -1,0 +1,450 @@
+// vcpbobjects.idl : IDL source for public objects in vcpb.dll
+
+// This file will be included into vcpb2.idl where it will get processed by the MIDL tool
+// to produce the type library (vcpb.tlb) and marshalling code
+
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+
+#include "vcpbtypedefs.idl"
+
+// interfaces in this IDL file
+interface IVCCollection;
+interface VCPlatform;
+interface VCDebugSettings;
+interface VCProject;
+interface VCFile;
+interface VCFilter;
+interface VCConfiguration;
+interface VCFileConfiguration;
+interface VCProjectEngine;
+interface VCStyleSheet;
+interface VCProjectItem;
+
+// this error will be returned if you try to add a file to a project that is already present
+cpp_quote("#define VCPROJ_E_FILE_EXISTS      0x80050500L")  
+// this error will be returned if you try to add a filter to a project that already has a filter of that name at that level
+cpp_quote("#define VCPROJ_E_FILTER_EXISTS    0x80050501L")  
+// this error will be returned if you some part of a path is bad (trying to make a filter a child of one of its children, bad
+// OS path for a file, etc.)
+cpp_quote("#define VCPROJ_E_BAD_PATH         0x80050502L") 
+// this error will be returned if you try to set the parent of a file or filter to something not in the same project
+cpp_quote("#define VCPROJ_E_DIFF_PROJ        0x80050503L")  
+// this error will be returned if you try to set the parent of a file or filter to something other than a project or filter
+cpp_quote("#define VCPROJ_E_BAD_PARENT       0x80050504L")  
+// this error will be returned if you try to set the parent of a file or filter to NULL
+cpp_quote("#define VCPROJ_E_NULL_PATH        0x80050505L")  
+// this error will be returned if the item is in a zombie state
+cpp_quote("#define VCPROJ_E_ZOMBIE           0x80050506L")  
+// this error will be returned if we were unable to figure out a tool for a file
+cpp_quote("#define VCPROJ_E_NO_TOOL          0x80050507L")  
+// this error will be returned if the build failed
+cpp_quote("#define VCPROJ_E_BUILD_FAILED     0x80050508L")  
+// this error will be returned if the config you're trying to build isn't buildable
+cpp_quote("#define VCPROJ_E_NOT_BUILDABLE    0x80050509L")  
+// this error will be returned if we couldn't find out we were looking for
+cpp_quote("#define VCPROJ_E_NOT_FOUND        0x8005050AL")  
+// this error will be returned if the project file is invalid for some reason
+cpp_quote("#define VCPROJ_E_BAD_PROJ_FILE    0x8005050BL")  
+// this error will be returned if we fail to do something internally that should have worked
+cpp_quote("#define VCPROJ_E_INTERNAL_ERR     0x8005050CL")  
+// this error will be returned if you try to initialize a build thread more than once
+cpp_quote("#define VCPROJ_E_BLD_ALREADY_INIT 0x8005050DL") 
+// this error will be returned if you try to start a second build on the same config while one is going
+cpp_quote("#define VCPROJ_E_BLD_IN_PROG      0x8005050EL")  
+// this error will be returned if you try to add an URL to a project
+cpp_quote("#define VCPROJ_E_URL_INVALID      0x8005050FL")
+// this error will be returned if you try to convert a pre-4.0 project file
+cpp_quote("#define VCPROJ_E_UNSUPPORTED_PROJ_FILE	0x80050510L")
+// this error will be returned if you try to add a configuration when there are no platforms on the project
+cpp_quote("#define VCPROJ_E_NO_PLATFORMS	0x80050511L")
+// this error will be returned if the project file gets reloaded when we try to dirty it with SCC
+cpp_quote("#define VCPROJ_E_PROJ_RELOADED	0x80050512L")
+
+[
+	object,
+	uuid(A54AAE9A-30C2-11D3-87BF-A04A4CC10000),
+	dual,
+	helpstring("IVCCollection Interface"),
+	pointer_default(unique)
+]
+interface IVCCollection : IDispatch
+{
+	[restricted, id(DISPID_NEWENUM), helpstringcontext(VCCOLLID__NewEnum)] HRESULT _NewEnum([out, retval] IUnknown* *Enumerator);
+	[id(DISPID_VALUE), helpstringcontext(VCCOLLID_Item)] HRESULT Item(VARIANT Index, [out, retval] IDispatch **Item);
+	[propget, id(VCCOLLID_Count), helpstringcontext(VCCOLLID_Count)] HRESULT Count([out, retval] long *Val);
+	[propget, id(VCCOLLID_VCProjectEngine), helpstringcontext(VCCOLLID_VCProjectEngine)] HRESULT VCProjectEngine([out, retval] IDispatch** ProjectEngine);
+};
+
+// See also IVCPlatformImpl for privately available properties & methods
+[	
+	object,
+	uuid(A54AAE90-30C2-11D3-87BF-A04A4CC10000),
+	dual,
+	helpstring("VCPlatform"),
+	pointer_default(unique)
+]
+interface VCPlatform : IDispatch
+{
+	[propget, id(VCPLATID_ExecutableDirectories)] HRESULT ExecutableDirectories([out, retval] BSTR *Dir);
+	[propput, id(VCPLATID_ExecutableDirectories)] HRESULT ExecutableDirectories([in] BSTR newDir);
+	[propget, id(VCPLATID_IncludeDirectories)] HRESULT IncludeDirectories([out, retval] BSTR *Dir);
+	[propput, id(VCPLATID_IncludeDirectories)] HRESULT IncludeDirectories([in] BSTR newDir);
+	[propget, id(VCPLATID_ReferenceDirectories)] HRESULT ReferenceDirectories([out, retval] BSTR *Dir);
+	[propput, id(VCPLATID_ReferenceDirectories)] HRESULT ReferenceDirectories([in] BSTR newDir);
+	[propget, id(VCPLATID_LibraryDirectories)] HRESULT LibraryDirectories([out, retval] BSTR *Dir);
+	[propput, id(VCPLATID_LibraryDirectories)] HRESULT LibraryDirectories([in] BSTR newDir);
+	[propget, id(VCPLATID_SourceDirectories)] HRESULT SourceDirectories([out, retval] BSTR *Dir);
+	[propput, id(VCPLATID_SourceDirectories)] HRESULT SourceDirectories([in] BSTR newDir);
+	[propget, id(VCPLATID_Name), helpstringcontext(VCPLATID_Name)] HRESULT Name([out, retval] BSTR *Dir);
+	[propget, id(VCPLATID_Tools), helpstringcontext(VCPLATID_Tools)] HRESULT Tools([out, retval] IDispatch **Dir);
+	[id(VCPLATID_MatchName), helpstringcontext(VCPLATID_MatchName)] HRESULT MatchName([in] BSTR NameToMatch, [in] VARIANT_BOOL FullOnly, [out, retval] VARIANT_BOOL *IsMatch);
+	[propget, id(VCPLATID_VCProjectEngine), helpstringcontext(VCPLATID_VCProjectEngine)] HRESULT VCProjectEngine([out, retval] IDispatch** ProjectEngine);
+	[id(VCPLATID_Evaluate), helpstringcontext(VCPLATID_Evaluate)] HRESULT Evaluate([in] BSTR In, [out, retval] BSTR* Out);
+};
+
+// See also IVCDebugSettingsImpl for privately available properties & methods
+[
+	object,
+	uuid(A54AAE87-30C2-11D3-87BF-A04A4CC10000),
+	dual,
+	helpstring("VCDebugSettings"),
+	pointer_default(unique)
+]
+interface VCDebugSettings : IDispatch
+{
+	[propget, id(VCDSID_Command), helpstringcontext(VCDSID_Command)] HRESULT Command([out, retval] BSTR *Val);
+	[propput, id(VCDSID_Command), helpstringcontext(VCDSID_Command)] HRESULT Command([in] BSTR newVal);
+	[propget, id(VCDSID_CommandArguments), helpstringcontext(VCDSID_CommandArguments)] HRESULT CommandArguments([out, retval] BSTR *Val);
+	[propput, id(VCDSID_CommandArguments), helpstringcontext(VCDSID_CommandArguments)] HRESULT CommandArguments([in] BSTR newVal);
+	[propget, id(VCDSID_WorkingDirectory), helpstringcontext(VCDSID_WorkingDirectory)] HRESULT WorkingDirectory([out, retval] BSTR *Val);
+	[propput, id(VCDSID_WorkingDirectory), helpstringcontext(VCDSID_WorkingDirectory)] HRESULT WorkingDirectory([in] BSTR newVal);
+	[propget, id(VCDSID_Attach), helpstringcontext(VCDSID_Attach)] HRESULT Attach([out, retval] VARIANT_BOOL *Val);
+	[propput, id(VCDSID_Attach), helpstringcontext(VCDSID_Attach)] HRESULT Attach([in] VARIANT_BOOL newVal);
+	[propget, id(VCDSID_Remote), helpstringcontext(VCDSID_Remote)] HRESULT Remote([out, retval] RemoteDebuggerType *Val);
+	[propput, id(VCDSID_Remote), helpstringcontext(VCDSID_Remote)] HRESULT Remote([in] RemoteDebuggerType newVal);
+	[propget, id(VCDSID_RemoteMachine), helpstringcontext(VCDSID_RemoteMachine)] HRESULT RemoteMachine([out, retval] BSTR *Val);
+	[propput, id(VCDSID_RemoteMachine), helpstringcontext(VCDSID_RemoteMachine)] HRESULT RemoteMachine([in] BSTR newVal);
+	[propget, id(VCDSID_DebuggerType), helpstringcontext(VCDSID_DebuggerType)] HRESULT DebuggerType([out, retval] TypeOfDebugger *Val);
+	[propput, id(VCDSID_DebuggerType), helpstringcontext(VCDSID_DebuggerType)] HRESULT DebuggerType([in] TypeOfDebugger newVal);
+	[propget, id(VCDSID_RemoteCommand), helpstringcontext(VCDSID_RemoteCommand)] HRESULT RemoteCommand([out, retval] BSTR *Val);
+	[propput, id(VCDSID_RemoteCommand), helpstringcontext(VCDSID_RemoteCommand)] HRESULT RemoteCommand([in] BSTR newVal);
+	[propget, id(VCDSID_HttpUrl), helpstringcontext(VCDSID_HttpUrl)] HRESULT HttpUrl([out, retval] BSTR *Val);
+	[propput, id(VCDSID_HttpUrl), helpstringcontext(VCDSID_HttpUrl)] HRESULT HttpUrl([in] BSTR newVal);
+	[propget, id(VCDSID_PDBPath), helpstringcontext(VCDSID_PDBPath)] HRESULT PDBPath([out, retval] BSTR *Val);
+	[propput, id(VCDSID_PDBPath), helpstringcontext(VCDSID_PDBPath)] HRESULT PDBPath([in] BSTR NewVal);
+	[propget, id(VCDSID_SQLDebugging), helpstringcontext(VCDSID_SQLDebugging)] HRESULT SQLDebugging([out, retval] VARIANT_BOOL *Val);
+	[propput, id(VCDSID_SQLDebugging), helpstringcontext(VCDSID_SQLDebugging)] HRESULT SQLDebugging([in] VARIANT_BOOL newVal);
+};
+
+[
+	object,
+	dual,
+	uuid(33F3D4A0-6763-4b88-B8C5-478446EFB51E),
+	helpstring("VCProjectItem"),
+	pointer_default(unique)
+]
+interface VCProjectItem : IDispatch
+{
+	[id(VCITMID_MatchName), helpstringcontext(VCITMID_MatchName)] 		HRESULT MatchName([in] BSTR NameToMatch, [in] VARIANT_BOOL FullOnly, [out, retval] VARIANT_BOOL *IsMatch);
+	[propget, id(VCITMID_Project), helpstringcontext(VCITMID_Project)] 	HRESULT Project([out, retval] IDispatch * *Val);
+	[propget, id(VCITMID_Parent), helpstringcontext(VCITMID_Parent)] 	HRESULT Parent([out, retval] IDispatch * *Val);
+	[propget, id(VCITMID_ItemName), helpstringcontext(VCITMID_ItemName)] 	HRESULT ItemName([out, retval] BSTR *Val);
+	[propget, id(VCITMID_Kind), helpstringcontext(VCITMID_Kind)] 		HRESULT Kind([out, retval] BSTR* kind);
+	[propget, id(VCITMID_VCProjectEngine), helpstringcontext(VCITMID_VCProjectEngine)] HRESULT VCProjectEngine([out, retval] IDispatch** ProjectEngine);
+};
+
+// See also IVCProjectImpl for privately available properties & methods
+[
+	object,
+	uuid(625C6494-2C7E-11D3-87BF-A0494CC10000),
+	dual,
+	helpstring("VCProject"),
+	pointer_default(unique)
+]
+interface VCProject : VCProjectItem
+{
+	[propget, id(VCPROJID_Name), helpstringcontext(VCPROJID_Name)] HRESULT Name([out, retval] BSTR *Val);
+	[propput, id(VCPROJID_Name), helpstringcontext(VCPROJID_Name)] HRESULT Name([in] BSTR newVal);
+	[propget, id(VCPROJID_ProjectDirectory), helpstringcontext(VCPROJID_ProjectDirectory)] HRESULT ProjectDirectory([out, retval] BSTR *Val);
+	[propget, id(VCPROJID_ProjectFile), helpstringcontext(VCPROJID_ProjectFile)] HRESULT ProjectFile([out, retval] BSTR *Val);
+	[propput, id(VCPROJID_ProjectFile), helpstringcontext(VCPROJID_ProjectFile)] HRESULT ProjectFile([in] BSTR newVal);
+	
+	[propget, nonbrowsable, id(VCPROJID_Platforms), helpstringcontext(VCPROJID_Platforms)] HRESULT Platforms([out, retval] IDispatch **Val);
+	[id(VCPROJID_AddPlatform), helpstringcontext(VCPROJID_AddPlatform)] HRESULT AddPlatform([in] BSTR PlatformName);
+	[id(VCPROJID_RemovePlatform), helpstringcontext(VCPROJID_RemovePlatform)] HRESULT RemovePlatform([in] IDispatch* Platform);
+	
+	[propget, nonbrowsable, id(VCPROJID_Configurations), helpstringcontext(VCPROJID_Configurations)] HRESULT Configurations([out, retval] IDispatch * *Val);
+	[id(VCPROJID_AddConfiguration), helpstringcontext(VCPROJID_AddConfiguration)] HRESULT AddConfiguration(BSTR ConfigurationName);
+	[id(VCPROJID_RemoveConfiguration), helpstringcontext(VCPROJID_RemoveConfiguration)] HRESULT RemoveConfiguration(IDispatch *Config);
+	
+	[propget, nonbrowsable, id(VCPROJID_Files), helpstringcontext(VCPROJID_Files)] HRESULT Files([out, retval] IDispatch * *Val);
+	[id(VCPROJID_CanAddFile), helpstringcontext(VCPROJID_CanAddFile)] HRESULT CanAddFile([in] BSTR File, [out, retval] VARIANT_BOOL* canAdd);
+	[id(VCPROJID_AddFile), helpstringcontext(VCPROJID_AddFile)] HRESULT AddFile(BSTR bstrPath, [out, retval] IDispatch * *Disp);
+	[id(VCPROJID_RemoveFile), helpstringcontext(VCPROJID_RemoveFile)] HRESULT RemoveFile([in] IDispatch *File);
+	
+	[propget, nonbrowsable, id(VCPROJID_Filters), helpstringcontext(VCPROJID_Filters)] HRESULT Filters([out, retval] IDispatch * *Val);
+	[id(VCPROJID_CanAddFilter), helpstringcontext(VCPROJID_CanAddFilter)] HRESULT CanAddFilter([in] BSTR Filter, [out, retval] VARIANT_BOOL* canAdd);
+	[id(VCPROJID_AddFilter), helpstringcontext(VCPROJID_AddFilter)] HRESULT AddFilter(BSTR bstrFilterName, [out, retval] IDispatch * *Disp);
+	[id(VCPROJID_RemoveFilter), helpstringcontext(VCPROJID_RemoveFilter)] HRESULT RemoveFilter([in] IDispatch *Filter);
+	
+	[propget, nonbrowsable, id(VCPROJID_Items), helpstringcontext(VCPROJID_Items)] HRESULT Items([out, retval] IDispatch * *Val);
+	[id(VCPROJID_AddWebRef), helpstringcontext(VCPROJID_AddWebRef)] HRESULT AddWebReference([in] BSTR URL, [out, retval] IDispatch** File);
+	
+	[id(VCPROJID_Save), helpstringcontext(VCPROJID_Save)] HRESULT Save();
+	[propget, hidden, id(VCPROJID_IsDirty), helpstringcontext(VCPROJID_IsDirty)] HRESULT IsDirty([out, retval] VARIANT_BOOL *Val);
+	[propget, hidden, id(VCPROJID_FileFormat)] HRESULT FileFormat([out, retval] enumFileFormat *FileType);
+	[propput, hidden, id(VCPROJID_FileFormat)] HRESULT FileFormat([in] enumFileFormat FileType);
+	[propget, hidden, id(VCPROJID_FileEncoding)] HRESULT FileEncoding([out, retval] BSTR *encoding);
+	[propput, hidden, id(VCPROJID_FileEncoding)] HRESULT FileEncoding([in] BSTR encoding);
+	[id(VCPROJID_SaveProjectOptions), helpstringcontext(VCPROJID_SaveProjectOptions), hidden] HRESULT SaveProjectOptions([in] IUnknown *StreamUnk);
+	[id(VCPROJID_LoadProjectOptions), helpstringcontext(VCPROJID_LoadProjectOptions), hidden] HRESULT LoadProjectOptions([in] IUnknown *StreamUnk);
+	
+	[propget, hidden, id(VCPROJID_SccProjectName), helpstringcontext(VCPROJID_SccProjectName)] HRESULT SccProjectName([out, retval] BSTR *Name);
+	[propput, hidden, id(VCPROJID_SccProjectName), helpstringcontext(VCPROJID_SccProjectName)] HRESULT SccProjectName([in] BSTR Name );
+	[propget, hidden, id(VCPROJID_SccAuxPath), helpstringcontext(VCPROJID_SccAuxPath)] HRESULT SccAuxPath([out, retval] BSTR *Name);
+	[propput, hidden, id(VCPROJID_SccAuxPath), helpstringcontext(VCPROJID_SccAuxPath)] HRESULT SccAuxPath([in] BSTR Name );
+	[propget, hidden, id(VCPROJID_SccLocalPath), helpstringcontext(VCPROJID_SccLocalPath)] HRESULT SccLocalPath([out, retval] BSTR *Name);
+	[propput, hidden, id(VCPROJID_SccLocalPath), helpstringcontext(VCPROJID_SccLocalPath)] HRESULT SccLocalPath([in] BSTR Name );
+	[propget, hidden, id(VCPROJID_SccProvider), helpstringcontext(VCPROJID_SccProvider)] HRESULT SccProvider([out, retval] BSTR *Name);
+	[propput, hidden, id(VCPROJID_SccProvider), helpstringcontext(VCPROJID_SccProvider)] HRESULT SccProvider([in] BSTR Name );
+	
+	[propget, id(VCPROJID_Keyword)] HRESULT Keyword([out, retval] BSTR *Keyword);
+	[propput, id(VCPROJID_Keyword)] HRESULT Keyword([in] BSTR Keyword );
+	[propput, hidden, id(VCPROJID_OwnerKey)] HRESULT OwnerKey( [in] BSTR Name );
+	[propget, hidden, id(VCPROJID_OwnerKey)] HRESULT OwnerKey( [out, retval] BSTR *Name );
+	[propput, hidden, id(VCPROJID_ProjectGUID)] HRESULT ProjectGUID( [in] BSTR guid );
+	[propget, hidden, id(VCPROJID_ProjectGUID)] HRESULT ProjectGUID( [out, retval] BSTR *guid );
+	
+};
+
+// See also IVCFileImpl for privately available properties & methods
+[
+	object,
+	uuid(625C6497-2C7E-11D3-87BF-A0494CC10000),
+	dual,
+	helpstring("VCFile"),
+	pointer_default(unique)
+]
+interface VCFile : VCProjectItem
+{
+	[propget, id(VCFILEID_Name), helpstringcontext(VCFILEID_Name)] HRESULT Name([out, retval] BSTR *Val);
+	[id(VCFILEID_Remove), helpstringcontext(VCFILEID_Remove)] HRESULT Remove();
+	[propget, id(VCFILEID_RelativePath), helpstringcontext(VCFILEID_RelativePath)] HRESULT RelativePath([out, retval] BSTR *Val);
+	[propput, id(VCFILEID_RelativePath), helpstringcontext(VCFILEID_RelativePath)] HRESULT RelativePath([in] BSTR newVal);
+	[propget, id(VCFILEID_FullPath), helpstringcontext(VCFILEID_FullPath)] HRESULT FullPath([out, retval] BSTR *Val);
+	[propget, id(VCFILEID_FileConfigurations), helpstringcontext(VCFILEID_FileConfigurations)] HRESULT FileConfigurations([out, retval] IDispatch * *Val);
+	[propget, id(VCFILEID_DeploymentContent), helpstringcontext(VCFILEID_DeploymentContent)] HRESULT DeploymentContent([out, retval] VARIANT_BOOL *Val);
+	[propput, id(VCFILEID_DeploymentContent), helpstringcontext(VCFILEID_DeploymentContent)] HRESULT DeploymentContent([in] VARIANT_BOOL newVal);
+	[propget, id(VCFILEID_Extension), helpstringcontext(VCFILEID_Extension)] HRESULT Extension( [out, retval] BSTR *Val );
+	[id(VCFILEID_Move), helpstringcontext(VCFILEID_Move)] HRESULT Move([in] IDispatch *Parent);
+	[id(VCFILEID_CanMove), helpstringcontext(VCFILEID_CanMove)] HRESULT CanMove([in] IDispatch *Parent, [out, retval] VARIANT_BOOL* canMove);
+};
+
+// See also IVCFilterImpl for privately available properties & methods
+[
+	object,
+	uuid(625C649A-2C7E-11D3-87BF-A0494CC10000),
+	dual,
+	helpstring("VCFilter"),
+	pointer_default(unique)
+]
+interface VCFilter : VCProjectItem
+{
+	[propget, id(VCFLTID_Name), helpstringcontext(VCFLTID_Name)] HRESULT Name([out, retval] BSTR *Val);
+	[propput, id(VCFLTID_Name), helpstringcontext(VCFLTID_Name)] HRESULT Name([in] BSTR newVal);
+	[propget, id(VCFLTID_UniqueIdentifier), helpstringcontext(VCFLTID_UniqueIdentifier)] HRESULT UniqueIdentifier([out, retval] BSTR *Val);
+	[propput, id(VCFLTID_UniqueIdentifier), helpstringcontext(VCFLTID_UniqueIdentifier)] HRESULT UniqueIdentifier([in] BSTR newVal);
+	[propget, id(VCFLTID_CanonicalName), helpstringcontext(VCFLTID_CanonicalName)] HRESULT CanonicalName([out, retval] BSTR* Name);
+	[id(VCFLTID_Delete), helpstringcontext(VCFLTID_Delete)] HRESULT Remove();
+	[propget, id(VCFLTID_Filter), helpstringcontext(VCFLTID_Filter)] HRESULT Filter([out, retval] BSTR *Val);
+	[propput, id(VCFLTID_Filter), helpstringcontext(VCFLTID_Filter)] HRESULT Filter([in] BSTR newVal);
+	[propget, id(VCFLTID_Filters), helpstringcontext(VCFLTID_Filters)] HRESULT Filters([out, retval] IDispatch **Val);
+	[propget, id(VCFLTID_Files), helpstringcontext(VCFLTID_Files)] HRESULT Files([out, retval] IDispatch **Val);
+	[id(VCFLTID_AddFilter), helpstringcontext(VCFLTID_AddFilter)] HRESULT AddFilter(BSTR bstrName, [out, retval] IDispatch **Val);
+	[id(VCFLTID_CanAddFilter), helpstringcontext(VCFLTID_CanAddFilter)] HRESULT CanAddFilter([in] BSTR Filter, [out, retval] VARIANT_BOOL* canAdd);
+	[id(VCFLTID_AddFile), helpstringcontext(VCFLTID_AddFile)] HRESULT AddFile(BSTR bstrPath, [out, retval] IDispatch **Val);
+	[id(VCFLTID_CanAddFile), helpstringcontext(VCFLTID_CanAddFile)] HRESULT CanAddFile([in] BSTR bstrFile, [out, retval] VARIANT_BOOL* canAdd);
+	[id(VCFLTID_RemoveFile), helpstringcontext(VCFLTID_RemoveFile)] HRESULT RemoveFile([in] IDispatch *File);
+	[id(VCFLTID_RemoveFilter), helpstringcontext(VCFLTID_RemoveFilter)] HRESULT RemoveFilter([in] IDispatch *Filter);
+	[propget, id(VCFLTID_Items), helpstringcontext(VCFLTID_Items)] HRESULT Items([out, retval] IDispatch** Items);
+	[propget, id(VCFLTID_ParseFiles), helpstringcontext(VCFLTID_ParseFiles)] HRESULT ParseFiles([out, retval] VARIANT_BOOL* Parse);
+	[propput, id(VCFLTID_ParseFiles), helpstringcontext(VCFLTID_ParseFiles)] HRESULT ParseFiles([in] VARIANT_BOOL Parse);
+	[propget, id(VCFLTID_SourceControlFiles), helpstringcontext(VCFLTID_SourceControlFiles)] HRESULT SourceControlFiles([out, retval] VARIANT_BOOL* SCC);
+	[propput, id(VCFLTID_SourceControlFiles), helpstringcontext(VCFLTID_SourceControlFiles)] HRESULT SourceControlFiles([in] VARIANT_BOOL SCC);
+	[id(VCFLTID_AddWebRef), helpstringcontext(VCFLTID_AddWebRef)] HRESULT AddWebReference([in] BSTR bstrUrl, [out, retval] IDispatch** File);
+	[id(VCFLTID_Move), helpstringcontext(VCFLTID_Move)] HRESULT Move([in] IDispatch *Parent);
+	[id(VCFLTID_CanMove), helpstringcontext(VCFLTID_CanMove)] HRESULT CanMove([in] IDispatch *Parent, [out, retval] VARIANT_BOOL* canMove);
+};
+
+// See also IVCConfigurationImpl for privately available properties & methods
+[
+	object,
+	uuid(625C649D-2C7E-11D3-87BF-A0494CC10000),
+	dual,
+	helpstring("VCConfiguration"),
+	pointer_default(unique)
+]
+interface VCConfiguration : IDispatch
+{
+	[propget, id(VCCFGID_Name), helpstringcontext(VCCFGID_Name)] HRESULT Name([out, retval] BSTR *cfgName);
+	[propput, id(VCCFGID_Name), helpstringcontext(VCCFGID_Name)] HRESULT Name([in] BSTR cfgName);
+	[propget, id(VCCFGID_Platform), helpstringcontext(VCCFGID_Platform)] HRESULT Platform([out, retval] IDispatch** assocPlatform);
+	[propget, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([out, retval] BSTR* outDir);
+	[propput, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([in] BSTR outDir);
+	[propget, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([out, retval] BSTR* intDir);
+	[propput, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([in] BSTR intDir);
+	[hidden, id(VCCFGID_Delete), helpstringcontext(VCCFGID_Delete)] HRESULT Delete();
+	[id(VCCFGID_Build), helpstringcontext(VCCFGID_Build)] HRESULT Build();
+	[id(VCCFGID_Rebuild), helpstringcontext(VCCFGID_Rebuild)] HRESULT Rebuild();
+	[id(VCCFGID_Clean), helpstringcontext(VCCFGID_Clean)] HRESULT Clean();
+	[propget, id(VCCFGID_DebugSettings), helpstringcontext(VCCFGID_DebugSettings)] HRESULT DebugSettings([out, retval] IDispatch** DbgSettings);
+	[propget, id(VCCFGID_PrimaryOutput), helpstringcontext(VCCFGID_PrimaryOutput)] HRESULT PrimaryOutput([out, retval] BSTR* primaryOut);
+	[propget, id(VCCFGID_ImportLibrary), helpstringcontext(VCCFGID_ImportLibrary)] HRESULT ImportLibrary([out, retval] BSTR* ImportLib);
+	[propget, id(VCCFGID_ProgramDatabase), helpstringcontext(VCCFGID_ProgramDatabase)] HRESULT ProgramDatabase([out, retval] BSTR* PDB);
+	[propget, id(VCCFGID_Project), helpstringcontext(VCCFGID_Project)] HRESULT Project([out, retval] IDispatch** proj);
+	[id(VCCFGID_MatchName), helpstringcontext(VCCFGID_MatchName)] HRESULT MatchName([in] BSTR NameToMatch, [in] VARIANT_BOOL FullOnly, [out, retval] VARIANT_BOOL *IsMatch);
+	[propget, nonbrowsable, id(VCCFGID_Tools), helpstringcontext(VCCFGID_Tools)] HRESULT Tools([out, retval] IDispatch** toolList);
+	[propget, nonbrowsable, id(VCCFGID_FileTools), helpstringcontext(VCCFGID_FileTools)] HRESULT FileTools([out, retval] IVCCollection** fileToolList);
+	[propget, id(VCCFGID_ConfigurationName)] HRESULT ConfigurationName([out, retval] BSTR* cfgName);
+	[propput, id(VCCFGID_ConfigurationName)] HRESULT ConfigurationName([in] BSTR cfgName);
+	[propget, id(VCCFGID_UpToDate), helpstringcontext(VCCFGID_UpToDate)] HRESULT UpToDate([out, retval] VARIANT_BOOL* IsUpToDate);
+	[propget, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([out, retval] ConfigurationTypes* ConfigType);		// configuration type: application, DLL, etc.
+	[propput, id(VCCFGID_ConfigurationType), helpstringcontext(VCCFGID_ConfigurationType)] HRESULT ConfigurationType([in] ConfigurationTypes ConfigType);
+	[id(VCCFGID_CopyTo), helpstringcontext(VCCFGID_CopyTo)] HRESULT CopyTo(IDispatch* Config);
+	[propget, id(VCCFGID_AppliedStyleSheets), helpstringcontext(VCCFGID_AppliedStyleSheets)] HRESULT AppliedStyleSheets([out, retval] BSTR* Styles);	// style sheet names applied to this configuration
+	[propput, id(VCCFGID_AppliedStyleSheets), helpstringcontext(VCCFGID_AppliedStyleSheets)] HRESULT AppliedStyleSheets([in] BSTR Styles);
+	[propget, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([out, retval] VARIANT_BOOL* Bsc);	// build .bsc file
+	[propput, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([in] VARIANT_BOOL Bsc);
+	[propget, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([out, retval] useOfMfc* useMfc);	// how are we using MFC?
+	[propput, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([in] useOfMfc useMfc);
+	[propget, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([out, retval] useOfATL* useATL);	// how are we using ATL?
+	[propput, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([in] useOfATL useATL);
+	[propget, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([out, retval] VARIANT_BOOL* UseCRT);	// does the user want to link with the static or dynamic CRT?
+	[propput, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([in] VARIANT_BOOL UseCRT);
+	[propget, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([out, retval] charSet* optSetting);	// character set to use: Unicode, MBCS, default
+	[propput, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([in] charSet optSetting);
+	[propget, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([out, retval] VARIANT_BOOL* Managed);	// is this a managed C++ project?
+	[propput, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([in] VARIANT_BOOL Managed);
+	[propget, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([out, retval] BSTR* ExtList);	// wildcard extension list to delete on clean/rebuild from within the intermediate directory
+	[propput, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([in] BSTR ExtList);
+	[propget, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([out, retval] VARIANT_BOOL* Optimize);	// perform whole program optimization on build; more or less requires optimization turned on to be effective
+	[propput, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([in] VARIANT_BOOL Optimize);
+	[propget, id(VCCFGID_RegisterOutput), helpstringcontext(VCCFGID_RegisterOutput)] HRESULT RegisterOutput([out, retval] VARIANT_BOOL* doRegister);	// register the primary output of the build
+	[id(VCCFGID_Evaluate), helpstringcontext(VCCFGID_Evaluate)] HRESULT Evaluate([in] BSTR In, [out, retval] BSTR* Out);
+	[propget, nonbrowsable, id(VCCFGID_StyleSheets), helpstringcontext(VCCFGID_StyleSheets)] HRESULT StyleSheets([out, retval] IDispatch** styles);		// all style sheets associated with this configuration
+	[propget, id(VCCFGID_VCProjectEngine), helpstringcontext(VCCFGID_VCProjectEngine)] HRESULT VCProjectEngine([out, retval] IDispatch** ProjectEngine);
+};
+
+// See also IVCStyleSheetImpl for privately available properties & methods
+[
+	object,
+	uuid(CC7AEBB9-A788-11d3-B99F-00C04F685D26),
+	dual,
+	helpstring("VCStyleSheet"),
+	pointer_default(unique)
+]
+interface VCStyleSheet : IDispatch
+{
+	[propget, id(VCSTYLEID_Name), helpstringcontext(VCSTYLEID_Name)] HRESULT Name([out, retval] BSTR *styleName);
+	[propput, id(VCSTYLEID_Name), helpstringcontext(VCSTYLEID_Name)] HRESULT Name([in] BSTR styleName);
+	[propget, id(VCSTYLEID_Platform), helpstringcontext(VCSTYLEID_Platform)] HRESULT Platform([out, retval] IDispatch** assocPlatform);
+	[hidden, propget, id(VCSTYLEID_PlatformName)] HRESULT PlatformName([out, retval] BSTR* assocPlatformName);
+	[hidden, propput, id(VCSTYLEID_PlatformName)] HRESULT PlatformName([in] BSTR assocPlatformName);
+	[id(VCSTYLEID_MatchName), helpstringcontext(VCSTYLEID_MatchName)] HRESULT MatchName([in] BSTR NameToMatch, [in] VARIANT_BOOL FullOnly, [out, retval] VARIANT_BOOL *IsMatch);
+	[propget, id(VCSTYLEID_StyleSheetName)] HRESULT StyleSheetName([out, retval] BSTR *styleName);
+	[propput, id(VCSTYLEID_StyleSheetName)] HRESULT StyleSheetName([in] BSTR styleName);
+	[propget, id(VCSTYLEID_StyleSheetFile), helpstringcontext(VCSTYLEID_StyleSheetFile)] HRESULT StyleSheetFile([out, retval] BSTR* file);
+	[propput, id(VCSTYLEID_StyleSheetFile), helpstringcontext(VCSTYLEID_StyleSheetFile)] HRESULT StyleSheetFile([in] BSTR file);
+	[propget, nonbrowsable, id(VCSTYLEID_Tools), helpstringcontext(VCSTYLEID_Tools)] HRESULT Tools([out, retval] IDispatch** tools);
+	[propget, nonbrowsable, id(VCSTYLEID_FileTools), helpstringcontext(VCSTYLEID_FileTools)] HRESULT FileTools([out, retval] IVCCollection** fileToolLIst);
+	[propget, hidden, id(VCSTYLEID_IsDirty), helpstringcontext(VCSTYLEID_IsDirty)] HRESULT IsDirty([out, retval] VARIANT_BOOL *dirty);
+	[propget, id(VCSTYLEID_ToolSet), helpstringcontext(VCSTYLEID_ToolSet)] HRESULT ToolSet([out, retval] toolSetType* ToolSetList);	// what type of tools do we use?
+	[propput, id(VCSTYLEID_ToolSet), helpstringcontext(VCSTYLEID_ToolSet)] HRESULT ToolSet([in] toolSetType ToolSetList);
+	[propget, nonbrowsable, id(VCSTYLEID_StyleSheets), helpstringcontext(VCSTYLEID_StyleSheets)] HRESULT StyleSheets([out, retval] IDispatch** styles);		// all style sheets associated with this style sheet
+
+	// yes, the use of VCCFGID_ IDs is intentional here...  these *are* things that the configuration can use to default in values for
+	[propget, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([out, retval] BSTR *intDir);
+	[propput, id(VCCFGID_IntermediateDirectory), helpstringcontext(VCCFGID_IntermediateDirectory)] HRESULT IntermediateDirectory([in] BSTR intDir);
+	[propget, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([out, retval] BSTR *outDir);
+	[propput, id(VCCFGID_OutputDirectory), helpstringcontext(VCCFGID_OutputDirectory)] HRESULT OutputDirectory([in] BSTR outDir);
+	[propget, id(VCCFGID_AppliedStyleSheets), helpstringcontext(VCCFGID_AppliedStyleSheets)] HRESULT AppliedStyleSheets([out, retval] BSTR* StyleNames);	// style sheet names applied to this configuration; purposely *NOT* in UI, but still browsable
+	[propput, id(VCCFGID_AppliedStyleSheets), helpstringcontext(VCCFGID_AppliedStyleSheets)] HRESULT AppliedStyleSheets([in] BSTR StyleNames);
+	[propget, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([out, retval] VARIANT_BOOL* Bsc);	// build .bsc file
+	[propput, id(VCCFGID_BuildBrowserInformation), helpstringcontext(VCCFGID_BuildBrowserInformation)] HRESULT BuildBrowserInformation([in] VARIANT_BOOL Bsc);
+	[propget, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([out, retval] useOfMfc* useMfc);	// how are we using MFC?
+	[propput, id(VCCFGID_UseOfMFC), helpstringcontext(VCCFGID_UseOfMFC)] HRESULT UseOfMFC([in] useOfMfc useMfc);
+	[propget, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([out, retval] useOfATL* useATL);	// how are we using ATL?
+	[propput, id(VCCFGID_UseOfATL), helpstringcontext(VCCFGID_UseOfATL)] HRESULT UseOfATL([in] useOfATL useATL);
+	[propget, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([out, retval] VARIANT_BOOL* UseCRT);	// does the user want to link with the static or dynamic CRT?
+	[propput, id(VCCFGID_ATLMinimizesCRunTimeLibraryUsage), helpstringcontext(VCCFGID_ATLMinimizesCRunTimeLibraryUsage)] HRESULT ATLMinimizesCRunTimeLibraryUsage([in] VARIANT_BOOL UseCRT);
+	[propget, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([out, retval] charSet* optSetting);	// character set to use: Unicode, MBCS, default
+	[propput, id(VCCFGID_CharacterSet), helpstringcontext(VCCFGID_CharacterSet)] HRESULT CharacterSet([in] charSet optSetting);
+	[propget, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([out, retval] VARIANT_BOOL* Managed);	// is this a managed C++ project?
+	[propput, id(VCCFGID_ManagedExtensions), helpstringcontext(VCCFGID_ManagedExtensions)] HRESULT ManagedExtensions([in] VARIANT_BOOL Managed);
+	[propget, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([out, retval] BSTR* ExtList);	// wildcard extension list to delete on clean/rebuild from within the intermediate directory
+	[propput, id(VCCFGID_DeleteExtensionsOnClean), helpstringcontext(VCCFGID_DeleteExtensionsOnClean)] HRESULT DeleteExtensionsOnClean([in] BSTR ExtList);
+	[propget, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([out, retval] VARIANT_BOOL* Optimize);	// perform whole program optimization on build; more or less requires optimization turned on to be effective
+	[propput, id(VCCFGID_WholeProgramOptimization), helpstringcontext(VCCFGID_WholeProgramOptimization)] HRESULT WholeProgramOptimization([in] VARIANT_BOOL Optimize);
+	[propget, id(VCCFGID_VCProjectEngine), helpstringcontext(VCCFGID_VCProjectEngine)] HRESULT VCProjectEngine([out, retval] IDispatch** ProjectEngine);
+};
+
+// See also IVCFileConfigurationImpl for privately available properties & methods
+[
+	object,
+	uuid(A54AAE8A-30C2-11D3-87BF-A04A4CC10000),
+	dual,
+	helpstring("VCFileConfiguration"),
+	pointer_default(unique)
+]
+interface VCFileConfiguration : IDispatch
+{
+	[propget, id(VCFCFGID_Name), helpstringcontext(VCFCFGID_Name)] HRESULT Name([out, retval] BSTR *Val);
+	[propget, id(VCFCFGID_Tool), helpstringcontext(VCFCFGID_Tool)] HRESULT Tool([out, retval] IDispatch* *Val);
+	[propput, id(VCFCFGID_Tool), helpstringcontext(VCFCFGID_Tool)] HRESULT Tool([in] IDispatch* newVal);
+	[propget, id(VCFCFGID_ExcludedFromBuild), helpstringcontext(VCFCFGID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([out, retval] VARIANT_BOOL* ExcludedFromBuild);
+	[propput, id(VCFCFGID_ExcludedFromBuild), helpstringcontext(VCFCFGID_ExcludedFromBuild)] HRESULT ExcludedFromBuild([in] VARIANT_BOOL ExcludedFromBuild);
+	[id(VCFCFGID_MatchName), helpstringcontext(VCFCFGID_MatchName)] HRESULT MatchName([in] BSTR bstrNameToMatch, [in] VARIANT_BOOL FullOnly, [out, retval] VARIANT_BOOL *Match);
+	[propget, id(VCFCFGID_Parent), helpstringcontext(VCFCFGID_Parent)] HRESULT Parent([out, retval] IDispatch* *Val);
+	[propget, id(VCFCFGID_File), helpstringcontext(VCFCFGID_File)] HRESULT File([out, retval] IDispatch* *Val);
+	[id(VCFCFGID_Evaluate), helpstringcontext(VCFCFGID_Evaluate)] HRESULT Evaluate([in] BSTR bstrIn, [out, retval] BSTR* Out);
+	[propget, id(VCFCFGID_VCProjectEngine), helpstringcontext(VCFCFGID_VCProjectEngine)] HRESULT VCProjectEngine([out, retval] IDispatch** ProjectEngine);
+};
+
+// See also IVCProjectEngineImpl for privately available properties & methods
+[
+	object,
+	uuid(9F367026-33C6-11D3-8D52-00C04F8ECDB6),
+	dual,
+	helpstring("VCProjectEngine"),
+	pointer_default(unique)
+]
+interface VCProjectEngine : IDispatch
+{
+	[propget, id(PROJENGID_BuildLogging), helpstringcontext(PROJENGID_BuildLogging)] HRESULT BuildLogging( [out,retval] VARIANT_BOOL *Log );
+	[propput, id(PROJENGID_BuildLogging), helpstringcontext(PROJENGID_BuildLogging)] HRESULT BuildLogging( [in] VARIANT_BOOL Log );
+	[propget, id(PROJENGID_BuildTiming), helpstringcontext(PROJENGID_BuildTiming)] HRESULT BuildTiming( [out,retval] VARIANT_BOOL *Time );
+	[propput, id(PROJENGID_BuildTiming), helpstringcontext(PROJENGID_BuildTiming)] HRESULT BuildTiming( [in] VARIANT_BOOL Time );
+	[hidden, propget, id(PROJENGID_PerformanceLogging), helpstringcontext(PROJENGID_PerformanceLogging)] HRESULT PerformanceLogging( [out,retval] VARIANT_BOOL *Time );
+	[hidden, propput, id(PROJENGID_PerformanceLogging), helpstringcontext(PROJENGID_PerformanceLogging)] HRESULT PerformanceLogging( [in] VARIANT_BOOL Time );
+	[id(PROJENGID_IsSystemInclude)] HRESULT IsSystemInclude( [in] BSTR Include, [out, retval] VARIANT_BOOL *IsSystem );
+	[propget, id(PROJENGID_Events), helpstringcontext(PROJENGID_Events)] HRESULT Events( [out,retval] IDispatch **ProjectEngineEvents );
+
+	[propget, id(PROJENGID_Platforms), helpstringcontext(PROJENGID_Platforms)] HRESULT Platforms( [out, retval] IDispatch **platforms );
+	
+	[propget, id(PROJENGID_Projects), helpstringcontext(PROJENGID_Projects)] HRESULT Projects( [out, retval] IDispatch **projects );
+	[id(PROJENGID_CreateProject), helpstringcontext(PROJENGID_CreateProject)] HRESULT CreateProject( [in] BSTR projectName, [out, retval] IDispatch **project );
+	[id(PROJENGID_LoadProject), helpstringcontext(PROJENGID_LoadProject)] HRESULT LoadProject( [in] BSTR projectName, [out, retval] IDispatch **project );
+	[id(PROJENGID_RemoveProject), helpstringcontext(PROJENGID_RemoveProject)] HRESULT RemoveProject( [in] IDispatch *project );
+	
+	[hidden, propget, id(PROJENGID_StyleSheets), helpstringcontext(PROJENGID_StyleSheets)] HRESULT StyleSheets([out, retval] IDispatch** StyleSheets);	// this covers just style sheets loaded in the UI
+	[hidden, id(PROJENGID_LoadStyleSheet), helpstringcontext(PROJENGID_LoadStyleSheet)] HRESULT LoadStyleSheet([in] BSTR bstrName, [out, retval] IDispatch **StyleSheet);
+	[hidden, id(PROJENGID_CreateStyleSheet), helpstringcontext(PROJENGID_CreateStyleSheet)] HRESULT CreateStyleSheet([in] BSTR Name, [out, retval] IDispatch **StyleSheet);
+	[hidden, id(PROJENGID_RemoveStyleSheet), helpstringcontext(PROJENGID_RemoveStyleSheet)] HRESULT RemoveStyleSheet([in] IDispatch* StyleSheet);
+
+	[id(PROJENGID_Evaluate), helpstringcontext(PROJENGID_Evaluate)] HRESULT Evaluate([in] BSTR In, [out, retval] BSTR* Out);
+};
+

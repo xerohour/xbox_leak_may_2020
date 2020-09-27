@@ -1,0 +1,9 @@
+TARGETNAME=PShader
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+NTTARGETFILE0=pshader.xpu
+
+SOURCES= \
+    main.cpp \
+

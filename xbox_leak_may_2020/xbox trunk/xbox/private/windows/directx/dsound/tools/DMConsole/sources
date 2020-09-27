@@ -1,0 +1,45 @@
+TARGETNAME = AudConsole
+PROJNAME   = "Audio Console App"
+TARGETPATH = obj
+TARGETTYPE = PROGRAM
+UMTYPE     = xboxapp
+
+NTTARGETFILE0 = dsstdfx
+
+SYNCHRONIZE_DRAIN=1
+
+USE_LIBCMT=1
+
+NOT_UNICODE= 1
+
+XE_FLAGS   = $(XE_FLAGS) /TESTNAME:$(PROJNAME) /INITFLAGS:0x00000000
+
+INCLUDES = $(INCLUDES);$(SDK_INC_PATH);$(BASEDIR)\private\inc;..\..\..\dmusic\xprivate;..\..\..\dmusic\shared
+
+LINKLIBS=\
+    $(LIBRARY_PATH)\d3d8$(D).lib      \
+    $(LIBRARY_PATH)\d3dx8$(D).lib     \
+    $(LIBRARY_PATH)\dsound$(D).lib    \
+    $(LIBRARY_PATH)\dmusic$(D).lib    \
+    $(LIBRARY_PATH)\xgraphics$(D).lib \
+    $(XDK_LIB_PATH)\xbdm.lib          \
+    $(XDK_LIB_PATH)\xnet$(D).lib      \
+    $(SDK_LIB_PATH)\wbndx$(D).lib
+                    
+SOURCES=\
+    XbUtil.Cpp                        \
+    alist.cpp                         \
+    DebugCmd.cpp                      \
+    DMConsole.cpp                     \
+    DSPserver.cpp                     \
+    PortProxy.cpp                     \
+    ScriptProxy.cpp                   \
+    fourier.cpp			      \
+    XbApp.Cpp                         \
+    XbFont.Cpp                        \
+    XbHelp.Cpp                        \
+    XbInput.Cpp                       \
+    Xbmesh.Cpp                        \
+    XbResource.Cpp                    \
+    wavbndlr.cpp
+

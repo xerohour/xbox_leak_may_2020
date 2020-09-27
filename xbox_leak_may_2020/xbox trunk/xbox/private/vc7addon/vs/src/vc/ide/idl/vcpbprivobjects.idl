@@ -1,0 +1,623 @@
+// vcpbprivobjects.idl : IDL source for private objects in vcpb.dll
+
+// This file will be included into vcpb2.idl where it will get processed by the MIDL tool
+// to produce the type library (vcpb.tlb) and marshalling code. 
+// Eventually, this file should move OUT of the ide\idl directory and into the projbld\idl directory.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "vshelp.idl";
+import "objidl.idl";
+import "vsmanaged.idl";
+
+import "vcpbobjects.idl";
+
+#include "prjids.h"		// defines all of the DISPIDs in use.  Keep ranges up-to-date there.
+
+// interfaces in this IDL file
+interface IVCPlatformImpl;
+interface IVCDebugSettingsImpl;
+interface IVCProjectImpl;
+interface IVCFileImpl;
+interface IVCFilterImpl;
+interface IVCConfigurationImpl;
+interface IVCFileConfigurationImpl;
+interface IVCBuildPackageInternal;
+interface IVCProjectEngineImpl;
+interface IVCPropertyContainer;
+interface IVCPropertyPageObject;
+interface IVCBuildableItem;
+interface IVCExternalCookie;
+interface IVCSettingsPage;
+interface IVCToolImpl;
+interface IVCBuildEventToolInternal;
+interface IVCBuildEngineImpl;
+interface IVCStagedPropertyContainer;
+interface IVCCollectionProvider;
+
+// interfaces needed by this IDL file
+interface IVSMDPropertyBrowser;
+interface IVSMDPropertyGrid;
+
+// this interface gives us a way to refresh collections that might otherwise be static (done this way for perf reasons)
+[	
+	object,
+	uuid(1F866E1C-396D-11D3-8D52-00C04F8ECDB6),
+	helpstring("VCPlatformImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCCollectionProvider : IUnknown
+{
+	HRESULT UpdateItemsCollection([in] DWORD dwCookie);
+};
+
+// See also VCPlatform interface for publicly available properties & methods
+[	
+	object,
+	uuid(1F866E1C-396C-11D3-8D52-00C04F8ECDB6),
+	helpstring("VCPlatformImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCPlatformImpl : IUnknown
+{
+	HRESULT Close();
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	HRESULT Initialize( void );
+	HRESULT IsToolInToolset([in] toolSetType listStyle, [in] IVCToolImpl* pTool, [out] VARIANT_BOOL* pbInToolset);
+};
+
+// See also VCDebugSettings interface for publicly available properties & methods
+[
+	object,
+	local,
+	uuid(F5DEB408-4130-11d3-B279-0050041DB12A),
+	helpstring("IVCDebugSettingsImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCDebugSettingsImpl : IUnknown
+{
+	HRESULT WriteToStream([in] IStream *pStream);
+	HRESULT ReadFromStream([in] IStream *pStream);
+	HRESULT Close();
+	HRESULT CanGetDebugTargetInfo([out] VARIANT_BOOL* pbCanGet);
+	HRESULT GetDebugTargetInfo([in] VSDBGLAUNCHFLAGS grfLaunch, [in,out] VsDebugTargetInfo *pDebugTargetInfo, [in,out] DWORD *pdwCount );
+};
+
+// private 'helper' interface to implement the shell's 'globals' concept
+[
+	object,
+	uuid(33F3D4A0-6763-4b88-B8C5-478446EFB51D),
+	pointer_default(unique)
+]
+interface IVCGlobals : IUnknown
+{
+	HRESULT GetValue( [in] BSTR bstrName, [out] BSTR *pbstrValue );
+	HRESULT SetValue( [in] BSTR bstrName, [in] BSTR bstrValue );
+	HRESULT GetPersistance( [in] BSTR bstrName, [out] VARIANT_BOOL *pbPersists );
+	HRESULT SetPersistance( [in] BSTR bstrName, [in] VARIANT_BOOL bPersists );
+	HRESULT GetCount( [out] ULONG *count );
+	HRESULT GetFirstItem( [out] BSTR *pbstrName, [out] BSTR *pbstrValue );
+	HRESULT GetNextItem( [out] BSTR *pbstrName, [out] BSTR *pbstrValue );
+	HRESULT SaveObject( [in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent );
+};
+
+// See also VCProject interface for publicly available properties & methods
+[
+	object,
+	uuid(1F866E14-396C-11D3-8D52-00C04F8ECDB6),
+	helpstring("IVCProjectImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCProjectImpl : IVCCollectionProvider
+{
+	HRESULT Close();
+	HRESULT AddNewFile([in] IDispatch* pFile, [in] LPCOLESTR szRelativePath, [in] VARIANT_BOOL bFireEvents);
+	HRESULT CanAddFile2([in] BSTR File);
+	HRESULT CanAddFilter2([in] BSTR Filter, [in] VARIANT_BOOL setErrorInfo);
+	HRESULT RemoveExistingFile([in] IDispatch* pFile);
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	HRESULT FileNameValid([in] LPCOLESTR szFileName, [in] VARIANT_BOOL bSetErrorInfo); // reasonable place to keep this function
+	[propput] HRESULT IsDirty([in] VARIANT_BOOL boolDirty);
+	[propput] HRESULT IsConverted([in] VARIANT_BOOL boolDirty);		// force it dirty even during project load
+	[propget] HRESULT CanDirty([out, retval] VARIANT_BOOL* pbCanDirty);	// are we allowed to dirty?
+	HRESULT DoSave([in] LPCOLESTR szFileName);		// the 'true' internal save
+	HRESULT GetGlobals( [out] IVCGlobals **ppGlobals );
+	HRESULT AddChild([in] IDispatch* pChild);
+	HRESULT RemoveChild([in] IDispatch* pChild);
+	HRESULT AddConfigurationInternal([in] LPCOLESTR szConfigName);
+	HRESULT AddPlatformInternal([in] LPCOLESTR szPlatformName);
+	HRESULT RemovePlatformInternal([in] IDispatch* pPlatform);
+	HRESULT IsFileProbablyInProject([in] LPCOLESTR szProj, [out] VARIANT_BOOL *pb);
+	HRESULT UpdateWSDL([in] BSTR bstrUrl, [in] VARIANT_BOOL bExists, [out] BSTR *pbstrFile);
+	HRESULT AddWSDL([in] BSTR bstrURL, [in] VCFilter* pFilter, [out] IDispatch** ppFile);
+	HRESULT MakeOutputFileUnique([in] VCFile* pFile);
+};
+
+// See also VCFile interface for publicly available properties & methods
+[
+	object,
+	uuid(625C64A0-2C7E-11D3-87BF-A0494CC10000),
+	helpstring("IVCFileImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCFileImpl : IUnknown
+{
+	HRESULT AddConfiguration(VCConfiguration *pCfg);
+	HRESULT Initialize(IDispatch *pParent);
+	HRESULT Close();
+	[propput] HRESULT Parent([in] IDispatch *pVal);
+	[propput] HRESULT Project([in] IDispatch *pVal);
+	HRESULT GetFileConfigurationForProjectConfiguration([in] VCConfiguration* pProjCfg, [out] VCFileConfiguration** ppFileCfg);
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	HRESULT RemoveConfiguration( [in] IDispatch *pItem );
+};
+
+// See also VCFilter interface for publicly available properties & methods
+[
+	object,
+	uuid(1F866E15-396C-11D3-8D52-00C04F8ECDB6),
+	helpstring("IVCFilterImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCFilterImpl : IVCCollectionProvider
+{
+	HRESULT Close();
+	HRESULT AddItem([in] IDispatch *pItem);
+	HRESULT CanAddFile2([in] BSTR File);
+	HRESULT CanAddFilter2([in] BSTR Filter, [in] VARIANT_BOOL setErrorInfo);
+	HRESULT RemoveExistingFile([in] IDispatch* pFile);
+	HRESULT RemoveContents();
+	HRESULT IsMatch([in] LPCOLESTR szFileName, VARIANT_BOOL *pbIsMatch);
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	[propput] HRESULT Parent([in] IDispatch *pParent);
+	HRESULT AddChild([in] IDispatch* pChild);
+	HRESULT RemoveChild([in] IDispatch* pChild);
+};
+
+// See also VCConfiguration interface for publicly available properties & methods
+[
+	object,
+	local,
+	uuid(1F866E16-396C-11D3-8D52-00C04F8ECDB6),
+	helpstring("IVCConfigurationImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCConfigurationImpl : IUnknown
+{
+	HRESULT Close();
+	[propget] HRESULT IsValidConfiguration([out, retval] VARIANT_BOOL* pbIsValidConfiguration);	// is this config valid? (ex: Alpha cfg on Intel isn't)
+	[propget] HRESULT IsBuildable([out, retval] VARIANT_BOOL* pbIsBuildable);	// can we build this config?  (ex: utility project is not buildable)
+	[propget] HRESULT CanStartBuild([out, retval] VARIANT_BOOL* pbCanBuild);	// can we start building this config?  (i.e., no build currently in progress)
+	[propput] HRESULT Project([in] IDispatch * pVal);
+	[propget, hidden] HRESULT BaseToolList([out, retval] void** ppPtrList);	// BaseToolList -- needed for building
+	HRESULT GenerateToolWrapperList();	// set up the basic tool list for this cfg for building
+	HRESULT ClearToolWrapperList();
+	HRESULT TopLevelBuild([in] bldActionTypes buildType, [in] ULONG celtFiles, [in, size_is(celtFiles)] VCFile* pFiles[], 
+		[in] IVCBuildEngine* pBuildEngine, [in] IVCBuildErrorContext* pEC, [in] BOOL bRecurse, [in] BOOL fDoIdleAndPump,
+		[in] BOOL bCleanupEngine, [in] BOOL bProvideBanner, [out] long* warnings, [out] long* errors, [out] BOOL* bCancelled);
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	HRESULT WriteToStream([in] IStream *pStream);
+	HRESULT ReadFromStream([in] IStream *pStream);
+	HRESULT SetDefaultToolForFile(IDispatch *pDispFile);
+	[propget] HRESULT MrePath([out, retval] BSTR* pbstrMrePath);	// path to the .idb file
+	[propget] HRESULT Dependencies([out, retval] IVCBuildStringCollection** ppDependencies);	// dependencies at the config level; i.e., libs, etc.
+	[propget] HRESULT BuildOutputs([out, retval] IVCBuildStringCollection** ppOutputs);			// outputs at the config level; i.e., foo.exe, foo.pdb, etc.
+	[propget] HRESULT ProjectDependencies([out, retval] IVCBuildOutputItems** ppProjDependencies);	// dependencies at the project level; i.e., ones we'd get from the solution
+	[propget] HRESULT ProjectDependenciesAsStrings([out, retval] IVCBuildStringCollection** ppProjDependencies);	// dependencies at project level; returned as a string collection
+	[propget] HRESULT HasProjectDependencies([out, retval] VARIANT_BOOL* pbHasProjDeps);	// has dependencies at the project level
+	[propget] HRESULT KnownDeploymentDependencies([out, retval] IVCBuildStringCollection** ppDeployDependencies);	// deployment dependencies at project level; returned as a string collection
+	HRESULT Clone( [in] IVCPropertyContainer *pSource );
+	HRESULT SupportsBuildType([in] bldActionTypes buildType, [out] VARIANT_BOOL* pbSupports, [out] VARIANT_BOOL* pbAvailable);	// supports a particular build type; like link or a given build event
+	HRESULT CreatePageObject( [out]IUnknown **, [in]CLSID *, [in] IVCPropertyContainer *pSource, [in] IVCSettingsPage * );
+	HRESULT CreatesUniqueOutputName([in] IUnknown* pItem, [out] VARIANT_BOOL* pbUnique);	// will this item have a unique output name?
+	HRESULT GetPrimaryOutputFileID([out] IVCToolImpl** ppTool, [out] long* pnOutputID);	// ID ofthe property used to generate the primary output; used for error messages
+	[propget] HRESULT ErrorContext([out, retval] IVCBuildErrorContext** ppEC);	// returns error context, but only if we have one already
+	HRESULT AddTool([in] LPCOLESTR szToolName, [out] IDispatch** ppTool);	// adds a new tool to the config
+	[propget] HRESULT DeployableOutputsCount([out, retval] long* pnOutputs);	// number of deployable outputs
+	[propget] HRESULT DeployableOutputs([out, retval] IVCBuildStringCollection** ppDeployableOutputs);	// the deployable outputs
+	HRESULT DirtyOutputs([in] long nProjID);	// dirty outputs based on the passed-in project ID
+};
+
+// See also VCStyleSheet interface for publicly available properties & methods
+[
+	object,
+	local,
+	uuid(799A8CEB-A789-11d3-B99F-00C04F685D26),
+	helpstring("IVCStyleSheetImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCStyleSheetImpl : IUnknown
+{
+	[propput] HRESULT IsDirty([in] VARIANT_BOOL boolDirty);
+	HRESULT Close();
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	HRESULT Clone([in] IVCPropertyContainer *pSource);
+	HRESULT AddDependent([in] IVCPropertyContainer* pPropContainer, [in] BOOL bInformAboutAllProperties);
+	HRESULT RemoveDependent([in] IVCPropertyContainer* pPropContainer, [in] BOOL bInformAboutAllProperties);
+	HRESULT InformAboutProperties([in] IVCPropertyContainer* pPropContainer, [in] BOOL bAllProperties);
+	[propget] HRESULT LoadCount([out, retval] long* pnLoadCount);	// how many projects/style sheets have this style sheet loaded; used by project engine only
+	[propput] HRESULT LoadCount([in] long nLoadCount);
+	HRESULT CreatePageObject( [out]IUnknown **, [in]CLSID *, [in] IVCPropertyContainer *pSource, [in] IVCSettingsPage * );
+	HRESULT AddTool([in] LPCOLESTR szToolName, [out] IDispatch** ppTool);	// adds a new tool to the style sheet
+};
+
+// See also IVCFileConfiguration interface for publicly available properties & methods
+[
+	object,
+	uuid(1F866E17-396C-11D3-8D52-00C04F8ECDB6),
+	helpstring("IVCFileConfigurationImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCFileConfigurationImpl : IUnknown
+{
+	HRESULT Close();
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	[propput] HRESULT File([in] IDispatch* newVal);
+	[propget] HRESULT Configuration([out, retval] IDispatch* *pVal);
+	[propput] HRESULT Configuration([in] IDispatch* newVal);
+	[propget] HRESULT IgnoreDefaultTool([out, retval] VARIANT_BOOL* pbIgnoreDefaultTool);	// shortcut way to figure out if the user explicitly set the tool
+	HRESULT SetDefaultTool([in] IVCToolImpl* pTool, [in] BOOL bIsReallyDefault);	// set the default tool... use this to NOT trigger unassign/assign
+	HRESULT Clone( [in] IVCPropertyContainer *pSource );
+	HRESULT CreatePageObject( [out]IUnknown **, [in]GUID*, [in] IVCPropertyContainer *pSource, IVCSettingsPage * );
+	[propget] HRESULT OutputFile([out, retval] BSTR* pbstrFile);	// output file name if this file gets built
+	[propput] HRESULT OutputFile([in] BSTR bstrFile);	// output file name if this file gets built
+	[propget] HRESULT DefaultOutputFileFormat([out, retval] BSTR* pbstrOutMacro);	// macro to use for generating default output file if the original default isn't unique; REQUIRES a %d in it somewhere
+	HRESULT VerifyToolValid();	// verify that the currently assigned tool works with the current config properties
+};
+
+[
+	object,
+	uuid(8ABFB821-5120-11d3-B982-00C04F685D26),
+	dual,
+	helpstring("IVCBuildPackageInternal Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildPackageInternal : IUnknown
+{
+	HRESULT GetConfigurationDependencies([in] VCConfiguration* pProjConfig, [out] IVCBuildOutputItems** ppBuildOutputs);
+	HRESULT HasConfigurationDependencies([in] VCConfiguration* pProjConfig, [out] VARIANT_BOOL* pbHasDeps);
+	HRESULT GetUIConfigurationForVCConfiguration([in] VCConfiguration* pProjCfg, [out] IVCGenericConfiguration** ppGenCfg);
+	[propget] HRESULT SolutionFile([out, retval] BSTR* pbstrSolnFile);
+	HRESULT SaveProject([in] VCProject* pProject, [in] LPCOLESTR szFileName);
+	HRESULT AddConfigurationToProject([in] VCProject* pProject, [in] BSTR bstrConfigName);
+	HRESULT AddPlatformToProject([in] VCProject* pProject, [in] LPCOLESTR szPlatformName);
+	HRESULT RemovePlatformFromProject([in] VCProject* pProject, [in] IDispatch* pDispPlatform);
+	HRESULT ErrorCloseOfProject([in] VCProject* pProject);	// call this BEFORE removing a 'dead' project from the project collection; ERROR CLOSE OF PROJECT ONLY
+	HRESULT AllowedToAddFile([in] VCProject* pProject, [in] LPCOLESTR szFile, [in] VARIANT_BOOL bSetErrorInfo);
+	HRESULT AllowedToRemoveFile([in] VCProject* pProject, [in] LPCOLESTR szFile);
+	HRESULT InformFileAdded([in] VCProject* pProject, [in] LPCOLESTR szFile);
+	HRESULT InformFileRemoved([in] VCProject* pProject, [in] LPCOLESTR szFile);
+};
+
+[
+	object,
+	uuid(4F88C4A6-F38C-11D2-8D2B-00C04F8EEA30),
+	helpstring("IVCProjectEngineImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCProjectEngineEventsImpl : IUnknown
+{
+	HRESULT DoFireItemAdded(IDispatch *pItem, IDispatch *pItemParent);
+	HRESULT DoFireItemRemoved(IDispatch *pItem, IDispatch *pItemParent);
+	HRESULT DoFireItemRenamed(IDispatch *pItem, IDispatch *pItemParent, BSTR bstrOldName);
+	HRESULT DoFireItemMoved(IDispatch* pItem, IDispatch* pNewParent, IDispatch* pOldParent);
+	HRESULT DoFireItemPropertyChange(IDispatch *pItem, long lDispid);
+	HRESULT DoFireSccEvent(IDispatch *pItem, enumSccEvent event, [out, retval] VARIANT_BOOL *pRet);
+	HRESULT DoFireReportError([in] BSTR bstrErrMsg, [in] HRESULT hrReport, [in] BSTR bstrHelpKeyword);
+	HRESULT DoFireProjectBuildStarted(IDispatch *pCfg);
+	HRESULT DoFireProjectBuildFinished(IDispatch *pCfg, long warnings, long errors, VARIANT_BOOL bCancelled);
+}
+
+
+// See also VCProjectEngine interface for publicly available properties & methods
+[
+	object,
+	uuid(4F88C4A5-F38C-11D2-8D2B-00C04F8EEA30),
+	helpstring("IVCProjectEngineImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCProjectEngineImpl : IUnknown
+{
+	HRESULT Initialize([in] LONG_PTR hInstResources, [in] IUnknown *pSP, [in] IVSMDPropertyBrowser *pBrowser, [in] IVCBuildPackageInternal* pBldPkg);
+	HRESULT Close();
+	[propget] HRESULT SuppressUI([out, retval] VARIANT_BOOL *pVal);
+	[propput] HRESULT SuppressUI([in] VARIANT_BOOL newVal);
+	HRESULT DoFireItemAdded(IDispatch *pItem, IDispatch *pItemParent);
+	HRESULT DoFireItemRemoved(IDispatch *pItem, IDispatch *pItemParent);
+	HRESULT DoFireItemRenamed(IDispatch *pItem, IDispatch *pItemParent, BSTR bstrOldName);
+	HRESULT DoFireItemMoved(IDispatch* pItem, IDispatch* pNewParent, IDispatch* pOldParent);
+	HRESULT DoFireItemPropertyChange(IDispatch *pItem, long lDispid);
+	HRESULT DoFireSccEvent(IDispatch *pItem, enumSccEvent event, [out, retval] VARIANT_BOOL *pRet);
+	HRESULT DoFireReportError([in] BSTR bstrErrMsg, [in] HRESULT hrReport, [in] BSTR bstrHelpKeyword);
+	HRESULT DoFireProjectBuildStarted(IDispatch *pCfg);
+	HRESULT DoFireProjectBuildFinished(IDispatch *pCfg, long warnings, long errors, VARIANT_BOOL bCancelled);
+	HRESULT CreatePropertyGrid([out] IVSMDPropertyGrid **);
+	HRESULT GetHelp([out] Help **);
+	[propget] HRESULT BuildEngine([out, retval] IDispatch **ppBuildEngine);
+	HRESULT WriteLog([in] LPCOLESTR szOut, [in] BOOL bAppendCRLF);
+	[propget] HRESULT DialogOwner([out, retval] HWND *pHwnd);
+	HRESULT EnableModeless( [in] BOOL bEnable );
+	HRESULT LoadProjectUnderShell( [in] LPCOLESTR szProject, [out, retval] IDispatch **pProject );
+	HRESULT RemoveProjectUnderShell( [in] IDispatch *project );
+	HRESULT UnloadStyleSheet([in] IDispatch* pStyleSheet);	// call this to tell project engine we're done with this style sheet
+	[propget] HRESULT AllStyleSheets([out, retval] IDispatch** ppAllStyleSheets);	// this covers *all* loaded style sheets, not just ones in UI
+	HRESULT CreateHiddenStyleSheet([in] LPCOLESTR szStyleSheet, [out] IDispatch** ppDispStyle);
+	HRESULT LoadHiddenStyleSheet([in] LPCOLESTR szStyleSheet, [out] IDispatch** ppDispStyle);
+	HRESULT GetIVCProjConvert( [out] IUnknown ** ppDispProjConvert );
+	HRESULT GetDialogFont( [in] BOOL bBold, [out] HFONT *pHFont );
+	[propget] HRESULT VendorTools([out, retval] IDispatch** ppVendorTools);
+	HRESULT AddVendorTool([in] LPCOLESTR szToolName, [in] LPCOLESTR szToolGUID, [out] IDispatch** ppVendorTool);
+	HRESULT GetStringForPropertyID([in] long nID, [out] BSTR* pbstrString);
+};
+
+[
+	object,
+	uuid(A54AAE96-30C2-11D3-87BF-A04A4CC10000),
+	helpstring("IVCPropertyContainer Interface"),
+	pointer_default(unique)
+]
+interface IVCPropertyContainer : ISpecifyPropertyPages
+{
+	HRESULT GetStrProperty([in] long idProp, [out] BSTR* pbstrValue);
+	HRESULT SetStrProperty([in] long idProp, [in] BSTR bstrValue);
+	HRESULT GetIntProperty([in] long idProp, [out] long* pnValue);
+	HRESULT SetIntProperty([in] long idProp, [in] long nValue);
+	HRESULT GetBoolProperty([in] long idProp, [out] VARIANT_BOOL* pbValue);
+	HRESULT SetBoolProperty([in] long idProp, [in] VARIANT_BOOL bValue);
+	HRESULT SetProp([in] long id, [in] VARIANT varValue);
+	HRESULT GetProp([in] long id, [out] VARIANT * varValue);
+	HRESULT DirtyProp([in] long id);
+	HRESULT Clear([in] long id);
+	HRESULT GetLocalProp([in] long id, [out] VARIANT *pvarValue);
+	HRESULT GetParentProp([in] long id, [in] VARIANT_BOOL bAllowInherit, [out] VARIANT *pvarValue);
+	HRESULT ClearAll();
+	HRESULT GetMultiProp([in] long id, [in] LPCOLESTR szSeparator, [in] VARIANT_BOOL bSkipLocal, [out] BSTR *bstrValue);
+	HRESULT IsMultiProp([in] long id, [out] VARIANT_BOOL* pbIsMultiProp);
+	HRESULT GetMultiPropSeparator([in] long id, [out] BSTR* pbstrPreferred, [out] BSTR* pbstrAll);
+	HRESULT Evaluate([in] BSTR bstrSource, [out] BSTR *ExpandedString); 
+	HRESULT EvaluateWithValidation([in] BSTR bstrSource, [in] long idProp, [out] BSTR* pbstrExpanded);
+	HRESULT GetEvaluatedStrProperty([in] long idProp, [out] BSTR* pbstrValue);
+	HRESULT GetEvaluatedMultiProp([in] long idProp, [in] LPCOLESTR szSeparator, [in] VARIANT_BOOL bCollapseMultiples, 
+		[in] VARIANT_BOOL bCaseSensitive, [out] BSTR* pbstrValue);
+	HRESULT HasLocalStorage([in] VARIANT_BOOL bForSave, [out] VARIANT_BOOL* pbHasLocalStorage);
+	HRESULT Commit();
+	HRESULT GetStagedPropertyContainer([in] VARIANT_BOOL bCreateIfNecessary, [out] IVCStagedPropertyContainer** ppPropContainer);
+	HRESULT ReleaseStagedPropertyContainer();		// intended for use ONLY by the staged property container itself
+};
+
+// this interface is used by things working with a staged property container, i.e., property pages	
+[
+	object,
+	uuid(A54AAE97-30C2-11D3-87BF-A04A4CC10000),
+	helpstring("IVCStagedPropertyContainer Interface"),
+	pointer_default(unique)
+]
+interface IVCStagedPropertyContainer : IUnknown
+{
+	[propget] HRESULT Parent([out, retval] IVCPropertyContainer** ppParent);
+	HRESULT ClearPropertyRange([in] long nMinID, [in] long nMaxID);
+	HRESULT GetGrandParentProp([in] long id, [out] VARIANT *pvarValue);		// skip to parent of our non-staged parent
+	HRESULT Close();
+	HRESULT CommitPropertyRange([in] long nMinID, [in] long nMaxID);
+	HRESULT Reset();
+	HRESULT NextElement([out] long* pKey, [out] VARIANT* pVal);
+	HRESULT HoldStagedContainer();			// number of calls to Hold/Release StagedContainer need to match
+	HRESULT ReleaseStagedContainer();		// number of calls to Hold/Release StagedContainer need to match
+	HRESULT HasDefaultValue(DISPID dispid, BOOL *pfDefault);
+};
+
+[
+	object,
+	uuid(A602E9DD-5EE9-402a-8095-AE7E5712B687)
+]
+interface IVCPropertyPageObject : IUnknown
+{
+	HRESULT Close();
+};
+
+[
+	object,
+	local,
+	uuid(5FE8C153-3BDA-11D3-B976-00C04F685D26),
+	helpstring("IVCBuildableItem Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildableItem : IUnknown
+{
+	[propget] HRESULT ItemFileName([out, retval] BSTR *pVal);
+	[propget] HRESULT ItemFullPath([out, retval] BSTR* pbstrFullPath);
+	[propget] HRESULT ActionList([out, retval] IVCBuildActionList** ppActions);
+	[propget] HRESULT FileRegHandle([out, retval] void** pFileRegHandle);
+	HRESULT AssignActions(VARIANT_BOOL bOnOpen);	// set up actions for being able to build
+	HRESULT UnAssignActions(VARIANT_BOOL bOnClose);	// close down actions for being able to build
+	[propget] HRESULT ContentList([out, retval] IEnumVARIANT** ppContentList);
+	[propget] HRESULT Registry([out, retval] void** ppFileRegistry);
+	[propget] HRESULT ProjectConfiguration([out, retval] VCConfiguration** ppProjCfg);
+	[propget] HRESULT ProjectInternal([out, retval] VCProject** ppProject);
+	[propget] HRESULT ExistingBuildEngine([out, retval] IVCBuildEngine** ppBuildEngine);	// build engine, if there is one
+	[propget] HRESULT PersistPath([out, retval] BSTR* pbstrPersistPath);
+	HRESULT RefreshActionOutputs([in] long nPropID, [in] IVCBuildErrorContext* pEC);
+	HRESULT HandlePossibleCommandLineOptionsChange([in] IVCBuildErrorContext* pEC);
+	HRESULT ClearDirtyCommandLineOptionsFlag();
+};
+
+[
+	object,
+	local,
+	uuid(EB2E9E31-21B0-4243-9FD0-DAB4D83B63D6),
+	helpstring("IVCExternalCookie Interface"),
+	pointer_default(unique)
+]
+interface IVCExternalCookie : IUnknown
+{
+	[propget] HRESULT ExternalCookie([out, retval] void** ppVal);
+	[propput] HRESULT ExternalCookie([in] void* lVal);
+};
+
+[
+	object,
+	uuid(EB2E9E39-21B0-4243-9FD0-DAB4D83B63D6),
+	pointer_default(unique)
+]
+interface IVCSettingsPage : IUnknown
+{
+	HRESULT Dirty();
+	[propget] HRESULT NumObjects([out, retval] int* pNumObjects);
+	HRESULT GetObject([in] int index, IUnknown **ppUnkObject);
+	HRESULT Refresh();
+};
+
+[
+	object,
+	uuid(5FE8C146-3BDA-11D3-B976-00C04F685D26),
+	helpstring("IVCToolImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCToolImpl : IUnknown
+{
+	[propget] HRESULT DefaultExtensions([out, retval] BSTR *pVal);
+	[propput] HRESULT DefaultExtensions([in] BSTR newVal);
+	HRESULT GetAdditionalOptionsInternal([in] IUnknown* pItem, [in] VARIANT_BOOL bForBuild, [in] VARIANT_BOOL bSkipLocal, [out] BSTR* pbstrOptions);
+	HRESULT GetBuildDescription([in] IVCBuildAction* pAction, [out] BSTR* pbstrBuildDescription);
+	[propget] HRESULT ToolPathInternal([out, retval] BSTR* pbstrToolPath);	// repeat of ToolPath from tools so as to make command line building easier
+	[propget] HRESULT ToolShortName([out, retval] BSTR* pbstrToolName);	// short name for tool; e.g., VCCLCompilerTool (not localizable)
+	[propget] HRESULT ToolNameInternal([out, retval] BSTR* pbstrToolName);	// repeat of ToolName from tools so as to make filling file config property page easier
+	HRESULT GetAdditionalIncludeDirectoriesInternal([in] IVCPropertyContainer* pPropContainer, [out] BSTR* pbstrIncDirs);	// repeat of AdditionalIncludeDirectories from tools that support it
+	[propget] HRESULT IncludePathID([out, retval] long* pnIncludeID);	// what's the correct prop container ID for the associated include path?  0 if not applicable.
+	[propget] HRESULT Bucket([out, retval] long *pVal);
+	HRESULT MatchName([in] BSTR bstrName, [in] VARIANT_BOOL bFullOnly, [out] VARIANT_BOOL* pbMatches);
+	HRESULT GetCommandLineEx([in] IVCBuildAction *pAction, [in] IVCBuildableItem* pBuildableItem, 
+		[in] IVCBuildEngine* pBuildEngine, [in] IVCBuildErrorContext* pEC, [out] BSTR* bstrCmd);
+	HRESULT GetCommandLineOptions([in] IUnknown* pItem, [in] IVCBuildAction* pAction, [in] VARIANT_BOOL bIncludeAdditional, [in] commandLineOptionStyle fStyle, [out] BSTR* pVal);
+	HRESULT GetCommandLineOptionsForDisplay([in] IUnknown* pItem, [in] VARIANT_BOOL bIncludeAdditional, [out] BSTR* pVal);
+	HRESULT GetPages([out] CAUUID* pPages);
+	HRESULT IsTargetTool([in] IVCBuildAction* pAction, [out] VARIANT_BOOL* pbTargetTool); // tool operates on target, not on file
+	[propget] HRESULT PerformIfAble([out, retval] VARIANT_BOOL* pbPerformIfAble); // tool can run, even given previous errors
+	[propget] HRESULT IsComspecTool([out, retval] VARIANT_BOOL* pbIsComspecTool); // tool requires comspec
+	[propget] HRESULT IsCustomBuildTool([out, retval] VARIANT_BOOL* pbIsCustomTool);	// tool counts as a custom tool
+	HRESULT PrePerformBuildActions([in] bldActionTypes type, [in] IVCBuildActionList* pActions, 
+		[in] bldAttributes aob, [in] IVCBuildErrorContext* pEC, [out] actReturnStatus* pActReturn);
+	HRESULT PostPerformBuildActions([in] bldActionTypes type, [in] IVCBuildActionList* pActions, 
+		[in] bldAttributes aob, [in] IVCBuildErrorContext* pEC, [out] actReturnStatus* pActReturn);
+	HRESULT IsDeleteOnRebuildFile([in] LPCOLESTR szFile, [out] VARIANT_BOOL* pbDelOnRebuild);
+	HRESULT GetCommandLinesForBuild([in] IVCBuildActionList* pActions, [in] bldAttributes attrib, 
+		[in] IVCBuildEngine* pBldEngine, [in] IVCBuildErrorContext* pErrorContext, [out] IVCCommandLineList** ppCmds);
+	HRESULT GenerateOutput([in] long type, [in] IVCBuildActionList* pActions, [in] IVCBuildErrorContext* pEC);
+	HRESULT AffectsOutput([in] long nPropID, [out] VARIANT_BOOL* pbAffectsOutput);	// this property affects the output from the build
+	HRESULT IsMultiProp([in] long nPropID, [out] VARIANT_BOOL* pbIsMultiProp);	// is this property a multi-prop?
+	HRESULT GetMultiPropSeparator([in] long id, [out] BSTR* pbstrPreferred, [out] BSTR* pbstrAll);
+	HRESULT SaveObject([in] IStream *xml, [in] IVCPropertyContainer *pPropCnt, [in] long nStartIndent);
+	HRESULT WriteToStream([in] IStream *pStream, [in] IVCPropertyContainer* pPropContainer);
+	HRESULT ReadFromStream([in] IStream *pStream, [in] IVCPropertyContainer* pPropContainer);
+	HRESULT CreateToolObject([in] IVCPropertyContainer* pPropContainer, [out] IVCToolImpl** ppToolObject);
+	HRESULT HasPrimaryOutputFromTool([in] IUnknown* pItem, [in] VARIANT_BOOL bSchmoozeOnly, [out] VARIANT_BOOL* pbHasPrimaryOutput);	// returns TRUE only if tool generates a primary output (ex: linker)
+	HRESULT GetPrimaryOutputFromTool([in] IUnknown* pItem, [in] VARIANT_BOOL bSchmoozeOnly, [out] BSTR* pbstrPath);	// return a value only if tool generates a primary output (ex: linker)
+	HRESULT GetPrimaryOutputIDFromTool([in] IUnknown* pItem, [in] VARIANT_BOOL bSchmoozeOnly, [out] long* pnOutputID);	// return a value only if tool generates a primary output (ex: linker)
+	HRESULT GetDefaultOutputFileFormat([in] IUnknown* pItem, [out] BSTR* pbstrOutMacro);	// macro to use for generating default output file if the original default isn't unique
+	HRESULT GetImportLibraryFromTool([in] IUnknown* pItem, [out] BSTR* pbstrPath);	// return a value only if the tool generates an import library
+		[propget] HRESULT IsFileTool([out, retval] VARIANT_BOOL* pbIsFileTool);			// tool can operate on a file (ex: CL)
+	HRESULT SetPrimaryOutputForTool([in] IUnknown* pItem, [in] BSTR bstrFile);		// sets the primary output for a tool
+	HRESULT GetProgramDatabaseFromTool([in] IVCPropertyContainer* pContainer, [in] VARIANT_BOOL bSchmoozeOnly, [out] BSTR* pbstrPDB);	// return a value only if the tool generates a PDB file; bSchmoozeOnly specifies whether target level or file level is desired
+	HRESULT Close();
+	HRESULT HasDependencies([in] IVCBuildAction* pAction, [out] VARIANT_BOOL* pbHasDependencies);
+	HRESULT GetDependencies([in] IVCBuildAction* pAction, [out] IVCBuildStringCollection** ppStrings,
+		[out] VARIANT_BOOL* bUpToDate);
+	HRESULT ScanDependencies([in] IVCBuildAction* pAction, [in] IVCBuildErrorContext* pEC, [in] VARIANT_BOOL bWriteOutput);
+	[local] HRESULT GenerateDependencies([in] IVCBuildAction* pAction, [in] void* frhFile, [in] IVCBuildErrorContext* pErrorContext);
+	HRESULT CanScanForDependencies([in] VARIANT_BOOL* pbIsScannable);
+	HRESULT GetCleanCommandLineEx([in] IVCBuildAction *pAction, [in] IVCBuildableItem* pBuildableItem, 
+		[in] IVCBuildEngine* pBuildEngine, [in] IVCBuildErrorContext* pEC, [out] BSTR* bstrCmd);
+	HRESULT GetCommandLinesForClean([in] IVCBuildActionList* pActions, [in] bldAttributes attrib, 
+		[in] IVCBuildEngine* pBldEngine, [in] IVCBuildErrorContext* pErrorContext, [out] IVCCommandLineList** ppCmds);
+	HRESULT GetRebuildCommandLineEx([in] IVCBuildAction *pAction, [in] IVCBuildableItem* pBuildableItem, 
+		[in] IVCBuildEngine* pBuildEngine, [in] IVCBuildErrorContext* pEC, [out] BSTR* bstrCmd);
+	HRESULT GetCommandLinesForRebuild([in] IVCBuildActionList* pActions, [in] bldAttributes attrib, 
+		[in] IVCBuildEngine* pBldEngine, [in] IVCBuildErrorContext* pErrorContext, [out] IVCCommandLineList** ppCmds);
+	HRESULT IsSpecialConsumable([in] LPCOLESTR szFileName, [out] VARIANT_BOOL* pbSpecial);
+	[propget] HRESULT ToolDisplayIndex( [out, retval] long* index );
+	HRESULT DirtyCommandLineOptions([in] long nLowPropID, [in] long nHighPropID, [in] VARIANT_BOOL bDirty);	// set/clear dirty state based on prop ID range
+	HRESULT AffectsTool([in] long nLowPropID, [in] long nHighPropID, [out] VARIANT_BOOL* pbAffects);	// some property in the range affects this tool
+	HRESULT CommandLineOptionsAreDirty([in] IVCPropertyContainer* pPropContainer, [out] VARIANT_BOOL* pbIsDirty);	// read-only access to command line option dirty state
+	HRESULT OutputsAreDirty([in] IVCPropertyContainer* pPropContainer, [out] VARIANT_BOOL* pbIsDirty);	// read-only access to output dirty state
+	HRESULT ClearDirtyOutputs([in] IVCPropertyContainer* pPropContainer);	// clear out the dirty state, if any, for the outputs
+	HRESULT HasVirtualLocalStorage([in] IVCPropertyContainer* pPropContainer, [out] VARIANT_BOOL* pbHasVirtualLocalStorage);
+	HRESULT CreatePageObject( [out]IUnknown **, [in]CLSID *, [in] IVCPropertyContainer *pSource, [in] IVCSettingsPage * );
+	HRESULT InformUserAboutBadFileName([in] IVCBuildErrorContext* pEC, [in] IVCPropertyContainer* pPropContainer, 
+		[in] long nPropID, [in] LPCOLESTR szFile);
+	[propget] HRESULT FullIncludePathInternal([out, retval] BSTR* pbstrFullIncludePath);
+	HRESULT GetDeploymentDependencies([in] IVCBuildAction* pAction, [in, out] IVCBuildStringCollection** ppDeployDepStrings);
+	HRESULT GetDeployableOutputsCount([in] IVCPropertyContainer* pPropContainer, [out, retval] long* pnOutputs);	// number of deployable outputs
+	HRESULT GetDeployableOutputs([in] IVCPropertyContainer* pPropContainer, [out, retval] IVCBuildStringCollection** ppDeployableOutputs);	// the deployable outputs
+};
+
+// see also interfaces VCPreBuildEventTool, VCPreLinkEventTool, and VCPostBuildEventTool
+[
+	object,
+	uuid(4D80D0D9-51CB-11d3-B982-00C04F685D26),
+	helpstring("IVCBuildEventToolInternal Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildEventToolInternal : IUnknown
+{
+	[propget, nonbrowsable] HRESULT CommandLineInternal([out, retval] BSTR *pVal);
+	[propput, nonbrowsable] HRESULT CommandLineInternal([in] BSTR newVal);
+	[propget, nonbrowsable] HRESULT DescriptionInternal([out, retval] BSTR *pVal);
+	[propput, nonbrowsable] HRESULT DescriptionInternal([in] BSTR newVal);
+	[propget, nonbrowsable] HRESULT ExcludedFromBuildInternal([out, retval] VARIANT_BOOL* pbExcludedFromBuild);
+	[propput, nonbrowsable] HRESULT ExcludedFromBuildInternal([in] VARIANT_BOOL bExcludedFromBuild);
+};
+	
+// IVCNodeFactory used for reading XML project files
+[
+	object,
+	uuid(F85354E3-7C5C-45f2-BEAC-FEAE827B2671),
+	pointer_default(unique)
+]
+interface IVCNodeFactory : IUnknown
+{
+	[propput] HRESULT Name( [in] BSTR bstrName );
+	[propget] HRESULT Root( [out, retval] IDispatch **ppDisp );
+	[propget] HRESULT FileEncoding( [out, retval] BSTR* pbstrEncoding );
+};
+
+// IVCXMLFile used for writing XML project files
+[
+	object,
+	uuid(C3E92E87-00C7-45fb-8D14-E13826157DED),
+	pointer_default(unique)
+]
+interface IVCXMLFile : IUnknown
+{
+	HRESULT Initialize( [in] LPCOLESTR szFilename, [in] DWORD dwBufSize, [in] LPCOLESTR szFileEncoding );
+};
+
+[
+	object,
+	local,
+	uuid(784E3E24-2F27-11D3-B970-00C04F685D26),
+	helpstring("IVCBuildEngineImpl Interface"),
+	pointer_default(unique)
+]
+interface IVCBuildEngineImpl : IUnknown
+{
+	[propget] HRESULT BuildThread([out, retval] IVCBuildThread** pVal);
+	[propget] HRESULT ErrorContext([out, retval] IVCBuildErrorContext** ppBldErrorContext);
+	[propput] HRESULT ErrorContext([in] IVCBuildErrorContext* pBldErrorContext);
+	[propget] HRESULT DoIdleAndPump([out, retval]  BOOL* pbIdleAndPump);
+	[propput] HRESULT DoIdleAndPump([in] BOOL bIdleAndPump);
+	HRESULT OpenProjectConfigurationLog([in] VCConfiguration* pProjCfg);
+	HRESULT CloseProjectConfigurationLog();
+	[hidden] HRESULT DoBuild([in] void* pcrBuild, [in] BOOL bIsProjectBuild, [in] IVCBuildErrorContext* pEC, [in] void* frhStart, 
+		[in] bldAttributes aob, [in] bldActionTypes type, [in] BOOL fRecurse, [in] IVCBuildAction* pAction, 
+		[out] BuildResults* pbrResults);
+	[propget] HRESULT ScannerCache([out, retval] void** ppScannerCache);
+	HRESULT HasBuildState([in] void* pcrBuild, [in] IVCBuildErrorContext* pEC, [out, retval] VARIANT_BOOL* pbUpToDate);
+	HRESULT InitializeSpawner([in] BOOL bHidden);
+	HRESULT TerminateSpawner();
+	HRESULT SpawnBuild([in] IVCCommandLineList* pCmds, [in] LPCOLESTR szDir, [in] BOOL fCheckForComspec, [in] BOOL fIgnoreErrors, 
+		[in] IVCBuildErrorContext* pEC, [in] BOOL fAsyncSpawn, [out] long* nRetVal);
+	HRESULT InitializeForBuild();	// zeroes out any counters for the build, etc. -- only need to call this if reusing build engine object
+	[propget] HRESULT LogFile( [out, retval] BSTR *bstrLogFile );
+	HRESULT GetDeploymentDependencies([in] void* pcrBuild, [out] IVCBuildStringCollection** ppDeployStrings);
+};
+	

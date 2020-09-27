@@ -1,0 +1,65 @@
+TEST WIZARD TROUBLE SHOOTING TIPS
+
+This document contains tips for trouble shooting the most common Test Wizard Problems.
+
+*************** USING TEST WIZARD  **************
+
+PROBLEM: "Project Type" drop down does not list TESTWIZ.DLL
+
+SOLUTION: Make sure TESTWIZ.DLL is placed in the APPWIZ directory which is under the IDE's BIN directory. You should have something like this:
+C:\IDE\BIN\APPWIZ\TESTWIZ.DLL
+		  APIDATA.TXT
+
+*If you don't have an APPWIZ directory create one.
+
+PROBLEM:Running Test wizard asserts or crashes before the first dialog is shown.
+
+SOLUTION 1: Make sure the binaries that live in IDE\BIN are debug. The retail version of the IDE can't load testwiz.dll.  
+Soon a new retail version of testwiz.dll  will be checked in that will work with the release IDE.
+
+SOLUTION 2: Your MFCAPPWZ.DLL in the IDE\BIN directory may be out of sync.  If ssyncing to the latest does not fix the problem please let EnriqueP know so he can update TESTWIZ.DLL.
+
+
+PROBLEM: "Can't Open API document file" alert comes up.
+
+SOLUTION: Make sure APIDATA.TXT is placed in IDE\BIN\APPWIZ.
+
+PROBLEM: The Scripts Dialog displays bogus data in its listboxes.
+
+SOLUTION: Verify the APIDATA.TXT has valid data and the data is written in a valid format. See CUSTAPI.TXT for a brief explanation of the format.
+
+****** BUILDING TEST WIZARD GENERATED TESTS **********
+
+PROBLEM: Compiler errors "Can't find *.h or *.cpp file"
+
+SOLUTION: Use the Tools.Options.Directories dialog to add all the CAFE include files:
+C:\CAFE\CAFE\SRC
+C:\CAFE\CAFE\INC
+C:\CAFE\CAFE\WB
+C:\CAFE\CAFE\WB\SYM
+
+*Also make sure you have the MFC include paths correct.
+
+PROBLEM: Linker errors "Can't find *.lib"
+
+SOLUTION 1: Use the Tools.Options.Directories dialog to add all the CAFE libs : 
+C:\CAFE\CAFE\LIB\X86
+		 ALPHA
+		 MIPS
+
+SOLUTION 2: Make sure your CAFE libs are built and up to date. If they need rebuilding run NMAKE from the \CAFE\CAFE\SRC directory.  Use the switch DEBUG=1 (or =0) depending on the type of libs you need.
+Also create the WB lib by running NMAKE from \CAFE\CAFE\WB
+
+
+PROBLEM: Other Compiler errors such as "undeclared symbol".
+
+SOLUTION: If you added API's while using the test wizard, it is possible that you might need to declare variables for  API parameters or fix any typos you might have introduced.
+
+**************  Executing the tests  *****************
+You should be able to launch both V3 and V2 IDE versions for debug or retail versions.  Make sure your Workbench Info settings point to the correct IDE.
+
+************* FOR MORE INFO   ********
+Read the Readme.txt file
+Contact EnriqueP or IvanL
+
+		

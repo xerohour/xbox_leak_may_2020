@@ -1,0 +1,26 @@
+TARGETPATH=..\..\..\bin
+TARGETNAME=something
+TARGETTYPE=UMAPPL_NOLIB
+
+SOURCES=mpatch.rc
+
+INCLUDES=..\..
+
+USE_CRTDLL=1
+
+UMAPPL=mpatch
+UMTYPE=console
+UMRES=obj\*\mpatch.res
+UMLIBS=..\..\..\bin\*\mspatchl.lib \
+       $(WSDK_LIB_PATH)\user32.lib
+
+# C_DEFINES=$(C_DEFINES) /DTESTCODE=1
+
+# C_DEFINES=$(C_DEFINES) -DIMPORTING_PATCHAPI_DLL=1
+# UMLIBS=..\..\..\bin\*\mspatchc.lib
+
+MSC_WARNING_LEVEL=/W4
+
+LINKER_FLAGS=$(LINKER_FLAGS) /section:.shared,rws
+
+NTTARGETFILES=COPYTOBIN
